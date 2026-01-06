@@ -41,6 +41,7 @@ export default function ProvidersPage() {
 
     const response = await fetch(`/api/providers?${params.toString()}`);
     const data = await response.json();
+    console.log("Fetched providers:", data);
     setProviders(data);
     setLoading(false);
   };
@@ -63,7 +64,7 @@ export default function ProvidersPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Care Providers</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Care Providers [v2-UPDATED]</h1>
           <p className="text-gray-600">Browse our nationwide directory of elder care providers</p>
         </div>
 
@@ -220,9 +221,9 @@ export default function ProvidersPage() {
                     {provider.description}
                   </p>
                 )}
-                {(provider.careTypesOffered?.length || 0) > 0 && (
+                {Array.isArray(provider.careTypesOffered) && provider.careTypesOffered.length > 0 && (
                   <div className="flex flex-wrap gap-1">
-                    {provider.careTypesOffered?.slice(0, 3).map((care) => (
+                    {(provider.careTypesOffered || []).slice(0, 3).map((care) => (
                       <span
                         key={care}
                         className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
@@ -230,7 +231,7 @@ export default function ProvidersPage() {
                         {formatProviderType(care)}
                       </span>
                     ))}
-                    {(provider.careTypesOffered?.length || 0) > 3 && (
+                    {provider.careTypesOffered.length > 3 && (
                       <span className="text-xs text-gray-500">
                         +{provider.careTypesOffered.length - 3} more
                       </span>
