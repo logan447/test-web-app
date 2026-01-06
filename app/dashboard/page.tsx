@@ -14,8 +14,11 @@ export default async function DashboardPage() {
   const isFamily = session.user.role === "FAMILY";
   const isProvider = session.user.role === "PROVIDER";
 
+  console.log("Dashboard - User role:", session.user.role, "isFamily:", isFamily);
+
   // Redirect family users to the home page (browse providers)
   if (isFamily) {
+    console.log("Redirecting family user to /");
     redirect("/");
   }
 
