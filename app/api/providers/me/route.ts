@@ -3,20 +3,20 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const provider = await prisma.provider.findUnique({
-      where: { id: params.id },
+      where: { userId: session.user.id },
     });
 
     if (!provider) {
-      return NextResponse.json(
-        { error: "Provider not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Provider profile not found" }, { status: 404 });
     }
 
     return NextResponse.json(provider);
@@ -29,34 +29,12 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Verify the provider belongs to the logged-in user
-    const existingProvider = await prisma.provider.findUnique({
-      where: { id: params.id },
-    });
-
-    if (!existingProvider) {
-      return NextResponse.json(
-        { error: "Provider not found" },
-        { status: 404 }
-      );
-    }
-
-    if (existingProvider.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "Unauthorized to update this provider" },
-        { status: 403 }
-      );
     }
 
     const body = await req.json();
@@ -77,9 +55,21 @@ export async function PATCH(
       isActive,
     } = body;
 
-    const provider = await prisma.provider.update({
-      where: { id: params.id },
+    // Check if provider already exists
+    const existingProvider = await prisma.provider.findUnique({
+      where: { userId: session.user.id },
+    });
+
+    if (existingProvider) {
+      return NextResponse.json(
+        { error: "Provider profile already exists" },
+        { status: 400 }
+      );
+    }
+
+    const provider = await prisma.provider.create({
       data: {
+        userId: session.user.id,
         name,
         providerType,
         description,
@@ -93,15 +83,15 @@ export async function PATCH(
         website,
         yearsInBusiness,
         licenseNumber,
-        isActive,
+        isActive: isActive ?? true,
       },
     });
 
-    return NextResponse.json(provider);
+    return NextResponse.json(provider, { status: 201 });
   } catch (error) {
-    console.error("Error updating provider:", error);
+    console.error("Error creating provider:", error);
     return NextResponse.json(
-      { error: "Failed to update provider" },
+      { error: "Failed to create provider" },
       { status: 500 }
     );
   }
