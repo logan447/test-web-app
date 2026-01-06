@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
+import MainNav from "@/components/Navigation/MainNav";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -13,29 +14,14 @@ export default async function DashboardPage() {
   const isFamily = session.user.role === "FAMILY";
   const isProvider = session.user.role === "PROVIDER";
 
+  // Redirect family users to the home page (browse providers)
+  if (isFamily) {
+    redirect("/");
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-primary-600">
-                Olera
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {session.user.name}</span>
-              <Link
-                href="/api/auth/signout"
-                className="text-gray-700 hover:text-primary-600"
-              >
-                Sign Out
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MainNav />
 
       {/* Dashboard Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
