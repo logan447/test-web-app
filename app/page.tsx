@@ -1,45 +1,10 @@
 import Link from "next/link";
+import MainNav from "@/components/Navigation/MainNav";
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-primary-600">
-                Olera
-              </Link>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/providers" className="text-gray-700 hover:text-primary-600">
-                Find Care
-              </Link>
-              <Link href="/about" className="text-gray-700 hover:text-primary-600">
-                About
-              </Link>
-              <Link href="/for-providers" className="text-gray-700 hover:text-primary-600">
-                For Providers
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/login"
-                className="text-gray-700 hover:text-primary-600"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/signup"
-                className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MainNav />
 
       {/* Hero Section */}
       <main className="flex-grow">
