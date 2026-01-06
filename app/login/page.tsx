@@ -36,9 +36,6 @@ export default function LoginPage() {
       const userResponse = await fetch(`/api/user/role?email=${encodeURIComponent(email)}`);
       const userData = await userResponse.json();
 
-      console.log("Login - User data from API:", userData);
-      console.log("Login - Role:", userData?.role, "Redirecting to:", userData?.role === "FAMILY" ? "/" : "/dashboard");
-
       // Redirect based on user role
       if (userData?.role === "FAMILY") {
         router.push("/");
