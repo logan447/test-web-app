@@ -32,12 +32,12 @@ export default function LoginPage() {
         return;
       }
 
-      // Fetch session to check user role
-      const response = await fetch("/api/auth/session");
-      const session = await response.json();
+      // Fetch user role from our API
+      const userResponse = await fetch(`/api/user/role?email=${encodeURIComponent(email)}`);
+      const userData = await userResponse.json();
 
       // Redirect based on user role
-      if (session?.user?.role === "FAMILY") {
+      if (userData?.role === "FAMILY") {
         router.push("/");
       } else {
         router.push("/dashboard");
