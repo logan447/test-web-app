@@ -171,18 +171,30 @@ export default function MainNav() {
                 </button>
 
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <div className="px-4 py-2 border-b border-gray-200">
+                    <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
+                    <p className="text-xs text-gray-500">{session.user?.email}</p>
+                  </div>
                   <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Dashboard
                   </Link>
-                  <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Your Care Profile
+                  <Link href="/providers" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Browse Providers
+                  </Link>
+                  <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Saved
                   </Link>
                   <Link href="/dashboard/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Requests
                   </Link>
-                  <Link href="/api/auth/signout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Log Out
+                  <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Care Profile
                   </Link>
+                  <div className="border-t border-gray-200">
+                    <Link href="/api/auth/signout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Log Out
+                    </Link>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -266,8 +278,24 @@ export default function MainNav() {
             <div className="border-t mt-4 pt-4">
               {session ? (
                 <>
+                  <div className="px-3 py-2 border-b border-gray-200">
+                    <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
+                    <p className="text-xs text-gray-500">{session.user?.email}</p>
+                  </div>
                   <Link href="/dashboard" className="block px-3 py-2 text-gray-700">
                     Dashboard
+                  </Link>
+                  <Link href="/providers" className="block px-3 py-2 text-gray-700">
+                    Browse Providers
+                  </Link>
+                  <Link href="/dashboard/saved" className="block px-3 py-2 text-gray-700">
+                    Saved
+                  </Link>
+                  <Link href="/dashboard/requests" className="block px-3 py-2 text-gray-700">
+                    Requests
+                  </Link>
+                  <Link href="/dashboard/care-profile" className="block px-3 py-2 text-gray-700">
+                    Care Profile
                   </Link>
                   <Link href="/api/auth/signout" className="block px-3 py-2 text-gray-700">
                     Log Out
