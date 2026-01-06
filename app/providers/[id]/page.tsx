@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import MainNav from "@/components/Navigation/MainNav";
 
 type Provider = {
   id: string;
@@ -41,11 +42,11 @@ export default function ProviderProfilePage() {
         const data = await response.json();
         setProvider(data);
       } else {
-        router.push("/providers");
+        router.push("/");
       }
     } catch (error) {
       console.error("Error fetching provider:", error);
-      router.push("/providers");
+      router.push("/");
     } finally {
       setLoading(false);
     }
@@ -59,8 +60,11 @@ export default function ProviderProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading provider...</p>
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <div className="flex items-center justify-center py-24">
+          <p className="text-gray-600">Loading provider...</p>
+        </div>
       </div>
     );
   }
@@ -71,32 +75,15 @@ export default function ProviderProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link href="/" className="text-2xl font-bold text-primary-600">
-              Olera
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/providers" className="text-gray-700 hover:text-primary-600">
-                Browse Providers
-              </Link>
-              <Link href="/dashboard" className="text-gray-700 hover:text-primary-600">
-                Dashboard
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MainNav />
 
       {/* Provider Profile */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href="/providers"
+          href="/"
           className="text-primary-600 hover:text-primary-700 mb-6 inline-block"
         >
-          ← Back to Providers
+          ← Back to Browse Providers
         </Link>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
@@ -129,7 +116,7 @@ export default function ProviderProfilePage() {
           )}
 
           {/* Care Types */}
-          {provider.careTypesOffered.length > 0 && (
+          {Array.isArray(provider.careTypesOffered) && provider.careTypesOffered.length > 0 && (
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Care Services Offered</h2>
               <div className="flex flex-wrap gap-2">
