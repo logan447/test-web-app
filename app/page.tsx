@@ -1,160 +1,255 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
 
+type Provider = {
+  id: string;
+  name: string;
+  providerType: string;
+  city: string;
+  state: string;
+  description: string | null;
+  careTypesOffered: string[];
+  licensed: boolean;
+};
+
 export default function Home() {
+  const router = useRouter();
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [providerType, setProviderType] = useState("");
+  const [careType, setCareType] = useState("");
+
+  useEffect(() => {
+    fetchProviders();
+  }, []);
+
+  const fetchProviders = async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (search) params.append("search", search);
+    if (city) params.append("city", city);
+    if (state) params.append("state", state);
+    if (providerType) params.append("providerType", providerType);
+    if (careType) params.append("careType", careType);
+
+    const response = await fetch(`/api/providers?${params.toString()}`);
+    const data = await response.json();
+    setProviders(data);
+    setLoading(false);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchProviders();
+  };
+
+  const formatProviderType = (type: string) => {
+    return type.split('_').map(word =>
+      word.charAt(0) + word.slice(1).toLowerCase()
+    ).join(' ');
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Section */}
-      <main className="flex-grow">
-        <div className="bg-gradient-to-b from-primary-50 to-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-            <div className="text-center">
-              <h1 className="text-5xl font-bold text-gray-900 mb-6">
-                Elder Care Made Simple
-              </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                Find the right care for your loved ones. Connect with trusted providers
-                nationwide. One platform, transparent information, human connection.
-              </p>
-              <div className="flex justify-center space-x-4">
-                <Link
-                  href="/providers"
-                  className="bg-primary-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-700 transition"
-                >
-                  Find Care Providers
-                </Link>
-                <Link
-                  href="/for-providers"
-                  className="bg-white text-primary-600 px-8 py-3 rounded-lg text-lg font-semibold border-2 border-primary-600 hover:bg-primary-50 transition"
-                >
-                  I'm a Provider
-                </Link>
-              </div>
-            </div>
-          </div>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Care Providers</h1>
+          <p className="text-gray-600">Browse our nationwide directory of elder care providers</p>
         </div>
 
-        {/* Features Section */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold mb-2">Comprehensive Directory</h3>
-              <p className="text-gray-600">
-                Browse home care, assisted living, memory care, hospice, and independent caregivers all in one place.
-              </p>
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Search
+                </label>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Provider name or keywords..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Enter city"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  State
+                </label>
+                <input
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  placeholder="e.g., CA, NY"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Provider Type
+                </label>
+                <select
+                  value={providerType}
+                  onChange={(e) => setProviderType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">All Types</option>
+                  <option value="HOME_CARE">Home Care</option>
+                  <option value="HOME_HEALTH">Home Health</option>
+                  <option value="ASSISTED_LIVING">Assisted Living</option>
+                  <option value="INDEPENDENT_LIVING">Independent Living</option>
+                  <option value="MEMORY_CARE">Memory Care</option>
+                  <option value="NURSING_HOME">Nursing Home</option>
+                  <option value="HOSPICE">Hospice</option>
+                  <option value="REHABILITATION">Rehabilitation</option>
+                  <option value="INDEPENDENT_CAREGIVER">Independent Caregiver</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Care Type
+                </label>
+                <select
+                  value={careType}
+                  onChange={(e) => setCareType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">All Care Types</option>
+                  <option value="COMPANION_CARE">Companion Care</option>
+                  <option value="PERSONAL_CARE">Personal Care</option>
+                  <option value="SKILLED_NURSING">Skilled Nursing</option>
+                  <option value="MEMORY_CARE">Memory Care</option>
+                  <option value="HOSPICE_CARE">Hospice Care</option>
+                  <option value="RESPITE_CARE">Respite Care</option>
+                  <option value="LIVE_IN_CARE">Live-In Care</option>
+                </select>
+              </div>
             </div>
-            <div className="text-center p-6">
-              <div className="text-4xl mb-4">🤝</div>
-              <h3 className="text-xl font-semibold mb-2">Two-Way Matching</h3>
-              <p className="text-gray-600">
-                Connect directly with providers who meet your needs. Receive and send consultation requests.
-              </p>
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setCity("");
+                  setState("");
+                  setProviderType("");
+                  setCareType("");
+                  fetchProviders();
+                }}
+                className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300"
+              >
+                Clear
+              </button>
             </div>
-            <div className="text-center p-6">
-              <div className="text-4xl mb-4">💬</div>
-              <h3 className="text-xl font-semibold mb-2">Transparent Communication</h3>
-              <p className="text-gray-600">
-                Track all conversations, requests, and consultations in one organized dashboard.
-              </p>
-            </div>
-          </div>
+          </form>
         </div>
 
-        {/* How It Works */}
-        <div className="bg-gray-50 py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
-            <div className="grid md:grid-cols-2 gap-12">
-              <div>
-                <h3 className="text-2xl font-semibold mb-4 text-primary-600">For Families</h3>
-                <ol className="space-y-4">
-                  <li className="flex">
-                    <span className="font-bold text-primary-600 mr-3">1.</span>
-                    <span>Create a care profile describing your needs</span>
-                  </li>
-                  <li className="flex">
-                    <span className="font-bold text-primary-600 mr-3">2.</span>
-                    <span>Browse providers or wait for matches</span>
-                  </li>
-                  <li className="flex">
-                    <span className="font-bold text-primary-600 mr-3">3.</span>
-                    <span>Send or receive consultation requests</span>
-                  </li>
-                  <li className="flex">
-                    <span className="font-bold text-primary-600 mr-3">4.</span>
-                    <span>Connect with the right care provider</span>
-                  </li>
-                </ol>
-              </div>
-              <div>
-                <h3 className="text-2xl font-semibold mb-4 text-primary-600">For Providers</h3>
-                <ol className="space-y-4">
-                  <li className="flex">
-                    <span className="font-bold text-primary-600 mr-3">1.</span>
-                    <span>Claim or create your provider profile</span>
-                  </li>
-                  <li className="flex">
-                    <span className="font-bold text-primary-600 mr-3">2.</span>
-                    <span>Review care profiles in your area</span>
-                  </li>
-                  <li className="flex">
-                    <span className="font-bold text-primary-600 mr-3">3.</span>
-                    <span>Respond to requests or reach out proactively</span>
-                  </li>
-                  <li className="flex">
-                    <span className="font-bold text-primary-600 mr-3">4.</span>
-                    <span>Connect with families who need your services</span>
-                  </li>
-                </ol>
-              </div>
-            </div>
+        {/* Results */}
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Loading providers...</p>
           </div>
-        </div>
+        ) : providers.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg shadow">
+            <p className="text-gray-600 mb-4">No providers found. Try adjusting your search criteria.</p>
+            <Link
+              href="/dashboard"
+              className="text-primary-600 hover:text-primary-700 font-medium"
+            >
+              Return to Dashboard
+            </Link>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {providers.map((provider) => (
+              <Link
+                key={provider.id}
+                href={`/providers/${provider.id}`}
+                className="bg-white rounded-lg shadow hover:shadow-lg transition p-6"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-xl font-semibold text-gray-900">{provider.name}</h3>
+                  {provider.licensed && (
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                      Licensed
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-primary-600 mb-2">
+                  {formatProviderType(provider.providerType)}
+                </p>
+                <p className="text-sm text-gray-600 mb-3">
+                  📍 {provider.city}, {provider.state}
+                </p>
+                {provider.description && (
+                  <p className="text-sm text-gray-700 line-clamp-2 mb-3">
+                    {provider.description}
+                  </p>
+                )}
+                {Array.isArray(provider.careTypesOffered) && provider.careTypesOffered.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {(provider.careTypesOffered || []).slice(0, 3).map((care) => (
+                      <span
+                        key={care}
+                        className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                      >
+                        {formatProviderType(care)}
+                      </span>
+                    ))}
+                    {provider.careTypesOffered.length > 3 && (
+                      <span className="text-xs text-gray-500">
+                        +{provider.careTypesOffered.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {providers.length > 0 && (
+          <div className="mt-8 text-center">
+            <p className="text-gray-600">
+              Showing {providers.length} provider{providers.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+        )}
       </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="font-bold text-lg mb-4">Olera</h4>
-              <p className="text-gray-400 text-sm">
-                Making elder care simple, transparent, and human.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">For Families</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/providers">Find Care</Link></li>
-                <li><Link href="/how-it-works">How It Works</Link></li>
-                <li><Link href="/care-types">Types of Care</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">For Providers</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/for-providers">Get Listed</Link></li>
-                <li><Link href="/claim-profile">Claim Profile</Link></li>
-                <li><Link href="/provider-resources">Resources</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/about">About</Link></li>
-                <li><Link href="/contact">Contact</Link></li>
-                <li><Link href="/privacy">Privacy</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2026 Olera. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

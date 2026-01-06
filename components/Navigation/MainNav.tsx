@@ -238,7 +238,7 @@ export default function MainNav() {
                   <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Dashboard
                   </Link>
-                  <Link href="/providers" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Browse Providers
                   </Link>
                   <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -399,7 +399,7 @@ export default function MainNav() {
                   <Link href="/dashboard" className="block px-3 py-2 text-gray-700">
                     Dashboard
                   </Link>
-                  <Link href="/providers" className="block px-3 py-2 text-gray-700">
+                  <Link href="/" className="block px-3 py-2 text-gray-700">
                     Browse Providers
                   </Link>
                   <Link href="/dashboard/saved" className="block px-3 py-2 text-gray-700">
