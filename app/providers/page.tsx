@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import MainNav from "@/components/Navigation/MainNav";
 
 type Provider = {
   id: string;
@@ -57,24 +58,7 @@ export default function ProvidersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link href="/" className="text-2xl font-bold text-primary-600">
-              Olera
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="text-gray-700 hover:text-primary-600">
-                Dashboard
-              </Link>
-              <Link href="/login" className="text-gray-700 hover:text-primary-600">
-                Sign In
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MainNav />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -236,9 +220,9 @@ export default function ProvidersPage() {
                     {provider.description}
                   </p>
                 )}
-                {provider.careTypesOffered.length > 0 && (
+                {(provider.careTypesOffered?.length || 0) > 0 && (
                   <div className="flex flex-wrap gap-1">
-                    {provider.careTypesOffered.slice(0, 3).map((care) => (
+                    {provider.careTypesOffered?.slice(0, 3).map((care) => (
                       <span
                         key={care}
                         className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
@@ -246,7 +230,7 @@ export default function ProvidersPage() {
                         {formatProviderType(care)}
                       </span>
                     ))}
-                    {provider.careTypesOffered.length > 3 && (
+                    {(provider.careTypesOffered?.length || 0) > 3 && (
                       <span className="text-xs text-gray-500">
                         +{provider.careTypesOffered.length - 3} more
                       </span>
