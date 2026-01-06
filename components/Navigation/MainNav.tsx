@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
-const CARE_CATEGORIES = [
+const MAIN_CATEGORIES = [
   {
     name: "Home Care",
     slug: "home-care",
@@ -49,6 +49,20 @@ const CARE_CATEGORIES = [
       { label: "Nursing Home Education Hub", href: "/nursing-home/education" },
     ],
   },
+];
+
+const OTHER_CATEGORIES = [
+  {
+    name: "Independent",
+    slug: "independent-living",
+    links: [
+      { label: "Find Independent Living", href: "/independent-living/find-facilities" },
+      { label: "Paying for Independent Living", href: "/independent-living/paying" },
+      { label: "Independent Living Benefits", href: "/independent-living/benefits" },
+      { label: "Questions About Independent Living", href: "/independent-living/questions" },
+      { label: "Independent Living Education Hub", href: "/independent-living/education" },
+    ],
+  },
   {
     name: "Hospice",
     slug: "hospice",
@@ -61,18 +75,7 @@ const CARE_CATEGORIES = [
     ],
   },
   {
-    name: "Independent Living",
-    slug: "independent-living",
-    links: [
-      { label: "Find Independent Living", href: "/independent-living/find-facilities" },
-      { label: "Paying for Independent Living", href: "/independent-living/paying" },
-      { label: "Independent Living Benefits", href: "/independent-living/benefits" },
-      { label: "Questions About Independent Living", href: "/independent-living/questions" },
-      { label: "Independent Living Education Hub", href: "/independent-living/education" },
-    ],
-  },
-  {
-    name: "Rehabilitation",
+    name: "Rehab",
     slug: "rehabilitation",
     links: [
       { label: "Find Rehab Facilities", href: "/rehabilitation/find-facilities" },
@@ -87,6 +90,7 @@ const CARE_CATEGORIES = [
 export default function MainNav() {
   const { data: session } = useSession();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openOtherSubdropdown, setOpenOtherSubdropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -105,7 +109,7 @@ export default function MainNav() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
-            {CARE_CATEGORIES.map((category) => (
+            {MAIN_CATEGORIES.map((category) => (
               <div
                 key={category.slug}
                 className="relative"
@@ -139,6 +143,62 @@ export default function MainNav() {
                 )}
               </div>
             ))}
+
+            {/* Other Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setOpenDropdown("other")}
+              onMouseLeave={() => {
+                setOpenDropdown(null);
+                setOpenOtherSubdropdown(null);
+              }}
+            >
+              <button className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium flex items-center">
+                Other
+                <svg
+                  className="ml-1 w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {openDropdown === "other" && (
+                <div className="absolute left-0 mt-0 w-64 bg-white shadow-lg rounded-md py-2 z-50">
+                  {OTHER_CATEGORIES.map((subCategory) => (
+                    <div
+                      key={subCategory.slug}
+                      className="relative"
+                      onMouseEnter={() => setOpenOtherSubdropdown(subCategory.slug)}
+                      onMouseLeave={() => setOpenOtherSubdropdown(null)}
+                    >
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between">
+                        {subCategory.name}
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+
+                      {openOtherSubdropdown === subCategory.slug && (
+                        <div className="absolute left-full top-0 ml-1 w-64 bg-white shadow-lg rounded-md py-2 z-50">
+                          {subCategory.links.map((link) => (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                              {link.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <Link
               href="/plan-care"
@@ -235,7 +295,7 @@ export default function MainNav() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden pb-4">
-            {CARE_CATEGORIES.map((category) => (
+            {MAIN_CATEGORIES.map((category) => (
               <div key={category.slug} className="py-2">
                 <button
                   onClick={() => setOpenDropdown(openDropdown === category.slug ? null : category.slug)}
@@ -267,6 +327,60 @@ export default function MainNav() {
                 )}
               </div>
             ))}
+
+            {/* Other Dropdown for Mobile */}
+            <div className="py-2">
+              <button
+                onClick={() => setOpenDropdown(openDropdown === "other" ? null : "other")}
+                className="w-full text-left px-3 py-2 text-gray-700 font-medium flex justify-between items-center"
+              >
+                Other
+                <svg
+                  className={`w-4 h-4 transform transition-transform ${openDropdown === "other" ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {openDropdown === "other" && (
+                <div className="pl-6">
+                  {OTHER_CATEGORIES.map((subCategory) => (
+                    <div key={subCategory.slug}>
+                      <button
+                        onClick={() => setOpenOtherSubdropdown(openOtherSubdropdown === subCategory.slug ? null : subCategory.slug)}
+                        className="w-full text-left px-3 py-2 text-sm text-gray-600 hover:text-primary-600 flex justify-between items-center"
+                      >
+                        {subCategory.name}
+                        <svg
+                          className={`w-4 h-4 transform transition-transform ${openOtherSubdropdown === subCategory.slug ? "rotate-180" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {openOtherSubdropdown === subCategory.slug && (
+                        <div className="pl-6">
+                          {subCategory.links.map((link) => (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              className="block px-3 py-2 text-xs text-gray-600 hover:text-primary-600"
+                              onClick={() => setMobileMenuOpen(false)}
+                            >
+                              {link.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <Link href="/plan-care" className="block px-3 py-2 text-gray-700 font-medium">
               Plan Care
