@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  FAMILY
+  PROVIDER
+  ADMIN
+}
+
+enum ProviderType {
+  HOME_CARE
+  HOME_HEALTH
+  ASSISTED_LIVING
+  INDEPENDENT_LIVING
+  MEMORY_CARE
+  NURSING_HOME
+  HOSPICE
+  REHABILITATION
+  INDEPENDENT_CAREGIVER
+}
+
+enum CareType {
+  COMPANION_CARE
+  PERSONAL_CARE
+  SKILLED_NURSING
+  MEMORY_CARE
+  HOSPICE_CARE
+  RESPITE_CARE
+  LIVE_IN_CARE
+}
+
+enum ConsultRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          UserRole  @default(FAMILY)
+  name          String
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  familyProfile FamilyProfile?
+  provider      Provider?
+  sentRequests  ConsultRequest[] @relation("RequestSender")
+}
+
+model FamilyProfile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Care needs
+  careTypes     CareType[]
+  location      String
+  city          String
+  state         String
+  zipCode       String
+  budgetMin     Int?
+  budgetMax     Int?
+
+  // Additional details
+  timeline      String?
+  insurance     String?
+  description   String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  savedProviders SavedProvider[]
+  receivedRequests ConsultRequest[] @relation("RequestReceiver")
+}
+
+model Provider {
+  id              String         @id @default(cuid())
+  userId          String?        @unique
+  user            User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic info
+  name            String
+  providerType    ProviderType
+  description     String?
+
+  // Contact
+  email           String
+  phone           String
+  website         String?
+
+  // Location
+  address         String
+  city            String
+  state           String
+  zipCode         String
+  serviceRadius   Int?           // miles
+
+  // Services
+  careTypesOffered CareType[]
+
+  // Details
+  licensed        Boolean        @default(false)
+  licenseNumber   String?
+  yearsInBusiness Int?
+  capacity        Int?
+
+  // Status
+  claimed         Boolean        @default(false)
+  verified        Boolean        @default(false)
+  active          Boolean        @default(true)
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relationships
+  savedBy         SavedProvider[]
+  consultRequests ConsultRequest[]
+
+  @@index([city, state])
+  @@index([providerType])
+}
+
+model SavedProvider {
+  id              String         @id @default(cuid())
+  familyProfileId String
+  familyProfile   FamilyProfile  @relation(fields: [familyProfileId], references: [id], onDelete: Cascade)
+  providerId      String
+  provider        Provider       @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  notes           String?
+  createdAt       DateTime       @default(now())
+
+  @@unique([familyProfileId, providerId])
+}
+
+model ConsultRequest {
+  id              String               @id @default(cuid())
+
+  // Sender (can be family or provider)
+  senderId        String
+  sender          User                 @relation("RequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  // Receiver (family profile)
+  familyProfileId String
+  familyProfile   FamilyProfile        @relation("RequestReceiver", fields: [familyProfileId], references: [id], onDelete: Cascade)
+
+  // Provider
+  providerId      String
+  provider        Provider             @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Request details
+  message         String
+  status          ConsultRequestStatus @default(PENDING)
+
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  // Relationships
+  messages        Message[]
+
+  @@index([familyProfileId])
+  @@index([providerId])
+  @@index([status])
+}
+
+model Message {
+  id                String         @id @default(cuid())
+  consultRequestId  String
+  consultRequest    ConsultRequest @relation(fields: [consultRequestId], references: [id], onDelete: Cascade)
+
+  senderId          String
+  content           String
+
+  createdAt         DateTime       @default(now())
+  read              Boolean        @default(false)
+
+  @@index([consultRequestId])
+}
