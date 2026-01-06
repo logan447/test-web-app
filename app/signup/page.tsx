@@ -54,7 +54,12 @@ export default function SignupPage() {
         return;
       }
 
-      router.push("/dashboard");
+      // Redirect based on user role
+      if (role === "FAMILY") {
+        router.push("/");
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch (error) {
       setError("Something went wrong");

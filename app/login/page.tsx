@@ -32,7 +32,16 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/dashboard");
+      // Fetch session to check user role
+      const response = await fetch("/api/auth/session");
+      const session = await response.json();
+
+      // Redirect based on user role
+      if (session?.user?.role === "FAMILY") {
+        router.push("/");
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch (error) {
       setError("Something went wrong");
