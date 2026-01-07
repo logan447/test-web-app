@@ -34,7 +34,10 @@ export default function RequestsPage() {
   const { data: session, status } = useSession();
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"sent" | "received">("sent");
+  // Default to "sent" for families (they send to providers), "received" for providers (they receive from families)
+  const [activeTab, setActiveTab] = useState<"sent" | "received">(
+    session?.user?.role === "FAMILY" ? "sent" : "received"
+  );
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -47,8 +50,7 @@ export default function RequestsPage() {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const type = session?.user?.role === "FAMILY" ? activeTab : "received";
-      const response = await fetch(`/api/requests?type=${type}`);
+      const response = await fetch(`/api/requests?type=${activeTab}`);
       if (response.ok) {
         const data = await response.json();
         setRequests(data);
@@ -114,32 +116,30 @@ export default function RequestsPage() {
 
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Consultation Requests</h1>
 
-        {isFamily && (
-          <div className="mb-6 border-b border-gray-200">
-            <nav className="flex space-x-8">
-              <button
-                onClick={() => setActiveTab("received")}
-                className={`pb-4 border-b-2 font-medium ${
-                  activeTab === "received"
-                    ? "border-primary-600 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                Received from Providers
-              </button>
-              <button
-                onClick={() => setActiveTab("sent")}
-                className={`pb-4 border-b-2 font-medium ${
-                  activeTab === "sent"
-                    ? "border-primary-600 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                Sent to Providers
-              </button>
-            </nav>
-          </div>
-        )}
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab("received")}
+              className={`pb-4 border-b-2 font-medium ${
+                activeTab === "received"
+                  ? "border-primary-600 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {isFamily ? "Received from Providers" : "Received from Families"}
+            </button>
+            <button
+              onClick={() => setActiveTab("sent")}
+              className={`pb-4 border-b-2 font-medium ${
+                activeTab === "sent"
+                  ? "border-primary-600 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {isFamily ? "Sent to Providers" : "Sent to Families"}
+            </button>
+          </nav>
+        </div>
 
         {requests.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">

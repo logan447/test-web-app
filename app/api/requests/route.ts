@@ -60,15 +60,35 @@ export async function GET(req: Request) {
         return NextResponse.json([]);
       }
 
-      requests = await prisma.consultRequest.findMany({
-        where: { providerId: provider.id },
-        include: {
-          familyProfile: { include: { user: true } },
-          sender: true,
-          messages: { orderBy: { createdAt: "desc" }, take: 1 },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+      if (type === "sent") {
+        // Sent: requests where provider is the sender
+        requests = await prisma.consultRequest.findMany({
+          where: {
+            providerId: provider.id,
+            senderId: session.user.id
+          },
+          include: {
+            familyProfile: { include: { user: true } },
+            sender: true,
+            messages: { orderBy: { createdAt: "desc" }, take: 1 },
+          },
+          orderBy: { createdAt: "desc" },
+        });
+      } else {
+        // Received: requests where provider is the recipient (sent by families)
+        requests = await prisma.consultRequest.findMany({
+          where: {
+            providerId: provider.id,
+            senderId: { not: session.user.id }
+          },
+          include: {
+            familyProfile: { include: { user: true } },
+            sender: true,
+            messages: { orderBy: { createdAt: "desc" }, take: 1 },
+          },
+          orderBy: { createdAt: "desc" },
+        });
+      }
     }
 
     return NextResponse.json(requests);
