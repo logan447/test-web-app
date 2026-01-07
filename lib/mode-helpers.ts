@@ -3,18 +3,10 @@ import { Session } from "next-auth";
 
 /**
  * Check if user can access provider features
- * Compatibility: Works with both old role-based and new identity-based system
+ * All authenticated users can access provider features
  */
 export function canAccessProviderFeatures(session: Session | null): boolean {
-  if (!session) return false;
-
-  // New system: check for provider identity
-  if (session.user.hasProviderIdentity) return true;
-
-  // Old system: check role for backwards compatibility
-  if (session.user.role === 'PROVIDER') return true;
-
-  return false;
+  return !!session;
 }
 
 /**
@@ -56,10 +48,8 @@ export function getModeLandingPage(mode: UserMode): string {
 
 /**
  * Check if user needs provider onboarding
+ * No longer required - all users can access provider mode
  */
 export function needsProviderOnboarding(session: Session | null): boolean {
-  if (!session) return false;
-
-  // If trying to access provider mode without provider identity
-  return isProviderMode(session) && !session.user.hasProviderIdentity;
+  return false;
 }

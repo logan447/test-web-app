@@ -19,7 +19,6 @@ export default function TestSessionPage() {
         <p><strong>Name:</strong> {session?.user?.name || 'N/A'}</p>
         <p><strong>Role:</strong> {(session?.user as any)?.role || 'N/A'}</p>
         <p><strong>Active Mode:</strong> {(session?.user as any)?.activeMode || 'N/A'}</p>
-        <p><strong>Has Provider Identity:</strong> {String((session?.user as any)?.hasProviderIdentity) || 'N/A'}</p>
       </div>
     </div>
   );

@@ -13,11 +13,6 @@ export default function ProviderRequests() {
       router.push('/login');
       return;
     }
-
-    // If user doesn't have provider identity, redirect to onboarding
-    if (!session.user.hasProviderIdentity) {
-      router.push('/provider/onboarding');
-    }
   }, [session, router]);
 
   if (!session) {

@@ -49,7 +49,6 @@ export default function ModeTestPage() {
 
   const currentMode = (session?.user as any)?.activeMode || 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
-  const hasProviderIdentity = (session?.user as any)?.hasProviderIdentity;
   const role = (session?.user as any)?.role;
 
   return (
@@ -72,7 +71,6 @@ export default function ModeTestPage() {
                 <p><strong>Name:</strong> {session.user?.name}</p>
                 <p><strong>Role:</strong> {role}</p>
                 <p><strong>Active Mode:</strong> <span className="font-bold text-blue-600">{currentMode}</span></p>
-                <p><strong>Has Provider Identity:</strong> {String(hasProviderIdentity)}</p>
               </div>
             </div>
 
@@ -95,27 +93,11 @@ export default function ModeTestPage() {
               ) : (
                 <button
                   onClick={() => handleModeSwitch('PROVIDER')}
-                  disabled={switching || !hasProviderIdentity}
+                  disabled={switching}
                   className="w-full py-3 px-6 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-                  title={!hasProviderIdentity ? 'You need a provider profile to switch to provider mode' : ''}
                 >
                   {switching ? 'Switching...' : '→ Switch to Provider Mode'}
                 </button>
-              )}
-
-              {!hasProviderIdentity && !isProviderMode && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
-                  <p className="text-sm text-yellow-800">
-                    <strong>⚠️ No Provider Identity</strong><br/>
-                    You don&apos;t have a provider profile yet. Create one to access provider features.
-                  </p>
-                  <a
-                    href="/provider/onboarding"
-                    className="mt-3 inline-block bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
-                  >
-                    Create Provider Profile
-                  </a>
-                </div>
               )}
             </div>
 
