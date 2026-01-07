@@ -58,6 +58,11 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, trigger, session: updateSession }) {
       if (user) {
+        console.log('🔐 JWT callback - new login:', {
+          email: user.email,
+          activeMode: user.activeMode,
+          hasProviderIdentity: user.hasProviderIdentity
+        });
         return {
           ...token,
           id: user.id,
@@ -69,13 +74,14 @@ export const authOptions: NextAuthOptions = {
 
       // Handle session updates (e.g., when switching modes)
       if (trigger === "update" && updateSession?.activeMode) {
+        console.log('🔄 JWT callback - mode update:', updateSession.activeMode);
         token.activeMode = updateSession.activeMode;
       }
 
       return token;
     },
     async session({ session, token }) {
-      return {
+      const enhancedSession = {
         ...session,
         user: {
           ...session.user,
@@ -85,6 +91,12 @@ export const authOptions: NextAuthOptions = {
           hasProviderIdentity: token.hasProviderIdentity,
         },
       };
+      console.log('📋 Session callback:', {
+        email: session.user?.email,
+        activeMode: token.activeMode,
+        hasProviderIdentity: token.hasProviderIdentity
+      });
+      return enhancedSession;
     },
   },
 };

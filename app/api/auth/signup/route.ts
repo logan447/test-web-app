@@ -29,8 +29,11 @@ export async function POST(req: Request) {
         passwordHash: hashedPassword,
         role,
         phone: phone || null,
+        activeMode: 'FAMILY', // Explicitly set default mode
       },
     });
+
+    console.log('✅ User created:', { id: user.id, email: user.email, role: user.role, activeMode: user.activeMode });
 
     return NextResponse.json(
       { message: "User created successfully", userId: user.id },
