@@ -51,6 +51,19 @@ enum ConsultRequestStatus {
   CANCELLED
 }
 
+enum SubscriptionTier {
+  FREE
+  BASIC
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PAST_DUE
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -68,6 +81,8 @@ model User {
   providerIdentity     ProviderIdentity?  // New: gate for provider features
   sentRequests         ConsultRequest[] @relation("RequestSender")
   savedFamilyProfiles  SavedFamilyProfile[]
+  subscription         Subscription?
+  contactViews         ContactView[]
 }
 
 model ProviderIdentity {
@@ -116,6 +131,7 @@ model FamilyProfile {
   savedProviders   SavedProvider[]
   receivedRequests ConsultRequest[] @relation("RequestReceiver")
   savedByProviders SavedFamilyProfile[] @relation("SavedByProviders")
+  contactViews     ContactView[]
 }
 
 model Provider {
@@ -232,4 +248,44 @@ model Message {
   read              Boolean        @default(false)
 
   @@index([consultRequestId])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Subscription details
+  tier                 SubscriptionTier   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+
+  // Payment info (for future Stripe integration)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+
+  // Access tracking
+  contactViewsUsed     Int                @default(0)
+  contactViewsLimit    Int?               // NULL = unlimited
+
+  // Dates
+  currentPeriodStart   DateTime           @default(now())
+  currentPeriodEnd     DateTime
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model ContactView {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyProfileId String
+  familyProfile   FamilyProfile @relation(fields: [familyProfileId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+
+  @@unique([userId, familyProfileId])
+  @@index([userId])
+  @@index([familyProfileId])
 }
