@@ -3,9 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { CareType } from "@prisma/client";
 
 const careProfileSchema = z.object({
-  careTypes: z.array(z.string()),
+  careTypes: z.array(z.nativeEnum(CareType)),
   location: z.string(),
   city: z.string(),
   state: z.string(),

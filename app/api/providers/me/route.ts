@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       name,
       providerType,
       description,
-      services,
+      careTypesOffered,
       address,
       city,
       state,
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       website,
       yearsInBusiness,
       licenseNumber,
-      isActive,
+      active,
     } = body;
 
     // Check if provider already exists
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
         name,
         providerType,
         description,
-        services,
+        careTypesOffered,
         address,
         city,
         state,
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         website,
         yearsInBusiness,
         licenseNumber,
-        isActive: isActive ?? true,
+        active: active ?? true,
       },
     });
 

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,11 +14,12 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await req.json();
     const { status } = body;
 
     const request = await prisma.consultRequest.update({
-      where: { id: params.id },
+      where: { id },
       data: { status },
     });
 
@@ -34,7 +35,7 @@ export async function PATCH(
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -43,8 +44,9 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const request = await prisma.consultRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         provider: true,
         familyProfile: { include: { user: true } },

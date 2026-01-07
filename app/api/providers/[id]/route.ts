@@ -5,11 +5,12 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const provider = await prisma.provider.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!provider) {
@@ -31,7 +32,7 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -40,9 +41,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     // Verify the provider belongs to the logged-in user
     const existingProvider = await prisma.provider.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingProvider) {
@@ -64,7 +66,7 @@ export async function PATCH(
       name,
       providerType,
       description,
-      services,
+      careTypesOffered,
       address,
       city,
       state,
@@ -74,16 +76,16 @@ export async function PATCH(
       website,
       yearsInBusiness,
       licenseNumber,
-      isActive,
+      active,
     } = body;
 
     const provider = await prisma.provider.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         providerType,
         description,
-        services,
+        careTypesOffered,
         address,
         city,
         state,
@@ -93,7 +95,7 @@ export async function PATCH(
         website,
         yearsInBusiness,
         licenseNumber,
-        isActive,
+        active,
       },
     });
 
