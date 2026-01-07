@@ -150,6 +150,7 @@ export default function RequestDetailPage() {
   }
 
   const isFamily = session?.user?.role === "FAMILY";
+  const isSender = request.sender.id === session?.user?.id;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -199,8 +200,8 @@ export default function RequestDetailPage() {
             </div>
           </div>
 
-          {/* Actions */}
-          {request.status === "PENDING" && (
+          {/* Actions - Only show for recipients, not senders */}
+          {!isSender && request.status === "PENDING" && (
             <div className="border-t pt-4 mt-4 flex gap-2">
               <button
                 onClick={() => handleStatusUpdate("ACCEPTED")}
@@ -217,7 +218,7 @@ export default function RequestDetailPage() {
             </div>
           )}
 
-          {request.status === "ACCEPTED" && (
+          {!isSender && request.status === "ACCEPTED" && (
             <div className="border-t pt-4 mt-4">
               <button
                 onClick={() => handleStatusUpdate("COMPLETED")}
