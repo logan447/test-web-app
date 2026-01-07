@@ -5,23 +5,26 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import { showToast } from "@/lib/toast";
 
 type Provider = {
   id: string;
   name: string;
   providerType: string;
   description: string;
-  services: string[];
+  careTypesOffered: string[];
   address: string;
   city: string;
   state: string;
   zipCode: string;
+  serviceRadius: number | null;
   phone: string;
   email: string;
   website: string;
   yearsInBusiness: number;
+  licensed: boolean;
   licenseNumber: string;
-  isActive: boolean;
+  capacity: number | null;
 };
 
 const PROVIDER_TYPES = [
@@ -36,19 +39,14 @@ const PROVIDER_TYPES = [
   { value: "INDEPENDENT_CAREGIVER", label: "Independent Caregiver" },
 ];
 
-const SERVICES = [
-  "Personal Care",
-  "Medication Management",
-  "Meal Preparation",
-  "Transportation",
-  "Companionship",
-  "Light Housekeeping",
-  "Bathing Assistance",
-  "Dementia Care",
-  "Skilled Nursing",
-  "Physical Therapy",
-  "Occupational Therapy",
-  "24/7 Care",
+const CARE_TYPES = [
+  { value: "COMPANION_CARE", label: "Companion Care" },
+  { value: "PERSONAL_CARE", label: "Personal Care" },
+  { value: "SKILLED_NURSING", label: "Skilled Nursing" },
+  { value: "MEMORY_CARE", label: "Memory Care" },
+  { value: "HOSPICE_CARE", label: "Hospice Care" },
+  { value: "RESPITE_CARE", label: "Respite Care" },
+  { value: "LIVE_IN_CARE", label: "Live-In Care" },
 ];
 
 export default function ProviderProfilePage() {
@@ -59,7 +57,8 @@ export default function ProviderProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
+  const [licensed, setLicensed] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -75,10 +74,10 @@ export default function ProviderProfilePage() {
       if (response.ok) {
         const data = await response.json();
         setProvider(data);
-        setSelectedServices(data.services || []);
+        setSelectedCareTypes(data.careTypesOffered || []);
+        setLicensed(data.licensed || false);
         setEditing(false);
       } else if (response.status === 404) {
-        // Provider profile doesn't exist yet
         setEditing(true);
       }
     } catch (err) {
@@ -98,17 +97,19 @@ export default function ProviderProfilePage() {
       name: formData.get("name"),
       providerType: formData.get("providerType"),
       description: formData.get("description"),
-      services: selectedServices,
+      careTypesOffered: selectedCareTypes,
       address: formData.get("address"),
       city: formData.get("city"),
       state: formData.get("state"),
       zipCode: formData.get("zipCode"),
+      serviceRadius: formData.get("serviceRadius") ? parseInt(formData.get("serviceRadius") as string) : null,
       phone: formData.get("phone"),
       email: formData.get("email"),
       website: formData.get("website") || "",
       yearsInBusiness: parseInt(formData.get("yearsInBusiness") as string) || 0,
+      licensed: licensed,
       licenseNumber: formData.get("licenseNumber") || "",
-      isActive: true,
+      capacity: formData.get("capacity") ? parseInt(formData.get("capacity") as string) : null,
     };
 
     try {
@@ -126,25 +127,34 @@ export default function ProviderProfilePage() {
         throw new Error(result.error || "Failed to save profile");
       }
 
+      showToast.success(provider ? "Profile updated" : "Profile created");
       fetchProvider();
     } catch (err: any) {
       setError(err.message || "Failed to save profile");
+      showToast.error(err.message || "Failed to save profile");
       setSaving(false);
     }
   };
 
-  const toggleService = (service: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(service)
-        ? prev.filter((s) => s !== service)
-        : [...prev, service]
+  const toggleCareType = (careType: string) => {
+    setSelectedCareTypes((prev) =>
+      prev.includes(careType)
+        ? prev.filter((s) => s !== careType)
+        : [...prev, careType]
     );
+  };
+
+  const formatCareType = (type: string) => {
+    return CARE_TYPES.find(c => c.value === type)?.label || type;
   };
 
   if (loading || status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <div className="flex items-center justify-center py-12">
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -154,15 +164,6 @@ export default function ProviderProfilePage() {
       <MainNav />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <Link
-            href="/dashboard"
-            className="text-primary-600 hover:text-primary-700"
-          >
-            ← Back to Dashboard
-          </Link>
-        </div>
-
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">
             {provider ? "My Provider Profile" : "Create Provider Profile"}
@@ -200,14 +201,14 @@ export default function ProviderProfilePage() {
               <p className="text-gray-900">{provider.description}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Services</h3>
+              <h3 className="text-sm font-medium text-gray-500">Care Types Offered</h3>
               <div className="flex flex-wrap gap-2 mt-1">
-                {provider.services.map((service) => (
+                {provider.careTypesOffered.map((type) => (
                   <span
-                    key={service}
+                    key={type}
                     className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm"
                   >
-                    {service}
+                    {formatCareType(type)}
                   </span>
                 ))}
               </div>
@@ -219,6 +220,12 @@ export default function ProviderProfilePage() {
                 {provider.city}, {provider.state} {provider.zipCode}
               </p>
             </div>
+            {provider.serviceRadius && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Service Radius</h3>
+                <p className="text-gray-900">{provider.serviceRadius} miles</p>
+              </div>
+            )}
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Phone</h3>
@@ -247,10 +254,24 @@ export default function ProviderProfilePage() {
                 <h3 className="text-sm font-medium text-gray-500">Years in Business</h3>
                 <p className="text-gray-900">{provider.yearsInBusiness}</p>
               </div>
+              {provider.capacity && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Capacity</h3>
+                  <p className="text-gray-900">{provider.capacity} clients</p>
+                </div>
+              )}
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">License Number</h3>
-                <p className="text-gray-900">{provider.licenseNumber || "N/A"}</p>
+                <h3 className="text-sm font-medium text-gray-500">Licensed</h3>
+                <p className="text-gray-900">{provider.licensed ? "Yes" : "No"}</p>
               </div>
+              {provider.licenseNumber && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">License Number</h3>
+                  <p className="text-gray-900">{provider.licenseNumber}</p>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -303,18 +324,18 @@ export default function ProviderProfilePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Services Offered *
+                Care Types Offered * (Select all that apply)
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {SERVICES.map((service) => (
-                  <label key={service} className="flex items-center space-x-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {CARE_TYPES.map((careType) => (
+                  <label key={careType.value} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={selectedServices.includes(service)}
-                      onChange={() => toggleService(service)}
+                      checked={selectedCareTypes.includes(careType.value)}
+                      onChange={() => toggleCareType(careType.value)}
                       className="rounded border-gray-300"
                     />
-                    <span className="text-sm text-gray-700">{service}</span>
+                    <span className="text-sm text-gray-700">{careType.label}</span>
                   </label>
                 ))}
               </div>
@@ -373,6 +394,23 @@ export default function ProviderProfilePage() {
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Radius (miles)
+              </label>
+              <input
+                name="serviceRadius"
+                type="number"
+                min="0"
+                defaultValue={provider?.serviceRadius || ''}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="How many miles do you serve?"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                The geographic area you're willing to serve from your location
+              </p>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -429,6 +467,34 @@ export default function ProviderProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Capacity (number of clients)
+                </label>
+                <input
+                  name="capacity"
+                  type="number"
+                  min="0"
+                  defaultValue={provider?.capacity || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  placeholder="How many clients can you serve?"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={licensed}
+                  onChange={(e) => setLicensed(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm font-medium text-gray-700">Licensed Provider</span>
+              </label>
+            </div>
+
+            {licensed && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   License Number
                 </label>
                 <input
@@ -438,7 +504,7 @@ export default function ProviderProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
-            </div>
+            )}
 
             <div className="flex gap-4">
               <button
