@@ -18,7 +18,10 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        console.log('🔐 Authorize called with email:', credentials?.email);
+
         if (!credentials?.email || !credentials?.password) {
+          console.log('❌ Missing credentials');
           throw new Error("Invalid credentials");
         }
 
@@ -31,7 +34,10 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
+        console.log('👤 User found:', user ? 'YES' : 'NO');
+
         if (!user || !user.passwordHash) {
+          console.log('❌ User not found or no password hash');
           throw new Error("Invalid credentials");
         }
 
@@ -40,10 +46,14 @@ export const authOptions: NextAuthOptions = {
           user.passwordHash
         );
 
+        console.log('🔑 Password valid:', isPasswordValid);
+
         if (!isPasswordValid) {
+          console.log('❌ Invalid password');
           throw new Error("Invalid credentials");
         }
 
+        console.log('✅ Auth successful, returning user data');
         return {
           id: user.id,
           email: user.email,
