@@ -258,11 +258,12 @@ export default function SavedFamilyProfiles() {
                   <div className="text-sm text-gray-500">
                     <span className="font-medium">Location:</span> {profile.location}
                   </div>
-                  <button
+                  <Link
+                    href={`/provider/requests/${profile.id}`}
                     className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium"
                   >
                     View Full Details
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
