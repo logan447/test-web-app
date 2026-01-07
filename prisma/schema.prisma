@@ -63,10 +63,11 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   // Relationships
-  familyProfile    FamilyProfile?
-  provider         Provider?
-  providerIdentity ProviderIdentity?  // New: gate for provider features
-  sentRequests     ConsultRequest[] @relation("RequestSender")
+  familyProfile        FamilyProfile?
+  provider             Provider?
+  providerIdentity     ProviderIdentity?  // New: gate for provider features
+  sentRequests         ConsultRequest[] @relation("RequestSender")
+  savedFamilyProfiles  SavedFamilyProfile[]
 }
 
 model ProviderIdentity {
@@ -112,8 +113,9 @@ model FamilyProfile {
   updatedAt     DateTime  @updatedAt
 
   // Relationships
-  savedProviders SavedProvider[]
+  savedProviders   SavedProvider[]
   receivedRequests ConsultRequest[] @relation("RequestReceiver")
+  savedByProviders SavedFamilyProfile[] @relation("SavedByProviders")
 }
 
 model Provider {
@@ -173,6 +175,19 @@ model SavedProvider {
   createdAt       DateTime       @default(now())
 
   @@unique([familyProfileId, providerId])
+}
+
+model SavedFamilyProfile {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyProfileId String
+  familyProfile   FamilyProfile  @relation("SavedByProviders", fields: [familyProfileId], references: [id], onDelete: Cascade)
+  notes           String?
+  createdAt       DateTime       @default(now())
+
+  @@unique([userId, familyProfileId])
+  @@index([userId])
 }
 
 model ConsultRequest {

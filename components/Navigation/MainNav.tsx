@@ -287,10 +287,7 @@ export default function MainNav() {
                       <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved
                       </Link>
-                      <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Requests
-                      </Link>
-                      <Link href="/provider/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Provider Profile
                       </Link>
                     </>
@@ -481,18 +478,34 @@ export default function MainNav() {
                     <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
                     <p className="text-xs text-gray-500">{session.user?.email}</p>
                   </div>
-                  <Link href="/" className="block px-3 py-2 text-gray-700">
-                    Browse Providers
-                  </Link>
-                  <Link href="/dashboard/saved" className="block px-3 py-2 text-gray-700">
-                    Saved
-                  </Link>
-                  <Link href="/dashboard/requests" className="block px-3 py-2 text-gray-700">
-                    Requests
-                  </Link>
-                  <Link href="/dashboard/care-profile" className="block px-3 py-2 text-gray-700">
-                    Care Profile
-                  </Link>
+                  {isProviderMode ? (
+                    <>
+                      <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Browse Care Requests
+                      </Link>
+                      <Link href="/provider/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Saved
+                      </Link>
+                      <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Provider Profile
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/providers" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Browse Providers
+                      </Link>
+                      <Link href="/dashboard/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Saved
+                      </Link>
+                      <Link href="/dashboard/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Requests
+                      </Link>
+                      <Link href="/dashboard/care-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Care Profile
+                      </Link>
+                    </>
+                  )}
                   <div className="border-t border-gray-200 my-2"></div>
                   {isProviderMode ? (
                     <button
