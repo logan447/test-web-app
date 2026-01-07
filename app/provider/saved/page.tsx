@@ -141,7 +141,7 @@ export default function SavedFamilyProfiles() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Saved Care Requests</h1>
           <p className="mt-2 text-gray-600">
-            Family profiles you've saved for follow-up
+            Family profiles you&apos;ve saved for follow-up
           </p>
         </div>
 
