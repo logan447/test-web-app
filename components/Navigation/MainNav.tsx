@@ -116,12 +116,7 @@ export default function MainNav() {
       const data = await response.json();
 
       if (!response.ok) {
-        if (data.needsOnboarding) {
-          // Redirect to provider onboarding
-          router.push('/provider/onboarding');
-        } else {
-          console.error('Failed to switch mode:', data.error);
-        }
+        console.error('Failed to switch mode:', data.error);
         return;
       }
 
@@ -141,18 +136,6 @@ export default function MainNav() {
 
   const currentMode = session?.user?.activeMode || 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
-  const canSwitchToProvider = session?.user?.hasProviderIdentity || session?.user?.role === 'PROVIDER';
-
-  // Debug logging
-  console.log('Session data:', {
-    session: session?.user,
-    currentMode,
-    isProviderMode,
-    canSwitchToProvider,
-    activeMode: session?.user?.activeMode,
-    hasProviderIdentity: session?.user?.hasProviderIdentity,
-    role: session?.user?.role
-  });
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -296,45 +279,51 @@ export default function MainNav() {
                     <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
                     <p className="text-xs text-gray-500">{session.user?.email}</p>
                   </div>
-                  <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Browse Providers
-                  </Link>
-                  <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Saved
-                  </Link>
-                  <Link href="/dashboard/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Requests
-                  </Link>
-                  <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Care Profile
-                  </Link>
+                  {isProviderMode ? (
+                    <>
+                      <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Browse Care Requests
+                      </Link>
+                      <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Saved
+                      </Link>
+                      <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Requests
+                      </Link>
+                      <Link href="/provider/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Provider Profile
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/providers" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Browse Providers
+                      </Link>
+                      <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Saved
+                      </Link>
+                      <Link href="/dashboard/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Requests
+                      </Link>
+                      <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Care Profile
+                      </Link>
+                    </>
+                  )}
                   <div className="border-t border-gray-200 mt-1 pt-1">
-                    {(() => {
-                      console.log('🔍 DROPDOWN BUTTON DEBUG:', {
-                        isProviderMode,
-                        canSwitchToProvider,
-                        currentMode,
-                        sessionUser: session?.user,
-                        activeMode: session?.user?.activeMode,
-                        hasProviderIdentity: session?.user?.hasProviderIdentity,
-                        role: session?.user?.role
-                      });
-                      return null;
-                    })()}
                     {isProviderMode ? (
                       <button
                         onClick={() => handleModeSwitch('FAMILY')}
                         disabled={switchingMode}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
                       >
-                        {switchingMode ? 'Switching...' : 'Switch to Family'}
+                        {switchingMode ? 'Switching...' : 'For Families'}
                       </button>
                     ) : (
                       <button
                         onClick={() => handleModeSwitch('PROVIDER')}
-                        disabled={switchingMode || !canSwitchToProvider}
+                        disabled={switchingMode}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-                        title={!canSwitchToProvider ? 'Create provider profile to access' : ''}
                       >
                         {switchingMode ? 'Switching...' : 'For Providers'}
                       </button>

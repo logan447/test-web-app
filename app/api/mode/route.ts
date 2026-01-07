@@ -26,17 +26,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if switching to provider mode without provider identity
-    if (mode === 'PROVIDER' && !session.user.hasProviderIdentity) {
-      return NextResponse.json(
-        {
-          error: "Provider identity required",
-          needsOnboarding: true
-        },
-        { status: 403 }
-      );
-    }
-
     // Update user's active mode in database
     await prisma.user.update({
       where: { id: session.user.id },
@@ -46,7 +35,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       mode,
-      landingPage: mode === 'PROVIDER' ? '/provider/requests' : '/'
+      landingPage: mode === 'PROVIDER' ? '/provider/requests' : '/providers'
     });
 
   } catch (error) {
@@ -71,8 +60,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       currentMode: session.user.activeMode,
-      hasProviderIdentity: session.user.hasProviderIdentity,
-      canSwitchToProvider: session.user.hasProviderIdentity,
     });
 
   } catch (error) {

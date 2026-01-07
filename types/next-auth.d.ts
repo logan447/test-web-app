@@ -5,16 +5,14 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      role: UserRole;  // Keep for backwards compatibility
-      activeMode: UserMode;  // New: current active mode
-      hasProviderIdentity: boolean;  // New: gate for provider features
+      role: UserRole;
+      activeMode: UserMode;
     } & DefaultSession["user"];
   }
 
   interface User {
     role: UserRole;
     activeMode?: UserMode;
-    hasProviderIdentity?: boolean;
   }
 }
 
@@ -23,6 +21,5 @@ declare module "next-auth/jwt" {
     id: string;
     role: UserRole;
     activeMode: UserMode;
-    hasProviderIdentity: boolean;
   }
 }

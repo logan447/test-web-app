@@ -29,9 +29,6 @@ export const authOptions: NextAuthOptions = {
           where: {
             email: credentials.email,
           },
-          include: {
-            providerIdentity: true,  // Include provider identity to check if exists
-          },
         });
 
         console.log('👤 User found:', user ? 'YES' : 'NO');
@@ -60,7 +57,6 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           role: user.role,
           activeMode: user.activeMode,
-          hasProviderIdentity: !!user.providerIdentity,
         };
       },
     }),
@@ -71,14 +67,12 @@ export const authOptions: NextAuthOptions = {
         console.log('🔐 JWT callback - new login:', {
           email: user.email,
           activeMode: user.activeMode,
-          hasProviderIdentity: user.hasProviderIdentity
         });
         return {
           ...token,
           id: user.id,
           role: user.role,
           activeMode: user.activeMode || 'FAMILY',
-          hasProviderIdentity: user.hasProviderIdentity || false,
         };
       }
 
@@ -98,13 +92,11 @@ export const authOptions: NextAuthOptions = {
           id: token.id as string,
           role: token.role,
           activeMode: token.activeMode,
-          hasProviderIdentity: token.hasProviderIdentity,
         },
       };
       console.log('📋 Session callback:', {
         email: session.user?.email,
         activeMode: token.activeMode,
-        hasProviderIdentity: token.hasProviderIdentity
       });
       return enhancedSession;
     },
