@@ -16,6 +16,11 @@ enum UserRole {
   ADMIN
 }
 
+enum UserMode {
+  FAMILY
+  PROVIDER
+}
+
 enum ProviderType {
   HOME_CARE
   HOME_HEALTH
@@ -50,16 +55,38 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   passwordHash  String
-  role          UserRole  @default(FAMILY)
+  role          UserRole  @default(FAMILY)  // Keep for backwards compatibility
+  activeMode    UserMode  @default(FAMILY)  // New: current active mode
   name          String
   phone         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   // Relationships
-  familyProfile FamilyProfile?
-  provider      Provider?
-  sentRequests  ConsultRequest[] @relation("RequestSender")
+  familyProfile    FamilyProfile?
+  provider         Provider?
+  providerIdentity ProviderIdentity?  // New: gate for provider features
+  sentRequests     ConsultRequest[] @relation("RequestSender")
+}
+
+model ProviderIdentity {
+  id                String       @id @default(cuid())
+  userId            String       @unique
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Provider profile reference
+  providerId        String?      @unique  // Links to Provider model if claimed/created
+
+  // Identity type
+  type              String       @default("ORGANIZATION") // ORGANIZATION or INDIVIDUAL
+
+  // Onboarding status
+  onboardingComplete Boolean     @default(false)
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([userId])
 }
 
 model FamilyProfile {
