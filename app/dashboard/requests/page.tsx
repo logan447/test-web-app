@@ -34,7 +34,7 @@ export default function RequestsPage() {
   const { data: session, status } = useSession();
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"sent" | "received">("received");
+  const [activeTab, setActiveTab] = useState<"sent" | "received">("sent");
 
   useEffect(() => {
     if (status === "unauthenticated") {

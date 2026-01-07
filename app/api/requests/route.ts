@@ -30,13 +30,18 @@ export async function GET(req: Request) {
           where: { senderId: session.user.id },
           include: {
             provider: true,
+            sender: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
           },
           orderBy: { createdAt: "desc" },
         });
       } else {
+        // Received: requests where family is the recipient (sent by providers)
         requests = await prisma.consultRequest.findMany({
-          where: { familyProfileId: familyProfile.id },
+          where: {
+            familyProfileId: familyProfile.id,
+            senderId: { not: session.user.id } // Exclude requests sent by this user
+          },
           include: {
             provider: true,
             sender: true,
