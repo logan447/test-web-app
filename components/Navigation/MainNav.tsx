@@ -293,6 +293,9 @@ export default function MainNav() {
                       <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved
                       </Link>
+                      <Link href="/dashboard/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Consultation Requests
+                      </Link>
                       <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Provider Profile
                       </Link>
@@ -491,6 +494,9 @@ export default function MainNav() {
                       </Link>
                       <Link href="/provider/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved
+                      </Link>
+                      <Link href="/dashboard/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Consultation Requests
                       </Link>
                       <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Provider Profile
