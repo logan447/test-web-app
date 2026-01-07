@@ -36,7 +36,7 @@ export default function RequestsPage() {
   const [loading, setLoading] = useState(true);
   // Default to "sent" for families (they send to providers), "received" for providers (they receive from families)
   const [activeTab, setActiveTab] = useState<"sent" | "received">(
-    session?.user?.role === "FAMILY" ? "sent" : "received"
+    (session?.user?.activeMode || 'FAMILY') === "FAMILY" ? "sent" : "received"
   );
 
   useEffect(() => {
@@ -101,7 +101,7 @@ export default function RequestsPage() {
     );
   }
 
-  const isFamily = session?.user?.role === "FAMILY";
+  const isFamily = (session?.user?.activeMode || 'FAMILY') === 'FAMILY';
 
   return (
     <div className="min-h-screen bg-gray-50">

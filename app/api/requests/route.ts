@@ -16,7 +16,9 @@ export async function GET(req: Request) {
 
     let requests;
 
-    if (session.user.role === "FAMILY") {
+    const activeMode = session.user.activeMode || 'FAMILY';
+
+    if (activeMode === "FAMILY") {
       const familyProfile = await prisma.familyProfile.findUnique({
         where: { userId: session.user.id },
       });
@@ -112,8 +114,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { providerId, familyProfileId, message } = body;
 
+    const activeMode = session.user.activeMode || 'FAMILY';
+
     // Validate that user has a family profile if they're a family member
-    if (session.user.role === "FAMILY") {
+    if (activeMode === "FAMILY") {
       const profile = await prisma.familyProfile.findUnique({
         where: { userId: session.user.id },
       });
