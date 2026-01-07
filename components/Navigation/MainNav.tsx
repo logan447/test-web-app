@@ -238,9 +238,6 @@ export default function MainNav() {
                     <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
                     <p className="text-xs text-gray-500">{session.user?.email}</p>
                   </div>
-                  <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Dashboard
-                  </Link>
                   <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Browse Providers
                   </Link>
@@ -405,9 +402,6 @@ export default function MainNav() {
                     <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
                     <p className="text-xs text-gray-500">{session.user?.email}</p>
                   </div>
-                  <Link href="/dashboard" className="block px-3 py-2 text-gray-700">
-                    Dashboard
-                  </Link>
                   <Link href="/" className="block px-3 py-2 text-gray-700">
                     Browse Providers
                   </Link>
