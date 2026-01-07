@@ -5,6 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import PaywallModal from "@/components/Paywall/PaywallModal";
+import { showToast } from "@/lib/toast";
+import { maskContactInfo } from "@/lib/contact-masking";
 
 type ConsultRequest = {
   id: string;
@@ -49,6 +52,7 @@ export default function RequestDetailPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -116,9 +120,42 @@ export default function RequestDetailPage() {
 
       if (response.ok) {
         fetchRequest();
+        showToast.success(`Request ${newStatus.toLowerCase()}`);
+      } else {
+        const data = await response.json();
+        if (data.requiresUpgrade) {
+          setPaywallOpen(true);
+        } else {
+          showToast.error(data.error || "Failed to update request");
+        }
       }
     } catch (err) {
       console.error("Error updating request:", err);
+      showToast.error("Failed to update request");
+    }
+  };
+
+  const handleUpgradeSubscription = async (tier: 'BASIC' | 'PRO') => {
+    try {
+      const response = await fetch('/api/subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast.success(`Upgraded to ${tier}!`);
+        setPaywallOpen(false);
+        // Refresh the page to show updated subscription status
+        fetchRequest();
+      } else {
+        throw new Error(data.error || 'Failed to upgrade');
+      }
+    } catch (err: any) {
+      console.error('Error upgrading subscription:', err);
+      throw err;
     }
   };
 
@@ -184,20 +221,88 @@ export default function RequestDetailPage() {
           {/* Contact Information */}
           <div className="border-t pt-4 mt-4">
             <h3 className="font-semibold text-gray-900 mb-2">Contact Information</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
+            {request.status === "ACCEPTED" || request.status === "COMPLETED" ? (
               <div>
-                <p className="text-gray-600">Email:</p>
-                <p className="text-gray-900">
-                  {isFamily ? request.provider.email : request.familyProfile.user.email}
-                </p>
+                <div className="grid md:grid-cols-2 gap-4 text-sm mb-3">
+                  <div>
+                    <p className="text-gray-600">Name:</p>
+                    <p className="text-gray-900">
+                      {isFamily ? request.provider.name : request.familyProfile.user.name}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Email:</p>
+                    <p className="text-gray-900">
+                      <a href={`mailto:${isFamily ? request.provider.email : request.familyProfile.user.email}`} className="text-primary-600 hover:text-primary-700">
+                        {isFamily ? request.provider.email : request.familyProfile.user.email}
+                      </a>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Phone:</p>
+                    <p className="text-gray-900">
+                      {isFamily ? (
+                        <a href={`tel:${request.provider.phone}`} className="text-primary-600 hover:text-primary-700">
+                          {request.provider.phone}
+                        </a>
+                      ) : (
+                        request.familyProfile.user.phone ? (
+                          <a href={`tel:${request.familyProfile.user.phone}`} className="text-primary-600 hover:text-primary-700">
+                            {request.familyProfile.user.phone}
+                          </a>
+                        ) : "Not provided"
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-green-600">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <span>Contact information unlocked</span>
+                </div>
               </div>
+            ) : (
               <div>
-                <p className="text-gray-600">Phone:</p>
-                <p className="text-gray-900">
-                  {isFamily ? request.provider.phone : request.familyProfile.user.phone || "Not provided"}
-                </p>
+                <div className="grid md:grid-cols-2 gap-4 text-sm mb-3">
+                  {(() => {
+                    const contactToMask = isFamily
+                      ? { name: request.provider.name, email: request.provider.email, phone: request.provider.phone }
+                      : { name: request.familyProfile.user.name, email: request.familyProfile.user.email, phone: request.familyProfile.user.phone };
+                    const masked = maskContactInfo(contactToMask);
+                    return (
+                      <>
+                        <div>
+                          <p className="text-gray-600">Name:</p>
+                          <p className="text-gray-500">{masked.name}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Email:</p>
+                          <p className="text-gray-500">{masked.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Phone:</p>
+                          <p className="text-gray-500">{masked.phone}</p>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-yellow-800">Contact information is locked</p>
+                      <p className="text-xs text-yellow-700 mt-1">
+                        Full contact details will be available once both parties accept the consultation request.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Actions - Only show for recipients, not senders */}
@@ -302,6 +407,12 @@ export default function RequestDetailPage() {
           </div>
         </div>
       </main>
+
+      <PaywallModal
+        isOpen={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        onUpgrade={handleUpgradeSubscription}
+      />
     </div>
   );
 }

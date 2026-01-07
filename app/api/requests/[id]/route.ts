@@ -18,6 +18,31 @@ export async function PATCH(
     const body = await req.json();
     const { status } = body;
 
+    // Paywall check: Providers need a subscription to accept requests
+    if (status === "ACCEPTED") {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: { subscription: true },
+      });
+
+      const activeMode = user?.activeMode || 'FAMILY';
+
+      if (activeMode === "PROVIDER") {
+        const subscription = user?.subscription;
+        const hasActiveSubscription = subscription?.status === 'ACTIVE' && subscription?.tier !== 'FREE';
+
+        if (!hasActiveSubscription) {
+          return NextResponse.json(
+            {
+              error: "Subscription required to accept consultation requests",
+              requiresUpgrade: true
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
+
     const request = await prisma.consultRequest.update({
       where: { id },
       data: { status },

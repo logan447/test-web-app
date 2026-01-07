@@ -143,7 +143,25 @@ export async function POST(req: Request) {
 
       return NextResponse.json(request, { status: 201 });
     } else {
-      // Provider sending request to family
+      // Provider sending request to family - requires subscription
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: { subscription: true },
+      });
+
+      const subscription = user?.subscription;
+      const hasActiveSubscription = subscription?.status === 'ACTIVE' && subscription?.tier !== 'FREE';
+
+      if (!hasActiveSubscription) {
+        return NextResponse.json(
+          {
+            error: "Subscription required to send consultation requests",
+            requiresUpgrade: true
+          },
+          { status: 403 }
+        );
+      }
+
       const request = await prisma.consultRequest.create({
         data: {
           senderId: session.user.id,

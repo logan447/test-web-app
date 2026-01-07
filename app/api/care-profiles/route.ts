@@ -16,6 +16,7 @@ const careProfileSchema = z.object({
   timeline: z.string().optional(),
   insurance: z.string().optional(),
   description: z.string().optional(),
+  isPublic: z.boolean().optional(),
 });
 
 export async function GET(req: Request) {

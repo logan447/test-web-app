@@ -18,6 +18,7 @@ type CareProfile = {
   timeline: string | null;
   insurance: string | null;
   description: string | null;
+  isPublic: boolean;
 };
 
 export default function CareProfilePage() {
@@ -28,6 +29,7 @@ export default function CareProfilePage() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -44,6 +46,7 @@ export default function CareProfilePage() {
         const data = await response.json();
         if (data) {
           setProfile(data);
+          setIsPublic(data.isPublic || false);
         } else {
           setEditing(true); // No profile exists, start in edit mode
         }
@@ -74,6 +77,7 @@ export default function CareProfilePage() {
       timeline: formData.get("timeline") || null,
       insurance: formData.get("insurance") || null,
       description: formData.get("description") || null,
+      isPublic: isPublic,
     };
 
     try {
@@ -309,6 +313,30 @@ export default function CareProfilePage() {
                     placeholder="Tell providers about your loved one's needs, preferences, or special requirements..."
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Profile Visibility */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile Visibility</h2>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isPublic}
+                    onChange={(e) => setIsPublic(e.target.checked)}
+                    className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <div className="flex-1">
+                    <span className="block text-sm font-medium text-gray-900">
+                      Make my profile visible to all providers
+                    </span>
+                    <p className="text-sm text-gray-600 mt-1">
+                      When enabled, providers can discover and reach out to you through the Browse Care Requests page.
+                      When disabled, only providers you directly contact will see your profile.
+                    </p>
+                  </div>
+                </label>
               </div>
             </div>
 
