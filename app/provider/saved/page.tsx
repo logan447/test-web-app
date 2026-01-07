@@ -112,7 +112,7 @@ export default function SavedFamilyProfiles() {
             </div>
             <h1 className="text-3xl font-bold text-gray-900">Saved Care Requests</h1>
             <p className="mt-2 text-gray-600">
-              Family profiles you've saved for follow-up
+              Family profiles you&apos;ve saved for follow-up
             </p>
           </div>
           <ProfileCardsSkeleton count={3} />
@@ -165,7 +165,7 @@ export default function SavedFamilyProfiles() {
               No saved care requests
             </h3>
             <p className="mt-2 text-sm text-gray-500">
-              Start browsing care requests and save the ones you're interested in.
+              Start browsing care requests and save the ones you&apos;re interested in.
             </p>
             <div className="mt-6">
               <Link

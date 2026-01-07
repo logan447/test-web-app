@@ -407,7 +407,7 @@ export default function ProviderProfilePage() {
                 placeholder="How many miles do you serve?"
               />
               <p className="text-sm text-gray-500 mt-1">
-                The geographic area you're willing to serve from your location
+                The geographic area you&apos;re willing to serve from your location
               </p>
             </div>
 

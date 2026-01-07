@@ -104,7 +104,7 @@ export default function SavedProviders() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Saved Providers</h1>
           <p className="mt-2 text-gray-600">
-            Providers you've saved for future reference
+            Providers you&apos;ve saved for future reference
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export default function SavedProviders() {
               No saved providers
             </h3>
             <p className="mt-2 text-sm text-gray-500">
-              Start browsing providers and save the ones you're interested in.
+              Start browsing providers and save the ones you&apos;re interested in.
             </p>
             <div className="mt-6">
               <Link
