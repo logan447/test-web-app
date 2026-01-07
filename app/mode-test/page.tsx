@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function ModeTestPage() {
@@ -60,7 +61,7 @@ export default function ModeTestPage() {
           <div className="text-red-600">
             <p className="font-semibold">❌ Not logged in!</p>
             <p className="mt-2">Please go to the home page and log in first.</p>
-            <a href="/" className="text-blue-600 underline mt-4 block">Go to Home</a>
+            <Link href="/" className="text-blue-600 underline mt-4 block">Go to Home</Link>
           </div>
         ) : (
           <>
@@ -106,7 +107,7 @@ export default function ModeTestPage() {
                 <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
                   <p className="text-sm text-yellow-800">
                     <strong>⚠️ No Provider Identity</strong><br/>
-                    You don't have a provider profile yet. Create one to access provider features.
+                    You don&apos;t have a provider profile yet. Create one to access provider features.
                   </p>
                   <a
                     href="/provider/onboarding"
@@ -119,7 +120,7 @@ export default function ModeTestPage() {
             </div>
 
             <div className="mt-8 pt-6 border-t">
-              <a href="/" className="text-blue-600 underline">← Back to Home</a>
+              <Link href="/" className="text-blue-600 underline">← Back to Home</Link>
             </div>
           </>
         )}
