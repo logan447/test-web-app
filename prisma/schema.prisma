@@ -124,6 +124,9 @@ model FamilyProfile {
   insurance     String?
   description   String?
 
+  // Visibility
+  isPublic      Boolean   @default(false) // Whether profile is visible to all providers
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
