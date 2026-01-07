@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import MainNav from '@/components/Navigation/MainNav';
 
 export default function ProviderRequests() {
   const { data: session } = useSession();
@@ -21,6 +22,8 @@ export default function ProviderRequests() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <MainNav />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Care Requests</h1>

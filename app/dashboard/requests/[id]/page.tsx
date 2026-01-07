@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import MainNav from "@/components/Navigation/MainNav";
 
 type ConsultRequest = {
   id: string;
@@ -152,18 +153,7 @@ export default function RequestDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link href="/" className="text-2xl font-bold text-primary-600">
-              Olera
-            </Link>
-            <Link href="/dashboard" className="text-gray-700 hover:text-primary-600">
-              Dashboard
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <MainNav />
 
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
