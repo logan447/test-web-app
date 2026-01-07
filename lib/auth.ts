@@ -26,6 +26,9 @@ export const authOptions: NextAuthOptions = {
           where: {
             email: credentials.email,
           },
+          include: {
+            providerIdentity: true,  // Include provider identity to check if exists
+          },
         });
 
         if (!user || !user.passwordHash) {
@@ -46,19 +49,29 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
+          activeMode: user.activeMode,
+          hasProviderIdentity: !!user.providerIdentity,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: updateSession }) {
       if (user) {
         return {
           ...token,
           id: user.id,
           role: user.role,
+          activeMode: user.activeMode || 'FAMILY',
+          hasProviderIdentity: user.hasProviderIdentity || false,
         };
       }
+
+      // Handle session updates (e.g., when switching modes)
+      if (trigger === "update" && updateSession?.activeMode) {
+        token.activeMode = updateSession.activeMode;
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -66,8 +79,10 @@ export const authOptions: NextAuthOptions = {
         ...session,
         user: {
           ...session.user,
-          id: token.id,
+          id: token.id as string,
           role: token.role,
+          activeMode: token.activeMode,
+          hasProviderIdentity: token.hasProviderIdentity,
         },
       };
     },

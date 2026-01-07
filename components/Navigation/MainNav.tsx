@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
 
 const MAIN_CATEGORIES = [
@@ -89,12 +90,58 @@ const OTHER_CATEGORIES = [
 ];
 
 export default function MainNav() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
+  const router = useRouter();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openOtherSubdropdown, setOpenOtherSubdropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
+  const [switchingMode, setSwitchingMode] = useState(false);
+
+  // Mode switching handler
+  const handleModeSwitch = async (newMode: 'FAMILY' | 'PROVIDER') => {
+    if (switchingMode) return;
+
+    try {
+      setSwitchingMode(true);
+
+      // Call API to switch mode
+      const response = await fetch('/api/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: newMode }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.needsOnboarding) {
+          // Redirect to provider onboarding
+          router.push('/provider/onboarding');
+        } else {
+          console.error('Failed to switch mode:', data.error);
+        }
+        return;
+      }
+
+      // Update session
+      await update({ activeMode: newMode });
+
+      // Redirect to appropriate landing page
+      router.push(data.landingPage);
+      router.refresh();
+
+    } catch (error) {
+      console.error('Error switching mode:', error);
+    } finally {
+      setSwitchingMode(false);
+    }
+  };
+
+  const currentMode = session?.user?.activeMode || 'FAMILY';
+  const isProviderMode = currentMode === 'PROVIDER';
+  const canSwitchToProvider = session?.user?.hasProviderIdentity || session?.user?.role === 'PROVIDER';
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -250,6 +297,26 @@ export default function MainNav() {
                   <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Care Profile
                   </Link>
+                  <div className="border-t border-gray-200 mt-1 pt-1">
+                    {isProviderMode ? (
+                      <button
+                        onClick={() => handleModeSwitch('FAMILY')}
+                        disabled={switchingMode}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                      >
+                        {switchingMode ? 'Switching...' : 'Switch to Family'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleModeSwitch('PROVIDER')}
+                        disabled={switchingMode || !canSwitchToProvider}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                        title={!canSwitchToProvider ? 'Create provider profile to access' : ''}
+                      >
+                        {switchingMode ? 'Switching...' : 'For Providers'}
+                      </button>
+                    )}
+                  </div>
                   <div className="border-t border-gray-200">
                     <Link href="/api/auth/signout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Log Out
@@ -414,6 +481,30 @@ export default function MainNav() {
                   <Link href="/dashboard/care-profile" className="block px-3 py-2 text-gray-700">
                     Care Profile
                   </Link>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  {isProviderMode ? (
+                    <button
+                      onClick={() => {
+                        handleModeSwitch('FAMILY');
+                        setMobileMenuOpen(false);
+                      }}
+                      disabled={switchingMode}
+                      className="block w-full text-left px-3 py-2 text-gray-700 disabled:opacity-50"
+                    >
+                      {switchingMode ? 'Switching...' : 'Switch to Family'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        handleModeSwitch('PROVIDER');
+                        setMobileMenuOpen(false);
+                      }}
+                      disabled={switchingMode || !canSwitchToProvider}
+                      className="block w-full text-left px-3 py-2 text-gray-700 disabled:opacity-50"
+                    >
+                      {switchingMode ? 'Switching...' : 'For Providers'}
+                    </button>
+                  )}
                   <Link href="/api/auth/signout" className="block px-3 py-2 text-gray-700">
                     Log Out
                   </Link>
