@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import AuthModal from "@/components/Auth/AuthModal";
 
 const MAIN_CATEGORIES = [
   {
@@ -92,6 +93,8 @@ export default function MainNav() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openOtherSubdropdown, setOpenOtherSubdropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -259,18 +262,24 @@ export default function MainNav() {
               </div>
             ) : (
               <>
-                <Link
-                  href="/login"
+                <button
+                  onClick={() => {
+                    setAuthModalView("login");
+                    setAuthModalOpen(true);
+                  }}
                   className="text-gray-700 hover:text-primary-600 font-medium"
                 >
                   Sign In
-                </Link>
-                <Link
-                  href="/signup"
+                </button>
+                <button
+                  onClick={() => {
+                    setAuthModalView("signup");
+                    setAuthModalOpen(true);
+                  }}
                   className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 font-medium"
                 >
                   Get Started
-                </Link>
+                </button>
               </>
             )}
           </div>
@@ -417,18 +426,39 @@ export default function MainNav() {
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="block px-3 py-2 text-gray-700">
+                  <button
+                    onClick={() => {
+                      setAuthModalView("login");
+                      setAuthModalOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-gray-700"
+                  >
                     Sign In
-                  </Link>
-                  <Link href="/signup" className="block px-3 py-2 bg-primary-600 text-white rounded-md text-center">
+                  </button>
+                  <button
+                    onClick={() => {
+                      setAuthModalView("signup");
+                      setAuthModalOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full px-3 py-2 bg-primary-600 text-white rounded-md text-center"
+                  >
                     Get Started
-                  </Link>
+                  </button>
                 </>
               )}
             </div>
           </div>
         )}
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultView={authModalView}
+      />
     </nav>
   );
 }
