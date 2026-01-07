@@ -71,7 +71,7 @@ export function isMaskedPhone(phone: string): boolean {
 }
 
 export function isMaskedName(name: string): boolean {
-  return name.includes('***') || name.match(/\s[A-Z]\.$/);
+  return name.includes('***') || !!name.match(/\s[A-Z]\.$/);
 }
 
 /**
