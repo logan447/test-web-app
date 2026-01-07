@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
+import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 
 type SavedFamilyProfile = {
   id: string;
@@ -96,8 +97,25 @@ export default function SavedFamilyProfiles() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <div className="flex items-center justify-center py-12">
-          <p className="text-gray-600">Loading saved care requests...</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-4">
+              <Link
+                href="/provider/requests"
+                className="text-primary-600 hover:text-primary-700 flex items-center gap-1"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Browse
+              </Link>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">Saved Care Requests</h1>
+            <p className="mt-2 text-gray-600">
+              Family profiles you've saved for follow-up
+            </p>
+          </div>
+          <ProfileCardsSkeleton count={3} />
         </div>
       </div>
     );

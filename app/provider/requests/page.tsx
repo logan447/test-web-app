@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
+import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 
 type FamilyProfile = {
   id: string;
@@ -160,21 +161,27 @@ export default function ProviderRequests() {
     return null;
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <div className="flex items-center justify-center py-12">
-          <p className="text-gray-600">Loading care requests...</p>
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Browse Care Requests</h1>
+            <p className="mt-2 text-gray-600">
+              Connect with families seeking care services in your area
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="animate-pulse">
+              <div className="h-10 bg-gray-200 rounded w-full"></div>
+            </div>
+          </div>
+          <ProfileCardsSkeleton count={3} />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <MainNav />
-
+    return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -349,6 +356,13 @@ export default function ProviderRequests() {
           </div>
         )}
       </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <MainNav />
+      {renderContent()}
     </div>
   );
 }
