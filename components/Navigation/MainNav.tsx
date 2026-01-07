@@ -511,7 +511,7 @@ export default function MainNav() {
                         handleModeSwitch('PROVIDER');
                         setMobileMenuOpen(false);
                       }}
-                      disabled={switchingMode || !canSwitchToProvider}
+                      disabled={switchingMode}
                       className="block w-full text-left px-3 py-2 text-gray-700 disabled:opacity-50"
                     >
                       {switchingMode ? 'Switching...' : 'For Providers'}
