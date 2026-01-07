@@ -309,6 +309,18 @@ export default function MainNav() {
                     Care Profile
                   </Link>
                   <div className="border-t border-gray-200 mt-1 pt-1">
+                    {(() => {
+                      console.log('🔍 DROPDOWN BUTTON DEBUG:', {
+                        isProviderMode,
+                        canSwitchToProvider,
+                        currentMode,
+                        sessionUser: session?.user,
+                        activeMode: session?.user?.activeMode,
+                        hasProviderIdentity: session?.user?.hasProviderIdentity,
+                        role: session?.user?.role
+                      });
+                      return null;
+                    })()}
                     {isProviderMode ? (
                       <button
                         onClick={() => handleModeSwitch('FAMILY')}
