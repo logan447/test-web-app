@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
+import { showToast } from '@/lib/toast';
 
 type FamilyProfile = {
   id: string;
@@ -104,19 +105,30 @@ export default function ProviderRequests() {
     try {
       if (isSaved) {
         // Unsave
-        await fetch(`/api/saved-families?familyProfileId=${profileId}`, {
+        const response = await fetch(`/api/saved-families?familyProfileId=${profileId}`, {
           method: 'DELETE',
         });
+        if (response.ok) {
+          showToast.success('Removed from saved');
+        } else {
+          throw new Error('Failed to unsave');
+        }
       } else {
         // Save
-        await fetch('/api/saved-families', {
+        const response = await fetch('/api/saved-families', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ familyProfileId: profileId }),
         });
+        if (response.ok) {
+          showToast.success('Saved for later');
+        } else {
+          throw new Error('Failed to save');
+        }
       }
     } catch (err) {
       console.error('Error toggling save:', err);
+      showToast.error(isSaved ? 'Failed to remove from saved' : 'Failed to save');
       // Revert optimistic update on error
       setSavedProfileIds(prev => {
         const next = new Set(prev);

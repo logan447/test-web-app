@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
+import { showToast } from '@/lib/toast';
 
 type SavedFamilyProfile = {
   id: string;
@@ -63,9 +64,13 @@ export default function SavedFamilyProfiles() {
 
       if (response.ok) {
         setProfiles(prev => prev.filter(p => p.id !== familyProfileId));
+        showToast.success('Removed from saved');
+      } else {
+        throw new Error('Failed to remove');
       }
     } catch (err) {
       console.error('Error removing saved profile:', err);
+      showToast.error('Failed to remove from saved');
     }
   };
 

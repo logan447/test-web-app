@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
+import { showToast } from "@/lib/toast";
 
 const MAIN_CATEGORIES = [
   {
@@ -117,11 +118,15 @@ export default function MainNav() {
 
       if (!response.ok) {
         console.error('Failed to switch mode:', data.error);
+        showToast.error('Failed to switch mode');
         return;
       }
 
       // Update session
       await update({ activeMode: newMode });
+
+      // Show success toast
+      showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
       // Redirect to appropriate landing page
       router.push(data.landingPage);
@@ -129,6 +134,7 @@ export default function MainNav() {
 
     } catch (error) {
       console.error('Error switching mode:', error);
+      showToast.error('Failed to switch mode');
     } finally {
       setSwitchingMode(false);
     }
