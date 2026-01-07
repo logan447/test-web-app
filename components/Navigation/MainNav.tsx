@@ -143,6 +143,17 @@ export default function MainNav() {
   const isProviderMode = currentMode === 'PROVIDER';
   const canSwitchToProvider = session?.user?.hasProviderIdentity || session?.user?.role === 'PROVIDER';
 
+  // Debug logging
+  console.log('Session data:', {
+    session: session?.user,
+    currentMode,
+    isProviderMode,
+    canSwitchToProvider,
+    activeMode: session?.user?.activeMode,
+    hasProviderIdentity: session?.user?.hasProviderIdentity,
+    role: session?.user?.role
+  });
+
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
