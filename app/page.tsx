@@ -32,17 +32,30 @@ export default function Home() {
 
   const fetchProviders = async () => {
     setLoading(true);
-    const params = new URLSearchParams();
-    if (search) params.append("search", search);
-    if (city) params.append("city", city);
-    if (state) params.append("state", state);
-    if (providerType) params.append("providerType", providerType);
-    if (careType) params.append("careType", careType);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (city) params.append("city", city);
+      if (state) params.append("state", state);
+      if (providerType) params.append("providerType", providerType);
+      if (careType) params.append("careType", careType);
 
-    const response = await fetch(`/api/providers?${params.toString()}`);
-    const data = await response.json();
-    setProviders(data);
-    setLoading(false);
+      const response = await fetch(`/api/providers?${params.toString()}`);
+      const data = await response.json();
+
+      // Handle API errors gracefully
+      if (response.ok && Array.isArray(data)) {
+        setProviders(data);
+      } else {
+        console.error("Failed to fetch providers:", data);
+        setProviders([]);
+      }
+    } catch (error) {
+      console.error("Error fetching providers:", error);
+      setProviders([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
