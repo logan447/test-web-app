@@ -253,16 +253,24 @@ export default function SavedFamilyProfiles() {
                   </div>
                 )}
 
-                {/* Action Button */}
-                <div className="flex justify-between items-center mt-6 pt-4 border-t">
-                  <div className="text-sm text-gray-500">
-                    <span className="font-medium">Location:</span> {profile.location}
-                  </div>
+                {/* Location */}
+                <div className="text-sm text-gray-500 pt-4 border-t">
+                  <span className="font-medium">Location:</span> {profile.location}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 mt-4">
                   <Link
                     href={`/provider/requests/${profile.id}`}
-                    className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium"
+                    className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 font-medium text-center"
                   >
-                    View Full Details
+                    Send Request
+                  </Link>
+                  <Link
+                    href={`/provider/requests/${profile.id}`}
+                    className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 font-medium text-center"
+                  >
+                    View Details
                   </Link>
                 </div>
               </div>

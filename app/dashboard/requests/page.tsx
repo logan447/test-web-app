@@ -174,7 +174,9 @@ export default function RequestsPage() {
                         : ""}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      From: {request.sender.name} •{" "}
+                      {activeTab === "sent"
+                        ? `To: ${isFamily ? request.provider.name : request.familyProfile?.user.name}`
+                        : `From: ${request.sender.name}`} •{" "}
                       {new Date(request.createdAt).toLocaleDateString()}
                     </p>
                   </div>

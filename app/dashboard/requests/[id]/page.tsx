@@ -221,48 +221,63 @@ export default function RequestDetailPage() {
           {/* Contact Information */}
           <div className="border-t pt-4 mt-4">
             <h3 className="font-semibold text-gray-900 mb-2">Contact Information</h3>
-            {request.status === "ACCEPTED" || request.status === "COMPLETED" ? (
-              <div>
-                <div className="grid md:grid-cols-2 gap-4 text-sm mb-3">
+            {(() => {
+              // Determine if contact should be visible
+              const requestAccepted = request.status === "ACCEPTED" || request.status === "COMPLETED";
+              const isOrganizationProvider = isFamily && request.provider.providerType !== "INDEPENDENT_CAREGIVER";
+              const shouldShowContact = requestAccepted || isOrganizationProvider;
+
+              if (shouldShowContact) {
+                return (
                   <div>
-                    <p className="text-gray-600">Name:</p>
-                    <p className="text-gray-900">
-                      {isFamily ? request.provider.name : request.familyProfile.user.name}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Email:</p>
-                    <p className="text-gray-900">
-                      <a href={`mailto:${isFamily ? request.provider.email : request.familyProfile.user.email}`} className="text-primary-600 hover:text-primary-700">
-                        {isFamily ? request.provider.email : request.familyProfile.user.email}
-                      </a>
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Phone:</p>
-                    <p className="text-gray-900">
-                      {isFamily ? (
-                        <a href={`tel:${request.provider.phone}`} className="text-primary-600 hover:text-primary-700">
-                          {request.provider.phone}
-                        </a>
-                      ) : (
-                        request.familyProfile.user.phone ? (
-                          <a href={`tel:${request.familyProfile.user.phone}`} className="text-primary-600 hover:text-primary-700">
-                            {request.familyProfile.user.phone}
+                    <div className="grid md:grid-cols-2 gap-4 text-sm mb-3">
+                      <div>
+                        <p className="text-gray-600">Name:</p>
+                        <p className="text-gray-900">
+                          {isFamily ? request.provider.name : request.familyProfile.user.name}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Email:</p>
+                        <p className="text-gray-900">
+                          <a href={`mailto:${isFamily ? request.provider.email : request.familyProfile.user.email}`} className="text-primary-600 hover:text-primary-700">
+                            {isFamily ? request.provider.email : request.familyProfile.user.email}
                           </a>
-                        ) : "Not provided"
-                      )}
-                    </p>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Phone:</p>
+                        <p className="text-gray-900">
+                          {isFamily ? (
+                            <a href={`tel:${request.provider.phone}`} className="text-primary-600 hover:text-primary-700">
+                              {request.provider.phone}
+                            </a>
+                          ) : (
+                            request.familyProfile.user.phone ? (
+                              <a href={`tel:${request.familyProfile.user.phone}`} className="text-primary-600 hover:text-primary-700">
+                                {request.familyProfile.user.phone}
+                              </a>
+                            ) : "Not provided"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-green-600">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      <span>
+                        {requestAccepted
+                          ? "Contact information unlocked"
+                          : "Organization contact info visible"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-1 text-xs text-green-600">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  <span>Contact information unlocked</span>
-                </div>
-              </div>
-            ) : (
+                );
+              }
+
+              // Show masked contact
+              return (
               <div>
                 <div className="grid md:grid-cols-2 gap-4 text-sm mb-3">
                   {(() => {
@@ -302,7 +317,8 @@ export default function RequestDetailPage() {
                   </div>
                 </div>
               </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* Actions - Only show for recipients, not senders */}
