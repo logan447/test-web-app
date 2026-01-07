@@ -23,6 +23,7 @@ const TIER_INFO = {
       'Email support',
       'Monthly usage reports',
     ],
+    popular: false,
   },
   PRO: {
     name: 'Pro',
