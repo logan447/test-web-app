@@ -17,11 +17,6 @@ export default function ProviderOnboarding() {
       router.push('/login');
       return;
     }
-
-    // If user already has provider identity, redirect to provider requests
-    if (session.user.hasProviderIdentity) {
-      router.push('/provider/requests');
-    }
   }, [session, router]);
 
   const handleCreateIdentity = async () => {
