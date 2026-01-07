@@ -28,8 +28,12 @@ export async function GET(req: Request) {
       }
 
       if (type === "sent") {
+        // Sent: requests sent BY this family (must match both sender and family profile)
         requests = await prisma.consultRequest.findMany({
-          where: { senderId: session.user.id },
+          where: {
+            senderId: session.user.id,
+            familyProfileId: familyProfile.id // Ensure it was sent FROM this family profile
+          },
           include: {
             provider: true,
             sender: true,

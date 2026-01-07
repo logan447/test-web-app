@@ -186,7 +186,7 @@ export default function RequestDetailPage() {
     return null;
   }
 
-  const isFamily = session?.user?.role === "FAMILY";
+  const isFamily = (session?.user?.activeMode || 'FAMILY') === "FAMILY";
   const isSender = request.sender.id === session?.user?.id;
 
   return (
