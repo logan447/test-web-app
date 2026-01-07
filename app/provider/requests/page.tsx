@@ -87,7 +87,7 @@ export default function ProviderRequests() {
       const response = await fetch('/api/saved-families');
       if (response.ok) {
         const savedProfiles = await response.json();
-        const ids = new Set(savedProfiles.map((p: any) => p.id));
+        const ids = new Set<string>(savedProfiles.map((p: any) => p.id));
         setSavedProfileIds(ids);
       }
     } catch (err) {
