@@ -116,6 +116,14 @@ model FamilyProfile {
   userId        String    @unique
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // About loved one (Sprint 2)
+  profilePhoto    String?
+  lovedOneName    String?
+  ageRange        String?
+  gender          String?
+  livingSituation String?
+  relationship    String?
+
   // Care needs
   careTypes     CareType[]
   location      String

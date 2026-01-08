@@ -6,6 +6,14 @@ import { z } from "zod";
 import { CareType } from "@prisma/client";
 
 const careProfileSchema = z.object({
+  // About loved one (Sprint 2)
+  profilePhoto: z.string().optional().nullable(),
+  lovedOneName: z.string().optional().nullable(),
+  ageRange: z.string().optional().nullable(),
+  gender: z.string().optional().nullable(),
+  livingSituation: z.string().optional().nullable(),
+  relationship: z.string().optional().nullable(),
+  // Care needs
   careTypes: z.array(z.nativeEnum(CareType)),
   location: z.string(),
   city: z.string(),

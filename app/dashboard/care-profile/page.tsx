@@ -9,9 +9,18 @@ import ProgressIndicator from "@/components/CareProfile/ProgressIndicator";
 import WarmIntroduction from "@/components/CareProfile/WarmIntroduction";
 import ProfileCompleteness from "@/components/CareProfile/ProfileCompleteness";
 import PrivacyReassurance from "@/components/CareProfile/PrivacyReassurance";
+import AboutLovedOneSection from "@/components/CareProfile/AboutLovedOneSection";
 
 type CareProfile = {
   id: string;
+  // About loved one
+  profilePhoto?: string | null;
+  lovedOneName?: string | null;
+  ageRange?: string | null;
+  gender?: string | null;
+  livingSituation?: string | null;
+  relationship?: string | null;
+  // Care needs
   careTypes: string[];
   location: string;
   city: string;
@@ -35,6 +44,16 @@ export default function CareProfilePage() {
   const [error, setError] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+
+  // About loved one state
+  const [aboutLovedOne, setAboutLovedOne] = useState({
+    profilePhoto: profile?.profilePhoto || null,
+    lovedOneName: profile?.lovedOneName || "",
+    ageRange: profile?.ageRange || "",
+    gender: profile?.gender || "",
+    livingSituation: profile?.livingSituation || "",
+    relationship: profile?.relationship || "",
+  });
 
   // Define steps for progress tracking
   const totalSteps = 3; // Will expand in future sprints
@@ -76,6 +95,15 @@ export default function CareProfilePage() {
         if (data) {
           setProfile(data);
           setIsPublic(data.isPublic || false);
+          // Update aboutLovedOne state with fetched data
+          setAboutLovedOne({
+            profilePhoto: data.profilePhoto || null,
+            lovedOneName: data.lovedOneName || "",
+            ageRange: data.ageRange || "",
+            gender: data.gender || "",
+            livingSituation: data.livingSituation || "",
+            relationship: data.relationship || "",
+          });
         } else {
           setEditing(true); // No profile exists, start in edit mode
         }
@@ -96,6 +124,14 @@ export default function CareProfilePage() {
     const careTypes = formData.getAll("careTypes");
 
     const data = {
+      // About loved one
+      profilePhoto: aboutLovedOne.profilePhoto,
+      lovedOneName: aboutLovedOne.lovedOneName || null,
+      ageRange: aboutLovedOne.ageRange || null,
+      gender: aboutLovedOne.gender || null,
+      livingSituation: aboutLovedOne.livingSituation || null,
+      relationship: aboutLovedOne.relationship || null,
+      // Care needs
       careTypes,
       location: formData.get("location"),
       city: formData.get("city"),
@@ -139,6 +175,11 @@ export default function CareProfilePage() {
 
   // Calculate profile completeness
   const completenessItems = [
+    {
+      label: "About your loved one",
+      completed: !!(aboutLovedOne.lovedOneName || aboutLovedOne.ageRange || aboutLovedOne.relationship),
+      required: false,
+    },
     {
       label: "Care types selected",
       completed: !!(profile?.careTypes && profile.careTypes.length > 0),
@@ -226,6 +267,17 @@ export default function CareProfilePage() {
               {/* Left: Form */}
               <div className="lg:col-span-2">
                 <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 space-y-8">
+            {/* About Your Loved One Section */}
+            <AboutLovedOneSection
+              data={aboutLovedOne}
+              onDataChange={(field, value) => {
+                setAboutLovedOne((prev) => ({ ...prev, [field]: value }));
+              }}
+            />
+
+            {/* Divider */}
+            <div className="border-t border-gray-200"></div>
+
             {/* Care Types Needed */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">What type of help do you need?</h2>
