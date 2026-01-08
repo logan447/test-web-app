@@ -13,6 +13,8 @@ import ProviderCardSkeleton from "@/components/Loading/ProviderCardSkeleton";
 import FiltersBar from "@/components/Directory/FiltersBar";
 import ActiveFilters from "@/components/Directory/ActiveFilters";
 import ResultsHeader from "@/components/Directory/ResultsHeader";
+import EmptyState from "@/components/Directory/EmptyState";
+import ErrorState from "@/components/Directory/ErrorState";
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import("@/components/Directory/MapView"), {
@@ -61,6 +63,7 @@ export default function Home() {
   const { data: session } = useSession();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -92,6 +95,7 @@ export default function Home() {
 
   const fetchProviders = async () => {
     setLoading(true);
+    setError(false);
     try {
       const params = new URLSearchParams();
       if (search) params.append("search", search);
@@ -118,13 +122,16 @@ export default function Home() {
       // Handle API errors gracefully
       if (response.ok && Array.isArray(data)) {
         setProviders(data);
+        setError(false);
       } else {
         console.error("Failed to fetch providers:", data);
         setProviders([]);
+        setError(true);
       }
     } catch (error) {
       console.error("Error fetching providers:", error);
       setProviders([]);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -238,6 +245,21 @@ export default function Home() {
     setSortBy(newSortBy);
     setTimeout(() => fetchProviders(), 0);
   };
+
+  // Check if any filters are active
+  const hasActiveFilters =
+    search ||
+    city ||
+    state ||
+    providerType ||
+    careType ||
+    priceMin > 0 ||
+    priceMax < 15000 ||
+    minRating > 0 ||
+    availability ||
+    amenities.length > 0 ||
+    insurance.length > 0 ||
+    languages.length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -391,8 +413,8 @@ export default function Home() {
 
           {/* Right Column: Results Header + Active Filters + Results */}
           <div className="lg:col-span-3">
-            {/* Results Header - Only show when not loading */}
-            {!loading && (
+            {/* Results Header - Only show when there are results */}
+            {!loading && !error && providers.length > 0 && (
               <ResultsHeader
                 count={providers.length}
                 sortBy={sortBy}
@@ -427,16 +449,13 @@ export default function Home() {
                   <ProviderCardSkeleton key={i} />
                 ))}
               </div>
+            ) : error ? (
+              <ErrorState onRetry={fetchProviders} />
             ) : providers.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
-                <p className="text-gray-600 mb-4">No providers found. Try adjusting your search criteria.</p>
-                <Link
-                  href="/dashboard"
-                  className="text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  Return to Dashboard
-                </Link>
-              </div>
+              <EmptyState
+                hasActiveFilters={hasActiveFilters}
+                onClearFilters={handleClearAllFilters}
+              />
             ) : viewMode === "map" ? (
               <MapView providers={providers} />
             ) : (
