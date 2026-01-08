@@ -93,3 +93,37 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    // Update the request status to DECLINED instead of deleting
+    // This preserves the record and notifies the other party
+    const request = await prisma.consultRequest.update({
+      where: { id },
+      data: { status: "DECLINED" },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Request declined",
+      request
+    });
+  } catch (error) {
+    console.error("Error deleting request:", error);
+    return NextResponse.json(
+      { error: "Failed to delete request" },
+      { status: 500 }
+    );
+  }
+}
