@@ -352,47 +352,75 @@ export default function MainNav() {
                   </div>
                   {isProviderMode ? (
                     <>
-                      <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Browse Care Requests
-                      </Link>
-                      <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Saved Requests
-                      </Link>
-                      {providerType && providerType === 'INDEPENDENT_CAREGIVER' && (
-                        <Link href="/caregiver/browse-organizations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                          Browse Organizations
-                        </Link>
+                      {/* Provider mode - check if profile exists */}
+                      {providerType ? (
+                        <>
+                          {/* Has provider profile */}
+                          <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Browse Care Requests
+                          </Link>
+                          <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Saved Families
+                          </Link>
+                          <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <span>My Requests</span>
+                            {unreadCount > 0 && (
+                              <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                              </span>
+                            )}
+                          </Link>
+                          <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Provider Profile
+                          </Link>
+
+                          {/* Hiring section divider */}
+                          <div className="border-t border-gray-200 my-1"></div>
+
+                          {/* Hiring section - different for organizations vs caregivers */}
+                          {providerType === 'INDEPENDENT_CAREGIVER' ? (
+                            <>
+                              <Link href="/caregiver/browse-organizations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Browse Organizations
+                              </Link>
+                              <Link href="/provider/hiring-requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Hiring Requests
+                              </Link>
+                            </>
+                          ) : (
+                            <>
+                              <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Browse Caregivers
+                              </Link>
+                              <Link href="/provider/hiring-requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Hiring Requests
+                              </Link>
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {/* No provider profile */}
+                          <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Browse Care Requests
+                          </Link>
+                          <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Provider Profile
+                          </Link>
+                        </>
                       )}
-                      {providerType && providerType !== 'INDEPENDENT_CAREGIVER' && (
-                        <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                          Hire Care Staff
-                        </Link>
-                      )}
-                      <Link href="/provider/hiring-requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Hiring Requests
-                      </Link>
-                      <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <span>Consultation Requests</span>
-                        {unreadCount > 0 && (
-                          <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                            {unreadCount > 9 ? '9+' : unreadCount}
-                          </span>
-                        )}
-                      </Link>
-                      <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Provider Profile
-                      </Link>
                     </>
                   ) : (
                     <>
+                      {/* Family mode */}
                       <Link href="/providers" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Browse Care Providers
+                        Browse Providers
                       </Link>
                       <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved Providers
                       </Link>
                       <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <span>Consultation Requests</span>
+                        <span>My Requests</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                             {unreadCount > 9 ? '9+' : unreadCount}
@@ -400,7 +428,7 @@ export default function MainNav() {
                         )}
                       </Link>
                       <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Care Needs Profile
+                        My Profile
                       </Link>
                     </>
                   )}
@@ -422,6 +450,9 @@ export default function MainNav() {
                         {switchingMode ? 'Switching...' : 'For Providers'}
                       </button>
                     )}
+                    <Link href="/dashboard/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Settings
+                    </Link>
                   </div>
                   <div className="border-t border-gray-200">
                     <button
@@ -603,47 +634,75 @@ export default function MainNav() {
                   </div>
                   {isProviderMode ? (
                     <>
-                      <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Browse Care Requests
-                      </Link>
-                      <Link href="/provider/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Saved
-                      </Link>
-                      {providerType && providerType === 'INDEPENDENT_CAREGIVER' && (
-                        <Link href="/caregiver/browse-organizations" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                          Browse Organizations
-                        </Link>
+                      {/* Provider mode - check if profile exists */}
+                      {providerType ? (
+                        <>
+                          {/* Has provider profile */}
+                          <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Browse Care Requests
+                          </Link>
+                          <Link href="/provider/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Saved Families
+                          </Link>
+                          <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            <span>My Requests</span>
+                            {unreadCount > 0 && (
+                              <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                              </span>
+                            )}
+                          </Link>
+                          <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Provider Profile
+                          </Link>
+
+                          {/* Hiring section divider */}
+                          <div className="border-t border-gray-200 my-2"></div>
+
+                          {/* Hiring section - different for organizations vs caregivers */}
+                          {providerType === 'INDEPENDENT_CAREGIVER' ? (
+                            <>
+                              <Link href="/caregiver/browse-organizations" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                                Browse Organizations
+                              </Link>
+                              <Link href="/provider/hiring-requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                                Hiring Requests
+                              </Link>
+                            </>
+                          ) : (
+                            <>
+                              <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                                Browse Caregivers
+                              </Link>
+                              <Link href="/provider/hiring-requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                                Hiring Requests
+                              </Link>
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {/* No provider profile */}
+                          <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Browse Care Requests
+                          </Link>
+                          <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Provider Profile
+                          </Link>
+                        </>
                       )}
-                      {providerType && providerType !== 'INDEPENDENT_CAREGIVER' && (
-                        <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                          Hire Care Staff
-                        </Link>
-                      )}
-                      <Link href="/provider/hiring-requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Hiring Requests
-                      </Link>
-                      <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        <span>Consultation Requests</span>
-                        {unreadCount > 0 && (
-                          <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                            {unreadCount > 9 ? '9+' : unreadCount}
-                          </span>
-                        )}
-                      </Link>
-                      <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Provider Profile
-                      </Link>
                     </>
                   ) : (
                     <>
+                      {/* Family mode */}
                       <Link href="/providers" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Browse Providers
                       </Link>
                       <Link href="/dashboard/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Saved
+                        Saved Providers
                       </Link>
                       <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        <span>Requests</span>
+                        <span>My Requests</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                             {unreadCount > 9 ? '9+' : unreadCount}
@@ -651,7 +710,7 @@ export default function MainNav() {
                         )}
                       </Link>
                       <Link href="/dashboard/care-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Care Profile
+                        My Profile
                       </Link>
                     </>
                   )}
@@ -665,7 +724,7 @@ export default function MainNav() {
                       disabled={switchingMode}
                       className="block w-full text-left px-3 py-2 text-gray-700 disabled:opacity-50"
                     >
-                      {switchingMode ? 'Switching...' : 'Switch to Family'}
+                      {switchingMode ? 'Switching...' : 'For Families'}
                     </button>
                   ) : (
                     <button
@@ -679,6 +738,10 @@ export default function MainNav() {
                       {switchingMode ? 'Switching...' : 'For Providers'}
                     </button>
                   )}
+                  <Link href="/dashboard/settings" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                    Settings
+                  </Link>
+                  <div className="border-t border-gray-200 my-2"></div>
                   <button
                     onClick={() => setSignOutModalOpen(true)}
                     className="block w-full text-left px-3 py-2 text-gray-700"
