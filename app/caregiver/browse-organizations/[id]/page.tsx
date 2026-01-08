@@ -136,6 +136,13 @@ export default function OrganizationDetailPage() {
 
       // Send hiring request to the organization
       // Note: providerId is the organization's ID (params.id) because they are the one receiving the request
+      console.log('Sending hiring request with:', {
+        familyProfileId,
+        providerId: params.id,
+        message: requestMessage,
+        requestType: 'HIRING'
+      });
+
       const response = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -146,6 +153,19 @@ export default function OrganizationDetailPage() {
           requestType: 'HIRING',
         }),
       });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        showToast.error('Server error: ' + text.substring(0, 100));
+        setSending(false);
+        return;
+      }
 
       const data = await response.json();
 
