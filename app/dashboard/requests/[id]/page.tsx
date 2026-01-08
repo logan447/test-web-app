@@ -58,13 +58,22 @@ export default function RequestDetailPage() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Determine back link based on where user came from
+  // Determine back link based on where user came from and request type
   const fromSaved = searchParams.get('from') === 'saved';
   const isProviderMode = (session?.user?.activeMode || 'FAMILY') === 'PROVIDER';
+  const isHiringRequest = request?.requestType === 'HIRING';
+
   const backHref = fromSaved
     ? (isProviderMode ? '/provider/saved' : '/dashboard/saved')
-    : '/dashboard/requests';
-  const backText = fromSaved ? '← Back to Saved' : '← Back to Requests';
+    : isHiringRequest
+      ? '/provider/hiring-requests'
+      : '/dashboard/requests';
+
+  const backText = fromSaved
+    ? '← Back to Saved'
+    : isHiringRequest
+      ? '← Back to Hiring Requests'
+      : '← Back to My Requests';
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -415,14 +424,14 @@ export default function RequestDetailPage() {
             {request.status === "PENDING" && !isSender && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-yellow-800">
-                  <strong>Action needed:</strong> Review the message above and decide if you&apos;d like to connect. Once you accept, you can exchange messages and see contact information.
+                  <strong>Action needed:</strong> Review the request above and decide if you&apos;d like to connect. Once you accept, you can exchange messages and see contact information.
                 </p>
               </div>
             )}
             {request.status === "PENDING" && isSender && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-blue-800">
-                  <strong>Waiting for reply:</strong> Your message has been sent. You&apos;ll be notified when they respond.
+                  <strong>Waiting for reply:</strong> Your request has been sent. You&apos;ll be notified when they respond.
                 </p>
               </div>
             )}
