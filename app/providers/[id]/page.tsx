@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
+import AuthModal from "@/components/Auth/AuthModal";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -35,6 +36,7 @@ export default function ProviderProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
     fetchProvider();
@@ -75,7 +77,7 @@ export default function ProviderProfilePage() {
 
   const handleSaveToggle = async () => {
     if (!session?.user) {
-      router.push('/login');
+      setAuthModalOpen(true);
       return;
     }
 
@@ -279,6 +281,13 @@ export default function ProviderProfilePage() {
           </div>
         </div>
       </main>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultView="login"
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import AuthModal from "@/components/Auth/AuthModal";
 
 type Provider = {
   id: string;
@@ -22,12 +23,13 @@ function NewRequestContent() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const providerId = searchParams.get("providerId");
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      setAuthModalOpen(true);
     } else if (providerId) {
       fetchProvider();
     }
@@ -152,6 +154,16 @@ function NewRequestContent() {
           </div>
         </form>
       </main>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => {
+          setAuthModalOpen(false);
+          router.push(`/providers/${providerId}`);
+        }}
+        defaultView="login"
+      />
     </div>
   );
 }

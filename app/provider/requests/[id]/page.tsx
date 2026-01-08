@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
+import AuthModal from '@/components/Auth/AuthModal';
 import PaywallModal from '@/components/Paywall/PaywallModal';
 
 type FamilyProfile = {
@@ -38,10 +39,11 @@ export default function FamilyProfileDetail() {
   const [requestMessage, setRequestMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
     if (!session) {
-      router.push('/login');
+      setAuthModalOpen(true);
       return;
     }
     fetchProfile();
@@ -303,6 +305,16 @@ export default function FamilyProfileDetail() {
         isOpen={paywallOpen}
         onClose={() => setPaywallOpen(false)}
         onUpgrade={handleUpgradeSubscription}
+      />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => {
+          setAuthModalOpen(false);
+          router.push('/provider/requests');
+        }}
+        defaultView="login"
       />
     </div>
   );
