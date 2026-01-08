@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
+import HeroSection from "@/components/Directory/HeroSection";
 
 type Provider = {
   id: string;
@@ -94,127 +95,153 @@ export default function Home() {
     ).join(' ');
   };
 
+  const handleHeroSearch = (heroCity: string, heroState: string, heroCareType: string) => {
+    setCity(heroCity);
+    setState(heroState);
+    setCareType(heroCareType);
+    // Trigger search after state update
+    setTimeout(() => fetchProviders(), 0);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
+      {/* Hero Section */}
+      <HeroSection
+        onSearch={handleHeroSearch}
+        initialCity={city}
+        initialState={state}
+        initialCareType={careType}
+        totalProviders={1000}
+      />
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Care Providers</h1>
-          <p className="text-gray-600">Browse our nationwide directory of elder care providers</p>
-        </div>
+        {/* Advanced Filters (Collapsible) */}
+        <details className="bg-white rounded-lg shadow mb-8">
+          <summary className="px-6 py-4 cursor-pointer font-semibold text-gray-900 hover:text-primary-600 transition-smooth flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              Advanced Filters
+            </span>
+            <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
 
-        {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Search
-                </label>
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Provider name or keywords..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
+          <div className="px-6 pb-6">
+            <form onSubmit={handleSearch} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Search Keywords
+                  </label>
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Provider name or keywords..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Enter city"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    State
+                  </label>
+                  <input
+                    type="text"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    placeholder="e.g., CA, NY"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Provider Type
+                  </label>
+                  <select
+                    value={providerType}
+                    onChange={(e) => setProviderType(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    <option value="">All Types</option>
+                    <option value="HOME_CARE">Home Care</option>
+                    <option value="HOME_HEALTH">Home Health</option>
+                    <option value="ASSISTED_LIVING">Assisted Living</option>
+                    <option value="INDEPENDENT_LIVING">Independent Living</option>
+                    <option value="MEMORY_CARE">Memory Care</option>
+                    <option value="NURSING_HOME">Nursing Home</option>
+                    <option value="HOSPICE">Hospice</option>
+                    <option value="REHABILITATION">Rehabilitation</option>
+                    <option value="INDEPENDENT_CAREGIVER">Independent Caregiver</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Care Type
+                  </label>
+                  <select
+                    value={careType}
+                    onChange={(e) => setCareType(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    <option value="">All Care Types</option>
+                    <option value="COMPANION_CARE">Companion Care</option>
+                    <option value="PERSONAL_CARE">Personal Care</option>
+                    <option value="SKILLED_NURSING">Skilled Nursing</option>
+                    <option value="MEMORY_CARE">Memory Care</option>
+                    <option value="HOSPICE_CARE">Hospice Care</option>
+                    <option value="RESPITE_CARE">Respite Care</option>
+                    <option value="LIVE_IN_CARE">Live-In Care</option>
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  City
-                </label>
-                <input
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="Enter city"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  State
-                </label>
-                <input
-                  type="text"
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  placeholder="e.g., CA, NY"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Provider Type
-                </label>
-                <select
-                  value={providerType}
-                  onChange={(e) => setProviderType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700 transition-smooth"
                 >
-                  <option value="">All Types</option>
-                  <option value="HOME_CARE">Home Care</option>
-                  <option value="HOME_HEALTH">Home Health</option>
-                  <option value="ASSISTED_LIVING">Assisted Living</option>
-                  <option value="INDEPENDENT_LIVING">Independent Living</option>
-                  <option value="MEMORY_CARE">Memory Care</option>
-                  <option value="NURSING_HOME">Nursing Home</option>
-                  <option value="HOSPICE">Hospice</option>
-                  <option value="REHABILITATION">Rehabilitation</option>
-                  <option value="INDEPENDENT_CAREGIVER">Independent Caregiver</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Care Type
-                </label>
-                <select
-                  value={careType}
-                  onChange={(e) => setCareType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  Apply Filters
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setCity("");
+                    setState("");
+                    setProviderType("");
+                    setCareType("");
+                    fetchProviders();
+                  }}
+                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-smooth"
                 >
-                  <option value="">All Care Types</option>
-                  <option value="COMPANION_CARE">Companion Care</option>
-                  <option value="PERSONAL_CARE">Personal Care</option>
-                  <option value="SKILLED_NURSING">Skilled Nursing</option>
-                  <option value="MEMORY_CARE">Memory Care</option>
-                  <option value="HOSPICE_CARE">Hospice Care</option>
-                  <option value="RESPITE_CARE">Respite Care</option>
-                  <option value="LIVE_IN_CARE">Live-In Care</option>
-                </select>
+                  Clear All
+                </button>
               </div>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700"
-              >
-                Search
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch("");
-                  setCity("");
-                  setState("");
-                  setProviderType("");
-                  setCareType("");
-                  fetchProviders();
-                }}
-                className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300"
-              >
-                Clear
-              </button>
-            </div>
-          </form>
-        </div>
+            </form>
+          </div>
+        </details>
 
         {/* Results */}
         {loading ? (
