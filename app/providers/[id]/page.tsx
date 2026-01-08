@@ -10,6 +10,7 @@ import PhotoGallery from "@/components/Gallery/PhotoGallery";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
 import ReviewModal from "@/components/Reviews/ReviewModal";
 import AmenitiesSection from "@/components/Provider/AmenitiesSection";
+import StaffSection from "@/components/Provider/StaffSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -49,6 +50,13 @@ type Provider = {
   medicalServices: string[];
   activitiesOffered: string[];
   dietaryOptions: string[];
+  staffToResidentRatio: string | null;
+  hasRNOnSite: boolean;
+  hasLVNOnSite: boolean;
+  allStaffBackgroundChecked: boolean;
+  visitingDoctorFrequency: string | null;
+  caregiverTraining: string[];
+  languagesSpoken: string[];
 };
 
 export default function ProviderProfilePage() {
@@ -365,6 +373,17 @@ export default function ProviderProfilePage() {
             medicalServices={provider.medicalServices}
             activitiesOffered={provider.activitiesOffered}
             dietaryOptions={provider.dietaryOptions}
+          />
+
+          {/* Staff Section */}
+          <StaffSection
+            staffToResidentRatio={provider.staffToResidentRatio}
+            hasRNOnSite={provider.hasRNOnSite}
+            hasLVNOnSite={provider.hasLVNOnSite}
+            allStaffBackgroundChecked={provider.allStaffBackgroundChecked}
+            visitingDoctorFrequency={provider.visitingDoctorFrequency}
+            caregiverTraining={provider.caregiverTraining}
+            languagesSpoken={provider.languagesSpoken}
           />
 
           {/* Details Grid */}

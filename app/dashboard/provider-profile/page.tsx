@@ -45,6 +45,13 @@ type Provider = {
   medicalServices: string[];
   activitiesOffered: string[];
   dietaryOptions: string[];
+  staffToResidentRatio: string | null;
+  hasRNOnSite: boolean;
+  hasLVNOnSite: boolean;
+  allStaffBackgroundChecked: boolean;
+  visitingDoctorFrequency: string | null;
+  caregiverTraining: string[];
+  languagesSpoken: string[];
 };
 
 const PROVIDER_TYPES = [
@@ -163,6 +170,47 @@ const DIETARY_OPTIONS = [
   "Halal Meals",
 ];
 
+const CAREGIVER_TRAINING = [
+  "CPR Certified",
+  "First Aid Certified",
+  "Dementia Care Training",
+  "Alzheimer's Care Certified",
+  "Fall Prevention Training",
+  "Medication Administration",
+  "Infection Control",
+  "Patient Lifting & Transfer",
+  "End-of-Life Care Training",
+  "Mental Health First Aid",
+];
+
+const LANGUAGES = [
+  "English",
+  "Spanish",
+  "Mandarin",
+  "Cantonese",
+  "Tagalog",
+  "Vietnamese",
+  "Korean",
+  "Russian",
+  "Arabic",
+  "French",
+  "German",
+  "Italian",
+  "Portuguese",
+  "Japanese",
+  "Hindi",
+];
+
+const VISITING_DOCTOR_OPTIONS = [
+  "Daily",
+  "2-3 times per week",
+  "Weekly",
+  "Bi-weekly",
+  "Monthly",
+  "As needed",
+  "On-call 24/7",
+];
+
 export default function ProviderProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -188,6 +236,13 @@ export default function ProviderProfilePage() {
   const [selectedMedicalServices, setSelectedMedicalServices] = useState<string[]>([]);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [selectedDietaryOptions, setSelectedDietaryOptions] = useState<string[]>([]);
+  const [staffToResidentRatio, setStaffToResidentRatio] = useState<string>("");
+  const [hasRNOnSite, setHasRNOnSite] = useState(false);
+  const [hasLVNOnSite, setHasLVNOnSite] = useState(false);
+  const [allStaffBackgroundChecked, setAllStaffBackgroundChecked] = useState(false);
+  const [visitingDoctorFrequency, setVisitingDoctorFrequency] = useState<string>("");
+  const [selectedCaregiverTraining, setSelectedCaregiverTraining] = useState<string[]>([]);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -220,6 +275,13 @@ export default function ProviderProfilePage() {
         setSelectedMedicalServices(data.medicalServices || []);
         setSelectedActivities(data.activitiesOffered || []);
         setSelectedDietaryOptions(data.dietaryOptions || []);
+        setStaffToResidentRatio(data.staffToResidentRatio || "");
+        setHasRNOnSite(data.hasRNOnSite || false);
+        setHasLVNOnSite(data.hasLVNOnSite || false);
+        setAllStaffBackgroundChecked(data.allStaffBackgroundChecked || false);
+        setVisitingDoctorFrequency(data.visitingDoctorFrequency || "");
+        setSelectedCaregiverTraining(data.caregiverTraining || []);
+        setSelectedLanguages(data.languagesSpoken || []);
         setEditing(false);
       } else if (response.status === 404) {
         setEditing(true);
@@ -273,6 +335,13 @@ export default function ProviderProfilePage() {
       medicalServices: selectedMedicalServices,
       activitiesOffered: selectedActivities,
       dietaryOptions: selectedDietaryOptions,
+      staffToResidentRatio: staffToResidentRatio || null,
+      hasRNOnSite: hasRNOnSite,
+      hasLVNOnSite: hasLVNOnSite,
+      allStaffBackgroundChecked: allStaffBackgroundChecked,
+      visitingDoctorFrequency: visitingDoctorFrequency || null,
+      caregiverTraining: selectedCaregiverTraining,
+      languagesSpoken: selectedLanguages,
     };
 
     try {
@@ -360,6 +429,22 @@ export default function ProviderProfilePage() {
       prev.includes(option)
         ? prev.filter((s) => s !== option)
         : [...prev, option]
+    );
+  };
+
+  const toggleCaregiverTraining = (training: string) => {
+    setSelectedCaregiverTraining((prev) =>
+      prev.includes(training)
+        ? prev.filter((s) => s !== training)
+        : [...prev, training]
+    );
+  };
+
+  const toggleLanguage = (language: string) => {
+    setSelectedLanguages((prev) =>
+      prev.includes(language)
+        ? prev.filter((s) => s !== language)
+        : [...prev, language]
     );
   };
 
@@ -1151,6 +1236,119 @@ export default function ProviderProfilePage() {
                         className="rounded border-gray-300"
                       />
                       <span className="text-sm text-gray-700">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Staff & Care Information Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Staff & Care Information</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Help families understand your staffing and care approach.
+              </p>
+
+              {/* Staff to Resident Ratio */}
+              <div className="mb-6">
+                <label htmlFor="staffRatio" className="block text-sm font-medium text-gray-700 mb-2">
+                  Staff-to-Resident Ratio (e.g., 1:5, 1:8)
+                </label>
+                <input
+                  type="text"
+                  id="staffRatio"
+                  value={staffToResidentRatio}
+                  onChange={(e) => setStaffToResidentRatio(e.target.value)}
+                  placeholder="1:5"
+                  className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+
+              {/* Medical Staff */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-800 mb-3">Medical Staff On-Site</h4>
+                <div className="space-y-3">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={hasRNOnSite}
+                      onChange={(e) => setHasRNOnSite(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-sm text-gray-700">Registered Nurse (RN) On-Site</span>
+                  </label>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={hasLVNOnSite}
+                      onChange={(e) => setHasLVNOnSite(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-sm text-gray-700">Licensed Vocational Nurse (LVN) On-Site</span>
+                  </label>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={allStaffBackgroundChecked}
+                      onChange={(e) => setAllStaffBackgroundChecked(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-sm text-gray-700">All Staff Background Checked</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Visiting Doctor Frequency */}
+              <div className="mb-6">
+                <label htmlFor="doctorFrequency" className="block text-sm font-medium text-gray-700 mb-2">
+                  Visiting Doctor Frequency
+                </label>
+                <select
+                  id="doctorFrequency"
+                  value={visitingDoctorFrequency}
+                  onChange={(e) => setVisitingDoctorFrequency(e.target.value)}
+                  className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="">Select frequency</option>
+                  {VISITING_DOCTOR_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Caregiver Training */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-800 mb-3">Staff Training & Certifications</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {CAREGIVER_TRAINING.map((training) => (
+                    <label key={training} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedCaregiverTraining.includes(training)}
+                        onChange={() => toggleCaregiverTraining(training)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{training}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Languages Spoken */}
+              <div>
+                <h4 className="text-md font-medium text-gray-800 mb-3">Languages Spoken by Staff</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {LANGUAGES.map((language) => (
+                    <label key={language} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedLanguages.includes(language)}
+                        onChange={() => toggleLanguage(language)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{language}</span>
                     </label>
                   ))}
                 </div>

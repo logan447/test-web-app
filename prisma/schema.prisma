@@ -205,6 +205,15 @@ model Provider {
   activitiesOffered String[]     @default([])  // Activities (arts, music, exercise, etc.)
   dietaryOptions    String[]     @default([])  // Meal options (vegetarian, diabetic-friendly, etc.)
 
+  // Staff & Care Information
+  staffToResidentRatio     String?   // e.g., "1:5" or "1:8"
+  hasRNOnSite              Boolean   @default(false)  // Registered Nurse on-site
+  hasLVNOnSite             Boolean   @default(false)  // Licensed Vocational Nurse on-site
+  allStaffBackgroundChecked Boolean  @default(false)  // All staff background checked
+  visitingDoctorFrequency  String?   // e.g., "Weekly", "Bi-weekly", "Monthly"
+  caregiverTraining        String[]  @default([])    // Training certifications (CPR, First Aid, etc.)
+  languagesSpoken          String[]  @default([])    // Languages staff can speak
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)

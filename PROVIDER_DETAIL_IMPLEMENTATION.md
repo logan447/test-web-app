@@ -183,30 +183,37 @@
 
 ---
 
-### **Sprint 6: Staff & Care Information (Week 4, Days 1-2)**
+### **Sprint 6: Staff & Care Information (Week 4, Days 1-2)** ✅ COMPLETED
 
-#### Task 6.1: Add Staff Fields to Database
-- [ ] Update Prisma schema:
+#### Task 6.1: Add Staff Fields to Database ✅
+- [x] Update Prisma schema:
   - `staffToResidentRatio` (String, nullable)
   - `hasRNOnSite` (Boolean)
   - `hasLVNOnSite` (Boolean)
   - `allStaffBackgroundChecked` (Boolean)
   - `visitingDoctorFrequency` (String, nullable)
-- [ ] Run migration
+  - `caregiverTraining` (String[])
+  - `languagesSpoken` (String[])
+- [x] Run migration
 
-#### Task 6.2: Add Staff Information Section
-- [ ] Display staff-to-resident ratio prominently
-- [ ] List staff credentials with checkmarks
-- [ ] Medical support details
-- [ ] Style as trust-building section
+#### Task 6.2: Add Staff Information Section ✅
+- [x] Display staff-to-resident ratio prominently
+- [x] List staff credentials with checkmarks
+- [x] Medical support details
+- [x] Style as trust-building section
+- [x] Added caregiver training display
+- [x] Added languages spoken badges
 
-#### Task 6.3: Update Provider Profile Form
-- [ ] Add staff information inputs
-- [ ] Ratio input (text or dropdowns)
-- [ ] Staff credential checkboxes
-- [ ] Medical support details
+#### Task 6.3: Update Provider Profile Form ✅
+- [x] Add staff information inputs
+- [x] Ratio input (text or dropdowns)
+- [x] Staff credential checkboxes
+- [x] Medical support details
+- [x] Caregiver training (10 options)
+- [x] Languages spoken (15 options)
+- [x] Visiting doctor frequency selector
 
-**Deliverable:** Clear staff information builds confidence
+**Deliverable:** ✅ Clear staff information builds confidence
 
 ---
 
@@ -317,14 +324,14 @@
 - [x] Sprint 3: Photo Gallery System ✅
 - [x] Sprint 4: Reviews & Ratings System ✅
 - [x] Sprint 5: Detailed Amenities & Services ✅
-- [ ] Sprint 6: Staff & Care Information
+- [x] Sprint 6: Staff & Care Information ✅
 - [ ] Sprint 7: Location & Map Integration
 - [ ] Sprint 8: Enhanced CTAs & Booking Flow
 - [ ] Sprint 9: Specialty Care & Programs
 - [ ] Sprint 10: Polish & Optimization
 
-### Current Sprint: 6
-### Current Task: 6.1
+### Current Sprint: 7
+### Current Task: 7.1
 
 ---
 
