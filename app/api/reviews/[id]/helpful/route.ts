@@ -6,9 +6,10 @@ import prisma from '@/lib/prisma';
 // PUT /api/reviews/[id]/helpful - Mark review as helpful
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -17,7 +18,7 @@ export async function PUT(
 
     // Check if review exists
     const review = await prisma.review.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!review) {
@@ -29,7 +30,7 @@ export async function PUT(
 
     // Increment helpful count
     const updatedReview = await prisma.review.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         helpfulCount: {
           increment: 1,

@@ -6,9 +6,10 @@ import prisma from '@/lib/prisma';
 // GET /api/providers/[id]/reviews - Fetch reviews with pagination
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -28,7 +29,7 @@ export async function GET(
     const [reviews, totalCount] = await Promise.all([
       prisma.review.findMany({
         where: {
-          providerId: params.id,
+          providerId: id,
           approved: true, // Only show approved reviews
         },
         include: {
@@ -44,7 +45,7 @@ export async function GET(
       }),
       prisma.review.count({
         where: {
-          providerId: params.id,
+          providerId: id,
           approved: true,
         },
       }),
@@ -71,9 +72,10 @@ export async function GET(
 // POST /api/providers/[id]/reviews - Submit a review
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -100,7 +102,7 @@ export async function POST(
 
     // Check if provider exists
     const provider = await prisma.provider.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!provider) {
@@ -114,7 +116,7 @@ export async function POST(
     const existingReview = await prisma.review.findUnique({
       where: {
         providerId_userId: {
-          providerId: params.id,
+          providerId: id,
           userId: session.user.id,
         },
       },
@@ -130,7 +132,7 @@ export async function POST(
     // Create review
     const review = await prisma.review.create({
       data: {
-        providerId: params.id,
+        providerId: id,
         userId: session.user.id,
         rating,
         title: title?.trim() || null,
@@ -150,7 +152,7 @@ export async function POST(
     // Update provider's aggregate rating and count
     const aggregateResult = await prisma.review.aggregate({
       where: {
-        providerId: params.id,
+        providerId: id,
         approved: true,
       },
       _avg: {
@@ -160,7 +162,7 @@ export async function POST(
     });
 
     await prisma.provider.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         averageRating: aggregateResult._avg.rating,
         reviewCount: aggregateResult._count,
