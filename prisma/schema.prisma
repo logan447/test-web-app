@@ -146,6 +146,18 @@ model FamilyProfile {
   city          String
   state         String
   zipCode       String
+
+  // Location & contact preferences (Sprint 6)
+  careSettingPreference     String?
+  proximityImportance       String?
+  proximityDetails          String?
+  neighborhoodPreferences   String?
+  preferredContactMethods   String[]   @default([])
+  bestTimeToContact         String[]   @default([])
+  tourPreference            String?
+  communicationFrequency    String?
+  additionalContactNotes    String?
+
   budgetMin     Int?
   budgetMax     Int?
 

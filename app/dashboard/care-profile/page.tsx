@@ -13,6 +13,7 @@ import AboutLovedOneSection from "@/components/CareProfile/AboutLovedOneSection"
 import CareNeedsAssessment from "@/components/CareProfile/CareNeedsAssessment";
 import PersonalityPreferences from "@/components/CareProfile/PersonalityPreferences";
 import BudgetTimeline from "@/components/CareProfile/BudgetTimeline";
+import LocationContactPreferences from "@/components/CareProfile/LocationContactPreferences";
 
 type CareProfile = {
   id: string;
@@ -43,6 +44,16 @@ type CareProfile = {
   city: string;
   state: string;
   zipCode: string;
+  // Location & contact preferences
+  careSettingPreference?: string | null;
+  proximityImportance?: string | null;
+  proximityDetails?: string | null;
+  neighborhoodPreferences?: string | null;
+  preferredContactMethods?: string[];
+  bestTimeToContact?: string[];
+  tourPreference?: string | null;
+  communicationFrequency?: string | null;
+  additionalContactNotes?: string | null;
   budgetMin: number | null;
   budgetMax: number | null;
   // Enhanced budget & timeline
@@ -113,6 +124,19 @@ export default function CareProfilePage() {
     preferredStartDate: profile?.preferredStartDate || "",
     careDuration: profile?.careDuration || "",
     scheduleFlexibility: profile?.scheduleFlexibility || "",
+  });
+
+  // Location & contact preferences state
+  const [locationContact, setLocationContact] = useState({
+    careSettingPreference: profile?.careSettingPreference || "",
+    proximityImportance: profile?.proximityImportance || "",
+    proximityDetails: profile?.proximityDetails || "",
+    neighborhoodPreferences: profile?.neighborhoodPreferences || "",
+    preferredContactMethods: profile?.preferredContactMethods || [],
+    bestTimeToContact: profile?.bestTimeToContact || [],
+    tourPreference: profile?.tourPreference || "",
+    communicationFrequency: profile?.communicationFrequency || "",
+    additionalContactNotes: profile?.additionalContactNotes || "",
   });
 
   // Define steps for progress tracking
@@ -195,6 +219,18 @@ export default function CareProfilePage() {
             careDuration: data.careDuration || "",
             scheduleFlexibility: data.scheduleFlexibility || "",
           });
+          // Update locationContact state with fetched data
+          setLocationContact({
+            careSettingPreference: data.careSettingPreference || "",
+            proximityImportance: data.proximityImportance || "",
+            proximityDetails: data.proximityDetails || "",
+            neighborhoodPreferences: data.neighborhoodPreferences || "",
+            preferredContactMethods: data.preferredContactMethods || [],
+            bestTimeToContact: data.bestTimeToContact || [],
+            tourPreference: data.tourPreference || "",
+            communicationFrequency: data.communicationFrequency || "",
+            additionalContactNotes: data.additionalContactNotes || "",
+          });
         } else {
           setEditing(true); // No profile exists, start in edit mode
         }
@@ -242,6 +278,16 @@ export default function CareProfilePage() {
       city: formData.get("city"),
       state: formData.get("state"),
       zipCode: formData.get("zipCode"),
+      // Location & contact preferences
+      careSettingPreference: locationContact.careSettingPreference || null,
+      proximityImportance: locationContact.proximityImportance || null,
+      proximityDetails: locationContact.proximityDetails || null,
+      neighborhoodPreferences: locationContact.neighborhoodPreferences || null,
+      preferredContactMethods: locationContact.preferredContactMethods,
+      bestTimeToContact: locationContact.bestTimeToContact,
+      tourPreference: locationContact.tourPreference || null,
+      communicationFrequency: locationContact.communicationFrequency || null,
+      additionalContactNotes: locationContact.additionalContactNotes || null,
       budgetMin: budgetTimeline.budgetMin || null,
       budgetMax: budgetTimeline.budgetMax || null,
       // Enhanced budget & timeline
@@ -313,6 +359,11 @@ export default function CareProfilePage() {
       label: "Location information",
       completed: !!(profile?.city && profile?.state && profile?.zipCode),
       required: true,
+    },
+    {
+      label: "Location & contact preferences",
+      completed: !!(locationContact.careSettingPreference && locationContact.preferredContactMethods.length > 0),
+      required: false,
     },
     {
       label: "Budget & payment info",
@@ -513,6 +564,17 @@ export default function CareProfilePage() {
                 </div>
               </div>
             </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200"></div>
+
+            {/* Location & Contact Preferences Section */}
+            <LocationContactPreferences
+              data={locationContact}
+              onDataChange={(field, value) => {
+                setLocationContact((prev) => ({ ...prev, [field]: value }));
+              }}
+            />
 
             {/* Divider */}
             <div className="border-t border-gray-200"></div>

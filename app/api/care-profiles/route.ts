@@ -33,6 +33,16 @@ const careProfileSchema = z.object({
   city: z.string(),
   state: z.string(),
   zipCode: z.string(),
+  // Location & contact preferences (Sprint 6)
+  careSettingPreference: z.string().optional().nullable(),
+  proximityImportance: z.string().optional().nullable(),
+  proximityDetails: z.string().optional().nullable(),
+  neighborhoodPreferences: z.string().optional().nullable(),
+  preferredContactMethods: z.array(z.string()).optional(),
+  bestTimeToContact: z.array(z.string()).optional(),
+  tourPreference: z.string().optional().nullable(),
+  communicationFrequency: z.string().optional().nullable(),
+  additionalContactNotes: z.string().optional().nullable(),
   budgetMin: z.number().optional(),
   budgetMax: z.number().optional(),
   // Enhanced budget & timeline (Sprint 5)
