@@ -60,8 +60,19 @@ export default function RequestDetailPage() {
       router.push("/login");
     } else if (status === "authenticated") {
       fetchRequest();
+      markAsViewed();
     }
   }, [status]);
+
+  const markAsViewed = async () => {
+    try {
+      await fetch('/api/notifications/mark-viewed', {
+        method: 'POST',
+      });
+    } catch (err) {
+      console.error("Error marking as viewed:", err);
+    }
+  };
 
   useEffect(() => {
     scrollToBottom();

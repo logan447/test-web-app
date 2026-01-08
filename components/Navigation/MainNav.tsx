@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -99,6 +99,30 @@ export default function MainNav() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
   const [switchingMode, setSwitchingMode] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread count
+  useEffect(() => {
+    if (!session) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await fetch('/api/notifications/unread-count');
+        if (response.ok) {
+          const data = await response.json();
+          setUnreadCount(data.total || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching unread count:', error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Poll every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [session]);
 
   // Mode switching handler
   const handleModeSwitch = async (newMode: 'FAMILY' | 'PROVIDER') => {
@@ -293,8 +317,13 @@ export default function MainNav() {
                       <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved Requests
                       </Link>
-                      <Link href="/dashboard/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Consultation Requests
+                      <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <span>Consultation Requests</span>
+                        {unreadCount > 0 && (
+                          <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </span>
+                        )}
                       </Link>
                       <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Provider Profile
@@ -308,8 +337,13 @@ export default function MainNav() {
                       <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved Providers
                       </Link>
-                      <Link href="/dashboard/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Consultation Requests
+                      <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <span>Consultation Requests</span>
+                        {unreadCount > 0 && (
+                          <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </span>
+                        )}
                       </Link>
                       <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Care Needs Profile
@@ -495,8 +529,13 @@ export default function MainNav() {
                       <Link href="/provider/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved
                       </Link>
-                      <Link href="/dashboard/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Consultation Requests
+                      <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        <span>Consultation Requests</span>
+                        {unreadCount > 0 && (
+                          <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </span>
+                        )}
                       </Link>
                       <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Provider Profile
@@ -510,8 +549,13 @@ export default function MainNav() {
                       <Link href="/dashboard/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved
                       </Link>
-                      <Link href="/dashboard/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Requests
+                      <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        <span>Requests</span>
+                        {unreadCount > 0 && (
+                          <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </span>
+                        )}
                       </Link>
                       <Link href="/dashboard/care-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Care Profile

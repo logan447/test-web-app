@@ -44,8 +44,19 @@ export default function RequestsPage() {
       router.push("/login");
     } else if (status === "authenticated") {
       fetchRequests();
+      markAsViewed();
     }
   }, [status, activeTab]);
+
+  const markAsViewed = async () => {
+    try {
+      await fetch('/api/notifications/mark-viewed', {
+        method: 'POST',
+      });
+    } catch (err) {
+      console.error("Error marking as viewed:", err);
+    }
+  };
 
   const fetchRequests = async () => {
     setLoading(true);
