@@ -547,17 +547,21 @@ export default function ProviderProfilePage() {
             </div>
           </div>
         </div>
-
-        {/* Enhanced CTA Sidebar */}
-        <div className="mt-8">
-          <ProviderCTASection
-            providerId={provider.id}
-            providerName={provider.name}
-            phone={provider.phone}
-            hasPricing={!!(provider.priceMin || provider.priceMax)}
-            onOpenRequestForm={handleOpenRequestForm}
-          />
         </div>
+
+        {/* Sidebar - 1/3 width */}
+        <div className="lg:col-span-1 mt-6 lg:mt-0">
+          <div className="lg:sticky lg:top-24">
+            <ProviderCTASection
+              providerId={provider.id}
+              providerName={provider.name}
+              phone={provider.phone}
+              hasPricing={!!(provider.priceMin || provider.priceMax)}
+              onOpenRequestForm={handleOpenRequestForm}
+            />
+          </div>
+        </div>
+      </div>
       </main>
 
       {/* Auth Modal */}
