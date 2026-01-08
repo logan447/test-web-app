@@ -26,6 +26,10 @@ type Provider = {
   yearsInBusiness: number | null;
   capacity: number | null;
   serviceRadius: number | null;
+  priceMin: number | null;
+  priceMax: number | null;
+  priceDescription: string | null;
+  paymentOptions: string[];
 };
 
 export default function ProviderProfilePage() {
@@ -184,6 +188,58 @@ export default function ProviderProfilePage() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-3">About</h2>
               <p className="text-gray-700 whitespace-pre-line">{provider.description}</p>
+            </div>
+          )}
+
+          {/* Pricing */}
+          {(provider.priceMin || provider.priceMax || provider.priceDescription || provider.paymentOptions.length > 0) && (
+            <div className="mb-6 bg-primary-50 border border-primary-200 rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-3">Pricing & Payment</h2>
+
+              {/* Price Range */}
+              {(provider.priceMin || provider.priceMax) && (
+                <div className="mb-4">
+                  <p className="text-2xl font-bold text-primary-700">
+                    {provider.priceMin && provider.priceMax ? (
+                      `$${provider.priceMin.toLocaleString()} - $${provider.priceMax.toLocaleString()}/month`
+                    ) : provider.priceMin ? (
+                      `Starting from $${provider.priceMin.toLocaleString()}/month`
+                    ) : (
+                      `Up to $${provider.priceMax?.toLocaleString()}/month`
+                    )}
+                  </p>
+                </div>
+              )}
+
+              {/* Price Description */}
+              {provider.priceDescription && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium text-gray-700 mb-1">What&apos;s included:</p>
+                  <p className="text-gray-600">{provider.priceDescription}</p>
+                </div>
+              )}
+
+              {/* Payment Options */}
+              {Array.isArray(provider.paymentOptions) && provider.paymentOptions.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Payment options accepted:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {provider.paymentOptions.map((option) => (
+                      <span
+                        key={option}
+                        className="bg-white text-primary-700 px-3 py-1 rounded-full text-sm border border-primary-300"
+                      >
+                        {option}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Contact for Pricing fallback */}
+              {!provider.priceMin && !provider.priceMax && (
+                <p className="text-gray-700 italic">Contact for pricing information</p>
+              )}
             </div>
           )}
 

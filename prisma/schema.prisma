@@ -173,6 +173,12 @@ model Provider {
   yearsInBusiness Int?
   capacity        Int?
 
+  // Pricing
+  priceMin        Int?           // Minimum monthly price in dollars
+  priceMax        Int?           // Maximum monthly price in dollars
+  priceDescription String?       // What's included in the base price
+  paymentOptions  String[]       // Array of payment methods accepted (e.g., "Private Pay", "Medicare", "Medicaid")
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)

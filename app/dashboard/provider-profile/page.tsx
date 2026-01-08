@@ -27,6 +27,10 @@ type Provider = {
   capacity: number | null;
   availableForFamilies: boolean;
   availableForOrganizations: boolean;
+  priceMin: number | null;
+  priceMax: number | null;
+  priceDescription: string | null;
+  paymentOptions: string[];
 };
 
 const PROVIDER_TYPES = [
@@ -51,6 +55,16 @@ const CARE_TYPES = [
   { value: "LIVE_IN_CARE", label: "Live-In Care" },
 ];
 
+const PAYMENT_OPTIONS = [
+  "Private Pay",
+  "Medicare",
+  "Medicaid",
+  "Long-Term Care Insurance",
+  "Veterans Benefits",
+  "Life Insurance",
+  "Workers Compensation",
+];
+
 export default function ProviderProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -60,6 +74,7 @@ export default function ProviderProfilePage() {
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
   const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
+  const [selectedPaymentOptions, setSelectedPaymentOptions] = useState<string[]>([]);
   const [licensed, setLicensed] = useState(false);
   const [providerType, setProviderType] = useState("");
   const [availableForFamilies, setAvailableForFamilies] = useState(true);
@@ -80,6 +95,7 @@ export default function ProviderProfilePage() {
         const data = await response.json();
         setProvider(data);
         setSelectedCareTypes(data.careTypesOffered || []);
+        setSelectedPaymentOptions(data.paymentOptions || []);
         setLicensed(data.licensed || false);
         setProviderType(data.providerType || "");
         setAvailableForFamilies(data.availableForFamilies !== undefined ? data.availableForFamilies : true);
@@ -120,6 +136,10 @@ export default function ProviderProfilePage() {
       capacity: formData.get("capacity") ? parseInt(formData.get("capacity") as string) : null,
       availableForFamilies: availableForFamilies,
       availableForOrganizations: availableForOrganizations,
+      priceMin: formData.get("priceMin") ? parseInt(formData.get("priceMin") as string) : null,
+      priceMax: formData.get("priceMax") ? parseInt(formData.get("priceMax") as string) : null,
+      priceDescription: formData.get("priceDescription") || null,
+      paymentOptions: selectedPaymentOptions,
     };
 
     try {
@@ -151,6 +171,14 @@ export default function ProviderProfilePage() {
       prev.includes(careType)
         ? prev.filter((s) => s !== careType)
         : [...prev, careType]
+    );
+  };
+
+  const togglePaymentOption = (option: string) => {
+    setSelectedPaymentOptions((prev) =>
+      prev.includes(option)
+        ? prev.filter((s) => s !== option)
+        : [...prev, option]
     );
   };
 
@@ -283,6 +311,44 @@ export default function ProviderProfilePage() {
                 </div>
               )}
             </div>
+            {(provider.priceMin || provider.priceMax || provider.priceDescription || provider.paymentOptions.length > 0) && (
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-sm font-medium text-gray-500 mb-3">Pricing & Payment</h3>
+                {(provider.priceMin || provider.priceMax) && (
+                  <div className="mb-3">
+                    <p className="text-lg font-semibold text-gray-900">
+                      {provider.priceMin && provider.priceMax ? (
+                        `$${provider.priceMin.toLocaleString()} - $${provider.priceMax.toLocaleString()}/month`
+                      ) : provider.priceMin ? (
+                        `Starting from $${provider.priceMin.toLocaleString()}/month`
+                      ) : (
+                        `Up to $${provider.priceMax?.toLocaleString()}/month`
+                      )}
+                    </p>
+                  </div>
+                )}
+                {provider.priceDescription && (
+                  <div className="mb-3">
+                    <p className="text-sm text-gray-600">{provider.priceDescription}</p>
+                  </div>
+                )}
+                {provider.paymentOptions.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 mb-2">Payment options accepted:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {provider.paymentOptions.map((option) => (
+                        <span
+                          key={option}
+                          className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-xs"
+                        >
+                          {option}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             {provider.providerType === "INDEPENDENT_CAREGIVER" && (
               <div className="border-t pt-4 mt-4">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Availability</h3>
@@ -539,6 +605,83 @@ export default function ProviderProfilePage() {
                 />
               </div>
             )}
+
+            {/* Pricing Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Pricing & Payment Information</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Help families understand your costs. This information is optional but increases transparency and trust.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Minimum Price (per month)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2 text-gray-500">$</span>
+                    <input
+                      name="priceMin"
+                      type="number"
+                      min="0"
+                      step="1"
+                      defaultValue={provider?.priceMin || ''}
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md"
+                      placeholder="4500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Maximum Price (per month)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2 text-gray-500">$</span>
+                    <input
+                      name="priceMax"
+                      type="number"
+                      min="0"
+                      step="1"
+                      defaultValue={provider?.priceMax || ''}
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md"
+                      placeholder="7000"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  What&apos;s Included in the Price
+                </label>
+                <textarea
+                  name="priceDescription"
+                  rows={3}
+                  defaultValue={provider?.priceDescription || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  placeholder="Example: 24/7 care, meals, housekeeping, medication management, activities..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Payment Options Accepted (Select all that apply)
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {PAYMENT_OPTIONS.map((option) => (
+                    <label key={option} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedPaymentOptions.includes(option)}
+                        onChange={() => togglePaymentOption(option)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
 
             {providerType === "INDEPENDENT_CAREGIVER" && (
               <div className="border-t pt-6">
