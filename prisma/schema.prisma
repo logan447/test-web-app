@@ -220,6 +220,12 @@ model Provider {
   neighborhoodDescription String? // Description of the neighborhood/area
   nearbyAmenities       String[]  @default([])  // Nearby amenities (e.g., "Hospital - 0.5 miles", "Park - 0.2 miles")
 
+  // Specialty Care & Programs (Sprint 9)
+  hasMemoryCare    Boolean   @default(false)  // Offers memory care/dementia care
+  hasRespiteCare   Boolean   @default(false)  // Offers respite/temporary care
+  hasHospiceCare   Boolean   @default(false)  // Offers hospice/end-of-life care
+  specialtyPrograms String[] @default([])     // Special programs (e.g., "Alzheimer's Care", "Physical Therapy", "Music Therapy")
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)

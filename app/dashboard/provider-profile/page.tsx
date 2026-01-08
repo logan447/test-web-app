@@ -253,6 +253,13 @@ export default function ProviderProfilePage() {
   const [nearbyAmenity, setNearbyAmenity] = useState<string>("");
   const [nearbyAmenities, setNearbyAmenities] = useState<string[]>([]);
 
+  // Specialty Care & Programs (Sprint 9)
+  const [hasMemoryCare, setHasMemoryCare] = useState<boolean>(false);
+  const [hasRespiteCare, setHasRespiteCare] = useState<boolean>(false);
+  const [hasHospiceCare, setHasHospiceCare] = useState<boolean>(false);
+  const [specialtyProgram, setSpecialtyProgram] = useState<string>("");
+  const [specialtyPrograms, setSpecialtyPrograms] = useState<string[]>([]);
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -295,6 +302,10 @@ export default function ProviderProfilePage() {
         setLongitude(data.longitude?.toString() || "");
         setNeighborhoodDescription(data.neighborhoodDescription || "");
         setNearbyAmenities(data.nearbyAmenities || []);
+        setHasMemoryCare(data.hasMemoryCare || false);
+        setHasRespiteCare(data.hasRespiteCare || false);
+        setHasHospiceCare(data.hasHospiceCare || false);
+        setSpecialtyPrograms(data.specialtyPrograms || []);
         setEditing(false);
       } else if (response.status === 404) {
         setEditing(true);
@@ -359,6 +370,10 @@ export default function ProviderProfilePage() {
       longitude: longitude ? parseFloat(longitude) : null,
       neighborhoodDescription: neighborhoodDescription || null,
       nearbyAmenities: nearbyAmenities,
+      hasMemoryCare: hasMemoryCare,
+      hasRespiteCare: hasRespiteCare,
+      hasHospiceCare: hasHospiceCare,
+      specialtyPrograms: specialtyPrograms,
     };
 
     try {
@@ -1478,6 +1493,124 @@ export default function ProviderProfilePage() {
                           type="button"
                           onClick={() => {
                             setNearbyAmenities(nearbyAmenities.filter((_, i) => i !== index));
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Specialty Care & Programs */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Specialty Care & Programs</h3>
+
+              {/* Specialized Care Services */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-800 mb-3">Specialized Care Services</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Select any specialized care services your facility provides
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={hasMemoryCare}
+                      onChange={(e) => setHasMemoryCare(e.target.checked)}
+                      className="mt-1 rounded border-gray-300"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Memory Care</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Specialized care for dementia and Alzheimer&apos;s patients
+                      </p>
+                    </div>
+                  </label>
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={hasRespiteCare}
+                      onChange={(e) => setHasRespiteCare(e.target.checked)}
+                      className="mt-1 rounded border-gray-300"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Respite Care</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Short-term relief services for family caregivers
+                      </p>
+                    </div>
+                  </label>
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={hasHospiceCare}
+                      onChange={(e) => setHasHospiceCare(e.target.checked)}
+                      className="mt-1 rounded border-gray-300"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Hospice Care</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Compassionate end-of-life care and support
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Specialty Programs */}
+              <div>
+                <h4 className="text-md font-medium text-gray-800 mb-3">Specialty Programs</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Add special programs offered (e.g., &quot;Physical Therapy&quot;, &quot;Music Therapy&quot;, &quot;Pet Therapy&quot;)
+                </p>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={specialtyProgram}
+                    onChange={(e) => setSpecialtyProgram(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (specialtyProgram.trim()) {
+                          setSpecialtyPrograms([...specialtyPrograms, specialtyProgram.trim()]);
+                          setSpecialtyProgram("");
+                        }
+                      }
+                    }}
+                    placeholder="Add a specialty program"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (specialtyProgram.trim()) {
+                        setSpecialtyPrograms([...specialtyPrograms, specialtyProgram.trim()]);
+                        setSpecialtyProgram("");
+                      }
+                    }}
+                    className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                  >
+                    Add
+                  </button>
+                </div>
+                {specialtyPrograms.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {specialtyPrograms.map((program, index) => (
+                      <div
+                        key={index}
+                        className="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                      >
+                        <span className="text-sm text-gray-700">{program}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSpecialtyPrograms(specialtyPrograms.filter((_, i) => i !== index));
                           }}
                           className="text-red-600 hover:text-red-700"
                         >

@@ -12,6 +12,7 @@ import ReviewModal from "@/components/Reviews/ReviewModal";
 import AmenitiesSection from "@/components/Provider/AmenitiesSection";
 import StaffSection from "@/components/Provider/StaffSection";
 import LocationSection from "@/components/Provider/LocationSection";
+import SpecialtyCareSection from "@/components/Provider/SpecialtyCareSection";
 import ProviderCTASection from "@/components/Provider/ProviderCTASection";
 import EnhancedContactModal, { ContactFormData } from "@/components/Provider/EnhancedContactModal";
 import { showToast } from "@/lib/toast";
@@ -64,6 +65,10 @@ type Provider = {
   longitude: number | null;
   neighborhoodDescription: string | null;
   nearbyAmenities: string[];
+  hasMemoryCare: boolean;
+  hasRespiteCare: boolean;
+  hasHospiceCare: boolean;
+  specialtyPrograms: string[];
 };
 
 export default function ProviderProfilePage() {
@@ -441,6 +446,15 @@ export default function ProviderProfilePage() {
             longitude={provider.longitude}
             neighborhoodDescription={provider.neighborhoodDescription}
             nearbyAmenities={provider.nearbyAmenities}
+          />
+
+          {/* Specialty Care Section */}
+          <SpecialtyCareSection
+            hasMemoryCare={provider.hasMemoryCare}
+            hasRespiteCare={provider.hasRespiteCare}
+            hasHospiceCare={provider.hasHospiceCare}
+            specialtyPrograms={provider.specialtyPrograms}
+            languagesSpoken={provider.languagesSpoken}
           />
 
           {/* Details Grid */}

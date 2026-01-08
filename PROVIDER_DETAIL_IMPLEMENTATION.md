@@ -276,29 +276,35 @@
 
 ---
 
-### **Sprint 9: Specialty Care & Programs (Week 5, Days 4-5)**
+### **Sprint 9: Specialty Care & Programs (Week 5, Days 4-5)** ✅ COMPLETED
 
-#### Task 9.1: Add Specialty Care Fields
-- [ ] Update Prisma schema:
+#### Task 9.1: Add Specialty Care Fields ✅
+- [x] Update Prisma schema:
   - `hasMemoryCare` (Boolean)
   - `hasRespiteCare` (Boolean)
   - `hasHospiceCare` (Boolean)
-  - `specialtyPrograms` (String[], nullable)
-  - `languagesSpoken` (String[], nullable)
-- [ ] Run migration
+  - `specialtyPrograms` (String[])
+  - `languagesSpoken` (already added in Sprint 6)
+- [x] Run Prisma generate
 
-#### Task 9.2: Display Specialty Care Section
-- [ ] Highlight specialty programs with badges
-- [ ] Memory care details (if offered)
-- [ ] Languages spoken
-- [ ] Cultural programs
+#### Task 9.2: Display Specialty Care Section ✅
+- [x] Highlight specialty programs with prominent cards
+- [x] Memory care badge with icon and description
+- [x] Respite care badge with icon and description
+- [x] Hospice care badge with icon and description
+- [x] Specialty programs list with checkmarks
+- [x] Languages spoken display with pill badges
+- [x] Cultural sensitivity note
+- [x] Auto-hide when no specialty care offered
 
-#### Task 9.3: Update Provider Profile Form
-- [ ] Add specialty care checkboxes
-- [ ] Languages multi-select
-- [ ] Specialty program descriptions
+#### Task 9.3: Update Provider Profile Form ✅
+- [x] Add specialty care checkboxes (3 types)
+- [x] Specialty programs dynamic input with add/remove
+- [x] Languages already available from Sprint 6
+- [x] Descriptive help text for each service type
+- [x] Form validation and data persistence
 
-**Deliverable:** Families find exactly the specialized care they need
+**Deliverable:** ✅ Families can easily find specialized care services, enhancing trust and matching
 
 ---
 
@@ -337,11 +343,11 @@
 - [x] Sprint 6: Staff & Care Information ✅
 - [x] Sprint 7: Location & Map Integration ✅
 - [x] Sprint 8: Enhanced CTAs & Booking Flow ✅
-- [ ] Sprint 9: Specialty Care & Programs
+- [x] Sprint 9: Specialty Care & Programs ✅
 - [ ] Sprint 10: Polish & Optimization
 
-### Current Sprint: 9
-### Current Task: 9.1
+### Current Sprint: 10
+### Current Task: 10.1
 
 ---
 
