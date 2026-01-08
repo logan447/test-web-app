@@ -234,7 +234,7 @@ export default function ProviderRequests() {
     }
   };
 
-  const handleUpgradeSubscription = async (tier: 'BASIC' | 'PRO') => {
+  const handleUpgradeSubscription = async (tier: 'PRO') => {
     try {
       const response = await fetch('/api/subscription', {
         method: 'POST',
@@ -245,7 +245,7 @@ export default function ProviderRequests() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast.success(`Demo: Upgraded to ${tier}! All contact info is now accessible.`);
+        showToast.success('Provider membership activated! All features now accessible.');
 
         // If there was a profile waiting to be unlocked, unlock it now
         if (selectedProfileForUnlock) {
@@ -253,10 +253,10 @@ export default function ProviderRequests() {
           setSelectedProfileForUnlock(null);
         }
       } else {
-        throw new Error(data.error || 'Failed to upgrade');
+        throw new Error(data.error || 'Failed to activate membership');
       }
     } catch (err: any) {
-      console.error('Error upgrading subscription:', err);
+      console.error('Error activating membership:', err);
       throw err; // Re-throw so modal can handle it
     }
   };

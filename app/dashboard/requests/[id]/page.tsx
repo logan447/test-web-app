@@ -157,7 +157,7 @@ export default function RequestDetailPage() {
     }
   };
 
-  const handleUpgradeSubscription = async (tier: 'BASIC' | 'PRO') => {
+  const handleUpgradeSubscription = async (tier: 'PRO') => {
     try {
       const response = await fetch('/api/subscription', {
         method: 'POST',
@@ -168,15 +168,15 @@ export default function RequestDetailPage() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast.success(`Upgraded to ${tier}!`);
+        showToast.success('Provider membership activated!');
         setPaywallOpen(false);
         // Refresh the page to show updated subscription status
         fetchRequest();
       } else {
-        throw new Error(data.error || 'Failed to upgrade');
+        throw new Error(data.error || 'Failed to activate membership');
       }
     } catch (err: any) {
-      console.error('Error upgrading subscription:', err);
+      console.error('Error activating membership:', err);
       throw err;
     }
   };
