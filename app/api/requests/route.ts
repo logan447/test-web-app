@@ -91,14 +91,27 @@ export async function GET(req: Request) {
       // Provider
       const provider = await prisma.provider.findUnique({
         where: { userId: session.user.id },
+        include: { user: true }
       });
 
       if (!provider) {
+        console.log('[REQUESTS API] No provider found for user:', session.user.id);
         return NextResponse.json([]);
       }
 
+      console.log('[REQUESTS API] Provider mode query:', {
+        userId: session.user.id,
+        userEmail: provider.user?.email,
+        providerId: provider.id,
+        providerName: provider.name,
+        providerType: provider.providerType,
+        type,
+        requestType
+      });
+
       if (type === "sent") {
-        // Sent: requests sent BY this provider user (regardless of which provider is the recipient)
+        // Sent: requests sent BY this provider user
+        // For both consultation and hiring, sender is this user
         const where: any = {
           senderId: session.user.id,
           status: { not: "DECLINED" } // Exclude declined/deleted requests
@@ -127,7 +140,8 @@ export async function GET(req: Request) {
           orderBy: { createdAt: "desc" },
         });
       } else {
-        // Received: requests where provider is the recipient (sent by families)
+        // Received: requests where this provider is the recipient
+        // The providerId must match this provider AND sender must not be this user
         const where: any = {
           providerId: provider.id,
           senderId: { not: session.user.id },
@@ -139,6 +153,7 @@ export async function GET(req: Request) {
         requests = await prisma.consultRequest.findMany({
           where,
           include: {
+            provider: true,
             familyProfile: { include: { user: true } },
             sender: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
@@ -156,6 +171,19 @@ export async function GET(req: Request) {
           orderBy: { createdAt: "desc" },
         });
       }
+    }
+
+    console.log('[REQUESTS API] Returning', requests.length, 'requests');
+    if (requests.length > 0 && requestType === 'HIRING') {
+      console.log('[REQUESTS API] Sample hiring request:', {
+        id: requests[0].id,
+        senderId: requests[0].senderId,
+        senderName: requests[0].sender?.name,
+        providerId: requests[0].providerId,
+        providerName: requests[0].provider?.name,
+        providerType: requests[0].provider?.providerType,
+        requestType: requests[0].requestType
+      });
     }
 
     return NextResponse.json(requests);
