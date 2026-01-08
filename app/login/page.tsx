@@ -32,16 +32,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Fetch user role from our API
-      const userResponse = await fetch(`/api/user/role?email=${encodeURIComponent(email)}`);
-      const userData = await userResponse.json();
-
-      // Redirect based on user role
-      if (userData?.role === "FAMILY") {
-        router.push("/");
-      } else {
-        router.push("/dashboard");
-      }
+      // Always redirect to browse providers page (family mode default)
+      router.push("/providers");
       router.refresh();
     } catch (error) {
       setError("Something went wrong");

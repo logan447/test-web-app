@@ -9,7 +9,6 @@ export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState<"FAMILY" | "PROVIDER">("FAMILY");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,7 +21,7 @@ export default function SignupPage() {
       password: formData.get("password") as string,
       name: formData.get("name") as string,
       phone: formData.get("phone") as string,
-      role,
+      role: "FAMILY" as const, // All users start in family mode
     };
 
     try {
@@ -54,12 +53,8 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirect based on user role
-      if (role === "FAMILY") {
-        router.push("/");
-      } else {
-        router.push("/dashboard");
-      }
+      // Always redirect to browse providers page (family mode default)
+      router.push("/providers");
       router.refresh();
     } catch (error) {
       setError("Something went wrong");
@@ -92,36 +87,6 @@ export default function SignupPage() {
           )}
 
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                I am a:
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setRole("FAMILY")}
-                  className={`py-3 px-4 border rounded-md text-sm font-medium ${
-                    role === "FAMILY"
-                      ? "border-primary-600 bg-primary-50 text-primary-700"
-                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  Family Member
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole("PROVIDER")}
-                  className={`py-3 px-4 border rounded-md text-sm font-medium ${
-                    role === "PROVIDER"
-                      ? "border-primary-600 bg-primary-50 text-primary-700"
-                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  Care Provider
-                </button>
-              </div>
-            </div>
-
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Full Name
