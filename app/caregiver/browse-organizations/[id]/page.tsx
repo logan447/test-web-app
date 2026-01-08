@@ -119,6 +119,12 @@ export default function OrganizationDetailPage() {
         if (createProfileResponse.ok) {
           const createdProfile = await createProfileResponse.json();
           familyProfileId = createdProfile.id;
+        } else {
+          const errorData = await createProfileResponse.json();
+          console.error('Failed to create family profile:', errorData);
+          showToast.error(errorData.error || 'Failed to prepare employment request');
+          setSending(false);
+          return;
         }
       }
 
@@ -128,13 +134,14 @@ export default function OrganizationDetailPage() {
         return;
       }
 
-      // Send hiring request using the caregiver's own provider ID
+      // Send hiring request to the organization
+      // Note: providerId is the organization's ID (params.id) because they are the one receiving the request
       const response = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           familyProfileId: familyProfileId,
-          providerId: caregiverProviderData.id, // Use caregiver's provider ID
+          providerId: params.id as string, // Organization's provider ID (the one receiving the hiring request)
           message: requestMessage,
           requestType: 'HIRING',
         }),
