@@ -41,7 +41,7 @@ export default function ProvidersPage() {
       const response = await fetch('/api/requests?type=sent');
       if (response.ok) {
         const requests = await response.json();
-        const providerIds = new Set(requests.map((req: any) => req.provider.id));
+        const providerIds = new Set<string>(requests.map((req: any) => req.provider.id as string));
         setRequestedProviderIds(providerIds);
       }
     } catch (error) {

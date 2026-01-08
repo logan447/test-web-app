@@ -102,7 +102,7 @@ export default function ProviderRequests() {
       const response = await fetch('/api/requests?type=sent');
       if (response.ok) {
         const requests = await response.json();
-        const profileIds = new Set(requests.map((req: any) => req.familyProfileId));
+        const profileIds = new Set<string>(requests.map((req: any) => req.familyProfileId as string));
         setRequestedProfileIds(profileIds);
       }
     } catch (error) {
