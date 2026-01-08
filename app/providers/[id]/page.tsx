@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
 import AuthModal from "@/components/Auth/AuthModal";
 import PhotoGallery from "@/components/Gallery/PhotoGallery";
+import ReviewsSection from "@/components/Reviews/ReviewsSection";
+import ReviewModal from "@/components/Reviews/ReviewModal";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -39,6 +41,8 @@ type Provider = {
   waitlistAvailable: boolean;
   photos: string[];
   coverPhoto: string | null;
+  averageRating: number | null;
+  reviewCount: number;
 };
 
 export default function ProviderProfilePage() {
@@ -51,6 +55,7 @@ export default function ProviderProfilePage() {
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
   // Determine back link based on where user came from
   const fromSaved = searchParams.get('from') === 'saved';
@@ -135,6 +140,19 @@ export default function ProviderProfilePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleWriteReview = () => {
+    if (!session?.user) {
+      setAuthModalOpen(true);
+      return;
+    }
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSubmitted = () => {
+    // Refresh provider data to update average rating and review count
+    fetchProvider();
   };
 
   const formatProviderType = (type: string) => {
@@ -388,6 +406,14 @@ export default function ProviderProfilePage() {
             </div>
           </div>
 
+          {/* Reviews Section */}
+          <ReviewsSection
+            providerId={provider.id}
+            averageRating={provider.averageRating}
+            reviewCount={provider.reviewCount}
+            onWriteReview={handleWriteReview}
+          />
+
           {/* Call to Action */}
           <div className="border-t pt-6">
             <div className="flex gap-4">
@@ -423,6 +449,15 @@ export default function ProviderProfilePage() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         defaultView="login"
+      />
+
+      {/* Review Modal */}
+      <ReviewModal
+        isOpen={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        providerId={provider.id}
+        providerName={provider.name}
+        onReviewSubmitted={handleReviewSubmitted}
       />
     </div>
   );

@@ -88,6 +88,7 @@ model User {
   savedFamilyProfiles  SavedFamilyProfile[]
   subscription         Subscription?
   contactViews         ContactView[]
+  reviews              Review[]
 }
 
 model ProviderIdentity {
@@ -193,6 +194,10 @@ model Provider {
   photos          String[]       // Array of photo URLs
   coverPhoto      String?        // Main hero image URL
 
+  // Reviews & Ratings
+  averageRating   Float?         // Average rating from all reviews (1-5)
+  reviewCount     Int            @default(0)
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)
@@ -208,6 +213,7 @@ model Provider {
   // Relationships
   savedBy         SavedProvider[]
   consultRequests ConsultRequest[]
+  reviews         Review[]
 
   @@index([city, state])
   @@index([providerType])
@@ -325,4 +331,34 @@ model ContactView {
   @@unique([userId, familyProfileId])
   @@index([userId])
   @@index([familyProfileId])
+}
+
+model Review {
+  id              String    @id @default(cuid())
+  providerId      String
+  provider        Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Review content
+  rating          Int       // 1-5 stars
+  title           String?   // Optional review title
+  content         String    // Review text
+
+  // Reviewer context
+  relationship    String?   // e.g., "Daughter of resident", "Son looking for care"
+  lengthOfStay    String?   // e.g., "6 months", "2 years"
+
+  // Engagement
+  helpfulCount    Int       @default(0) // Number of users who found this helpful
+
+  // Moderation
+  approved        Boolean   @default(true)  // For future moderation
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([providerId])
+  @@index([userId])
+  @@unique([providerId, userId]) // One review per user per provider
 }
