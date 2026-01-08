@@ -28,12 +28,18 @@ function NewRequestContent() {
   const providerId = searchParams.get("providerId");
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      setAuthModalOpen(true);
-    } else if (providerId) {
+    // Always fetch provider data (it's public information)
+    if (providerId) {
       fetchProvider();
     }
-  }, [status, providerId]);
+  }, [providerId]);
+
+  useEffect(() => {
+    // Show auth modal if not logged in (but don't block page render)
+    if (status === "unauthenticated") {
+      setAuthModalOpen(true);
+    }
+  }, [status]);
 
   const fetchProvider = async () => {
     try {
@@ -51,6 +57,13 @@ function NewRequestContent() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Check if user is logged in before submitting
+    if (!session) {
+      setAuthModalOpen(true);
+      return;
+    }
+
     setSending(true);
     setError("");
 
@@ -78,7 +91,7 @@ function NewRequestContent() {
     }
   };
 
-  if (loading || status === "loading") {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
