@@ -244,27 +244,35 @@
 
 ---
 
-### **Sprint 8: Enhanced CTAs & Booking Flow (Week 5, Days 1-3)**
+### **Sprint 8: Enhanced CTAs & Booking Flow (Week 5, Days 1-3)** ✅ COMPLETED
 
-#### Task 8.1: Add Multiple CTA Options
-- [ ] Redesign CTA section:
-  - Primary: "Send Request" (existing)
-  - Secondary: "Schedule Tour" (new - opens contact form with tour request)
+#### Task 8.1: Add Multiple CTA Options ✅
+- [x] Redesign CTA section:
+  - Primary: "Schedule Tour" (opens contact form with tour request)
+  - Secondary: "Send a Message" (general inquiry)
   - Tertiary: "Request Pricing" (if no pricing shown)
-- [ ] Make CTAs sticky on scroll (mobile)
-- [ ] Add phone number click-to-call button
+  - Phone CTA: Click-to-call button with formatted phone number
+- [x] Make CTAs sticky on scroll (mobile)
+- [x] Add phone number click-to-call button
+- [x] Desktop sidebar with all CTA options
+- [x] Mobile sticky bar with compact buttons
 
-#### Task 8.2: Enhance Request Form
-- [ ] Pre-fill with provider info
-- [ ] Add "Reason for contact" dropdown:
+#### Task 8.2: Enhance Request Form ✅
+- [x] Pre-fill with provider info
+- [x] Add "Reason for contact" dropdown:
   - Schedule a tour
   - Request pricing information
   - Ask a question
   - Request immediate placement
-- [ ] Add preferred contact method
-- [ ] Add preferred time for tour (date/time picker)
+  - Other
+- [x] Add preferred contact method (Email, Phone, Either)
+- [x] Add preferred time for tour (date/time picker)
+- [x] Conditional fields (tour date shows only for tour requests)
+- [x] Update database schema with new fields
+- [x] Update API to handle new booking fields
+- [x] Modal-based contact form with validation
 
-**Deliverable:** Multiple conversion paths, easier to take action
+**Deliverable:** ✅ Multiple conversion paths, easier to take action, enhanced booking experience
 
 ---
 
@@ -328,12 +336,12 @@
 - [x] Sprint 5: Detailed Amenities & Services ✅
 - [x] Sprint 6: Staff & Care Information ✅
 - [x] Sprint 7: Location & Map Integration ✅
-- [ ] Sprint 8: Enhanced CTAs & Booking Flow
+- [x] Sprint 8: Enhanced CTAs & Booking Flow ✅
 - [ ] Sprint 9: Specialty Care & Programs
 - [ ] Sprint 10: Polish & Optimization
 
-### Current Sprint: 8
-### Current Task: 8.1
+### Current Sprint: 9
+### Current Task: 9.1
 
 ---
 

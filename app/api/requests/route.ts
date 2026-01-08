@@ -222,14 +222,17 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { providerId, familyProfileId, message, requestType } = body;
+    const { providerId, familyProfileId, message, requestType, contactReason, preferredContactMethod, preferredTourDate } = body;
 
     console.log('[REQUEST API] POST request received:', {
       userId: session.user.id,
       providerId,
       familyProfileId,
       requestType,
-      messageLength: message?.length
+      messageLength: message?.length,
+      contactReason,
+      preferredContactMethod,
+      preferredTourDate
     });
 
     const activeMode = session.user.activeMode || 'FAMILY';
@@ -257,6 +260,9 @@ export async function POST(req: Request) {
           message,
           status: "PENDING",
           requestType: requestType || "CONSULTATION",
+          contactReason: contactReason || null,
+          preferredContactMethod: preferredContactMethod || null,
+          preferredTourDate: preferredTourDate ? new Date(preferredTourDate) : null,
         },
         include: { provider: true },
       });
@@ -305,6 +311,9 @@ export async function POST(req: Request) {
           message,
           status: "PENDING",
           requestType: requestType || "CONSULTATION",
+          contactReason: contactReason || null,
+          preferredContactMethod: preferredContactMethod || null,
+          preferredTourDate: preferredTourDate ? new Date(preferredTourDate) : null,
         },
         include: { familyProfile: { include: { user: true } } },
       });

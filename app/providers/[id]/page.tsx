@@ -12,6 +12,8 @@ import ReviewModal from "@/components/Reviews/ReviewModal";
 import AmenitiesSection from "@/components/Provider/AmenitiesSection";
 import StaffSection from "@/components/Provider/StaffSection";
 import LocationSection from "@/components/Provider/LocationSection";
+import ProviderCTASection from "@/components/Provider/ProviderCTASection";
+import EnhancedContactModal, { ContactFormData } from "@/components/Provider/EnhancedContactModal";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -75,6 +77,8 @@ export default function ProviderProfilePage() {
   const [saving, setSaving] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [contactReason, setContactReason] = useState("Ask a question");
 
   // Determine back link based on where user came from
   const fromSaved = searchParams.get('from') === 'saved';
@@ -172,6 +176,42 @@ export default function ProviderProfilePage() {
   const handleReviewSubmitted = () => {
     // Refresh provider data to update average rating and review count
     fetchProvider();
+  };
+
+  const handleOpenRequestForm = (reason: string) => {
+    if (!session?.user) {
+      setAuthModalOpen(true);
+      return;
+    }
+    setContactReason(reason);
+    setContactModalOpen(true);
+  };
+
+  const handleContactSubmit = async (formData: ContactFormData) => {
+    try {
+      const response = await fetch('/api/consult-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          providerId: provider?.id,
+          message: formData.message,
+          contactReason: formData.contactReason,
+          preferredContactMethod: formData.preferredContactMethod,
+          preferredTourDate: formData.preferredTourDate,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to send request');
+      }
+
+      showToast.success('Request sent successfully!');
+      setContactModalOpen(false);
+    } catch (error: any) {
+      showToast.error(error.message || 'Failed to send request');
+      throw error;
+    }
   };
 
   const formatProviderType = (type: string) => {
@@ -465,15 +505,10 @@ export default function ProviderProfilePage() {
             onWriteReview={handleWriteReview}
           />
 
-          {/* Call to Action */}
+          {/* Call to Action - Enhanced */}
           <div className="border-t pt-6">
-            <div className="flex gap-4">
-              <Link
-                href={`/dashboard/requests/new?providerId=${provider.id}`}
-                className="bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 font-medium"
-              >
-                Request Consultation
-              </Link>
+            <div className="flex gap-4 items-start">
+              {/* Save Button */}
               {session?.user?.role === "FAMILY" && (
                 <button
                   onClick={handleSaveToggle}
@@ -493,6 +528,17 @@ export default function ProviderProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Enhanced CTA Sidebar */}
+        <div className="mt-8">
+          <ProviderCTASection
+            providerId={provider.id}
+            providerName={provider.name}
+            phone={provider.phone}
+            hasPricing={!!(provider.priceMin || provider.priceMax)}
+            onOpenRequestForm={handleOpenRequestForm}
+          />
+        </div>
       </main>
 
       {/* Auth Modal */}
@@ -509,6 +555,16 @@ export default function ProviderProfilePage() {
         providerId={provider.id}
         providerName={provider.name}
         onReviewSubmitted={handleReviewSubmitted}
+      />
+
+      {/* Enhanced Contact Modal */}
+      <EnhancedContactModal
+        isOpen={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+        providerId={provider.id}
+        providerName={provider.name}
+        defaultReason={contactReason}
+        onSubmit={handleContactSubmit}
       />
     </div>
   );

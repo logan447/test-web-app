@@ -286,6 +286,11 @@ model ConsultRequest {
   status          ConsultRequestStatus @default(PENDING)
   requestType     RequestType          @default(CONSULTATION) // CONSULTATION or HIRING
 
+  // Enhanced booking flow (Sprint 8)
+  contactReason          String?   // "Schedule a tour", "Request pricing", "Ask a question", "Request immediate placement"
+  preferredContactMethod String?   // "Phone", "Email", "Either"
+  preferredTourDate      DateTime? // Preferred date/time for facility tour
+
   // Notification tracking
   viewedByReceiver Boolean             @default(false)
 
