@@ -11,12 +11,13 @@ interface AuthModalProps {
   defaultView?: "login" | "signup";
 }
 
-export default function AuthModal({ isOpen, onClose, defaultView = "login" }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: AuthModalProps) {
   const router = useRouter();
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState<"FAMILY" | "PROVIDER">("FAMILY");
+  // All users default to FAMILY role on signup
+  const role = "FAMILY";
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -209,36 +210,6 @@ export default function AuthModal({ isOpen, onClose, defaultView = "login" }: Au
                   </form>
                 ) : (
                   <form onSubmit={handleSignup} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        I am a:
-                      </label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <button
-                          type="button"
-                          onClick={() => setRole("FAMILY")}
-                          className={`py-3 px-4 border rounded-md text-sm font-medium ${
-                            role === "FAMILY"
-                              ? "border-primary-600 bg-primary-50 text-primary-700"
-                              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          Family Member
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setRole("PROVIDER")}
-                          className={`py-3 px-4 border rounded-md text-sm font-medium ${
-                            role === "PROVIDER"
-                              ? "border-primary-600 bg-primary-50 text-primary-700"
-                              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          Care Provider
-                        </button>
-                      </div>
-                    </div>
-
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                         Full Name
