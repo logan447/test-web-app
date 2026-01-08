@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import MainNav from "@/components/Navigation/MainNav";
 import HeroSection from "@/components/Directory/HeroSection";
 import CategoryCards from "@/components/Directory/CategoryCards";
@@ -12,6 +13,18 @@ import ProviderCardSkeleton from "@/components/Loading/ProviderCardSkeleton";
 import FiltersBar from "@/components/Directory/FiltersBar";
 import ActiveFilters from "@/components/Directory/ActiveFilters";
 import ResultsHeader from "@/components/Directory/ResultsHeader";
+
+// Dynamic import for MapView to avoid SSR issues
+const MapView = dynamic(() => import("@/components/Directory/MapView"), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+      <div className="animate-pulse">
+        <div className="h-64 bg-gray-200 rounded"></div>
+      </div>
+    </div>
+  ),
+});
 
 type Provider = {
   id: string;
@@ -66,6 +79,9 @@ export default function Home() {
 
   // Sort option
   const [sortBy, setSortBy] = useState<string>("newest");
+
+  // View toggle (list/map)
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
   useEffect(() => {
     fetchProviders();
@@ -381,6 +397,8 @@ export default function Home() {
                 count={providers.length}
                 sortBy={sortBy}
                 onSortChange={handleSortChange}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
               />
             )}
 
@@ -419,24 +437,24 @@ export default function Home() {
                   Return to Dashboard
                 </Link>
               </div>
+            ) : viewMode === "map" ? (
+              <MapView providers={providers} />
             ) : (
-              <>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {providers.map((provider) => {
-                    const requestId = requestedProviderIds.get(provider.id);
-                    const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
+              <div className="grid md:grid-cols-2 gap-6">
+                {providers.map((provider) => {
+                  const requestId = requestedProviderIds.get(provider.id);
+                  const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
 
-                    return (
-                      <EnhancedProviderCard
-                        key={provider.id}
-                        provider={provider}
-                        linkHref={linkHref}
-                        hasRequestSent={!!requestId}
-                      />
-                    );
-                  })}
-                </div>
-              </>
+                  return (
+                    <EnhancedProviderCard
+                      key={provider.id}
+                      provider={provider}
+                      linkHref={linkHref}
+                      hasRequestSent={!!requestId}
+                    />
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>
