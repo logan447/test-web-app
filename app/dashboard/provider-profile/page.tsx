@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
-import PhotoUpload from "@/components/Gallery/PhotoUpload";
+import EnhancedPhotoUpload, { PhotoMetadata } from "@/components/Gallery/EnhancedPhotoUpload";
 import ProviderProfileCompleteness from "@/components/ProviderProfile/ProviderProfileCompleteness";
 import { showToast } from "@/lib/toast";
 
@@ -234,7 +234,7 @@ export default function ProviderProfilePage() {
   const [providerType, setProviderType] = useState("");
   const [availableForFamilies, setAvailableForFamilies] = useState(true);
   const [availableForOrganizations, setAvailableForOrganizations] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoMetadata, setPhotoMetadata] = useState<PhotoMetadata[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
   const [selectedRoomFeatures, setSelectedRoomFeatures] = useState<string[]>([]);
   const [selectedCommonAreas, setSelectedCommonAreas] = useState<string[]>([]);
@@ -285,7 +285,14 @@ export default function ProviderProfilePage() {
         setProviderType(data.providerType || "");
         setAvailableForFamilies(data.availableForFamilies !== undefined ? data.availableForFamilies : true);
         setAvailableForOrganizations(data.availableForOrganizations || false);
-        setPhotos(data.photos || []);
+        // Convert string[] photos to PhotoMetadata[]
+        const photos = data.photos || [];
+        const metadata: PhotoMetadata[] = photos.map((url: string) => ({
+          url,
+          caption: "",
+          category: "other" as const,
+        }));
+        setPhotoMetadata(metadata);
         setCoverPhoto(data.coverPhoto || null);
         setSelectedRoomFeatures(data.roomFeatures || []);
         setSelectedCommonAreas(data.commonAreas || []);
@@ -353,7 +360,7 @@ export default function ProviderProfilePage() {
       totalCapacity: formData.get("totalCapacity") ? parseInt(formData.get("totalCapacity") as string) : null,
       availableSpots: formData.get("availableSpots") ? parseInt(formData.get("availableSpots") as string) : null,
       waitlistAvailable: waitlistAvailable,
-      photos: photos,
+      photos: photoMetadata.map(p => p.url), // Convert PhotoMetadata[] to string[]
       coverPhoto: coverPhoto,
       roomFeatures: selectedRoomFeatures,
       commonAreas: selectedCommonAreas,
@@ -481,8 +488,8 @@ export default function ProviderProfilePage() {
     );
   };
 
-  const handlePhotosChange = (newPhotos: string[], newCoverPhoto: string | null) => {
-    setPhotos(newPhotos);
+  const handlePhotosChange = (newPhotoMetadata: PhotoMetadata[], newCoverPhoto: string | null) => {
+    setPhotoMetadata(newPhotoMetadata);
     setCoverPhoto(newCoverPhoto);
   };
 
@@ -509,7 +516,7 @@ export default function ProviderProfilePage() {
     },
     {
       label: "Photos Added (at least 1)",
-      completed: photos.length > 0,
+      completed: photoMetadata.length > 0,
       required: false,
     },
     {
@@ -1258,12 +1265,12 @@ export default function ProviderProfilePage() {
 
             {/* Photo Upload Section */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Photos</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Photos & Media</h3>
               <p className="text-sm text-gray-600 mb-4">
-                Add photos of your facility, staff, and amenities to help families get a better sense of your services.
+                Add photos organized by category to help families visualize your facility. Photos with captions get 3x more engagement!
               </p>
-              <PhotoUpload
-                photos={photos}
+              <EnhancedPhotoUpload
+                photos={photoMetadata}
                 coverPhoto={coverPhoto}
                 onPhotosChange={handlePhotosChange}
               />
