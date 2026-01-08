@@ -10,6 +10,7 @@ import WarmIntroduction from "@/components/CareProfile/WarmIntroduction";
 import ProfileCompleteness from "@/components/CareProfile/ProfileCompleteness";
 import PrivacyReassurance from "@/components/CareProfile/PrivacyReassurance";
 import AboutLovedOneSection from "@/components/CareProfile/AboutLovedOneSection";
+import CareNeedsAssessment from "@/components/CareProfile/CareNeedsAssessment";
 
 type CareProfile = {
   id: string;
@@ -20,6 +21,12 @@ type CareProfile = {
   gender?: string | null;
   livingSituation?: string | null;
   relationship?: string | null;
+  // Care needs assessment
+  careLevel?: string | null;
+  medicalConditions?: string[];
+  mobilityStatus?: string | null;
+  dailyLivingAssistance?: string[];
+  additionalNeeds?: string | null;
   // Care needs
   careTypes: string[];
   location: string;
@@ -53,6 +60,15 @@ export default function CareProfilePage() {
     gender: profile?.gender || "",
     livingSituation: profile?.livingSituation || "",
     relationship: profile?.relationship || "",
+  });
+
+  // Care needs assessment state
+  const [careNeeds, setCareNeeds] = useState({
+    careLevel: profile?.careLevel || "",
+    medicalConditions: profile?.medicalConditions || [],
+    mobilityStatus: profile?.mobilityStatus || "",
+    dailyLivingAssistance: profile?.dailyLivingAssistance || [],
+    additionalNeeds: profile?.additionalNeeds || "",
   });
 
   // Define steps for progress tracking
@@ -104,6 +120,14 @@ export default function CareProfilePage() {
             livingSituation: data.livingSituation || "",
             relationship: data.relationship || "",
           });
+          // Update careNeeds state with fetched data
+          setCareNeeds({
+            careLevel: data.careLevel || "",
+            medicalConditions: data.medicalConditions || [],
+            mobilityStatus: data.mobilityStatus || "",
+            dailyLivingAssistance: data.dailyLivingAssistance || [],
+            additionalNeeds: data.additionalNeeds || "",
+          });
         } else {
           setEditing(true); // No profile exists, start in edit mode
         }
@@ -131,6 +155,12 @@ export default function CareProfilePage() {
       gender: aboutLovedOne.gender || null,
       livingSituation: aboutLovedOne.livingSituation || null,
       relationship: aboutLovedOne.relationship || null,
+      // Care needs assessment
+      careLevel: careNeeds.careLevel || null,
+      medicalConditions: careNeeds.medicalConditions,
+      mobilityStatus: careNeeds.mobilityStatus || null,
+      dailyLivingAssistance: careNeeds.dailyLivingAssistance,
+      additionalNeeds: careNeeds.additionalNeeds || null,
       // Care needs
       careTypes,
       location: formData.get("location"),
@@ -179,6 +209,11 @@ export default function CareProfilePage() {
       label: "About your loved one",
       completed: !!(aboutLovedOne.lovedOneName || aboutLovedOne.ageRange || aboutLovedOne.relationship),
       required: false,
+    },
+    {
+      label: "Care needs assessment",
+      completed: !!(careNeeds.careLevel && careNeeds.mobilityStatus),
+      required: true,
     },
     {
       label: "Care types selected",
@@ -272,6 +307,17 @@ export default function CareProfilePage() {
               data={aboutLovedOne}
               onDataChange={(field, value) => {
                 setAboutLovedOne((prev) => ({ ...prev, [field]: value }));
+              }}
+            />
+
+            {/* Divider */}
+            <div className="border-t border-gray-200"></div>
+
+            {/* Care Needs Assessment Section */}
+            <CareNeedsAssessment
+              data={careNeeds}
+              onDataChange={(field, value) => {
+                setCareNeeds((prev) => ({ ...prev, [field]: value }));
               }}
             />
 

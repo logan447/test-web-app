@@ -124,6 +124,13 @@ model FamilyProfile {
   livingSituation String?
   relationship    String?
 
+  // Care needs assessment (Sprint 3)
+  careLevel              String?
+  medicalConditions      String[]   @default([])
+  mobilityStatus         String?
+  dailyLivingAssistance  String[]   @default([])
+  additionalNeeds        String?
+
   // Care needs
   careTypes     CareType[]
   location      String

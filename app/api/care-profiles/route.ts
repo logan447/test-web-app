@@ -13,6 +13,12 @@ const careProfileSchema = z.object({
   gender: z.string().optional().nullable(),
   livingSituation: z.string().optional().nullable(),
   relationship: z.string().optional().nullable(),
+  // Care needs assessment (Sprint 3)
+  careLevel: z.string().optional().nullable(),
+  medicalConditions: z.array(z.string()).optional(),
+  mobilityStatus: z.string().optional().nullable(),
+  dailyLivingAssistance: z.array(z.string()).optional(),
+  additionalNeeds: z.string().optional().nullable(),
   // Care needs
   careTypes: z.array(z.nativeEnum(CareType)),
   location: z.string(),
