@@ -98,9 +98,8 @@ export async function GET(req: Request) {
       }
 
       if (type === "sent") {
-        // Sent: requests where provider is the sender
+        // Sent: requests sent BY this provider user (regardless of which provider is the recipient)
         const where: any = {
-          providerId: provider.id,
           senderId: session.user.id,
           status: { not: "DECLINED" } // Exclude declined/deleted requests
         };
@@ -110,6 +109,7 @@ export async function GET(req: Request) {
         requests = await prisma.consultRequest.findMany({
           where,
           include: {
+            provider: true,
             familyProfile: { include: { user: true } },
             sender: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
