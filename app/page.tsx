@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
 import HeroSection from "@/components/Directory/HeroSection";
+import CategoryCards from "@/components/Directory/CategoryCards";
 
 type Provider = {
   id: string;
@@ -103,6 +104,19 @@ export default function Home() {
     setTimeout(() => fetchProviders(), 0);
   };
 
+  const handleCategoryClick = (selectedProviderType: string) => {
+    // Clear other filters and set the selected provider type
+    setSearch("");
+    setCity("");
+    setState("");
+    setProviderType(selectedProviderType);
+    setCareType("");
+    // Trigger search after state update
+    setTimeout(() => fetchProviders(), 0);
+    // Scroll to results
+    window.scrollTo({ top: 800, behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
@@ -115,6 +129,11 @@ export default function Home() {
         initialCareType={careType}
         totalProviders={1000}
       />
+
+      {/* Category Cards */}
+      {!loading && providers.length === 0 && !search && !city && !state && !providerType && !careType && (
+        <CategoryCards onCategoryClick={handleCategoryClick} />
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
