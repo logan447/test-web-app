@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
+import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
 
 const MAIN_CATEGORIES = [
@@ -98,6 +99,7 @@ export default function MainNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
+  const [signOutModalOpen, setSignOutModalOpen] = useState(false);
   const [switchingMode, setSwitchingMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -370,9 +372,12 @@ export default function MainNav() {
                     )}
                   </div>
                   <div className="border-t border-gray-200">
-                    <Link href="/api/auth/signout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <button
+                      onClick={() => setSignOutModalOpen(true)}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
                       Log Out
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -586,9 +591,12 @@ export default function MainNav() {
                       {switchingMode ? 'Switching...' : 'For Providers'}
                     </button>
                   )}
-                  <Link href="/api/auth/signout" className="block px-3 py-2 text-gray-700">
+                  <button
+                    onClick={() => setSignOutModalOpen(true)}
+                    className="block w-full text-left px-3 py-2 text-gray-700"
+                  >
                     Log Out
-                  </Link>
+                  </button>
                 </>
               ) : (
                 <>
@@ -624,6 +632,12 @@ export default function MainNav() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         defaultView={authModalView}
+      />
+
+      {/* Sign Out Modal */}
+      <SignOutModal
+        isOpen={signOutModalOpen}
+        onClose={() => setSignOutModalOpen(false)}
       />
     </nav>
   );
