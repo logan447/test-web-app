@@ -242,6 +242,9 @@ export default function RequestsPage() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Care Request
+                    </span>
                     {request._count && request._count.messages > 0 && (
                       <div className="flex items-center gap-1 bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

@@ -176,9 +176,14 @@ export default function HiringRequestsPage() {
                       {new Date(request.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)}`}>
-                    {request.status}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      Employment Request
+                    </span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)}`}>
+                      {request.status}
+                    </span>
+                  </div>
                 </div>
 
                 <p className="text-gray-700 mb-4 line-clamp-2">{request.message}</p>
