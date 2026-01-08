@@ -239,7 +239,7 @@ export default function SavedProviders() {
                 {/* Actions */}
                 <div className="flex gap-3 mt-4 pt-4 border-t">
                   <Link
-                    href={`/providers/${saved.provider.id}`}
+                    href={`/providers/${saved.provider.id}?from=saved`}
                     className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium text-center"
                   >
                     View Profile

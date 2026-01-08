@@ -21,7 +21,7 @@ export default function Tooltip({ content, children, className = "" }: TooltipPr
     >
       {children}
       {isVisible && (
-        <div className="absolute z-50 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg whitespace-normal max-w-xs -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full pointer-events-none">
+        <div className="absolute z-50 px-4 py-1.5 text-sm text-white bg-gray-900 rounded-md shadow-lg whitespace-normal max-w-sm -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full pointer-events-none">
           {content}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
             <div className="border-4 border-transparent border-t-gray-900"></div>

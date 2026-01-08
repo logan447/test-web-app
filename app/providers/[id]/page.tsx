@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
 import AuthModal from "@/components/Auth/AuthModal";
@@ -31,12 +31,18 @@ type Provider = {
 export default function ProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  // Determine back link based on where user came from
+  const fromSaved = searchParams.get('from') === 'saved';
+  const backHref = fromSaved ? '/dashboard/saved' : '/providers';
+  const backText = fromSaved ? '← Back to Saved Providers' : '← Back to Browse Providers';
 
   useEffect(() => {
     fetchProvider();
@@ -146,10 +152,10 @@ export default function ProviderProfilePage() {
       {/* Provider Profile */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
-          href="/"
+          href={backHref}
           className="text-primary-600 hover:text-primary-700 mb-6 inline-block"
         >
-          ← Back to Browse Providers
+          {backText}
         </Link>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
