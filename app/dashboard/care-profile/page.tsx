@@ -11,6 +11,7 @@ import ProfileCompleteness from "@/components/CareProfile/ProfileCompleteness";
 import PrivacyReassurance from "@/components/CareProfile/PrivacyReassurance";
 import AboutLovedOneSection from "@/components/CareProfile/AboutLovedOneSection";
 import CareNeedsAssessment from "@/components/CareProfile/CareNeedsAssessment";
+import PersonalityPreferences from "@/components/CareProfile/PersonalityPreferences";
 
 type CareProfile = {
   id: string;
@@ -27,6 +28,14 @@ type CareProfile = {
   mobilityStatus?: string | null;
   dailyLivingAssistance?: string[];
   additionalNeeds?: string | null;
+  // Personality & preferences
+  personalityTraits?: string[];
+  hobbiesInterests?: string[];
+  communicationPreferences?: string[];
+  culturalBackground?: string | null;
+  religiousPreferences?: string | null;
+  languagePreferences?: string[];
+  petPreferences?: string | null;
   // Care needs
   careTypes: string[];
   location: string;
@@ -69,6 +78,17 @@ export default function CareProfilePage() {
     mobilityStatus: profile?.mobilityStatus || "",
     dailyLivingAssistance: profile?.dailyLivingAssistance || [],
     additionalNeeds: profile?.additionalNeeds || "",
+  });
+
+  // Personality & preferences state
+  const [personality, setPersonality] = useState({
+    personalityTraits: profile?.personalityTraits || [],
+    hobbiesInterests: profile?.hobbiesInterests || [],
+    communicationPreferences: profile?.communicationPreferences || [],
+    culturalBackground: profile?.culturalBackground || "",
+    religiousPreferences: profile?.religiousPreferences || "",
+    languagePreferences: profile?.languagePreferences || [],
+    petPreferences: profile?.petPreferences || "",
   });
 
   // Define steps for progress tracking
@@ -128,6 +148,16 @@ export default function CareProfilePage() {
             dailyLivingAssistance: data.dailyLivingAssistance || [],
             additionalNeeds: data.additionalNeeds || "",
           });
+          // Update personality state with fetched data
+          setPersonality({
+            personalityTraits: data.personalityTraits || [],
+            hobbiesInterests: data.hobbiesInterests || [],
+            communicationPreferences: data.communicationPreferences || [],
+            culturalBackground: data.culturalBackground || "",
+            religiousPreferences: data.religiousPreferences || "",
+            languagePreferences: data.languagePreferences || [],
+            petPreferences: data.petPreferences || "",
+          });
         } else {
           setEditing(true); // No profile exists, start in edit mode
         }
@@ -161,6 +191,14 @@ export default function CareProfilePage() {
       mobilityStatus: careNeeds.mobilityStatus || null,
       dailyLivingAssistance: careNeeds.dailyLivingAssistance,
       additionalNeeds: careNeeds.additionalNeeds || null,
+      // Personality & preferences
+      personalityTraits: personality.personalityTraits,
+      hobbiesInterests: personality.hobbiesInterests,
+      communicationPreferences: personality.communicationPreferences,
+      culturalBackground: personality.culturalBackground || null,
+      religiousPreferences: personality.religiousPreferences || null,
+      languagePreferences: personality.languagePreferences,
+      petPreferences: personality.petPreferences || null,
       // Care needs
       careTypes,
       location: formData.get("location"),
@@ -214,6 +252,11 @@ export default function CareProfilePage() {
       label: "Care needs assessment",
       completed: !!(careNeeds.careLevel && careNeeds.mobilityStatus),
       required: true,
+    },
+    {
+      label: "Personality & preferences",
+      completed: !!(personality.personalityTraits.length > 0 || personality.hobbiesInterests.length > 0 || personality.languagePreferences.length > 0),
+      required: false,
     },
     {
       label: "Care types selected",
@@ -318,6 +361,17 @@ export default function CareProfilePage() {
               data={careNeeds}
               onDataChange={(field, value) => {
                 setCareNeeds((prev) => ({ ...prev, [field]: value }));
+              }}
+            />
+
+            {/* Divider */}
+            <div className="border-t border-gray-200"></div>
+
+            {/* Personality & Preferences Section */}
+            <PersonalityPreferences
+              data={personality}
+              onDataChange={(field, value) => {
+                setPersonality((prev) => ({ ...prev, [field]: value }));
               }}
             />
 

@@ -19,6 +19,14 @@ const careProfileSchema = z.object({
   mobilityStatus: z.string().optional().nullable(),
   dailyLivingAssistance: z.array(z.string()).optional(),
   additionalNeeds: z.string().optional().nullable(),
+  // Personality & preferences (Sprint 4)
+  personalityTraits: z.array(z.string()).optional(),
+  hobbiesInterests: z.array(z.string()).optional(),
+  communicationPreferences: z.array(z.string()).optional(),
+  culturalBackground: z.string().optional().nullable(),
+  religiousPreferences: z.string().optional().nullable(),
+  languagePreferences: z.array(z.string()).optional(),
+  petPreferences: z.string().optional().nullable(),
   // Care needs
   careTypes: z.array(z.nativeEnum(CareType)),
   location: z.string(),

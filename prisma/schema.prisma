@@ -131,6 +131,15 @@ model FamilyProfile {
   dailyLivingAssistance  String[]   @default([])
   additionalNeeds        String?
 
+  // Personality & preferences (Sprint 4)
+  personalityTraits       String[]   @default([])
+  hobbiesInterests        String[]   @default([])
+  communicationPreferences String[]  @default([])
+  culturalBackground      String?
+  religiousPreferences    String?
+  languagePreferences     String[]   @default([])
+  petPreferences          String?
+
   // Care needs
   careTypes     CareType[]
   location      String
