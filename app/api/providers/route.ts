@@ -13,6 +13,15 @@ export async function GET(req: Request) {
     const careType = searchParams.get("careType");
     const availableForOrganizations = searchParams.get("availableForOrganizations");
 
+    // Advanced filters
+    const priceMinParam = searchParams.get("priceMin");
+    const priceMaxParam = searchParams.get("priceMax");
+    const minRatingParam = searchParams.get("minRating");
+    const availabilityParam = searchParams.get("availability");
+    const amenitiesParam = searchParams.get("amenities");
+    const insuranceParam = searchParams.get("insurance");
+    const languagesParam = searchParams.get("languages");
+
     const where: any = {
       active: true,
     };
@@ -45,6 +54,63 @@ export async function GET(req: Request) {
     if (availableForOrganizations === "true") {
       where.providerType = "INDEPENDENT_CAREGIVER";
       where.availableForOrganizations = true;
+    }
+
+    // Price range filter
+    if (priceMinParam) {
+      where.priceMin = { gte: parseInt(priceMinParam) };
+    }
+    if (priceMaxParam) {
+      where.priceMax = { lte: parseInt(priceMaxParam) };
+    }
+
+    // Rating filter
+    if (minRatingParam) {
+      where.averageRating = { gte: parseFloat(minRatingParam) };
+    }
+
+    // Availability filter
+    if (availabilityParam) {
+      if (availabilityParam === "immediate") {
+        where.availableSpots = { gt: 0 };
+      }
+    }
+
+    // Amenities filter (specialty care)
+    if (amenitiesParam) {
+      const amenitiesList = amenitiesParam.split(",");
+      const amenityConditions: any[] = [];
+
+      if (amenitiesList.includes("memory_care")) {
+        amenityConditions.push({ hasMemoryCare: true });
+      }
+      if (amenitiesList.includes("respite_care")) {
+        amenityConditions.push({ hasRespiteCare: true });
+      }
+      if (amenitiesList.includes("hospice_care")) {
+        amenityConditions.push({ hasHospiceCare: true });
+      }
+
+      if (amenityConditions.length > 0) {
+        where.AND = where.AND || [];
+        where.AND.push({ OR: amenityConditions });
+      }
+    }
+
+    // Insurance/Payment filter
+    if (insuranceParam) {
+      const insuranceList = insuranceParam.split(",");
+      where.paymentOptions = {
+        hasSome: insuranceList,
+      };
+    }
+
+    // Languages filter
+    if (languagesParam) {
+      const languagesList = languagesParam.split(",");
+      where.languagesSpoken = {
+        hasSome: languagesList,
+      };
     }
 
     const providers = await prisma.provider.findMany({

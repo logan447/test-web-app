@@ -9,6 +9,8 @@ import HeroSection from "@/components/Directory/HeroSection";
 import CategoryCards from "@/components/Directory/CategoryCards";
 import EnhancedProviderCard from "@/components/Directory/EnhancedProviderCard";
 import ProviderCardSkeleton from "@/components/Loading/ProviderCardSkeleton";
+import FiltersBar from "@/components/Directory/FiltersBar";
+import ActiveFilters from "@/components/Directory/ActiveFilters";
 
 type Provider = {
   id: string;
@@ -52,6 +54,15 @@ export default function Home() {
   const [careType, setCareType] = useState("");
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
 
+  // Advanced filters
+  const [priceMin, setPriceMin] = useState<number>(0);
+  const [priceMax, setPriceMax] = useState<number>(15000);
+  const [minRating, setMinRating] = useState<number>(0);
+  const [availability, setAvailability] = useState<string>("");
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [insurance, setInsurance] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>([]);
+
   useEffect(() => {
     fetchProviders();
     if (session) {
@@ -68,6 +79,15 @@ export default function Home() {
       if (state) params.append("state", state);
       if (providerType) params.append("providerType", providerType);
       if (careType) params.append("careType", careType);
+
+      // Advanced filters
+      if (priceMin > 0) params.append("priceMin", priceMin.toString());
+      if (priceMax < 15000) params.append("priceMax", priceMax.toString());
+      if (minRating > 0) params.append("minRating", minRating.toString());
+      if (availability) params.append("availability", availability);
+      if (amenities.length > 0) params.append("amenities", amenities.join(","));
+      if (insurance.length > 0) params.append("insurance", insurance.join(","));
+      if (languages.length > 0) params.append("languages", languages.join(","));
 
       const response = await fetch(`/api/providers?${params.toString()}`);
       const data = await response.json();
@@ -138,6 +158,58 @@ export default function Home() {
     window.scrollTo({ top: 800, behavior: "smooth" });
   };
 
+  // Advanced filter handlers
+  const handleApplyFilters = () => {
+    fetchProviders();
+  };
+
+  const handleClearAllFilters = () => {
+    setSearch("");
+    setCity("");
+    setState("");
+    setProviderType("");
+    setCareType("");
+    setPriceMin(0);
+    setPriceMax(15000);
+    setMinRating(0);
+    setAvailability("");
+    setAmenities([]);
+    setInsurance([]);
+    setLanguages([]);
+    setTimeout(() => fetchProviders(), 0);
+  };
+
+  const handleRemovePriceFilter = () => {
+    setPriceMin(0);
+    setPriceMax(15000);
+    setTimeout(() => fetchProviders(), 0);
+  };
+
+  const handleRemoveRatingFilter = () => {
+    setMinRating(0);
+    setTimeout(() => fetchProviders(), 0);
+  };
+
+  const handleRemoveAvailabilityFilter = () => {
+    setAvailability("");
+    setTimeout(() => fetchProviders(), 0);
+  };
+
+  const handleRemoveAmenity = (amenity: string) => {
+    setAmenities(amenities.filter((a) => a !== amenity));
+    setTimeout(() => fetchProviders(), 0);
+  };
+
+  const handleRemoveInsurance = (ins: string) => {
+    setInsurance(insurance.filter((i) => i !== ins));
+    setTimeout(() => fetchProviders(), 0);
+  };
+
+  const handleRemoveLanguage = (lang: string) => {
+    setLanguages(languages.filter((l) => l !== lang));
+    setTimeout(() => fetchProviders(), 0);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
@@ -158,173 +230,202 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Advanced Filters (Collapsible) */}
-        <details className="bg-white rounded-lg shadow mb-8">
-          <summary className="px-6 py-4 cursor-pointer font-semibold text-gray-900 hover:text-primary-600 transition-smooth flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-              </svg>
-              Advanced Filters
-            </span>
-            <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </summary>
-
-          <div className="px-6 pb-6">
-            <form onSubmit={handleSearch} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Search Keywords
-                  </label>
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Provider name or keywords..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Enter city"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    State
-                  </label>
-                  <input
-                    type="text"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    placeholder="e.g., CA, NY"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Provider Type
-                  </label>
-                  <select
-                    value={providerType}
-                    onChange={(e) => setProviderType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  >
-                    <option value="">All Types</option>
-                    <option value="HOME_CARE">Home Care</option>
-                    <option value="HOME_HEALTH">Home Health</option>
-                    <option value="ASSISTED_LIVING">Assisted Living</option>
-                    <option value="INDEPENDENT_LIVING">Independent Living</option>
-                    <option value="MEMORY_CARE">Memory Care</option>
-                    <option value="NURSING_HOME">Nursing Home</option>
-                    <option value="HOSPICE">Hospice</option>
-                    <option value="REHABILITATION">Rehabilitation</option>
-                    <option value="INDEPENDENT_CAREGIVER">Independent Caregiver</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Care Type
-                  </label>
-                  <select
-                    value={careType}
-                    onChange={(e) => setCareType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  >
-                    <option value="">All Care Types</option>
-                    <option value="COMPANION_CARE">Companion Care</option>
-                    <option value="PERSONAL_CARE">Personal Care</option>
-                    <option value="SKILLED_NURSING">Skilled Nursing</option>
-                    <option value="MEMORY_CARE">Memory Care</option>
-                    <option value="HOSPICE_CARE">Hospice Care</option>
-                    <option value="RESPITE_CARE">Respite Care</option>
-                    <option value="LIVE_IN_CARE">Live-In Care</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700 transition-smooth"
-                >
-                  Apply Filters
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
-                    setCity("");
-                    setState("");
-                    setProviderType("");
-                    setCareType("");
-                    fetchProviders();
-                  }}
-                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-smooth"
-                >
-                  Clear All
-                </button>
-              </div>
-            </form>
-          </div>
-        </details>
-
-        {/* Results */}
-        {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <ProviderCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : providers.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-600 mb-4">No providers found. Try adjusting your search criteria.</p>
-            <Link
-              href="/dashboard"
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Return to Dashboard
-            </Link>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {providers.map((provider) => {
-              const requestId = requestedProviderIds.get(provider.id);
-              const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
-
-              return (
-                <EnhancedProviderCard
-                  key={provider.id}
-                  provider={provider}
-                  linkHref={linkHref}
-                  hasRequestSent={!!requestId}
+        {/* Basic Search Bar */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Search Keywords
+                </label>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Provider name..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
-              );
-            })}
-          </div>
-        )}
+              </div>
 
-        {providers.length > 0 && (
-          <div className="mt-8 text-center">
-            <p className="text-gray-600">
-              Showing {providers.length} provider{providers.length !== 1 ? 's' : ''}
-            </p>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Enter city"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  State
+                </label>
+                <input
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  placeholder="e.g., CA"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Provider Type
+                </label>
+                <select
+                  value={providerType}
+                  onChange={(e) => setProviderType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">All Types</option>
+                  <option value="HOME_CARE">Home Care</option>
+                  <option value="HOME_HEALTH">Home Health</option>
+                  <option value="ASSISTED_LIVING">Assisted Living</option>
+                  <option value="INDEPENDENT_LIVING">Independent Living</option>
+                  <option value="MEMORY_CARE">Memory Care</option>
+                  <option value="NURSING_HOME">Nursing Home</option>
+                  <option value="HOSPICE">Hospice</option>
+                  <option value="REHABILITATION">Rehabilitation</option>
+                  <option value="INDEPENDENT_CAREGIVER">Independent Caregiver</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Care Type
+                </label>
+                <select
+                  value={careType}
+                  onChange={(e) => setCareType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">All Care Types</option>
+                  <option value="COMPANION_CARE">Companion Care</option>
+                  <option value="PERSONAL_CARE">Personal Care</option>
+                  <option value="SKILLED_NURSING">Skilled Nursing</option>
+                  <option value="MEMORY_CARE">Memory Care</option>
+                  <option value="HOSPICE_CARE">Hospice Care</option>
+                  <option value="RESPITE_CARE">Respite Care</option>
+                  <option value="LIVE_IN_CARE">Live-In Care</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700 transition-smooth font-medium"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                onClick={handleClearAllFilters}
+                className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-smooth font-medium"
+              >
+                Clear All
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Two-column layout: Filters + Results */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left Sidebar: Filters */}
+          <div className="lg:col-span-1">
+            <FiltersBar
+              priceMin={priceMin}
+              priceMax={priceMax}
+              minRating={minRating}
+              availability={availability}
+              amenities={amenities}
+              insurance={insurance}
+              languages={languages}
+              onPriceChange={(min, max) => {
+                setPriceMin(min);
+                setPriceMax(max);
+              }}
+              onRatingChange={setMinRating}
+              onAvailabilityChange={setAvailability}
+              onAmenitiesChange={setAmenities}
+              onInsuranceChange={setInsurance}
+              onLanguagesChange={setLanguages}
+              onApplyFilters={handleApplyFilters}
+              onClearFilters={handleClearAllFilters}
+            />
           </div>
-        )}
+
+          {/* Right Column: Active Filters + Results */}
+          <div className="lg:col-span-3">
+            {/* Active Filters */}
+            <ActiveFilters
+              priceMin={priceMin}
+              priceMax={priceMax}
+              minRating={minRating}
+              availability={availability}
+              amenities={amenities}
+              insurance={insurance}
+              languages={languages}
+              onRemovePriceFilter={handleRemovePriceFilter}
+              onRemoveRatingFilter={handleRemoveRatingFilter}
+              onRemoveAvailabilityFilter={handleRemoveAvailabilityFilter}
+              onRemoveAmenity={handleRemoveAmenity}
+              onRemoveInsurance={handleRemoveInsurance}
+              onRemoveLanguage={handleRemoveLanguage}
+              onClearAll={handleClearAllFilters}
+            />
+
+            {/* Results */}
+            {loading ? (
+              <div className="grid md:grid-cols-2 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <ProviderCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : providers.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
+                <p className="text-gray-600 mb-4">No providers found. Try adjusting your search criteria.</p>
+                <Link
+                  href="/dashboard"
+                  className="text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  Return to Dashboard
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {providers.map((provider) => {
+                    const requestId = requestedProviderIds.get(provider.id);
+                    const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
+
+                    return (
+                      <EnhancedProviderCard
+                        key={provider.id}
+                        provider={provider}
+                        linkHref={linkHref}
+                        hasRequestSent={!!requestId}
+                      />
+                    );
+                  })}
+                </div>
+
+                {providers.length > 0 && (
+                  <div className="mt-8 text-center">
+                    <p className="text-gray-600">
+                      Showing {providers.length} provider{providers.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
