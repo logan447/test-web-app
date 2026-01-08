@@ -189,6 +189,10 @@ model Provider {
   priceDescription String?       // What's included in the base price
   paymentOptions  String[]       // Array of payment methods accepted (e.g., "Private Pay", "Medicare", "Medicaid")
 
+  // Photos
+  photos          String[]       // Array of photo URLs
+  coverPhoto      String?        // Main hero image URL
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)

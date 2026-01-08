@@ -6,6 +6,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
 import AuthModal from "@/components/Auth/AuthModal";
+import PhotoGallery from "@/components/Gallery/PhotoGallery";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -36,6 +37,8 @@ type Provider = {
   totalCapacity: number | null;
   availableSpots: number | null;
   waitlistAvailable: boolean;
+  photos: string[];
+  coverPhoto: string | null;
 };
 
 export default function ProviderProfilePage() {
@@ -244,6 +247,15 @@ export default function ProviderProfilePage() {
               )}
             </div>
           </div>
+
+          {/* Photo Gallery */}
+          {(provider.photos.length > 0 || provider.coverPhoto) && (
+            <PhotoGallery
+              photos={provider.photos}
+              coverPhoto={provider.coverPhoto}
+              providerName={provider.name}
+            />
+          )}
 
           {/* Description */}
           {provider.description && (

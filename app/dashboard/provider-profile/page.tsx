@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import PhotoUpload from "@/components/Gallery/PhotoUpload";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -37,6 +38,8 @@ type Provider = {
   totalCapacity: number | null;
   availableSpots: number | null;
   waitlistAvailable: boolean;
+  photos: string[];
+  coverPhoto: string | null;
 };
 
 const PROVIDER_TYPES = [
@@ -100,6 +103,8 @@ export default function ProviderProfilePage() {
   const [providerType, setProviderType] = useState("");
   const [availableForFamilies, setAvailableForFamilies] = useState(true);
   const [availableForOrganizations, setAvailableForOrganizations] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -125,6 +130,8 @@ export default function ProviderProfilePage() {
         setProviderType(data.providerType || "");
         setAvailableForFamilies(data.availableForFamilies !== undefined ? data.availableForFamilies : true);
         setAvailableForOrganizations(data.availableForOrganizations || false);
+        setPhotos(data.photos || []);
+        setCoverPhoto(data.coverPhoto || null);
         setEditing(false);
       } else if (response.status === 404) {
         setEditing(true);
@@ -171,6 +178,8 @@ export default function ProviderProfilePage() {
       totalCapacity: formData.get("totalCapacity") ? parseInt(formData.get("totalCapacity") as string) : null,
       availableSpots: formData.get("availableSpots") ? parseInt(formData.get("availableSpots") as string) : null,
       waitlistAvailable: waitlistAvailable,
+      photos: photos,
+      coverPhoto: coverPhoto,
     };
 
     try {
@@ -219,6 +228,11 @@ export default function ProviderProfilePage() {
         ? prev.filter((s) => s !== cert)
         : [...prev, cert]
     );
+  };
+
+  const handlePhotosChange = (newPhotos: string[], newCoverPhoto: string | null) => {
+    setPhotos(newPhotos);
+    setCoverPhoto(newCoverPhoto);
   };
 
   const formatCareType = (type: string) => {
@@ -897,6 +911,19 @@ export default function ProviderProfilePage() {
                   </p>
                 </div>
               </label>
+            </div>
+
+            {/* Photo Upload Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Photos</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Add photos of your facility, staff, and amenities to help families get a better sense of your services.
+              </p>
+              <PhotoUpload
+                photos={photos}
+                coverPhoto={coverPhoto}
+                onPhotosChange={handlePhotosChange}
+              />
             </div>
 
             {providerType === "INDEPENDENT_CAREGIVER" && (
