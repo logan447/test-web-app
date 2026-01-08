@@ -181,7 +181,10 @@ export default function OrganizationDetailPage() {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
         } else {
-          showToast.error(data.error || 'Failed to send request');
+          const errorMessage = data.details
+            ? `${data.error}: ${data.details}`
+            : (data.error || 'Failed to send request');
+          showToast.error(errorMessage);
         }
       }
     } catch (err: any) {

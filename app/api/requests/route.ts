@@ -173,13 +173,23 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
+      console.log('[REQUEST API] Unauthorized - no session');
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
     const { providerId, familyProfileId, message, requestType } = body;
 
+    console.log('[REQUEST API] POST request received:', {
+      userId: session.user.id,
+      providerId,
+      familyProfileId,
+      requestType,
+      messageLength: message?.length
+    });
+
     const activeMode = session.user.activeMode || 'FAMILY';
+    console.log('[REQUEST API] Active mode:', activeMode);
 
     // Validate that user has a family profile if they're a family member
     if (activeMode === "FAMILY") {
@@ -210,6 +220,8 @@ export async function POST(req: Request) {
       return NextResponse.json(request, { status: 201 });
     } else {
       // Provider sending request to family
+      console.log('[REQUEST API] Provider mode - checking subscription');
+
       // Only require subscription for consultation requests, not hiring requests
       if (requestType !== 'HIRING') {
         const user = await prisma.user.findUnique({
@@ -221,6 +233,7 @@ export async function POST(req: Request) {
         const hasActiveSubscription = subscription?.status === 'ACTIVE' && subscription?.tier !== 'FREE';
 
         if (!hasActiveSubscription) {
+          console.log('[REQUEST API] Subscription required but not active');
           return NextResponse.json(
             {
               error: "Subscription required to send consultation requests",
@@ -229,7 +242,17 @@ export async function POST(req: Request) {
             { status: 403 }
           );
         }
+      } else {
+        console.log('[REQUEST API] Hiring request - skipping subscription check');
       }
+
+      console.log('[REQUEST API] Creating request with data:', {
+        senderId: session.user.id,
+        familyProfileId,
+        providerId,
+        status: "PENDING",
+        requestType: requestType || "CONSULTATION"
+      });
 
       const request = await prisma.consultRequest.create({
         data: {
@@ -243,12 +266,22 @@ export async function POST(req: Request) {
         include: { familyProfile: { include: { user: true } } },
       });
 
+      console.log('[REQUEST API] Request created successfully:', request.id);
       return NextResponse.json(request, { status: 201 });
     }
   } catch (error) {
-    console.error("Error creating request:", error);
+    console.error("[REQUEST API] Error creating request:", error);
+    console.error("[REQUEST API] Error details:", {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+
     return NextResponse.json(
-      { error: "Failed to create request" },
+      {
+        error: "Failed to create request",
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
