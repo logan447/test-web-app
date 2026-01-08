@@ -36,29 +36,31 @@
 
 ---
 
-### **Sprint 2: Visual Trust Indicators (Week 1, Days 4-5)**
+### **Sprint 2: Visual Trust Indicators (Week 1, Days 4-5)** ✅ COMPLETED
 
-#### Task 2.1: Add Certifications/Badges
-- [ ] Update Prisma schema:
+#### Task 2.1: Add Certifications/Badges ✅
+- [x] Update Prisma schema:
   - `certifications` (String[], nullable)
-  - `isVerified` (Boolean, default false)
-- [ ] Add badge display to detail page:
+  - `insuranceVerified` (Boolean, default false)
+  - `backgroundChecked` (Boolean, default false)
+- [x] Add badge display to detail page:
   - "Licensed & Insured" badge
   - "Verified" checkmark badge
   - "Medicare Certified" if applicable
-- [ ] Style badges (colored pills with icons)
+- [x] Style badges (colored pills with icons)
 
-#### Task 2.2: Add Capacity/Availability Display
-- [ ] Update Prisma schema:
+#### Task 2.2: Add Capacity/Availability Display ✅
+- [x] Update Prisma schema:
   - `totalCapacity` (Int, nullable)
-  - `availableBeds` (Int, nullable)
-- [ ] Display on detail page:
-  - "3 rooms available" in green badge
+  - `availableSpots` (Int, nullable)
+  - `waitlistAvailable` (Boolean, default false)
+- [x] Display on detail page:
+  - "X rooms available" in green badge
   - "Currently at capacity" in gray badge
   - "Waitlist available" if no beds
-- [ ] Add to provider profile form
+- [x] Add to provider profile form
 
-**Deliverable:** Trust indicators visible on provider profiles
+**Deliverable:** ✅ Trust indicators visible on provider profiles
 
 ---
 
@@ -311,7 +313,7 @@
 
 ### Completed:
 - [x] Sprint 1: Foundation & Pricing ✅
-- [ ] Sprint 2: Visual Trust Indicators
+- [x] Sprint 2: Visual Trust Indicators ✅
 - [ ] Sprint 3: Photo Gallery System
 - [ ] Sprint 4: Reviews & Ratings System
 - [ ] Sprint 5: Detailed Amenities & Services
@@ -321,8 +323,8 @@
 - [ ] Sprint 9: Specialty Care & Programs
 - [ ] Sprint 10: Polish & Optimization
 
-### Current Sprint: 2
-### Current Task: 2.1
+### Current Sprint: 3
+### Current Task: 3.1
 
 ---
 
