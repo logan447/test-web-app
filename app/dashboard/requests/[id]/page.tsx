@@ -185,6 +185,25 @@ export default function RequestDetailPage() {
     }
   };
 
+  const getStatusTooltip = (status: string, isSender: boolean) => {
+    switch (status) {
+      case "PENDING":
+        if (!isSender) {
+          return "This request is awaiting your response. Accept or decline to continue.";
+        } else {
+          return "Waiting for the other party to respond to your request.";
+        }
+      case "ACCEPTED":
+        return "Request accepted! Contact information is now unlocked. Continue the conversation in messages.";
+      case "DECLINED":
+        return "This request was declined. No further action is needed.";
+      case "COMPLETED":
+        return "This consultation has been marked as completed.";
+      default:
+        return "";
+    }
+  };
+
   if (loading || status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -224,7 +243,10 @@ export default function RequestDetailPage() {
                   : `${request.familyProfile.city}, ${request.familyProfile.state}`}
               </p>
             </div>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)}`}>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)} cursor-help`}
+              title={getStatusTooltip(request.status, isSender)}
+            >
               {request.status}
             </span>
           </div>
@@ -365,25 +387,67 @@ export default function RequestDetailPage() {
         {/* Messages */}
         <div className="bg-white rounded-lg shadow flex flex-col" style={{ height: "500px" }}>
           <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Messages</h2>
+            {request.status === "PENDING" && !isSender && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
+                <p className="text-sm text-yellow-800">
+                  <strong>Action needed:</strong> Review the request details above and accept or decline this consultation request. Once accepted, you can exchange messages and contact information will be unlocked.
+                </p>
+              </div>
+            )}
+            {request.status === "PENDING" && isSender && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
+                <p className="text-sm text-blue-800">
+                  <strong>Awaiting response:</strong> Your request has been sent. The other party will review and respond. You&apos;ll be notified when they accept or decline.
+                </p>
+              </div>
+            )}
+            {request.status === "ACCEPTED" && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-2">
+                <p className="text-sm text-green-800">
+                  <strong>Request accepted!</strong> You can now exchange messages below. Contact information has been unlocked above. Continue the conversation to coordinate care details.
+                </p>
+              </div>
+            )}
+            {request.status === "DECLINED" && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2">
+                <p className="text-sm text-gray-700">
+                  <strong>Request declined:</strong> This consultation request was declined. The conversation is now closed.
+                </p>
+              </div>
+            )}
+            {request.status === "COMPLETED" && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
+                <p className="text-sm text-blue-800">
+                  <strong>Consultation completed:</strong> This consultation has been marked as complete. The conversation is now closed.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Message List */}
           <div className="flex-grow overflow-y-auto p-4 space-y-4">
             {/* Initial Request Message */}
-            <div className="flex">
-              <div className="max-w-[70%]">
-                <div className="bg-gray-100 rounded-lg p-3">
-                  <p className="text-sm font-medium text-gray-900 mb-1">
-                    {request.sender.name}
-                  </p>
-                  <p className="text-gray-700">{request.message}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(request.createdAt).toLocaleString()}
-                  </p>
+            {(() => {
+              const isOwnMessage = request.sender.id === session?.user?.id;
+              return (
+                <div className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
+                  <div className="max-w-[70%]">
+                    <div className={`${isOwnMessage ? "bg-blue-500" : "bg-gray-200"} rounded-lg p-3`}>
+                      {!isOwnMessage && (
+                        <p className="text-sm font-medium text-gray-900 mb-1">
+                          {request.sender.name}
+                        </p>
+                      )}
+                      <p className={`${isOwnMessage ? "text-white" : "text-gray-800"}`}>{request.message}</p>
+                      <p className={`text-xs mt-1 ${isOwnMessage ? "text-blue-100" : "text-gray-600"}`}>
+                        {new Date(request.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* Subsequent Messages */}
             {request.messages.map((message) => {
@@ -393,11 +457,11 @@ export default function RequestDetailPage() {
                   key={message.id}
                   className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
                 >
-                  <div className={`max-w-[70%] ${isOwnMessage ? "bg-primary-600" : "bg-gray-100"} rounded-lg p-3`}>
-                    <p className={`text-sm ${isOwnMessage ? "text-white" : "text-gray-700"}`}>
+                  <div className={`max-w-[70%] ${isOwnMessage ? "bg-blue-500" : "bg-gray-200"} rounded-lg p-3`}>
+                    <p className={`text-sm ${isOwnMessage ? "text-white" : "text-gray-800"}`}>
                       {message.content}
                     </p>
-                    <p className={`text-xs mt-1 ${isOwnMessage ? "text-primary-100" : "text-gray-500"}`}>
+                    <p className={`text-xs mt-1 ${isOwnMessage ? "text-blue-100" : "text-gray-600"}`}>
                       {new Date(message.createdAt).toLocaleString()}
                     </p>
                   </div>

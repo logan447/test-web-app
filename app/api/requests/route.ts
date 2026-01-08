@@ -38,6 +38,16 @@ export async function GET(req: Request) {
             provider: true,
             sender: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
+            _count: {
+              select: {
+                messages: {
+                  where: {
+                    senderId: { not: session.user.id },
+                    read: false
+                  }
+                }
+              }
+            }
           },
           orderBy: { createdAt: "desc" },
         });
@@ -52,6 +62,16 @@ export async function GET(req: Request) {
             provider: true,
             sender: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
+            _count: {
+              select: {
+                messages: {
+                  where: {
+                    senderId: { not: session.user.id },
+                    read: false
+                  }
+                }
+              }
+            }
           },
           orderBy: { createdAt: "desc" },
         });
@@ -77,6 +97,16 @@ export async function GET(req: Request) {
             familyProfile: { include: { user: true } },
             sender: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
+            _count: {
+              select: {
+                messages: {
+                  where: {
+                    senderId: { not: session.user.id },
+                    read: false
+                  }
+                }
+              }
+            }
           },
           orderBy: { createdAt: "desc" },
         });
@@ -91,6 +121,16 @@ export async function GET(req: Request) {
             familyProfile: { include: { user: true } },
             sender: true,
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
+            _count: {
+              select: {
+                messages: {
+                  where: {
+                    senderId: { not: session.user.id },
+                    read: false
+                  }
+                }
+              }
+            }
           },
           orderBy: { createdAt: "desc" },
         });

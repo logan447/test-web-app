@@ -27,6 +27,9 @@ type ConsultRequest = {
     name: string;
   };
   messages?: any[];
+  _count?: {
+    messages: number;
+  };
 };
 
 export default function RequestsPage() {
@@ -90,20 +93,26 @@ export default function RequestsPage() {
   };
 
   const handleDelete = async (requestId: string) => {
-    if (!confirm('Are you sure you want to delete this request? This will mark it as declined.')) {
+    if (!confirm('Are you sure you want to delete this request? This will notify the other party that the request was declined.')) {
       return;
     }
 
     try {
+      // Optimistically remove from UI
+      setRequests(prev => prev.filter(r => r.id !== requestId));
+
       const response = await fetch(`/api/requests/${requestId}`, {
         method: "DELETE",
       });
 
-      if (response.ok) {
+      if (!response.ok) {
+        // If delete failed, refetch to restore state
         fetchRequests();
       }
     } catch (err) {
       console.error("Error deleting request:", err);
+      // Refetch to restore state on error
+      fetchRequests();
     }
   };
 
@@ -119,6 +128,27 @@ export default function RequestsPage() {
         return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusTooltip = (status: string, activeTab: string) => {
+    const isFamily = (session?.user?.activeMode || 'FAMILY') === 'FAMILY';
+
+    switch (status) {
+      case "PENDING":
+        if (activeTab === "received") {
+          return "This request is awaiting your response. Accept or decline to continue.";
+        } else {
+          return "Waiting for the other party to respond to your request.";
+        }
+      case "ACCEPTED":
+        return "Request accepted! Contact information is now unlocked. Continue the conversation in messages.";
+      case "DECLINED":
+        return "This request was declined. No further action is needed.";
+      case "COMPLETED":
+        return "This consultation has been marked as completed.";
+      default:
+        return "";
     }
   };
 
@@ -189,9 +219,20 @@ export default function RequestsPage() {
         ) : (
           <div className="space-y-4">
             {requests.map((request) => (
-              <div key={request.id} className="bg-white rounded-lg shadow p-6">
+              <div key={request.id} className="bg-white rounded-lg shadow p-6 relative">
+                {request._count && request._count.messages > 0 && (
+                  <div className="absolute top-4 right-4">
+                    <div className="flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                      </svg>
+                      <span>{request._count.messages} new message{request._count.messages > 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-between items-start mb-4">
-                  <div>
+                  <div className="flex-1 pr-4">
                     <h3 className="text-lg font-semibold text-gray-900">
                       {isFamily ? request.provider.name : request.familyProfile?.user.name}
                     </h3>
@@ -209,7 +250,10 @@ export default function RequestsPage() {
                       {new Date(request.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)} cursor-help`}
+                    title={getStatusTooltip(request.status, activeTab)}
+                  >
                     {request.status}
                   </span>
                 </div>

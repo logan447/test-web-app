@@ -84,6 +84,18 @@ export async function GET(
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
+    // Mark all messages in this request as read (except the user's own messages)
+    await prisma.message.updateMany({
+      where: {
+        consultRequestId: id,
+        senderId: { not: session.user.id },
+        read: false
+      },
+      data: {
+        read: true
+      }
+    });
+
     return NextResponse.json(request);
   } catch (error) {
     console.error("Error fetching request:", error);

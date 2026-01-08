@@ -220,21 +220,23 @@ export default function ProvidersPage() {
                 href={`/providers/${provider.id}`}
                 className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 relative"
               >
-                {requestedProviderIds.has(provider.id) && (
-                  <div className="absolute top-4 right-4 bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Request Sent
-                  </div>
-                )}
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xl font-semibold text-gray-900">{provider.name}</h3>
-                  {provider.licensed && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                      Licensed
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {provider.licensed && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                        Licensed
+                      </span>
+                    )}
+                    {requestedProviderIds.has(provider.id) && (
+                      <span className="text-xs bg-blue-100 text-blue-800 font-medium px-3 py-1 rounded-full flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Request Sent
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm text-primary-600 mb-2">
                   {formatProviderType(provider.providerType)}

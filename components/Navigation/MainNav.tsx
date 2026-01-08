@@ -192,7 +192,7 @@ export default function MainNav() {
                 onMouseEnter={() => setOpenDropdown(category.slug)}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
-                <button className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium flex items-center">
+                <button className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm flex items-center">
                   {category.name}
                   <svg
                     className="ml-1 w-4 h-4"
@@ -229,7 +229,7 @@ export default function MainNav() {
                 setOpenOtherSubdropdown(null);
               }}
             >
-              <button className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium flex items-center">
+              <button className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm flex items-center">
                 Other
                 <svg
                   className="ml-1 w-4 h-4"
@@ -278,7 +278,7 @@ export default function MainNav() {
 
             <Link
               href="/plan-care"
-              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium"
+              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
             >
               Plan Care
             </Link>
@@ -287,14 +287,14 @@ export default function MainNav() {
               <button
                 onClick={() => handleModeSwitch('PROVIDER')}
                 disabled={switchingMode || isProviderMode}
-                className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium disabled:opacity-50"
+                className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
               >
                 {isProviderMode ? 'Provider Mode' : 'For Providers'}
               </button>
             ) : (
               <Link
                 href="/for-providers"
-                className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium"
+                className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
               >
                 For Providers
               </Link>
@@ -398,7 +398,7 @@ export default function MainNav() {
                     setAuthModalView("login");
                     setAuthModalOpen(true);
                   }}
-                  className="text-gray-700 hover:text-primary-600 font-medium"
+                  className="text-gray-700 hover:text-primary-600 font-medium text-sm"
                 >
                   Sign In
                 </button>
@@ -407,7 +407,7 @@ export default function MainNav() {
                     setAuthModalView("signup");
                     setAuthModalOpen(true);
                   }}
-                  className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 font-medium"
+                  className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 font-medium text-sm"
                 >
                   Get Started
                 </button>
