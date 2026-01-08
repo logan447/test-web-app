@@ -38,7 +38,7 @@ export default function ProviderRequests() {
   const [searchState, setSearchState] = useState('');
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
   const [unlockedProfileIds, setUnlockedProfileIds] = useState<Set<string>>(new Set());
-  const [requestedProfileIds, setRequestedProfileIds] = useState<Set<string>>(new Set());
+  const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [selectedProfileForUnlock, setSelectedProfileForUnlock] = useState<string | null>(null);
 
@@ -102,8 +102,14 @@ export default function ProviderRequests() {
       const response = await fetch('/api/requests?type=sent');
       if (response.ok) {
         const requests = await response.json();
-        const profileIds = new Set<string>(requests.map((req: any) => req.familyProfileId as string));
-        setRequestedProfileIds(profileIds);
+        // Build a map from familyProfileId to requestId
+        const profileMap = new Map<string, string>();
+        requests.forEach((req: any) => {
+          if (req.familyProfileId) {
+            profileMap.set(req.familyProfileId, req.id);
+          }
+        });
+        setRequestedProfileIds(profileMap);
       }
     } catch (error) {
       console.error('Error fetching sent requests:', error);
@@ -447,12 +453,21 @@ export default function ProviderRequests() {
 
                 {/* Actions */}
                 <div className="flex gap-2 pt-4 border-t">
-                  <Link
-                    href={`/provider/requests/${profile.id}`}
-                    className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 font-medium text-center"
-                  >
-                    Send Request
-                  </Link>
+                  {requestedProfileIds.has(profile.id) ? (
+                    <Link
+                      href={`/dashboard/requests/${requestedProfileIds.get(profile.id)}`}
+                      className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium text-center"
+                    >
+                      View Request
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/provider/requests/${profile.id}`}
+                      className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 font-medium text-center"
+                    >
+                      Send Request
+                    </Link>
+                  )}
                 </div>
 
                 {/* Location */}

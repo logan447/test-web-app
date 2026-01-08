@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
 
 type Provider = {
@@ -18,6 +19,7 @@ type Provider = {
 
 export default function Home() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -25,10 +27,14 @@ export default function Home() {
   const [state, setState] = useState("");
   const [providerType, setProviderType] = useState("");
   const [careType, setCareType] = useState("");
+  const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     fetchProviders();
-  }, []);
+    if (session) {
+      fetchSentRequests();
+    }
+  }, [session]);
 
   const fetchProviders = async () => {
     setLoading(true);
@@ -55,6 +61,25 @@ export default function Home() {
       setProviders([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSentRequests = async () => {
+    try {
+      const response = await fetch('/api/requests?type=sent');
+      if (response.ok) {
+        const requests = await response.json();
+        // Build a map from providerId to requestId
+        const providerMap = new Map<string, string>();
+        requests.forEach((req: any) => {
+          if (req.provider?.id) {
+            providerMap.set(req.provider.id, req.id);
+          }
+        });
+        setRequestedProviderIds(providerMap);
+      }
+    } catch (error) {
+      console.error('Error fetching sent requests:', error);
     }
   };
 
@@ -216,11 +241,21 @@ export default function Home() {
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xl font-semibold text-gray-900">{provider.name}</h3>
-                  {provider.licensed && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                      Licensed
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {provider.licensed && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                        Licensed
+                      </span>
+                    )}
+                    {requestedProviderIds.has(provider.id) && (
+                      <span className="text-xs bg-blue-100 text-blue-800 font-medium px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Request Sent
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm text-primary-600 mb-2">
                   {formatProviderType(provider.providerType)}
