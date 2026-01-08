@@ -56,7 +56,7 @@ export function generateProviderMetadata({
     openGraph: {
       title,
       description: metaDescription.slice(0, 200),
-      type: "business.business",
+      type: "website",
       url: typeof window !== "undefined" ? window.location.href : "",
       images: [
         {
