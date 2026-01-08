@@ -247,7 +247,7 @@ export default function Home() {
   };
 
   // Check if any filters are active
-  const hasActiveFilters =
+  const hasActiveFilters = Boolean(
     search ||
     city ||
     state ||
@@ -259,7 +259,8 @@ export default function Home() {
     availability ||
     amenities.length > 0 ||
     insurance.length > 0 ||
-    languages.length > 0;
+    languages.length > 0
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
