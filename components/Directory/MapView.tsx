@@ -80,7 +80,7 @@ export default function MapView({ providers }: MapViewProps) {
           No Locations Available
         </h3>
         <p className="text-gray-600">
-          The providers in your results don't have location data for map view.
+          The providers in your results do not have location data for map view.
         </p>
       </div>
     );
