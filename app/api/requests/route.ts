@@ -32,7 +32,8 @@ export async function GET(req: Request) {
         requests = await prisma.consultRequest.findMany({
           where: {
             senderId: session.user.id,
-            familyProfileId: familyProfile.id // Ensure it was sent FROM this family profile
+            familyProfileId: familyProfile.id, // Ensure it was sent FROM this family profile
+            status: { not: "DECLINED" } // Exclude declined/deleted requests
           },
           include: {
             provider: true,
@@ -56,7 +57,8 @@ export async function GET(req: Request) {
         requests = await prisma.consultRequest.findMany({
           where: {
             familyProfileId: familyProfile.id,
-            senderId: { not: session.user.id } // Exclude requests sent by this user
+            senderId: { not: session.user.id }, // Exclude requests sent by this user
+            status: { not: "DECLINED" } // Exclude declined/deleted requests
           },
           include: {
             provider: true,
@@ -91,7 +93,8 @@ export async function GET(req: Request) {
         requests = await prisma.consultRequest.findMany({
           where: {
             providerId: provider.id,
-            senderId: session.user.id
+            senderId: session.user.id,
+            status: { not: "DECLINED" } // Exclude declined/deleted requests
           },
           include: {
             familyProfile: { include: { user: true } },
@@ -115,7 +118,8 @@ export async function GET(req: Request) {
         requests = await prisma.consultRequest.findMany({
           where: {
             providerId: provider.id,
-            senderId: { not: session.user.id }
+            senderId: { not: session.user.id },
+            status: { not: "DECLINED" } // Exclude declined/deleted requests
           },
           include: {
             familyProfile: { include: { user: true } },
