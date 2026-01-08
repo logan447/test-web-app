@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import ProgressIndicator from "@/components/CareProfile/ProgressIndicator";
+import WarmIntroduction from "@/components/CareProfile/WarmIntroduction";
+import ProfileCompleteness from "@/components/CareProfile/ProfileCompleteness";
+import PrivacyReassurance from "@/components/CareProfile/PrivacyReassurance";
 
 type CareProfile = {
   id: string;
@@ -30,6 +34,31 @@ export default function CareProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [isPublic, setIsPublic] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+
+  // Define steps for progress tracking
+  const totalSteps = 3; // Will expand in future sprints
+  const steps = [
+    { number: 1, title: "Care Needs", completed: currentStep > 1 },
+    { number: 2, title: "Location & Budget", completed: currentStep > 2 },
+    { number: 3, title: "Additional Details", completed: currentStep > 3 },
+  ];
+
+  // Step configurations
+  const stepConfig = {
+    1: {
+      title: "What type of care do you need?",
+      description: "Let us know what kind of help your loved one needs. You can select multiple care types to find the best match.",
+    },
+    2: {
+      title: "Where are you looking for care?",
+      description: "Tell us where you'd like care to be provided and what you can spend each month. This helps us find providers in your area within your budget.",
+    },
+    3: {
+      title: "Tell us more about your situation",
+      description: "Share additional details like your timeline and any special needs. This information helps providers prepare to give the best care possible.",
+    },
+  };
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -108,6 +137,40 @@ export default function CareProfilePage() {
     ).join(' ');
   };
 
+  // Calculate profile completeness
+  const completenessItems = [
+    {
+      label: "Care types selected",
+      completed: !!(profile?.careTypes && profile.careTypes.length > 0),
+      required: true,
+    },
+    {
+      label: "Location information",
+      completed: !!(profile?.city && profile?.state && profile?.zipCode),
+      required: true,
+    },
+    {
+      label: "Budget range",
+      completed: !!(profile?.budgetMin && profile?.budgetMax),
+      required: false,
+    },
+    {
+      label: "Timeline provided",
+      completed: !!profile?.timeline,
+      required: false,
+    },
+    {
+      label: "Insurance information",
+      completed: !!profile?.insurance,
+      required: false,
+    },
+    {
+      label: "Description added",
+      completed: !!profile?.description,
+      required: false,
+    },
+  ];
+
   if (loading || status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -121,35 +184,48 @@ export default function CareProfilePage() {
       <MainNav />
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <Link href="/dashboard" className="text-primary-600 hover:text-primary-700">
-            ← Back to Dashboard
+          <Link href="/dashboard" className="text-primary-600 hover:text-primary-700 flex items-center gap-2 hover:gap-3 transition-all">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Dashboard
           </Link>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {profile ? "My Care Profile" : "Create Care Profile"}
-          </h1>
-          {profile && !editing && (
-            <button
-              onClick={() => setEditing(true)}
-              className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
-            >
-              Edit Profile
-            </button>
-          )}
-        </div>
-
         {error && (
-          <div className="bg-red-50 text-red-800 p-4 rounded-md mb-6">
-            {error}
+          <div className="bg-red-50 text-red-800 p-4 rounded-md mb-6 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {error}
+            </div>
           </div>
         )}
 
         {editing ? (
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+          <>
+            {/* Progress Indicator */}
+            <ProgressIndicator
+              currentStep={currentStep}
+              totalSteps={totalSteps}
+              steps={steps}
+            />
+
+            {/* Warm Introduction */}
+            <WarmIntroduction
+              currentStep={currentStep}
+              stepTitle={stepConfig[currentStep as keyof typeof stepConfig].title}
+              stepDescription={stepConfig[currentStep as keyof typeof stepConfig].description}
+            />
+
+            {/* Two-column layout: Form + Sidebar */}
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Left: Form */}
+              <div className="lg:col-span-2">
+                <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 space-y-8">
             {/* Care Types Needed */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">What type of help do you need?</h2>
@@ -342,27 +418,69 @@ export default function CareProfilePage() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 disabled:opacity-50 font-medium"
+                className="flex-1 sm:flex-none bg-primary-600 text-white px-8 py-3 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors shadow-sm hover:shadow-md"
               >
-                {saving ? "Saving..." : profile ? "Update Profile" : "Create Profile"}
+                {saving ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </span>
+                ) : profile ? "Update Profile" : "Create Profile"}
               </button>
               {profile && (
                 <button
                   type="button"
                   onClick={() => setEditing(false)}
-                  className="bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 font-medium"
+                  className="flex-1 sm:flex-none bg-white border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:border-gray-400 hover:bg-gray-50 font-medium transition-colors"
                 >
                   Cancel
                 </button>
               )}
             </div>
           </form>
+              </div>
+
+              {/* Right: Sidebar */}
+              <div className="lg:col-span-1 space-y-6">
+                {/* Profile Completeness */}
+                <ProfileCompleteness items={completenessItems} />
+
+                {/* Privacy Reassurance */}
+                <PrivacyReassurance />
+              </div>
+            </div>
+          </>
         ) : profile ? (
-          <div className="bg-white rounded-lg shadow p-6 space-y-6">
+          <>
+            {/* Header with Edit Button */}
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">My Care Profile</h1>
+                <p className="text-gray-600">Your care needs and preferences</p>
+              </div>
+              <button
+                onClick={() => setEditing(true)}
+                className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md flex items-center gap-2 font-medium"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Profile
+              </button>
+            </div>
+
+            {/* Two-column layout: Profile Info + Sidebar */}
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Left: Profile Information */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 space-y-6">
             {/* Care Types */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Care Types Needed</h2>
@@ -420,7 +538,16 @@ export default function CareProfilePage() {
                 <p className="text-gray-700 whitespace-pre-line">{profile.description}</p>
               </div>
             )}
-          </div>
+                </div>
+              </div>
+
+              {/* Right: Sidebar */}
+              <div className="lg:col-span-1 space-y-6">
+                {/* Profile Completeness */}
+                <ProfileCompleteness items={completenessItems} />
+              </div>
+            </div>
+          </>
         ) : null}
       </main>
     </div>
