@@ -154,15 +154,19 @@ export default function OrganizationDetailPage() {
         setRequestMessage('');
         router.push('/dashboard/requests');
       } else {
+        console.error('Failed to send request:', {
+          status: response.status,
+          data: data
+        });
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
         } else {
           showToast.error(data.error || 'Failed to send request');
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error sending request:', err);
-      showToast.error('Failed to send employment request');
+      showToast.error(err.message || 'Failed to send employment request');
     } finally {
       setSending(false);
     }
