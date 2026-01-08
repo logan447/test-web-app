@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import PhotoUpload from "@/components/Gallery/PhotoUpload";
+import ProviderProfileCompleteness from "@/components/ProviderProfile/ProviderProfileCompleteness";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -489,6 +490,95 @@ export default function ProviderProfilePage() {
     return CARE_TYPES.find(c => c.value === type)?.label || type;
   };
 
+  // Calculate profile completeness
+  const completenessItems = [
+    {
+      label: "Basic Information (Name, Type, Description)",
+      completed: !!(provider?.name && providerType && provider?.description),
+      required: true,
+    },
+    {
+      label: "Care Types Selected",
+      completed: selectedCareTypes.length > 0,
+      required: true,
+    },
+    {
+      label: "Location & Contact Info",
+      completed: !!(provider?.address && provider?.city && provider?.state && provider?.zipCode && provider?.phone && provider?.email),
+      required: true,
+    },
+    {
+      label: "Photos Added (at least 1)",
+      completed: photos.length > 0,
+      required: false,
+    },
+    {
+      label: "Pricing Information",
+      completed: !!(provider?.priceMin || provider?.priceMax),
+      required: false,
+    },
+    {
+      label: "Payment Options",
+      completed: selectedPaymentOptions.length > 0,
+      required: false,
+    },
+    {
+      label: "Certifications & Verifications",
+      completed: selectedCertifications.length > 0 || insuranceVerified || backgroundChecked,
+      required: false,
+    },
+    {
+      label: "Capacity Information",
+      completed: !!(provider?.totalCapacity || provider?.availableSpots !== null),
+      required: false,
+    },
+    {
+      label: "Room Features",
+      completed: selectedRoomFeatures.length > 0,
+      required: false,
+    },
+    {
+      label: "Common Areas & Amenities",
+      completed: selectedCommonAreas.length > 0,
+      required: false,
+    },
+    {
+      label: "Medical Services",
+      completed: selectedMedicalServices.length > 0,
+      required: false,
+    },
+    {
+      label: "Activities & Programs",
+      completed: selectedActivities.length > 0,
+      required: false,
+    },
+    {
+      label: "Dietary Options",
+      completed: selectedDietaryOptions.length > 0,
+      required: false,
+    },
+    {
+      label: "Staff Information",
+      completed: !!(staffToResidentRatio || hasRNOnSite || hasLVNOnSite || selectedCaregiverTraining.length > 0),
+      required: false,
+    },
+    {
+      label: "Languages Spoken",
+      completed: selectedLanguages.length > 0,
+      required: false,
+    },
+    {
+      label: "Location Details (Map coordinates or neighborhood)",
+      completed: !!(latitude || longitude || neighborhoodDescription || nearbyAmenities.length > 0),
+      required: false,
+    },
+    {
+      label: "Specialty Care Programs",
+      completed: hasMemoryCare || hasRespiteCare || hasHospiceCare || specialtyPrograms.length > 0,
+      required: false,
+    },
+  ];
+
   if (loading || status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -504,7 +594,7 @@ export default function ProviderProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">
             {provider ? "My Provider Profile" : "Create Provider Profile"}
@@ -742,6 +832,9 @@ export default function ProviderProfilePage() {
             )}
           </div>
         ) : (
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Left: Form */}
+            <div className="lg:col-span-2 order-2 lg:order-1">
           <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1664,6 +1757,23 @@ export default function ProviderProfilePage() {
               </div>
             )}
 
+            {/* Helpful Footer Message */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-blue-900 mb-1">
+                    Profile Tip
+                  </p>
+                  <p className="text-sm text-blue-800">
+                    Complete profiles get 3x more family inquiries! Add photos, pricing details, and amenities to stand out. You can save your progress anytime and update later. Check the sidebar to track your completion progress.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="flex gap-4">
               <button
                 type="submit"
@@ -1686,6 +1796,14 @@ export default function ProviderProfilePage() {
               )}
             </div>
           </form>
+            </div>
+
+            {/* Right: Sidebar */}
+            <div className="lg:col-span-1 order-1 lg:order-2 space-y-4 lg:space-y-6">
+              {/* Profile Completeness */}
+              <ProviderProfileCompleteness items={completenessItems} />
+            </div>
+          </div>
         )}
       </main>
     </div>
