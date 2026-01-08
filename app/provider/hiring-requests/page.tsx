@@ -84,6 +84,12 @@ export default function HiringRequestsPage() {
     }
   };
 
+  const getCombinedBadgeText = (status: string, activeTab: string) => {
+    const direction = activeTab === 'sent' ? 'Sent' : 'Received';
+    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
+    return `Employment Request ${direction} • ${statusText}`;
+  };
+
   if (loading || status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -177,11 +183,8 @@ export default function HiringRequestsPage() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      Employment Request
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)}`}>
-                      {request.status}
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
+                      {getCombinedBadgeText(request.status, activeTab)}
                     </span>
                   </div>
                 </div>

@@ -196,6 +196,13 @@ export default function RequestDetailPage() {
     }
   };
 
+  const getCombinedBadgeText = (requestType: string | undefined, isSender: boolean, status: string) => {
+    const type = requestType === 'HIRING' ? 'Employment Request' : 'Care Request';
+    const direction = isSender ? 'Sent' : 'Received';
+    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
+    return `${type} ${direction} • ${statusText}`;
+  };
+
   const getStatusTooltip = (status: string, isSender: boolean) => {
     switch (status) {
       case "PENDING":
@@ -243,24 +250,6 @@ export default function RequestDetailPage() {
 
         {/* Request Header */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          {/* Request Type Badge */}
-          <div className="mb-4">
-            {request.requestType === 'HIRING' ? (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Employment Request
-              </span>
-            ) : (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Care Request
-              </span>
-            )}
-          </div>
           <div className="flex justify-between items-start mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
@@ -274,7 +263,7 @@ export default function RequestDetailPage() {
             </div>
             <Tooltip content={getStatusTooltip(request.status, isSender)}>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)} cursor-help`}>
-                {request.status}
+                {getCombinedBadgeText(request.requestType, isSender, request.status)}
               </span>
             </Tooltip>
           </div>

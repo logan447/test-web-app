@@ -133,6 +133,12 @@ export default function RequestsPage() {
     }
   };
 
+  const getCombinedBadgeText = (status: string, activeTab: string) => {
+    const direction = activeTab === "sent" ? "Sent" : "Received";
+    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
+    return `Care Request ${direction} • ${statusText}`;
+  };
+
   const getStatusTooltip = (status: string, activeTab: string) => {
     const isFamily = (session?.user?.activeMode || 'FAMILY') === 'FAMILY';
 
@@ -242,9 +248,6 @@ export default function RequestsPage() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      Care Request
-                    </span>
                     {request._count && request._count.messages > 0 && (
                       <div className="flex items-center gap-1 bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -256,7 +259,7 @@ export default function RequestsPage() {
                     )}
                     <Tooltip content={getStatusTooltip(request.status, activeTab)}>
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)} cursor-help`}>
-                        {request.status}
+                        {getCombinedBadgeText(request.status, activeTab)}
                       </span>
                     </Tooltip>
                   </div>
