@@ -11,6 +11,7 @@ export async function GET(req: Request) {
     const state = searchParams.get("state");
     const providerType = searchParams.get("providerType");
     const careType = searchParams.get("careType");
+    const availableForOrganizations = searchParams.get("availableForOrganizations");
 
     const where: any = {
       active: true,
@@ -39,6 +40,11 @@ export async function GET(req: Request) {
       where.careTypesOffered = {
         has: careType as CareType,
       };
+    }
+
+    if (availableForOrganizations === "true") {
+      where.providerType = "INDEPENDENT_CAREGIVER";
+      where.availableForOrganizations = true;
     }
 
     const providers = await prisma.provider.findMany({

@@ -53,6 +53,8 @@ export async function POST(req: Request) {
       yearsInBusiness,
       licenseNumber,
       active,
+      availableForFamilies,
+      availableForOrganizations,
     } = body;
 
     // Check if provider already exists
@@ -84,6 +86,8 @@ export async function POST(req: Request) {
         yearsInBusiness,
         licenseNumber,
         active: active ?? true,
+        availableForFamilies: availableForFamilies ?? true,
+        availableForOrganizations: availableForOrganizations ?? false,
       },
     });
 

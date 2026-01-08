@@ -25,6 +25,8 @@ type Provider = {
   licensed: boolean;
   licenseNumber: string;
   capacity: number | null;
+  availableForFamilies: boolean;
+  availableForOrganizations: boolean;
 };
 
 const PROVIDER_TYPES = [
@@ -59,6 +61,9 @@ export default function ProviderProfilePage() {
   const [editing, setEditing] = useState(false);
   const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
   const [licensed, setLicensed] = useState(false);
+  const [providerType, setProviderType] = useState("");
+  const [availableForFamilies, setAvailableForFamilies] = useState(true);
+  const [availableForOrganizations, setAvailableForOrganizations] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -76,6 +81,9 @@ export default function ProviderProfilePage() {
         setProvider(data);
         setSelectedCareTypes(data.careTypesOffered || []);
         setLicensed(data.licensed || false);
+        setProviderType(data.providerType || "");
+        setAvailableForFamilies(data.availableForFamilies !== undefined ? data.availableForFamilies : true);
+        setAvailableForOrganizations(data.availableForOrganizations || false);
         setEditing(false);
       } else if (response.status === 404) {
         setEditing(true);
@@ -110,6 +118,8 @@ export default function ProviderProfilePage() {
       licensed: licensed,
       licenseNumber: formData.get("licenseNumber") || "",
       capacity: formData.get("capacity") ? parseInt(formData.get("capacity") as string) : null,
+      availableForFamilies: availableForFamilies,
+      availableForOrganizations: availableForOrganizations,
     };
 
     try {
@@ -273,6 +283,29 @@ export default function ProviderProfilePage() {
                 </div>
               )}
             </div>
+            {provider.providerType === "INDEPENDENT_CAREGIVER" && (
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Availability</h3>
+                <div className="space-y-1">
+                  {provider.availableForFamilies && (
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Available for direct hire by families
+                    </div>
+                  )}
+                  {provider.availableForOrganizations && (
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Available for hire by care organizations
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
@@ -296,7 +329,8 @@ export default function ProviderProfilePage() {
               <select
                 name="providerType"
                 required
-                defaultValue={provider?.providerType}
+                value={providerType}
+                onChange={(e) => setProviderType(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="">Select type</option>
@@ -503,6 +537,45 @@ export default function ProviderProfilePage() {
                   defaultValue={provider?.licenseNumber}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
+              </div>
+            )}
+
+            {providerType === "INDEPENDENT_CAREGIVER" && (
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Availability Options</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  As an independent caregiver, choose how you want to be available for work:
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={availableForFamilies}
+                      onChange={(e) => setAvailableForFamilies(e.target.checked)}
+                      className="mt-1 rounded border-gray-300"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Available for direct hire by families</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Families can find you and send consultation requests directly
+                      </p>
+                    </div>
+                  </label>
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={availableForOrganizations}
+                      onChange={(e) => setAvailableForOrganizations(e.target.checked)}
+                      className="mt-1 rounded border-gray-300"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Available for hire by care organizations</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Care organizations can find you and send hiring requests as an employee
+                      </p>
+                    </div>
+                  </label>
+                </div>
               </div>
             )}
 

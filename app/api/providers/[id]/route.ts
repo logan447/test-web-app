@@ -77,6 +77,8 @@ export async function PATCH(
       yearsInBusiness,
       licenseNumber,
       active,
+      availableForFamilies,
+      availableForOrganizations,
     } = body;
 
     const provider = await prisma.provider.update({
@@ -96,6 +98,8 @@ export async function PATCH(
         yearsInBusiness,
         licenseNumber,
         active,
+        availableForFamilies,
+        availableForOrganizations,
       },
     });
 

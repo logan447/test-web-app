@@ -173,6 +173,10 @@ model Provider {
   verified        Boolean        @default(false)
   active          Boolean        @default(true)
 
+  // Availability (for individual caregivers)
+  availableForFamilies      Boolean  @default(true)   // Available for direct hire by families
+  availableForOrganizations Boolean  @default(false)  // Available for hire by care organizations
+
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 

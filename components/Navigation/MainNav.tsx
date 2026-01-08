@@ -102,6 +102,26 @@ export default function MainNav() {
   const [signOutModalOpen, setSignOutModalOpen] = useState(false);
   const [switchingMode, setSwitchingMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [providerType, setProviderType] = useState<string | null>(null);
+
+  // Fetch provider type
+  useEffect(() => {
+    if (!session) return;
+
+    const fetchProviderProfile = async () => {
+      try {
+        const response = await fetch('/api/providers/me');
+        if (response.ok) {
+          const provider = await response.json();
+          setProviderType(provider.providerType);
+        }
+      } catch (error) {
+        console.error('Error fetching provider profile:', error);
+      }
+    };
+
+    fetchProviderProfile();
+  }, [session]);
 
   // Fetch unread count
   useEffect(() => {
@@ -338,6 +358,11 @@ export default function MainNav() {
                       <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved Requests
                       </Link>
+                      {providerType && providerType !== 'INDEPENDENT_CAREGIVER' && (
+                        <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          Hire Care Staff
+                        </Link>
+                      )}
                       <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <span>Consultation Requests</span>
                         {unreadCount > 0 && (
@@ -576,6 +601,11 @@ export default function MainNav() {
                       <Link href="/provider/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved
                       </Link>
+                      {providerType && providerType !== 'INDEPENDENT_CAREGIVER' && (
+                        <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          Hire Care Staff
+                        </Link>
+                      )}
                       <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         <span>Consultation Requests</span>
                         {unreadCount > 0 && (
