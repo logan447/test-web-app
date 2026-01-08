@@ -31,7 +31,7 @@ export default function ForProvidersPage() {
               Connect with families seeking quality care
             </h1>
             <p className="text-xl mb-8 text-primary-100">
-              Join Olera's network to reach families actively searching for care providers like you.
+              Join Olera&apos;s network to reach families actively searching for care providers like you.
               Grow your business and make meaningful connections.
             </p>
             <div className="flex gap-4">
