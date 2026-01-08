@@ -52,6 +52,10 @@ type Provider = {
   visitingDoctorFrequency: string | null;
   caregiverTraining: string[];
   languagesSpoken: string[];
+  latitude: number | null;
+  longitude: number | null;
+  neighborhoodDescription: string | null;
+  nearbyAmenities: string[];
 };
 
 const PROVIDER_TYPES = [
@@ -243,6 +247,11 @@ export default function ProviderProfilePage() {
   const [visitingDoctorFrequency, setVisitingDoctorFrequency] = useState<string>("");
   const [selectedCaregiverTraining, setSelectedCaregiverTraining] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [latitude, setLatitude] = useState<string>("");
+  const [longitude, setLongitude] = useState<string>("");
+  const [neighborhoodDescription, setNeighborhoodDescription] = useState<string>("");
+  const [nearbyAmenity, setNearbyAmenity] = useState<string>("");
+  const [nearbyAmenities, setNearbyAmenities] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -282,6 +291,10 @@ export default function ProviderProfilePage() {
         setVisitingDoctorFrequency(data.visitingDoctorFrequency || "");
         setSelectedCaregiverTraining(data.caregiverTraining || []);
         setSelectedLanguages(data.languagesSpoken || []);
+        setLatitude(data.latitude?.toString() || "");
+        setLongitude(data.longitude?.toString() || "");
+        setNeighborhoodDescription(data.neighborhoodDescription || "");
+        setNearbyAmenities(data.nearbyAmenities || []);
         setEditing(false);
       } else if (response.status === 404) {
         setEditing(true);
@@ -342,6 +355,10 @@ export default function ProviderProfilePage() {
       visitingDoctorFrequency: visitingDoctorFrequency || null,
       caregiverTraining: selectedCaregiverTraining,
       languagesSpoken: selectedLanguages,
+      latitude: latitude ? parseFloat(latitude) : null,
+      longitude: longitude ? parseFloat(longitude) : null,
+      neighborhoodDescription: neighborhoodDescription || null,
+      nearbyAmenities: nearbyAmenities,
     };
 
     try {
@@ -1352,6 +1369,126 @@ export default function ProviderProfilePage() {
                     </label>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Location & Neighborhood Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Location & Neighborhood</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Help families understand your location and the surrounding area.
+              </p>
+
+              {/* Coordinates for Map */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-800 mb-3">Map Coordinates (Optional)</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Add latitude and longitude to show your exact location on a map. You can find these by searching your address on Google Maps.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="latitude" className="block text-sm font-medium text-gray-700 mb-2">
+                      Latitude
+                    </label>
+                    <input
+                      type="text"
+                      id="latitude"
+                      value={latitude}
+                      onChange={(e) => setLatitude(e.target.value)}
+                      placeholder="e.g., 37.7749"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="longitude" className="block text-sm font-medium text-gray-700 mb-2">
+                      Longitude
+                    </label>
+                    <input
+                      type="text"
+                      id="longitude"
+                      value={longitude}
+                      onChange={(e) => setLongitude(e.target.value)}
+                      placeholder="e.g., -122.4194"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Neighborhood Description */}
+              <div className="mb-6">
+                <label htmlFor="neighborhoodDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                  Neighborhood Description
+                </label>
+                <textarea
+                  id="neighborhoodDescription"
+                  value={neighborhoodDescription}
+                  onChange={(e) => setNeighborhoodDescription(e.target.value)}
+                  placeholder="Describe the neighborhood, surrounding area, and what makes it special..."
+                  rows={4}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+
+              {/* Nearby Amenities */}
+              <div>
+                <h4 className="text-md font-medium text-gray-800 mb-3">Nearby Amenities</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Add nearby amenities with distances (e.g., "Hospital - 0.5 miles", "Park - 0.2 miles")
+                </p>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={nearbyAmenity}
+                    onChange={(e) => setNearbyAmenity(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (nearbyAmenity.trim()) {
+                          setNearbyAmenities([...nearbyAmenities, nearbyAmenity.trim()]);
+                          setNearbyAmenity("");
+                        }
+                      }
+                    }}
+                    placeholder="e.g., Hospital - 0.5 miles"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (nearbyAmenity.trim()) {
+                        setNearbyAmenities([...nearbyAmenities, nearbyAmenity.trim()]);
+                        setNearbyAmenity("");
+                      }
+                    }}
+                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                  >
+                    Add
+                  </button>
+                </div>
+                {nearbyAmenities.length > 0 && (
+                  <div className="space-y-2">
+                    {nearbyAmenities.map((amenity, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-lg"
+                      >
+                        <span className="text-sm text-gray-700">{amenity}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNearbyAmenities(nearbyAmenities.filter((_, i) => i !== index));
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

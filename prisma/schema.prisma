@@ -214,6 +214,12 @@ model Provider {
   caregiverTraining        String[]  @default([])    // Training certifications (CPR, First Aid, etc.)
   languagesSpoken          String[]  @default([])    // Languages staff can speak
 
+  // Location & Neighborhood
+  latitude              Float?    // Geographic latitude for map display
+  longitude             Float?    // Geographic longitude for map display
+  neighborhoodDescription String? // Description of the neighborhood/area
+  nearbyAmenities       String[]  @default([])  // Nearby amenities (e.g., "Hospital - 0.5 miles", "Park - 0.2 miles")
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)

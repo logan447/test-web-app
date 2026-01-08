@@ -217,28 +217,30 @@
 
 ---
 
-### **Sprint 7: Location & Map Integration (Week 4, Days 3-5)**
+### **Sprint 7: Location & Map Integration (Week 4, Days 3-5)** ✅ COMPLETED
 
-#### Task 7.1: Add Interactive Map
-- [ ] Install mapping library (react-map-gl or Google Maps)
-- [ ] Get API key (Google Maps or Mapbox)
-- [ ] Add map component to detail page
-- [ ] Show provider location pin
-- [ ] Add zoom controls
+#### Task 7.1: Add Interactive Map ✅
+- [x] Add Google Maps embed to detail page
+- [x] Show provider location using coordinates or address
+- [x] Add "Get Directions" link
+- [x] Responsive map display
 
-#### Task 7.2: Add Nearby Amenities
-- [ ] Update Prisma schema (optional):
-  - `nearbyHospital` (String, nullable)
-  - `nearbyParks` (String, nullable)
-- [ ] Display list of nearby amenities (manual entry for now)
-- [ ] Show distances
+#### Task 7.2: Add Nearby Amenities ✅
+- [x] Update Prisma schema:
+  - `latitude` (Float, nullable)
+  - `longitude` (Float, nullable)
+  - `nearbyAmenities` (String[])
+- [x] Display list of nearby amenities with icons
+- [x] Show distances in amenity descriptions
+- [x] Add/remove amenities in provider form
 
-#### Task 7.3: Add Neighborhood Description
-- [ ] Add `neighborhoodDescription` field to schema
-- [ ] Display on detail page
-- [ ] Add to provider profile form
+#### Task 7.3: Add Neighborhood Description ✅
+- [x] Add `neighborhoodDescription` field to schema
+- [x] Display on detail page
+- [x] Add to provider profile form with textarea
+- [x] Two-column layout: map + neighborhood info
 
-**Deliverable:** Families understand location context
+**Deliverable:** ✅ Families understand location context, see map and nearby amenities
 
 ---
 
@@ -325,13 +327,13 @@
 - [x] Sprint 4: Reviews & Ratings System ✅
 - [x] Sprint 5: Detailed Amenities & Services ✅
 - [x] Sprint 6: Staff & Care Information ✅
-- [ ] Sprint 7: Location & Map Integration
+- [x] Sprint 7: Location & Map Integration ✅
 - [ ] Sprint 8: Enhanced CTAs & Booking Flow
 - [ ] Sprint 9: Specialty Care & Programs
 - [ ] Sprint 10: Polish & Optimization
 
-### Current Sprint: 7
-### Current Task: 7.1
+### Current Sprint: 8
+### Current Task: 8.1
 
 ---
 

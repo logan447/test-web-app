@@ -11,6 +11,7 @@ import ReviewsSection from "@/components/Reviews/ReviewsSection";
 import ReviewModal from "@/components/Reviews/ReviewModal";
 import AmenitiesSection from "@/components/Provider/AmenitiesSection";
 import StaffSection from "@/components/Provider/StaffSection";
+import LocationSection from "@/components/Provider/LocationSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -57,6 +58,10 @@ type Provider = {
   visitingDoctorFrequency: string | null;
   caregiverTraining: string[];
   languagesSpoken: string[];
+  latitude: number | null;
+  longitude: number | null;
+  neighborhoodDescription: string | null;
+  nearbyAmenities: string[];
 };
 
 export default function ProviderProfilePage() {
@@ -384,6 +389,18 @@ export default function ProviderProfilePage() {
             visitingDoctorFrequency={provider.visitingDoctorFrequency}
             caregiverTraining={provider.caregiverTraining}
             languagesSpoken={provider.languagesSpoken}
+          />
+
+          {/* Location Section */}
+          <LocationSection
+            address={provider.address}
+            city={provider.city}
+            state={provider.state}
+            zipCode={provider.zipCode}
+            latitude={provider.latitude}
+            longitude={provider.longitude}
+            neighborhoodDescription={provider.neighborhoodDescription}
+            nearbyAmenities={provider.nearbyAmenities}
           />
 
           {/* Details Grid */}
