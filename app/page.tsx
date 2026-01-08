@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
 import HeroSection from "@/components/Directory/HeroSection";
 import CategoryCards from "@/components/Directory/CategoryCards";
+import EnhancedProviderCard from "@/components/Directory/EnhancedProviderCard";
+import ProviderCardSkeleton from "@/components/Loading/ProviderCardSkeleton";
 
 type Provider = {
   id: string;
@@ -14,9 +16,28 @@ type Provider = {
   providerType: string;
   city: string;
   state: string;
+  zipCode: string;
+  address: string;
   description: string | null;
   careTypesOffered: string[];
   licensed: boolean;
+  insuranceVerified: boolean;
+  backgroundChecked: boolean;
+  certifications: string[];
+  averageRating: number | null;
+  reviewCount: number;
+  priceMin: number | null;
+  priceMax: number | null;
+  availableSpots: number | null;
+  totalCapacity: number | null;
+  photos: string[];
+  coverPhoto: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  verified: boolean;
+  hasMemoryCare: boolean;
+  hasRespiteCare: boolean;
+  hasHospiceCare: boolean;
 };
 
 export default function Home() {
@@ -264,8 +285,10 @@ export default function Home() {
 
         {/* Results */}
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600">Loading providers...</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <ProviderCardSkeleton key={i} />
+            ))}
           </div>
         ) : providers.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow">
@@ -284,59 +307,13 @@ export default function Home() {
               const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
 
               return (
-                <Link
+                <EnhancedProviderCard
                   key={provider.id}
-                  href={linkHref}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition p-6"
-                >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-semibold text-gray-900">{provider.name}</h3>
-                  <div className="flex items-center gap-2">
-                    {provider.licensed && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                        Licensed
-                      </span>
-                    )}
-                    {requestId && (
-                      <span className="text-xs bg-blue-100 text-blue-800 font-medium px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        Request Sent
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <p className="text-sm text-primary-600 mb-2">
-                  {formatProviderType(provider.providerType)}
-                </p>
-                <p className="text-sm text-gray-600 mb-3">
-                  📍 {provider.city}, {provider.state}
-                </p>
-                {provider.description && (
-                  <p className="text-sm text-gray-700 line-clamp-2 mb-3">
-                    {provider.description}
-                  </p>
-                )}
-                {Array.isArray(provider.careTypesOffered) && provider.careTypesOffered.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {(provider.careTypesOffered || []).slice(0, 3).map((care) => (
-                      <span
-                        key={care}
-                        className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                      >
-                        {formatProviderType(care)}
-                      </span>
-                    ))}
-                    {provider.careTypesOffered.length > 3 && (
-                      <span className="text-xs text-gray-500">
-                        +{provider.careTypesOffered.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                )}
-              </Link>
-            );
+                  provider={provider}
+                  linkHref={linkHref}
+                  hasRequestSent={!!requestId}
+                />
+              );
             })}
           </div>
         )}
