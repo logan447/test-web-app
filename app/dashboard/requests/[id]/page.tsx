@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
@@ -48,6 +48,7 @@ type ConsultRequest = {
 export default function RequestDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [request, setRequest] = useState<ConsultRequest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,6 +56,14 @@ export default function RequestDetailPage() {
   const [newMessage, setNewMessage] = useState("");
   const [paywallOpen, setPaywallOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Determine back link based on where user came from
+  const fromSaved = searchParams.get('from') === 'saved';
+  const isProviderMode = (session?.user?.activeMode || 'FAMILY') === 'PROVIDER';
+  const backHref = fromSaved
+    ? (isProviderMode ? '/provider/saved' : '/dashboard/saved')
+    : '/dashboard/requests';
+  const backText = fromSaved ? '← Back to Saved' : '← Back to Requests';
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -226,8 +235,8 @@ export default function RequestDetailPage() {
 
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <Link href="/dashboard/requests" className="text-primary-600 hover:text-primary-700">
-            ← Back to Requests
+          <Link href={backHref} className="text-primary-600 hover:text-primary-700">
+            {backText}
           </Link>
         </div>
 

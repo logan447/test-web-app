@@ -246,7 +246,7 @@ export default function SavedProviders() {
                   </Link>
                   {requestId ? (
                     <Link
-                      href={`/dashboard/requests/${requestId}`}
+                      href={`/dashboard/requests/${requestId}?from=saved`}
                       className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-center"
                     >
                       View Request

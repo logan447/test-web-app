@@ -284,13 +284,22 @@ export default function MainNav() {
             </Link>
 
             {session ? (
-              <button
-                onClick={() => handleModeSwitch('PROVIDER')}
-                disabled={switchingMode || isProviderMode}
-                className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
-              >
-                {isProviderMode ? 'Provider Mode' : 'For Providers'}
-              </button>
+              isProviderMode ? (
+                <Link
+                  href="/provider/requests"
+                  className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
+                >
+                  Provider Mode
+                </Link>
+              ) : (
+                <button
+                  onClick={() => handleModeSwitch('PROVIDER')}
+                  disabled={switchingMode}
+                  className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm disabled:opacity-50"
+                >
+                  {switchingMode ? 'Switching...' : 'For Providers'}
+                </button>
+              )
             ) : (
               <Link
                 href="/for-providers"
@@ -526,16 +535,26 @@ export default function MainNav() {
               Plan Care
             </Link>
             {session ? (
-              <button
-                onClick={() => {
-                  handleModeSwitch('PROVIDER');
-                  setMobileMenuOpen(false);
-                }}
-                disabled={switchingMode || isProviderMode}
-                className="block w-full text-left px-3 py-2 text-gray-700 font-medium disabled:opacity-50"
-              >
-                {isProviderMode ? 'Provider Mode' : 'For Providers'}
-              </button>
+              isProviderMode ? (
+                <Link
+                  href="/provider/requests"
+                  className="block px-3 py-2 text-gray-700 font-medium"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Provider Mode
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    handleModeSwitch('PROVIDER');
+                    setMobileMenuOpen(false);
+                  }}
+                  disabled={switchingMode}
+                  className="block w-full text-left px-3 py-2 text-gray-700 font-medium disabled:opacity-50"
+                >
+                  {switchingMode ? 'Switching...' : 'For Providers'}
+                </button>
+              )
             ) : (
               <Link href="/for-providers" className="block px-3 py-2 text-gray-700 font-medium">
                 For Providers

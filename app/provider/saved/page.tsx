@@ -296,7 +296,7 @@ export default function SavedFamilyProfiles() {
                 <div className="flex gap-2 mt-4">
                   {requestId ? (
                     <Link
-                      href={`/dashboard/requests/${requestId}`}
+                      href={`/dashboard/requests/${requestId}?from=saved`}
                       className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium text-center"
                     >
                       View Request
