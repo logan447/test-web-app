@@ -172,7 +172,7 @@ export default function OrganizationDetailPage() {
       if (response.ok) {
         showToast.success('Employment request sent!');
         setRequestMessage('');
-        router.push('/dashboard/requests');
+        router.push('/provider/hiring-requests');
       } else {
         console.error('Failed to send request:', {
           status: response.status,

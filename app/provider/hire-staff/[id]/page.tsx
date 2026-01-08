@@ -143,7 +143,7 @@ export default function CaregiverHireDetailPage() {
       if (response.ok) {
         showToast.success('Hiring request sent!');
         setRequestMessage('');
-        router.push('/dashboard/requests');
+        router.push('/provider/hiring-requests');
       } else {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
