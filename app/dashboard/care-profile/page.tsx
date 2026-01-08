@@ -14,6 +14,7 @@ import CareNeedsAssessment from "@/components/CareProfile/CareNeedsAssessment";
 import PersonalityPreferences from "@/components/CareProfile/PersonalityPreferences";
 import BudgetTimeline from "@/components/CareProfile/BudgetTimeline";
 import LocationContactPreferences from "@/components/CareProfile/LocationContactPreferences";
+import ProfileReviewPreview from "@/components/CareProfile/ProfileReviewPreview";
 
 type CareProfile = {
   id: string;
@@ -68,6 +69,14 @@ type CareProfile = {
   timeline: string | null;
   insurance: string | null;
   description: string | null;
+  // Review & privacy settings
+  profileVisibility?: string | null;
+  shareWithVerifiedOnly?: boolean;
+  allowDirectMessages?: boolean;
+  showContactInfo?: boolean;
+  showFullName?: boolean;
+  hideFromSearch?: boolean;
+  profileNotes?: string | null;
   isPublic: boolean;
 };
 
@@ -137,6 +146,17 @@ export default function CareProfilePage() {
     tourPreference: profile?.tourPreference || "",
     communicationFrequency: profile?.communicationFrequency || "",
     additionalContactNotes: profile?.additionalContactNotes || "",
+  });
+
+  // Review & privacy settings state
+  const [reviewPrivacy, setReviewPrivacy] = useState({
+    profileVisibility: profile?.profileVisibility || "limited",
+    shareWithVerifiedOnly: profile?.shareWithVerifiedOnly !== undefined ? profile.shareWithVerifiedOnly : true,
+    allowDirectMessages: profile?.allowDirectMessages !== undefined ? profile.allowDirectMessages : true,
+    showContactInfo: profile?.showContactInfo || false,
+    showFullName: profile?.showFullName || false,
+    hideFromSearch: profile?.hideFromSearch || false,
+    profileNotes: profile?.profileNotes || "",
   });
 
   // Define steps for progress tracking
@@ -231,6 +251,16 @@ export default function CareProfilePage() {
             communicationFrequency: data.communicationFrequency || "",
             additionalContactNotes: data.additionalContactNotes || "",
           });
+          // Update reviewPrivacy state with fetched data
+          setReviewPrivacy({
+            profileVisibility: data.profileVisibility || "limited",
+            shareWithVerifiedOnly: data.shareWithVerifiedOnly !== undefined ? data.shareWithVerifiedOnly : true,
+            allowDirectMessages: data.allowDirectMessages !== undefined ? data.allowDirectMessages : true,
+            showContactInfo: data.showContactInfo || false,
+            showFullName: data.showFullName || false,
+            hideFromSearch: data.hideFromSearch || false,
+            profileNotes: data.profileNotes || "",
+          });
         } else {
           setEditing(true); // No profile exists, start in edit mode
         }
@@ -302,6 +332,14 @@ export default function CareProfilePage() {
       timeline: formData.get("timeline") || null,
       insurance: formData.get("insurance") || null,
       description: formData.get("description") || null,
+      // Review & privacy settings
+      profileVisibility: reviewPrivacy.profileVisibility || null,
+      shareWithVerifiedOnly: reviewPrivacy.shareWithVerifiedOnly,
+      allowDirectMessages: reviewPrivacy.allowDirectMessages,
+      showContactInfo: reviewPrivacy.showContactInfo,
+      showFullName: reviewPrivacy.showFullName,
+      hideFromSearch: reviewPrivacy.hideFromSearch,
+      profileNotes: reviewPrivacy.profileNotes || null,
       isPublic: isPublic,
     };
 
@@ -374,6 +412,11 @@ export default function CareProfilePage() {
       label: "Timeline & urgency",
       completed: !!(budgetTimeline.careUrgency && budgetTimeline.careDuration),
       required: false,
+    },
+    {
+      label: "Privacy settings configured",
+      completed: !!reviewPrivacy.profileVisibility,
+      required: true,
     },
     {
       label: "Insurance information",
@@ -584,6 +627,24 @@ export default function CareProfilePage() {
               data={budgetTimeline}
               onDataChange={(field, value) => {
                 setBudgetTimeline((prev) => ({ ...prev, [field]: value }));
+              }}
+            />
+
+            {/* Divider */}
+            <div className="border-t border-gray-200"></div>
+
+            {/* Review & Privacy Settings Section */}
+            <ProfileReviewPreview
+              data={reviewPrivacy}
+              onDataChange={(field, value) => {
+                setReviewPrivacy((prev) => ({ ...prev, [field]: value }));
+              }}
+              profileData={{
+                completeness: Math.round((completenessItems.filter(item => item.completed).length / completenessItems.length) * 100),
+                hasAboutLovedOne: !!(aboutLovedOne.lovedOneName || aboutLovedOne.ageRange || aboutLovedOne.relationship),
+                hasCareNeeds: !!(careNeeds.careLevel && careNeeds.mobilityStatus),
+                hasLocation: !!(profile?.city && profile?.state && profile?.zipCode),
+                hasBudget: !!(budgetTimeline.budgetMin && budgetTimeline.budgetMax),
               }}
             />
 

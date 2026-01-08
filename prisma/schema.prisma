@@ -176,6 +176,15 @@ model FamilyProfile {
   insurance     String?
   description   String?
 
+  // Review & privacy settings (Sprint 7)
+  profileVisibility        String?    @default("limited")  // public, limited, private
+  shareWithVerifiedOnly    Boolean    @default(true)
+  allowDirectMessages      Boolean    @default(true)
+  showContactInfo          Boolean    @default(false)
+  showFullName             Boolean    @default(false)
+  hideFromSearch           Boolean    @default(false)
+  profileNotes             String?
+
   // Visibility
   isPublic      Boolean   @default(false) // Whether profile is visible to all providers
 

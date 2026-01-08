@@ -57,6 +57,14 @@ const careProfileSchema = z.object({
   timeline: z.string().optional(),
   insurance: z.string().optional(),
   description: z.string().optional(),
+  // Review & privacy settings (Sprint 7)
+  profileVisibility: z.string().optional().nullable(),
+  shareWithVerifiedOnly: z.boolean().optional(),
+  allowDirectMessages: z.boolean().optional(),
+  showContactInfo: z.boolean().optional(),
+  showFullName: z.boolean().optional(),
+  hideFromSearch: z.boolean().optional(),
+  profileNotes: z.string().optional().nullable(),
   isPublic: z.boolean().optional(),
 });
 
