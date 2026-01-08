@@ -149,6 +149,16 @@ model FamilyProfile {
   budgetMin     Int?
   budgetMax     Int?
 
+  // Enhanced budget & timeline (Sprint 5)
+  budgetFlexibility         String?
+  paymentMethods            String[]   @default([])
+  budgetIncludes            String?
+  financialAssistanceNeeded String?
+  careUrgency               String?
+  preferredStartDate        String?
+  careDuration              String?
+  scheduleFlexibility       String?
+
   // Additional details
   timeline      String?
   insurance     String?

@@ -12,6 +12,7 @@ import PrivacyReassurance from "@/components/CareProfile/PrivacyReassurance";
 import AboutLovedOneSection from "@/components/CareProfile/AboutLovedOneSection";
 import CareNeedsAssessment from "@/components/CareProfile/CareNeedsAssessment";
 import PersonalityPreferences from "@/components/CareProfile/PersonalityPreferences";
+import BudgetTimeline from "@/components/CareProfile/BudgetTimeline";
 
 type CareProfile = {
   id: string;
@@ -44,6 +45,15 @@ type CareProfile = {
   zipCode: string;
   budgetMin: number | null;
   budgetMax: number | null;
+  // Enhanced budget & timeline
+  budgetFlexibility?: string | null;
+  paymentMethods?: string[];
+  budgetIncludes?: string | null;
+  financialAssistanceNeeded?: string | null;
+  careUrgency?: string | null;
+  preferredStartDate?: string | null;
+  careDuration?: string | null;
+  scheduleFlexibility?: string | null;
   timeline: string | null;
   insurance: string | null;
   description: string | null;
@@ -89,6 +99,20 @@ export default function CareProfilePage() {
     religiousPreferences: profile?.religiousPreferences || "",
     languagePreferences: profile?.languagePreferences || [],
     petPreferences: profile?.petPreferences || "",
+  });
+
+  // Budget & timeline state
+  const [budgetTimeline, setBudgetTimeline] = useState({
+    budgetMin: profile?.budgetMin || undefined,
+    budgetMax: profile?.budgetMax || undefined,
+    budgetFlexibility: profile?.budgetFlexibility || "",
+    paymentMethods: profile?.paymentMethods || [],
+    budgetIncludes: profile?.budgetIncludes || "",
+    financialAssistanceNeeded: profile?.financialAssistanceNeeded || "",
+    careUrgency: profile?.careUrgency || "",
+    preferredStartDate: profile?.preferredStartDate || "",
+    careDuration: profile?.careDuration || "",
+    scheduleFlexibility: profile?.scheduleFlexibility || "",
   });
 
   // Define steps for progress tracking
@@ -158,6 +182,19 @@ export default function CareProfilePage() {
             languagePreferences: data.languagePreferences || [],
             petPreferences: data.petPreferences || "",
           });
+          // Update budgetTimeline state with fetched data
+          setBudgetTimeline({
+            budgetMin: data.budgetMin || undefined,
+            budgetMax: data.budgetMax || undefined,
+            budgetFlexibility: data.budgetFlexibility || "",
+            paymentMethods: data.paymentMethods || [],
+            budgetIncludes: data.budgetIncludes || "",
+            financialAssistanceNeeded: data.financialAssistanceNeeded || "",
+            careUrgency: data.careUrgency || "",
+            preferredStartDate: data.preferredStartDate || "",
+            careDuration: data.careDuration || "",
+            scheduleFlexibility: data.scheduleFlexibility || "",
+          });
         } else {
           setEditing(true); // No profile exists, start in edit mode
         }
@@ -205,8 +242,17 @@ export default function CareProfilePage() {
       city: formData.get("city"),
       state: formData.get("state"),
       zipCode: formData.get("zipCode"),
-      budgetMin: formData.get("budgetMin") ? parseInt(formData.get("budgetMin") as string) : null,
-      budgetMax: formData.get("budgetMax") ? parseInt(formData.get("budgetMax") as string) : null,
+      budgetMin: budgetTimeline.budgetMin || null,
+      budgetMax: budgetTimeline.budgetMax || null,
+      // Enhanced budget & timeline
+      budgetFlexibility: budgetTimeline.budgetFlexibility || null,
+      paymentMethods: budgetTimeline.paymentMethods,
+      budgetIncludes: budgetTimeline.budgetIncludes || null,
+      financialAssistanceNeeded: budgetTimeline.financialAssistanceNeeded || null,
+      careUrgency: budgetTimeline.careUrgency || null,
+      preferredStartDate: budgetTimeline.preferredStartDate || null,
+      careDuration: budgetTimeline.careDuration || null,
+      scheduleFlexibility: budgetTimeline.scheduleFlexibility || null,
       timeline: formData.get("timeline") || null,
       insurance: formData.get("insurance") || null,
       description: formData.get("description") || null,
@@ -269,13 +315,13 @@ export default function CareProfilePage() {
       required: true,
     },
     {
-      label: "Budget range",
-      completed: !!(profile?.budgetMin && profile?.budgetMax),
+      label: "Budget & payment info",
+      completed: !!(budgetTimeline.budgetMin && budgetTimeline.budgetMax && budgetTimeline.paymentMethods.length > 0),
       required: false,
     },
     {
-      label: "Timeline provided",
-      completed: !!profile?.timeline,
+      label: "Timeline & urgency",
+      completed: !!(budgetTimeline.careUrgency && budgetTimeline.careDuration),
       required: false,
     },
     {
@@ -468,55 +514,24 @@ export default function CareProfilePage() {
               </div>
             </div>
 
-            {/* Budget */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">What you can spend each month</h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Minimum (per month)
-                  </label>
-                  <input
-                    type="number"
-                    name="budgetMin"
-                    defaultValue={profile?.budgetMin || ""}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="Example: $2,000"
-                  />
-                </div>
+            {/* Divider */}
+            <div className="border-t border-gray-200"></div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Maximum (per month)
-                  </label>
-                  <input
-                    type="number"
-                    name="budgetMax"
-                    defaultValue={profile?.budgetMax || ""}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="Example: $5,000"
-                  />
-                </div>
-              </div>
-            </div>
+            {/* Budget & Timeline Section */}
+            <BudgetTimeline
+              data={budgetTimeline}
+              onDataChange={(field, value) => {
+                setBudgetTimeline((prev) => ({ ...prev, [field]: value }));
+              }}
+            />
+
+            {/* Divider */}
+            <div className="border-t border-gray-200"></div>
 
             {/* Additional Details */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Details</h2>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    When do you need help to start?
-                  </label>
-                  <input
-                    type="text"
-                    name="timeline"
-                    defaultValue={profile?.timeline || ""}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="Examples: Right away, In 2 weeks, Next month"
-                  />
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Do you have insurance coverage?
