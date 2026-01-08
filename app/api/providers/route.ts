@@ -22,6 +22,9 @@ export async function GET(req: Request) {
     const insuranceParam = searchParams.get("insurance");
     const languagesParam = searchParams.get("languages");
 
+    // Sort option
+    const sortByParam = searchParams.get("sortBy");
+
     const where: any = {
       active: true,
     };
@@ -113,6 +116,36 @@ export async function GET(req: Request) {
       };
     }
 
+    // Determine sort order
+    let orderBy: any = { createdAt: "desc" }; // Default: newest first
+
+    if (sortByParam) {
+      switch (sortByParam) {
+        case "rating_high":
+          orderBy = { averageRating: "desc" };
+          break;
+        case "rating_low":
+          orderBy = { averageRating: "asc" };
+          break;
+        case "price_low":
+          orderBy = { priceMin: "asc" };
+          break;
+        case "price_high":
+          orderBy = { priceMax: "desc" };
+          break;
+        case "name_asc":
+          orderBy = { name: "asc" };
+          break;
+        case "name_desc":
+          orderBy = { name: "desc" };
+          break;
+        case "newest":
+        default:
+          orderBy = { createdAt: "desc" };
+          break;
+      }
+    }
+
     const providers = await prisma.provider.findMany({
       where,
       select: {
@@ -147,9 +180,7 @@ export async function GET(req: Request) {
         hasRespiteCare: true,
         hasHospiceCare: true,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
       take: 50,
     });
 

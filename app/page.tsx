@@ -11,6 +11,7 @@ import EnhancedProviderCard from "@/components/Directory/EnhancedProviderCard";
 import ProviderCardSkeleton from "@/components/Loading/ProviderCardSkeleton";
 import FiltersBar from "@/components/Directory/FiltersBar";
 import ActiveFilters from "@/components/Directory/ActiveFilters";
+import ResultsHeader from "@/components/Directory/ResultsHeader";
 
 type Provider = {
   id: string;
@@ -63,6 +64,9 @@ export default function Home() {
   const [insurance, setInsurance] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
 
+  // Sort option
+  const [sortBy, setSortBy] = useState<string>("newest");
+
   useEffect(() => {
     fetchProviders();
     if (session) {
@@ -88,6 +92,9 @@ export default function Home() {
       if (amenities.length > 0) params.append("amenities", amenities.join(","));
       if (insurance.length > 0) params.append("insurance", insurance.join(","));
       if (languages.length > 0) params.append("languages", languages.join(","));
+
+      // Sort option
+      if (sortBy) params.append("sortBy", sortBy);
 
       const response = await fetch(`/api/providers?${params.toString()}`);
       const data = await response.json();
@@ -176,6 +183,7 @@ export default function Home() {
     setAmenities([]);
     setInsurance([]);
     setLanguages([]);
+    setSortBy("newest");
     setTimeout(() => fetchProviders(), 0);
   };
 
@@ -207,6 +215,11 @@ export default function Home() {
 
   const handleRemoveLanguage = (lang: string) => {
     setLanguages(languages.filter((l) => l !== lang));
+    setTimeout(() => fetchProviders(), 0);
+  };
+
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
     setTimeout(() => fetchProviders(), 0);
   };
 
@@ -360,8 +373,17 @@ export default function Home() {
             />
           </div>
 
-          {/* Right Column: Active Filters + Results */}
+          {/* Right Column: Results Header + Active Filters + Results */}
           <div className="lg:col-span-3">
+            {/* Results Header - Only show when not loading */}
+            {!loading && (
+              <ResultsHeader
+                count={providers.length}
+                sortBy={sortBy}
+                onSortChange={handleSortChange}
+              />
+            )}
+
             {/* Active Filters */}
             <ActiveFilters
               priceMin={priceMin}
@@ -414,14 +436,6 @@ export default function Home() {
                     );
                   })}
                 </div>
-
-                {providers.length > 0 && (
-                  <div className="mt-8 text-center">
-                    <p className="text-gray-600">
-                      Showing {providers.length} provider{providers.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                )}
               </>
             )}
           </div>
