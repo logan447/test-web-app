@@ -40,6 +40,11 @@ type Provider = {
   waitlistAvailable: boolean;
   photos: string[];
   coverPhoto: string | null;
+  roomFeatures: string[];
+  commonAreas: string[];
+  medicalServices: string[];
+  activitiesOffered: string[];
+  dietaryOptions: string[];
 };
 
 const PROVIDER_TYPES = [
@@ -85,6 +90,79 @@ const CERTIFICATION_OPTIONS = [
   "Memory Care Certified",
 ];
 
+const ROOM_FEATURES = [
+  "Private Bathroom",
+  "Semi-Private Bathroom",
+  "WiFi Access",
+  "Cable TV",
+  "Telephone",
+  "Air Conditioning",
+  "Heating",
+  "Wheelchair Accessible",
+  "Emergency Call System",
+  "Kitchenette",
+  "Private Balcony/Patio",
+  "Adjustable Bed",
+  "Walk-in Shower",
+  "Grab Bars",
+  "Window Views",
+];
+
+const COMMON_AREAS = [
+  "Library",
+  "Garden/Courtyard",
+  "Fitness Center",
+  "Swimming Pool",
+  "Movie Theater",
+  "Arts & Crafts Room",
+  "Chapel",
+  "Beauty/Barber Shop",
+  "Game Room",
+  "Outdoor Seating Areas",
+];
+
+const MEDICAL_SERVICES = [
+  "24/7 Registered Nurse On-Site",
+  "24/7 Licensed Practical Nurse",
+  "Medication Management",
+  "Physical Therapy",
+  "Occupational Therapy",
+  "Speech Therapy",
+  "Memory Care Support",
+  "Hospice Care Coordination",
+  "Visiting Physician Services",
+  "Diabetic Care",
+];
+
+const ACTIVITIES = [
+  "Arts & Crafts",
+  "Music Therapy",
+  "Group Exercise Classes",
+  "Yoga/Tai Chi",
+  "Movie Nights",
+  "Book Club",
+  "Games & Puzzles",
+  "Gardening",
+  "Pet Therapy",
+  "Live Entertainment",
+  "Educational Lectures",
+  "Holiday Celebrations",
+  "Day Trips/Outings",
+  "Religious Services",
+  "Social Events",
+];
+
+const DIETARY_OPTIONS = [
+  "Vegetarian Options",
+  "Vegan Options",
+  "Gluten-Free Options",
+  "Diabetic-Friendly Meals",
+  "Low-Sodium Options",
+  "Heart-Healthy Meals",
+  "Kosher Meals",
+  "Halal Meals",
+];
+
 export default function ProviderProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -105,6 +183,11 @@ export default function ProviderProfilePage() {
   const [availableForOrganizations, setAvailableForOrganizations] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
+  const [selectedRoomFeatures, setSelectedRoomFeatures] = useState<string[]>([]);
+  const [selectedCommonAreas, setSelectedCommonAreas] = useState<string[]>([]);
+  const [selectedMedicalServices, setSelectedMedicalServices] = useState<string[]>([]);
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+  const [selectedDietaryOptions, setSelectedDietaryOptions] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -132,6 +215,11 @@ export default function ProviderProfilePage() {
         setAvailableForOrganizations(data.availableForOrganizations || false);
         setPhotos(data.photos || []);
         setCoverPhoto(data.coverPhoto || null);
+        setSelectedRoomFeatures(data.roomFeatures || []);
+        setSelectedCommonAreas(data.commonAreas || []);
+        setSelectedMedicalServices(data.medicalServices || []);
+        setSelectedActivities(data.activitiesOffered || []);
+        setSelectedDietaryOptions(data.dietaryOptions || []);
         setEditing(false);
       } else if (response.status === 404) {
         setEditing(true);
@@ -180,6 +268,11 @@ export default function ProviderProfilePage() {
       waitlistAvailable: waitlistAvailable,
       photos: photos,
       coverPhoto: coverPhoto,
+      roomFeatures: selectedRoomFeatures,
+      commonAreas: selectedCommonAreas,
+      medicalServices: selectedMedicalServices,
+      activitiesOffered: selectedActivities,
+      dietaryOptions: selectedDietaryOptions,
     };
 
     try {
@@ -227,6 +320,46 @@ export default function ProviderProfilePage() {
       prev.includes(cert)
         ? prev.filter((s) => s !== cert)
         : [...prev, cert]
+    );
+  };
+
+  const toggleRoomFeature = (feature: string) => {
+    setSelectedRoomFeatures((prev) =>
+      prev.includes(feature)
+        ? prev.filter((s) => s !== feature)
+        : [...prev, feature]
+    );
+  };
+
+  const toggleCommonArea = (area: string) => {
+    setSelectedCommonAreas((prev) =>
+      prev.includes(area)
+        ? prev.filter((s) => s !== area)
+        : [...prev, area]
+    );
+  };
+
+  const toggleMedicalService = (service: string) => {
+    setSelectedMedicalServices((prev) =>
+      prev.includes(service)
+        ? prev.filter((s) => s !== service)
+        : [...prev, service]
+    );
+  };
+
+  const toggleActivity = (activity: string) => {
+    setSelectedActivities((prev) =>
+      prev.includes(activity)
+        ? prev.filter((s) => s !== activity)
+        : [...prev, activity]
+    );
+  };
+
+  const toggleDietaryOption = (option: string) => {
+    setSelectedDietaryOptions((prev) =>
+      prev.includes(option)
+        ? prev.filter((s) => s !== option)
+        : [...prev, option]
     );
   };
 
@@ -924,6 +1057,104 @@ export default function ProviderProfilePage() {
                 coverPhoto={coverPhoto}
                 onPhotosChange={handlePhotosChange}
               />
+            </div>
+
+            {/* Amenities & Services Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Amenities & Services</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Help families understand what makes your facility special by selecting all amenities and services you offer.
+              </p>
+
+              {/* Room Features */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-800 mb-3">Room Features</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {ROOM_FEATURES.map((feature) => (
+                    <label key={feature} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedRoomFeatures.includes(feature)}
+                        onChange={() => toggleRoomFeature(feature)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{feature}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Common Areas */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-800 mb-3">Common Areas</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {COMMON_AREAS.map((area) => (
+                    <label key={area} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedCommonAreas.includes(area)}
+                        onChange={() => toggleCommonArea(area)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{area}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Medical Services */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-800 mb-3">Medical Services</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {MEDICAL_SERVICES.map((service) => (
+                    <label key={service} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedMedicalServices.includes(service)}
+                        onChange={() => toggleMedicalService(service)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{service}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Activities */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-800 mb-3">Activities & Programs</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {ACTIVITIES.map((activity) => (
+                    <label key={activity} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedActivities.includes(activity)}
+                        onChange={() => toggleActivity(activity)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{activity}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dietary Options */}
+              <div>
+                <h4 className="text-md font-medium text-gray-800 mb-3">Dining Options</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {DIETARY_OPTIONS.map((option) => (
+                    <label key={option} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedDietaryOptions.includes(option)}
+                        onChange={() => toggleDietaryOption(option)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {providerType === "INDEPENDENT_CAREGIVER" && (

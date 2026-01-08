@@ -9,6 +9,7 @@ import AuthModal from "@/components/Auth/AuthModal";
 import PhotoGallery from "@/components/Gallery/PhotoGallery";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
 import ReviewModal from "@/components/Reviews/ReviewModal";
+import AmenitiesSection from "@/components/Provider/AmenitiesSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -43,6 +44,11 @@ type Provider = {
   coverPhoto: string | null;
   averageRating: number | null;
   reviewCount: number;
+  roomFeatures: string[];
+  commonAreas: string[];
+  medicalServices: string[];
+  activitiesOffered: string[];
+  dietaryOptions: string[];
 };
 
 export default function ProviderProfilePage() {
@@ -351,6 +357,15 @@ export default function ProviderProfilePage() {
               </div>
             </div>
           )}
+
+          {/* Amenities Section */}
+          <AmenitiesSection
+            roomFeatures={provider.roomFeatures}
+            commonAreas={provider.commonAreas}
+            medicalServices={provider.medicalServices}
+            activitiesOffered={provider.activitiesOffered}
+            dietaryOptions={provider.dietaryOptions}
+          />
 
           {/* Details Grid */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">

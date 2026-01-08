@@ -147,39 +147,39 @@
 
 ---
 
-### **Sprint 5: Detailed Amenities & Services (Week 3, Days 3-5)**
+### **Sprint 5: Detailed Amenities & Services (Week 3, Days 3-5)** ✅ COMPLETED
 
-#### Task 5.1: Expand Services/Amenities Schema
-- [ ] Update Prisma schema:
+#### Task 5.1: Expand Services/Amenities Schema ✅
+- [x] Update Prisma schema:
   - `roomFeatures` (String[], nullable)
   - `commonAreas` (String[], nullable)
   - `medicalServices` (String[], nullable)
   - `activitiesOffered` (String[], nullable)
   - `dietaryOptions` (String[], nullable)
-- [ ] Run migration
+- [x] Run migration
 
-#### Task 5.2: Add Amenities Section to Provider Detail
-- [ ] Create organized layout with icons
-- [ ] Categories:
+#### Task 5.2: Add Amenities Section to Provider Detail ✅
+- [x] Create organized layout with icons
+- [x] Categories:
   - Room Features (private bath, WiFi, etc.)
   - Common Areas (library, garden, etc.)
   - Medical Services (24/7 RN, PT, etc.)
   - Activities (arts, music, exercise, etc.)
   - Dining (dietary options)
-- [ ] Use icon library (Heroicons or similar)
-- [ ] Grid layout with checkmarks
+- [x] Use icon library (Heroicons or similar)
+- [x] Grid layout with checkmarks
 
-#### Task 5.3: Update Provider Profile Form
-- [ ] Add extensive checkbox lists for:
+#### Task 5.3: Update Provider Profile Form ✅
+- [x] Add extensive checkbox lists for:
   - Room features (15+ options)
   - Common areas (10+ options)
   - Medical services (10+ options)
   - Activities (15+ options)
   - Dietary options (8+ options)
-- [ ] Organize in collapsible sections
-- [ ] Save to database
+- [x] Organize in sections
+- [x] Save to database
 
-**Deliverable:** Comprehensive amenities display, families know exactly what's offered
+**Deliverable:** ✅ Comprehensive amenities display, families know exactly what's offered
 
 ---
 
@@ -316,15 +316,15 @@
 - [x] Sprint 2: Visual Trust Indicators ✅
 - [x] Sprint 3: Photo Gallery System ✅
 - [x] Sprint 4: Reviews & Ratings System ✅
-- [ ] Sprint 5: Detailed Amenities & Services
+- [x] Sprint 5: Detailed Amenities & Services ✅
 - [ ] Sprint 6: Staff & Care Information
 - [ ] Sprint 7: Location & Map Integration
 - [ ] Sprint 8: Enhanced CTAs & Booking Flow
 - [ ] Sprint 9: Specialty Care & Programs
 - [ ] Sprint 10: Polish & Optimization
 
-### Current Sprint: 5
-### Current Task: 5.1
+### Current Sprint: 6
+### Current Task: 6.1
 
 ---
 

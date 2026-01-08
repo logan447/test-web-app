@@ -198,6 +198,13 @@ model Provider {
   averageRating   Float?         // Average rating from all reviews (1-5)
   reviewCount     Int            @default(0)
 
+  // Amenities & Services
+  roomFeatures      String[]     @default([])  // Room amenities (private bath, WiFi, etc.)
+  commonAreas       String[]     @default([])  // Shared spaces (library, garden, etc.)
+  medicalServices   String[]     @default([])  // Healthcare services (24/7 RN, PT, etc.)
+  activitiesOffered String[]     @default([])  // Activities (arts, music, exercise, etc.)
+  dietaryOptions    String[]     @default([])  // Meal options (vegetarian, diabetic-friendly, etc.)
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)
