@@ -291,7 +291,7 @@ export default function MainNav() {
                         Browse Care Requests
                       </Link>
                       <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Saved
+                        Saved Requests
                       </Link>
                       <Link href="/dashboard/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Consultation Requests
@@ -303,16 +303,16 @@ export default function MainNav() {
                   ) : (
                     <>
                       <Link href="/providers" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Browse Providers
+                        Browse Care Providers
                       </Link>
                       <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Saved
+                        Saved Providers
                       </Link>
                       <Link href="/dashboard/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Requests
+                        Consultation Requests
                       </Link>
                       <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Care Profile
+                        Care Needs Profile
                       </Link>
                     </>
                   )}
