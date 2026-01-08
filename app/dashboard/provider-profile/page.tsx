@@ -1434,7 +1434,7 @@ export default function ProviderProfilePage() {
               <div>
                 <h4 className="text-md font-medium text-gray-800 mb-3">Nearby Amenities</h4>
                 <p className="text-sm text-gray-600 mb-3">
-                  Add nearby amenities with distances (e.g., "Hospital - 0.5 miles", "Park - 0.2 miles")
+                  Add nearby amenities with distances (e.g., &quot;Hospital - 0.5 miles&quot;, &quot;Park - 0.2 miles&quot;)
                 </p>
                 <div className="flex gap-2 mb-3">
                   <input
