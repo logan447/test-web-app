@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
@@ -34,12 +34,18 @@ export default function FamilyProfileDetail() {
   const { data: session } = useSession();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<FamilyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [requestMessage, setRequestMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  // Determine back link based on where user came from
+  const fromSaved = searchParams.get('from') === 'saved';
+  const backHref = fromSaved ? '/provider/saved' : '/provider/requests';
+  const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {
     if (!session) {
@@ -185,13 +191,13 @@ export default function FamilyProfileDetail() {
         {/* Back Button */}
         <div className="mb-6">
           <Link
-            href="/provider/requests"
+            href={backHref}
             className="text-primary-600 hover:text-primary-700 flex items-center gap-1"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Browse
+            {backText}
           </Link>
         </div>
 
@@ -291,7 +297,7 @@ export default function FamilyProfileDetail() {
                 {sending ? 'Sending...' : 'Send Request'}
               </button>
               <Link
-                href="/provider/requests"
+                href={backHref}
                 className="bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 font-medium"
               >
                 Cancel
