@@ -282,7 +282,7 @@ export default function RequestsPage() {
                         onClick={() => handleStatusUpdate(request.id, "ACCEPTED")}
                         className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm"
                       >
-                        Yes, Let's Connect
+                        Yes, Let&apos;s Connect
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(request.id, "DECLINED")}

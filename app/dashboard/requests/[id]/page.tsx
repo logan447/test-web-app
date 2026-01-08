@@ -368,7 +368,7 @@ export default function RequestDetailPage() {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-blue-800">Contact info will appear after you connect</p>
                       <p className="text-xs text-blue-700 mt-1">
-                        Once you both agree to connect, you'll be able to see phone numbers and email addresses.
+                        Once you both agree to connect, you&apos;ll be able to see phone numbers and email addresses.
                       </p>
                     </div>
                   </div>
@@ -385,7 +385,7 @@ export default function RequestDetailPage() {
                 onClick={() => handleStatusUpdate("ACCEPTED")}
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Yes, Let's Connect
+                Yes, Let&apos;s Connect
               </button>
               <button
                 onClick={() => handleStatusUpdate("DECLINED")}
@@ -415,7 +415,7 @@ export default function RequestDetailPage() {
             {request.status === "PENDING" && !isSender && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-yellow-800">
-                  <strong>Action needed:</strong> Review the message above and decide if you'd like to connect. Once you accept, you can exchange messages and see contact information.
+                  <strong>Action needed:</strong> Review the message above and decide if you&apos;d like to connect. Once you accept, you can exchange messages and see contact information.
                 </p>
               </div>
             )}
