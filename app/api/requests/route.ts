@@ -91,7 +91,13 @@ export async function GET(req: Request) {
       // Provider
       const provider = await prisma.provider.findUnique({
         where: { userId: session.user.id },
-        include: { user: true }
+        include: {
+          user: {
+            include: {
+              subscription: true
+            }
+          }
+        }
       });
 
       if (!provider) {
@@ -108,6 +114,16 @@ export async function GET(req: Request) {
         type,
         requestType
       });
+
+      // Providers need subscription to view/interact with requests
+      const subscription = provider.user?.subscription;
+      const hasActiveSubscription = subscription?.status === 'ACTIVE' && subscription?.tier !== 'FREE';
+
+      if (!hasActiveSubscription) {
+        console.log('[REQUESTS API] Provider viewing requests without subscription - return empty');
+        // Return empty array instead of error to allow browsing but not interacting
+        return NextResponse.json([]);
+      }
 
       if (type === "sent") {
         // Sent: requests sent BY this provider user
@@ -247,32 +263,31 @@ export async function POST(req: Request) {
 
       return NextResponse.json(request, { status: 201 });
     } else {
-      // Provider sending request to family
+      // Provider sending request (consultation OR hiring)
       console.log('[REQUEST API] Provider mode - checking subscription');
 
-      // Only require subscription for consultation requests, not hiring requests
-      if (requestType !== 'HIRING') {
-        const user = await prisma.user.findUnique({
-          where: { id: session.user.id },
-          include: { subscription: true },
-        });
+      // All providers need $25/month subscription to send any type of request
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: { subscription: true },
+      });
 
-        const subscription = user?.subscription;
-        const hasActiveSubscription = subscription?.status === 'ACTIVE' && subscription?.tier !== 'FREE';
+      const subscription = user?.subscription;
+      const hasActiveSubscription = subscription?.status === 'ACTIVE' && subscription?.tier !== 'FREE';
 
-        if (!hasActiveSubscription) {
-          console.log('[REQUEST API] Subscription required but not active');
-          return NextResponse.json(
-            {
-              error: "Subscription required to send consultation requests",
-              requiresUpgrade: true
-            },
-            { status: 403 }
-          );
-        }
-      } else {
-        console.log('[REQUEST API] Hiring request - skipping subscription check');
+      if (!hasActiveSubscription) {
+        console.log('[REQUEST API] Subscription required but not active');
+        const requestTypeName = requestType === 'HIRING' ? 'hiring' : 'consultation';
+        return NextResponse.json(
+          {
+            error: `Provider membership ($25/month) required to send ${requestTypeName} requests`,
+            requiresUpgrade: true
+          },
+          { status: 403 }
+        );
       }
+
+      console.log('[REQUEST API] Subscription active, proceeding with request');
 
       console.log('[REQUEST API] Creating request with data:', {
         senderId: session.user.id,

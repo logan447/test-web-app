@@ -64,24 +64,23 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { tier } = body;
 
-    if (!tier || !['FREE', 'BASIC', 'PRO'].includes(tier)) {
+    if (!tier || !['FREE', 'PRO'].includes(tier)) {
       return NextResponse.json(
-        { error: "Invalid tier" },
+        { error: "Invalid tier. Must be FREE or PRO" },
         { status: 400 }
       );
     }
 
     // Set contact view limits based on tier
+    // PRO tier ($25/month) gives unlimited access for providers
+    // FREE tier is for families (they get unlimited access by default)
     let contactViewsLimit: number | null;
     switch (tier) {
       case 'FREE':
-        contactViewsLimit = 0;
-        break;
-      case 'BASIC':
-        contactViewsLimit = 10;
+        contactViewsLimit = null; // Families get unlimited for free
         break;
       case 'PRO':
-        contactViewsLimit = null; // Unlimited
+        contactViewsLimit = null; // Providers get unlimited with $25/month
         break;
       default:
         contactViewsLimit = 0;
