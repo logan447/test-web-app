@@ -31,6 +31,12 @@ type Provider = {
   priceMax: number | null;
   priceDescription: string | null;
   paymentOptions: string[];
+  certifications: string[];
+  insuranceVerified: boolean;
+  backgroundChecked: boolean;
+  totalCapacity: number | null;
+  availableSpots: number | null;
+  waitlistAvailable: boolean;
 };
 
 const PROVIDER_TYPES = [
@@ -65,6 +71,17 @@ const PAYMENT_OPTIONS = [
   "Workers Compensation",
 ];
 
+const CERTIFICATION_OPTIONS = [
+  "Medicare Certified",
+  "Medicaid Certified",
+  "Joint Commission Accredited",
+  "CARF Accredited",
+  "State Licensed",
+  "BBB Accredited",
+  "Senior Living Certification",
+  "Memory Care Certified",
+];
+
 export default function ProviderProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -75,7 +92,11 @@ export default function ProviderProfilePage() {
   const [editing, setEditing] = useState(false);
   const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
   const [selectedPaymentOptions, setSelectedPaymentOptions] = useState<string[]>([]);
+  const [selectedCertifications, setSelectedCertifications] = useState<string[]>([]);
   const [licensed, setLicensed] = useState(false);
+  const [insuranceVerified, setInsuranceVerified] = useState(false);
+  const [backgroundChecked, setBackgroundChecked] = useState(false);
+  const [waitlistAvailable, setWaitlistAvailable] = useState(false);
   const [providerType, setProviderType] = useState("");
   const [availableForFamilies, setAvailableForFamilies] = useState(true);
   const [availableForOrganizations, setAvailableForOrganizations] = useState(false);
@@ -96,7 +117,11 @@ export default function ProviderProfilePage() {
         setProvider(data);
         setSelectedCareTypes(data.careTypesOffered || []);
         setSelectedPaymentOptions(data.paymentOptions || []);
+        setSelectedCertifications(data.certifications || []);
         setLicensed(data.licensed || false);
+        setInsuranceVerified(data.insuranceVerified || false);
+        setBackgroundChecked(data.backgroundChecked || false);
+        setWaitlistAvailable(data.waitlistAvailable || false);
         setProviderType(data.providerType || "");
         setAvailableForFamilies(data.availableForFamilies !== undefined ? data.availableForFamilies : true);
         setAvailableForOrganizations(data.availableForOrganizations || false);
@@ -140,6 +165,12 @@ export default function ProviderProfilePage() {
       priceMax: formData.get("priceMax") ? parseInt(formData.get("priceMax") as string) : null,
       priceDescription: formData.get("priceDescription") || null,
       paymentOptions: selectedPaymentOptions,
+      certifications: selectedCertifications,
+      insuranceVerified: insuranceVerified,
+      backgroundChecked: backgroundChecked,
+      totalCapacity: formData.get("totalCapacity") ? parseInt(formData.get("totalCapacity") as string) : null,
+      availableSpots: formData.get("availableSpots") ? parseInt(formData.get("availableSpots") as string) : null,
+      waitlistAvailable: waitlistAvailable,
     };
 
     try {
@@ -179,6 +210,14 @@ export default function ProviderProfilePage() {
       prev.includes(option)
         ? prev.filter((s) => s !== option)
         : [...prev, option]
+    );
+  };
+
+  const toggleCertification = (cert: string) => {
+    setSelectedCertifications((prev) =>
+      prev.includes(cert)
+        ? prev.filter((s) => s !== cert)
+        : [...prev, cert]
     );
   };
 
@@ -347,6 +386,71 @@ export default function ProviderProfilePage() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+            {(provider.certifications.length > 0 || provider.insuranceVerified || provider.backgroundChecked) && (
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-sm font-medium text-gray-500 mb-3">Trust & Verification</h3>
+                <div className="space-y-2">
+                  {provider.certifications.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 mb-2">Certifications:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {provider.certifications.map((cert) => (
+                          <span
+                            key={cert}
+                            className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs"
+                          >
+                            {cert}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-3 mt-2">
+                    {provider.insuranceVerified && (
+                      <span className="text-xs text-gray-700 flex items-center gap-1">
+                        <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Insurance Verified
+                      </span>
+                    )}
+                    {provider.backgroundChecked && (
+                      <span className="text-xs text-gray-700 flex items-center gap-1">
+                        <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Background Checked
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            {(provider.totalCapacity || provider.availableSpots !== null) && (
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-sm font-medium text-gray-500 mb-3">Capacity & Availability</h3>
+                <div className="space-y-2">
+                  {provider.totalCapacity && (
+                    <p className="text-sm text-gray-700">
+                      <span className="font-medium">Total Capacity:</span> {provider.totalCapacity} {provider.totalCapacity === 1 ? 'spot' : 'spots'}
+                    </p>
+                  )}
+                  {provider.availableSpots !== null && (
+                    <p className="text-sm text-gray-700">
+                      <span className="font-medium">Currently Available:</span> {provider.availableSpots} {provider.availableSpots === 1 ? 'spot' : 'spots'}
+                    </p>
+                  )}
+                  {provider.waitlistAvailable && (
+                    <p className="text-sm text-gray-700 flex items-center gap-1">
+                      <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      Waitlist available
+                    </p>
+                  )}
+                </div>
               </div>
             )}
             {provider.providerType === "INDEPENDENT_CAREGIVER" && (
@@ -681,6 +785,118 @@ export default function ProviderProfilePage() {
                   ))}
                 </div>
               </div>
+            </div>
+
+            {/* Trust & Verification Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Trust & Verification</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Build trust with families by showcasing your certifications and verifications.
+              </p>
+
+              <div className="space-y-4 mb-4">
+                <label className="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={insuranceVerified}
+                    onChange={(e) => setInsuranceVerified(e.target.checked)}
+                    className="mt-1 rounded border-gray-300"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Insurance Verified</span>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Your business has verified liability and/or professional insurance
+                    </p>
+                  </div>
+                </label>
+                <label className="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={backgroundChecked}
+                    onChange={(e) => setBackgroundChecked(e.target.checked)}
+                    className="mt-1 rounded border-gray-300"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Background Checks Completed</span>
+                    <p className="text-xs text-gray-500 mt-1">
+                      All staff members have completed background checks
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Certifications & Accreditations (Select all that apply)
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {CERTIFICATION_OPTIONS.map((cert) => (
+                    <label key={cert} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedCertifications.includes(cert)}
+                        onChange={() => toggleCertification(cert)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{cert}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Capacity & Availability Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Capacity & Availability</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Let families know about your current availability.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Total Capacity
+                  </label>
+                  <input
+                    name="totalCapacity"
+                    type="number"
+                    min="0"
+                    step="1"
+                    defaultValue={provider?.totalCapacity || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="Total number of spots/beds"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Currently Available Spots
+                  </label>
+                  <input
+                    name="availableSpots"
+                    type="number"
+                    min="0"
+                    step="1"
+                    defaultValue={provider?.availableSpots || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="Number of spots available now"
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  checked={waitlistAvailable}
+                  onChange={(e) => setWaitlistAvailable(e.target.checked)}
+                  className="mt-1 rounded border-gray-300"
+                />
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Waitlist Available</span>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Families can join a waitlist if currently at capacity
+                  </p>
+                </div>
+              </label>
             </div>
 
             {providerType === "INDEPENDENT_CAREGIVER" && (

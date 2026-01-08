@@ -173,6 +173,16 @@ model Provider {
   yearsInBusiness Int?
   capacity        Int?
 
+  // Trust & Verification
+  certifications       String[]       // Array of certifications (e.g., "Medicare Certified", "Joint Commission Accredited")
+  insuranceVerified    Boolean        @default(false)
+  backgroundChecked    Boolean        @default(false)
+
+  // Capacity & Availability
+  totalCapacity        Int?           // Total number of residents/clients the facility can accommodate
+  availableSpots       Int?           // Current number of available spots/beds
+  waitlistAvailable    Boolean        @default(false)
+
   // Pricing
   priceMin        Int?           // Minimum monthly price in dollars
   priceMax        Int?           // Maximum monthly price in dollars

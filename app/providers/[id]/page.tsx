@@ -30,6 +30,12 @@ type Provider = {
   priceMax: number | null;
   priceDescription: string | null;
   paymentOptions: string[];
+  certifications: string[];
+  insuranceVerified: boolean;
+  backgroundChecked: boolean;
+  totalCapacity: number | null;
+  availableSpots: number | null;
+  waitlistAvailable: boolean;
 };
 
 export default function ProviderProfilePage() {
@@ -165,7 +171,7 @@ export default function ProviderProfilePage() {
         <div className="bg-white rounded-lg shadow-lg p-8">
           {/* Header */}
           <div className="border-b pb-6 mb-6">
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between mb-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{provider.name}</h1>
                 <p className="text-lg text-primary-600 mb-2">
@@ -175,9 +181,65 @@ export default function ProviderProfilePage() {
                   📍 {provider.address}, {provider.city}, {provider.state} {provider.zipCode}
                 </p>
               </div>
+            </div>
+
+            {/* Trust Badges & Availability */}
+            <div className="flex flex-wrap gap-2">
               {provider.licensed && (
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                  ✓ Licensed
+                <span className="bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Licensed
+                </span>
+              )}
+
+              {provider.insuranceVerified && (
+                <span className="bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Insured
+                </span>
+              )}
+
+              {provider.backgroundChecked && (
+                <span className="bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Background Checked
+                </span>
+              )}
+
+              {Array.isArray(provider.certifications) && provider.certifications.map((cert) => (
+                <span
+                  key={cert}
+                  className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium"
+                >
+                  {cert}
+                </span>
+              ))}
+
+              {/* Availability Badge */}
+              {provider.availableSpots !== null && provider.availableSpots > 0 && (
+                <span className="bg-green-50 text-green-700 border border-green-300 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {provider.availableSpots} {provider.availableSpots === 1 ? 'spot' : 'spots'} available
+                </span>
+              )}
+
+              {provider.availableSpots === 0 && provider.totalCapacity && (
+                <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium">
+                  Currently at capacity
+                </span>
+              )}
+
+              {provider.waitlistAvailable && provider.availableSpots === 0 && (
+                <span className="bg-orange-100 text-orange-800 px-3 py-1.5 rounded-full text-sm font-medium">
+                  Waitlist available
                 </span>
               )}
             </div>
