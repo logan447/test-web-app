@@ -34,6 +34,7 @@ export default function SavedFamilyProfiles() {
   const router = useRouter();
   const [profiles, setProfiles] = useState<SavedFamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [requestedProfileIds, setRequestedProfileIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!session) {
@@ -41,6 +42,7 @@ export default function SavedFamilyProfiles() {
       return;
     }
     fetchSavedProfiles();
+    fetchSentRequests();
   }, [session, router]);
 
   const fetchSavedProfiles = async () => {
@@ -54,6 +56,19 @@ export default function SavedFamilyProfiles() {
       console.error('Error fetching saved profiles:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSentRequests = async () => {
+    try {
+      const response = await fetch('/api/requests?type=sent');
+      if (response.ok) {
+        const requests = await response.json();
+        const profileIds = new Set<string>(requests.map((req: any) => req.familyProfileId as string));
+        setRequestedProfileIds(profileIds);
+      }
+    } catch (error) {
+      console.error('Error fetching sent requests:', error);
     }
   };
 
@@ -189,9 +204,19 @@ export default function SavedFamilyProfiles() {
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                      Care Request in {profile.city}, {profile.state}
-                    </h3>
+                    <div className="flex items-start gap-2 mb-1">
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        Care Request in {profile.city}, {profile.state}
+                      </h3>
+                      {requestedProfileIds.has(profile.id) && (
+                        <span className="text-xs bg-blue-100 text-blue-800 font-medium px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Request Sent
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500">
                       Posted {new Date(profile.createdAt).toLocaleDateString()} • Saved {new Date(profile.savedAt).toLocaleDateString()}
                     </p>

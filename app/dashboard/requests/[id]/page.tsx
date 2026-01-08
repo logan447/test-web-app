@@ -8,6 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import PaywallModal from "@/components/Paywall/PaywallModal";
 import { showToast } from "@/lib/toast";
 import { maskContactInfo } from "@/lib/contact-masking";
+import Tooltip from "@/components/UI/Tooltip";
 
 type ConsultRequest = {
   id: string;
@@ -243,12 +244,11 @@ export default function RequestDetailPage() {
                   : `${request.familyProfile.city}, ${request.familyProfile.state}`}
               </p>
             </div>
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)} cursor-help`}
-              title={getStatusTooltip(request.status, isSender)}
-            >
-              {request.status}
-            </span>
+            <Tooltip content={getStatusTooltip(request.status, isSender)}>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)} cursor-help`}>
+                {request.status}
+              </span>
+            </Tooltip>
           </div>
 
           {/* Contact Information */}

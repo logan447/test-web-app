@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Tooltip from "@/components/UI/Tooltip";
 
 type ConsultRequest = {
   id: string;
@@ -67,7 +68,8 @@ export default function RequestsPage() {
       const response = await fetch(`/api/requests?type=${activeTab}`);
       if (response.ok) {
         const data = await response.json();
-        setRequests(data);
+        // Filter out DECLINED requests so deleted requests don't reappear
+        setRequests(data.filter((req: ConsultRequest) => req.status !== "DECLINED"));
       }
     } catch (err) {
       console.error("Error fetching requests:", err);
@@ -219,18 +221,7 @@ export default function RequestsPage() {
         ) : (
           <div className="space-y-4">
             {requests.map((request) => (
-              <div key={request.id} className="bg-white rounded-lg shadow p-6 relative">
-                {request._count && request._count.messages > 0 && (
-                  <div className="absolute top-4 right-4">
-                    <div className="flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                      </svg>
-                      <span>{request._count.messages} new message{request._count.messages > 1 ? 's' : ''}</span>
-                    </div>
-                  </div>
-                )}
+              <div key={request.id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1 pr-4">
                     <h3 className="text-lg font-semibold text-gray-900">
@@ -250,12 +241,22 @@ export default function RequestsPage() {
                       {new Date(request.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)} cursor-help`}
-                    title={getStatusTooltip(request.status, activeTab)}
-                  >
-                    {request.status}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    {request._count && request._count.messages > 0 && (
+                      <div className="flex items-center gap-1 bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                        <span>{request._count.messages} new message{request._count.messages > 1 ? 's' : ''}</span>
+                      </div>
+                    )}
+                    <Tooltip content={getStatusTooltip(request.status, activeTab)}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)} cursor-help`}>
+                        {request.status}
+                      </span>
+                    </Tooltip>
+                  </div>
                 </div>
 
                 <p className="text-gray-700 mb-4">{request.message}</p>
