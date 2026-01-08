@@ -13,6 +13,7 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type"); // 'sent' or 'received'
+    const requestType = searchParams.get("requestType"); // 'CONSULTATION' or 'HIRING'
 
     let requests;
 
@@ -29,12 +30,16 @@ export async function GET(req: Request) {
 
       if (type === "sent") {
         // Sent: requests sent BY this family (must match both sender and family profile)
+        const where: any = {
+          senderId: session.user.id,
+          familyProfileId: familyProfile.id, // Ensure it was sent FROM this family profile
+          status: { not: "DECLINED" } // Exclude declined/deleted requests
+        };
+        if (requestType) {
+          where.requestType = requestType;
+        }
         requests = await prisma.consultRequest.findMany({
-          where: {
-            senderId: session.user.id,
-            familyProfileId: familyProfile.id, // Ensure it was sent FROM this family profile
-            status: { not: "DECLINED" } // Exclude declined/deleted requests
-          },
+          where,
           include: {
             provider: true,
             sender: true,
@@ -54,12 +59,16 @@ export async function GET(req: Request) {
         });
       } else {
         // Received: requests where family is the recipient (sent by providers)
+        const where: any = {
+          familyProfileId: familyProfile.id,
+          senderId: { not: session.user.id }, // Exclude requests sent by this user
+          status: { not: "DECLINED" } // Exclude declined/deleted requests
+        };
+        if (requestType) {
+          where.requestType = requestType;
+        }
         requests = await prisma.consultRequest.findMany({
-          where: {
-            familyProfileId: familyProfile.id,
-            senderId: { not: session.user.id }, // Exclude requests sent by this user
-            status: { not: "DECLINED" } // Exclude declined/deleted requests
-          },
+          where,
           include: {
             provider: true,
             sender: true,
@@ -90,12 +99,16 @@ export async function GET(req: Request) {
 
       if (type === "sent") {
         // Sent: requests where provider is the sender
+        const where: any = {
+          providerId: provider.id,
+          senderId: session.user.id,
+          status: { not: "DECLINED" } // Exclude declined/deleted requests
+        };
+        if (requestType) {
+          where.requestType = requestType;
+        }
         requests = await prisma.consultRequest.findMany({
-          where: {
-            providerId: provider.id,
-            senderId: session.user.id,
-            status: { not: "DECLINED" } // Exclude declined/deleted requests
-          },
+          where,
           include: {
             familyProfile: { include: { user: true } },
             sender: true,
@@ -115,12 +128,16 @@ export async function GET(req: Request) {
         });
       } else {
         // Received: requests where provider is the recipient (sent by families)
+        const where: any = {
+          providerId: provider.id,
+          senderId: { not: session.user.id },
+          status: { not: "DECLINED" } // Exclude declined/deleted requests
+        };
+        if (requestType) {
+          where.requestType = requestType;
+        }
         requests = await prisma.consultRequest.findMany({
-          where: {
-            providerId: provider.id,
-            senderId: { not: session.user.id },
-            status: { not: "DECLINED" } // Exclude declined/deleted requests
-          },
+          where,
           include: {
             familyProfile: { include: { user: true } },
             sender: true,
@@ -160,7 +177,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { providerId, familyProfileId, message } = body;
+    const { providerId, familyProfileId, message, requestType } = body;
 
     const activeMode = session.user.activeMode || 'FAMILY';
 
@@ -185,6 +202,7 @@ export async function POST(req: Request) {
           providerId,
           message,
           status: "PENDING",
+          requestType: requestType || "CONSULTATION",
         },
         include: { provider: true },
       });
@@ -217,6 +235,7 @@ export async function POST(req: Request) {
           providerId,
           message,
           status: "PENDING",
+          requestType: requestType || "CONSULTATION",
         },
         include: { familyProfile: { include: { user: true } } },
       });

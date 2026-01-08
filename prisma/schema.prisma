@@ -51,6 +51,11 @@ enum ConsultRequestStatus {
   CANCELLED
 }
 
+enum RequestType {
+  CONSULTATION
+  HIRING
+}
+
 enum SubscriptionTier {
   FREE
   BASIC
@@ -231,6 +236,7 @@ model ConsultRequest {
   // Request details
   message         String
   status          ConsultRequestStatus @default(PENDING)
+  requestType     RequestType          @default(CONSULTATION) // CONSULTATION or HIRING
 
   // Notification tracking
   viewedByReceiver Boolean             @default(false)
@@ -244,6 +250,7 @@ model ConsultRequest {
   @@index([familyProfileId])
   @@index([providerId])
   @@index([status])
+  @@index([requestType])
 }
 
 model Message {
