@@ -283,12 +283,22 @@ export default function MainNav() {
               Plan Care
             </Link>
 
-            <Link
-              href="/providers"
-              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium"
-            >
-              For providers
-            </Link>
+            {session ? (
+              <button
+                onClick={() => handleModeSwitch('PROVIDER')}
+                disabled={switchingMode || isProviderMode}
+                className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium disabled:opacity-50"
+              >
+                {isProviderMode ? 'Provider Mode' : 'For Providers'}
+              </button>
+            ) : (
+              <Link
+                href="/for-providers"
+                className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium"
+              >
+                For Providers
+              </Link>
+            )}
           </div>
 
           {/* Right side - Auth */}
@@ -515,9 +525,22 @@ export default function MainNav() {
             <Link href="/plan-care" className="block px-3 py-2 text-gray-700 font-medium">
               Plan Care
             </Link>
-            <Link href="/providers" className="block px-3 py-2 text-gray-700 font-medium">
-              For providers
-            </Link>
+            {session ? (
+              <button
+                onClick={() => {
+                  handleModeSwitch('PROVIDER');
+                  setMobileMenuOpen(false);
+                }}
+                disabled={switchingMode || isProviderMode}
+                className="block w-full text-left px-3 py-2 text-gray-700 font-medium disabled:opacity-50"
+              >
+                {isProviderMode ? 'Provider Mode' : 'For Providers'}
+              </button>
+            ) : (
+              <Link href="/for-providers" className="block px-3 py-2 text-gray-700 font-medium">
+                For Providers
+              </Link>
+            )}
 
             <div className="border-t mt-4 pt-4">
               {session ? (
