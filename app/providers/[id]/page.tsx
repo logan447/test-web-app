@@ -15,6 +15,7 @@ import LocationSection from "@/components/Provider/LocationSection";
 import SpecialtyCareSection from "@/components/Provider/SpecialtyCareSection";
 import ProviderCTASection from "@/components/Provider/ProviderCTASection";
 import EnhancedContactModal, { ContactFormData } from "@/components/Provider/EnhancedContactModal";
+import ProviderDetailSkeleton from "@/components/Loading/ProviderDetailSkeleton";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -229,9 +230,7 @@ export default function ProviderProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <div className="flex items-center justify-center py-24">
-          <p className="text-gray-600">Loading provider...</p>
-        </div>
+        <ProviderDetailSkeleton />
       </div>
     );
   }
@@ -245,15 +244,21 @@ export default function ProviderProfilePage() {
       <MainNav />
 
       {/* Provider Profile */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href={backHref}
-          className="text-primary-600 hover:text-primary-700 mb-6 inline-block"
+          className="text-primary-600 hover:text-primary-700 mb-6 inline-flex items-center gap-2 font-medium transition-smooth"
         >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
           {backText}
         </Link>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+          {/* Main content - 2/3 width */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 fade-in">
           {/* Header */}
           <div className="border-b pb-6 mb-6">
             <div className="flex items-start justify-between mb-4">

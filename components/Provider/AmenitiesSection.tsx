@@ -42,8 +42,11 @@ export default function AmenitiesSection({
   );
 
   return (
-    <div className="mb-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 fade-in hover-lift mb-6">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+        <svg className="w-7 h-7 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
         Amenities & Services
       </h2>
 

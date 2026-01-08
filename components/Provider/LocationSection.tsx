@@ -30,10 +30,10 @@ export default function LocationSection({
     : encodedAddress;
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 fade-in hover-lift mb-6">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
         <svg
-          className="w-6 h-6 text-primary-600"
+          className="w-7 h-7 text-primary-600"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -51,10 +51,8 @@ export default function LocationSection({
             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
           />
         </svg>
-        <h2 className="text-xl font-semibold text-gray-900">
-          Location & Neighborhood
-        </h2>
-      </div>
+        Location & Neighborhood
+      </h2>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Map Section */}
