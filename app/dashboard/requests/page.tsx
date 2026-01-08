@@ -65,7 +65,7 @@ export default function RequestsPage() {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/requests?type=${activeTab}`);
+      const response = await fetch(`/api/requests?type=${activeTab}&requestType=CONSULTATION`);
       if (response.ok) {
         const data = await response.json();
         // Filter out DECLINED requests so deleted requests don't reappear
