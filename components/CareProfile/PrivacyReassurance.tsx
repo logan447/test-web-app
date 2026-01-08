@@ -155,8 +155,8 @@ export default function PrivacyReassurance() {
             <p className="text-sm text-gray-700">
               <span className="font-semibold">Why we ask for this information:</span>{" "}
               The details you provide help us match you with the right care providers
-              who can meet your loved one's specific needs. The more complete your
-              profile, the better matches you'll receive.
+              who can meet your loved one&apos;s specific needs. The more complete your
+              profile, the better matches you&apos;ll receive.
             </p>
           </div>
         </div>
