@@ -284,9 +284,9 @@ export default function ProviderRequests() {
       return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Browse Care Requests</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Find Families</h1>
             <p className="mt-2 text-gray-600">
-              Connect with families seeking care services in your area
+              Connect with families who need your help
             </p>
           </div>
           <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -303,9 +303,9 @@ export default function ProviderRequests() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Browse Care Requests</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Find Families</h1>
           <p className="mt-2 text-gray-600">
-            Connect with families seeking care services in your area
+            Connect with families who need your help
           </p>
         </div>
 

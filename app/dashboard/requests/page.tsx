@@ -134,9 +134,17 @@ export default function RequestsPage() {
   };
 
   const getCombinedBadgeText = (status: string, activeTab: string) => {
-    const direction = activeTab === "sent" ? "Sent" : "Received";
-    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
-    return `Care Request ${direction} • ${statusText}`;
+    // Simplified, user-friendly status messages
+    if (status === "PENDING") {
+      return activeTab === "sent" ? "Waiting for reply" : "Needs your response";
+    } else if (status === "ACCEPTED") {
+      return "Conversation started";
+    } else if (status === "DECLINED") {
+      return "Declined";
+    } else if (status === "COMPLETED") {
+      return "Completed";
+    }
+    return status;
   };
 
   const getStatusTooltip = (status: string, activeTab: string) => {
@@ -181,7 +189,7 @@ export default function RequestsPage() {
           </Link>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Consultation Requests</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">My Messages</h1>
 
         <div className="mb-6 border-b border-gray-200">
           <nav className="flex space-x-8">
@@ -212,8 +220,8 @@ export default function RequestsPage() {
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <p className="text-gray-600 mb-4">
               {activeTab === "sent"
-                ? "You haven't sent any consultation requests yet."
-                : "No consultation requests yet."}
+                ? "You haven't sent any messages yet."
+                : "No messages yet."}
             </p>
             {isFamily && activeTab === "sent" && (
               <Link
@@ -274,13 +282,13 @@ export default function RequestsPage() {
                         onClick={() => handleStatusUpdate(request.id, "ACCEPTED")}
                         className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm"
                       >
-                        Accept
+                        Yes, Let's Connect
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(request.id, "DECLINED")}
                         className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm"
                       >
-                        Decline
+                        No Thanks
                       </button>
                     </>
                   )}
@@ -288,7 +296,7 @@ export default function RequestsPage() {
                     href={`/dashboard/requests/${request.id}`}
                     className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-sm"
                   >
-                    View Details
+                    View Message
                   </Link>
                   <button
                     onClick={() => handleDelete(request.id)}

@@ -197,10 +197,17 @@ export default function RequestDetailPage() {
   };
 
   const getCombinedBadgeText = (requestType: string | undefined, isSender: boolean, status: string) => {
-    const type = requestType === 'HIRING' ? 'Employment Request' : 'Care Request';
-    const direction = isSender ? 'Sent' : 'Received';
-    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
-    return `${type} ${direction} • ${statusText}`;
+    // Simplified, user-friendly status messages
+    if (status === "PENDING") {
+      return isSender ? "Waiting for reply" : "Needs your response";
+    } else if (status === "ACCEPTED") {
+      return "Conversation started";
+    } else if (status === "DECLINED") {
+      return "Declined";
+    } else if (status === "COMPLETED") {
+      return "Completed";
+    }
+    return status;
   };
 
   const getStatusTooltip = (status: string, isSender: boolean) => {
@@ -216,7 +223,7 @@ export default function RequestDetailPage() {
       case "DECLINED":
         return "This request was declined. No further action is needed.";
       case "COMPLETED":
-        return "This consultation has been marked as completed.";
+        return "This conversation has been marked as completed.";
       default:
         return "";
     }
@@ -353,15 +360,15 @@ export default function RequestDetailPage() {
                     );
                   })()}
                 </div>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <div className="flex items-start gap-2">
-                    <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-yellow-800">Contact information is locked</p>
-                      <p className="text-xs text-yellow-700 mt-1">
-                        Full contact details will be available once both parties accept the consultation request.
+                      <p className="text-sm font-medium text-blue-800">Contact info will appear after you connect</p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        Once you both agree to connect, you'll be able to see phone numbers and email addresses.
                       </p>
                     </div>
                   </div>
@@ -378,13 +385,13 @@ export default function RequestDetailPage() {
                 onClick={() => handleStatusUpdate("ACCEPTED")}
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                Accept Request
+                Yes, Let's Connect
               </button>
               <button
                 onClick={() => handleStatusUpdate("DECLINED")}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
               >
-                Decline Request
+                No Thanks
               </button>
             </div>
           )}
@@ -408,35 +415,35 @@ export default function RequestDetailPage() {
             {request.status === "PENDING" && !isSender && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-yellow-800">
-                  <strong>Action needed:</strong> Review the request details above and accept or decline this consultation request. Once accepted, you can exchange messages and contact information will be unlocked.
+                  <strong>Action needed:</strong> Review the message above and decide if you'd like to connect. Once you accept, you can exchange messages and see contact information.
                 </p>
               </div>
             )}
             {request.status === "PENDING" && isSender && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-blue-800">
-                  <strong>Awaiting response:</strong> Your request has been sent. The other party will review and respond. You&apos;ll be notified when they accept or decline.
+                  <strong>Waiting for reply:</strong> Your message has been sent. You&apos;ll be notified when they respond.
                 </p>
               </div>
             )}
             {request.status === "ACCEPTED" && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-green-800">
-                  <strong>Request accepted!</strong> You can now exchange messages below. Contact information has been unlocked above. Continue the conversation to coordinate care details.
+                  <strong>Connected!</strong> You can now exchange messages below and see contact information above.
                 </p>
               </div>
             )}
             {request.status === "DECLINED" && (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-gray-700">
-                  <strong>Request declined:</strong> This consultation request was declined. The conversation is now closed.
+                  <strong>Declined:</strong> This conversation was declined and is now closed.
                 </p>
               </div>
             )}
             {request.status === "COMPLETED" && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-blue-800">
-                  <strong>Consultation completed:</strong> This consultation has been marked as complete. The conversation is now closed.
+                  <strong>Completed:</strong> This conversation has been marked as complete and is now closed.
                 </p>
               </div>
             )}

@@ -85,9 +85,17 @@ export default function HiringRequestsPage() {
   };
 
   const getCombinedBadgeText = (status: string, activeTab: string) => {
-    const direction = activeTab === 'sent' ? 'Sent' : 'Received';
-    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
-    return `Employment Request ${direction} • ${statusText}`;
+    // Simplified, user-friendly status messages for hiring/employment
+    if (status === 'PENDING') {
+      return activeTab === 'sent' ? 'Waiting for reply' : 'Needs your response';
+    } else if (status === 'ACCEPTED') {
+      return 'Conversation started';
+    } else if (status === 'DECLINED') {
+      return 'Declined';
+    } else if (status === 'COMPLETED') {
+      return 'Completed';
+    }
+    return status;
   };
 
   if (loading || status === 'loading') {

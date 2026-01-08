@@ -357,7 +357,7 @@ export default function MainNav() {
                         <>
                           {/* Has provider profile */}
                           <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Browse Care Requests
+                            Find Families
                           </Link>
                           <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Saved Families
@@ -402,7 +402,7 @@ export default function MainNav() {
                         <>
                           {/* No provider profile */}
                           <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Browse Care Requests
+                            Find Families
                           </Link>
                           <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Provider Profile
@@ -639,7 +639,7 @@ export default function MainNav() {
                         <>
                           {/* Has provider profile */}
                           <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Browse Care Requests
+                            Find Families
                           </Link>
                           <Link href="/provider/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Saved Families
@@ -684,7 +684,7 @@ export default function MainNav() {
                         <>
                           {/* No provider profile */}
                           <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Browse Care Requests
+                            Find Families
                           </Link>
                           <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Provider Profile
