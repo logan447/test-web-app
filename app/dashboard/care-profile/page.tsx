@@ -152,7 +152,8 @@ export default function CareProfilePage() {
           <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
             {/* Care Types Needed */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Care Types Needed</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">What type of help do you need?</h2>
+              <p className="text-sm text-gray-600 mb-3">Check all that apply</p>
               <div className="space-y-2">
                 {[
                   { value: "COMPANION_CARE", label: "Companion Care" },
@@ -241,31 +242,31 @@ export default function CareProfilePage() {
 
             {/* Budget */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Budget Range</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">What you can spend each month</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Minimum Budget ($/month)
+                    Minimum (per month)
                   </label>
                   <input
                     type="number"
                     name="budgetMin"
                     defaultValue={profile?.budgetMin || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="e.g., 2000"
+                    placeholder="Example: $2,000"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Maximum Budget ($/month)
+                    Maximum (per month)
                   </label>
                   <input
                     type="number"
                     name="budgetMax"
                     defaultValue={profile?.budgetMax || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="e.g., 5000"
+                    placeholder="Example: $5,000"
                   />
                 </div>
               </div>
@@ -277,40 +278,40 @@ export default function CareProfilePage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Timeline
+                    When do you need help to start?
                   </label>
                   <input
                     type="text"
                     name="timeline"
                     defaultValue={profile?.timeline || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="e.g., Immediate, Within 2 weeks, Within 1 month"
+                    placeholder="Examples: Right away, In 2 weeks, Next month"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Insurance
+                    Do you have insurance coverage?
                   </label>
                   <input
                     type="text"
                     name="insurance"
                     defaultValue={profile?.insurance || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="e.g., Medicare, Medicaid, Private Insurance"
+                    placeholder="Examples: Medicare, Medicaid, Private insurance, or None"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description & Special Needs
+                    Tell us about your loved one
                   </label>
                   <textarea
                     name="description"
                     rows={4}
                     defaultValue={profile?.description || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="Tell providers about your loved one's needs, preferences, or special requirements..."
+                    placeholder="Share information about their needs, personality, or preferences that would help caregivers provide the best care..."
                   />
                 </div>
               </div>
@@ -318,7 +319,7 @@ export default function CareProfilePage() {
 
             {/* Profile Visibility */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile Visibility</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Who can see your information?</h2>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <label className="flex items-start space-x-3 cursor-pointer">
                   <input
@@ -329,11 +330,11 @@ export default function CareProfilePage() {
                   />
                   <div className="flex-1">
                     <span className="block text-sm font-medium text-gray-900">
-                      Make my profile visible to all providers
+                      Let caregivers find and message me
                     </span>
                     <p className="text-sm text-gray-600 mt-1">
-                      When enabled, providers can discover and reach out to you through the Browse Care Requests page.
-                      When disabled, only providers you directly contact will see your profile.
+                      When checked, caregivers can see your profile and send you messages.
+                      When unchecked, only caregivers you contact can see your information.
                     </p>
                   </div>
                 </label>

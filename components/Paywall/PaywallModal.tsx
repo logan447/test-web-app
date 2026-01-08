@@ -13,16 +13,15 @@ interface PaywallModalProps {
 
 const TIER_INFO = {
   PRO: {
-    name: 'Provider Membership',
+    name: 'Connect with More Families',
     price: '$25',
     period: '/month',
     features: [
-      'Send and receive consultation requests',
-      'Send and receive hiring requests',
-      'Connect with families seeking care',
-      'Connect with caregivers and organizations',
-      'Save unlimited requests',
-      'Email support',
+      'Message unlimited families',
+      'Connect with job opportunities',
+      'See contact information when accepted',
+      'Save your favorite connections',
+      'Get help when you need it',
     ],
   },
 };
@@ -52,9 +51,9 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade }: PaywallModa
         {/* Header */}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Provider Membership Required</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Start Connecting Today</h2>
             <p className="text-gray-600 mt-1">
-              Subscribe to connect with families and other providers
+              Send unlimited messages for $25 per month
             </p>
           </div>
           <button
@@ -77,7 +76,7 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade }: PaywallModa
                   <span className="text-5xl font-bold text-gray-900">{TIER_INFO.PRO.price}</span>
                   <span className="text-gray-600 ml-2 text-lg">{TIER_INFO.PRO.period}</span>
                 </div>
-                <p className="text-sm text-gray-600">Everything you need to connect and grow</p>
+                <p className="text-sm text-gray-600">Start connecting with families today</p>
               </div>
 
               <ul className="space-y-4">
@@ -104,10 +103,10 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade }: PaywallModa
           </div>
 
           {/* Demo Mode Notice */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex">
               <svg
-                className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0"
+                className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -120,10 +119,9 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade }: PaywallModa
                 />
               </svg>
               <div>
-                <h4 className="text-sm font-medium text-yellow-800">Demo Mode</h4>
-                <p className="text-sm text-yellow-700 mt-1">
-                  This is a demonstration. Your subscription will be activated instantly without payment.
-                  Real payment integration coming soon.
+                <h4 className="text-sm font-medium text-blue-800">Testing Mode</h4>
+                <p className="text-sm text-blue-700 mt-1">
+                  This is a free demo. No payment required - you can try all features right now.
                 </p>
               </div>
             </div>
@@ -136,7 +134,7 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade }: PaywallModa
               disabled={upgrading}
               className="flex-1 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
             >
-              {upgrading ? 'Activating...' : 'Subscribe for $25/month'}
+              {upgrading ? 'Activating...' : 'Get Started'}
             </button>
             <button
               onClick={onClose}
