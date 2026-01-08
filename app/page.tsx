@@ -15,6 +15,8 @@ import ActiveFilters from "@/components/Directory/ActiveFilters";
 import ResultsHeader from "@/components/Directory/ResultsHeader";
 import EmptyState from "@/components/Directory/EmptyState";
 import ErrorState from "@/components/Directory/ErrorState";
+import TrustFooter from "@/components/Directory/TrustFooter";
+import ScrollToTop from "@/components/Directory/ScrollToTop";
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import("@/components/Directory/MapView"), {
@@ -479,6 +481,12 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Trust Footer */}
+      <TrustFooter />
+
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   );
 }
