@@ -10,6 +10,7 @@ import ProviderProfileCompleteness from "@/components/ProviderProfile/ProviderPr
 import CareServicesSection, { CareServicesData } from "@/components/ProviderProfile/CareServicesSection";
 import PricingStructureSection, { PricingStructureData } from "@/components/ProviderProfile/PricingStructureSection";
 import AmenitiesFeaturesSection, { AmenitiesFeaturesData } from "@/components/ProviderProfile/AmenitiesFeaturesSection";
+import StaffInformationSection, { StaffInformationData } from "@/components/ProviderProfile/StaffInformationSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -275,6 +276,21 @@ export default function ProviderProfilePage() {
     activitiesPrograms: [],
     dietaryOptions: [],
   });
+
+  // Staff Information (Sprint 6)
+  const [staffInformation, setStaffInformation] = useState<StaffInformationData>({
+    daytimeRatio: "",
+    eveningRatio: "",
+    nightRatio: "",
+    credentials: [],
+    staffTrainingDescription: "",
+    hasOnCallPhysician: false,
+    hasPharmacyPartnership: false,
+    visitingDoctorFrequency: "",
+    languagesSpoken: [],
+  });
+
+  // Legacy staff state (kept for backward compatibility)
   const [staffToResidentRatio, setStaffToResidentRatio] = useState<string>("");
   const [hasRNOnSite, setHasRNOnSite] = useState(false);
   const [hasLVNOnSite, setHasLVNOnSite] = useState(false);
@@ -367,6 +383,21 @@ export default function ProviderProfilePage() {
           activitiesPrograms: data.activitiesOffered || [],
           dietaryOptions: data.dietaryOptions || [],
         });
+
+        // Initialize staff information (Sprint 6 - backward compatible)
+        setStaffInformation({
+          daytimeRatio: data.daytimeStaffRatio || "",
+          eveningRatio: data.eveningStaffRatio || "",
+          nightRatio: data.nightStaffRatio || "",
+          credentials: data.staffCredentials || [],
+          staffTrainingDescription: data.staffTrainingDescription || "",
+          hasOnCallPhysician: data.hasOnCallPhysician || false,
+          hasPharmacyPartnership: data.hasPharmacyPartnership || false,
+          visitingDoctorFrequency: data.visitingDoctorFrequency || "",
+          languagesSpoken: data.languagesSpoken || [],
+        });
+
+        // Legacy staff state (kept for backward compatibility)
         setStaffToResidentRatio(data.staffToResidentRatio || "");
         setHasRNOnSite(data.hasRNOnSite || false);
         setHasLVNOnSite(data.hasLVNOnSite || false);
@@ -458,13 +489,22 @@ export default function ProviderProfilePage() {
       medicalServices: selectedMedicalServices, // Keep for backward compatibility
       activitiesOffered: amenitiesFeatures.activitiesPrograms,
       dietaryOptions: amenitiesFeatures.dietaryOptions,
+      // Staff Information (Sprint 6)
+      daytimeStaffRatio: staffInformation.daytimeRatio || null,
+      eveningStaffRatio: staffInformation.eveningRatio || null,
+      nightStaffRatio: staffInformation.nightRatio || null,
+      staffCredentials: staffInformation.credentials,
+      staffTrainingDescription: staffInformation.staffTrainingDescription || null,
+      hasOnCallPhysician: staffInformation.hasOnCallPhysician,
+      hasPharmacyPartnership: staffInformation.hasPharmacyPartnership,
+      visitingDoctorFrequency: staffInformation.visitingDoctorFrequency || null,
+      languagesSpoken: staffInformation.languagesSpoken,
+      // Legacy staff fields (kept for backward compatibility)
       staffToResidentRatio: staffToResidentRatio || null,
       hasRNOnSite: hasRNOnSite,
       hasLVNOnSite: hasLVNOnSite,
       allStaffBackgroundChecked: allStaffBackgroundChecked,
-      visitingDoctorFrequency: visitingDoctorFrequency || null,
       caregiverTraining: selectedCaregiverTraining,
-      languagesSpoken: selectedLanguages,
       latitude: latitude ? parseFloat(latitude) : null,
       longitude: longitude ? parseFloat(longitude) : null,
       neighborhoodDescription: neighborhoodDescription || null,
@@ -656,7 +696,17 @@ export default function ProviderProfilePage() {
     },
     {
       label: "Staff Information",
-      completed: !!(staffToResidentRatio || hasRNOnSite || hasLVNOnSite || selectedCaregiverTraining.length > 0),
+      completed: !!(
+        staffInformation.daytimeRatio ||
+        staffInformation.eveningRatio ||
+        staffInformation.nightRatio ||
+        staffInformation.credentials.length > 0 ||
+        staffInformation.staffTrainingDescription ||
+        staffInformation.visitingDoctorFrequency ||
+        staffInformation.hasOnCallPhysician ||
+        staffInformation.hasPharmacyPartnership ||
+        staffInformation.languagesSpoken.length > 0
+      ),
       required: false,
     },
     {
@@ -1305,117 +1355,22 @@ export default function ProviderProfilePage() {
               />
             </div>
 
-            {/* Staff & Care Information Section */}
+            {/* Staff & Care Information Section (Sprint 6) */}
             <div className="border-t pt-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Staff & Care Information</h3>
               <p className="text-sm text-gray-600 mb-4">
-                Help families understand your staffing and care approach.
+                Provide detailed information about your staff qualifications, training, and care approach. This helps families make informed decisions.
               </p>
 
-              {/* Staff to Resident Ratio */}
-              <div className="mb-6">
-                <label htmlFor="staffRatio" className="block text-sm font-medium text-gray-700 mb-2">
-                  Staff-to-Resident Ratio (e.g., 1:5, 1:8)
-                </label>
-                <input
-                  type="text"
-                  id="staffRatio"
-                  value={staffToResidentRatio}
-                  onChange={(e) => setStaffToResidentRatio(e.target.value)}
-                  placeholder="1:5"
-                  className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-
-              {/* Medical Staff */}
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-800 mb-3">Medical Staff On-Site</h4>
-                <div className="space-y-3">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={hasRNOnSite}
-                      onChange={(e) => setHasRNOnSite(e.target.checked)}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">Registered Nurse (RN) On-Site</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={hasLVNOnSite}
-                      onChange={(e) => setHasLVNOnSite(e.target.checked)}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">Licensed Vocational Nurse (LVN) On-Site</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={allStaffBackgroundChecked}
-                      onChange={(e) => setAllStaffBackgroundChecked(e.target.checked)}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">All Staff Background Checked</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Visiting Doctor Frequency */}
-              <div className="mb-6">
-                <label htmlFor="doctorFrequency" className="block text-sm font-medium text-gray-700 mb-2">
-                  Visiting Doctor Frequency
-                </label>
-                <select
-                  id="doctorFrequency"
-                  value={visitingDoctorFrequency}
-                  onChange={(e) => setVisitingDoctorFrequency(e.target.value)}
-                  className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                  <option value="">Select frequency</option>
-                  {VISITING_DOCTOR_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Caregiver Training */}
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-800 mb-3">Staff Training & Certifications</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {CAREGIVER_TRAINING.map((training) => (
-                    <label key={training} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedCaregiverTraining.includes(training)}
-                        onChange={() => toggleCaregiverTraining(training)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{training}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Languages Spoken */}
-              <div>
-                <h4 className="text-md font-medium text-gray-800 mb-3">Languages Spoken by Staff</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {LANGUAGES.map((language) => (
-                    <label key={language} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedLanguages.includes(language)}
-                        onChange={() => toggleLanguage(language)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{language}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <StaffInformationSection
+                data={staffInformation}
+                onChange={(newData) => {
+                  setStaffInformation(newData);
+                  // Keep old state in sync for backward compatibility
+                  setVisitingDoctorFrequency(newData.visitingDoctorFrequency);
+                  setSelectedLanguages(newData.languagesSpoken);
+                }}
+              />
             </div>
 
             {/* Location & Neighborhood Section */}

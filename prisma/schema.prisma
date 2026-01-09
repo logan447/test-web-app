@@ -280,13 +280,22 @@ model Provider {
   medicalAmenities       String[] @default([])  // Medical amenities (exam room, therapy room, nurse station, etc.)
 
   // Staff & Care Information
-  staffToResidentRatio     String?   // e.g., "1:5" or "1:8"
-  hasRNOnSite              Boolean   @default(false)  // Registered Nurse on-site
-  hasLVNOnSite             Boolean   @default(false)  // Licensed Vocational Nurse on-site
-  allStaffBackgroundChecked Boolean  @default(false)  // All staff background checked
+  staffToResidentRatio     String?   // e.g., "1:5" or "1:8" (legacy - kept for backward compatibility)
+  hasRNOnSite              Boolean   @default(false)  // Registered Nurse on-site (legacy)
+  hasLVNOnSite             Boolean   @default(false)  // Licensed Vocational Nurse on-site (legacy)
+  allStaffBackgroundChecked Boolean  @default(false)  // All staff background checked (legacy)
   visitingDoctorFrequency  String?   // e.g., "Weekly", "Bi-weekly", "Monthly"
-  caregiverTraining        String[]  @default([])    // Training certifications (CPR, First Aid, etc.)
+  caregiverTraining        String[]  @default([])    // Training certifications (CPR, First Aid, etc.) (legacy)
   languagesSpoken          String[]  @default([])    // Languages staff can speak
+
+  // Enhanced Staff Information (Sprint 6)
+  daytimeStaffRatio        String?   // Daytime (6am-2pm) staff-to-resident ratio e.g., "1:5"
+  eveningStaffRatio        String?   // Evening (2pm-10pm) staff-to-resident ratio e.g., "1:6"
+  nightStaffRatio          String?   // Night (10pm-6am) staff-to-resident ratio e.g., "1:8"
+  staffCredentials         String[]  @default([])    // Staff credentials (rn, lvn, cna, memory_care_specialist, etc.)
+  staffTrainingDescription String?   // Detailed description of staff training programs
+  hasOnCallPhysician       Boolean   @default(false) // 24/7 on-call physician available
+  hasPharmacyPartnership   Boolean   @default(false) // Partnership with pharmacy for medication management
 
   // Location & Neighborhood
   latitude              Float?    // Geographic latitude for map display
