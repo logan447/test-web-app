@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       mode,
-      landingPage: mode === 'PROVIDER' ? '/provider/requests' : '/providers'
+      landingPage: mode === 'PROVIDER' ? '/provider/dashboard' : '/dashboard'
     });
 
   } catch (error) {

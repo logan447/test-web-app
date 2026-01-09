@@ -174,9 +174,9 @@ export default function MainNav() {
       // Show success toast
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Redirect to appropriate landing page
-      router.push(data.landingPage);
-      router.refresh();
+      // Force full page reload to ensure session is completely refreshed
+      // This prevents mode bleeding issues with cached session data
+      window.location.href = data.landingPage;
 
     } catch (error) {
       console.error('Error switching mode:', error);
