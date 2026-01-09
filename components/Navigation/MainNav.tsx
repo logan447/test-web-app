@@ -370,6 +370,9 @@ export default function MainNav() {
                               </span>
                             )}
                           </Link>
+                          <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            My Dashboard
+                          </Link>
                           <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Provider Profile
                           </Link>
@@ -651,6 +654,9 @@ export default function MainNav() {
                                 {unreadCount > 9 ? '9+' : unreadCount}
                               </span>
                             )}
+                          </Link>
+                          <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            My Dashboard
                           </Link>
                           <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Provider Profile

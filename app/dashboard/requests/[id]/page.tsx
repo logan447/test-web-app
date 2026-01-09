@@ -17,13 +17,14 @@ import FileAttachment, { Attachment } from "@/components/Messaging/FileAttachmen
 import AttachmentGallery from "@/components/Messaging/AttachmentGallery";
 import QuickRepliesBar from "@/components/Messaging/QuickRepliesBar";
 import TourProposal from "@/components/Messaging/TourProposal";
-import TourScheduler from "@/components/Messaging/TourScheduler";
+import ToursSection from "@/components/Messaging/ToursSection";
 import RichTextInput from "@/components/Messaging/RichTextInput";
 import MessageSearch, { SearchFilters } from "@/components/Messaging/MessageSearch";
 import ConversationExport from "@/components/Messaging/ConversationExport";
 import NotificationSettings, { NotificationSettingsData } from "@/components/Messaging/NotificationSettings";
 import SmartNotificationBanner, { SmartNotification } from "@/components/Messaging/SmartNotificationBanner";
 import VideoCallButton from "@/components/Messaging/VideoCallButton";
+import { ProviderType } from "@prisma/client";
 
 type ConsultRequest = {
   id: string;
@@ -34,7 +35,7 @@ type ConsultRequest = {
   provider: {
     id: string;
     name: string;
-    providerType: string;
+    providerType: ProviderType;
     city: string;
     state: string;
     email: string;
@@ -103,8 +104,6 @@ export default function RequestDetailPage() {
   const [galleryIndex, setGalleryIndex] = useState(0);
 
   // Tour scheduling
-  const [showTourScheduler, setShowTourScheduler] = useState(false);
-  const [tourProposing, setTourProposing] = useState(false);
 
   // Message search
   const [showSearch, setShowSearch] = useState(false);
@@ -321,7 +320,6 @@ export default function RequestDetailPage() {
 
   // Handle tour proposal
   const handleProposeTour = async (date: Date, time: string, notes?: string) => {
-    setTourProposing(true);
     try {
       const response = await fetch(`/api/requests/${params.id}/tours`, {
         method: "POST",
@@ -334,7 +332,6 @@ export default function RequestDetailPage() {
       });
 
       if (response.ok) {
-        setShowTourScheduler(false);
         fetchRequest(); // Refresh to show new tour
         showToast.success("Tour proposal sent!");
       } else {
@@ -343,8 +340,6 @@ export default function RequestDetailPage() {
     } catch (err) {
       console.error("Error proposing tour:", err);
       showToast.error("Failed to propose tour");
-    } finally {
-      setTourProposing(false);
     }
   };
 
@@ -888,6 +883,20 @@ export default function RequestDetailPage() {
           )}
         </div>
 
+        {/* Tours Section */}
+        <div className="mb-6">
+          <ToursSection
+            requestId={request.id}
+            providerType={request.provider.providerType}
+            tours={request.tourAppointments || []}
+            currentUserId={session?.user?.id || ""}
+            isProvider={!isFamily}
+            onProposeTour={handleProposeTour}
+            onAcceptTour={handleAcceptTour}
+            onDeclineTour={handleDeclineTour}
+          />
+        </div>
+
         {/* Messages */}
         <div
           className="bg-white rounded-lg shadow flex flex-col overflow-hidden"
@@ -1185,56 +1194,16 @@ export default function RequestDetailPage() {
               </div>
             )}
 
-            {/* Tour Scheduler */}
-            {showTourScheduler && (
-              <div className="mb-3">
-                <TourScheduler
-                  onPropose={handleProposeTour}
-                  onCancel={() => setShowTourScheduler(false)}
-                  disabled={tourProposing}
-                />
-              </div>
-            )}
-
-            {/* Tour Scheduler Button, Video Call Button & Quick Replies */}
+            {/* Video Call Button & Quick Replies */}
             {request.status !== "DECLINED" && request.status !== "COMPLETED" && (
               <div className="space-y-3">
-                {/* Action Buttons Row */}
-                {!showTourScheduler && (
-                  <div className="mb-3 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowTourScheduler(true)}
-                      className="
-                        inline-flex items-center gap-2
-                        px-4 py-2
-                        bg-primary-600 text-white
-                        rounded-lg
-                        hover:bg-primary-700
-                        active:bg-primary-800
-                        transition-colors
-                        font-medium text-sm
-                        shadow-sm
-                      "
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      Schedule a Tour
-                    </button>
-
-                    {/* Video Call Button */}
-                    {request.status === "ACCEPTED" && (
-                      <VideoCallButton
-                        onStartCall={handleStartVideoCall}
-                        disabled={false}
-                      />
-                    )}
+                {/* Video Call Button */}
+                {request.status === "ACCEPTED" && (
+                  <div className="mb-3">
+                    <VideoCallButton
+                      onStartCall={handleStartVideoCall}
+                      disabled={false}
+                    />
                   </div>
                 )}
 

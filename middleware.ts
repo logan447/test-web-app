@@ -24,28 +24,40 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protect family-specific dashboard routes - require FAMILY mode
-  if (pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard/requests')) {
+  // Protect family dashboard - redirect to provider dashboard if in PROVIDER mode
+  if (pathname === '/dashboard') {
     if (!token) {
       // Not logged in - redirect to login
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // Allow access to shared routes like /dashboard/requests/[id]
-    // These are accessible from both modes
-    const sharedRoutes = ['/dashboard/provider-profile'];
-    const isSharedRoute = sharedRoutes.some(route => pathname.startsWith(route));
+    const activeMode = token.activeMode || token.role;
+    if (activeMode === 'PROVIDER') {
+      // User is in PROVIDER mode, redirect to provider dashboard
+      return NextResponse.redirect(new URL('/provider/dashboard', request.url));
+    }
+  }
 
-    if (!isSharedRoute) {
-      const activeMode = token.activeMode || token.role;
-      if (activeMode === 'PROVIDER' && pathname === '/dashboard') {
-        // Provider in FAMILY mode trying to access family dashboard
-        // Allow it since they might have dual roles
-        // But if they're only PROVIDER, redirect to provider dashboard
-        if (token.role === 'PROVIDER' && !token.dualRole) {
-          return NextResponse.redirect(new URL('/provider/dashboard', request.url));
-        }
-      }
+  // Allow access to shared routes regardless of mode
+  const sharedRoutes = ['/dashboard/requests', '/dashboard/provider-profile'];
+  const isSharedRoute = sharedRoutes.some(route => pathname.startsWith(route));
+  if (isSharedRoute) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    // Allow access from either mode
+    return NextResponse.next();
+  }
+
+  // Protect other family-specific dashboard routes
+  if (pathname.startsWith('/dashboard')) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    const activeMode = token.activeMode || token.role;
+    if (activeMode === 'PROVIDER') {
+      // Provider mode users should use provider-specific routes
+      return NextResponse.redirect(new URL('/provider/dashboard', request.url));
     }
   }
 
