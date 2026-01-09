@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -187,6 +188,11 @@ export default function DashboardPage() {
               </Link>
             )}
           </div>
+        </div>
+
+        {/* Profile Completion Widget */}
+        <div className="mb-8">
+          <ProfileCompletionWidget />
         </div>
 
         {/* Stats Grid */}

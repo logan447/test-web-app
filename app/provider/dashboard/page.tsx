@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -159,6 +160,11 @@ export default function ProviderDashboardPage() {
           <p className="text-gray-600 mt-2">
             Connect with families who need your services
           </p>
+        </div>
+
+        {/* Profile Completion Widget */}
+        <div className="mb-8">
+          <ProfileCompletionWidget />
         </div>
 
         {/* Stats Grid */}
