@@ -15,6 +15,7 @@ import TypingIndicator from "@/components/Messaging/TypingIndicator";
 import OnlineStatus from "@/components/Messaging/OnlineStatus";
 import FileAttachment, { Attachment } from "@/components/Messaging/FileAttachment";
 import AttachmentGallery from "@/components/Messaging/AttachmentGallery";
+import QuickRepliesBar from "@/components/Messaging/QuickRepliesBar";
 
 type ConsultRequest = {
   id: string;
@@ -269,6 +270,11 @@ export default function RequestDetailPage() {
     setGalleryImages(images);
     setGalleryIndex(imageIndex);
     setGalleryOpen(true);
+  };
+
+  // Handle quick reply selection
+  const handleQuickReply = (text: string) => {
+    setNewMessage(text);
   };
 
   const handleStatusUpdate = async (newStatus: string) => {
@@ -712,6 +718,15 @@ export default function RequestDetailPage() {
                   </div>
                 ))}
               </div>
+            )}
+
+            {/* Quick Replies */}
+            {request.status !== "DECLINED" && request.status !== "COMPLETED" && (
+              <QuickRepliesBar
+                onSelectReply={handleQuickReply}
+                userRole={isFamily ? "FAMILY" : "PROVIDER"}
+                disabled={false}
+              />
             )}
 
             <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
