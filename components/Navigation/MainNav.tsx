@@ -176,7 +176,8 @@ export default function MainNav() {
 
       // Wait a brief moment to ensure the JWT cookie is written to the browser
       // before triggering the page reload. This prevents middleware from seeing stale tokens.
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Increased to 200ms to ensure reliability across different network conditions.
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       // Force full page reload to ensure session is completely refreshed
       // This prevents mode bleeding issues with cached session data
@@ -377,9 +378,6 @@ export default function MainNav() {
                           <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             My Dashboard
                           </Link>
-                          <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Provider Profile
-                          </Link>
 
                           {/* Hiring section divider */}
                           <div className="border-t border-gray-200 my-1"></div>
@@ -411,8 +409,8 @@ export default function MainNav() {
                           <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
-                          <Link href="/dashboard/provider-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Provider Profile
+                          <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            My Dashboard
                           </Link>
                         </>
                       )}
@@ -662,9 +660,6 @@ export default function MainNav() {
                           <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             My Dashboard
                           </Link>
-                          <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Provider Profile
-                          </Link>
 
                           {/* Hiring section divider */}
                           <div className="border-t border-gray-200 my-2"></div>
@@ -696,8 +691,8 @@ export default function MainNav() {
                           <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
-                          <Link href="/dashboard/provider-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Provider Profile
+                          <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            My Dashboard
                           </Link>
                         </>
                       )}
