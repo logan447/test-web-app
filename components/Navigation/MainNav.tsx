@@ -450,7 +450,7 @@ export default function MainNav() {
                         {switchingMode ? 'Switching...' : 'For Providers'}
                       </button>
                     )}
-                    <Link href="/dashboard/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Settings
                     </Link>
                   </div>
@@ -738,7 +738,7 @@ export default function MainNav() {
                       {switchingMode ? 'Switching...' : 'For Providers'}
                     </button>
                   )}
-                  <Link href="/dashboard/settings" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/settings" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                     Settings
                   </Link>
                   <div className="border-t border-gray-200 my-2"></div>
