@@ -347,8 +347,8 @@ export default function MainNav() {
 
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                   <div className="px-4 py-2 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
-                    <p className="text-xs text-gray-500">{session.user?.email}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{session.user?.name}</p>
+                    <p className="text-xs text-gray-500 break-words">{session.user?.email}</p>
                   </div>
                   {isProviderMode ? (
                     <>

@@ -45,13 +45,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Access control: Family dashboard only accessible in FAMILY mode
-    const activeMode = session.user.activeMode || session.user.role;
-    if (activeMode === "PROVIDER") {
-      router.push("/provider/dashboard");
-      return;
-    }
-
     // Fetch dashboard data
     fetchDashboardData();
   }, [session, status, router]);

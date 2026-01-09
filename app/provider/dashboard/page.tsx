@@ -45,13 +45,6 @@ export default function ProviderDashboardPage() {
       return;
     }
 
-    // Access control: Provider dashboard only accessible in PROVIDER mode
-    const activeMode = session.user.activeMode || session.user.role;
-    if (activeMode === "FAMILY") {
-      router.push("/dashboard");
-      return;
-    }
-
     // Fetch dashboard data
     fetchDashboardData();
   }, [session, status, router]);

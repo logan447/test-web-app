@@ -26,6 +26,9 @@ export const authOptions: NextAuthOptions = {
           where: {
             email: credentials.email,
           },
+          include: {
+            provider: true,
+          },
         });
 
         if (!user || !user.passwordHash) {
@@ -41,12 +44,64 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        // Auto-set default mode to PROVIDER if they have a provider profile with 15%+ completion
+        let activeMode = user.activeMode;
+        if (user.provider && user.role === 'PROVIDER') {
+          const provider = user.provider;
+
+          // Calculate provider profile completion
+          let completedSections = 0;
+          const totalSections = 6;
+
+          // 1. Basic Info
+          if (provider.name && provider.description && provider.email && provider.phone) {
+            completedSections++;
+          }
+
+          // 2. Services & Amenities
+          if (provider.roomFeatures && Array.isArray(provider.roomFeatures) && provider.roomFeatures.length > 0) {
+            completedSections++;
+          }
+
+          // 3. Photos
+          if (provider.photos && Array.isArray(provider.photos) && provider.photos.length >= 5) {
+            completedSections++;
+          }
+
+          // 4. Licensing
+          if (provider.licensed && provider.licenseNumber) {
+            completedSections++;
+          }
+
+          // 5. Pricing
+          if (provider.priceMin && provider.priceMax) {
+            completedSections++;
+          }
+
+          // 6. Staff Info
+          if (provider.staffToResidentRatio) {
+            completedSections++;
+          }
+
+          const completionPercentage = Math.round((completedSections / totalSections) * 100);
+
+          // If profile is 15%+ complete and current mode is FAMILY, switch to PROVIDER
+          if (completionPercentage >= 15 && activeMode === 'FAMILY') {
+            activeMode = 'PROVIDER';
+            // Update in database for future logins
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { activeMode: 'PROVIDER' },
+            });
+          }
+        }
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role,
-          activeMode: user.activeMode,
+          activeMode: activeMode,
         };
       },
     }),
