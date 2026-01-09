@@ -849,6 +849,30 @@ export default function ProviderProfilePage() {
       ),
       required: false,
     },
+    {
+      label: "About Us (Facility Story & Mission)",
+      completed: !!(
+        aboutUs.establishedYear ||
+        aboutUs.facilityHistory ||
+        aboutUs.missionStatement ||
+        aboutUs.whatMakesUsUnique
+      ),
+      required: false,
+    },
+    {
+      label: "Meet the Team (Staff Profiles)",
+      completed: meetTheTeam.teamMembers.length > 0,
+      required: false,
+    },
+    {
+      label: "Virtual Tour & Media",
+      completed: !!(
+        virtualTour.virtualTourUrl ||
+        virtualTour.brochureUrl ||
+        virtualTour.floorPlanUrls.length > 0
+      ),
+      required: false,
+    },
   ];
 
   if (loading || status === "loading") {
