@@ -275,6 +275,10 @@ model Provider {
   activitiesOffered String[]     @default([])  // Activities (arts, music, exercise, etc.)
   dietaryOptions    String[]     @default([])  // Meal options (vegetarian, diabetic-friendly, etc.)
 
+  // Enhanced Amenities & Features (Sprint 5)
+  safetySecurityFeatures String[] @default([])  // Safety features (24/7 monitoring, secured entries, etc.)
+  medicalAmenities       String[] @default([])  // Medical amenities (exam room, therapy room, nurse station, etc.)
+
   // Staff & Care Information
   staffToResidentRatio     String?   // e.g., "1:5" or "1:8"
   hasRNOnSite              Boolean   @default(false)  // Registered Nurse on-site

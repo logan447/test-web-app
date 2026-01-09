@@ -9,6 +9,7 @@ import EnhancedPhotoUpload, { PhotoMetadata } from "@/components/Gallery/Enhance
 import ProviderProfileCompleteness from "@/components/ProviderProfile/ProviderProfileCompleteness";
 import CareServicesSection, { CareServicesData } from "@/components/ProviderProfile/CareServicesSection";
 import PricingStructureSection, { PricingStructureData } from "@/components/ProviderProfile/PricingStructureSection";
+import AmenitiesFeaturesSection, { AmenitiesFeaturesData } from "@/components/ProviderProfile/AmenitiesFeaturesSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -266,6 +267,14 @@ export default function ProviderProfilePage() {
   const [selectedMedicalServices, setSelectedMedicalServices] = useState<string[]>([]);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [selectedDietaryOptions, setSelectedDietaryOptions] = useState<string[]>([]);
+  const [amenitiesFeatures, setAmenitiesFeatures] = useState<AmenitiesFeaturesData>({
+    roomFeatures: [],
+    commonAreas: [],
+    safetySecurityFeatures: [],
+    medicalAmenities: [],
+    activitiesPrograms: [],
+    dietaryOptions: [],
+  });
   const [staffToResidentRatio, setStaffToResidentRatio] = useState<string>("");
   const [hasRNOnSite, setHasRNOnSite] = useState(false);
   const [hasLVNOnSite, setHasLVNOnSite] = useState(false);
@@ -349,6 +358,15 @@ export default function ProviderProfilePage() {
         setSelectedMedicalServices(data.medicalServices || []);
         setSelectedActivities(data.activitiesOffered || []);
         setSelectedDietaryOptions(data.dietaryOptions || []);
+        // Initialize amenities features (Sprint 5 - backward compatible)
+        setAmenitiesFeatures({
+          roomFeatures: data.roomFeatures || [],
+          commonAreas: data.commonAreas || [],
+          safetySecurityFeatures: data.safetySecurityFeatures || [],
+          medicalAmenities: data.medicalAmenities || [],
+          activitiesPrograms: data.activitiesOffered || [],
+          dietaryOptions: data.dietaryOptions || [],
+        });
         setStaffToResidentRatio(data.staffToResidentRatio || "");
         setHasRNOnSite(data.hasRNOnSite || false);
         setHasLVNOnSite(data.hasLVNOnSite || false);
@@ -432,11 +450,14 @@ export default function ProviderProfilePage() {
       waitlistAvailable: waitlistAvailable,
       photos: photoMetadata.map(p => p.url), // Convert PhotoMetadata[] to string[]
       coverPhoto: coverPhoto,
-      roomFeatures: selectedRoomFeatures,
-      commonAreas: selectedCommonAreas,
-      medicalServices: selectedMedicalServices,
-      activitiesOffered: selectedActivities,
-      dietaryOptions: selectedDietaryOptions,
+      // Amenities & features (Sprint 5)
+      roomFeatures: amenitiesFeatures.roomFeatures,
+      commonAreas: amenitiesFeatures.commonAreas,
+      safetySecurityFeatures: amenitiesFeatures.safetySecurityFeatures,
+      medicalAmenities: amenitiesFeatures.medicalAmenities,
+      medicalServices: selectedMedicalServices, // Keep for backward compatibility
+      activitiesOffered: amenitiesFeatures.activitiesPrograms,
+      dietaryOptions: amenitiesFeatures.dietaryOptions,
       staffToResidentRatio: staffToResidentRatio || null,
       hasRNOnSite: hasRNOnSite,
       hasLVNOnSite: hasLVNOnSite,
@@ -622,28 +643,15 @@ export default function ProviderProfilePage() {
       required: false,
     },
     {
-      label: "Room Features",
-      completed: selectedRoomFeatures.length > 0,
-      required: false,
-    },
-    {
-      label: "Common Areas & Amenities",
-      completed: selectedCommonAreas.length > 0,
-      required: false,
-    },
-    {
-      label: "Medical Services",
-      completed: selectedMedicalServices.length > 0,
-      required: false,
-    },
-    {
-      label: "Activities & Programs",
-      completed: selectedActivities.length > 0,
-      required: false,
-    },
-    {
-      label: "Dietary Options",
-      completed: selectedDietaryOptions.length > 0,
+      label: "Amenities & Features",
+      completed: (
+        amenitiesFeatures.roomFeatures.length > 0 ||
+        amenitiesFeatures.commonAreas.length > 0 ||
+        amenitiesFeatures.safetySecurityFeatures.length > 0 ||
+        amenitiesFeatures.medicalAmenities.length > 0 ||
+        amenitiesFeatures.activitiesPrograms.length > 0 ||
+        amenitiesFeatures.dietaryOptions.length > 0
+      ),
       required: false,
     },
     {
@@ -1282,102 +1290,19 @@ export default function ProviderProfilePage() {
               />
             </div>
 
-            {/* Amenities & Services Section */}
+            {/* Amenities & Features Section (Sprint 5) */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Amenities & Services</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Help families understand what makes your facility special by selecting all amenities and services you offer.
-              </p>
-
-              {/* Room Features */}
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-800 mb-3">Room Features</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {ROOM_FEATURES.map((feature) => (
-                    <label key={feature} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedRoomFeatures.includes(feature)}
-                        onChange={() => toggleRoomFeature(feature)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{feature}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Common Areas */}
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-800 mb-3">Common Areas</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {COMMON_AREAS.map((area) => (
-                    <label key={area} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedCommonAreas.includes(area)}
-                        onChange={() => toggleCommonArea(area)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{area}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Medical Services */}
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-800 mb-3">Medical Services</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {MEDICAL_SERVICES.map((service) => (
-                    <label key={service} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedMedicalServices.includes(service)}
-                        onChange={() => toggleMedicalService(service)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{service}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Activities */}
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-800 mb-3">Activities & Programs</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {ACTIVITIES.map((activity) => (
-                    <label key={activity} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedActivities.includes(activity)}
-                        onChange={() => toggleActivity(activity)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{activity}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Dietary Options */}
-              <div>
-                <h4 className="text-md font-medium text-gray-800 mb-3">Dining Options</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {DIETARY_OPTIONS.map((option) => (
-                    <label key={option} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedDietaryOptions.includes(option)}
-                        onChange={() => toggleDietaryOption(option)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{option}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <AmenitiesFeaturesSection
+                data={amenitiesFeatures}
+                onChange={(newData) => {
+                  setAmenitiesFeatures(newData);
+                  // Keep old state in sync for backward compatibility
+                  setSelectedRoomFeatures(newData.roomFeatures);
+                  setSelectedCommonAreas(newData.commonAreas);
+                  setSelectedActivities(newData.activitiesPrograms);
+                  setSelectedDietaryOptions(newData.dietaryOptions);
+                }}
+              />
             </div>
 
             {/* Staff & Care Information Section */}
