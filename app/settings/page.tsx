@@ -23,6 +23,13 @@ export default function SettingsPage() {
     confirmPassword: "",
   });
 
+  const [notifications, setNotifications] = useState({
+    emailMessages: true,
+    emailRequests: true,
+    emailUpdates: false,
+    emailMarketing: false,
+  });
+
   useEffect(() => {
     if (status === "loading") return;
 
@@ -96,6 +103,7 @@ export default function SettingsPage() {
           phone: formData.phone,
           currentPassword: formData.currentPassword || undefined,
           newPassword: formData.newPassword || undefined,
+          notifications,
         }),
       });
 
@@ -137,7 +145,7 @@ export default function SettingsPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-10 bg-gray-200 rounded w-1/3 mb-8"></div>
             <div className="bg-white rounded-lg shadow p-6">
@@ -158,12 +166,12 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
           <p className="text-gray-600 mt-2">
-            Manage your account information and preferences
+            Manage your account information, notifications, and preferences
           </p>
         </div>
 
@@ -191,7 +199,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -231,7 +239,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="(555) 123-4567"
                 />
               </div>
@@ -252,6 +260,136 @@ export default function SettingsPage() {
                     ? "Family Account"
                     : "Provider Account"}
                 </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Notification Preferences */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Email Notifications
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Choose which emails you'd like to receive
+              </p>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Messages Notification */}
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="emailMessages"
+                    type="checkbox"
+                    checked={notifications.emailMessages}
+                    onChange={(e) =>
+                      setNotifications({
+                        ...notifications,
+                        emailMessages: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                </div>
+                <div className="ml-3">
+                  <label
+                    htmlFor="emailMessages"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    New Messages
+                  </label>
+                  <p className="text-sm text-gray-500">
+                    Get notified when you receive new messages from{" "}
+                    {session?.user.role === "FAMILY" ? "providers" : "families"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Requests Notification */}
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="emailRequests"
+                    type="checkbox"
+                    checked={notifications.emailRequests}
+                    onChange={(e) =>
+                      setNotifications({
+                        ...notifications,
+                        emailRequests: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                </div>
+                <div className="ml-3">
+                  <label
+                    htmlFor="emailRequests"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Consultation Requests
+                  </label>
+                  <p className="text-sm text-gray-500">
+                    Get notified about new consultation requests and status updates
+                  </p>
+                </div>
+              </div>
+
+              {/* Platform Updates */}
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="emailUpdates"
+                    type="checkbox"
+                    checked={notifications.emailUpdates}
+                    onChange={(e) =>
+                      setNotifications({
+                        ...notifications,
+                        emailUpdates: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                </div>
+                <div className="ml-3">
+                  <label
+                    htmlFor="emailUpdates"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Platform Updates
+                  </label>
+                  <p className="text-sm text-gray-500">
+                    Get notified about new features and improvements
+                  </p>
+                </div>
+              </div>
+
+              {/* Marketing */}
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="emailMarketing"
+                    type="checkbox"
+                    checked={notifications.emailMarketing}
+                    onChange={(e) =>
+                      setNotifications({
+                        ...notifications,
+                        emailMarketing: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                </div>
+                <div className="ml-3">
+                  <label
+                    htmlFor="emailMarketing"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Tips and Resources
+                  </label>
+                  <p className="text-sm text-gray-500">
+                    Receive helpful caregiving tips and resources
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -285,7 +423,7 @@ export default function SettingsPage() {
                       currentPassword: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   autoComplete="current-password"
                 />
               </div>
@@ -305,7 +443,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, newPassword: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   autoComplete="new-password"
                 />
                 <p className="text-sm text-gray-500 mt-1">
@@ -331,9 +469,72 @@ export default function SettingsPage() {
                       confirmPassword: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   autoComplete="new-password"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Privacy & Data */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Privacy & Data
+              </h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-900">
+                    Download Your Data
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Request a copy of your personal information
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  Request
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Danger Zone */}
+          <div className="bg-white rounded-lg shadow border-2 border-red-200">
+            <div className="p-6 border-b border-red-200 bg-red-50">
+              <h2 className="text-xl font-semibold text-red-900">
+                Danger Zone
+              </h2>
+            </div>
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-900">
+                    Delete Account
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Permanently delete your account and all associated data
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "Are you sure you want to delete your account? This action cannot be undone."
+                      )
+                    ) {
+                      alert("Account deletion would be processed here");
+                    }
+                  }}
+                  className="text-sm text-red-600 hover:text-red-700 font-medium border border-red-300 px-4 py-2 rounded-lg hover:bg-red-50"
+                >
+                  Delete Account
+                </button>
               </div>
             </div>
           </div>
@@ -390,7 +591,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:bg-primary-400 disabled:cursor-not-allowed"
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>

@@ -361,7 +361,7 @@ export default function DashboardPage() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/care-profiles"
+                  href="/provider/requests"
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -381,9 +381,9 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      Browse Families
+                      Find Families
                     </h3>
-                    <p className="text-sm text-gray-600">Find clients</p>
+                    <p className="text-sm text-gray-600">Browse care requests</p>
                   </div>
                 </Link>
                 <Link
@@ -516,12 +516,12 @@ export default function DashboardPage() {
                 </svg>
                 <p className="text-gray-500 mb-4">No recent activity yet</p>
                 <Link
-                  href={isFamily ? "/" : "/dashboard/care-profiles"}
+                  href={isFamily ? "/" : "/provider/requests"}
                   className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   {isFamily
                     ? "Browse providers to get started →"
-                    : "Browse families to get started →"}
+                    : "Find families to get started →"}
                 </Link>
               </div>
             )}
