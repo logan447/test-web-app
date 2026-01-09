@@ -16,6 +16,8 @@ import OnlineStatus from "@/components/Messaging/OnlineStatus";
 import FileAttachment, { Attachment } from "@/components/Messaging/FileAttachment";
 import AttachmentGallery from "@/components/Messaging/AttachmentGallery";
 import QuickRepliesBar from "@/components/Messaging/QuickRepliesBar";
+import TourProposal from "@/components/Messaging/TourProposal";
+import TourScheduler from "@/components/Messaging/TourScheduler";
 
 type ConsultRequest = {
   id: string;
@@ -55,6 +57,15 @@ type ConsultRequest = {
     readAt: string | null;
     attachments?: any; // JSON field for attachments
   }[];
+  tourAppointments?: {
+    id: string;
+    proposedBy: string;
+    proposedDate: string;
+    proposedTime: string;
+    status: string;
+    notes: string | null;
+    createdAt: string;
+  }[];
 };
 
 export default function RequestDetailPage() {
@@ -84,6 +95,10 @@ export default function RequestDetailPage() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<Attachment[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
+
+  // Tour scheduling
+  const [showTourScheduler, setShowTourScheduler] = useState(false);
+  const [tourProposing, setTourProposing] = useState(false);
 
   // Determine back link based on where user came from and request type
   const fromSaved = searchParams.get('from') === 'saved';
@@ -275,6 +290,77 @@ export default function RequestDetailPage() {
   // Handle quick reply selection
   const handleQuickReply = (text: string) => {
     setNewMessage(text);
+  };
+
+  // Handle tour proposal
+  const handleProposeTour = async (date: Date, time: string, notes?: string) => {
+    setTourProposing(true);
+    try {
+      const response = await fetch(`/api/requests/${params.id}/tours`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          proposedDate: date.toISOString(),
+          proposedTime: time,
+          notes,
+        }),
+      });
+
+      if (response.ok) {
+        setShowTourScheduler(false);
+        fetchRequest(); // Refresh to show new tour
+        showToast.success("Tour proposal sent!");
+      } else {
+        showToast.error("Failed to propose tour");
+      }
+    } catch (err) {
+      console.error("Error proposing tour:", err);
+      showToast.error("Failed to propose tour");
+    } finally {
+      setTourProposing(false);
+    }
+  };
+
+  // Handle tour acceptance
+  const handleAcceptTour = async (tourId: string) => {
+    try {
+      const response = await fetch(`/api/requests/${params.id}/tours/${tourId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "ACCEPTED" }),
+      });
+
+      if (response.ok) {
+        fetchRequest(); // Refresh to show updated tour
+        showToast.success("Tour confirmed!");
+      } else {
+        showToast.error("Failed to accept tour");
+      }
+    } catch (err) {
+      console.error("Error accepting tour:", err);
+      showToast.error("Failed to accept tour");
+    }
+  };
+
+  // Handle tour decline
+  const handleDeclineTour = async (tourId: string) => {
+    try {
+      const response = await fetch(`/api/requests/${params.id}/tours/${tourId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "DECLINED" }),
+      });
+
+      if (response.ok) {
+        fetchRequest(); // Refresh to show updated tour
+        showToast.success("Tour declined");
+      } else {
+        showToast.error("Failed to decline tour");
+      }
+    } catch (err) {
+      console.error("Error declining tour:", err);
+      showToast.error("Failed to decline tour");
+    }
   };
 
   const handleStatusUpdate = async (newStatus: string) => {
@@ -624,47 +710,85 @@ export default function RequestDetailPage() {
                 ...request.messages,
               ];
 
-              // Group messages by date
-              const messageGroups = groupMessagesByDate(allMessages);
+              // Combine messages and tours into a single timeline
+              const tours = request.tourAppointments || [];
+              const timeline: Array<{ type: 'message' | 'tour'; data: any; createdAt: string }> = [
+                ...allMessages.map(m => ({ type: 'message' as const, data: m, createdAt: m.createdAt })),
+                ...tours.map(t => ({ type: 'tour' as const, data: t, createdAt: t.createdAt })),
+              ].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
-              return messageGroups.map((group, groupIdx) => (
-                <div key={group.date.toISOString()}>
+              // Group timeline items by date
+              const groupedTimeline: { [key: string]: typeof timeline } = {};
+              timeline.forEach(item => {
+                const date = new Date(item.createdAt).toDateString();
+                if (!groupedTimeline[date]) {
+                  groupedTimeline[date] = [];
+                }
+                groupedTimeline[date].push(item);
+              });
+
+              return Object.entries(groupedTimeline).map(([dateStr, items]) => (
+                <div key={dateStr}>
                   {/* Date Header */}
-                  <MessageTimestamp date={group.date} />
+                  <MessageTimestamp date={new Date(dateStr)} />
 
-                  {/* Messages for this date */}
-                  <div className="space-y-0.5">
-                    {group.messages.map((message, messageIdx) => {
-                      const isOwnMessage = message.senderId === session?.user?.id;
-                      const previousMessage = messageIdx > 0 ? group.messages[messageIdx - 1] : null;
-                      const showAvatar = !shouldGroupMessages(message, previousMessage);
+                  {/* Timeline items for this date */}
+                  <div className="space-y-3">
+                    {items.map((item, itemIdx) => {
+                      if (item.type === 'message') {
+                        const message = item.data;
+                        const isOwnMessage = message.senderId === session?.user?.id;
+                        const previousItem = itemIdx > 0 ? items[itemIdx - 1] : null;
+                        const previousMessage = previousItem?.type === 'message' ? previousItem.data : null;
+                        const showAvatar = !shouldGroupMessages(message, previousMessage);
 
-                      // Get sender name
-                      const senderName = isOwnMessage
-                        ? session?.user?.name || "You"
-                        : request.sender.id === message.senderId
-                        ? request.sender.name
-                        : "Unknown";
+                        // Get sender name
+                        const senderName = isOwnMessage
+                          ? session?.user?.name || "You"
+                          : request.sender.id === message.senderId
+                          ? request.sender.name
+                          : "Unknown";
 
-                      // Parse attachments if they exist
-                      const messageAttachments = message.attachments
-                        ? (Array.isArray(message.attachments) ? message.attachments : JSON.parse(message.attachments as string))
-                        : [];
+                        // Parse attachments if they exist
+                        const messageAttachments = message.attachments
+                          ? (Array.isArray(message.attachments) ? message.attachments : JSON.parse(message.attachments as string))
+                          : [];
 
-                      return (
-                        <ModernMessageBubble
-                          key={message.id}
-                          content={message.content}
-                          isOwn={isOwnMessage}
-                          senderName={senderName}
-                          timestamp={new Date(message.createdAt)}
-                          showAvatar={showAvatar}
-                          showName={false}
-                          attachments={messageAttachments}
-                          status={isOwnMessage ? (message.status as "SENT" | "DELIVERED" | "READ") : undefined}
-                          onImageClick={(index) => handleImageClick(messageAttachments, index)}
-                        />
-                      );
+                        return (
+                          <ModernMessageBubble
+                            key={message.id}
+                            content={message.content}
+                            isOwn={isOwnMessage}
+                            senderName={senderName}
+                            timestamp={new Date(message.createdAt)}
+                            showAvatar={showAvatar}
+                            showName={false}
+                            attachments={messageAttachments}
+                            status={isOwnMessage ? (message.status as "SENT" | "DELIVERED" | "READ") : undefined}
+                            onImageClick={(index) => handleImageClick(messageAttachments, index)}
+                          />
+                        );
+                      } else {
+                        // Tour appointment
+                        const tour = item.data;
+                        return (
+                          <div key={tour.id} className="flex justify-center my-4">
+                            <TourProposal
+                              tour={{
+                                id: tour.id,
+                                proposedBy: tour.proposedBy,
+                                proposedDate: new Date(tour.proposedDate),
+                                proposedTime: tour.proposedTime,
+                                status: tour.status,
+                                notes: tour.notes,
+                              }}
+                              currentUserId={session?.user?.id || ""}
+                              onAccept={handleAcceptTour}
+                              onDecline={handleDeclineTour}
+                            />
+                          </div>
+                        );
+                      }
                     })}
                   </div>
                 </div>
@@ -720,13 +844,58 @@ export default function RequestDetailPage() {
               </div>
             )}
 
-            {/* Quick Replies */}
+            {/* Tour Scheduler */}
+            {showTourScheduler && (
+              <div className="mb-3">
+                <TourScheduler
+                  onPropose={handleProposeTour}
+                  onCancel={() => setShowTourScheduler(false)}
+                  disabled={tourProposing}
+                />
+              </div>
+            )}
+
+            {/* Tour Scheduler Button & Quick Replies */}
             {request.status !== "DECLINED" && request.status !== "COMPLETED" && (
-              <QuickRepliesBar
-                onSelectReply={handleQuickReply}
-                userRole={isFamily ? "FAMILY" : "PROVIDER"}
-                disabled={false}
-              />
+              <div className="space-y-3">
+                {/* Schedule Tour Button */}
+                {!showTourScheduler && (
+                  <div className="mb-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowTourScheduler(true)}
+                      className="
+                        inline-flex items-center gap-2
+                        px-4 py-2
+                        bg-primary-600 text-white
+                        rounded-lg
+                        hover:bg-primary-700
+                        active:bg-primary-800
+                        transition-colors
+                        font-medium text-sm
+                        shadow-sm
+                      "
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      Schedule a Tour
+                    </button>
+                  </div>
+                )}
+
+                {/* Quick Replies */}
+                <QuickRepliesBar
+                  onSelectReply={handleQuickReply}
+                  userRole={isFamily ? "FAMILY" : "PROVIDER"}
+                  disabled={false}
+                />
+              </div>
             )}
 
             <form onSubmit={handleSendMessage} className="flex gap-2 items-end">

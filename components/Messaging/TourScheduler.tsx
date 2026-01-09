@@ -1,0 +1,236 @@
+"use client";
+
+import { useState } from "react";
+import { format } from "date-fns";
+
+export interface TourSchedulerProps {
+  onPropose: (date: Date, time: string, notes?: string) => void;
+  onCancel: () => void;
+  disabled?: boolean;
+}
+
+// Pre-defined time slots
+const timeSlots = [
+  "9:00 AM",
+  "9:30 AM",
+  "10:00 AM",
+  "10:30 AM",
+  "11:00 AM",
+  "11:30 AM",
+  "12:00 PM",
+  "12:30 PM",
+  "1:00 PM",
+  "1:30 PM",
+  "2:00 PM",
+  "2:30 PM",
+  "3:00 PM",
+  "3:30 PM",
+  "4:00 PM",
+  "4:30 PM",
+  "5:00 PM",
+];
+
+export default function TourScheduler({
+  onPropose,
+  onCancel,
+  disabled = false,
+}: TourSchedulerProps) {
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
+
+  // Get minimum date (today)
+  const minDate = format(new Date(), "yyyy-MM-dd");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedDate && selectedTime) {
+      onPropose(new Date(selectedDate), selectedTime, notes || undefined);
+      // Reset form
+      setSelectedDate("");
+      setSelectedTime("");
+      setNotes("");
+    }
+  };
+
+  const isValid = selectedDate && selectedTime;
+
+  return (
+    <div className="bg-white border-2 border-primary-300 rounded-xl shadow-lg p-5 max-w-md">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+          <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Schedule a Tour</h3>
+          <p className="text-xs text-gray-500">Propose a date and time for the facility tour</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Date Picker */}
+        <div>
+          <label htmlFor="tour-date" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Select Date <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <input
+              type="date"
+              id="tour-date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              min={minDate}
+              disabled={disabled}
+              className="
+                w-full
+                px-4 py-2.5
+                border border-gray-300 rounded-lg
+                focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                disabled:opacity-50 disabled:cursor-not-allowed
+                text-gray-900
+              "
+              required
+            />
+          </div>
+        </div>
+
+        {/* Time Picker */}
+        <div>
+          <label htmlFor="tour-time" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Select Time <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="tour-time"
+            value={selectedTime}
+            onChange={(e) => setSelectedTime(e.target.value)}
+            disabled={disabled}
+            className="
+              w-full
+              px-4 py-2.5
+              border border-gray-300 rounded-lg
+              focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+              disabled:opacity-50 disabled:cursor-not-allowed
+              text-gray-900
+              bg-white
+            "
+            required
+          >
+            <option value="">Choose a time</option>
+            {timeSlots.map((time) => (
+              <option key={time} value={time}>
+                {time}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Notes (Optional) */}
+        <div>
+          <label htmlFor="tour-notes" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Additional Notes (Optional)
+          </label>
+          <textarea
+            id="tour-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            disabled={disabled}
+            rows={3}
+            maxLength={200}
+            placeholder="Any special requests or questions for the tour..."
+            className="
+              w-full
+              px-4 py-2.5
+              border border-gray-300 rounded-lg
+              focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+              disabled:opacity-50 disabled:cursor-not-allowed
+              text-gray-900
+              resize-none
+            "
+          />
+          <div className="mt-1 text-xs text-gray-500 text-right">
+            {notes.length}/200
+          </div>
+        </div>
+
+        {/* Preview */}
+        {selectedDate && selectedTime && (
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-3">
+            <p className="text-xs font-medium text-primary-700 mb-1.5">Tour Preview:</p>
+            <div className="flex items-center gap-2 text-sm text-gray-900">
+              <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <span className="font-medium">
+                {format(new Date(selectedDate), "EEEE, MMMM d, yyyy")} at {selectedTime}
+              </span>
+            </div>
+            {notes && (
+              <p className="text-xs text-gray-600 mt-2 italic">&quot;{notes}&quot;</p>
+            )}
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 pt-2">
+          <button
+            type="submit"
+            disabled={disabled || !isValid}
+            className="
+              flex-1
+              flex items-center justify-center gap-2
+              px-4 py-2.5
+              bg-primary-600 text-white
+              rounded-lg
+              hover:bg-primary-700
+              active:bg-primary-800
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-colors
+              font-medium text-sm
+            "
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
+            </svg>
+            Propose Tour
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={disabled}
+            className="
+              px-4 py-2.5
+              bg-white text-gray-700
+              border border-gray-300
+              rounded-lg
+              hover:bg-gray-50
+              active:bg-gray-100
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-colors
+              font-medium text-sm
+            "
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

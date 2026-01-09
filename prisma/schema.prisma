@@ -427,6 +427,7 @@ model ConsultRequest {
 
   // Relationships
   messages        Message[]
+  tourAppointments TourAppointment[]
 
   @@index([familyProfileId])
   @@index([providerId])
@@ -454,6 +455,22 @@ model Message {
   attachments       Json           @default("[]") // [{url: string, type: string, name: string, size: number}]
 
   @@index([consultRequestId])
+}
+
+model TourAppointment {
+  id            String         @id @default(cuid())
+  requestId     String
+  request       ConsultRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  proposedBy    String         // userId who proposed
+  proposedDate  DateTime
+  proposedTime  String
+  status        String         @default("PROPOSED") // PROPOSED, ACCEPTED, DECLINED, COMPLETED, CANCELLED
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([requestId])
+  @@index([status])
 }
 
 model Subscription {

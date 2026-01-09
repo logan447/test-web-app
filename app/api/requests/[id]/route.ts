@@ -77,6 +77,7 @@ export async function GET(
         familyProfile: { include: { user: true } },
         sender: true,
         messages: { orderBy: { createdAt: "asc" } },
+        tourAppointments: { orderBy: { createdAt: "asc" } },
       },
     });
 
