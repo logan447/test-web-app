@@ -13,6 +13,9 @@ import AmenitiesFeaturesSection, { AmenitiesFeaturesData } from "@/components/Pr
 import StaffInformationSection, { StaffInformationData } from "@/components/ProviderProfile/StaffInformationSection";
 import CertificationsLicensingSection, { CertificationsLicensingData, Award } from "@/components/ProviderProfile/CertificationsLicensingSection";
 import SpecialtyProgramsSection, { SpecialtyProgramsData } from "@/components/ProviderProfile/SpecialtyProgramsSection";
+import AboutUsSection, { AboutUsData } from "@/components/ProviderProfile/AboutUsSection";
+import MeetTheTeamSection, { MeetTheTeamData, TeamMember } from "@/components/ProviderProfile/MeetTheTeamSection";
+import VirtualTourSection, { VirtualTourData } from "@/components/ProviderProfile/VirtualTourSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -312,6 +315,25 @@ export default function ProviderProfilePage() {
     trialPeriodDuration: "",
   });
 
+  // Enhanced About Us, Meet the Team & Virtual Tours (Sprint 9)
+  const [aboutUs, setAboutUs] = useState<AboutUsData>({
+    establishedYear: "",
+    facilityHistory: "",
+    missionStatement: "",
+    whatMakesUsUnique: "",
+  });
+
+  const [meetTheTeam, setMeetTheTeam] = useState<MeetTheTeamData>({
+    teamMembers: [],
+  });
+
+  const [virtualTour, setVirtualTour] = useState<VirtualTourData>({
+    virtualTourUrl: "",
+    virtualTourType: "",
+    brochureUrl: "",
+    floorPlanUrls: [],
+  });
+
   // Legacy staff state (kept for backward compatibility)
   const [staffToResidentRatio, setStaffToResidentRatio] = useState<string>("");
   const [hasRNOnSite, setHasRNOnSite] = useState(false);
@@ -439,6 +461,25 @@ export default function ProviderProfilePage() {
           trialPeriodDuration: data.trialPeriodDuration || "",
         });
 
+        // Initialize About Us, Meet the Team & Virtual Tours (Sprint 9)
+        setAboutUs({
+          establishedYear: data.establishedYear || "",
+          facilityHistory: data.facilityHistory || "",
+          missionStatement: data.missionStatement || "",
+          whatMakesUsUnique: data.whatMakesUsUnique || "",
+        });
+
+        setMeetTheTeam({
+          teamMembers: data.teamMembersJson ? JSON.parse(data.teamMembersJson) : [],
+        });
+
+        setVirtualTour({
+          virtualTourUrl: data.virtualTourUrl || "",
+          virtualTourType: data.virtualTourType || "",
+          brochureUrl: data.brochureUrl || "",
+          floorPlanUrls: data.floorPlanUrls || [],
+        });
+
         // Legacy staff state (kept for backward compatibility)
         setStaffToResidentRatio(data.staffToResidentRatio || "");
         setHasRNOnSite(data.hasRNOnSite || false);
@@ -564,6 +605,16 @@ export default function ProviderProfilePage() {
       smokingPolicy: specialtyProgramsPolicies.smokingPolicy || null,
       hasTrialPeriod: specialtyProgramsPolicies.hasTrialPeriod,
       trialPeriodDuration: specialtyProgramsPolicies.trialPeriodDuration || null,
+      // About Us, Meet the Team & Virtual Tours (Sprint 9)
+      establishedYear: aboutUs.establishedYear || null,
+      facilityHistory: aboutUs.facilityHistory || null,
+      missionStatement: aboutUs.missionStatement || null,
+      whatMakesUsUnique: aboutUs.whatMakesUsUnique || null,
+      teamMembersJson: JSON.stringify(meetTheTeam.teamMembers),
+      virtualTourUrl: virtualTour.virtualTourUrl || null,
+      virtualTourType: virtualTour.virtualTourType || null,
+      brochureUrl: virtualTour.brochureUrl || null,
+      floorPlanUrls: virtualTour.floorPlanUrls,
       // Legacy specialty programs (kept for backward compatibility)
       hasMemoryCare: hasMemoryCare,
       hasRespiteCare: hasRespiteCare,
@@ -1451,6 +1502,42 @@ export default function ProviderProfilePage() {
               <SpecialtyProgramsSection
                 data={specialtyProgramsPolicies}
                 onChange={setSpecialtyProgramsPolicies}
+              />
+            </div>
+
+            {/* About Us Section (Sprint 9) */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">About Us</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Share your facility&apos;s story, mission, and what makes you unique.
+              </p>
+              <AboutUsSection
+                data={aboutUs}
+                onChange={setAboutUs}
+              />
+            </div>
+
+            {/* Meet the Team Section (Sprint 9) */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Meet the Team</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Introduce your leadership and key staff members to help families feel connected.
+              </p>
+              <MeetTheTeamSection
+                data={meetTheTeam}
+                onChange={setMeetTheTeam}
+              />
+            </div>
+
+            {/* Virtual Tour & Media Section (Sprint 9) */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Virtual Tour & Media</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Provide virtual tours, brochures, and floor plans to give families a comprehensive view of your facility.
+              </p>
+              <VirtualTourSection
+                data={virtualTour}
+                onChange={setVirtualTour}
               />
             </div>
 

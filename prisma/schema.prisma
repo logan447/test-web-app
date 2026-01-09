@@ -330,6 +330,17 @@ model Provider {
   detailedMemoryCareServices   String[] @default([])  // Memory care services (secure_environment, cognitive_activities, etc.)
   detailedSocialRecServices    String[] @default([])  // Social & recreation (group_activities, exercise, arts_crafts, etc.)
 
+  // Enhanced About Us, Meet the Team & Virtual Tours (Sprint 9)
+  establishedYear       String?  // Year facility was established
+  facilityHistory       String?  // Facility founding story and background
+  missionStatement      String?  // Facility mission statement
+  whatMakesUsUnique     String?  // What makes the facility unique
+  teamMembersJson       String?  // JSON array of team members {id, role, name, photoUrl, bio}
+  virtualTourUrl        String?  // Virtual tour or video URL (YouTube, Vimeo, or custom)
+  virtualTourType       String?  // "youtube", "vimeo", or "custom"
+  brochureUrl           String?  // URL to facility brochure PDF
+  floorPlanUrls         String[] @default([])  // URLs to floor plan images/PDFs
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)
