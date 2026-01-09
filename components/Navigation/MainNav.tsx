@@ -427,8 +427,8 @@ export default function MainNav() {
                           </span>
                         )}
                       </Link>
-                      <Link href="/dashboard/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        My Profile
+                      <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        My Dashboard
                       </Link>
                     </>
                   )}
@@ -709,8 +709,8 @@ export default function MainNav() {
                           </span>
                         )}
                       </Link>
-                      <Link href="/dashboard/care-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        My Profile
+                      <Link href="/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        My Dashboard
                       </Link>
                     </>
                   )}
