@@ -303,7 +303,7 @@ async function main() {
       senderId: familyUser1.id,
       message: 'Hi! I\'m looking for in-home care for my mother. She\'s 82 and has early-stage Alzheimer\'s. She needs help with daily activities, meals, and medication. Can you provide details about your services and availability?',
       status: 'ACCEPTED',
-      requestType: 'GENERAL',
+      requestType: 'CONSULTATION',
     },
   });
 
@@ -410,7 +410,7 @@ async function main() {
       senderId: familyUser3.id,
       message: 'My husband was recently diagnosed with dementia and we urgently need specialized memory care. Can you provide information about your programs, staff-to-resident ratio, and costs?',
       status: 'PENDING',
-      requestType: 'GENERAL',
+      requestType: 'CONSULTATION',
     },
   });
 
@@ -422,7 +422,7 @@ async function main() {
       senderId: familyUser1.id,
       message: 'Do you offer respite care services? Looking for short-term help.',
       status: 'DECLINED',
-      requestType: 'GENERAL',
+      requestType: 'CONSULTATION',
     },
   });
 
