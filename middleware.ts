@@ -17,9 +17,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // Use activeMode, but fall back to role only if activeMode is not set
-    // This allows users to switch modes regardless of their base role
-    const activeMode = token.activeMode ?? token.role;
+    // Use activeMode with FAMILY as default if not set
+    // This ensures users are in family mode by default, not their base role
+    const activeMode = token.activeMode || 'FAMILY';
     if (activeMode !== 'PROVIDER') {
       // In FAMILY mode - redirect to home page
       return NextResponse.redirect(new URL('/', request.url));
@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    const activeMode = token.activeMode ?? token.role;
+    const activeMode = token.activeMode || 'FAMILY';
     if (activeMode === 'PROVIDER') {
       // User is in PROVIDER mode, redirect to provider dashboard
       return NextResponse.redirect(new URL('/provider/dashboard', request.url));
@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
     if (!token) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
-    const activeMode = token.activeMode ?? token.role;
+    const activeMode = token.activeMode || 'FAMILY';
     if (activeMode === 'PROVIDER') {
       // Provider mode users should use provider-specific routes
       return NextResponse.redirect(new URL('/provider/dashboard', request.url));
