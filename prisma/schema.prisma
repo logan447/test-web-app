@@ -443,7 +443,12 @@ model Message {
   content           String
 
   createdAt         DateTime       @default(now())
-  read              Boolean        @default(false)
+  read              Boolean        @default(false) // Legacy field - kept for backward compatibility
+
+  // Read receipts & message status (Sprint 3)
+  status            String         @default("SENT") // SENT, DELIVERED, READ
+  deliveredAt       DateTime?      // When message was delivered to recipient
+  readAt            DateTime?      // When message was read by recipient
 
   @@index([consultRequestId])
 }

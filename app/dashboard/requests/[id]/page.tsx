@@ -47,6 +47,9 @@ type ConsultRequest = {
     senderId: string;
     content: string;
     createdAt: string;
+    status: string;
+    deliveredAt: string | null;
+    readAt: string | null;
   }[];
 };
 
@@ -120,6 +123,8 @@ export default function RequestDetailPage() {
       if (response.ok) {
         const data = await response.json();
         setRequest(data);
+        // Mark messages as read after fetching
+        markMessagesAsRead();
       } else {
         router.push("/dashboard/requests");
       }
@@ -127,6 +132,17 @@ export default function RequestDetailPage() {
       console.error("Error fetching request:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Mark all messages in this conversation as read
+  const markMessagesAsRead = async () => {
+    try {
+      await fetch(`/api/requests/${params.id}/messages/read`, {
+        method: "PATCH",
+      });
+    } catch (err) {
+      console.error("Error marking messages as read:", err);
     }
   };
 
@@ -563,6 +579,9 @@ export default function RequestDetailPage() {
                   senderId: request.sender.id,
                   content: request.message,
                   createdAt: request.createdAt,
+                  status: "READ", // Initial message is always considered read
+                  deliveredAt: null,
+                  readAt: null,
                 },
                 ...request.messages,
               ];
@@ -598,7 +617,7 @@ export default function RequestDetailPage() {
                           timestamp={new Date(message.createdAt)}
                           showAvatar={showAvatar}
                           showName={false}
-                          status={isOwnMessage ? "SENT" : undefined}
+                          status={isOwnMessage ? (message.status as "SENT" | "DELIVERED" | "READ") : undefined}
                         />
                       );
                     })}
