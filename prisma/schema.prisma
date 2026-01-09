@@ -239,11 +239,26 @@ model Provider {
   availableSpots       Int?           // Current number of available spots/beds
   waitlistAvailable    Boolean        @default(false)
 
-  // Pricing
-  priceMin        Int?           // Minimum monthly price in dollars
-  priceMax        Int?           // Maximum monthly price in dollars
-  priceDescription String?       // What's included in the base price
+  // Pricing (Basic - kept for backward compatibility)
+  priceMin        Int?           // Minimum monthly price in dollars (legacy)
+  priceMax        Int?           // Maximum monthly price in dollars (legacy)
+  priceDescription String?       // What's included in the base price (legacy)
   paymentOptions  String[]       // Array of payment methods accepted (e.g., "Private Pay", "Medicare", "Medicaid")
+
+  // Enhanced Pricing Structure (Sprint 4)
+  privateRoomMin        Int?     // Private room minimum monthly rate
+  privateRoomMax        Int?     // Private room maximum monthly rate
+  semiPrivateRoomMin    Int?     // Semi-private room minimum monthly rate
+  semiPrivateRoomMax    Int?     // Semi-private room maximum monthly rate
+  includedServices      String[] @default([])  // Services included in base rate
+  additionalServicesJson String? // JSON string of additional a-la-carte services
+  communityFee          Int?     // One-time community fee
+  securityDeposit       Int?     // Security deposit amount
+  applicationFee        Int?     // Application processing fee
+  acceptsFinancialAssistance Boolean @default(false)  // Accepts insurance/assistance
+  financialAssistanceTypes String[] @default([])  // Types of assistance accepted
+  offersPaymentPlans    Boolean  @default(false)  // Offers flexible payment plans
+  paymentPlanDetails    String?  // Description of payment plan options
 
   // Photos
   photos          String[]       // Array of photo URLs

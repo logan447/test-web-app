@@ -8,6 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import EnhancedPhotoUpload, { PhotoMetadata } from "@/components/Gallery/EnhancedPhotoUpload";
 import ProviderProfileCompleteness from "@/components/ProviderProfile/ProviderProfileCompleteness";
 import CareServicesSection, { CareServicesData } from "@/components/ProviderProfile/CareServicesSection";
+import PricingStructureSection, { PricingStructureData } from "@/components/ProviderProfile/PricingStructureSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -244,6 +245,21 @@ export default function ProviderProfilePage() {
   const [availableForFamilies, setAvailableForFamilies] = useState(true);
   const [availableForOrganizations, setAvailableForOrganizations] = useState(false);
   const [photoMetadata, setPhotoMetadata] = useState<PhotoMetadata[]>([]);
+  const [pricingStructure, setPricingStructure] = useState<PricingStructureData>({
+    privateRoomMin: null,
+    privateRoomMax: null,
+    semiPrivateRoomMin: null,
+    semiPrivateRoomMax: null,
+    includedServices: [],
+    additionalServices: [],
+    communityFee: null,
+    securityDeposit: null,
+    applicationFee: null,
+    acceptsFinancialAssistance: false,
+    financialAssistanceTypes: [],
+    offersPaymentPlans: false,
+    paymentPlanDetails: "",
+  });
   const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
   const [selectedRoomFeatures, setSelectedRoomFeatures] = useState<string[]>([]);
   const [selectedCommonAreas, setSelectedCommonAreas] = useState<string[]>([]);
@@ -312,6 +328,22 @@ export default function ProviderProfilePage() {
         }));
         setPhotoMetadata(metadata);
         setCoverPhoto(data.coverPhoto || null);
+        // Initialize pricing structure
+        setPricingStructure({
+          privateRoomMin: data.privateRoomMin || null,
+          privateRoomMax: data.privateRoomMax || null,
+          semiPrivateRoomMin: data.semiPrivateRoomMin || null,
+          semiPrivateRoomMax: data.semiPrivateRoomMax || null,
+          includedServices: data.includedServices || [],
+          additionalServices: data.additionalServicesJson ? JSON.parse(data.additionalServicesJson) : [],
+          communityFee: data.communityFee || null,
+          securityDeposit: data.securityDeposit || null,
+          applicationFee: data.applicationFee || null,
+          acceptsFinancialAssistance: data.acceptsFinancialAssistance || false,
+          financialAssistanceTypes: data.financialAssistanceTypes || [],
+          offersPaymentPlans: data.offersPaymentPlans || false,
+          paymentPlanDetails: data.paymentPlanDetails || "",
+        });
         setSelectedRoomFeatures(data.roomFeatures || []);
         setSelectedCommonAreas(data.commonAreas || []);
         setSelectedMedicalServices(data.medicalServices || []);
@@ -378,6 +410,20 @@ export default function ProviderProfilePage() {
       priceMax: formData.get("priceMax") ? parseInt(formData.get("priceMax") as string) : null,
       priceDescription: formData.get("priceDescription") || null,
       paymentOptions: selectedPaymentOptions,
+      // Enhanced pricing structure (Sprint 4)
+      privateRoomMin: pricingStructure.privateRoomMin,
+      privateRoomMax: pricingStructure.privateRoomMax,
+      semiPrivateRoomMin: pricingStructure.semiPrivateRoomMin,
+      semiPrivateRoomMax: pricingStructure.semiPrivateRoomMax,
+      includedServices: pricingStructure.includedServices,
+      additionalServicesJson: JSON.stringify(pricingStructure.additionalServices),
+      communityFee: pricingStructure.communityFee,
+      securityDeposit: pricingStructure.securityDeposit,
+      applicationFee: pricingStructure.applicationFee,
+      acceptsFinancialAssistance: pricingStructure.acceptsFinancialAssistance,
+      financialAssistanceTypes: pricingStructure.financialAssistanceTypes,
+      offersPaymentPlans: pricingStructure.offersPaymentPlans,
+      paymentPlanDetails: pricingStructure.paymentPlanDetails,
       certifications: selectedCertifications,
       insuranceVerified: insuranceVerified,
       backgroundChecked: backgroundChecked,
@@ -550,8 +596,14 @@ export default function ProviderProfilePage() {
       required: false,
     },
     {
-      label: "Pricing Information",
-      completed: !!(provider?.priceMin || provider?.priceMax),
+      label: "Pricing & Payment Details",
+      completed: !!(
+        pricingStructure.privateRoomMin ||
+        pricingStructure.privateRoomMax ||
+        pricingStructure.semiPrivateRoomMin ||
+        pricingStructure.semiPrivateRoomMax ||
+        pricingStructure.includedServices.length > 0
+      ),
       required: false,
     },
     {
@@ -1097,81 +1149,12 @@ export default function ProviderProfilePage() {
               </div>
             )}
 
-            {/* Pricing Section */}
+            {/* Pricing & Payment Section (Sprint 4) */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Pricing & Payment Information</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Help families understand your costs. This information is optional but increases transparency and trust.
-              </p>
-
-              <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Minimum Price (per month)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2 text-gray-500">$</span>
-                    <input
-                      name="priceMin"
-                      type="number"
-                      min="0"
-                      step="1"
-                      defaultValue={provider?.priceMin || ''}
-                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="4500"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Maximum Price (per month)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2 text-gray-500">$</span>
-                    <input
-                      name="priceMax"
-                      type="number"
-                      min="0"
-                      step="1"
-                      defaultValue={provider?.priceMax || ''}
-                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="7000"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  What&apos;s Included in the Price
-                </label>
-                <textarea
-                  name="priceDescription"
-                  rows={3}
-                  defaultValue={provider?.priceDescription || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  placeholder="Example: 24/7 care, meals, housekeeping, medication management, activities..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Options Accepted (Select all that apply)
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {PAYMENT_OPTIONS.map((option) => (
-                    <label key={option} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedPaymentOptions.includes(option)}
-                        onChange={() => togglePaymentOption(option)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{option}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <PricingStructureSection
+                data={pricingStructure}
+                onChange={setPricingStructure}
+              />
             </div>
 
             {/* Trust & Verification Section */}
