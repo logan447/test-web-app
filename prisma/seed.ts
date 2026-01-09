@@ -365,7 +365,7 @@ async function main() {
       senderId: familyUser2.id,
       message: 'I\'m interested in learning more about your assisted living community for my father. He\'s 75 and mostly independent but needs some mobility assistance. Can we schedule a tour?',
       status: 'ACCEPTED',
-      requestType: 'TOUR',
+      requestType: 'CONSULTATION',
     },
   });
 
