@@ -26,14 +26,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Only users with PROVIDER role can switch to PROVIDER mode
-    if (mode === 'PROVIDER' && session.user.role !== 'PROVIDER') {
-      return NextResponse.json(
-        { error: "You must have a provider account to access provider mode" },
-        { status: 403 }
-      );
-    }
-
     // Update user's active mode in database
     await prisma.user.update({
       where: { id: session.user.id },
