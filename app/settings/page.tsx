@@ -271,7 +271,7 @@ export default function SettingsPage() {
                 Email Notifications
               </h2>
               <p className="text-sm text-gray-600 mt-1">
-                Choose which emails you'd like to receive
+                Choose which emails you&apos;d like to receive
               </p>
             </div>
             <div className="p-6 space-y-4">
