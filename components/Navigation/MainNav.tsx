@@ -413,8 +413,8 @@ export default function MainNav() {
                   ) : (
                     <>
                       {/* Family mode */}
-                      <Link href="/providers" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Browse Providers
+                      <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Find Providers
                       </Link>
                       <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved Providers
@@ -695,8 +695,8 @@ export default function MainNav() {
                   ) : (
                     <>
                       {/* Family mode */}
-                      <Link href="/providers" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Browse Providers
+                      <Link href="/" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Find Providers
                       </Link>
                       <Link href="/dashboard/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved Providers
