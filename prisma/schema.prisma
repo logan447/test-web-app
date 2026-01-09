@@ -422,6 +422,9 @@ model ConsultRequest {
   // Notification tracking
   viewedByReceiver Boolean             @default(false)
 
+  // Notification preferences (Sprint 9)
+  notificationSettings Json?           // { muted: boolean, muteUntil: Date, emailNotifications: boolean }
+
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
 

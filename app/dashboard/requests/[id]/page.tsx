@@ -21,6 +21,8 @@ import TourScheduler from "@/components/Messaging/TourScheduler";
 import RichTextInput from "@/components/Messaging/RichTextInput";
 import MessageSearch, { SearchFilters } from "@/components/Messaging/MessageSearch";
 import ConversationExport from "@/components/Messaging/ConversationExport";
+import NotificationSettings, { NotificationSettingsData } from "@/components/Messaging/NotificationSettings";
+import SmartNotificationBanner, { SmartNotification } from "@/components/Messaging/SmartNotificationBanner";
 
 type ConsultRequest = {
   id: string;
@@ -113,6 +115,16 @@ export default function RequestDetailPage() {
 
   // Conversation export
   const [showExportModal, setShowExportModal] = useState(false);
+
+  // Notification settings (Sprint 9)
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettingsData>({
+    muted: false,
+    muteUntil: null,
+    emailNotifications: true,
+  });
+  const [smartNotifications, setSmartNotifications] = useState<SmartNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Determine back link based on where user came from and request type
   const fromSaved = searchParams.get('from') === 'saved';
@@ -449,6 +461,109 @@ export default function RequestDetailPage() {
     }
   };
 
+  // Fetch notification settings
+  const fetchNotificationSettings = async () => {
+    try {
+      const response = await fetch(`/api/requests/${params.id}/notifications`);
+      if (response.ok) {
+        const data = await response.json();
+        const settings = data.notificationSettings || {
+          muted: false,
+          muteUntil: null,
+          emailNotifications: true,
+        };
+        setNotificationSettings({
+          muted: settings.muted,
+          muteUntil: settings.muteUntil ? new Date(settings.muteUntil) : null,
+          emailNotifications: settings.emailNotifications,
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching notification settings:", err);
+    }
+  };
+
+  // Save notification settings
+  const handleSaveNotificationSettings = async (settings: NotificationSettingsData) => {
+    try {
+      const response = await fetch(`/api/requests/${params.id}/notifications`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          muted: settings.muted,
+          muteUntil: settings.muteUntil ? settings.muteUntil.toISOString() : null,
+          emailNotifications: settings.emailNotifications,
+        }),
+      });
+
+      if (response.ok) {
+        setNotificationSettings(settings);
+        showToast.success("Notification settings updated!");
+
+        // Show smart notification
+        if (settings.muted && settings.muteUntil) {
+          const now = new Date();
+          const muteUntil = new Date(settings.muteUntil);
+          const diffHours = Math.round((muteUntil.getTime() - now.getTime()) / (1000 * 60 * 60));
+
+          let message = "Notifications muted";
+          if (diffHours <= 1) message = "Notifications muted for 1 hour";
+          else if (diffHours <= 8) message = "Notifications muted for 8 hours";
+          else if (diffHours <= 24) message = "Notifications muted for 24 hours";
+          else message = "Notifications muted until you turn them back on";
+
+          addSmartNotification({
+            id: `mute-${Date.now()}`,
+            type: "info",
+            title: "Notifications Muted",
+            message,
+            timestamp: new Date(),
+          });
+        } else if (!settings.muted) {
+          addSmartNotification({
+            id: `unmute-${Date.now()}`,
+            type: "info",
+            title: "Notifications Enabled",
+            message: "You'll receive notifications for this conversation",
+            timestamp: new Date(),
+          });
+        }
+      } else {
+        showToast.error("Failed to update notification settings");
+      }
+    } catch (err) {
+      console.error("Error saving notification settings:", err);
+      showToast.error("Failed to update notification settings");
+    }
+  };
+
+  // Add smart notification
+  const addSmartNotification = (notification: SmartNotification) => {
+    setSmartNotifications((prev) => [...prev, notification]);
+  };
+
+  // Dismiss smart notification
+  const dismissSmartNotification = (id: string) => {
+    setSmartNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  // Calculate unread count
+  useEffect(() => {
+    if (request && session?.user?.id) {
+      const unread = request.messages.filter(
+        (msg) => msg.senderId !== session.user.id && !msg.readAt
+      ).length;
+      setUnreadCount(unread);
+    }
+  }, [request?.messages, session?.user?.id]);
+
+  // Fetch notification settings on load
+  useEffect(() => {
+    if (status === "authenticated" && request) {
+      fetchNotificationSettings();
+    }
+  }, [status, request?.id]);
+
   const handleStatusUpdate = async (newStatus: string) => {
     try {
       const response = await fetch(`/api/requests/${params.id}`, {
@@ -742,6 +857,37 @@ export default function RequestDetailPage() {
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
               <div className="flex items-center gap-2">
+                {/* Unread Count Badge */}
+                {unreadCount > 0 && (
+                  <span className="px-2 py-1 text-xs font-medium bg-red-500 text-white rounded-full">
+                    {unreadCount} unread
+                  </span>
+                )}
+
+                {/* Notification Settings Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowNotificationSettings(true)}
+                  className={`
+                    relative p-2 rounded-lg
+                    ${notificationSettings.muted ? "bg-amber-100 text-amber-700" : "bg-white text-gray-600"}
+                    hover:bg-gray-100
+                    transition-colors
+                  `}
+                  title={notificationSettings.muted ? "Notifications muted" : "Notification settings"}
+                >
+                  {notificationSettings.muted ? (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                  )}
+                </button>
+
                 {/* Search Toggle Button */}
                 <button
                   type="button"
@@ -1157,6 +1303,25 @@ export default function RequestDetailPage() {
           onClose={() => setShowExportModal(false)}
         />
       )}
+
+      {/* Notification Settings Modal */}
+      {showNotificationSettings && (
+        <NotificationSettings
+          currentSettings={notificationSettings}
+          onSave={handleSaveNotificationSettings}
+          onClose={() => setShowNotificationSettings(false)}
+        />
+      )}
+
+      {/* Smart Notification Banners */}
+      {smartNotifications.map((notification) => (
+        <SmartNotificationBanner
+          key={notification.id}
+          notification={notification}
+          onDismiss={dismissSmartNotification}
+          autoDismissDelay={5000}
+        />
+      ))}
     </div>
   );
 }
