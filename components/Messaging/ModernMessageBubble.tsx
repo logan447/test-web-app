@@ -3,6 +3,7 @@
 import { formatDistanceToNow } from "date-fns";
 import MessageStatusIndicator, { MessageStatus } from "./MessageStatusIndicator";
 import AttachmentPreview, { Attachment } from "./AttachmentPreview";
+import FormattedMessage from "./FormattedMessage";
 
 export interface MessageBubbleProps {
   content: string;
@@ -69,9 +70,10 @@ export default function ModernMessageBubble({
           `}
         >
           {/* Message Text */}
-          <p className={`text-[15px] leading-relaxed whitespace-pre-wrap break-words ${isOwn ? "text-white" : "text-gray-900"}`}>
-            {content}
-          </p>
+          <FormattedMessage
+            content={content}
+            className={`text-[15px] leading-relaxed ${isOwn ? "text-white" : "text-gray-900"}`}
+          />
 
           {/* Attachments (if any) */}
           {attachments && attachments.length > 0 && (

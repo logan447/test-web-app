@@ -18,6 +18,7 @@ import AttachmentGallery from "@/components/Messaging/AttachmentGallery";
 import QuickRepliesBar from "@/components/Messaging/QuickRepliesBar";
 import TourProposal from "@/components/Messaging/TourProposal";
 import TourScheduler from "@/components/Messaging/TourScheduler";
+import RichTextInput from "@/components/Messaging/RichTextInput";
 
 type ConsultRequest = {
   id: string;
@@ -905,31 +906,31 @@ export default function RequestDetailPage() {
                 disabled={request.status === "DECLINED" || request.status === "COMPLETED"}
               />
 
-              <div className="flex-grow">
-                <textarea
+              <div className="flex-grow border border-gray-300 rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent">
+                <RichTextInput
                   value={newMessage}
-                  onChange={handleMessageChange}
-                  onKeyDown={(e) => {
-                    // Send on Enter (but allow Shift+Enter for new lines)
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage(e as any);
+                  onChange={(value) => {
+                    setNewMessage(value);
+                    // Send typing indicator
+                    if (value.trim()) {
+                      sendTypingStatus(true);
+                      if (typingTimeoutRef.current) {
+                        clearTimeout(typingTimeoutRef.current);
+                      }
+                      typingTimeoutRef.current = setTimeout(() => {
+                        sendTypingStatus(false);
+                      }, 3000);
+                    } else {
+                      sendTypingStatus(false);
+                      if (typingTimeoutRef.current) {
+                        clearTimeout(typingTimeoutRef.current);
+                        typingTimeoutRef.current = null;
+                      }
                     }
                   }}
+                  onSubmit={() => handleSendMessage({ preventDefault: () => {} } as any)}
                   placeholder="Type a message..."
-                  rows={1}
-                  className="
-                    w-full px-4 py-3
-                    border border-gray-300 rounded-2xl
-                    focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                    resize-none max-h-32
-                    disabled:bg-gray-100 disabled:cursor-not-allowed
-                  "
                   disabled={request.status === "DECLINED" || request.status === "COMPLETED"}
-                  style={{
-                    minHeight: "48px",
-                    maxHeight: "128px",
-                  }}
                 />
               </div>
               <button
