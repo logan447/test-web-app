@@ -170,28 +170,40 @@ export default function MainNav() {
         return;
       }
 
+      console.log('[MODE SWITCH] Step 2: Database updated successfully');
+
       // Step 2: Update the JWT token by calling update()
-      console.log('[MODE SWITCH] Step 2: Updating JWT token with activeMode:', newMode);
+      console.log('[MODE SWITCH] Step 3: Updating JWT token with activeMode:', newMode);
       await update({ activeMode: newMode });
 
-      // Step 3: Wait for JWT cookie to be written to browser
-      console.log('[MODE SWITCH] Step 3: Waiting for JWT cookie to be written...');
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Step 3: Wait longer for JWT cookie to be fully written and propagated
+      console.log('[MODE SWITCH] Step 4: Waiting for JWT cookie to be written...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Step 4: Verify the update by refetching session
-      console.log('[MODE SWITCH] Step 4: Refetching session to verify update...');
-      const updatedSession = await update();
-      console.log('[MODE SWITCH] Step 5: Session activeMode is now:', updatedSession?.user?.activeMode);
+      // Step 4: Verify the update by refetching session multiple times
+      console.log('[MODE SWITCH] Step 5: Verifying JWT token update...');
+      let updatedSession = await update();
+      console.log('[MODE SWITCH] Step 6: First verification - activeMode:', updatedSession?.user?.activeMode);
+
+      // If it didn't update, try one more time
+      if (updatedSession?.user?.activeMode !== newMode) {
+        console.warn('[MODE SWITCH] Token not updated yet, waiting longer...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        updatedSession = await update();
+        console.log('[MODE SWITCH] Second verification - activeMode:', updatedSession?.user?.activeMode);
+      }
 
       // Step 5: Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Step 6: Wait a bit more to ensure everything is settled
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Step 6: Do a full page reload to ensure fresh JWT
+      console.log('[MODE SWITCH] Step 7: Reloading page to ensure fresh JWT...');
 
-      // Step 7: Navigate to landing page
-      console.log('[MODE SWITCH] Step 6: Navigating to:', data.landingPage);
-      window.location.href = data.landingPage;
+      // Store landing page in sessionStorage for post-reload navigation
+      sessionStorage.setItem('postModeSwitchRedirect', data.landingPage);
+
+      // Reload the page to get completely fresh JWT from server
+      window.location.reload();
 
     } catch (error) {
       console.error('Error switching mode:', error);
@@ -202,6 +214,26 @@ export default function MainNav() {
 
   const currentMode = session?.user?.activeMode || 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
+
+  // Check for post-reload redirect after mode switch
+  useEffect(() => {
+    if (session) {
+      const redirectUrl = sessionStorage.getItem('postModeSwitchRedirect');
+      if (redirectUrl) {
+        console.log('[MODE SWITCH] Post-reload: Found redirect URL:', redirectUrl);
+        console.log('[MODE SWITCH] Post-reload: Current activeMode:', session.user.activeMode);
+
+        // Clear the redirect marker
+        sessionStorage.removeItem('postModeSwitchRedirect');
+
+        // Wait a moment to ensure page is fully loaded
+        setTimeout(() => {
+          console.log('[MODE SWITCH] Post-reload: Navigating to:', redirectUrl);
+          window.location.href = redirectUrl;
+        }, 100);
+      }
+    }
+  }, [session]);
 
   // Debug: Log session state on mount and when it changes
   useEffect(() => {
