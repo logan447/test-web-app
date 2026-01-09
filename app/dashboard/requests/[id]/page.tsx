@@ -23,6 +23,7 @@ import MessageSearch, { SearchFilters } from "@/components/Messaging/MessageSear
 import ConversationExport from "@/components/Messaging/ConversationExport";
 import NotificationSettings, { NotificationSettingsData } from "@/components/Messaging/NotificationSettings";
 import SmartNotificationBanner, { SmartNotification } from "@/components/Messaging/SmartNotificationBanner";
+import VideoCallButton from "@/components/Messaging/VideoCallButton";
 
 type ConsultRequest = {
   id: string;
@@ -387,6 +388,42 @@ export default function RequestDetailPage() {
       console.error("Error declining tour:", err);
       showToast.error("Failed to decline tour");
     }
+  };
+
+  // Handle video call
+  const handleStartVideoCall = async (platform: "zoom" | "google" | "custom") => {
+    try {
+      const response = await fetch(`/api/requests/${params.id}/video-call`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ platform }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        fetchRequest(); // Refresh to show new message with video link
+        showToast.success("Video call link sent!");
+
+        // Open the meeting link in a new tab
+        window.open(data.meetingLink, "_blank");
+
+        // Show smart notification
+        addSmartNotification({
+          id: `video-call-${Date.now()}`,
+          type: "status",
+          title: "Video Call Started",
+          message: `Your ${platform === "zoom" ? "Zoom" : platform === "google" ? "Google Meet" : "video"} call link has been sent`,
+          timestamp: new Date(),
+        });
+      } else {
+        showToast.error("Failed to start video call");
+      }
+    } catch (err) {
+      console.error("Error starting video call:", err);
+      showToast.error("Failed to start video call");
+    }
+
+    return "";
   };
 
   // Handle message search
@@ -852,10 +889,15 @@ export default function RequestDetailPage() {
         </div>
 
         {/* Messages */}
-        <div className="bg-white rounded-lg shadow flex flex-col overflow-hidden" style={{ height: "600px" }}>
+        <div
+          className="bg-white rounded-lg shadow flex flex-col overflow-hidden"
+          style={{ height: "600px" }}
+          role="region"
+          aria-label="Messaging conversation"
+        >
           <div className="p-4 border-b bg-gray-50">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
+              <h2 className="text-lg font-semibold text-gray-900" id="messages-heading">Messages</h2>
               <div className="flex items-center gap-2">
                 {/* Unread Count Badge */}
                 {unreadCount > 0 && (
@@ -972,9 +1014,15 @@ export default function RequestDetailPage() {
           )}
 
           {/* Message List */}
-          <div className="flex-grow overflow-y-auto p-4 bg-gray-50" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}>
+          <div
+            className="flex-grow overflow-y-auto p-4 bg-gray-50"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+            role="log"
+            aria-live="polite"
+            aria-labelledby="messages-heading"
+          >
             {(() => {
               // Combine initial message with subsequent messages for proper grouping
               const allMessages = [
@@ -1148,12 +1196,12 @@ export default function RequestDetailPage() {
               </div>
             )}
 
-            {/* Tour Scheduler Button & Quick Replies */}
+            {/* Tour Scheduler Button, Video Call Button & Quick Replies */}
             {request.status !== "DECLINED" && request.status !== "COMPLETED" && (
               <div className="space-y-3">
-                {/* Schedule Tour Button */}
+                {/* Action Buttons Row */}
                 {!showTourScheduler && (
-                  <div className="mb-3">
+                  <div className="mb-3 flex gap-2">
                     <button
                       type="button"
                       onClick={() => setShowTourScheduler(true)}
@@ -1179,6 +1227,14 @@ export default function RequestDetailPage() {
                       </svg>
                       Schedule a Tour
                     </button>
+
+                    {/* Video Call Button */}
+                    {request.status === "ACCEPTED" && (
+                      <VideoCallButton
+                        onStartCall={handleStartVideoCall}
+                        disabled={false}
+                      />
+                    )}
                   </div>
                 )}
 
@@ -1191,7 +1247,11 @@ export default function RequestDetailPage() {
               </div>
             )}
 
-            <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
+            <form
+              onSubmit={handleSendMessage}
+              className="flex gap-2 items-end"
+              aria-label="Send message form"
+            >
               {/* File Attachment Button */}
               <FileAttachment
                 onFilesSelected={handleFilesSelected}
