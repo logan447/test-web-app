@@ -281,6 +281,13 @@ model Provider {
   hasHospiceCare   Boolean   @default(false)  // Offers hospice/end-of-life care
   specialtyPrograms String[] @default([])     // Special programs (e.g., "Alzheimer's Care", "Physical Therapy", "Music Therapy")
 
+  // Detailed Services (Sprint 3)
+  detailedMedicalServices      String[] @default([])  // Medical services (nursing_24_7, medication_management, etc.)
+  detailedPersonalCareServices String[] @default([])  // Personal care (bathing, dressing, grooming, etc.)
+  detailedDailyLivingServices  String[] @default([])  // Daily living (meals, housekeeping, transportation, etc.)
+  detailedMemoryCareServices   String[] @default([])  // Memory care services (secure_environment, cognitive_activities, etc.)
+  detailedSocialRecServices    String[] @default([])  // Social & recreation (group_activities, exercise, arts_crafts, etc.)
+
   // Status
   claimed         Boolean        @default(false)
   verified        Boolean        @default(false)

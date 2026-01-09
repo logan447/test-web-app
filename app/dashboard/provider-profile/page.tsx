@@ -7,6 +7,7 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import EnhancedPhotoUpload, { PhotoMetadata } from "@/components/Gallery/EnhancedPhotoUpload";
 import ProviderProfileCompleteness from "@/components/ProviderProfile/ProviderProfileCompleteness";
+import CareServicesSection, { CareServicesData } from "@/components/ProviderProfile/CareServicesSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -225,6 +226,14 @@ export default function ProviderProfilePage() {
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
   const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
+  const [careServicesData, setCareServicesData] = useState<CareServicesData>({
+    careTypes: [],
+    medicalServices: [],
+    personalCareServices: [],
+    dailyLivingServices: [],
+    memoryCareServices: [],
+    socialRecreationServices: [],
+  });
   const [selectedPaymentOptions, setSelectedPaymentOptions] = useState<string[]>([]);
   const [selectedCertifications, setSelectedCertifications] = useState<string[]>([]);
   const [licensed, setLicensed] = useState(false);
@@ -276,6 +285,15 @@ export default function ProviderProfilePage() {
         const data = await response.json();
         setProvider(data);
         setSelectedCareTypes(data.careTypesOffered || []);
+        // Initialize care services data
+        setCareServicesData({
+          careTypes: data.careTypesOffered || [],
+          medicalServices: data.detailedMedicalServices || [],
+          personalCareServices: data.detailedPersonalCareServices || [],
+          dailyLivingServices: data.detailedDailyLivingServices || [],
+          memoryCareServices: data.detailedMemoryCareServices || [],
+          socialRecreationServices: data.detailedSocialRecServices || [],
+        });
         setSelectedPaymentOptions(data.paymentOptions || []);
         setSelectedCertifications(data.certifications || []);
         setLicensed(data.licensed || false);
@@ -335,7 +353,13 @@ export default function ProviderProfilePage() {
       name: formData.get("name"),
       providerType: formData.get("providerType"),
       description: formData.get("description"),
-      careTypesOffered: selectedCareTypes,
+      careTypesOffered: careServicesData.careTypes,
+      // Detailed services (Sprint 3)
+      detailedMedicalServices: careServicesData.medicalServices,
+      detailedPersonalCareServices: careServicesData.personalCareServices,
+      detailedDailyLivingServices: careServicesData.dailyLivingServices,
+      detailedMemoryCareServices: careServicesData.memoryCareServices,
+      detailedSocialRecServices: careServicesData.socialRecreationServices,
       address: formData.get("address"),
       city: formData.get("city"),
       state: formData.get("state"),
@@ -505,8 +529,14 @@ export default function ProviderProfilePage() {
       required: true,
     },
     {
-      label: "Care Types Selected",
-      completed: selectedCareTypes.length > 0,
+      label: "Care Types & Services",
+      completed: careServicesData.careTypes.length > 0 && (
+        careServicesData.medicalServices.length > 0 ||
+        careServicesData.personalCareServices.length > 0 ||
+        careServicesData.dailyLivingServices.length > 0 ||
+        careServicesData.memoryCareServices.length > 0 ||
+        careServicesData.socialRecreationServices.length > 0
+      ),
       required: true,
     },
     {
@@ -890,23 +920,16 @@ export default function ProviderProfilePage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Care Types Offered * (Select all that apply)
-              </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {CARE_TYPES.map((careType) => (
-                  <label key={careType.value} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedCareTypes.includes(careType.value)}
-                      onChange={() => toggleCareType(careType.value)}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">{careType.label}</span>
-                  </label>
-                ))}
-              </div>
+            {/* Care Types & Services Section (Sprint 3) */}
+            <div className="border-t pt-6">
+              <CareServicesSection
+                data={careServicesData}
+                onChange={(newData) => {
+                  setCareServicesData(newData);
+                  // Keep selectedCareTypes in sync for backward compatibility
+                  setSelectedCareTypes(newData.careTypes);
+                }}
+              />
             </div>
 
             <div>
