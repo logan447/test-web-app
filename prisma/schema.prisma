@@ -308,11 +308,20 @@ model Provider {
   neighborhoodDescription String? // Description of the neighborhood/area
   nearbyAmenities       String[]  @default([])  // Nearby amenities (e.g., "Hospital - 0.5 miles", "Park - 0.2 miles")
 
-  // Specialty Care & Programs (Sprint 9)
-  hasMemoryCare    Boolean   @default(false)  // Offers memory care/dementia care
-  hasRespiteCare   Boolean   @default(false)  // Offers respite/temporary care
-  hasHospiceCare   Boolean   @default(false)  // Offers hospice/end-of-life care
-  specialtyPrograms String[] @default([])     // Special programs (e.g., "Alzheimer's Care", "Physical Therapy", "Music Therapy")
+  // Specialty Care & Programs (legacy - kept for backward compatibility)
+  hasMemoryCare    Boolean   @default(false)  // Offers memory care/dementia care (legacy)
+  hasRespiteCare   Boolean   @default(false)  // Offers respite/temporary care (legacy)
+  hasHospiceCare   Boolean   @default(false)  // Offers hospice/end-of-life care (legacy)
+  specialtyPrograms String[] @default([])     // Special programs (legacy)
+
+  // Enhanced Specialty Programs & Policies (Sprint 8)
+  specialtyProgramsJson String?        // JSON array of specialty programs {id, name, description}
+  petPolicy             String?        // "allowed", "service_only", "not_allowed"
+  petPolicyDetails      String?        // Pet restrictions and requirements
+  visitorPolicy         String?        // Visitor policy description
+  smokingPolicy         String?        // "non_smoking", "designated_areas", "allowed"
+  hasTrialPeriod        Boolean        @default(false)  // Offers trial period for new residents
+  trialPeriodDuration   String?        // Trial period duration (e.g., "7_days", "30_days")
 
   // Detailed Services (Sprint 3)
   detailedMedicalServices      String[] @default([])  // Medical services (nursing_24_7, medication_management, etc.)

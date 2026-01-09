@@ -12,6 +12,7 @@ import PricingStructureSection, { PricingStructureData } from "@/components/Prov
 import AmenitiesFeaturesSection, { AmenitiesFeaturesData } from "@/components/ProviderProfile/AmenitiesFeaturesSection";
 import StaffInformationSection, { StaffInformationData } from "@/components/ProviderProfile/StaffInformationSection";
 import CertificationsLicensingSection, { CertificationsLicensingData, Award } from "@/components/ProviderProfile/CertificationsLicensingSection";
+import SpecialtyProgramsSection, { SpecialtyProgramsData } from "@/components/ProviderProfile/SpecialtyProgramsSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -300,6 +301,17 @@ export default function ProviderProfilePage() {
     awards: [],
   });
 
+  // Specialty Programs & Policies (Sprint 8)
+  const [specialtyProgramsPolicies, setSpecialtyProgramsPolicies] = useState<SpecialtyProgramsData>({
+    specialtyPrograms: [],
+    petPolicy: "",
+    petPolicyDetails: "",
+    visitorPolicy: "",
+    smokingPolicy: "",
+    hasTrialPeriod: false,
+    trialPeriodDuration: "",
+  });
+
   // Legacy staff state (kept for backward compatibility)
   const [staffToResidentRatio, setStaffToResidentRatio] = useState<string>("");
   const [hasRNOnSite, setHasRNOnSite] = useState(false);
@@ -414,6 +426,17 @@ export default function ProviderProfilePage() {
           certificateUrls: data.certificateUrls || [],
           accreditations: data.accreditations || [],
           awards: data.awardsJson ? JSON.parse(data.awardsJson) : [],
+        });
+
+        // Initialize specialty programs & policies (Sprint 8 - backward compatible)
+        setSpecialtyProgramsPolicies({
+          specialtyPrograms: data.specialtyProgramsJson ? JSON.parse(data.specialtyProgramsJson) : [],
+          petPolicy: data.petPolicy || "",
+          petPolicyDetails: data.petPolicyDetails || "",
+          visitorPolicy: data.visitorPolicy || "",
+          smokingPolicy: data.smokingPolicy || "",
+          hasTrialPeriod: data.hasTrialPeriod || false,
+          trialPeriodDuration: data.trialPeriodDuration || "",
         });
 
         // Legacy staff state (kept for backward compatibility)
@@ -533,6 +556,15 @@ export default function ProviderProfilePage() {
       longitude: longitude ? parseFloat(longitude) : null,
       neighborhoodDescription: neighborhoodDescription || null,
       nearbyAmenities: nearbyAmenities,
+      // Specialty Programs & Policies (Sprint 8)
+      specialtyProgramsJson: JSON.stringify(specialtyProgramsPolicies.specialtyPrograms),
+      petPolicy: specialtyProgramsPolicies.petPolicy || null,
+      petPolicyDetails: specialtyProgramsPolicies.petPolicyDetails || null,
+      visitorPolicy: specialtyProgramsPolicies.visitorPolicy || null,
+      smokingPolicy: specialtyProgramsPolicies.smokingPolicy || null,
+      hasTrialPeriod: specialtyProgramsPolicies.hasTrialPeriod,
+      trialPeriodDuration: specialtyProgramsPolicies.trialPeriodDuration || null,
+      // Legacy specialty programs (kept for backward compatibility)
       hasMemoryCare: hasMemoryCare,
       hasRespiteCare: hasRespiteCare,
       hasHospiceCare: hasHospiceCare,
@@ -752,8 +784,18 @@ export default function ProviderProfilePage() {
       required: false,
     },
     {
-      label: "Specialty Care Programs",
-      completed: hasMemoryCare || hasRespiteCare || hasHospiceCare || specialtyPrograms.length > 0,
+      label: "Specialty Programs & Policies",
+      completed: !!(
+        specialtyProgramsPolicies.specialtyPrograms.length > 0 ||
+        specialtyProgramsPolicies.petPolicy ||
+        specialtyProgramsPolicies.smokingPolicy ||
+        specialtyProgramsPolicies.visitorPolicy ||
+        specialtyProgramsPolicies.hasTrialPeriod ||
+        hasMemoryCare ||
+        hasRespiteCare ||
+        hasHospiceCare ||
+        specialtyPrograms.length > 0
+      ),
       required: false,
     },
   ];
@@ -1396,6 +1438,19 @@ export default function ProviderProfilePage() {
                   setVisitingDoctorFrequency(newData.visitingDoctorFrequency);
                   setSelectedLanguages(newData.languagesSpoken);
                 }}
+              />
+            </div>
+
+            {/* Specialty Programs & Policies Section (Sprint 8) */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Specialty Programs & Policies</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Showcase your specialized programs and help families understand your facility&apos;s policies.
+              </p>
+
+              <SpecialtyProgramsSection
+                data={specialtyProgramsPolicies}
+                onChange={setSpecialtyProgramsPolicies}
               />
             </div>
 
