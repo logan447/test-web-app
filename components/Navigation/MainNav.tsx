@@ -168,25 +168,28 @@ export default function MainNav() {
         return;
       }
 
-      // Update session
+      // Update session with new mode
+      console.log('[MODE SWITCH] Step 1: Calling update() with activeMode:', newMode);
       await update({ activeMode: newMode });
+
+      // Wait a moment for JWT cookie to be written
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Refetch session to verify update
+      console.log('[MODE SWITCH] Step 2: Refetching session to verify update');
+      const refetchResult = await update();
+      console.log('[MODE SWITCH] Step 3: Session refetched, activeMode is now:', refetchResult?.user?.activeMode);
 
       // Show success toast
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
+      // Wait again to ensure everything is settled
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       // Debug log before reload
-      console.log('[MODE SWITCH]', {
-        newMode,
-        landingPage: data.landingPage,
-        sessionBeforeReload: session?.user?.activeMode,
-      });
+      console.log('[MODE SWITCH] Step 4: About to reload to:', data.landingPage);
 
-      // Wait to ensure the JWT cookie is written to the browser before reload
-      // Increased to 500ms for better reliability
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Force full page reload to ensure session is completely refreshed
-      // This prevents mode bleeding issues with cached session data
+      // Force full page reload to ensure middleware reads updated JWT
       window.location.href = data.landingPage;
 
     } catch (error) {
