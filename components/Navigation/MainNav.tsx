@@ -422,7 +422,7 @@ export default function MainNav() {
                             Saved Families
                           </Link>
                           <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <span>My Requests</span>
+                            <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -430,7 +430,7 @@ export default function MainNav() {
                             )}
                           </Link>
                           <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            My Dashboard
+                            My Provider Profile
                           </Link>
 
                           {/* Hiring section divider */}
@@ -440,19 +440,19 @@ export default function MainNav() {
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
                               <Link href="/caregiver/browse-organizations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Browse Organizations
+                                Hiring Organizations
                               </Link>
                               <Link href="/provider/hiring-requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Hiring Requests
+                                My Job Opportunities
                               </Link>
                             </>
                           ) : (
                             <>
                               <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Browse Caregivers
+                                Hire Care Staff
                               </Link>
                               <Link href="/provider/hiring-requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Hiring Requests
+                                My Candidates
                               </Link>
                             </>
                           )}
@@ -464,7 +464,7 @@ export default function MainNav() {
                             Find Families
                           </Link>
                           <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            My Dashboard
+                            My Provider Profile
                           </Link>
                         </>
                       )}
@@ -479,7 +479,7 @@ export default function MainNav() {
                         Saved Providers
                       </Link>
                       <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <span>My Requests</span>
+                        <span>My Providers</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                             {unreadCount > 9 ? '9+' : unreadCount}
@@ -704,7 +704,7 @@ export default function MainNav() {
                             Saved Families
                           </Link>
                           <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            <span>My Requests</span>
+                            <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -712,7 +712,7 @@ export default function MainNav() {
                             )}
                           </Link>
                           <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            My Dashboard
+                            My Provider Profile
                           </Link>
 
                           {/* Hiring section divider */}
@@ -722,19 +722,19 @@ export default function MainNav() {
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
                               <Link href="/caregiver/browse-organizations" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                                Browse Organizations
+                                Hiring Organizations
                               </Link>
                               <Link href="/provider/hiring-requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                                Hiring Requests
+                                My Job Opportunities
                               </Link>
                             </>
                           ) : (
                             <>
                               <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                                Browse Caregivers
+                                Hire Care Staff
                               </Link>
                               <Link href="/provider/hiring-requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                                Hiring Requests
+                                My Candidates
                               </Link>
                             </>
                           )}
@@ -746,7 +746,7 @@ export default function MainNav() {
                             Find Families
                           </Link>
                           <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            My Dashboard
+                            My Provider Profile
                           </Link>
                         </>
                       )}
@@ -761,7 +761,7 @@ export default function MainNav() {
                         Saved Providers
                       </Link>
                       <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        <span>My Requests</span>
+                        <span>My Providers</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                             {unreadCount > 9 ? '9+' : unreadCount}
