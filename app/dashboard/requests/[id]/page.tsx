@@ -9,6 +9,8 @@ import PaywallModal from "@/components/Paywall/PaywallModal";
 import { showToast } from "@/lib/toast";
 import { maskContactInfo } from "@/lib/contact-masking";
 import Tooltip from "@/components/UI/Tooltip";
+import ModernMessageBubble from "@/components/Messaging/ModernMessageBubble";
+import MessageTimestamp, { groupMessagesByDate, shouldGroupMessages } from "@/components/Messaging/MessageTimestamp";
 
 type ConsultRequest = {
   id: string;
@@ -418,8 +420,8 @@ export default function RequestDetailPage() {
         </div>
 
         {/* Messages */}
-        <div className="bg-white rounded-lg shadow flex flex-col" style={{ height: "500px" }}>
-          <div className="p-4 border-b">
+        <div className="bg-white rounded-lg shadow flex flex-col overflow-hidden" style={{ height: "600px" }}>
+          <div className="p-4 border-b bg-gray-50">
             <h2 className="text-lg font-semibold text-gray-900 mb-2">Messages</h2>
             {request.status === "PENDING" && !isSender && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
@@ -459,73 +461,124 @@ export default function RequestDetailPage() {
           </div>
 
           {/* Message List */}
-          <div className="flex-grow overflow-y-auto p-4 space-y-4">
-            {/* Initial Request Message */}
+          <div className="flex-grow overflow-y-auto p-4 bg-gray-50" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}>
             {(() => {
-              const isOwnMessage = request.sender.id === session?.user?.id;
-              return (
-                <div className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
-                  <div className="max-w-[70%]">
-                    <div className={`${isOwnMessage ? "bg-blue-500" : "bg-gray-200"} rounded-lg p-3`}>
-                      {!isOwnMessage && (
-                        <p className="text-sm font-medium text-gray-900 mb-1">
-                          {request.sender.name}
-                        </p>
-                      )}
-                      <p className={`${isOwnMessage ? "text-white" : "text-gray-800"}`}>{request.message}</p>
-                      <p className={`text-xs mt-1 ${isOwnMessage ? "text-blue-100" : "text-gray-600"}`}>
-                        {new Date(request.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
+              // Combine initial message with subsequent messages for proper grouping
+              const allMessages = [
+                {
+                  id: `initial-${request.id}`,
+                  senderId: request.sender.id,
+                  content: request.message,
+                  createdAt: request.createdAt,
+                },
+                ...request.messages,
+              ];
 
-            {/* Subsequent Messages */}
-            {request.messages.map((message) => {
-              const isOwnMessage = message.senderId === session?.user?.id;
-              return (
-                <div
-                  key={message.id}
-                  className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`max-w-[70%] ${isOwnMessage ? "bg-blue-500" : "bg-gray-200"} rounded-lg p-3`}>
-                    <p className={`text-sm ${isOwnMessage ? "text-white" : "text-gray-800"}`}>
-                      {message.content}
-                    </p>
-                    <p className={`text-xs mt-1 ${isOwnMessage ? "text-blue-100" : "text-gray-600"}`}>
-                      {new Date(message.createdAt).toLocaleString()}
-                    </p>
+              // Group messages by date
+              const messageGroups = groupMessagesByDate(allMessages);
+
+              return messageGroups.map((group, groupIdx) => (
+                <div key={group.date.toISOString()}>
+                  {/* Date Header */}
+                  <MessageTimestamp date={group.date} />
+
+                  {/* Messages for this date */}
+                  <div className="space-y-0.5">
+                    {group.messages.map((message, messageIdx) => {
+                      const isOwnMessage = message.senderId === session?.user?.id;
+                      const previousMessage = messageIdx > 0 ? group.messages[messageIdx - 1] : null;
+                      const showAvatar = !shouldGroupMessages(message, previousMessage);
+
+                      // Get sender name
+                      const senderName = isOwnMessage
+                        ? session?.user?.name || "You"
+                        : request.sender.id === message.senderId
+                        ? request.sender.name
+                        : "Unknown";
+
+                      return (
+                        <ModernMessageBubble
+                          key={message.id}
+                          content={message.content}
+                          isOwn={isOwnMessage}
+                          senderName={senderName}
+                          timestamp={new Date(message.createdAt)}
+                          showAvatar={showAvatar}
+                          showName={false}
+                          status={isOwnMessage ? "SENT" : undefined}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
+              ));
+            })()}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Message Input */}
-          <div className="p-4 border-t">
-            <form onSubmit={handleSendMessage} className="flex gap-2">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type your message..."
-                className="flex-grow px-3 py-2 border border-gray-300 rounded-md"
-                disabled={request.status === "DECLINED" || request.status === "COMPLETED"}
-              />
+          <div className="p-4 border-t bg-white">
+            <form onSubmit={handleSendMessage} className="flex gap-3 items-end">
+              <div className="flex-grow">
+                <textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    // Send on Enter (but allow Shift+Enter for new lines)
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage(e as any);
+                    }
+                  }}
+                  placeholder="Type a message..."
+                  rows={1}
+                  className="
+                    w-full px-4 py-3
+                    border border-gray-300 rounded-2xl
+                    focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                    resize-none max-h-32
+                    disabled:bg-gray-100 disabled:cursor-not-allowed
+                  "
+                  disabled={request.status === "DECLINED" || request.status === "COMPLETED"}
+                  style={{
+                    minHeight: "48px",
+                    maxHeight: "128px",
+                  }}
+                />
+              </div>
               <button
                 type="submit"
                 disabled={sending || !newMessage.trim() || request.status === "DECLINED" || request.status === "COMPLETED"}
-                className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700 disabled:opacity-50"
+                className="
+                  bg-primary-600 text-white
+                  w-12 h-12
+                  rounded-full
+                  flex items-center justify-center
+                  hover:bg-primary-700
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  transition-all duration-200
+                  shadow-md hover:shadow-lg
+                  flex-shrink-0
+                "
+                aria-label="Send message"
               >
-                {sending ? "Sending..." : "Send"}
+                {sending ? (
+                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                  </svg>
+                )}
               </button>
             </form>
             {(request.status === "DECLINED" || request.status === "COMPLETED") && (
-              <p className="text-sm text-gray-500 mt-2">
-                This conversation is {request.status.toLowerCase()}.
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                This conversation is {request.status.toLowerCase()}
               </p>
             )}
           </div>
