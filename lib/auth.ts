@@ -18,10 +18,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log('🔐 Authorize called with email:', credentials?.email);
-
         if (!credentials?.email || !credentials?.password) {
-          console.log('❌ Missing credentials');
           throw new Error("Invalid credentials");
         }
 
@@ -31,10 +28,7 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        console.log('👤 User found:', user ? 'YES' : 'NO');
-
         if (!user || !user.passwordHash) {
-          console.log('❌ User not found or no password hash');
           throw new Error("Invalid credentials");
         }
 
@@ -43,14 +37,10 @@ export const authOptions: NextAuthOptions = {
           user.passwordHash
         );
 
-        console.log('🔑 Password valid:', isPasswordValid);
-
         if (!isPasswordValid) {
-          console.log('❌ Invalid password');
           throw new Error("Invalid credentials");
         }
 
-        console.log('✅ Auth successful, returning user data');
         return {
           id: user.id,
           email: user.email,
@@ -64,10 +54,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, trigger, session: updateSession }) {
       if (user) {
-        console.log('🔐 JWT callback - new login:', {
-          email: user.email,
-          activeMode: user.activeMode,
-        });
         return {
           ...token,
           id: user.id,
@@ -78,14 +64,13 @@ export const authOptions: NextAuthOptions = {
 
       // Handle session updates (e.g., when switching modes)
       if (trigger === "update" && updateSession?.activeMode) {
-        console.log('🔄 JWT callback - mode update:', updateSession.activeMode);
         token.activeMode = updateSession.activeMode;
       }
 
       return token;
     },
     async session({ session, token }) {
-      const enhancedSession = {
+      return {
         ...session,
         user: {
           ...session.user,
@@ -94,11 +79,6 @@ export const authOptions: NextAuthOptions = {
           activeMode: token.activeMode,
         },
       };
-      console.log('📋 Session callback:', {
-        email: session.user?.email,
-        activeMode: token.activeMode,
-      });
-      return enhancedSession;
     },
   },
 };

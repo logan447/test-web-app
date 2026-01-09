@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <!-- OG Image for social sharing - 1200x630px -->
+  <rect width="1200" height="630" fill="#f0f9ff"/>
+
+  <!-- Background pattern -->
+  <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <circle cx="5" cy="5" r="2" fill="#bfdbfe" opacity="0.5"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- Main content area -->
+  <rect x="100" y="100" width="1000" height="430" rx="20" fill="white" opacity="0.95"/>
+
+  <!-- Logo circle -->
+  <circle cx="300" cy="315" r="80" fill="#2563eb"/>
+  <circle cx="300" cy="315" r="60" fill="white"/>
+  <circle cx="300" cy="315" r="45" fill="#2563eb"/>
+  <path d="M300 285 Q290 275, 280 285 Q270 295, 280 305 L300 325 L320 305 Q330 295, 320 285 Q310 275, 300 285 Z" fill="white"/>
+
+  <!-- Text -->
+  <text x="450" y="280" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="bold" fill="#1e40af">
+    Olera
+  </text>
+  <text x="450" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="36" fill="#64748b">
+    Find the Perfect Care
+  </text>
+  <text x="450" y="395" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#94a3b8">
+    Connect with trusted senior living providers
+  </text>
+</svg>

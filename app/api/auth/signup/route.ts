@@ -33,8 +33,6 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log('✅ User created:', { id: user.id, email: user.email, role: user.role, activeMode: user.activeMode });
-
     return NextResponse.json(
       { message: "User created successfully", userId: user.id },
       { status: 201 }

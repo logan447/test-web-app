@@ -44,32 +44,39 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Generate meeting link based on platform
+    // Generate meeting link using Jitsi Meet (free, no API required)
+    // Jitsi provides instant, no-registration video conferencing
     let meetingLink = "";
     let messageContent = "";
     const userName = session.user.name || "Someone";
 
+    // Generate unique meeting room ID
+    const meetingId = `olera-${requestId.slice(0, 8)}-${Date.now().toString(36)}`;
+
+    // Use Jitsi Meet for all platforms (works without API keys)
+    // Room names are unique per request and timestamp
+    meetingLink = `https://meet.jit.si/${meetingId}`;
+
+    // Customize message based on platform preference
+    let platformName = "video call";
+    let platformEmoji = "📹";
+
     switch (platform) {
       case "zoom":
-        // In production, integrate with Zoom API to create actual meetings
-        // For now, use a placeholder link
-        meetingLink = `https://zoom.us/j/${Math.floor(100000000 + Math.random() * 900000000)}`;
-        messageContent = `📹 **Video Call Invitation**\n\n${userName} has started a Zoom meeting.\n\n🔗 **Join Meeting:**\n${meetingLink}\n\nClick the link above to join the call.`;
+        platformName = "Zoom-style meeting";
+        platformEmoji = "💼";
         break;
-
       case "google":
-        // In production, integrate with Google Meet API
-        meetingLink = `https://meet.google.com/${generateRandomCode(10)}`;
-        messageContent = `📹 **Video Call Invitation**\n\n${userName} has started a Google Meet.\n\n🔗 **Join Meeting:**\n${meetingLink}\n\nClick the link above to join the call.`;
+        platformName = "Google Meet-style conference";
+        platformEmoji = "🎥";
         break;
-
       case "custom":
-        // Generate a generic meeting link (could integrate with Twilio, Jitsi, etc.)
-        const meetingId = generateRandomCode(12);
-        meetingLink = `https://meet.olera.com/${meetingId}`;
-        messageContent = `📹 **Video Call Invitation**\n\n${userName} has started a video call.\n\n🔗 **Join Meeting:**\n${meetingLink}\n\nClick the link above to join the call.`;
+        platformName = "video call";
+        platformEmoji = "📹";
         break;
     }
+
+    messageContent = `${platformEmoji} **Video Call Invitation**\n\n${userName} has started a ${platformName}.\n\n🔗 **Join Meeting:**\n${meetingLink}\n\n💡 *No app download required - works in your browser!*\n\nClick the link above to join the call.`;
 
     // Create a message with the video call link
     const message = await prisma.message.create({
@@ -99,19 +106,4 @@ export async function POST(
       { status: 500 }
     );
   }
-}
-
-// Helper function to generate random meeting codes
-function generateRandomCode(length: number): string {
-  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters[randomIndex];
-    // Add hyphens every 3 characters for readability
-    if (i > 0 && (i + 1) % 3 === 0 && i < length - 1) {
-      result += "-";
-    }
-  }
-  return result;
 }

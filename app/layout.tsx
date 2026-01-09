@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     siteName: "Olera",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "Olera - Elder Care Made Simple",
@@ -52,8 +52,13 @@ export const metadata: Metadata = {
     title: "Olera - Find Trusted Elder Care Providers",
     description:
       "Find trusted elder care providers near you. Compare facilities, read reviews, and connect with verified caregivers nationwide.",
-    images: ["/twitter-image.jpg"],
+    images: ["/og-image.svg"],
     creator: "@olera",
+  },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
   },
   robots: {
     index: true,
