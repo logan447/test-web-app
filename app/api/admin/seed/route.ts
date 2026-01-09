@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { PrismaClient, ProviderType, CareType } from '@prisma/client';
-import { hash } from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -24,32 +20,39 @@ export async function POST(req: Request) {
 
     console.log('🌱 Starting database seed...');
 
-    // Import and run the seed logic
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
-    const execPromise = promisify(exec);
+    // Import and run the seed logic directly
+    const { main } = await import('@/prisma/seed');
 
-    // Run the seed script
-    const { stdout, stderr } = await execPromise('npx prisma db seed');
+    // Capture console output
+    const logs: string[] = [];
+    const originalLog = console.log;
+    console.log = (...args: any[]) => {
+      logs.push(args.join(' '));
+      originalLog(...args);
+    };
 
-    console.log('Seed output:', stdout);
-    if (stderr) console.error('Seed errors:', stderr);
+    try {
+      await main();
+      console.log = originalLog;
 
-    return NextResponse.json({
-      success: true,
-      message: 'Database seeded successfully',
-      output: stdout,
-    });
+      return NextResponse.json({
+        success: true,
+        message: 'Database seeded successfully',
+        output: logs.join('\n'),
+      });
+    } catch (seedError: any) {
+      console.log = originalLog;
+      throw seedError;
+    }
   } catch (error: any) {
     console.error('Seed error:', error);
     return NextResponse.json(
       {
         error: 'Failed to seed database',
         details: error.message,
+        stack: error.stack,
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
