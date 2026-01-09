@@ -11,6 +11,7 @@ import CareServicesSection, { CareServicesData } from "@/components/ProviderProf
 import PricingStructureSection, { PricingStructureData } from "@/components/ProviderProfile/PricingStructureSection";
 import AmenitiesFeaturesSection, { AmenitiesFeaturesData } from "@/components/ProviderProfile/AmenitiesFeaturesSection";
 import StaffInformationSection, { StaffInformationData } from "@/components/ProviderProfile/StaffInformationSection";
+import CertificationsLicensingSection, { CertificationsLicensingData, Award } from "@/components/ProviderProfile/CertificationsLicensingSection";
 import { showToast } from "@/lib/toast";
 
 type Provider = {
@@ -290,6 +291,15 @@ export default function ProviderProfilePage() {
     languagesSpoken: [],
   });
 
+  // Certifications & Licensing (Sprint 7)
+  const [certificationsLicensing, setCertificationsLicensing] = useState<CertificationsLicensingData>({
+    licensed: false,
+    licenseNumber: "",
+    certificateUrls: [],
+    accreditations: [],
+    awards: [],
+  });
+
   // Legacy staff state (kept for backward compatibility)
   const [staffToResidentRatio, setStaffToResidentRatio] = useState<string>("");
   const [hasRNOnSite, setHasRNOnSite] = useState(false);
@@ -397,6 +407,15 @@ export default function ProviderProfilePage() {
           languagesSpoken: data.languagesSpoken || [],
         });
 
+        // Initialize certifications & licensing (Sprint 7 - backward compatible)
+        setCertificationsLicensing({
+          licensed: data.licensed || false,
+          licenseNumber: data.licenseNumber || "",
+          certificateUrls: data.certificateUrls || [],
+          accreditations: data.accreditations || [],
+          awards: data.awardsJson ? JSON.parse(data.awardsJson) : [],
+        });
+
         // Legacy staff state (kept for backward compatibility)
         setStaffToResidentRatio(data.staffToResidentRatio || "");
         setHasRNOnSite(data.hasRNOnSite || false);
@@ -450,8 +469,6 @@ export default function ProviderProfilePage() {
       email: formData.get("email"),
       website: formData.get("website") || "",
       yearsInBusiness: parseInt(formData.get("yearsInBusiness") as string) || 0,
-      licensed: licensed,
-      licenseNumber: formData.get("licenseNumber") || "",
       capacity: formData.get("capacity") ? parseInt(formData.get("capacity") as string) : null,
       availableForFamilies: availableForFamilies,
       availableForOrganizations: availableForOrganizations,
@@ -473,6 +490,13 @@ export default function ProviderProfilePage() {
       financialAssistanceTypes: pricingStructure.financialAssistanceTypes,
       offersPaymentPlans: pricingStructure.offersPaymentPlans,
       paymentPlanDetails: pricingStructure.paymentPlanDetails,
+      // Certifications & Licensing (Sprint 7)
+      licensed: certificationsLicensing.licensed,
+      licenseNumber: certificationsLicensing.licenseNumber || null,
+      certificateUrls: certificationsLicensing.certificateUrls,
+      accreditations: certificationsLicensing.accreditations,
+      awardsJson: JSON.stringify(certificationsLicensing.awards),
+      // Legacy certifications (kept for backward compatibility)
       certifications: selectedCertifications,
       insuranceVerified: insuranceVerified,
       backgroundChecked: backgroundChecked,
@@ -674,7 +698,15 @@ export default function ProviderProfilePage() {
     },
     {
       label: "Certifications & Verifications",
-      completed: selectedCertifications.length > 0 || insuranceVerified || backgroundChecked,
+      completed: !!(
+        certificationsLicensing.licensed ||
+        certificationsLicensing.certificateUrls.length > 0 ||
+        certificationsLicensing.accreditations.length > 0 ||
+        certificationsLicensing.awards.length > 0 ||
+        selectedCertifications.length > 0 ||
+        insuranceVerified ||
+        backgroundChecked
+      ),
       required: false,
     },
     {
@@ -1215,60 +1247,54 @@ export default function ProviderProfilePage() {
               />
             </div>
 
-            {/* Trust & Verification Section */}
+            {/* Certifications & Licensing Section (Sprint 7) */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Trust & Verification</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Certifications, Licensing & Awards</h3>
               <p className="text-sm text-gray-600 mb-4">
-                Build trust with families by showcasing your certifications and verifications.
+                Build trust with families by showcasing your licenses, certifications, accreditations, and awards.
               </p>
 
-              <div className="space-y-4 mb-4">
-                <label className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={insuranceVerified}
-                    onChange={(e) => setInsuranceVerified(e.target.checked)}
-                    className="mt-1 rounded border-gray-300"
-                  />
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Insurance Verified</span>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Your business has verified liability and/or professional insurance
-                    </p>
-                  </div>
-                </label>
-                <label className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={backgroundChecked}
-                    onChange={(e) => setBackgroundChecked(e.target.checked)}
-                    className="mt-1 rounded border-gray-300"
-                  />
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Background Checks Completed</span>
-                    <p className="text-xs text-gray-500 mt-1">
-                      All staff members have completed background checks
-                    </p>
-                  </div>
-                </label>
-              </div>
+              <CertificationsLicensingSection
+                data={certificationsLicensing}
+                onChange={(newData) => {
+                  setCertificationsLicensing(newData);
+                  // Keep legacy state in sync for backward compatibility
+                  setLicensed(newData.licensed);
+                }}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Certifications & Accreditations (Select all that apply)
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {CERTIFICATION_OPTIONS.map((cert) => (
-                    <label key={cert} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedCertifications.includes(cert)}
-                        onChange={() => toggleCertification(cert)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{cert}</span>
-                    </label>
-                  ))}
+              {/* Legacy verification checkboxes (kept separately) */}
+              <div className="border-t pt-6 mt-6">
+                <h4 className="text-md font-semibold text-gray-900 mb-3">Additional Verifications</h4>
+                <div className="space-y-4">
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={insuranceVerified}
+                      onChange={(e) => setInsuranceVerified(e.target.checked)}
+                      className="mt-1 rounded border-gray-300"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Insurance Verified</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Your business has verified liability and/or professional insurance
+                      </p>
+                    </div>
+                  </label>
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={backgroundChecked}
+                      onChange={(e) => setBackgroundChecked(e.target.checked)}
+                      className="mt-1 rounded border-gray-300"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Background Checks Completed</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        All staff members have completed background checks
+                      </p>
+                    </div>
+                  </label>
                 </div>
               </div>
             </div>

@@ -230,9 +230,14 @@ model Provider {
   capacity        Int?
 
   // Trust & Verification
-  certifications       String[]       // Array of certifications (e.g., "Medicare Certified", "Joint Commission Accredited")
+  certifications       String[]       @default([])  // Array of certifications (e.g., "Medicare Certified", "Joint Commission Accredited") (legacy)
   insuranceVerified    Boolean        @default(false)
   backgroundChecked    Boolean        @default(false)
+
+  // Enhanced Certifications & Licensing (Sprint 7)
+  certificateUrls      String[]       @default([])  // URLs of uploaded certificates (licenses, accreditations, insurance)
+  accreditations       String[]       @default([])  // Accreditation IDs (joint_commission, carf, alfa, etc.)
+  awardsJson           String?        // JSON array of awards {name, year, description}
 
   // Capacity & Availability
   totalCapacity        Int?           // Total number of residents/clients the facility can accommodate
