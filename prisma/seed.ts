@@ -1495,6 +1495,125 @@ async function main() {
     },
   });
 
+  // Scenario 4: Org 8 (CareFirst Home Services) - Family Mode Requests
+  // Org8 in family mode contacts individual caregivers for staff hiring
+  const request10 = await prisma.consultRequest.create({
+    data: {
+      senderId: org8.id,
+      familyProfileId: familyProfiles[0].id, // Using dummy family profile
+      providerId: providers.find(p => p.userId === caregiver4.id)!.id,
+      requestType: 'HIRING',
+      message: 'Hi Angela, CareFirst Home Services is expanding and looking for experienced caregivers to join our team. Would you be interested in discussing employment opportunities?',
+      status: 'ACCEPTED',
+      createdAt: new Date('2026-01-05T09:00:00Z'),
+    },
+  });
+
+  await prisma.message.createMany({
+    data: [
+      {
+        consultRequestId: request10.id,
+        senderId: caregiver4.id,
+        content: 'Yes, I would be very interested! What positions do you have available?',
+        createdAt: new Date('2026-01-05T10:00:00Z'),
+        status: 'READ',
+        readAt: new Date('2026-01-05T10:30:00Z'),
+      },
+      {
+        consultRequestId: request10.id,
+        senderId: org8.id,
+        content: 'We have full-time and part-time positions available. Our caregivers work with clients in their homes throughout San Diego. Can we schedule a call this week?',
+        createdAt: new Date('2026-01-05T11:00:00Z'),
+        status: 'READ',
+        readAt: new Date('2026-01-05T11:15:00Z'),
+      },
+    ],
+  });
+
+  const request11 = await prisma.consultRequest.create({
+    data: {
+      senderId: org8.id,
+      familyProfileId: familyProfiles[0].id,
+      providerId: providers.find(p => p.userId === caregiver5.id)!.id,
+      requestType: 'HIRING',
+      message: 'Nancy, we are impressed with your memory care background. CareFirst has several clients who need specialized dementia care. Would you like to join our team?',
+      status: 'PENDING',
+      createdAt: new Date('2026-01-08T08:00:00Z'),
+    },
+  });
+
+  // Scenario 5: Org 8 (CareFirst) - Provider Mode Requests
+  // Families contact Org8's home care services
+  const request12 = await prisma.consultRequest.create({
+    data: {
+      senderId: family2.id,
+      familyProfileId: familyProfiles.find(fp => fp.userId === family2.id)!.id,
+      providerId: providers.find(p => p.userId === org8.id)!.id,
+      requestType: 'CONSULTATION',
+      message: 'My father needs part-time home care assistance, about 20 hours per week. Can you provide caregivers who speak Spanish?',
+      status: 'ACCEPTED',
+      createdAt: new Date('2026-01-04T13:00:00Z'),
+    },
+  });
+
+  await prisma.message.createMany({
+    data: [
+      {
+        consultRequestId: request12.id,
+        senderId: org8.id,
+        content: 'Absolutely! We have several bilingual caregivers available. I would love to discuss your fathers needs and create a care plan. When would be a good time to talk?',
+        createdAt: new Date('2026-01-04T14:00:00Z'),
+        status: 'READ',
+        readAt: new Date('2026-01-04T14:30:00Z'),
+      },
+      {
+        consultRequestId: request12.id,
+        senderId: family2.id,
+        content: 'Tomorrow afternoon would work well. What information do you need from me?',
+        createdAt: new Date('2026-01-04T15:00:00Z'),
+        status: 'READ',
+        readAt: new Date('2026-01-04T15:15:00Z'),
+      },
+    ],
+  });
+
+  const request13 = await prisma.consultRequest.create({
+    data: {
+      senderId: family6.id,
+      familyProfileId: familyProfiles.find(fp => fp.userId === family6.id)!.id,
+      providerId: providers.find(p => p.userId === org8.id)!.id,
+      requestType: 'CONSULTATION',
+      message: 'I need companion care for my mother 3 days a week. She mainly needs help with light housekeeping and meal preparation. Do you offer this service?',
+      status: 'ACCEPTED',
+      createdAt: new Date('2026-01-07T14:00:00Z'),
+    },
+  });
+
+  await prisma.message.createMany({
+    data: [
+      {
+        consultRequestId: request13.id,
+        senderId: org8.id,
+        content: 'Yes, companion care is one of our core services! We can match your mother with a caregiver who specializes in light housekeeping and meal prep. What days work best?',
+        createdAt: new Date('2026-01-07T15:00:00Z'),
+        status: 'READ',
+        readAt: new Date('2026-01-07T15:30:00Z'),
+      },
+    ],
+  });
+
+  const request14 = await prisma.consultRequest.create({
+    data: {
+      senderId: family9.id,
+      familyProfileId: familyProfiles.find(fp => fp.userId === family9.id)!.id,
+      providerId: providers.find(p => p.userId === org8.id)!.id,
+      requestType: 'CONSULTATION',
+      message: 'What are your hourly rates for basic personal care assistance? My mother needs help with bathing and dressing in the mornings.',
+      status: 'PENDING',
+      createdAt: new Date('2026-01-08T16:00:00Z'),
+    },
+  });
+
   // Additional engagement: SavedProvider relationships
   await prisma.savedProvider.createMany({
     data: [
@@ -1538,14 +1657,24 @@ async function main() {
         providerId: providers.find(p => p.userId === org3.id)!.id,
         notes: 'Luxury option',
       },
+      {
+        familyProfileId: familyProfiles[0].id, // Org8 saved caregivers for potential hiring
+        providerId: providers.find(p => p.userId === caregiver4.id)!.id,
+        notes: 'Interviewing for full-time position',
+      },
+      {
+        familyProfileId: familyProfiles[0].id,
+        providerId: providers.find(p => p.userId === caregiver5.id)!.id,
+        notes: 'Memory care specialist - potential hire',
+      },
     ],
   });
 
   console.log('✅ Created engagement data:\n');
-  console.log('   - 9 consultation/hiring requests');
-  console.log('   - 12 messages across conversations');
+  console.log('   - 14 consultation/hiring requests');
+  console.log('   - 18 messages across conversations');
   console.log('   - 1 scheduled tour');
-  console.log('   - 8 saved providers\n');
+  console.log('   - 10 saved providers\n');
 
   console.log('📊 Seed Summary:');
   console.log('   - 30 total user accounts (12 families, 12 orgs, 6 caregivers)');
