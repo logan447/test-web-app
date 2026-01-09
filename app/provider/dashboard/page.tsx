@@ -25,6 +25,10 @@ interface Activity {
   isUnread: boolean;
 }
 
+interface ProviderProfile {
+  providerType: string;
+}
+
 export default function ProviderDashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -37,6 +41,7 @@ export default function ProviderDashboardPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
+  const [providerProfile, setProviderProfile] = useState<ProviderProfile | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -53,9 +58,10 @@ export default function ProviderDashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsRes, activitiesRes] = await Promise.all([
+      const [statsRes, activitiesRes, profileRes] = await Promise.all([
         fetch("/api/dashboard/stats"),
         fetch("/api/dashboard/activity"),
+        fetch("/api/providers/me"),
       ]);
 
       if (statsRes.ok) {
@@ -66,6 +72,11 @@ export default function ProviderDashboardPage() {
       if (activitiesRes.ok) {
         const data = await activitiesRes.json();
         setActivities(data.activities || []);
+      }
+
+      if (profileRes.ok) {
+        const profile = await profileRes.json();
+        setProviderProfile(profile);
       }
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
@@ -97,6 +108,11 @@ export default function ProviderDashboardPage() {
   const filteredActivities = filterType === "all"
     ? activities
     : activities.filter(a => a.type === filterType);
+
+  // Determine provider type for customization
+  const isIndependentCaregiver = providerProfile?.providerType === 'INDEPENDENT_CAREGIVER';
+  const isHomeCareFacility = providerProfile?.providerType === 'HOME_CARE';
+  const isOrganization = !isIndependentCaregiver;
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -150,9 +166,13 @@ export default function ProviderDashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Provider Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isIndependentCaregiver ? "Caregiver Dashboard" : "Provider Dashboard"}
+          </h1>
           <p className="text-gray-600 mt-2">
-            Connect with families who need your services
+            {isIndependentCaregiver
+              ? "Find families and organizations seeking caregivers"
+              : "Connect with families who need your services"}
           </p>
         </div>
 
@@ -322,30 +342,85 @@ export default function ProviderDashboardPage() {
                 <p className="text-sm text-gray-600">Update services</p>
               </div>
             </Link>
-            <Link
-              href="/provider/requests"
-              className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
-            >
-              <div className="bg-green-100 p-3 rounded-lg mr-4">
-                <svg
-                  className="w-6 h-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Find Families</h3>
-                <p className="text-sm text-gray-600">Browse care requests</p>
-              </div>
-            </Link>
+
+            {/* Conditional second action based on provider type */}
+            {isIndependentCaregiver ? (
+              <Link
+                href="/caregiver/browse-organizations"
+                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+              >
+                <div className="bg-green-100 p-3 rounded-lg mr-4">
+                  <svg
+                    className="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Browse Organizations</h3>
+                  <p className="text-sm text-gray-600">Find employment</p>
+                </div>
+              </Link>
+            ) : isHomeCareFacility ? (
+              <Link
+                href="/provider/hire-staff"
+                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+              >
+                <div className="bg-green-100 p-3 rounded-lg mr-4">
+                  <svg
+                    className="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Hire Care Staff</h3>
+                  <p className="text-sm text-gray-600">Find caregivers</p>
+                </div>
+              </Link>
+            ) : (
+              <Link
+                href="/provider/requests"
+                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+              >
+                <div className="bg-green-100 p-3 rounded-lg mr-4">
+                  <svg
+                    className="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Find Families</h3>
+                  <p className="text-sm text-gray-600">Browse care requests</p>
+                </div>
+              </Link>
+            )}
+
             <Link
               href="/dashboard/requests"
               className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
@@ -391,7 +466,9 @@ export default function ProviderDashboardPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">Messages</h3>
-                <p className="text-sm text-gray-600">Chat with families</p>
+                <p className="text-sm text-gray-600">
+                  {isIndependentCaregiver ? "Chat with clients" : "Chat with families"}
+                </p>
               </div>
             </Link>
           </div>
@@ -509,12 +586,21 @@ export default function ProviderDashboardPage() {
                 <p className="text-gray-500 mb-4">
                   {filterType === "all" ? "No recent activity yet" : `No ${filterType.toLowerCase()} activity`}
                 </p>
-                <Link
-                  href="/provider/requests"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Find families to get started →
-                </Link>
+                {isIndependentCaregiver ? (
+                  <Link
+                    href="/caregiver/browse-organizations"
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Browse organizations to get started →
+                  </Link>
+                ) : (
+                  <Link
+                    href="/provider/requests"
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Find families to get started →
+                  </Link>
+                )}
               </div>
             )}
           </div>
