@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
+// Admin page for seeding the database with demo data
 export default function SeedAdminPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
