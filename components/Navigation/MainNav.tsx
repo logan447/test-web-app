@@ -165,43 +165,57 @@ export default function MainNav() {
       if (!response.ok) {
         console.error('Failed to switch mode:', data.error);
         showToast.error('Failed to switch mode');
+        setSwitchingMode(false);
         return;
       }
 
-      // Update session with new mode
-      console.log('[MODE SWITCH] Step 1: Calling update() with activeMode:', newMode);
-      await update({ activeMode: newMode });
-
-      // Wait a moment for JWT cookie to be written
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      // Refetch session to verify update
-      console.log('[MODE SWITCH] Step 2: Refetching session to verify update');
-      const refetchResult = await update();
-      console.log('[MODE SWITCH] Step 3: Session refetched, activeMode is now:', refetchResult?.user?.activeMode);
-
       // Show success toast
-      showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
+      showToast.success(`Switching to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode...`);
 
-      // Wait again to ensure everything is settled
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Store the landing page in sessionStorage so we can navigate after reload
+      sessionStorage.setItem('pendingModeSwitch', JSON.stringify({
+        mode: newMode,
+        landingPage: data.landingPage,
+      }));
 
-      // Debug log before reload
-      console.log('[MODE SWITCH] Step 4: About to reload to:', data.landingPage);
-
-      // Force full page reload to ensure middleware reads updated JWT
-      window.location.href = data.landingPage;
+      // Do a full page reload to ensure fresh JWT is loaded from server
+      // After reload, we'll check sessionStorage and navigate to the landing page
+      window.location.reload();
 
     } catch (error) {
       console.error('Error switching mode:', error);
       showToast.error('Failed to switch mode');
-    } finally {
       setSwitchingMode(false);
     }
   };
 
   const currentMode = session?.user?.activeMode || 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
+
+  // Check for pending mode switch after page reload
+  useEffect(() => {
+    const pendingSwitch = sessionStorage.getItem('pendingModeSwitch');
+    if (pendingSwitch && session) {
+      try {
+        const { mode, landingPage } = JSON.parse(pendingSwitch);
+
+        // Verify the mode switch was successful
+        if (session.user.activeMode === mode) {
+          console.log('[MODE SWITCH] Page reloaded, navigating to:', landingPage);
+          sessionStorage.removeItem('pendingModeSwitch');
+
+          // Navigate to the landing page
+          window.location.href = landingPage;
+        } else {
+          console.warn('[MODE SWITCH] Mode mismatch after reload. Expected:', mode, 'Got:', session.user.activeMode);
+          sessionStorage.removeItem('pendingModeSwitch');
+        }
+      } catch (error) {
+        console.error('[MODE SWITCH] Error processing pending switch:', error);
+        sessionStorage.removeItem('pendingModeSwitch');
+      }
+    }
+  }, [session]);
 
   // Debug: Log session state on mount and when it changes
   useEffect(() => {
