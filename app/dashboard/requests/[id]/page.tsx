@@ -11,6 +11,8 @@ import { maskContactInfo } from "@/lib/contact-masking";
 import Tooltip from "@/components/UI/Tooltip";
 import ModernMessageBubble from "@/components/Messaging/ModernMessageBubble";
 import MessageTimestamp, { groupMessagesByDate, shouldGroupMessages } from "@/components/Messaging/MessageTimestamp";
+import TypingIndicator from "@/components/Messaging/TypingIndicator";
+import OnlineStatus from "@/components/Messaging/OnlineStatus";
 
 type ConsultRequest = {
   id: string;
@@ -59,6 +61,14 @@ export default function RequestDetailPage() {
   const [newMessage, setNewMessage] = useState("");
   const [paywallOpen, setPaywallOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Real-time presence and typing indicators
+  const [presence, setPresence] = useState<{
+    otherUser: { id: string; name: string; lastSeen: string | null };
+    isOnline: boolean;
+    isTyping: boolean;
+  } | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Determine back link based on where user came from and request type
   const fromSaved = searchParams.get('from') === 'saved';
@@ -120,9 +130,51 @@ export default function RequestDetailPage() {
     }
   };
 
+  // Fetch presence (online/typing status)
+  const fetchPresence = async () => {
+    try {
+      const response = await fetch(`/api/requests/${params.id}/presence`);
+      if (response.ok) {
+        const data = await response.json();
+        setPresence(data);
+      }
+    } catch (err) {
+      console.error("Error fetching presence:", err);
+    }
+  };
+
+  // Send typing status
+  const sendTypingStatus = async (isTyping: boolean) => {
+    try {
+      await fetch(`/api/requests/${params.id}/typing`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isTyping }),
+      });
+    } catch (err) {
+      console.error("Error sending typing status:", err);
+    }
+  };
+
+  // Poll for presence updates every 3 seconds
+  useEffect(() => {
+    if (status === "authenticated" && request) {
+      fetchPresence();
+      const interval = setInterval(fetchPresence, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [status, request?.id]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
+
+    // Clear typing indicator when sending
+    sendTypingStatus(false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
 
     setSending(true);
     try {
@@ -140,6 +192,34 @@ export default function RequestDetailPage() {
       console.error("Error sending message:", err);
     } finally {
       setSending(false);
+    }
+  };
+
+  // Handle typing in message input
+  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setNewMessage(value);
+
+    // Send typing indicator
+    if (value.trim()) {
+      sendTypingStatus(true);
+
+      // Clear existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Stop typing indicator after 3 seconds of no typing
+      typingTimeoutRef.current = setTimeout(() => {
+        sendTypingStatus(false);
+      }, 3000);
+    } else {
+      // Clear typing if message is empty
+      sendTypingStatus(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
     }
   };
 
@@ -273,11 +353,22 @@ export default function RequestDetailPage() {
               <h1 className="text-2xl font-bold text-gray-900">
                 {isFamily ? request.provider.name : request.familyProfile.user.name}
               </h1>
-              <p className="text-gray-600">
-                {isFamily
-                  ? `${request.provider.providerType.split('_').join(' ')} • ${request.provider.city}, ${request.provider.state}`
-                  : `${request.familyProfile.city}, ${request.familyProfile.state}`}
-              </p>
+              <div className="flex items-center gap-3">
+                <p className="text-gray-600">
+                  {isFamily
+                    ? `${request.provider.providerType.split('_').join(' ')} • ${request.provider.city}, ${request.provider.state}`
+                    : `${request.familyProfile.city}, ${request.familyProfile.state}`}
+                </p>
+                {presence && (
+                  <OnlineStatus
+                    isOnline={presence.isOnline}
+                    lastSeen={presence.otherUser.lastSeen ? new Date(presence.otherUser.lastSeen) : undefined}
+                    userName={presence.otherUser.name}
+                    showLabel={false}
+                    size="md"
+                  />
+                )}
+              </div>
             </div>
             <Tooltip content={getStatusTooltip(request.status, isSender)}>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)} cursor-help`}>
@@ -515,6 +606,15 @@ export default function RequestDetailPage() {
                 </div>
               ));
             })()}
+
+            {/* Typing Indicator */}
+            {presence?.isTyping && presence?.otherUser && (
+              <TypingIndicator
+                userName={presence.otherUser.name}
+                show={true}
+              />
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -524,7 +624,7 @@ export default function RequestDetailPage() {
               <div className="flex-grow">
                 <textarea
                   value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
+                  onChange={handleMessageChange}
                   onKeyDown={(e) => {
                     // Send on Enter (but allow Shift+Enter for new lines)
                     if (e.key === "Enter" && !e.shiftKey) {

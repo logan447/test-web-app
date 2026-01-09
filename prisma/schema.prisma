@@ -80,6 +80,9 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Real-time presence
+  lastSeen      DateTime? // Last activity timestamp for online/offline status
+
   // Relationships
   familyProfile        FamilyProfile?
   provider             Provider?
@@ -411,6 +414,10 @@ model ConsultRequest {
   contactReason          String?   // "Schedule a tour", "Request pricing", "Ask a question", "Request immediate placement"
   preferredContactMethod String?   // "Phone", "Email", "Either"
   preferredTourDate      DateTime? // Preferred date/time for facility tour
+
+  // Real-time messaging features (Sprint 2)
+  typingUserId           String?   // User ID of person currently typing (if any)
+  typingUpdatedAt        DateTime? // Last time typing status was updated
 
   // Notification tracking
   viewedByReceiver Boolean             @default(false)
