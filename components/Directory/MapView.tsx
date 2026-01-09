@@ -128,7 +128,7 @@ export default function MapView({ providers }: MapViewProps) {
                   {provider.city}, {provider.state}
                 </p>
 
-                {provider.averageRating !== null && provider.reviewCount > 0 && (
+                {provider.averageRating != null && provider.reviewCount > 0 && (
                   <div className="flex items-center gap-1 mb-2">
                     <svg
                       className="w-4 h-4 text-yellow-400 fill-current"
