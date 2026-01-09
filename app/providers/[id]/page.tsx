@@ -195,7 +195,7 @@ export default function ProviderProfilePage() {
 
   const handleContactSubmit = async (formData: ContactFormData) => {
     try {
-      const response = await fetch('/api/consult-requests', {
+      const response = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
