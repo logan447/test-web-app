@@ -10,6 +10,17 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Temporary debug logging
+  if (pathname === '/dashboard' || pathname.startsWith('/provider')) {
+    console.log('[MIDDLEWARE DEBUG]', {
+      pathname,
+      tokenExists: !!token,
+      activeMode: token?.activeMode,
+      role: token?.role,
+      email: token?.email,
+    });
+  }
+
   // Protect provider routes - require PROVIDER mode
   if (pathname.startsWith('/provider')) {
     if (!token) {
