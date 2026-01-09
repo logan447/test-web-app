@@ -243,42 +243,48 @@ async function main() {
   const familyProfile1 = await prisma.familyProfile.create({
     data: {
       userId: familyUser1.id,
-      relationshipToSenior: 'Daughter',
+      relationship: 'Daughter',
+      location: 'Los Angeles, CA',
       city: 'Los Angeles',
       state: 'CA',
       zipCode: '90001',
-      needsDescription: 'Looking for home care for my 82-year-old mother. She needs help with daily activities, meal preparation, and medication reminders. She has early-stage Alzheimer\'s.',
-      careType: CareType.COMPANION_CARE,
-      urgency: 'URGENT',
-      budget: '$3000-5000/month',
+      description: 'Looking for home care for my 82-year-old mother. She needs help with daily activities, meal preparation, and medication reminders. She has early-stage Alzheimer\'s.',
+      careTypes: [CareType.COMPANION_CARE, CareType.PERSONAL_CARE],
+      careUrgency: 'URGENT',
+      budgetMin: 3000,
+      budgetMax: 5000,
     },
   });
 
   const familyProfile2 = await prisma.familyProfile.create({
     data: {
       userId: familyUser2.id,
-      relationshipToSenior: 'Son',
+      relationship: 'Son',
+      location: 'San Francisco, CA',
       city: 'San Francisco',
       state: 'CA',
       zipCode: '94102',
-      needsDescription: 'Seeking assisted living facility for my father who is 75 years old. He is mostly independent but needs assistance with mobility and would benefit from social activities.',
-      careType: CareType.PERSONAL_CARE,
-      urgency: 'WITHIN_MONTH',
-      budget: '$5000-8000/month',
+      description: 'Seeking assisted living facility for my father who is 75 years old. He is mostly independent but needs assistance with mobility and would benefit from social activities.',
+      careTypes: [CareType.PERSONAL_CARE],
+      careUrgency: 'WITHIN_MONTH',
+      budgetMin: 5000,
+      budgetMax: 8000,
     },
   });
 
   const familyProfile3 = await prisma.familyProfile.create({
     data: {
       userId: familyUser3.id,
-      relationshipToSenior: 'Wife',
+      relationship: 'Wife',
+      location: 'Sacramento, CA',
       city: 'Sacramento',
       state: 'CA',
       zipCode: '95814',
-      needsDescription: 'My husband (age 78) was recently diagnosed with dementia. We need specialized memory care with 24/7 supervision and cognitive therapy programs.',
-      careType: CareType.MEMORY_CARE,
-      urgency: 'IMMEDIATE',
-      budget: '$8000-12000/month',
+      description: 'My husband (age 78) was recently diagnosed with dementia. We need specialized memory care with 24/7 supervision and cognitive therapy programs.',
+      careTypes: [CareType.MEMORY_CARE],
+      careUrgency: 'IMMEDIATE',
+      budgetMin: 8000,
+      budgetMax: 12000,
     },
   });
 
