@@ -31,13 +31,25 @@ export default function SettingsPage() {
       return;
     }
 
-    // Load user data
-    setFormData((prev) => ({
-      ...prev,
-      name: session.user.name || "",
-      email: session.user.email || "",
-      phone: session.user.phone || "",
-    }));
+    // Fetch user data
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("/api/user/profile");
+        if (response.ok) {
+          const data = await response.json();
+          setFormData((prev) => ({
+            ...prev,
+            name: data.user.name || "",
+            email: data.user.email || "",
+            phone: data.user.phone || "",
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchUserData();
   }, [session, status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
