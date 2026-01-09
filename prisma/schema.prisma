@@ -450,6 +450,9 @@ model Message {
   deliveredAt       DateTime?      // When message was delivered to recipient
   readAt            DateTime?      // When message was read by recipient
 
+  // File attachments & media sharing (Sprint 4)
+  attachments       Json           @default("[]") // [{url: string, type: string, name: string, size: number}]
+
   @@index([consultRequestId])
 }
 

@@ -16,13 +16,14 @@ export async function POST(
 
     const { id } = await params;
     const body = await req.json();
-    const { content } = body;
+    const { content, attachments } = body;
 
     const message = await prisma.message.create({
       data: {
         consultRequestId: id,
         senderId: session.user.id,
         content,
+        attachments: attachments || [],
       },
     });
 

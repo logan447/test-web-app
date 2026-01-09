@@ -13,6 +13,8 @@ import ModernMessageBubble from "@/components/Messaging/ModernMessageBubble";
 import MessageTimestamp, { groupMessagesByDate, shouldGroupMessages } from "@/components/Messaging/MessageTimestamp";
 import TypingIndicator from "@/components/Messaging/TypingIndicator";
 import OnlineStatus from "@/components/Messaging/OnlineStatus";
+import FileAttachment, { Attachment } from "@/components/Messaging/FileAttachment";
+import AttachmentGallery from "@/components/Messaging/AttachmentGallery";
 
 type ConsultRequest = {
   id: string;
@@ -50,6 +52,7 @@ type ConsultRequest = {
     status: string;
     deliveredAt: string | null;
     readAt: string | null;
+    attachments?: any; // JSON field for attachments
   }[];
 };
 
@@ -72,6 +75,14 @@ export default function RequestDetailPage() {
     isTyping: boolean;
   } | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // File attachments
+  const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
+
+  // Image gallery
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<Attachment[]>([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   // Determine back link based on where user came from and request type
   const fromSaved = searchParams.get('from') === 'saved';
@@ -183,7 +194,7 @@ export default function RequestDetailPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() && pendingAttachments.length === 0) return;
 
     // Clear typing indicator when sending
     sendTypingStatus(false);
@@ -197,11 +208,15 @@ export default function RequestDetailPage() {
       const response = await fetch(`/api/requests/${params.id}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newMessage }),
+        body: JSON.stringify({
+          content: newMessage,
+          attachments: pendingAttachments,
+        }),
       });
 
       if (response.ok) {
         setNewMessage("");
+        setPendingAttachments([]);
         fetchRequest();
       }
     } catch (err) {
@@ -237,6 +252,23 @@ export default function RequestDetailPage() {
         typingTimeoutRef.current = null;
       }
     }
+  };
+
+  // Handle file attachments
+  const handleFilesSelected = (files: Attachment[]) => {
+    setPendingAttachments((prev) => [...prev, ...files]);
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setPendingAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Handle image gallery
+  const handleImageClick = (messageAttachments: Attachment[], imageIndex: number) => {
+    const images = messageAttachments.filter((a) => a.type.startsWith("image/"));
+    setGalleryImages(images);
+    setGalleryIndex(imageIndex);
+    setGalleryOpen(true);
   };
 
   const handleStatusUpdate = async (newStatus: string) => {
@@ -608,6 +640,11 @@ export default function RequestDetailPage() {
                         ? request.sender.name
                         : "Unknown";
 
+                      // Parse attachments if they exist
+                      const messageAttachments = message.attachments
+                        ? (Array.isArray(message.attachments) ? message.attachments : JSON.parse(message.attachments as string))
+                        : [];
+
                       return (
                         <ModernMessageBubble
                           key={message.id}
@@ -617,7 +654,9 @@ export default function RequestDetailPage() {
                           timestamp={new Date(message.createdAt)}
                           showAvatar={showAvatar}
                           showName={false}
+                          attachments={messageAttachments}
                           status={isOwnMessage ? (message.status as "SENT" | "DELIVERED" | "READ") : undefined}
+                          onImageClick={(index) => handleImageClick(messageAttachments, index)}
                         />
                       );
                     })}
@@ -639,7 +678,49 @@ export default function RequestDetailPage() {
 
           {/* Message Input */}
           <div className="p-4 border-t bg-white">
-            <form onSubmit={handleSendMessage} className="flex gap-3 items-end">
+            {/* Pending Attachments Preview */}
+            {pendingAttachments.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-2">
+                {pendingAttachments.map((attachment, index) => (
+                  <div
+                    key={index}
+                    className="relative inline-flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg border border-gray-200"
+                  >
+                    {attachment.type.startsWith("image/") ? (
+                      <img
+                        src={attachment.url}
+                        alt={attachment.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded">
+                        📎
+                      </div>
+                    )}
+                    <span className="text-sm text-gray-700 max-w-[150px] truncate">
+                      {attachment.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAttachment(index)}
+                      className="text-gray-500 hover:text-red-600 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
+              {/* File Attachment Button */}
+              <FileAttachment
+                onFilesSelected={handleFilesSelected}
+                disabled={request.status === "DECLINED" || request.status === "COMPLETED"}
+              />
+
               <div className="flex-grow">
                 <textarea
                   value={newMessage}
@@ -669,7 +750,7 @@ export default function RequestDetailPage() {
               </div>
               <button
                 type="submit"
-                disabled={sending || !newMessage.trim() || request.status === "DECLINED" || request.status === "COMPLETED"}
+                disabled={sending || (!newMessage.trim() && pendingAttachments.length === 0) || request.status === "DECLINED" || request.status === "COMPLETED"}
                 className="
                   bg-primary-600 text-white
                   w-12 h-12
@@ -709,6 +790,17 @@ export default function RequestDetailPage() {
         onClose={() => setPaywallOpen(false)}
         onUpgrade={handleUpgradeSubscription}
       />
+
+      {/* Image Gallery */}
+      {galleryOpen && (
+        <AttachmentGallery
+          attachments={galleryImages}
+          currentIndex={galleryIndex}
+          onClose={() => setGalleryOpen(false)}
+          onNext={() => setGalleryIndex((prev) => Math.min(prev + 1, galleryImages.length - 1))}
+          onPrevious={() => setGalleryIndex((prev) => Math.max(prev - 1, 0))}
+        />
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { formatDistanceToNow } from "date-fns";
 import MessageStatusIndicator, { MessageStatus } from "./MessageStatusIndicator";
+import AttachmentPreview, { Attachment } from "./AttachmentPreview";
 
 export interface MessageBubbleProps {
   content: string;
@@ -10,13 +11,9 @@ export interface MessageBubbleProps {
   timestamp: Date;
   showAvatar?: boolean;
   showName?: boolean;
-  attachments?: {
-    url: string;
-    type: string;
-    name: string;
-    size?: number;
-  }[];
+  attachments?: Attachment[];
   status?: "SENT" | "DELIVERED" | "READ";
+  onImageClick?: (index: number) => void;
 }
 
 export default function ModernMessageBubble({
@@ -28,6 +25,7 @@ export default function ModernMessageBubble({
   showName = false,
   attachments = [],
   status,
+  onImageClick,
 }: MessageBubbleProps) {
   const formatTime = (date: Date) => {
     const hours = date.getHours();
@@ -76,42 +74,11 @@ export default function ModernMessageBubble({
           </p>
 
           {/* Attachments (if any) */}
-          {attachments.length > 0 && (
-            <div className="mt-2 space-y-2">
-              {attachments.map((attachment, idx) => (
-                <div
-                  key={idx}
-                  className={`
-                    flex items-center gap-2 p-2 rounded-lg
-                    ${isOwn ? "bg-primary-700" : "bg-gray-50"}
-                  `}
-                >
-                  {attachment.type.startsWith("image/") ? (
-                    <img
-                      src={attachment.url}
-                      alt={attachment.name}
-                      className="max-w-full rounded-lg"
-                    />
-                  ) : (
-                    <>
-                      <div className={`p-2 rounded ${isOwn ? "bg-primary-800" : "bg-gray-200"}`}>
-                        📎
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium truncate ${isOwn ? "text-white" : "text-gray-900"}`}>
-                          {attachment.name}
-                        </p>
-                        {attachment.size && (
-                          <p className={`text-xs ${isOwn ? "text-primary-200" : "text-gray-500"}`}>
-                            {(attachment.size / 1024).toFixed(1)} KB
-                          </p>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
+          {attachments && attachments.length > 0 && (
+            <AttachmentPreview
+              attachments={attachments}
+              onImageClick={onImageClick}
+            />
           )}
 
           {/* Timestamp and Status */}
