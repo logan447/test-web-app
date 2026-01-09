@@ -174,6 +174,10 @@ export default function MainNav() {
       // Show success toast
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
+      // Wait a brief moment to ensure the JWT cookie is written to the browser
+      // before triggering the page reload. This prevents middleware from seeing stale tokens.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Force full page reload to ensure session is completely refreshed
       // This prevents mode bleeding issues with cached session data
       window.location.href = data.landingPage;
