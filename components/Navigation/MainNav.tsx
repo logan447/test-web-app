@@ -203,6 +203,19 @@ export default function MainNav() {
   const currentMode = session?.user?.activeMode || 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
 
+  // Debug: Log session state on mount and when it changes
+  useEffect(() => {
+    if (session?.user) {
+      console.log('[CLIENT SESSION]', {
+        email: session.user.email,
+        role: session.user.role,
+        activeMode: session.user.activeMode,
+        currentMode,
+        isProviderMode,
+      });
+    }
+  }, [session, currentMode, isProviderMode]);
+
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
