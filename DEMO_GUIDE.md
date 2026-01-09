@@ -5,9 +5,9 @@ This guide provides a comprehensive walkthrough for demonstrating the Olera plat
 
 ---
 
-## 🔐 Demo Credentials
+## 🔐 Demo Credentials (All passwords: demo123)
 
-### Family Users
+### Primary Family Users
 ```
 Email: sarah.miller@example.com
 Password: demo123
@@ -22,7 +22,7 @@ Profile: Son seeking assisted living for 75-year-old father in SF
 Status: Has accepted request with scheduled tour
 ```
 
-### Provider Users
+### Primary Provider Users
 ```
 Email: admin@sunshineseniorcare.com
 Password: demo123
@@ -36,6 +36,13 @@ Password: demo123
 Organization: Golden Years Assisted Living
 Status: Has active conversation with Michael Chen
 ```
+
+### Additional Demo Accounts
+The demo database includes **12 family accounts** and **7 provider accounts** total, allowing you to demonstrate different scenarios:
+- Various care types (memory care, hospice, rehab, independent caregivers)
+- Different urgency levels (immediate, urgent, flexible)
+- Multiple conversation states (pending, accepted, declined)
+- Budget ranges from $1,500 to $12,000/month
 
 ---
 

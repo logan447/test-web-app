@@ -1,13 +1,25 @@
 # 🎯 Olera Demo - Quick Reference Card
 
-## 📋 Demo Credentials
+## 📋 Demo Credentials (All passwords: demo123)
 
-| User Type | Email | Password | Purpose |
-|-----------|-------|----------|---------|
-| **Family** | sarah.miller@example.com | demo123 | Active conversation + tour |
-| **Family** | michael.chen@example.com | demo123 | Accepted request |
-| **Provider** | admin@sunshineseniorcare.com | demo123 | Home care provider |
-| **Provider** | director@goldenyears.com | demo123 | Assisted living |
+### Primary Demo Accounts
+| User Type | Email | Purpose |
+|-----------|-------|---------|
+| **Family** | sarah.miller@example.com | Active conversation + tour |
+| **Family** | michael.chen@example.com | Accepted request |
+| **Provider** | admin@sunshineseniorcare.com | Home care provider |
+| **Provider** | director@goldenyears.com | Assisted living |
+
+### Additional Accounts Available
+- **12 total family accounts** (david.wilson, emily.davis, robert.martinez, linda.garcia, james.rodriguez, patricia.lee, william.taylor, maria.anderson, thomas.thomas, jennifer.brown)
+- **7 total provider accounts** (also: admin@memorylane.com, contact@caringhands.com, info@peacefultransitions.org, admin@compassionatecare.com, director@harborview.com)
+
+## 📊 Demo Database Contents
+- **30 Providers** across all care types
+- **12 Family Profiles** with diverse scenarios
+- **13 Active Requests** (pending, accepted, declined)
+- **25+ Messages** in conversations
+- **3 Tour Appointments**
 
 ---
 
