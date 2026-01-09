@@ -44,8 +44,10 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        // Auto-set default mode to PROVIDER if they have a provider profile with 15%+ completion
-        let activeMode = user.activeMode;
+        // On login: default to FAMILY mode, but switch to PROVIDER if 15%+ profile completion
+        // This ensures users always start in FAMILY mode unless they qualify for PROVIDER mode
+        let activeMode: 'FAMILY' | 'PROVIDER' = 'FAMILY';
+
         if (user.provider && user.role === 'PROVIDER') {
           const provider = user.provider;
 
@@ -85,13 +87,24 @@ export const authOptions: NextAuthOptions = {
 
           const completionPercentage = Math.round((completedSections / totalSections) * 100);
 
-          // If profile is 15%+ complete and current mode is FAMILY, switch to PROVIDER
-          if (completionPercentage >= 15 && activeMode === 'FAMILY') {
+          // If profile is 15%+ complete, use PROVIDER mode
+          if (completionPercentage >= 15) {
             activeMode = 'PROVIDER';
-            // Update in database for future logins
+          }
+
+          // Update database to match the calculated default mode
+          if (user.activeMode !== activeMode) {
             await prisma.user.update({
               where: { id: user.id },
-              data: { activeMode: 'PROVIDER' },
+              data: { activeMode: activeMode },
+            });
+          }
+        } else {
+          // Non-provider users: ensure they're set to FAMILY mode in database
+          if (user.activeMode !== 'FAMILY') {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { activeMode: 'FAMILY' },
             });
           }
         }

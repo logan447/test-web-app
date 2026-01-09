@@ -35,8 +35,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       mode,
-      // FAMILY mode → home page (find providers), PROVIDER mode → provider dashboard
-      landingPage: mode === 'PROVIDER' ? '/provider/dashboard' : '/'
+      // FAMILY mode → home page (find providers), PROVIDER mode → find families page
+      landingPage: mode === 'PROVIDER' ? '/provider/requests' : '/'
     });
 
   } catch (error) {
