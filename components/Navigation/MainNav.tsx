@@ -153,7 +153,8 @@ export default function MainNav() {
     try {
       setSwitchingMode(true);
 
-      // Call API to switch mode
+      // Step 1: Call API to update database
+      console.log('[MODE SWITCH] Step 1: Updating database to mode:', newMode);
       const response = await fetch('/api/mode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -169,18 +170,28 @@ export default function MainNav() {
         return;
       }
 
-      // Show success toast
-      showToast.success(`Switching to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode...`);
+      // Step 2: Update the JWT token by calling update()
+      console.log('[MODE SWITCH] Step 2: Updating JWT token with activeMode:', newMode);
+      await update({ activeMode: newMode });
 
-      // Store the landing page in sessionStorage so we can navigate after reload
-      sessionStorage.setItem('pendingModeSwitch', JSON.stringify({
-        mode: newMode,
-        landingPage: data.landingPage,
-      }));
+      // Step 3: Wait for JWT cookie to be written to browser
+      console.log('[MODE SWITCH] Step 3: Waiting for JWT cookie to be written...');
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Do a full page reload to ensure fresh JWT is loaded from server
-      // After reload, we'll check sessionStorage and navigate to the landing page
-      window.location.reload();
+      // Step 4: Verify the update by refetching session
+      console.log('[MODE SWITCH] Step 4: Refetching session to verify update...');
+      const updatedSession = await update();
+      console.log('[MODE SWITCH] Step 5: Session activeMode is now:', updatedSession?.user?.activeMode);
+
+      // Step 5: Show success message
+      showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
+
+      // Step 6: Wait a bit more to ensure everything is settled
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Step 7: Navigate to landing page
+      console.log('[MODE SWITCH] Step 6: Navigating to:', data.landingPage);
+      window.location.href = data.landingPage;
 
     } catch (error) {
       console.error('Error switching mode:', error);
@@ -191,31 +202,6 @@ export default function MainNav() {
 
   const currentMode = session?.user?.activeMode || 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
-
-  // Check for pending mode switch after page reload
-  useEffect(() => {
-    const pendingSwitch = sessionStorage.getItem('pendingModeSwitch');
-    if (pendingSwitch && session) {
-      try {
-        const { mode, landingPage } = JSON.parse(pendingSwitch);
-
-        // Verify the mode switch was successful
-        if (session.user.activeMode === mode) {
-          console.log('[MODE SWITCH] Page reloaded, navigating to:', landingPage);
-          sessionStorage.removeItem('pendingModeSwitch');
-
-          // Navigate to the landing page
-          window.location.href = landingPage;
-        } else {
-          console.warn('[MODE SWITCH] Mode mismatch after reload. Expected:', mode, 'Got:', session.user.activeMode);
-          sessionStorage.removeItem('pendingModeSwitch');
-        }
-      } catch (error) {
-        console.error('[MODE SWITCH] Error processing pending switch:', error);
-        sessionStorage.removeItem('pendingModeSwitch');
-      }
-    }
-  }, [session]);
 
   // Debug: Log session state on mount and when it changes
   useEffect(() => {
