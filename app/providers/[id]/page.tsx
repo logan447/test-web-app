@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
 import AuthModal from "@/components/Auth/AuthModal";
 import PhotoGallery from "@/components/Gallery/PhotoGallery";
@@ -21,7 +22,7 @@ import { showToast } from "@/lib/toast";
 type Provider = {
   id: string;
   name: string;
-  providerType: string;
+  providerType: ProviderType;
   description: string | null;
   email: string;
   phone: string;
@@ -555,6 +556,7 @@ export default function ProviderProfilePage() {
             <ProviderCTASection
               providerId={provider.id}
               providerName={provider.name}
+              providerType={provider.providerType}
               phone={provider.phone}
               hasPricing={!!(provider.priceMin || provider.priceMax)}
               onOpenRequestForm={handleOpenRequestForm}

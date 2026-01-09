@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { ProviderType } from "@prisma/client";
+import { getProviderCTAs } from "@/lib/providerUtils";
 
 interface ProviderCTASectionProps {
   providerId: string;
   providerName: string;
+  providerType: ProviderType;
   phone: string;
   hasPricing: boolean;
   onOpenRequestForm: (reason: string) => void;
@@ -13,11 +16,13 @@ interface ProviderCTASectionProps {
 export default function ProviderCTASection({
   providerId,
   providerName,
+  providerType,
   phone,
   hasPricing,
   onOpenRequestForm,
 }: ProviderCTASectionProps) {
   const [isSticky, setIsSticky] = useState(false);
+  const ctas = getProviderCTAs(providerType);
 
   // Format phone number for display and calling
   const formatPhoneNumber = (phone: string) => {
@@ -30,6 +35,41 @@ export default function ProviderCTASection({
 
   const phoneHref = `tel:${phone.replace(/\D/g, "")}`;
 
+  // Determine icon for primary CTA
+  const getPrimaryIcon = () => {
+    if (ctas.tourEnabled) {
+      // Calendar icon for tours
+      return (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+        />
+      );
+    } else if (providerType === 'INDEPENDENT_CAREGIVER') {
+      // User icon for caregiver interview
+      return (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        />
+      );
+    } else {
+      // Clipboard icon for consultation
+      return (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+        />
+      );
+    }
+  };
+
   return (
     <>
       {/* Desktop CTA Section - Always visible */}
@@ -38,9 +78,9 @@ export default function ProviderCTASection({
           Ready to Learn More?
         </h3>
 
-        {/* Primary CTA - Schedule Tour */}
+        {/* Primary CTA - Context-aware */}
         <button
-          onClick={() => onOpenRequestForm("Schedule a tour")}
+          onClick={() => onOpenRequestForm(ctas.primary)}
           className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors mb-3"
         >
           <div className="flex items-center justify-center gap-2">
@@ -50,14 +90,9 @@ export default function ProviderCTASection({
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
+              {getPrimaryIcon()}
             </svg>
-            <span>Schedule a Tour</span>
+            <span>{ctas.primary}</span>
           </div>
         </button>
 
@@ -138,9 +173,9 @@ export default function ProviderCTASection({
       {/* Mobile Sticky CTA Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-4 z-50">
         <div className="flex gap-2">
-          {/* Primary - Schedule Tour */}
+          {/* Primary - Context-aware */}
           <button
-            onClick={() => onOpenRequestForm("Schedule a tour")}
+            onClick={() => onOpenRequestForm(ctas.primary)}
             className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
           >
             <div className="flex items-center justify-center gap-2">
@@ -150,14 +185,11 @@ export default function ProviderCTASection({
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
+                {getPrimaryIcon()}
               </svg>
-              <span className="hidden sm:inline">Tour</span>
+              <span className="hidden sm:inline">
+                {ctas.tourEnabled ? 'Tour' : providerType === 'INDEPENDENT_CAREGIVER' ? 'Interview' : 'Consult'}
+              </span>
             </div>
           </button>
 
