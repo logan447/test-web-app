@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
 import AuthModal from '@/components/Auth/AuthModal';
+import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
+import OrganizationCard from '@/components/Directory/OrganizationCard';
 
 type Organization = {
   id: string;
@@ -19,6 +21,11 @@ type Organization = {
   licensed: boolean;
   email: string;
   phone: string;
+  coverPhoto?: string | null;
+  photos?: string[];
+  verified?: boolean;
+  backgroundChecked?: boolean;
+  insuranceVerified?: boolean;
 };
 
 export default function BrowseOrganizationsPage() {
@@ -114,18 +121,6 @@ export default function BrowseOrganizationsPage() {
     }
   };
 
-  const formatCareType = (type: string) => {
-    return type.split('_').map(word =>
-      word.charAt(0) + word.slice(1).toLowerCase()
-    ).join(' ');
-  };
-
-  const formatProviderType = (type: string) => {
-    return type.split('_').map(word =>
-      word.charAt(0) + word.slice(1).toLowerCase()
-    ).join(' ');
-  };
-
   if (!session) {
     return null;
   }
@@ -135,14 +130,13 @@ export default function BrowseOrganizationsPage() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Care Organizations</h1>
+            <p className="text-lg text-gray-600">
+              Find care organizations that may be hiring caregivers in your area
+            </p>
           </div>
+          <ProfileCardsSkeleton count={6} />
         </div>
       </div>
     );
@@ -154,16 +148,25 @@ export default function BrowseOrganizationsPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Browse Care Organizations</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Care Organizations</h1>
+          <p className="text-lg text-gray-600">
             Find care organizations that may be hiring caregivers in your area
           </p>
         </div>
 
+        {/* Results Count */}
+        {organizations.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
+            <p className="text-lg font-semibold text-gray-900">
+              {organizations.length} Organization{organizations.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+        )}
+
         {organizations.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-16 w-16 text-gray-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -171,17 +174,17 @@ export default function BrowseOrganizationsPage() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
               />
             </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No organizations found</h3>
-            <p className="mt-2 text-sm text-gray-500">
+            <h3 className="mt-4 text-xl font-semibold text-gray-900">No organizations found</h3>
+            <p className="mt-2 text-gray-600">
               There are currently no care organizations in your area.
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {organizations.map((org) => {
               const requestId = requestedOrganizationIds.get(org.id);
               const linkHref = requestId
@@ -189,67 +192,12 @@ export default function BrowseOrganizationsPage() {
                 : `/caregiver/browse-organizations/${org.id}`;
 
               return (
-                <Link
+                <OrganizationCard
                   key={org.id}
-                  href={linkHref}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 flex flex-col"
-                >
-                  <div className="flex items-start justify-between mb-2 gap-2">
-                    <h3 className="text-xl font-semibold text-gray-900 flex-1 min-w-0">
-                      {org.name}
-                    </h3>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {org.licensed && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded whitespace-nowrap">
-                          Licensed
-                        </span>
-                      )}
-                      {requestId && (
-                        <span className="text-xs bg-blue-100 text-blue-800 font-medium px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          Request Sent
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-primary-600 mb-2">
-                    {formatProviderType(org.providerType)}
-                  </p>
-
-                  <p className="text-sm text-gray-600 mb-3">
-                    {org.city}, {org.state}
-                  </p>
-
-                  <p className="text-gray-700 text-sm mb-4 line-clamp-3 flex-grow">
-                    {org.description}
-                  </p>
-
-                  <div className="mb-4">
-                    <h4 className="text-xs font-medium text-gray-500 mb-2">Services Offered</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {org.careTypesOffered.slice(0, 3).map((type) => (
-                        <span
-                          key={type}
-                          className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded"
-                        >
-                          {formatCareType(type)}
-                        </span>
-                      ))}
-                      {org.careTypesOffered.length > 3 && (
-                        <span className="text-xs px-2 py-1 text-gray-500">
-                          +{org.careTypesOffered.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">{org.yearsInBusiness}</span> years in business
-                  </div>
-                </Link>
+                  organization={org}
+                  linkHref={linkHref}
+                  hasRequest={!!requestId}
+                />
               );
             })}
           </div>

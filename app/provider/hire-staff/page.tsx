@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
 import AuthModal from '@/components/Auth/AuthModal';
+import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
+import CaregiverCard from '@/components/Directory/CaregiverCard';
 
 type Caregiver = {
   id: string;
@@ -18,6 +20,13 @@ type Caregiver = {
   licensed: boolean;
   email: string;
   phone: string;
+  coverPhoto?: string | null;
+  photos?: string[];
+  verified?: boolean;
+  backgroundChecked?: boolean;
+  certifications?: string[];
+  averageRating?: number | null;
+  reviewCount?: number;
 };
 
 export default function HireStaffPage() {
@@ -108,12 +117,6 @@ export default function HireStaffPage() {
     }
   };
 
-  const formatCareType = (type: string) => {
-    return type.split('_').map(word =>
-      word.charAt(0) + word.slice(1).toLowerCase()
-    ).join(' ');
-  };
-
   if (!session) {
     return null;
   }
@@ -123,14 +126,13 @@ export default function HireStaffPage() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
+            <p className="text-lg text-gray-600">
+              Browse independent caregivers available for employment by your organization
+            </p>
           </div>
+          <ProfileCardsSkeleton count={6} />
         </div>
       </div>
     );
@@ -142,16 +144,25 @@ export default function HireStaffPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
+          <p className="text-lg text-gray-600">
             Browse independent caregivers available for employment by your organization
           </p>
         </div>
 
+        {/* Results Count */}
+        {caregivers.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
+            <p className="text-lg font-semibold text-gray-900">
+              {caregivers.length} Caregiver{caregivers.length !== 1 ? 's' : ''} Available
+            </p>
+          </div>
+        )}
+
         {caregivers.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-16 w-16 text-gray-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -159,17 +170,17 @@ export default function HireStaffPage() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
               />
             </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No caregivers available</h3>
-            <p className="mt-2 text-sm text-gray-500">
+            <h3 className="mt-4 text-xl font-semibold text-gray-900">No caregivers available</h3>
+            <p className="mt-2 text-gray-600">
               There are currently no independent caregivers available for hire in your area.
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {caregivers.map((caregiver) => {
               const requestId = requestedCaregiverIds.get(caregiver.id);
               const linkHref = requestId
@@ -177,63 +188,12 @@ export default function HireStaffPage() {
                 : `/provider/hire-staff/${caregiver.id}`;
 
               return (
-                <Link
+                <CaregiverCard
                   key={caregiver.id}
-                  href={linkHref}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 flex flex-col"
-                >
-                  <div className="flex items-start justify-between mb-2 gap-2">
-                    <h3 className="text-xl font-semibold text-gray-900 flex-1 min-w-0">
-                      {caregiver.name}
-                    </h3>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {caregiver.licensed && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded whitespace-nowrap">
-                          Licensed
-                        </span>
-                      )}
-                      {requestId && (
-                        <span className="text-xs bg-blue-100 text-blue-800 font-medium px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          Request Sent
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-gray-600 mb-3">
-                    {caregiver.city}, {caregiver.state}
-                  </p>
-
-                  <p className="text-gray-700 text-sm mb-4 line-clamp-3 flex-grow">
-                    {caregiver.description}
-                  </p>
-
-                  <div className="mb-4">
-                    <h4 className="text-xs font-medium text-gray-500 mb-2">Care Types</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {caregiver.careTypesOffered.slice(0, 3).map((type) => (
-                        <span
-                          key={type}
-                          className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded"
-                        >
-                          {formatCareType(type)}
-                        </span>
-                      ))}
-                      {caregiver.careTypesOffered.length > 3 && (
-                        <span className="text-xs px-2 py-1 text-gray-500">
-                          +{caregiver.careTypesOffered.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">{caregiver.yearsInBusiness}</span> years of experience
-                  </div>
-                </Link>
+                  caregiver={caregiver}
+                  linkHref={linkHref}
+                  hasRequest={!!requestId}
+                />
               );
             })}
           </div>
