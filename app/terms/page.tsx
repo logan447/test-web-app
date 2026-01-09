@@ -29,9 +29,9 @@ export default function TermsOfServicePage() {
               1. Introduction
             </h2>
             <p className="text-gray-700 leading-relaxed">
-              Welcome to Olera. These Terms of Service ("Terms") govern your
-              access to and use of Olera's website, services, and applications
-              (collectively, the "Services"). By accessing or using our Services,
+              Welcome to Olera. These Terms of Service (&quot;Terms&quot;) govern your
+              access to and use of Olera&apos;s website, services, and applications
+              (collectively, the &quot;Services&quot;). By accessing or using our Services,
               you agree to be bound by these Terms. If you do not agree to these
               Terms, please do not use our Services.
             </p>
@@ -165,7 +165,7 @@ export default function TermsOfServicePage() {
             </div>
             <div className="space-y-4 text-gray-700">
               <p className="leading-relaxed">
-                THE SERVICES ARE PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT
+                THE SERVICES ARE PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; WITHOUT
                 WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT
                 NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
                 PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
@@ -214,7 +214,7 @@ export default function TermsOfServicePage() {
             <p className="text-gray-700 leading-relaxed">
               We may modify these Terms at any time. We will notify users of any
               material changes by posting the new Terms on this page and updating
-              the "Last updated" date. Your continued use of the Services after
+              the &quot;Last updated&quot; date. Your continued use of the Services after
               such changes constitutes your acceptance of the new Terms.
             </p>
           </section>

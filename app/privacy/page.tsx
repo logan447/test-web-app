@@ -29,8 +29,8 @@ export default function PrivacyPolicyPage() {
               1. Introduction
             </h2>
             <p className="text-gray-700 leading-relaxed">
-              Welcome to Olera's Privacy Policy. This policy describes how Olera
-              ("we," "us," or "our") collects, uses, shares, and protects your
+              Welcome to Olera&apos;s Privacy Policy. This policy describes how Olera
+              (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) collects, uses, shares, and protects your
               personal information when you use our platform and services. We are
               committed to protecting your privacy and being transparent about our
               data practices.
@@ -281,7 +281,7 @@ export default function PrivacyPolicyPage() {
           {/* Children's Privacy */}
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              9. Children's Privacy
+              9. Children&apos;s Privacy
             </h2>
             <p className="text-gray-700 leading-relaxed">
               Our Services are not intended for children under 18 years of age. We
@@ -313,7 +313,7 @@ export default function PrivacyPolicyPage() {
             <p className="text-gray-700 leading-relaxed">
               We may update this Privacy Policy from time to time. We will notify
               you of any material changes by posting the new Privacy Policy on this
-              page and updating the "Last updated" date. We encourage you to review
+              page and updating the &quot;Last updated&quot; date. We encourage you to review
               this Privacy Policy periodically.
             </p>
           </section>
