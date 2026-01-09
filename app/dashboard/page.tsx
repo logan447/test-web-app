@@ -93,7 +93,8 @@ export default function DashboardPage() {
     );
   }
 
-  const isFamily = session?.user.role === "FAMILY";
+  // Check activeMode, not base role, to determine what dashboard content to show
+  const isFamily = session?.user.activeMode !== 'PROVIDER';
   const isProvider = session?.user.role === "PROVIDER";
 
   const filteredActivities = filterType === "all"
