@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
+import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -394,6 +395,11 @@ export default function ProviderDashboardPage() {
               </div>
             </Link>
           </div>
+        </div>
+
+        {/* Upcoming Tours Widget */}
+        <div className="mb-8">
+          <UpcomingToursWidget />
         </div>
 
         {/* Recent Activity with Filters */}
