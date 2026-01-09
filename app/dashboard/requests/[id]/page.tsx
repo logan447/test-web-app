@@ -19,6 +19,8 @@ import QuickRepliesBar from "@/components/Messaging/QuickRepliesBar";
 import TourProposal from "@/components/Messaging/TourProposal";
 import TourScheduler from "@/components/Messaging/TourScheduler";
 import RichTextInput from "@/components/Messaging/RichTextInput";
+import MessageSearch, { SearchFilters } from "@/components/Messaging/MessageSearch";
+import ConversationExport from "@/components/Messaging/ConversationExport";
 
 type ConsultRequest = {
   id: string;
@@ -100,6 +102,17 @@ export default function RequestDetailPage() {
   // Tour scheduling
   const [showTourScheduler, setShowTourScheduler] = useState(false);
   const [tourProposing, setTourProposing] = useState(false);
+
+  // Message search
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({ query: "" });
+  const [searchResults, setSearchResults] = useState<string[]>([]);
+  const [currentSearchIndex, setCurrentSearchIndex] = useState(0);
+  const searchResultRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Conversation export
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Determine back link based on where user came from and request type
   const fromSaved = searchParams.get('from') === 'saved';
@@ -361,6 +374,78 @@ export default function RequestDetailPage() {
     } catch (err) {
       console.error("Error declining tour:", err);
       showToast.error("Failed to decline tour");
+    }
+  };
+
+  // Handle message search
+  const handleSearch = (query: string, filters: SearchFilters) => {
+    setSearchQuery(query);
+    setSearchFilters(filters);
+
+    if (!query.trim() || !request) {
+      setSearchResults([]);
+      setCurrentSearchIndex(0);
+      return;
+    }
+
+    // Combine all messages
+    const allMessages = [
+      { id: `initial-${request.id}`, content: request.message, senderId: request.sender.id, createdAt: request.createdAt },
+      ...request.messages,
+    ];
+
+    // Filter messages by search criteria
+    const results: string[] = [];
+    allMessages.forEach((message) => {
+      // Check content match
+      if (message.content.toLowerCase().includes(query.toLowerCase())) {
+        // Check sender filter
+        if (filters.sender === "me" && message.senderId !== session?.user?.id) return;
+        if (filters.sender === "other" && message.senderId === session?.user?.id) return;
+
+        // Check date filter
+        const messageDate = new Date(message.createdAt);
+        if (filters.dateFrom && messageDate < filters.dateFrom) return;
+        if (filters.dateTo && messageDate > filters.dateTo) return;
+
+        results.push(message.id);
+      }
+    });
+
+    setSearchResults(results);
+    setCurrentSearchIndex(0);
+
+    // Scroll to first result
+    if (results.length > 0) {
+      setTimeout(() => {
+        const firstResultElement = searchResultRefs.current.get(results[0]);
+        firstResultElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setSearchFilters({ query: "" });
+    setSearchResults([]);
+    setCurrentSearchIndex(0);
+  };
+
+  const handleNextSearchResult = () => {
+    if (currentSearchIndex < searchResults.length - 1) {
+      const newIndex = currentSearchIndex + 1;
+      setCurrentSearchIndex(newIndex);
+      const resultElement = searchResultRefs.current.get(searchResults[newIndex]);
+      resultElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  const handlePreviousSearchResult = () => {
+    if (currentSearchIndex > 0) {
+      const newIndex = currentSearchIndex - 1;
+      setCurrentSearchIndex(newIndex);
+      const resultElement = searchResultRefs.current.get(searchResults[newIndex]);
+      resultElement?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -654,7 +739,43 @@ export default function RequestDetailPage() {
         {/* Messages */}
         <div className="bg-white rounded-lg shadow flex flex-col overflow-hidden" style={{ height: "600px" }}>
           <div className="p-4 border-b bg-gray-50">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Messages</h2>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
+              <div className="flex items-center gap-2">
+                {/* Search Toggle Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowSearch(!showSearch)}
+                  className={`
+                    p-2 rounded-lg
+                    ${showSearch ? "bg-primary-100 text-primary-700" : "bg-white text-gray-600"}
+                    hover:bg-gray-100
+                    transition-colors
+                  `}
+                  title="Search messages"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+                {/* Export Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowExportModal(true)}
+                  className="
+                    p-2 rounded-lg
+                    bg-white text-gray-600
+                    hover:bg-gray-100
+                    transition-colors
+                  "
+                  title="Export conversation"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                </button>
+              </div>
+            </div>
             {request.status === "PENDING" && !isSender && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
                 <p className="text-sm text-yellow-800">
@@ -691,6 +812,18 @@ export default function RequestDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Message Search */}
+          {showSearch && (
+            <MessageSearch
+              onSearch={handleSearch}
+              onClear={handleClearSearch}
+              resultCount={searchResults.length}
+              currentIndex={currentSearchIndex}
+              onNext={handleNextSearchResult}
+              onPrevious={handlePreviousSearchResult}
+            />
+          )}
 
           {/* Message List */}
           <div className="flex-grow overflow-y-auto p-4 bg-gray-50" style={{
@@ -755,19 +888,32 @@ export default function RequestDetailPage() {
                           ? (Array.isArray(message.attachments) ? message.attachments : JSON.parse(message.attachments as string))
                           : [];
 
+                        const isSearchResult = searchResults.includes(message.id);
+                        const isCurrentResult = searchResults[currentSearchIndex] === message.id;
+
                         return (
-                          <ModernMessageBubble
+                          <div
                             key={message.id}
-                            content={message.content}
-                            isOwn={isOwnMessage}
-                            senderName={senderName}
-                            timestamp={new Date(message.createdAt)}
-                            showAvatar={showAvatar}
-                            showName={false}
-                            attachments={messageAttachments}
-                            status={isOwnMessage ? (message.status as "SENT" | "DELIVERED" | "READ") : undefined}
-                            onImageClick={(index) => handleImageClick(messageAttachments, index)}
-                          />
+                            ref={(el) => {
+                              if (el && isSearchResult) {
+                                searchResultRefs.current.set(message.id, el);
+                              }
+                            }}
+                          >
+                            <ModernMessageBubble
+                              content={message.content}
+                              isOwn={isOwnMessage}
+                              senderName={senderName}
+                              timestamp={new Date(message.createdAt)}
+                              showAvatar={showAvatar}
+                              showName={false}
+                              attachments={messageAttachments}
+                              status={isOwnMessage ? (message.status as "SENT" | "DELIVERED" | "READ") : undefined}
+                              onImageClick={(index) => handleImageClick(messageAttachments, index)}
+                              searchQuery={searchQuery}
+                              isCurrentSearchResult={isCurrentResult}
+                            />
+                          </div>
                         );
                       } else {
                         // Tour appointment
@@ -984,6 +1130,31 @@ export default function RequestDetailPage() {
           onClose={() => setGalleryOpen(false)}
           onNext={() => setGalleryIndex((prev) => Math.min(prev + 1, galleryImages.length - 1))}
           onPrevious={() => setGalleryIndex((prev) => Math.max(prev - 1, 0))}
+        />
+      )}
+
+      {/* Conversation Export */}
+      {showExportModal && request && (
+        <ConversationExport
+          messages={[
+            {
+              id: `initial-${request.id}`,
+              senderId: request.sender.id,
+              content: request.message,
+              createdAt: request.createdAt,
+              senderName: request.sender.name,
+            },
+            ...request.messages.map((msg) => ({
+              ...msg,
+              senderName: msg.senderId === session?.user?.id
+                ? (session.user.name || "You")
+                : (msg.senderId === request.sender.id
+                    ? request.sender.name
+                    : isFamily ? request.provider.name : request.familyProfile.user.name),
+            })),
+          ]}
+          conversationTitle={isFamily ? request.provider.name : request.familyProfile.user.name}
+          onClose={() => setShowExportModal(false)}
         />
       )}
     </div>

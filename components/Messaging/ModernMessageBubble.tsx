@@ -4,6 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import MessageStatusIndicator, { MessageStatus } from "./MessageStatusIndicator";
 import AttachmentPreview, { Attachment } from "./AttachmentPreview";
 import FormattedMessage from "./FormattedMessage";
+import SearchResultHighlight from "./SearchResultHighlight";
 
 export interface MessageBubbleProps {
   content: string;
@@ -15,6 +16,8 @@ export interface MessageBubbleProps {
   attachments?: Attachment[];
   status?: "SENT" | "DELIVERED" | "READ";
   onImageClick?: (index: number) => void;
+  searchQuery?: string;
+  isCurrentSearchResult?: boolean;
 }
 
 export default function ModernMessageBubble({
@@ -27,6 +30,8 @@ export default function ModernMessageBubble({
   attachments = [],
   status,
   onImageClick,
+  searchQuery,
+  isCurrentSearchResult = false,
 }: MessageBubbleProps) {
   const formatTime = (date: Date) => {
     const hours = date.getHours();
@@ -70,10 +75,20 @@ export default function ModernMessageBubble({
           `}
         >
           {/* Message Text */}
-          <FormattedMessage
-            content={content}
-            className={`text-[15px] leading-relaxed ${isOwn ? "text-white" : "text-gray-900"}`}
-          />
+          {searchQuery ? (
+            <div className={`text-[15px] leading-relaxed ${isOwn ? "text-white" : "text-gray-900"}`}>
+              <SearchResultHighlight
+                text={content}
+                searchQuery={searchQuery}
+                isCurrentResult={isCurrentSearchResult}
+              />
+            </div>
+          ) : (
+            <FormattedMessage
+              content={content}
+              className={`text-[15px] leading-relaxed ${isOwn ? "text-white" : "text-gray-900"}`}
+            />
+          )}
 
           {/* Attachments (if any) */}
           {attachments && attachments.length > 0 && (
