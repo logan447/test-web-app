@@ -64,7 +64,7 @@ function ProviderDashboardPageContent() {
 
     // If mode is family or missing, redirect to family dashboard
     if (mode !== 'provider') {
-      router.push('/dashboard?mode=family');
+      router.push('/dashboard');
       return;
     }
 

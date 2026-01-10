@@ -59,13 +59,13 @@ function DashboardPageContent() {
 
     // If mode is provider, redirect to provider dashboard
     if (mode === 'provider') {
-      router.push('/provider/dashboard?mode=provider');
+      router.push('/provider/dashboard');
       return;
     }
 
     // If no mode parameter, add default family mode
     if (!mode) {
-      router.push('/dashboard?mode=family');
+      router.push('/dashboard');
       return;
     }
 

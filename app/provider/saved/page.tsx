@@ -49,7 +49,7 @@ function SavedFamilyProfilesContent() {
 
     // If mode is family or missing, redirect to family saved page
     if (mode !== 'provider') {
-      router.push('/dashboard/saved?mode=family');
+      router.push('/dashboard/saved');
       return;
     }
 

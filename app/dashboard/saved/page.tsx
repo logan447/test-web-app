@@ -54,13 +54,13 @@ function SavedProvidersContent() {
 
     // Add default mode if missing
     if (!mode) {
-      router.push('/dashboard/saved?mode=family');
+      router.push('/dashboard/saved');
       return;
     }
 
     // Redirect provider mode to their saved families page
     if (isProviderMode) {
-      router.push('/provider/saved?mode=provider');
+      router.push('/provider/saved');
       return;
     }
 

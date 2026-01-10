@@ -63,7 +63,7 @@ function ProviderRequestsContent() {
 
     // If mode is family or missing, redirect to family homepage
     if (mode !== 'provider') {
-      router.push('/?mode=family');
+      router.push('/');
       return;
     }
 

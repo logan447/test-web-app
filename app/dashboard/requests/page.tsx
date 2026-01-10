@@ -58,7 +58,7 @@ function RequestsPageContent() {
     if (status === "authenticated") {
       // Add default mode if missing
       if (!mode) {
-        router.push('/dashboard/requests?mode=family');
+        router.push('/dashboard/requests');
         return;
       }
 
