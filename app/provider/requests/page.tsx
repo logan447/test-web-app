@@ -70,7 +70,7 @@ function ProviderRequestsContent() {
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, router]);
+  }, [session, router, mode]);
 
   const fetchProfiles = async () => {
     try {
