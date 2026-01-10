@@ -32,22 +32,19 @@ export default function LoginPage() {
         return;
       }
 
-      // Fetch session - mode is already set by auth.ts based on provider completion
+      // Give the session time to fully persist
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Fetch session after delay
       const session = await getSession();
 
-      // Longer delay to ensure JWT cookie is fully written to browser
-      // This is critical for middleware to read the correct token on next request
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Determine landing page based on mode
+      const landingPage = session?.user?.activeMode === 'PROVIDER'
+        ? '/provider/requests'
+        : '/';
 
-      // Redirect based on session mode (no URL parameters needed)
-      // Use window.location.href to ensure session cookies are properly set in middleware
-      if (session?.user?.activeMode === 'PROVIDER') {
-        // Provider mode: go to Find Families page (/provider/requests)
-        window.location.href = '/provider/requests';
-      } else {
-        // Family mode: go to Find Providers homepage
-        window.location.href = '/';
-      }
+      // Force a full page reload to the landing page
+      window.location.href = landingPage;
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
