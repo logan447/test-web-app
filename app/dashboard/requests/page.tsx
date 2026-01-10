@@ -64,6 +64,7 @@ function RequestsPageContent() {
       });
     } catch (err) {
       console.error("Error marking as viewed:", err);
+    }
   };
 
   const fetchRequests = async () => {
@@ -79,6 +80,7 @@ function RequestsPageContent() {
       console.error("Error fetching requests:", err);
     } finally {
       setLoading(false);
+    }
   };
 
   const handleStatusUpdate = async (requestId: string, newStatus: string) => {
@@ -94,6 +96,7 @@ function RequestsPageContent() {
       }
     } catch (err) {
       console.error("Error updating request:", err);
+    }
   };
 
   const handleDelete = async (requestId: string) => {
@@ -117,6 +120,7 @@ function RequestsPageContent() {
       console.error("Error deleting request:", err);
       // Refetch to restore state on error
       fetchRequests();
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -131,6 +135,7 @@ function RequestsPageContent() {
         return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
   };
 
   const getCombinedBadgeText = (status: string, activeTab: string) => {
@@ -143,6 +148,7 @@ function RequestsPageContent() {
       return "Declined";
     } else if (status === "COMPLETED") {
       return "Completed";
+    }
     return status;
   };
 
@@ -164,6 +170,7 @@ function RequestsPageContent() {
         return "This consultation has been marked as completed.";
       default:
         return "";
+    }
   };
 
   if (loading || status === "loading") {

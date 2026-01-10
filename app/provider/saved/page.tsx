@@ -75,6 +75,7 @@ function SavedFamilyProfilesContent() {
       }
     } catch (error) {
       console.error('Error fetching sent requests:', error);
+    }
   };
 
   const handleRemove = async (familyProfileId: string) => {
@@ -96,6 +97,7 @@ function SavedFamilyProfilesContent() {
       showToast.error('Failed to remove from saved');
       // Refetch to restore state on error
       fetchSavedProfiles();
+    }
   };
 
   if (!session) {

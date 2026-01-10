@@ -62,6 +62,7 @@ function SavedProvidersContent() {
       console.error('Error fetching saved providers:', err);
     } finally {
       setLoading(false);
+    }
   };
 
   const fetchSentRequests = async () => {
@@ -80,6 +81,7 @@ function SavedProvidersContent() {
       }
     } catch (error) {
       console.error('Error fetching sent requests:', error);
+    }
   };
 
   const handleRemove = async (providerId: string) => {
@@ -101,6 +103,7 @@ function SavedProvidersContent() {
       showToast.error('Failed to remove from saved');
       // Refetch to restore state on error
       fetchSavedProviders();
+    }
   };
 
   if (!session) {

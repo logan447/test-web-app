@@ -78,6 +78,7 @@ function ProviderRequestsContent() {
       console.error('Error fetching profiles:', err);
     } finally {
       setLoading(false);
+    }
   };
 
   const handleSearch = () => {
@@ -108,6 +109,7 @@ function ProviderRequestsContent() {
       }
     } catch (err) {
       console.error('Error fetching saved profiles:', err);
+    }
   };
 
   const fetchSentRequests = async () => {
@@ -140,6 +142,7 @@ function ProviderRequestsContent() {
       setRequestedProfileIds(profileMap);
     } catch (error) {
       console.error('Error fetching requests:', error);
+    }
   };
 
   const handleToggleSave = async (profileId: string) => {
@@ -189,6 +192,7 @@ function ProviderRequestsContent() {
         }
         return next;
       });
+    }
   };
 
   const handleUpgradeSubscription = async (tier: 'PRO') => {
@@ -210,6 +214,7 @@ function ProviderRequestsContent() {
     } catch (err: any) {
       console.error('Error activating membership:', err);
       throw err;
+    }
   };
 
   // Filter and sort profiles
@@ -221,6 +226,7 @@ function ProviderRequestsContent() {
       filtered = filtered.filter(profile =>
         profile.careTypes.some(type => filters.careTypes.includes(type))
       );
+    }
 
     // Apply budget filter
     filtered = filtered.filter(profile => {
@@ -235,6 +241,7 @@ function ProviderRequestsContent() {
     // Apply timeline filter
     if (filters.timeline) {
       filtered = filtered.filter(profile => profile.timeline === filters.timeline);
+    }
 
     // Sort
     switch (sortBy) {
@@ -252,6 +259,7 @@ function ProviderRequestsContent() {
         break;
       default:
         break;
+    }
 
     return filtered;
   };
@@ -278,6 +286,7 @@ function ProviderRequestsContent() {
           <ProfileCardsSkeleton count={3} />
         </div>
       );
+    }
 
     const filteredProfiles = getFilteredAndSortedProfiles();
 
