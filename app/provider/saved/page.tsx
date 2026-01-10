@@ -37,14 +37,25 @@ export default function SavedFamilyProfiles() {
   const [loading, setLoading] = useState(true);
   const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
 
+  // Read mode from URL parameter (source of truth)
+  const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode');
+
   useEffect(() => {
     if (!session) {
       router.push('/login');
       return;
     }
+
+    // If mode is family or missing, redirect to family saved page
+    if (mode !== 'provider') {
+      router.push('/dashboard/saved?mode=family');
+      return;
+    }
+
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, router]);
+  }, [session, router, mode]);
 
   const fetchSavedProfiles = async () => {
     try {

@@ -41,14 +41,32 @@ export default function SavedProviders() {
   const [loading, setLoading] = useState(true);
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
 
+  // Read mode from URL parameter (source of truth)
+  const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode');
+  const isProviderMode = mode === 'provider';
+
   useEffect(() => {
     if (!session) {
       router.push('/login');
       return;
     }
+
+    // Add default mode if missing
+    if (!mode) {
+      router.push('/dashboard/saved?mode=family');
+      return;
+    }
+
+    // Redirect provider mode to their saved families page
+    if (isProviderMode) {
+      router.push('/provider/saved?mode=provider');
+      return;
+    }
+
     fetchSavedProviders();
     fetchSentRequests();
-  }, [session, router]);
+  }, [session, router, mode]);
 
   const fetchSavedProviders = async () => {
     try {

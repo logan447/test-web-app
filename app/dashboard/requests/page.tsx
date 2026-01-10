@@ -38,19 +38,34 @@ export default function RequestsPage() {
   const { data: session, status } = useSession();
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Read mode from URL parameter (source of truth)
+  const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode');
+  const isProviderMode = mode === 'provider';
+
   // Default to "sent" for families (they send to providers), "received" for providers (they receive from families)
   const [activeTab, setActiveTab] = useState<"sent" | "received">(
-    (session?.user?.activeMode || 'FAMILY') === "FAMILY" ? "sent" : "received"
+    isProviderMode ? "received" : "sent"
   );
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
-    } else if (status === "authenticated") {
+      return;
+    }
+
+    if (status === "authenticated") {
+      // Add default mode if missing
+      if (!mode) {
+        router.push('/dashboard/requests?mode=family');
+        return;
+      }
+
       fetchRequests();
       markAsViewed();
     }
-  }, [status, activeTab]);
+  }, [status, activeTab, mode]);
 
   const markAsViewed = async () => {
     try {
