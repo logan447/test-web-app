@@ -20,12 +20,29 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
-      // Just use NextAuth's default redirect behavior
-      await signIn("credentials", {
+      const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: '/',
+        redirect: false,
       });
+
+      if (result?.error) {
+        setError("Invalid email or password");
+        setLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        // Sign in successful, fetch session and redirect
+        const session = await getSession();
+
+        // Redirect based on user mode
+        if (session?.user?.activeMode === 'PROVIDER') {
+          window.location.href = '/provider/requests';
+        } else {
+          window.location.href = '/';
+        }
+      }
     } catch (error) {
       console.error('Login error:', error);
       setError("Something went wrong");
