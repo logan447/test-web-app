@@ -32,11 +32,49 @@ export default function LoginPage() {
         return;
       }
 
-      // Fetch session to determine default mode from database
+      // Fetch session
       const session = await getSession();
 
-      // Redirect with mode as URL parameter
-      if (session?.user?.activeMode === 'PROVIDER') {
+      // Calculate provider profile completion to determine default mode
+      let shouldDefaultToProvider = false;
+
+      if (session?.user?.role === 'PROVIDER') {
+        try {
+          const providerResponse = await fetch('/api/providers/me');
+          if (providerResponse.ok) {
+            const provider = await providerResponse.json();
+
+            // Calculate provider profile completion (same logic as auth.ts)
+            let completedSections = 0;
+            const totalSections = 6;
+
+            // 1. Basic Info
+            if (provider.name && provider.description && provider.address) completedSections++;
+            // 2. Services
+            if (provider.services && provider.services.length > 0) completedSections++;
+            // 3. Photos
+            if (provider.photos && provider.photos.length > 0) completedSections++;
+            // 4. Licensing
+            if (provider.licenseNumber) completedSections++;
+            // 5. Pricing
+            if (provider.pricing) completedSections++;
+            // 6. Staff
+            if (provider.staff && provider.staff.length > 0) completedSections++;
+
+            const completionPercentage = Math.round((completedSections / totalSections) * 100);
+
+            // Default to provider mode if 15%+ complete
+            if (completionPercentage >= 15) {
+              shouldDefaultToProvider = true;
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching provider profile:', error);
+        }
+      }
+
+      // Redirect with mode as URL parameter based on profile completion
+      if (shouldDefaultToProvider) {
         // Provider mode users go to Find Families page
         router.push("/provider/requests?mode=provider");
       } else {
