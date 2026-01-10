@@ -39,10 +39,17 @@ export default function LoginPage() {
       // Fetch session
       const session = await getSession();
 
+      console.log('=== LOGIN DEBUG ===');
+      console.log('Session:', session);
+      console.log('Active Mode:', session?.user?.activeMode);
+      console.log('Will redirect to:', session?.user?.activeMode === 'PROVIDER' ? '/provider/requests' : '/');
+
       // Direct redirect based on mode
       if (session?.user?.activeMode === 'PROVIDER') {
+        console.log('Redirecting to /provider/requests');
         window.location.href = '/provider/requests';
       } else {
+        console.log('Redirecting to /');
         window.location.href = '/';
       }
     } catch (error) {
