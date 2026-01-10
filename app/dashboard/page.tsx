@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
@@ -28,7 +28,6 @@ interface Activity {
 function DashboardPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [stats, setStats] = useState<DashboardStats>({
     pendingRequests: 0,
     activeConversations: 0,
@@ -39,16 +38,6 @@ function DashboardPageContent() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
 
-  // Read mode from URL parameter
-  const mode = searchParams.get('mode');
-
-  // Helper to preserve mode in URLs
-  const withMode = (url: string) => {
-    const modeParam = mode || 'family';
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}mode=${modeParam}`;
-  };
-
   useEffect(() => {
     if (status === "loading") return;
 
@@ -57,21 +46,10 @@ function DashboardPageContent() {
       return;
     }
 
-    // If mode is provider, redirect to provider dashboard
-    if (mode === 'provider') {
-      router.push('/provider/dashboard');
-      return;
-    }
-
-    // If no mode parameter, add default family mode
-    if (!mode) {
-      router.push('/dashboard');
-      return;
-    }
-
+    // Middleware handles mode-based access control
     // Fetch dashboard data
     fetchDashboardData();
-  }, [session, status, router, mode]);
+  }, [session, status, router]);
 
   const fetchDashboardData = async () => {
     try {
@@ -196,7 +174,7 @@ function DashboardPageContent() {
             </div>
             {isFamily && (
               <Link
-                href={withMode("/dashboard/care-profile")}
+                href={"/dashboard/care-profile"}
                 className="px-4 py-2 border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 font-semibold transition-colors flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,7 +220,7 @@ function DashboardPageContent() {
               </div>
             </div>
             <Link
-              href={withMode("/dashboard/requests")}
+              href={"/dashboard/requests"}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View all requests →
@@ -274,7 +252,7 @@ function DashboardPageContent() {
               </div>
             </div>
             <Link
-              href={withMode("/dashboard/requests")}
+              href={"/dashboard/requests"}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View messages →
@@ -312,7 +290,7 @@ function DashboardPageContent() {
               </div>
             </div>
             <Link
-              href={withMode(isFamily ? "/dashboard/saved" : "/dashboard/requests")}
+              href={isFamily ? "/dashboard/saved" : "/dashboard/requests"}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               {isFamily ? "View saved →" : "View all →"}
@@ -329,7 +307,7 @@ function DashboardPageContent() {
             {isFamily ? (
               <>
                 <Link
-                  href={withMode("/")}
+                  href={"/"}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-blue-100 p-3 rounded-lg mr-4">
@@ -355,7 +333,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href={withMode("/dashboard/care-profile")}
+                  href={"/dashboard/care-profile"}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -381,7 +359,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href={withMode("/dashboard/saved")}
+                  href={"/dashboard/saved"}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-purple-100 p-3 rounded-lg mr-4">
@@ -407,7 +385,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href={withMode("/dashboard/requests")}
+                  href={"/dashboard/requests"}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-orange-100 p-3 rounded-lg mr-4">
@@ -434,7 +412,7 @@ function DashboardPageContent() {
             ) : (
               <>
                 <Link
-                  href={withMode("/dashboard/provider-profile")}
+                  href={"/dashboard/provider-profile"}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-blue-100 p-3 rounded-lg mr-4">
@@ -460,7 +438,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href={withMode("/provider/requests")}
+                  href={"/provider/requests"}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -486,7 +464,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href={withMode("/dashboard/requests")}
+                  href={"/dashboard/requests"}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-purple-100 p-3 rounded-lg mr-4">
@@ -512,7 +490,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href={withMode("/dashboard/requests")}
+                  href={"/dashboard/requests"}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-orange-100 p-3 rounded-lg mr-4">
@@ -612,7 +590,7 @@ function DashboardPageContent() {
                 {filteredActivities.map((activity) => (
                   <Link
                     key={activity.id}
-                    href={activity.relatedId ? withMode(`/dashboard/requests/${activity.relatedId}`) : "#"}
+                    href={activity.relatedId ? `/dashboard/requests/${activity.relatedId}` : "#"}
                     className={`flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition ${
                       activity.isUnread ? "bg-blue-50" : "bg-white border border-gray-100"
                     }`}
@@ -663,7 +641,7 @@ function DashboardPageContent() {
                   {filterType === "all" ? "No recent activity yet" : `No ${filterType.toLowerCase().replace("_", " ")} activity`}
                 </p>
                 <Link
-                  href={withMode("/")}
+                  href={"/"}
                   className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Browse providers to get started →
