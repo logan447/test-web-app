@@ -12,12 +12,15 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    alert('handleSubmit called - starting login process');
     setLoading(true);
     setError("");
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+
+    alert(`Calling signIn for: ${email}`);
 
     try {
       // Sign in without redirect
@@ -26,6 +29,8 @@ export default function LoginPage() {
         password,
         redirect: false,
       });
+
+      alert(`SignIn result: ${result?.error ? 'ERROR' : 'SUCCESS'}`);
 
       if (result?.error) {
         setError("Invalid email or password");
