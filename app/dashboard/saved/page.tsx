@@ -35,13 +35,15 @@ type SavedProvider = {
 };
 
 function SavedProvidersContent() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [providers, setProviders] = useState<SavedProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
+    if (status === "loading") return;
+
     if (!session) {
       router.push('/login');
       return;
@@ -49,7 +51,7 @@ function SavedProvidersContent() {
 
     fetchSavedProviders();
     fetchSentRequests();
-  }, [session, router]);
+  }, [session, status, router]);
 
   const fetchSavedProviders = async () => {
     try {

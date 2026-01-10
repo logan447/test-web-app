@@ -31,7 +31,7 @@ type FamilyProfile = {
 };
 
 function ProviderRequestsContent() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +53,8 @@ function ProviderRequestsContent() {
   });
 
   useEffect(() => {
+    if (status === "loading") return;
+
     if (!session) {
       router.push('/login');
       return;
@@ -61,7 +63,7 @@ function ProviderRequestsContent() {
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, router]);
+  }, [session, status, router]);
 
   const fetchProfiles = async () => {
     try {

@@ -31,19 +31,21 @@ type SavedFamilyProfile = {
 };
 
 function SavedFamilyProfilesContent() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [profiles, setProfiles] = useState<SavedFamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
   useEffect(() => {
+    if (status === "loading") return;
+
     if (!session) {
       router.push('/login');
       return;
     }
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, router]);
+  }, [session, status, router]);
 
   const fetchSavedProfiles = async () => {
     try {
