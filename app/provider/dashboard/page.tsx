@@ -51,13 +51,6 @@ function ProviderDashboardPageContent() {
       return;
     }
 
-    // If user is in PROVIDER mode, redirect to Find Families page
-    // Provider dashboard is for managing provider profile, not the default landing page
-    if (session.user.activeMode === 'PROVIDER') {
-      router.replace('/provider/requests');
-      return;
-    }
-
     // Middleware handles mode-based access control
     // Fetch dashboard data
     fetchDashboardData();
