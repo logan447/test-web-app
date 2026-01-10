@@ -10,10 +10,12 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Not logged in - redirect to login for protected routes
+  // Not logged in - redirect to login for protected routes with returnUrl
   if (!token) {
     if (pathname.startsWith('/provider') || pathname.startsWith('/dashboard')) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('returnUrl', pathname);
+      return NextResponse.redirect(loginUrl);
     }
     return NextResponse.next();
   }

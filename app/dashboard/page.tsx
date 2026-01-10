@@ -46,6 +46,22 @@ export default function DashboardPage() {
       return;
     }
 
+    // Check mode from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+
+    // If mode is provider, redirect to provider dashboard
+    if (mode === 'provider') {
+      router.push('/provider/dashboard?mode=provider');
+      return;
+    }
+
+    // If no mode parameter, add default family mode
+    if (!mode) {
+      router.push('/dashboard?mode=family');
+      return;
+    }
+
     // Fetch dashboard data
     fetchDashboardData();
   }, [session, status, router]);

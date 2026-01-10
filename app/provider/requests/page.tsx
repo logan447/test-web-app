@@ -57,9 +57,13 @@ export default function ProviderRequests() {
       return;
     }
 
-    // Redirect to family homepage if not in provider mode
-    if (session.user.activeMode !== 'PROVIDER') {
-      router.push('/');
+    // Check mode from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+
+    // If mode is family or missing, redirect to family homepage
+    if (mode !== 'provider') {
+      router.push('/?mode=family');
       return;
     }
 

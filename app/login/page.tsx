@@ -35,6 +35,10 @@ export default function LoginPage() {
       // Fetch session
       const session = await getSession();
 
+      // Check for returnUrl parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnUrl = urlParams.get('returnUrl');
+
       // Calculate provider profile completion to determine default mode
       let shouldDefaultToProvider = false;
 
@@ -73,13 +77,22 @@ export default function LoginPage() {
         }
       }
 
-      // Redirect with mode as URL parameter based on profile completion
-      if (shouldDefaultToProvider) {
-        // Provider mode users go to Find Families page
-        router.push("/provider/requests?mode=provider");
+      // Determine default mode
+      const defaultMode = shouldDefaultToProvider ? 'provider' : 'family';
+
+      // If returnUrl exists, redirect there with appropriate mode
+      if (returnUrl) {
+        const separator = returnUrl.includes('?') ? '&' : '?';
+        router.push(`${returnUrl}${separator}mode=${defaultMode}`);
       } else {
-        // Family mode users go to Find Providers homepage
-        router.push("/?mode=family");
+        // Use default landing pages based on profile completion
+        if (shouldDefaultToProvider) {
+          // Provider mode users go to Find Families page
+          router.push("/provider/requests?mode=provider");
+        } else {
+          // Family mode users go to Find Providers homepage
+          router.push("/?mode=family");
+        }
       }
     } catch (error) {
       setError("Something went wrong");
