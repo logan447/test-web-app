@@ -32,19 +32,16 @@ export default function LoginPage() {
         return;
       }
 
-      // Wait for session to be fully created and JWT cookie to be written
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Fetch session to get user's activeMode
+      // Fetch session to determine default mode from database
       const session = await getSession();
 
-      // Redirect based on activeMode using hard navigation for reliability
+      // Redirect with mode as URL parameter
       if (session?.user?.activeMode === 'PROVIDER') {
         // Provider mode users go to Find Families page
-        window.location.href = "/provider/requests";
+        router.push("/provider/requests?mode=provider");
       } else {
         // Family mode users go to Find Providers homepage
-        window.location.href = "/";
+        router.push("/?mode=family");
       }
     } catch (error) {
       setError("Something went wrong");

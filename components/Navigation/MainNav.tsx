@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
@@ -94,6 +94,7 @@ const OTHER_CATEGORIES = [
 export default function MainNav() {
   const { data: session, update } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openOtherSubdropdown, setOpenOtherSubdropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -146,49 +147,42 @@ export default function MainNav() {
     return () => clearInterval(interval);
   }, [session]);
 
-  // Mode switching handler
-  const handleModeSwitch = async (newMode: 'FAMILY' | 'PROVIDER') => {
+  // Mode switching handler - instant with URL parameter
+  const handleModeSwitch = (newMode: 'FAMILY' | 'PROVIDER') => {
     if (switchingMode) return;
 
-    try {
-      setSwitchingMode(true);
+    setSwitchingMode(true);
 
-      // Update database
-      const response = await fetch('/api/mode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: newMode }),
-      });
+    // Show success message
+    showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      const data = await response.json();
+    // Navigate instantly with mode in URL
+    const landingPage = newMode === 'PROVIDER'
+      ? `/provider/requests?mode=provider`
+      : `/?mode=family`;
 
-      if (!response.ok) {
-        showToast.error('Failed to switch mode');
-        setSwitchingMode(false);
-        return;
-      }
+    router.push(landingPage);
 
-      // Update session
-      await update({ activeMode: newMode });
+    // Update database preference in background (don't await)
+    fetch('/api/mode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: newMode }),
+    }).catch(err => console.error('Failed to save mode preference:', err));
 
-      // Wait longer for JWT cookie to be written and propagated to browser
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Show success message
-      showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
-
-      // Use hard navigation to ensure fresh session is loaded
-      window.location.href = data.landingPage;
-
-    } catch (error) {
-      console.error('Error switching mode:', error);
-      showToast.error('Failed to switch mode');
-      setSwitchingMode(false);
-    }
+    setSwitchingMode(false);
   };
 
-  const currentMode = session?.user?.activeMode || 'FAMILY';
+  // Read mode from URL parameter (source of truth)
+  const modeParam = searchParams.get('mode');
+  const currentMode = modeParam === 'provider' ? 'PROVIDER' : 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
+
+  // Helper to add mode to URLs
+  const withMode = (url: string) => {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}mode=${modeParam || 'family'}`;
+  };
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
