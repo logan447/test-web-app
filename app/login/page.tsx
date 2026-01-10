@@ -12,7 +12,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert('handleSubmit called - starting login process');
     setLoading(true);
     setError("");
 
@@ -20,46 +19,13 @@ export default function LoginPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    alert(`Calling signIn for: ${email}`);
-
     try {
-      // Sign in without redirect
-      const result = await signIn("credentials", {
+      // Just use NextAuth's default redirect behavior
+      await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        callbackUrl: '/',
       });
-
-      alert(`SignIn result: ${result?.error ? 'ERROR' : 'SUCCESS'}`);
-
-      if (result?.error) {
-        setError("Invalid email or password");
-        setLoading(false);
-        return;
-      }
-
-      // Wait 2 full seconds to ensure session is completely persisted
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Fetch session
-      const session = await getSession();
-
-      console.log('=== LOGIN DEBUG ===');
-      console.log('Session:', session);
-      console.log('Active Mode:', session?.user?.activeMode);
-      console.log('Will redirect to:', session?.user?.activeMode === 'PROVIDER' ? '/provider/requests' : '/');
-
-      // Show alert so we know this code is running
-      alert(`About to redirect to: ${session?.user?.activeMode === 'PROVIDER' ? '/provider/requests' : '/'}\nMode: ${session?.user?.activeMode}`);
-
-      // Direct redirect based on mode
-      if (session?.user?.activeMode === 'PROVIDER') {
-        console.log('Redirecting to /provider/requests');
-        window.location.href = '/provider/requests';
-      } else {
-        console.log('Redirecting to /');
-        window.location.href = '/';
-      }
     } catch (error) {
       console.error('Login error:', error);
       setError("Something went wrong");
