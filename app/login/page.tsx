@@ -27,21 +27,27 @@ export default function LoginPage() {
         body: JSON.stringify({ email }),
       });
 
-      let callbackUrl = '/';
+      let landingPage = '/';
       if (checkResponse.ok) {
         const modeData = await checkResponse.json();
-        callbackUrl = modeData.mode === 'PROVIDER' ? '/provider/requests' : '/';
+        landingPage = modeData.mode === 'PROVIDER' ? '/provider/requests' : '/';
       }
 
-      // Now sign in with NextAuth's built-in redirect, passing the correct callbackUrl
-      // This lets NextAuth handle the entire redirect flow reliably
-      await signIn("credentials", {
+      // Sign in without redirect to check for errors
+      const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl,
+        redirect: false,
       });
 
-      // NextAuth will handle the redirect, so code below won't execute
+      if (result?.error) {
+        setError("Invalid email or password");
+        setLoading(false);
+        return;
+      }
+
+      // If successful, use location.replace for immediate navigation without history
+      window.location.replace(landingPage);
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
