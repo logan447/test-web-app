@@ -20,14 +20,31 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
-      // Call signIn with redirect enabled and default callbackUrl
-      // NextAuth will handle the redirect
+      // Sign in without redirect
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: '/auth/post-login', // Redirect to a handler page
-        redirect: true,
+        redirect: false,
       });
+
+      if (result?.error) {
+        setError("Invalid email or password");
+        setLoading(false);
+        return;
+      }
+
+      // Wait 2 full seconds to ensure session is completely persisted
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Fetch session
+      const session = await getSession();
+
+      // Direct redirect based on mode
+      if (session?.user?.activeMode === 'PROVIDER') {
+        window.location.href = '/provider/requests';
+      } else {
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error('Login error:', error);
       setError("Something went wrong");
