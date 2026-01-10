@@ -41,23 +41,9 @@ function SavedProvidersContent() {
   const [loading, setLoading] = useState(true);
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
 
-  const isProviderMode = mode === 'provider';
-
   useEffect(() => {
     if (!session) {
       router.push('/login');
-      return;
-    }
-
-    // Add default mode if missing
-    if (!mode) {
-      router.push('/dashboard/saved');
-      return;
-    }
-
-    // Redirect provider mode to their saved families page
-    if (isProviderMode) {
-      router.push('/provider/saved');
       return;
     }
 

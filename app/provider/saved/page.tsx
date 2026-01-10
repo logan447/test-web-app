@@ -56,6 +56,7 @@ function SavedFamilyProfilesContent() {
       console.error('Error fetching saved profiles:', err);
     } finally {
       setLoading(false);
+    }
   };
 
   const fetchSentRequests = async () => {

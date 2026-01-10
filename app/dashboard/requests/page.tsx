@@ -39,9 +39,8 @@ function RequestsPageContent() {
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isProviderMode = mode === 'provider';
-
-  // Default to "sent" for families (they send to providers), "received" for providers (they receive from families)
+  // Provider mode users see "received" (families contacting them), Family mode sees "sent" (to providers)
+  const isProviderMode = session?.user?.activeMode === 'PROVIDER';
   const [activeTab, setActiveTab] = useState<"sent" | "received">(
     isProviderMode ? "received" : "sent"
   );
@@ -53,15 +52,9 @@ function RequestsPageContent() {
     }
 
     if (status === "authenticated") {
-      // Add default mode if missing
-      if (!mode) {
-        router.push('/dashboard/requests');
-        return;
-    }
-      }
-
       fetchRequests();
       markAsViewed();
+    }
   }, [status, activeTab]);
 
   const markAsViewed = async () => {
