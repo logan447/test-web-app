@@ -174,11 +174,8 @@ export default function MainNav() {
       // Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Navigate instantly with Next.js router
-      router.push(data.landingPage);
-
-      // Reset switching state after navigation
-      setSwitchingMode(false);
+      // Use hard navigation to prevent race conditions with current page's redirect logic
+      window.location.href = data.landingPage;
 
     } catch (error) {
       console.error('Error switching mode:', error);

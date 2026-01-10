@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -32,8 +32,17 @@ export default function LoginPage() {
         return;
       }
 
-      // Always redirect to browse providers page (family mode default)
-      router.push("/providers");
+      // Fetch session to get user's activeMode
+      const session = await getSession();
+
+      // Redirect based on activeMode
+      if (session?.user?.activeMode === 'PROVIDER') {
+        // Provider mode users go to Find Families page
+        router.push("/provider/requests");
+      } else {
+        // Family mode users go to Find Providers homepage
+        router.push("/");
+      }
       router.refresh();
     } catch (error) {
       setError("Something went wrong");
