@@ -32,18 +32,20 @@ export default function LoginPage() {
         return;
       }
 
+      // Wait a moment for session to be fully created
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       // Fetch session to get user's activeMode
       const session = await getSession();
 
-      // Redirect based on activeMode
+      // Redirect based on activeMode using hard navigation for reliability
       if (session?.user?.activeMode === 'PROVIDER') {
         // Provider mode users go to Find Families page
-        router.push("/provider/requests");
+        window.location.href = "/provider/requests";
       } else {
         // Family mode users go to Find Providers homepage
-        router.push("/");
+        window.location.href = "/";
       }
-      router.refresh();
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);

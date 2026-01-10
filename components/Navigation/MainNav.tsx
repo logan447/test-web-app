@@ -171,10 +171,13 @@ export default function MainNav() {
       // Update session
       await update({ activeMode: newMode });
 
+      // Wait for JWT cookie to be written to browser
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Use hard navigation to prevent race conditions with current page's redirect logic
+      // Use hard navigation to ensure fresh session is loaded
       window.location.href = data.landingPage;
 
     } catch (error) {
