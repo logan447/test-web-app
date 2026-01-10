@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
@@ -33,29 +33,17 @@ type SavedFamilyProfile = {
 function SavedFamilyProfilesContent() {
   const { data: session } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<SavedFamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
-
-  // Read mode from URL parameter (source of truth)
-  const mode = searchParams.get('mode');
-
   useEffect(() => {
     if (!session) {
       router.push('/login');
       return;
     }
-
-    // If mode is family or missing, redirect to family saved page
-    if (mode !== 'provider') {
-      router.push('/dashboard/saved');
-      return;
-    }
-
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, router, mode]);
+  }, [session, router]);
 
   const fetchSavedProfiles = async () => {
     try {
@@ -68,7 +56,6 @@ function SavedFamilyProfilesContent() {
       console.error('Error fetching saved profiles:', err);
     } finally {
       setLoading(false);
-    }
   };
 
   const fetchSentRequests = async () => {
@@ -87,7 +74,6 @@ function SavedFamilyProfilesContent() {
       }
     } catch (error) {
       console.error('Error fetching sent requests:', error);
-    }
   };
 
   const handleRemove = async (familyProfileId: string) => {
@@ -109,7 +95,6 @@ function SavedFamilyProfilesContent() {
       showToast.error('Failed to remove from saved');
       // Refetch to restore state on error
       fetchSavedProfiles();
-    }
   };
 
   if (!session) {

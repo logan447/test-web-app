@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
@@ -35,13 +35,10 @@ type ConsultRequest = {
 
 function RequestsPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Read mode from URL parameter (source of truth)
-  const mode = searchParams.get('mode');
   const isProviderMode = mode === 'provider';
 
   // Default to "sent" for families (they send to providers), "received" for providers (they receive from families)
@@ -60,12 +57,12 @@ function RequestsPageContent() {
       if (!mode) {
         router.push('/dashboard/requests');
         return;
+    }
       }
 
       fetchRequests();
       markAsViewed();
-    }
-  }, [status, activeTab, mode]);
+  }, [status, activeTab]);
 
   const markAsViewed = async () => {
     try {
@@ -74,7 +71,6 @@ function RequestsPageContent() {
       });
     } catch (err) {
       console.error("Error marking as viewed:", err);
-    }
   };
 
   const fetchRequests = async () => {
@@ -90,7 +86,6 @@ function RequestsPageContent() {
       console.error("Error fetching requests:", err);
     } finally {
       setLoading(false);
-    }
   };
 
   const handleStatusUpdate = async (requestId: string, newStatus: string) => {
@@ -106,7 +101,6 @@ function RequestsPageContent() {
       }
     } catch (err) {
       console.error("Error updating request:", err);
-    }
   };
 
   const handleDelete = async (requestId: string) => {
@@ -130,7 +124,6 @@ function RequestsPageContent() {
       console.error("Error deleting request:", err);
       // Refetch to restore state on error
       fetchRequests();
-    }
   };
 
   const getStatusColor = (status: string) => {
@@ -145,7 +138,6 @@ function RequestsPageContent() {
         return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
-    }
   };
 
   const getCombinedBadgeText = (status: string, activeTab: string) => {
@@ -158,7 +150,6 @@ function RequestsPageContent() {
       return "Declined";
     } else if (status === "COMPLETED") {
       return "Completed";
-    }
     return status;
   };
 
@@ -180,7 +171,6 @@ function RequestsPageContent() {
         return "This consultation has been marked as completed.";
       default:
         return "";
-    }
   };
 
   if (loading || status === "loading") {

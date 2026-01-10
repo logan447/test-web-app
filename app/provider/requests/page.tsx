@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import { showToast } from '@/lib/toast';
@@ -33,7 +33,6 @@ type FamilyProfile = {
 function ProviderRequestsContent() {
   const { data: session } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
@@ -42,8 +41,6 @@ function ProviderRequestsContent() {
   const [selectedProfileForUnlock, setSelectedProfileForUnlock] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('newest');
 
-  // Read mode from URL parameter
-  const mode = searchParams.get('mode');
 
   // Filters
   const [filters, setFilters] = useState<FamilyFilters>({
@@ -61,16 +58,10 @@ function ProviderRequestsContent() {
       return;
     }
 
-    // If mode is family or missing, redirect to family homepage
-    if (mode !== 'provider') {
-      router.push('/');
-      return;
-    }
-
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, router, mode]);
+  }, [session, router]);
 
   const fetchProfiles = async () => {
     try {
@@ -87,7 +78,6 @@ function ProviderRequestsContent() {
       console.error('Error fetching profiles:', err);
     } finally {
       setLoading(false);
-    }
   };
 
   const handleSearch = () => {
@@ -118,7 +108,6 @@ function ProviderRequestsContent() {
       }
     } catch (err) {
       console.error('Error fetching saved profiles:', err);
-    }
   };
 
   const fetchSentRequests = async () => {
@@ -151,7 +140,6 @@ function ProviderRequestsContent() {
       setRequestedProfileIds(profileMap);
     } catch (error) {
       console.error('Error fetching requests:', error);
-    }
   };
 
   const handleToggleSave = async (profileId: string) => {
@@ -201,7 +189,6 @@ function ProviderRequestsContent() {
         }
         return next;
       });
-    }
   };
 
   const handleUpgradeSubscription = async (tier: 'PRO') => {
@@ -223,7 +210,6 @@ function ProviderRequestsContent() {
     } catch (err: any) {
       console.error('Error activating membership:', err);
       throw err;
-    }
   };
 
   // Filter and sort profiles
@@ -235,7 +221,6 @@ function ProviderRequestsContent() {
       filtered = filtered.filter(profile =>
         profile.careTypes.some(type => filters.careTypes.includes(type))
       );
-    }
 
     // Apply budget filter
     filtered = filtered.filter(profile => {
@@ -250,7 +235,6 @@ function ProviderRequestsContent() {
     // Apply timeline filter
     if (filters.timeline) {
       filtered = filtered.filter(profile => profile.timeline === filters.timeline);
-    }
 
     // Sort
     switch (sortBy) {
@@ -268,7 +252,6 @@ function ProviderRequestsContent() {
         break;
       default:
         break;
-    }
 
     return filtered;
   };
@@ -295,7 +278,6 @@ function ProviderRequestsContent() {
           <ProfileCardsSkeleton count={3} />
         </div>
       );
-    }
 
     const filteredProfiles = getFilteredAndSortedProfiles();
 

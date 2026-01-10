@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
@@ -37,13 +37,10 @@ type SavedProvider = {
 function SavedProvidersContent() {
   const { data: session } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [providers, setProviders] = useState<SavedProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
 
-  // Read mode from URL parameter (source of truth)
-  const mode = searchParams.get('mode');
   const isProviderMode = mode === 'provider';
 
   useEffect(() => {
@@ -66,7 +63,7 @@ function SavedProvidersContent() {
 
     fetchSavedProviders();
     fetchSentRequests();
-  }, [session, router, mode]);
+  }, [session, router]);
 
   const fetchSavedProviders = async () => {
     try {
@@ -79,7 +76,6 @@ function SavedProvidersContent() {
       console.error('Error fetching saved providers:', err);
     } finally {
       setLoading(false);
-    }
   };
 
   const fetchSentRequests = async () => {
@@ -98,7 +94,6 @@ function SavedProvidersContent() {
       }
     } catch (error) {
       console.error('Error fetching sent requests:', error);
-    }
   };
 
   const handleRemove = async (providerId: string) => {
@@ -120,7 +115,6 @@ function SavedProvidersContent() {
       showToast.error('Failed to remove from saved');
       // Refetch to restore state on error
       fetchSavedProviders();
-    }
   };
 
   if (!session) {
