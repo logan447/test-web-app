@@ -36,7 +36,15 @@ export default function LoginPage() {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Fetch session after delay
-      const session = await getSession();
+      let session = await getSession();
+
+      // Retry fetching session if not loaded (safeguard)
+      let retries = 0;
+      while (!session?.user?.activeMode && retries < 3) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        session = await getSession();
+        retries++;
+      }
 
       // Determine landing page based on mode
       const landingPage = session?.user?.activeMode === 'PROVIDER'
