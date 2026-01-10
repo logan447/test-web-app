@@ -35,6 +35,13 @@ export default function LoginPage() {
       // Fetch session
       const session = await getSession();
 
+      console.log('[LOGIN DEBUG] Session data:', {
+        exists: !!session,
+        email: session?.user?.email,
+        role: session?.user?.role,
+        name: session?.user?.name
+      });
+
       // Check for returnUrl parameter
       const urlParams = new URLSearchParams(window.location.search);
       const returnUrl = urlParams.get('returnUrl');
