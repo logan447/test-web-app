@@ -20,39 +20,28 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      // Make a request to determine the user's mode BEFORE signing in
+      const checkResponse = await fetch('/api/auth/user-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
 
-      if (result?.error) {
-        setError("Invalid email or password");
-        setLoading(false);
-        return;
+      let callbackUrl = '/';
+      if (checkResponse.ok) {
+        const modeData = await checkResponse.json();
+        callbackUrl = modeData.mode === 'PROVIDER' ? '/provider/requests' : '/';
       }
 
-      // Give the session time to fully persist
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Now sign in with NextAuth's built-in redirect, passing the correct callbackUrl
+      // This lets NextAuth handle the entire redirect flow reliably
+      await signIn("credentials", {
+        email,
+        password,
+        callbackUrl,
+      });
 
-      // Fetch session after delay
-      let session = await getSession();
-
-      // Retry fetching session if not loaded (safeguard)
-      let retries = 0;
-      while (!session?.user?.activeMode && retries < 3) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        session = await getSession();
-        retries++;
-      }
-
-      // Determine landing page based on mode
-      const landingPage = session?.user?.activeMode === 'PROVIDER'
-        ? '/provider/requests'
-        : '/';
-
-      // Force a full page reload to the landing page
-      window.location.href = landingPage;
+      // NextAuth will handle the redirect, so code below won't execute
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
