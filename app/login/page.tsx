@@ -51,25 +51,39 @@ export default function LoginPage() {
             const provider = await providerResponse.json();
             console.log('Provider profile data:', provider);
 
-            // Calculate provider profile completion (same logic as auth.ts)
+            // Calculate provider profile completion based on actual schema fields
             let completedSections = 0;
             const totalSections = 6;
 
-            // 1. Basic Info
+            // 1. Basic Info (name, description, address all required for creation, so this should always be 1)
             if (provider.name && provider.description && provider.address) completedSections++;
-            // 2. Services
-            if (provider.services && provider.services.length > 0) completedSections++;
+            // 2. Services (careTypesOffered is the actual field name)
+            if (provider.careTypesOffered && provider.careTypesOffered.length > 0) completedSections++;
             // 3. Photos
             if (provider.photos && provider.photos.length > 0) completedSections++;
             // 4. Licensing
             if (provider.licenseNumber) completedSections++;
-            // 5. Pricing
-            if (provider.pricing) completedSections++;
-            // 6. Staff
-            if (provider.staff && provider.staff.length > 0) completedSections++;
+            // 5. Pricing (check if any pricing fields are set)
+            if (provider.priceMin || provider.priceMax || provider.privateRoomMin || provider.semiPrivateRoomMin) completedSections++;
+            // 6. Staff (check if any staff information is provided)
+            if ((provider.staffCredentials && provider.staffCredentials.length > 0) ||
+                provider.staffToResidentRatio ||
+                provider.daytimeStaffRatio) completedSections++;
 
             const completionPercentage = Math.round((completedSections / totalSections) * 100);
-            console.log('Provider profile completion:', completionPercentage, '%');
+            console.log('Provider profile completion calculation:', {
+              completedSections,
+              totalSections,
+              completionPercentage,
+              sections: {
+                basicInfo: !!(provider.name && provider.description && provider.address),
+                services: !!(provider.careTypesOffered && provider.careTypesOffered.length > 0),
+                photos: !!(provider.photos && provider.photos.length > 0),
+                licensing: !!provider.licenseNumber,
+                pricing: !!(provider.priceMin || provider.priceMax || provider.privateRoomMin || provider.semiPrivateRoomMin),
+                staff: !!((provider.staffCredentials && provider.staffCredentials.length > 0) || provider.staffToResidentRatio || provider.daytimeStaffRatio)
+              }
+            });
 
             // Default to provider mode if 15%+ complete
             if (completionPercentage >= 15) {
@@ -93,19 +107,16 @@ export default function LoginPage() {
         returnUrl
       });
 
-      // Use window.location.href for reliable full page navigation
-      if (returnUrl) {
-        const separator = returnUrl.includes('?') ? '&' : '?';
-        window.location.href = `${returnUrl}${separator}mode=${defaultMode}`;
+      // Always use smart redirect based on profile completion
+      // Ignore returnUrl to ensure users land on the correct page for their mode
+      if (shouldDefaultToProvider) {
+        // Provider mode users go to Find Families page
+        console.log('Redirecting to provider mode (Find Families page)');
+        window.location.href = "/provider/requests?mode=provider";
       } else {
-        // Use default landing pages based on profile completion
-        if (shouldDefaultToProvider) {
-          // Provider mode users go to Find Families page
-          window.location.href = "/provider/requests?mode=provider";
-        } else {
-          // Family mode users go to Find Providers homepage
-          window.location.href = "/?mode=family";
-        }
+        // Family mode users go to Find Providers homepage
+        console.log('Redirecting to family mode (Find Providers page)');
+        window.location.href = "/?mode=family";
       }
     } catch (error) {
       setError("Something went wrong");
