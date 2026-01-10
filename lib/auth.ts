@@ -51,37 +51,39 @@ export const authOptions: NextAuthOptions = {
         if (user.provider && user.role === 'PROVIDER') {
           const provider = user.provider;
 
-          // Calculate provider profile completion
+          // Calculate provider profile completion based on actual schema fields
           let completedSections = 0;
           const totalSections = 6;
 
-          // 1. Basic Info
-          if (provider.name && provider.description && provider.email && provider.phone) {
+          // 1. Basic Info (name, description, address are required, so should always be 1)
+          if (provider.name && provider.description && provider.address) {
             completedSections++;
           }
 
-          // 2. Services & Amenities
-          if (provider.roomFeatures && Array.isArray(provider.roomFeatures) && provider.roomFeatures.length > 0) {
+          // 2. Services (careTypesOffered is the actual field name)
+          if (provider.careTypesOffered && provider.careTypesOffered.length > 0) {
             completedSections++;
           }
 
           // 3. Photos
-          if (provider.photos && Array.isArray(provider.photos) && provider.photos.length >= 5) {
+          if (provider.photos && provider.photos.length > 0) {
             completedSections++;
           }
 
           // 4. Licensing
-          if (provider.licensed && provider.licenseNumber) {
+          if (provider.licenseNumber) {
             completedSections++;
           }
 
-          // 5. Pricing
-          if (provider.priceMin && provider.priceMax) {
+          // 5. Pricing (check if any pricing fields are set)
+          if (provider.priceMin || provider.priceMax || provider.privateRoomMin || provider.semiPrivateRoomMin) {
             completedSections++;
           }
 
-          // 6. Staff Info
-          if (provider.staffToResidentRatio) {
+          // 6. Staff (check if any staff information is provided)
+          if ((provider.staffCredentials && provider.staffCredentials.length > 0) ||
+              provider.staffToResidentRatio ||
+              provider.daytimeStaffRatio) {
             completedSections++;
           }
 

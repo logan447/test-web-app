@@ -32,6 +32,8 @@ export async function POST(req: Request) {
       data: { activeMode: mode as UserMode },
     });
 
+    // Return success with landing page info
+    // Client should call session.update() to refresh the NextAuth session
     return NextResponse.json({
       success: true,
       mode,

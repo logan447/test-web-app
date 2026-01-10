@@ -147,42 +147,43 @@ function MainNavContent() {
     return () => clearInterval(interval);
   }, [session]);
 
-  // Mode switching handler - instant with URL parameter
-  const handleModeSwitch = (newMode: 'FAMILY' | 'PROVIDER') => {
+  // Mode switching handler - uses session, no URL parameters
+  const handleModeSwitch = async (newMode: 'FAMILY' | 'PROVIDER') => {
     if (switchingMode) return;
 
     setSwitchingMode(true);
 
-    // Show success message
-    showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
+    try {
+      // Update mode in database
+      const response = await fetch('/api/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: newMode }),
+      });
 
-    // Navigate instantly with mode in URL
-    const landingPage = newMode === 'PROVIDER'
-      ? `/provider/requests?mode=provider`
-      : `/?mode=family`;
+      if (!response.ok) throw new Error('Failed to switch mode');
 
-    router.push(landingPage);
+      const data = await response.json();
 
-    // Update database preference in background (don't await)
-    fetch('/api/mode', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: newMode }),
-    }).catch(err => console.error('Failed to save mode preference:', err));
+      // Update NextAuth session with new mode
+      await update({ activeMode: newMode });
 
-    setSwitchingMode(false);
+      // Show success message
+      showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
+
+      // Navigate to appropriate landing page (no URL parameters)
+      router.push(data.landingPage);
+    } catch (error) {
+      console.error('Error switching mode:', error);
+      showToast.error('Failed to switch mode');
+    } finally {
+      setSwitchingMode(false);
+    }
   };
 
-  // Read mode from URL parameter (source of truth)
-  const modeParam = searchParams.get('mode');
-  const currentMode = modeParam === 'provider' ? 'PROVIDER' : 'FAMILY';
+  // Read mode from session (source of truth)
+  const currentMode = session?.user?.activeMode || 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
-
-  // Helper to add mode to URLs
-  const withMode = (url: string) => {
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}mode=${modeParam || 'family'}`;
-  };
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -360,13 +361,13 @@ function MainNavContent() {
                       {providerType ? (
                         <>
                           {/* Has provider profile */}
-                          <Link href={withMode("/provider/requests")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href={"/provider/requests"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
-                          <Link href={withMode("/provider/saved")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href={"/provider/saved"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Saved Families
                           </Link>
-                          <Link href={withMode("/dashboard/requests")} className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href={"/dashboard/requests"} className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -374,7 +375,7 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
-                          <Link href={withMode("/provider/dashboard")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href={"/provider/dashboard"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             My Provider Profile
                           </Link>
 
@@ -384,19 +385,19 @@ function MainNavContent() {
                           {/* Hiring section - different for organizations vs caregivers */}
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
-                              <Link href={withMode("/caregiver/browse-organizations")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href={"/caregiver/browse-organizations"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Hiring Organizations
                               </Link>
-                              <Link href={withMode("/provider/hiring-requests")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href={"/provider/hiring-requests"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 My Job Opportunities
                               </Link>
                             </>
                           ) : (
                             <>
-                              <Link href={withMode("/provider/hire-staff")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href={"/provider/hire-staff"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Hire Care Staff
                               </Link>
-                              <Link href={withMode("/provider/hiring-requests")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href={"/provider/hiring-requests"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 My Candidates
                               </Link>
                             </>
@@ -405,10 +406,10 @@ function MainNavContent() {
                       ) : (
                         <>
                           {/* No provider profile */}
-                          <Link href={withMode("/provider/requests")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href={"/provider/requests"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
-                          <Link href={withMode("/provider/dashboard")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href={"/provider/dashboard"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             My Provider Profile
                           </Link>
                         </>
@@ -417,13 +418,13 @@ function MainNavContent() {
                   ) : (
                     <>
                       {/* Family mode */}
-                      <Link href={withMode("/")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href={"/"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Find Providers
                       </Link>
-                      <Link href={withMode("/dashboard/saved")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href={"/dashboard/saved"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved Providers
                       </Link>
-                      <Link href={withMode("/dashboard/requests")} className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href={"/dashboard/requests"} className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <span>My Providers</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -431,7 +432,7 @@ function MainNavContent() {
                           </span>
                         )}
                       </Link>
-                      <Link href={withMode("/dashboard")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href={"/dashboard"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         My Dashboard
                       </Link>
                     </>
@@ -454,7 +455,7 @@ function MainNavContent() {
                         {switchingMode ? 'Switching...' : 'For Providers'}
                       </button>
                     )}
-                    <Link href={withMode("/settings")} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link href={"/settings"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Settings
                     </Link>
                   </div>
@@ -651,13 +652,13 @@ function MainNavContent() {
                       {providerType ? (
                         <>
                           {/* Has provider profile */}
-                          <Link href={withMode("/provider/requests")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href={"/provider/requests"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
-                          <Link href={withMode("/provider/saved")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href={"/provider/saved"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Saved Families
                           </Link>
-                          <Link href={withMode("/dashboard/requests")} className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href={"/dashboard/requests"} className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -665,7 +666,7 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
-                          <Link href={withMode("/provider/dashboard")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href={"/provider/dashboard"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             My Provider Profile
                           </Link>
 
@@ -675,19 +676,19 @@ function MainNavContent() {
                           {/* Hiring section - different for organizations vs caregivers */}
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
-                              <Link href={withMode("/caregiver/browse-organizations")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href={"/caregiver/browse-organizations"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 Hiring Organizations
                               </Link>
-                              <Link href={withMode("/provider/hiring-requests")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href={"/provider/hiring-requests"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 My Job Opportunities
                               </Link>
                             </>
                           ) : (
                             <>
-                              <Link href={withMode("/provider/hire-staff")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href={"/provider/hire-staff"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 Hire Care Staff
                               </Link>
-                              <Link href={withMode("/provider/hiring-requests")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href={"/provider/hiring-requests"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 My Candidates
                               </Link>
                             </>
@@ -696,10 +697,10 @@ function MainNavContent() {
                       ) : (
                         <>
                           {/* No provider profile */}
-                          <Link href={withMode("/provider/requests")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href={"/provider/requests"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
-                          <Link href={withMode("/provider/dashboard")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href={"/provider/dashboard"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             My Provider Profile
                           </Link>
                         </>
@@ -708,13 +709,13 @@ function MainNavContent() {
                   ) : (
                     <>
                       {/* Family mode */}
-                      <Link href={withMode("/")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href={"/"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Find Providers
                       </Link>
-                      <Link href={withMode("/dashboard/saved")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href={"/dashboard/saved"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved Providers
                       </Link>
-                      <Link href={withMode("/dashboard/requests")} className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href={"/dashboard/requests"} className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         <span>My Providers</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -722,7 +723,7 @@ function MainNavContent() {
                           </span>
                         )}
                       </Link>
-                      <Link href={withMode("/dashboard")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href={"/dashboard"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         My Dashboard
                       </Link>
                     </>
@@ -751,7 +752,7 @@ function MainNavContent() {
                       {switchingMode ? 'Switching...' : 'For Providers'}
                     </button>
                   )}
-                  <Link href={withMode("/settings")} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href={"/settings"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                     Settings
                   </Link>
                   <div className="border-t border-gray-200 my-2"></div>

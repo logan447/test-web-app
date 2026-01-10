@@ -10,18 +10,27 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Not logged in - redirect to login for protected routes with returnUrl
+  // Not logged in - redirect to login for protected routes
   if (!token) {
     if (pathname.startsWith('/provider') || pathname.startsWith('/dashboard')) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('returnUrl', pathname);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL('/login', request.url));
     }
     return NextResponse.next();
   }
 
-  // User is authenticated - allow access to all routes
-  // Pages will handle mode-specific content checks themselves
+  // User is authenticated - enforce mode-based access control
+  const activeMode = token.activeMode as string;
+
+  // FAMILY mode users: block access to /provider/* routes
+  if (activeMode === 'FAMILY' && pathname.startsWith('/provider')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // PROVIDER mode users: block access to /dashboard/* routes (except provider dashboard)
+  if (activeMode === 'PROVIDER' && pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard/provider')) {
+    return NextResponse.redirect(new URL('/provider/dashboard', request.url));
+  }
+
   return NextResponse.next();
 }
 
