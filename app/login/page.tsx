@@ -20,35 +20,14 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
-      // Sign in without redirect to check for errors
+      // Call signIn with redirect enabled and default callbackUrl
+      // NextAuth will handle the redirect
       const result = await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        callbackUrl: '/auth/post-login', // Redirect to a handler page
+        redirect: true,
       });
-
-      if (result?.error) {
-        setError("Invalid email or password");
-        setLoading(false);
-        return;
-      }
-
-      // Delay to ensure JWT cookie is written
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Fetch the session to get the actual mode set during login
-      const session = await getSession();
-
-      // Determine landing page from session mode
-      const landingPage = session?.user?.activeMode === 'PROVIDER'
-        ? '/provider/requests'
-        : '/';
-
-      // Log for debugging
-      console.log('Login successful, redirecting to:', landingPage, 'Mode:', session?.user?.activeMode);
-
-      // Navigate to landing page
-      window.location.replace(landingPage);
     } catch (error) {
       console.error('Login error:', error);
       setError("Something went wrong");
