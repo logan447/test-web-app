@@ -35,10 +35,13 @@ export default function LoginPage() {
       // Fetch session - mode is already set by auth.ts based on provider completion
       const session = await getSession();
 
+      // Small delay to ensure session cookies are fully set
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Redirect based on session mode (no URL parameters needed)
       // Use window.location.href to ensure session cookies are properly set in middleware
       if (session?.user?.activeMode === 'PROVIDER') {
-        // Provider mode: go to Find Families page
+        // Provider mode: go to Find Families page (/provider/requests)
         window.location.href = '/provider/requests';
       } else {
         // Family mode: go to Find Providers homepage
