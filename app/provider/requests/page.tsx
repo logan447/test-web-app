@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import { showToast } from '@/lib/toast';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
@@ -30,7 +30,7 @@ type FamilyProfile = {
   isSaved?: boolean;
 };
 
-export default function ProviderRequests() {
+function ProviderRequestsContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -410,5 +410,20 @@ export default function ProviderRequests() {
         onUpgrade={handleUpgradeSubscription}
       />
     </div>
+  );
+}
+
+export default function ProviderRequests() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ProfileCardsSkeleton />
+        </div>
+      </div>
+    }>
+      <ProviderRequestsContent />
+    </Suspense>
   );
 }

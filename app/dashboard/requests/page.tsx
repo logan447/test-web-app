@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -33,7 +33,7 @@ type ConsultRequest = {
   };
 };
 
-export default function RequestsPage() {
+function RequestsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -326,5 +326,22 @@ export default function RequestsPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function RequestsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-200 rounded w-1/3 mb-8"></div>
+          </div>
+        </main>
+      </div>
+    }>
+      <RequestsPageContent />
+    </Suspense>
   );
 }

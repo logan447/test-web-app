@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
@@ -34,7 +34,7 @@ type SavedProvider = {
   createdAt: string;
 };
 
-export default function SavedProviders() {
+function SavedProvidersContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -216,5 +216,20 @@ export default function SavedProviders() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SavedProviders() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ProfileCardsSkeleton />
+        </div>
+      </div>
+    }>
+      <SavedProvidersContent />
+    </Suspense>
   );
 }

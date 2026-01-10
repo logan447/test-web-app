@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -29,7 +29,7 @@ interface ProviderProfile {
   providerType: string;
 }
 
-export default function ProviderDashboardPage() {
+function ProviderDashboardPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -617,5 +617,22 @@ export default function ProviderDashboardPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ProviderDashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-200 rounded w-1/3 mb-8"></div>
+          </div>
+        </main>
+      </div>
+    }>
+      <ProviderDashboardPageContent />
+    </Suspense>
   );
 }
