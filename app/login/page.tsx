@@ -35,8 +35,9 @@ export default function LoginPage() {
       // Fetch session - mode is already set by auth.ts based on provider completion
       const session = await getSession();
 
-      // Small delay to ensure session cookies are fully set
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Longer delay to ensure JWT cookie is fully written to browser
+      // This is critical for middleware to read the correct token on next request
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       // Redirect based on session mode (no URL parameters needed)
       // Use window.location.href to ensure session cookies are properly set in middleware
