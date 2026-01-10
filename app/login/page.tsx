@@ -46,6 +46,9 @@ export default function LoginPage() {
         return;
       }
 
+      // Small delay to ensure JWT cookie is written before navigation
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       // If successful, use location.replace for immediate navigation without history
       window.location.replace(landingPage);
     } catch (error) {
