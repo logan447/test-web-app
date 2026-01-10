@@ -20,19 +20,6 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
-      // Make a request to determine the user's mode BEFORE signing in
-      const checkResponse = await fetch('/api/auth/user-mode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      let landingPage = '/';
-      if (checkResponse.ok) {
-        const modeData = await checkResponse.json();
-        landingPage = modeData.mode === 'PROVIDER' ? '/provider/requests' : '/';
-      }
-
       // Sign in without redirect to check for errors
       const result = await signIn("credentials", {
         email,
@@ -46,12 +33,24 @@ export default function LoginPage() {
         return;
       }
 
-      // Small delay to ensure JWT cookie is written before navigation
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Delay to ensure JWT cookie is written
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // If successful, use location.replace for immediate navigation without history
+      // Fetch the session to get the actual mode set during login
+      const session = await getSession();
+
+      // Determine landing page from session mode
+      const landingPage = session?.user?.activeMode === 'PROVIDER'
+        ? '/provider/requests'
+        : '/';
+
+      // Log for debugging
+      console.log('Login successful, redirecting to:', landingPage, 'Mode:', session?.user?.activeMode);
+
+      // Navigate to landing page
       window.location.replace(landingPage);
     } catch (error) {
+      console.error('Login error:', error);
       setError("Something went wrong");
       setLoading(false);
     }
