@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -91,7 +91,7 @@ const OTHER_CATEGORIES = [
   },
 ];
 
-export default function MainNav() {
+function MainNavContent() {
   const { data: session, update } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -804,5 +804,29 @@ export default function MainNav() {
         onClose={() => setSignOutModalOpen(false)}
       />
     </nav>
+  );
+}
+
+// Export wrapped in Suspense to handle useSearchParams()
+export default function MainNav() {
+  return (
+    <Suspense fallback={
+      <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center">
+                <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center mr-2">
+                  <span className="text-white text-xl font-bold">O</span>
+                </div>
+                <span className="text-2xl font-bold text-gray-900">Olera</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+    }>
+      <MainNavContent />
+    </Suspense>
   );
 }
