@@ -36,12 +36,13 @@ export default function LoginPage() {
       const session = await getSession();
 
       // Redirect based on session mode (no URL parameters needed)
+      // Use window.location.href to ensure session cookies are properly set in middleware
       if (session?.user?.activeMode === 'PROVIDER') {
         // Provider mode: go to Find Families page
-        router.push('/provider/requests');
+        window.location.href = '/provider/requests';
       } else {
         // Family mode: go to Find Providers homepage
-        router.push('/');
+        window.location.href = '/';
       }
     } catch (error) {
       setError("Something went wrong");

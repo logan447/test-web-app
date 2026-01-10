@@ -26,8 +26,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // PROVIDER mode users: block access to /dashboard/* routes (except provider dashboard)
-  if (activeMode === 'PROVIDER' && pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard/provider')) {
+  // PROVIDER mode users: block access to /dashboard/* routes (except provider dashboard and requests page)
+  // The /dashboard/requests page handles both family and provider modes
+  if (activeMode === 'PROVIDER' &&
+      pathname.startsWith('/dashboard') &&
+      !pathname.startsWith('/dashboard/provider') &&
+      !pathname.startsWith('/dashboard/requests')) {
     return NextResponse.redirect(new URL('/provider/dashboard', request.url));
   }
 
