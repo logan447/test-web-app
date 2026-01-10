@@ -45,11 +45,11 @@ export default function LoginPage() {
       if (session?.user?.role === 'PROVIDER') {
         try {
           const providerResponse = await fetch('/api/providers/me');
-          console.log('Provider profile response status:', providerResponse.status);
+          console.log('[LOGIN DEBUG] Provider profile response status:', providerResponse.status);
 
           if (providerResponse.ok) {
             const provider = await providerResponse.json();
-            console.log('Provider profile data:', provider);
+            console.log('[LOGIN DEBUG] Provider profile data:', provider);
 
             // Calculate provider profile completion based on actual schema fields
             let completedSections = 0;
