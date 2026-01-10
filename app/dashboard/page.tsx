@@ -42,6 +42,13 @@ function DashboardPageContent() {
   // Read mode from URL parameter
   const mode = searchParams.get('mode');
 
+  // Helper to preserve mode in URLs
+  const withMode = (url: string) => {
+    const modeParam = mode || 'family';
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}mode=${modeParam}`;
+  };
+
   useEffect(() => {
     if (status === "loading") return;
 
@@ -64,7 +71,7 @@ function DashboardPageContent() {
 
     // Fetch dashboard data
     fetchDashboardData();
-  }, [session, status, router]);
+  }, [session, status, router, mode]);
 
   const fetchDashboardData = async () => {
     try {
@@ -189,7 +196,7 @@ function DashboardPageContent() {
             </div>
             {isFamily && (
               <Link
-                href="/dashboard/care-profile"
+                href={withMode("/dashboard/care-profile")}
                 className="px-4 py-2 border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 font-semibold transition-colors flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,7 +242,7 @@ function DashboardPageContent() {
               </div>
             </div>
             <Link
-              href="/dashboard/requests"
+              href={withMode("/dashboard/requests")}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View all requests →
@@ -267,7 +274,7 @@ function DashboardPageContent() {
               </div>
             </div>
             <Link
-              href="/dashboard/requests"
+              href={withMode("/dashboard/requests")}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View messages →
@@ -305,7 +312,7 @@ function DashboardPageContent() {
               </div>
             </div>
             <Link
-              href={isFamily ? "/dashboard/saved" : "/dashboard/requests"}
+              href={withMode(isFamily ? "/dashboard/saved" : "/dashboard/requests")}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               {isFamily ? "View saved →" : "View all →"}
@@ -322,7 +329,7 @@ function DashboardPageContent() {
             {isFamily ? (
               <>
                 <Link
-                  href="/"
+                  href={withMode("/")}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-blue-100 p-3 rounded-lg mr-4">
@@ -348,7 +355,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/care-profile"
+                  href={withMode("/dashboard/care-profile")}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -374,7 +381,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/saved"
+                  href={withMode("/dashboard/saved")}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-purple-100 p-3 rounded-lg mr-4">
@@ -400,7 +407,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/requests"
+                  href={withMode("/dashboard/requests")}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-orange-100 p-3 rounded-lg mr-4">
@@ -427,7 +434,7 @@ function DashboardPageContent() {
             ) : (
               <>
                 <Link
-                  href="/dashboard/provider-profile"
+                  href={withMode("/dashboard/provider-profile")}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-blue-100 p-3 rounded-lg mr-4">
@@ -453,7 +460,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href="/provider/requests"
+                  href={withMode("/provider/requests")}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -479,7 +486,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/requests"
+                  href={withMode("/dashboard/requests")}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-purple-100 p-3 rounded-lg mr-4">
@@ -505,7 +512,7 @@ function DashboardPageContent() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/requests"
+                  href={withMode("/dashboard/requests")}
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-orange-100 p-3 rounded-lg mr-4">
@@ -605,7 +612,7 @@ function DashboardPageContent() {
                 {filteredActivities.map((activity) => (
                   <Link
                     key={activity.id}
-                    href={activity.relatedId ? `/dashboard/requests/${activity.relatedId}` : "#"}
+                    href={activity.relatedId ? withMode(`/dashboard/requests/${activity.relatedId}`) : "#"}
                     className={`flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition ${
                       activity.isUnread ? "bg-blue-50" : "bg-white border border-gray-100"
                     }`}
@@ -656,7 +663,7 @@ function DashboardPageContent() {
                   {filterType === "all" ? "No recent activity yet" : `No ${filterType.toLowerCase().replace("_", " ")} activity`}
                 </p>
                 <Link
-                  href="/"
+                  href={withMode("/")}
                   className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Browse providers to get started →

@@ -47,6 +47,13 @@ function ProviderDashboardPageContent() {
   // Read mode from URL parameter
   const mode = searchParams.get('mode');
 
+  // Helper to preserve mode in URLs
+  const withMode = (url: string) => {
+    const modeParam = mode || 'provider';
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}mode=${modeParam}`;
+  };
+
   useEffect(() => {
     if (status === "loading") return;
 
@@ -63,7 +70,7 @@ function ProviderDashboardPageContent() {
 
     // Fetch dashboard data
     fetchDashboardData();
-  }, [session, status, router]);
+  }, [session, status, router, mode]);
 
   const fetchDashboardData = async () => {
     try {
@@ -218,7 +225,7 @@ function ProviderDashboardPageContent() {
               </div>
             </div>
             <Link
-              href="/provider/requests"
+              href={withMode("/provider/requests")}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View requests →
@@ -250,7 +257,7 @@ function ProviderDashboardPageContent() {
               </div>
             </div>
             <Link
-              href="/dashboard/requests"
+              href={withMode("/dashboard/requests")}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View messages →
@@ -282,7 +289,7 @@ function ProviderDashboardPageContent() {
               </div>
             </div>
             <Link
-              href="/dashboard/requests"
+              href={withMode("/dashboard/requests")}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View all →
@@ -314,7 +321,7 @@ function ProviderDashboardPageContent() {
               </div>
             </div>
             <Link
-              href="/dashboard/requests"
+              href={withMode("/dashboard/requests")}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View history →
@@ -329,7 +336,7 @@ function ProviderDashboardPageContent() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
-              href="/dashboard/provider-profile"
+              href={withMode("/dashboard/provider-profile")}
               className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
             >
               <div className="bg-blue-100 p-3 rounded-lg mr-4">
@@ -356,7 +363,7 @@ function ProviderDashboardPageContent() {
             {/* Conditional second action based on provider type */}
             {isIndependentCaregiver ? (
               <Link
-                href="/caregiver/browse-organizations"
+                href={withMode("/caregiver/browse-organizations")}
                 className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
               >
                 <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -381,7 +388,7 @@ function ProviderDashboardPageContent() {
               </Link>
             ) : isHomeCareFacility ? (
               <Link
-                href="/provider/hire-staff"
+                href={withMode("/provider/hire-staff")}
                 className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
               >
                 <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -406,7 +413,7 @@ function ProviderDashboardPageContent() {
               </Link>
             ) : (
               <Link
-                href="/provider/requests"
+                href={withMode("/provider/requests")}
                 className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
               >
                 <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -432,7 +439,7 @@ function ProviderDashboardPageContent() {
             )}
 
             <Link
-              href="/dashboard/requests"
+              href={withMode("/dashboard/requests")}
               className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
             >
               <div className="bg-purple-100 p-3 rounded-lg mr-4">
@@ -456,7 +463,7 @@ function ProviderDashboardPageContent() {
               </div>
             </Link>
             <Link
-              href="/dashboard/requests"
+              href={withMode("/dashboard/requests")}
               className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
             >
               <div className="bg-orange-100 p-3 rounded-lg mr-4">
@@ -546,7 +553,7 @@ function ProviderDashboardPageContent() {
                 {filteredActivities.map((activity) => (
                   <Link
                     key={activity.id}
-                    href={activity.relatedId ? `/dashboard/requests/${activity.relatedId}` : "#"}
+                    href={activity.relatedId ? withMode(`/dashboard/requests/${activity.relatedId}`) : "#"}
                     className={`flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition ${
                       activity.isUnread ? "bg-blue-50" : "bg-white border border-gray-100"
                     }`}
@@ -598,14 +605,14 @@ function ProviderDashboardPageContent() {
                 </p>
                 {isIndependentCaregiver ? (
                   <Link
-                    href="/caregiver/browse-organizations"
+                    href={withMode("/caregiver/browse-organizations")}
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Browse organizations to get started →
                   </Link>
                 ) : (
                   <Link
-                    href="/provider/requests"
+                    href={withMode("/provider/requests")}
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Find families to get started →
