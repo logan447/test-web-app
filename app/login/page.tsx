@@ -45,8 +45,11 @@ export default function LoginPage() {
       if (session?.user?.role === 'PROVIDER') {
         try {
           const providerResponse = await fetch('/api/providers/me');
+          console.log('Provider profile response status:', providerResponse.status);
+
           if (providerResponse.ok) {
             const provider = await providerResponse.json();
+            console.log('Provider profile data:', provider);
 
             // Calculate provider profile completion (same logic as auth.ts)
             let completedSections = 0;
@@ -66,11 +69,14 @@ export default function LoginPage() {
             if (provider.staff && provider.staff.length > 0) completedSections++;
 
             const completionPercentage = Math.round((completedSections / totalSections) * 100);
+            console.log('Provider profile completion:', completionPercentage, '%');
 
             // Default to provider mode if 15%+ complete
             if (completionPercentage >= 15) {
               shouldDefaultToProvider = true;
             }
+          } else {
+            console.error('Provider profile fetch failed:', await providerResponse.text());
           }
         } catch (error) {
           console.error('Error fetching provider profile:', error);
@@ -80,18 +86,25 @@ export default function LoginPage() {
       // Determine default mode
       const defaultMode = shouldDefaultToProvider ? 'provider' : 'family';
 
-      // If returnUrl exists, redirect there with appropriate mode
+      console.log('Login redirect:', {
+        role: session?.user?.role,
+        shouldDefaultToProvider,
+        defaultMode,
+        returnUrl
+      });
+
+      // Use window.location.href for reliable full page navigation
       if (returnUrl) {
         const separator = returnUrl.includes('?') ? '&' : '?';
-        router.push(`${returnUrl}${separator}mode=${defaultMode}`);
+        window.location.href = `${returnUrl}${separator}mode=${defaultMode}`;
       } else {
         // Use default landing pages based on profile completion
         if (shouldDefaultToProvider) {
           // Provider mode users go to Find Families page
-          router.push("/provider/requests?mode=provider");
+          window.location.href = "/provider/requests?mode=provider";
         } else {
           // Family mode users go to Find Providers homepage
-          router.push("/?mode=family");
+          window.location.href = "/?mode=family";
         }
       }
     } catch (error) {
