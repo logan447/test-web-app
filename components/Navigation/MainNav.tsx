@@ -153,8 +153,7 @@ export default function MainNav() {
     try {
       setSwitchingMode(true);
 
-      // Step 1: Call API to update database
-      console.log('[MODE SWITCH] Step 1: Updating database to mode:', newMode);
+      // Update database
       const response = await fetch('/api/mode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,46 +163,22 @@ export default function MainNav() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Failed to switch mode:', data.error);
         showToast.error('Failed to switch mode');
         setSwitchingMode(false);
         return;
       }
 
-      console.log('[MODE SWITCH] Step 2: Database updated successfully');
-
-      // Step 2: Update the JWT token by calling update()
-      console.log('[MODE SWITCH] Step 3: Updating JWT token with activeMode:', newMode);
+      // Update session
       await update({ activeMode: newMode });
 
-      // Step 3: Wait longer for JWT cookie to be fully written and propagated
-      console.log('[MODE SWITCH] Step 4: Waiting for JWT cookie to be written...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Step 4: Verify the update by refetching session multiple times
-      console.log('[MODE SWITCH] Step 5: Verifying JWT token update...');
-      let updatedSession = await update();
-      console.log('[MODE SWITCH] Step 6: First verification - activeMode:', updatedSession?.user?.activeMode);
-
-      // If it didn't update, try one more time
-      if (updatedSession?.user?.activeMode !== newMode) {
-        console.warn('[MODE SWITCH] Token not updated yet, waiting longer...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        updatedSession = await update();
-        console.log('[MODE SWITCH] Second verification - activeMode:', updatedSession?.user?.activeMode);
-      }
-
-      // Step 5: Show success message
+      // Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Step 6: Do a full page reload to ensure fresh JWT
-      console.log('[MODE SWITCH] Step 7: Reloading page to ensure fresh JWT...');
+      // Navigate instantly with Next.js router
+      router.push(data.landingPage);
 
-      // Store landing page in sessionStorage for post-reload navigation
-      sessionStorage.setItem('postModeSwitchRedirect', data.landingPage);
-
-      // Reload the page to get completely fresh JWT from server
-      window.location.reload();
+      // Reset switching state after navigation
+      setSwitchingMode(false);
 
     } catch (error) {
       console.error('Error switching mode:', error);
@@ -214,39 +189,6 @@ export default function MainNav() {
 
   const currentMode = session?.user?.activeMode || 'FAMILY';
   const isProviderMode = currentMode === 'PROVIDER';
-
-  // Check for post-reload redirect after mode switch
-  useEffect(() => {
-    if (session) {
-      const redirectUrl = sessionStorage.getItem('postModeSwitchRedirect');
-      if (redirectUrl) {
-        console.log('[MODE SWITCH] Post-reload: Found redirect URL:', redirectUrl);
-        console.log('[MODE SWITCH] Post-reload: Current activeMode:', session.user.activeMode);
-
-        // Clear the redirect marker
-        sessionStorage.removeItem('postModeSwitchRedirect');
-
-        // Wait a moment to ensure page is fully loaded
-        setTimeout(() => {
-          console.log('[MODE SWITCH] Post-reload: Navigating to:', redirectUrl);
-          window.location.href = redirectUrl;
-        }, 100);
-      }
-    }
-  }, [session]);
-
-  // Debug: Log session state on mount and when it changes
-  useEffect(() => {
-    if (session?.user) {
-      console.log('[CLIENT SESSION]', {
-        email: session.user.email,
-        role: session.user.role,
-        activeMode: session.user.activeMode,
-        currentMode,
-        isProviderMode,
-      });
-    }
-  }, [session, currentMode, isProviderMode]);
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -408,6 +350,15 @@ export default function MainNav() {
                   <div className="px-4 py-2 border-b border-gray-200">
                     <p className="text-sm font-medium text-gray-900 truncate">{session.user?.name}</p>
                     <p className="text-xs text-gray-500 break-words">{session.user?.email}</p>
+                    <div className="mt-2">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        isProviderMode
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {isProviderMode ? '🏢 Provider Mode' : '👥 Family Mode'}
+                      </span>
+                    </div>
                   </div>
                   {isProviderMode ? (
                     <>
@@ -690,6 +641,15 @@ export default function MainNav() {
                   <div className="px-3 py-2 border-b border-gray-200">
                     <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
                     <p className="text-xs text-gray-500">{session.user?.email}</p>
+                    <div className="mt-2">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        isProviderMode
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {isProviderMode ? '🏢 Provider Mode' : '👥 Family Mode'}
+                      </span>
+                    </div>
                   </div>
                   {isProviderMode ? (
                     <>

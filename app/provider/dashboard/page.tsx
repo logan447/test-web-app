@@ -51,6 +51,12 @@ export default function ProviderDashboardPage() {
       return;
     }
 
+    // Redirect to family dashboard if not in provider mode
+    if (session.user.activeMode !== 'PROVIDER') {
+      router.push('/dashboard');
+      return;
+    }
+
     // Fetch dashboard data
     fetchDashboardData();
   }, [session, status, router]);

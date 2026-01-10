@@ -56,6 +56,13 @@ export default function ProviderRequests() {
       router.push('/login');
       return;
     }
+
+    // Redirect to family homepage if not in provider mode
+    if (session.user.activeMode !== 'PROVIDER') {
+      router.push('/');
+      return;
+    }
+
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
