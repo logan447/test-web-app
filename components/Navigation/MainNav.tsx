@@ -171,8 +171,8 @@ export default function MainNav() {
       // Update session
       await update({ activeMode: newMode });
 
-      // Wait for JWT cookie to be written to browser
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait longer for JWT cookie to be written and propagated to browser
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);

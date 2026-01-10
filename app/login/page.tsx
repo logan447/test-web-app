@@ -32,8 +32,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Wait a moment for session to be fully created
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Wait for session to be fully created and JWT cookie to be written
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Fetch session to get user's activeMode
       const session = await getSession();
