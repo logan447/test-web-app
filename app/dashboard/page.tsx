@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
@@ -28,6 +28,7 @@ interface Activity {
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [stats, setStats] = useState<DashboardStats>({
     pendingRequests: 0,
     activeConversations: 0,
@@ -38,6 +39,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
 
+  // Read mode from URL parameter
+  const mode = searchParams.get('mode');
+
   useEffect(() => {
     if (status === "loading") return;
 
@@ -45,10 +49,6 @@ export default function DashboardPage() {
       router.push("/login");
       return;
     }
-
-    // Check mode from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const mode = urlParams.get('mode');
 
     // If mode is provider, redirect to provider dashboard
     if (mode === 'provider') {

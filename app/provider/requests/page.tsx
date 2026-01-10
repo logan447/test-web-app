@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import { showToast } from '@/lib/toast';
@@ -33,6 +33,7 @@ type FamilyProfile = {
 export default function ProviderRequests() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
@@ -40,6 +41,9 @@ export default function ProviderRequests() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [selectedProfileForUnlock, setSelectedProfileForUnlock] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('newest');
+
+  // Read mode from URL parameter
+  const mode = searchParams.get('mode');
 
   // Filters
   const [filters, setFilters] = useState<FamilyFilters>({
@@ -56,10 +60,6 @@ export default function ProviderRequests() {
       router.push('/login');
       return;
     }
-
-    // Check mode from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const mode = urlParams.get('mode');
 
     // If mode is family or missing, redirect to family homepage
     if (mode !== 'provider') {

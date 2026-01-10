@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
@@ -35,13 +35,13 @@ type ConsultRequest = {
 
 export default function RequestsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Read mode from URL parameter (source of truth)
-  const urlParams = new URLSearchParams(window.location.search);
-  const mode = urlParams.get('mode');
+  const mode = searchParams.get('mode');
   const isProviderMode = mode === 'provider';
 
   // Default to "sent" for families (they send to providers), "received" for providers (they receive from families)

@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
@@ -37,13 +37,13 @@ type SavedProvider = {
 export default function SavedProviders() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [providers, setProviders] = useState<SavedProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
 
   // Read mode from URL parameter (source of truth)
-  const urlParams = new URLSearchParams(window.location.search);
-  const mode = urlParams.get('mode');
+  const mode = searchParams.get('mode');
   const isProviderMode = mode === 'provider';
 
   useEffect(() => {
