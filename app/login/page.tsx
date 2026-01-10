@@ -44,6 +44,9 @@ export default function LoginPage() {
       console.log('Active Mode:', session?.user?.activeMode);
       console.log('Will redirect to:', session?.user?.activeMode === 'PROVIDER' ? '/provider/requests' : '/');
 
+      // Show alert so we know this code is running
+      alert(`About to redirect to: ${session?.user?.activeMode === 'PROVIDER' ? '/provider/requests' : '/'}\nMode: ${session?.user?.activeMode}`);
+
       // Direct redirect based on mode
       if (session?.user?.activeMode === 'PROVIDER') {
         console.log('Redirecting to /provider/requests');
