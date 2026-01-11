@@ -20,15 +20,33 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
-      // Let NextAuth handle the redirect automatically
-      await signIn("credentials", {
+      console.log('[Login] Attempting sign in...');
+      // Call signIn with redirect: false so we can handle the result
+      const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: '/auth/redirect',
+        redirect: false,
       });
+
+      console.log('[Login] Sign in result:', result);
+
+      if (result?.error) {
+        console.log('[Login] Sign in failed:', result.error);
+        setError("Invalid email or password");
+        setLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        console.log('[Login] Sign in successful! Redirecting to /auth/redirect in 100ms');
+        // Small delay to ensure JWT cookie is set
+        setTimeout(() => {
+          window.location.href = '/auth/redirect';
+        }, 100);
+      }
     } catch (error) {
       console.error('Login error:', error);
-      setError("Invalid email or password");
+      setError("Something went wrong");
       setLoading(false);
     }
   };
