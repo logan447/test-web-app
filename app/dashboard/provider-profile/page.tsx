@@ -282,46 +282,31 @@ const VISITING_DOCTOR_OPTIONS = [
   "On-call 24/7",
 ];
 
-// Lightweight wrapper component that shows loading state instantly
+// Simple wrapper - shows title instantly, lazy loads content
 export default function ProviderProfilePage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
-  const [provider, setProvider] = useState<Provider | null>(null);
-  const [dataLoading, setDataLoading] = useState(true);
+  const router = useRouter();
 
   // Redirect if not authenticated
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
-    } else if (status === "authenticated") {
-      // Fetch provider data
-      fetchProviderData();
     }
   }, [status, router]);
 
-  const fetchProviderData = async () => {
-    try {
-      const response = await fetch("/api/providers/me");
-      if (response.ok) {
-        const data = await response.json();
-        setProvider(data);
-      }
-    } catch (err) {
-      console.error("Error fetching provider:", err);
-    } finally {
-      setDataLoading(false);
-    }
-  };
+  // ALWAYS show the page structure with title immediately
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <MainNav />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
+        </div>
 
-  // Show loading skeleton immediately - title appears instantly
-  if (status === "loading" || (status === "authenticated" && dataLoading)) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
-          </div>
+        {/* Lazy load the actual content */}
+        {status === "authenticated" ? (
+          <ProviderProfilePageContent />
+        ) : (
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow p-6 space-y-6 animate-pulse">
@@ -342,30 +327,18 @@ export default function ProviderProfilePage() {
               </div>
             </div>
           </div>
-        </main>
-      </div>
-    );
-  }
-
-  // Only render the heavy component when data is loaded
-  if (status === "authenticated" && provider) {
-    return <ProviderProfilePageContent initialProvider={provider} onDataUpdate={setProvider} />;
-  }
-
-  return null;
+        )}
+      </main>
+    </div>
+  );
 }
 
 // Heavy component with all the state and logic - only loads when needed
-function ProviderProfilePageContent({
-  initialProvider,
-  onDataUpdate
-}: {
-  initialProvider: Provider;
-  onDataUpdate: (provider: Provider) => void;
-}) {
+function ProviderProfilePageContent() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [provider, setProvider] = useState<Provider>(initialProvider);
+  const [provider, setProvider] = useState<Provider | null>(null);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
@@ -491,9 +464,30 @@ function ProviderProfilePageContent({
   const [specialtyProgram, setSpecialtyProgram] = useState<string>("");
   const [specialtyPrograms, setSpecialtyPrograms] = useState<string[]>([]);
 
-  // Initialize all state from provider data on mount
+  // Fetch provider data on mount
   useEffect(() => {
-    const data = initialProvider;
+    fetchProvider();
+  }, []);
+
+  const fetchProvider = async () => {
+    try {
+      const response = await fetch("/api/providers/me");
+      if (response.ok) {
+        const data = await response.json();
+        setProvider(data);
+        initializeState(data);
+      } else if (response.status === 404) {
+        setEditing(true);
+      }
+    } catch (err) {
+      console.error("Error fetching provider:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initialize all state from provider data
+  const initializeState = (data: Provider) => {
     setSelectedCareTypes(data.careTypesOffered || []);
     // Initialize care services data
     setCareServicesData({
@@ -621,7 +615,7 @@ function ProviderProfilePageContent({
     setHasRespiteCare(data.hasRespiteCare || false);
     setHasHospiceCare(data.hasHospiceCare || false);
     setSpecialtyPrograms(data.specialtyPrograms || []);
-  }, [initialProvider]);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -755,7 +749,7 @@ function ProviderProfilePageContent({
 
       const updatedProvider = await response.json();
       setProvider(updatedProvider);
-      onDataUpdate(updatedProvider);
+      initializeState(updatedProvider);
       setEditing(false);
       setSaving(false);
       showToast.success(provider ? "Profile updated" : "Profile created");
@@ -995,22 +989,44 @@ function ProviderProfilePageContent({
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <MainNav />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
-          {provider && !editing && (
-            <button
-              onClick={() => setEditing(true)}
-              className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
-            >
-              Edit Profile
-            </button>
-          )}
+  // Show loading skeleton while fetching data
+  if (loading) {
+    return (
+      <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg shadow p-6 space-y-6 animate-pulse">
+            <div className="h-10 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-10 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-32 bg-gray-200 rounded"></div>
+            <div className="h-10 bg-gray-200 rounded w-2/3"></div>
+          </div>
         </div>
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex justify-between items-center mb-6">
+        {provider && !editing && (
+          <button
+            onClick={() => setEditing(true)}
+            className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
+          >
+            Edit Profile
+          </button>
+        )}
+      </div>
 
         {error && (
           <div className="bg-red-50 text-red-800 p-4 rounded-md mb-6">
@@ -2000,7 +2016,6 @@ function ProviderProfilePageContent({
             </div>
           </div>
         )}
-      </main>
-    </div>
+    </>
   );
 }
