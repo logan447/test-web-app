@@ -115,7 +115,7 @@ type Provider = {
   whatMakesUsUnique?: string;
   teamMembersJson?: string;
   virtualTourUrl?: string;
-  virtualTourType?: string;
+  virtualTourType?: "youtube" | "vimeo" | "custom" | "";
   brochureUrl?: string;
   floorPlanUrls?: string[];
   // Legacy fields
@@ -600,7 +600,7 @@ function ProviderProfilePageContent({
 
     setVirtualTour({
       virtualTourUrl: data.virtualTourUrl || "",
-      virtualTourType: data.virtualTourType || "",
+      virtualTourType: (data.virtualTourType || "") as "" | "youtube" | "vimeo" | "custom",
       brochureUrl: data.brochureUrl || "",
       floorPlanUrls: data.floorPlanUrls || [],
     });
