@@ -875,32 +875,17 @@ export default function ProviderProfilePage() {
     },
   ];
 
-  // Show loading state - session not yet loaded
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  // Once session is loaded, always show the page structure
-  // ALWAYS show title immediately - never wait for data
+  // ALWAYS show the page structure and title immediately
+  // Don't wait for session or data - show title from the start
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ALWAYS show title immediately - this is the key fix */}
+        {/* ALWAYS show title immediately - never conditional */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
-          {provider && !editing && !loading && (
+          {provider && !editing && !loading && status === "authenticated" && (
             <button
               onClick={() => setEditing(true)}
               className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
@@ -916,7 +901,7 @@ export default function ProviderProfilePage() {
           </div>
         )}
 
-        {loading ? (
+        {(status === "loading" || loading) ? (
           // Loading provider data - show skeleton content only
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2">
