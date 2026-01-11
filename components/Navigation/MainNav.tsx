@@ -171,18 +171,16 @@ function MainNavContent() {
       // Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Wait for toast to be visible before redirecting
+      // Brief delay to show toast, then navigate smoothly with router
       setTimeout(() => {
-        // Use window.location.href to force full page reload with updated JWT token
-        // This ensures middleware reads the new mode from the token
-        window.location.href = data.landingPage;
-      }, 1000);
+        router.push(data.landingPage);
+        setSwitchingMode(false);
+      }, 500);
     } catch (error) {
       console.error('Error switching mode:', error);
       showToast.error('Failed to switch mode');
       setSwitchingMode(false);
     }
-    // Don't reset switchingMode in finally block since we're doing a full page reload
   };
 
   // Read mode from session (source of truth)
