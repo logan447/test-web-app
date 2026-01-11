@@ -225,11 +225,90 @@ const VISITING_DOCTOR_OPTIONS = [
   "On-call 24/7",
 ];
 
+// Lightweight wrapper component that shows loading state instantly
 export default function ProviderProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    } else if (status === "authenticated") {
+      // Fetch provider data
+      fetchProviderData();
+    }
+  }, [status, router]);
+
+  const fetchProviderData = async () => {
+    try {
+      const response = await fetch("/api/providers/me");
+      if (response.ok) {
+        const data = await response.json();
+        setProvider(data);
+      }
+    } catch (err) {
+      console.error("Error fetching provider:", err);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  // Show loading skeleton immediately - title appears instantly
+  if (status === "loading" || (status === "authenticated" && dataLoading)) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
+          </div>
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg shadow p-6 space-y-6 animate-pulse">
+                <div className="h-10 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-10 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-32 bg-gray-200 rounded"></div>
+                <div className="h-10 bg-gray-200 rounded w-2/3"></div>
+              </div>
+            </div>
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+                <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Only render the heavy component when data is loaded
+  if (status === "authenticated" && provider) {
+    return <ProviderProfilePageContent initialProvider={provider} onDataUpdate={setProvider} />;
+  }
+
+  return null;
+}
+
+// Heavy component with all the state and logic - only loads when needed
+function ProviderProfilePageContent({
+  initialProvider,
+  onDataUpdate
+}: {
+  initialProvider: Provider;
+  onDataUpdate: (provider: Provider) => void;
+}) {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [provider, setProvider] = useState<Provider>(initialProvider);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
@@ -355,192 +434,137 @@ export default function ProviderProfilePage() {
   const [specialtyProgram, setSpecialtyProgram] = useState<string>("");
   const [specialtyPrograms, setSpecialtyPrograms] = useState<string[]>([]);
 
-  // useEffect must come BEFORE any conditional returns (React rules)
+  // Initialize all state from provider data on mount
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated") {
-      fetchProvider();
-    }
-  }, [status]);
+    const data = initialProvider;
+    setSelectedCareTypes(data.careTypesOffered || []);
+    // Initialize care services data
+    setCareServicesData({
+      careTypes: data.careTypesOffered || [],
+      medicalServices: data.detailedMedicalServices || [],
+      personalCareServices: data.detailedPersonalCareServices || [],
+      dailyLivingServices: data.detailedDailyLivingServices || [],
+      memoryCareServices: data.detailedMemoryCareServices || [],
+      socialRecreationServices: data.detailedSocialRecServices || [],
+    });
+    setSelectedPaymentOptions(data.paymentOptions || []);
+    setSelectedCertifications(data.certifications || []);
+    setLicensed(data.licensed || false);
+    setInsuranceVerified(data.insuranceVerified || false);
+    setBackgroundChecked(data.backgroundChecked || false);
+    setWaitlistAvailable(data.waitlistAvailable || false);
+    setProviderType(data.providerType || "");
+    setAvailableForFamilies(data.availableForFamilies !== undefined ? data.availableForFamilies : true);
+    setAvailableForOrganizations(data.availableForOrganizations || false);
+    // Convert string[] photos to PhotoMetadata[]
+    const photos = data.photos || [];
+    const metadata: PhotoMetadata[] = photos.map((url: string) => ({
+      url,
+      caption: "",
+      category: "other" as const,
+    }));
+    setPhotoMetadata(metadata);
+    setCoverPhoto(data.coverPhoto || null);
+    // Initialize pricing structure
+    setPricingStructure({
+      privateRoomMin: data.privateRoomMin || null,
+      privateRoomMax: data.privateRoomMax || null,
+      semiPrivateRoomMin: data.semiPrivateRoomMin || null,
+      semiPrivateRoomMax: data.semiPrivateRoomMax || null,
+      includedServices: data.includedServices || [],
+      additionalServices: data.additionalServicesJson ? JSON.parse(data.additionalServicesJson) : [],
+      communityFee: data.communityFee || null,
+      securityDeposit: data.securityDeposit || null,
+      applicationFee: data.applicationFee || null,
+      acceptsFinancialAssistance: data.acceptsFinancialAssistance || false,
+      financialAssistanceTypes: data.financialAssistanceTypes || [],
+      offersPaymentPlans: data.offersPaymentPlans || false,
+      paymentPlanDetails: data.paymentPlanDetails || "",
+    });
+    setSelectedRoomFeatures(data.roomFeatures || []);
+    setSelectedCommonAreas(data.commonAreas || []);
+    setSelectedMedicalServices(data.medicalServices || []);
+    setSelectedActivities(data.activitiesOffered || []);
+    setSelectedDietaryOptions(data.dietaryOptions || []);
+    // Initialize amenities features (Sprint 5 - backward compatible)
+    setAmenitiesFeatures({
+      roomFeatures: data.roomFeatures || [],
+      commonAreas: data.commonAreas || [],
+      safetySecurityFeatures: data.safetySecurityFeatures || [],
+      medicalAmenities: data.medicalAmenities || [],
+      activitiesPrograms: data.activitiesOffered || [],
+      dietaryOptions: data.dietaryOptions || [],
+    });
 
-  // Check loading AFTER hooks - but still before heavy calculations
-  if (loading || status === "loading") {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
-          </div>
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow p-6 space-y-6 animate-pulse">
-                <div className="h-10 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-10 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-32 bg-gray-200 rounded"></div>
-                <div className="h-10 bg-gray-200 rounded w-2/3"></div>
-              </div>
-            </div>
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow p-6 animate-pulse">
-                <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
-                <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
+    // Initialize staff information (Sprint 6 - backward compatible)
+    setStaffInformation({
+      daytimeRatio: data.daytimeStaffRatio || "",
+      eveningRatio: data.eveningStaffRatio || "",
+      nightRatio: data.nightStaffRatio || "",
+      credentials: data.staffCredentials || [],
+      staffTrainingDescription: data.staffTrainingDescription || "",
+      hasOnCallPhysician: data.hasOnCallPhysician || false,
+      hasPharmacyPartnership: data.hasPharmacyPartnership || false,
+      visitingDoctorFrequency: data.visitingDoctorFrequency || "",
+      languagesSpoken: data.languagesSpoken || [],
+    });
 
-  const fetchProvider = async () => {
-    try {
-      const response = await fetch("/api/providers/me");
-      if (response.ok) {
-        const data = await response.json();
-        setProvider(data);
-        setSelectedCareTypes(data.careTypesOffered || []);
-        // Initialize care services data
-        setCareServicesData({
-          careTypes: data.careTypesOffered || [],
-          medicalServices: data.detailedMedicalServices || [],
-          personalCareServices: data.detailedPersonalCareServices || [],
-          dailyLivingServices: data.detailedDailyLivingServices || [],
-          memoryCareServices: data.detailedMemoryCareServices || [],
-          socialRecreationServices: data.detailedSocialRecServices || [],
-        });
-        setSelectedPaymentOptions(data.paymentOptions || []);
-        setSelectedCertifications(data.certifications || []);
-        setLicensed(data.licensed || false);
-        setInsuranceVerified(data.insuranceVerified || false);
-        setBackgroundChecked(data.backgroundChecked || false);
-        setWaitlistAvailable(data.waitlistAvailable || false);
-        setProviderType(data.providerType || "");
-        setAvailableForFamilies(data.availableForFamilies !== undefined ? data.availableForFamilies : true);
-        setAvailableForOrganizations(data.availableForOrganizations || false);
-        // Convert string[] photos to PhotoMetadata[]
-        const photos = data.photos || [];
-        const metadata: PhotoMetadata[] = photos.map((url: string) => ({
-          url,
-          caption: "",
-          category: "other" as const,
-        }));
-        setPhotoMetadata(metadata);
-        setCoverPhoto(data.coverPhoto || null);
-        // Initialize pricing structure
-        setPricingStructure({
-          privateRoomMin: data.privateRoomMin || null,
-          privateRoomMax: data.privateRoomMax || null,
-          semiPrivateRoomMin: data.semiPrivateRoomMin || null,
-          semiPrivateRoomMax: data.semiPrivateRoomMax || null,
-          includedServices: data.includedServices || [],
-          additionalServices: data.additionalServicesJson ? JSON.parse(data.additionalServicesJson) : [],
-          communityFee: data.communityFee || null,
-          securityDeposit: data.securityDeposit || null,
-          applicationFee: data.applicationFee || null,
-          acceptsFinancialAssistance: data.acceptsFinancialAssistance || false,
-          financialAssistanceTypes: data.financialAssistanceTypes || [],
-          offersPaymentPlans: data.offersPaymentPlans || false,
-          paymentPlanDetails: data.paymentPlanDetails || "",
-        });
-        setSelectedRoomFeatures(data.roomFeatures || []);
-        setSelectedCommonAreas(data.commonAreas || []);
-        setSelectedMedicalServices(data.medicalServices || []);
-        setSelectedActivities(data.activitiesOffered || []);
-        setSelectedDietaryOptions(data.dietaryOptions || []);
-        // Initialize amenities features (Sprint 5 - backward compatible)
-        setAmenitiesFeatures({
-          roomFeatures: data.roomFeatures || [],
-          commonAreas: data.commonAreas || [],
-          safetySecurityFeatures: data.safetySecurityFeatures || [],
-          medicalAmenities: data.medicalAmenities || [],
-          activitiesPrograms: data.activitiesOffered || [],
-          dietaryOptions: data.dietaryOptions || [],
-        });
+    // Initialize certifications & licensing (Sprint 7 - backward compatible)
+    setCertificationsLicensing({
+      licensed: data.licensed || false,
+      licenseNumber: data.licenseNumber || "",
+      certificateUrls: data.certificateUrls || [],
+      accreditations: data.accreditations || [],
+      awards: data.awardsJson ? JSON.parse(data.awardsJson) : [],
+    });
 
-        // Initialize staff information (Sprint 6 - backward compatible)
-        setStaffInformation({
-          daytimeRatio: data.daytimeStaffRatio || "",
-          eveningRatio: data.eveningStaffRatio || "",
-          nightRatio: data.nightStaffRatio || "",
-          credentials: data.staffCredentials || [],
-          staffTrainingDescription: data.staffTrainingDescription || "",
-          hasOnCallPhysician: data.hasOnCallPhysician || false,
-          hasPharmacyPartnership: data.hasPharmacyPartnership || false,
-          visitingDoctorFrequency: data.visitingDoctorFrequency || "",
-          languagesSpoken: data.languagesSpoken || [],
-        });
+    // Initialize specialty programs & policies (Sprint 8 - backward compatible)
+    setSpecialtyProgramsPolicies({
+      specialtyPrograms: data.specialtyProgramsJson ? JSON.parse(data.specialtyProgramsJson) : [],
+      petPolicy: data.petPolicy || "",
+      petPolicyDetails: data.petPolicyDetails || "",
+      visitorPolicy: data.visitorPolicy || "",
+      smokingPolicy: data.smokingPolicy || "",
+      hasTrialPeriod: data.hasTrialPeriod || false,
+      trialPeriodDuration: data.trialPeriodDuration || "",
+    });
 
-        // Initialize certifications & licensing (Sprint 7 - backward compatible)
-        setCertificationsLicensing({
-          licensed: data.licensed || false,
-          licenseNumber: data.licenseNumber || "",
-          certificateUrls: data.certificateUrls || [],
-          accreditations: data.accreditations || [],
-          awards: data.awardsJson ? JSON.parse(data.awardsJson) : [],
-        });
+    // Initialize About Us, Meet the Team & Virtual Tours (Sprint 9)
+    setAboutUs({
+      establishedYear: data.establishedYear || "",
+      facilityHistory: data.facilityHistory || "",
+      missionStatement: data.missionStatement || "",
+      whatMakesUsUnique: data.whatMakesUsUnique || "",
+    });
 
-        // Initialize specialty programs & policies (Sprint 8 - backward compatible)
-        setSpecialtyProgramsPolicies({
-          specialtyPrograms: data.specialtyProgramsJson ? JSON.parse(data.specialtyProgramsJson) : [],
-          petPolicy: data.petPolicy || "",
-          petPolicyDetails: data.petPolicyDetails || "",
-          visitorPolicy: data.visitorPolicy || "",
-          smokingPolicy: data.smokingPolicy || "",
-          hasTrialPeriod: data.hasTrialPeriod || false,
-          trialPeriodDuration: data.trialPeriodDuration || "",
-        });
+    setMeetTheTeam({
+      teamMembers: data.teamMembersJson ? JSON.parse(data.teamMembersJson) : [],
+    });
 
-        // Initialize About Us, Meet the Team & Virtual Tours (Sprint 9)
-        setAboutUs({
-          establishedYear: data.establishedYear || "",
-          facilityHistory: data.facilityHistory || "",
-          missionStatement: data.missionStatement || "",
-          whatMakesUsUnique: data.whatMakesUsUnique || "",
-        });
+    setVirtualTour({
+      virtualTourUrl: data.virtualTourUrl || "",
+      virtualTourType: data.virtualTourType || "",
+      brochureUrl: data.brochureUrl || "",
+      floorPlanUrls: data.floorPlanUrls || [],
+    });
 
-        setMeetTheTeam({
-          teamMembers: data.teamMembersJson ? JSON.parse(data.teamMembersJson) : [],
-        });
-
-        setVirtualTour({
-          virtualTourUrl: data.virtualTourUrl || "",
-          virtualTourType: data.virtualTourType || "",
-          brochureUrl: data.brochureUrl || "",
-          floorPlanUrls: data.floorPlanUrls || [],
-        });
-
-        // Legacy staff state (kept for backward compatibility)
-        setStaffToResidentRatio(data.staffToResidentRatio || "");
-        setHasRNOnSite(data.hasRNOnSite || false);
-        setHasLVNOnSite(data.hasLVNOnSite || false);
-        setAllStaffBackgroundChecked(data.allStaffBackgroundChecked || false);
-        setVisitingDoctorFrequency(data.visitingDoctorFrequency || "");
-        setSelectedCaregiverTraining(data.caregiverTraining || []);
-        setSelectedLanguages(data.languagesSpoken || []);
-        setLatitude(data.latitude?.toString() || "");
-        setLongitude(data.longitude?.toString() || "");
-        setNeighborhoodDescription(data.neighborhoodDescription || "");
-        setNearbyAmenities(data.nearbyAmenities || []);
-        setHasMemoryCare(data.hasMemoryCare || false);
-        setHasRespiteCare(data.hasRespiteCare || false);
-        setHasHospiceCare(data.hasHospiceCare || false);
-        setSpecialtyPrograms(data.specialtyPrograms || []);
-        setEditing(false);
-      } else if (response.status === 404) {
-        setEditing(true);
-      }
-    } catch (err) {
-      console.error("Error fetching provider:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Legacy staff state (kept for backward compatibility)
+    setStaffToResidentRatio(data.staffToResidentRatio || "");
+    setHasRNOnSite(data.hasRNOnSite || false);
+    setHasLVNOnSite(data.hasLVNOnSite || false);
+    setAllStaffBackgroundChecked(data.allStaffBackgroundChecked || false);
+    setVisitingDoctorFrequency(data.visitingDoctorFrequency || "");
+    setSelectedCaregiverTraining(data.caregiverTraining || []);
+    setSelectedLanguages(data.languagesSpoken || []);
+    setLatitude(data.latitude?.toString() || "");
+    setLongitude(data.longitude?.toString() || "");
+    setNeighborhoodDescription(data.neighborhoodDescription || "");
+    setNearbyAmenities(data.nearbyAmenities || []);
+    setHasMemoryCare(data.hasMemoryCare || false);
+    setHasRespiteCare(data.hasRespiteCare || false);
+    setHasHospiceCare(data.hasHospiceCare || false);
+    setSpecialtyPrograms(data.specialtyPrograms || []);
+  }, [initialProvider]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
