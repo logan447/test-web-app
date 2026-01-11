@@ -3,16 +3,15 @@
 import { SessionProvider } from "next-auth/react";
 import ToastProvider from "./Providers/ToastProvider";
 import ViewTransitionsProvider from "./Providers/ViewTransitionsProvider";
-import NavigationTransitions from "./Providers/NavigationTransitions";
+import ProgressBar from "./Providers/ProgressBar";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <ToastProvider />
+      <ProgressBar />
       <ViewTransitionsProvider>
-        <NavigationTransitions>
-          {children}
-        </NavigationTransitions>
+        {children}
       </ViewTransitionsProvider>
     </SessionProvider>
   );
