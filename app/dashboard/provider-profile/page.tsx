@@ -881,7 +881,7 @@ export default function ProviderProfilePage() {
         <MainNav />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Provider Profile</h1>
+            <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
           </div>
 
           {/* Profile content skeleton */}
