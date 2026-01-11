@@ -98,7 +98,8 @@ export default function HiringRequestsPage() {
     return status;
   };
 
-  if (loading || status === 'loading') {
+  // Show loading state - session not yet loaded
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
@@ -109,6 +110,41 @@ export default function HiringRequestsPage() {
             <div className="h-64 bg-gray-200 rounded"></div>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Show structure immediately while data loads
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header - show immediately */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Hiring Requests</h1>
+            <p className="text-lg text-gray-600">
+              Manage hiring requests from caregivers interested in joining your team. Review applications, start conversations, and connect with qualified candidates.
+            </p>
+          </div>
+
+          {/* Tabs - skeleton */}
+          <div className="border-b border-gray-200 mb-6">
+            <div className="animate-pulse -mb-px flex space-x-8">
+              <div className="h-10 bg-gray-200 rounded w-32"></div>
+              <div className="h-10 bg-gray-200 rounded w-32"></div>
+            </div>
+          </div>
+
+          {/* Content - skeleton */}
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 animate-pulse">
+            <div className="space-y-4">
+              <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
