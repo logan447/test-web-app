@@ -1,9 +1,24 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
+
+/**
+ * ProgressBarContent - Internal component that uses useSearchParams
+ */
+function ProgressBarContent() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Page change detected - finish the progress bar
+    NProgress.done();
+  }, [pathname, searchParams]);
+
+  return null;
+}
 
 /**
  * ProgressBar - Shows a subtle loading bar at the top during page navigation
@@ -12,9 +27,6 @@ import 'nprogress/nprogress.css';
  * Provides instant page switching with a visual indicator for loading states.
  */
 export default function ProgressBar() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   useEffect(() => {
     // Configure nprogress
     NProgress.configure({
@@ -26,10 +38,9 @@ export default function ProgressBar() {
     });
   }, []);
 
-  useEffect(() => {
-    // Page change detected - finish the progress bar
-    NProgress.done();
-  }, [pathname, searchParams]);
-
-  return null;
+  return (
+    <Suspense fallback={null}>
+      <ProgressBarContent />
+    </Suspense>
+  );
 }
