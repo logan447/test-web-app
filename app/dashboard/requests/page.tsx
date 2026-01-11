@@ -16,6 +16,8 @@ type ConsultRequest = {
     name: string;
     city: string;
     state: string;
+    coverPhoto?: string | null;
+    photos?: string[];
   };
   familyProfile?: {
     user: {
