@@ -1156,6 +1156,7 @@ export default function ProviderProfilePage() {
               </div>
             )}
           </div>
+          </>
         ) : (
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Left: Form */}
@@ -1918,8 +1919,6 @@ export default function ProviderProfilePage() {
               <ProviderProfileCompleteness items={completenessItems} />
             </div>
           </div>
-        )}
-          </>
         )}
       </main>
     </div>
