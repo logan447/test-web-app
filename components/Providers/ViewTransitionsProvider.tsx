@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
 
 /**
  * ViewTransitionsProvider - Enables smooth page transitions using the View Transitions API
@@ -12,9 +11,6 @@ import { usePathname, useSearchParams } from 'next/navigation';
  * For browsers that don't support it, navigation works normally with no impact.
  */
 export default function ViewTransitionsProvider({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   useEffect(() => {
     // Check if View Transitions API is supported
     if (typeof document === 'undefined' || !('startViewTransition' in document)) {
