@@ -355,7 +355,16 @@ export default function ProviderProfilePage() {
   const [specialtyProgram, setSpecialtyProgram] = useState<string>("");
   const [specialtyPrograms, setSpecialtyPrograms] = useState<string[]>([]);
 
-  // Check loading FIRST - before any heavy calculations
+  // useEffect must come BEFORE any conditional returns (React rules)
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    } else if (status === "authenticated") {
+      fetchProvider();
+    }
+  }, [status]);
+
+  // Check loading AFTER hooks - but still before heavy calculations
   if (loading || status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -388,14 +397,6 @@ export default function ProviderProfilePage() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated") {
-      fetchProvider();
-    }
-  }, [status]);
 
   const fetchProvider = async () => {
     try {
