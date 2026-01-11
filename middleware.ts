@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith('/dashboard') &&
       !pathname.startsWith('/dashboard/provider') &&
       !pathname.startsWith('/dashboard/requests')) {
-    return NextResponse.redirect(new URL('/provider/dashboard', request.url));
+    return NextResponse.redirect(new URL('/provider/requests', request.url));
   }
 
   return NextResponse.next();
