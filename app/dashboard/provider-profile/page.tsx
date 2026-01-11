@@ -876,32 +876,17 @@ export default function ProviderProfilePage() {
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <MainNav />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Title ALWAYS shows immediately - no conditions */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
-          {provider && !editing && !loading && status === "authenticated" && (
-            <button
-              onClick={() => setEditing(true)}
-              className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
-            >
-              Edit Profile
-            </button>
-          )}
-        </div>
-
-        {error && (
-          <div className="bg-red-50 text-red-800 p-4 rounded-md mb-6">
-            {error}
+  // Show loading state with title immediately
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
           </div>
-        )}
 
-        {loading ? (
-          // Loading provider data - show skeleton content only
+          {/* Profile content skeleton */}
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow p-6 space-y-6 animate-pulse">
@@ -922,7 +907,35 @@ export default function ProviderProfilePage() {
               </div>
             </div>
           </div>
-        ) : !editing && provider ? (
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <MainNav />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
+          {provider && !editing && (
+            <button
+              onClick={() => setEditing(true)}
+              className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
+            >
+              Edit Profile
+            </button>
+          )}
+        </div>
+
+        {error && (
+          <div className="bg-red-50 text-red-800 p-4 rounded-md mb-6">
+            {error}
+          </div>
+        )}
+
+        {!editing && provider ? (
           // View mode - show provider data
           <>
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
