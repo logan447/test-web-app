@@ -229,7 +229,7 @@ export default function ProviderProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
@@ -364,7 +364,6 @@ export default function ProviderProfilePage() {
   }, [status]);
 
   const fetchProvider = async () => {
-    setLoading(true);
     try {
       const response = await fetch("/api/providers/me");
       if (response.ok) {
