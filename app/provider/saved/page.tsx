@@ -123,9 +123,9 @@ function SavedFamilyProfilesContent() {
                 Back to Browse
               </Link>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Saved Care Requests</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Saved Families</h1>
             <p className="text-lg text-gray-600">
-              Family profiles you&apos;ve saved for follow-up
+              Family profiles you&apos;ve saved for future reference and follow-up
             </p>
           </div>
           <ProfileCardsSkeleton count={6} />
@@ -152,9 +152,9 @@ function SavedFamilyProfilesContent() {
               Back to Browse
             </Link>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Saved Care Requests</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Saved Families</h1>
           <p className="text-lg text-gray-600">
-            Family profiles you&apos;ve saved for follow-up
+            Family profiles you&apos;ve saved for future reference and follow-up
           </p>
         </div>
 
@@ -162,7 +162,7 @@ function SavedFamilyProfilesContent() {
         {profiles.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
             <p className="text-lg font-semibold text-gray-900">
-              {profiles.length} Saved Care Request{profiles.length !== 1 ? 's' : ''}
+              {profiles.length} Saved {profiles.length !== 1 ? 'Families' : 'Family'}
             </p>
           </div>
         )}
@@ -184,17 +184,20 @@ function SavedFamilyProfilesContent() {
               />
             </svg>
             <h3 className="mt-4 text-xl font-semibold text-gray-900">
-              No saved care requests
+              No saved families
             </h3>
             <p className="mt-2 text-gray-600">
-              Start browsing care requests and save the ones you&apos;re interested in.
+              Start browsing family profiles and save the ones you&apos;re interested in connecting with.
             </p>
             <div className="mt-6">
               <Link
                 href="/provider/requests"
                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 font-semibold transition-all shadow-sm hover:shadow-md"
               >
-                Browse Care Requests
+                Browse Families
+                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
           </div>
