@@ -182,58 +182,6 @@ img.loaded {
 }
 
 /* ========================================
-   View Transitions API - Smooth Page Navigation
-   ======================================== */
-
-/* Enable view transitions for all navigation */
-@view-transition {
-  navigation: auto;
-}
-
-/* Customize the transition animation */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.3s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Smooth crossfade between pages */
-::view-transition-old(root) {
-  animation-name: fade-out;
-}
-
-::view-transition-new(root) {
-  animation-name: fade-in-scale;
-}
-
-@keyframes fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes fade-in-scale {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Fallback for browsers that don't support view transitions */
-@supports not (animation-timeline: view()) {
-  .view-transitions-enabled {
-    /* Pages still work normally, just without the fancy transitions */
-  }
-}
-
-/* ========================================
    Progress Bar - Top loading indicator
    ======================================== */
 
