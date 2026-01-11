@@ -19,34 +19,15 @@ export default function LoginPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    try {
-      console.log('[Login] Attempting sign in...');
-      // Call signIn with redirect: false so we can handle the result
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
+    const result = await signIn("credentials", {
+      email,
+      password,
+      callbackUrl: "/auth/redirect",
+    });
 
-      console.log('[Login] Sign in result:', result);
-
-      if (result?.error) {
-        console.log('[Login] Sign in failed:', result.error);
-        setError("Invalid email or password");
-        setLoading(false);
-        return;
-      }
-
-      if (result?.ok) {
-        console.log('[Login] Sign in successful! Redirecting to /auth/redirect in 100ms');
-        // Small delay to ensure JWT cookie is set
-        setTimeout(() => {
-          window.location.href = '/auth/redirect';
-        }, 100);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError("Something went wrong");
+    // If signIn doesn't redirect (error case), show error
+    if (result?.error) {
+      setError("Invalid email or password");
       setLoading(false);
     }
   };

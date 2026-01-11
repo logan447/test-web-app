@@ -1,50 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
 export default function AuthRedirectPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const [attempts, setAttempts] = useState(0);
 
   useEffect(() => {
-    console.log('[AuthRedirect] Status:', status, 'Attempts:', attempts);
+    if (status === "loading") return;
 
-    if (status === "loading") {
-      console.log('[AuthRedirect] Loading session...');
-      return;
-    }
-
-    if (!session) {
-      // If we've tried multiple times and still no session, give up
-      if (attempts > 5) {
-        console.log('[AuthRedirect] No session after 5 attempts, redirecting to login');
-        router.replace("/login");
-        return;
-      }
-
-      // Wait a bit and try again
-      console.log('[AuthRedirect] No session yet, will retry...');
-      setTimeout(() => {
-        setAttempts(prev => prev + 1);
-      }, 200);
-      return;
-    }
-
-    const mode = session.user?.activeMode;
-    console.log('[AuthRedirect] Session found! Mode:', mode);
-
-    // Redirect based on user mode
-    if (mode === 'PROVIDER') {
-      console.log('[AuthRedirect] PROVIDER → /provider/requests');
-      window.location.href = '/provider/requests';
+    if (session?.user?.activeMode === 'PROVIDER') {
+      window.location.replace('/provider/requests');
     } else {
-      console.log('[AuthRedirect] FAMILY → /');
-      window.location.href = '/';
+      window.location.replace('/');
     }
-  }, [session, status, router, attempts]);
+  }, [session, status]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
