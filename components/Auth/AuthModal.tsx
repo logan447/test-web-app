@@ -4,6 +4,7 @@ import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { withViewTransition } from "@/lib/view-transitions";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -45,14 +46,16 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
       const userResponse = await fetch(`/api/user/role?email=${encodeURIComponent(email)}`);
       const userData = await userResponse.json();
 
-      // Close modal and redirect based on user role
+      // Close modal and redirect based on user role with smooth transition
       onClose();
-      if (userData?.role === "FAMILY") {
-        router.push("/");
-      } else {
-        router.push("/dashboard");
-      }
-      router.refresh();
+      withViewTransition(() => {
+        if (userData?.role === "FAMILY") {
+          router.push("/");
+        } else {
+          router.push("/dashboard");
+        }
+        router.refresh();
+      });
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
@@ -102,14 +105,16 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
         return;
       }
 
-      // Close modal and redirect based on user role
+      // Close modal and redirect based on user role with smooth transition
       onClose();
-      if (role === "FAMILY") {
-        router.push("/");
-      } else {
-        router.push("/dashboard");
-      }
-      router.refresh();
+      withViewTransition(() => {
+        if (role === "FAMILY") {
+          router.push("/");
+        } else {
+          router.push("/dashboard");
+        }
+        router.refresh();
+      });
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
