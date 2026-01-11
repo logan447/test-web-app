@@ -32,10 +32,8 @@ export default function LoginPage() {
     }
 
     if (result?.ok) {
-      // Small delay to ensure JWT cookie is committed
-      setTimeout(() => {
-        window.location.href = '/api/post-login';
-      }, 200);
+      // Redirect to dashboard - middleware will redirect PROVIDER users to Find Families
+      window.location.href = '/dashboard';
     }
   };
 
