@@ -28,8 +28,17 @@ export default function HireStaffGetStartedPage() {
     try {
       const response = await fetch('/api/providers/me');
       if (response.ok) {
-        // User already has a provider profile, redirect to hire staff page
-        router.push('/provider/hire-staff');
+        const provider = await response.json();
+        // User already has a provider profile with type selected, redirect accordingly
+        if (provider.providerType === 'ORGANIZATION') {
+          router.push('/provider/hire-staff');
+        } else if (provider.providerType === 'INDEPENDENT_CAREGIVER') {
+          // Caregivers shouldn't access organization landing page
+          router.push('/provider/requests');
+        } else {
+          // Has profile but no type yet (edge case), show landing page
+          setLoading(false);
+        }
       } else {
         // No provider profile, show the landing page
         setLoading(false);

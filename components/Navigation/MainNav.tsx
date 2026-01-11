@@ -407,12 +407,26 @@ function MainNavContent() {
                         </>
                       ) : (
                         <>
-                          {/* No provider profile */}
+                          {/* No provider profile - show generic options with landing pages */}
                           <Link href={"/provider/requests"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
                           <Link href={"/provider/dashboard"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             My Provider Profile
+                          </Link>
+
+                          {/* Landing pages divider */}
+                          <div className="border-t border-gray-200 my-1"></div>
+                          <div className="px-4 py-2">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Get Started</p>
+                          </div>
+
+                          {/* Provider landing pages */}
+                          <Link href={"/provider/hire-staff/get-started"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Hire Care Staff
+                          </Link>
+                          <Link href={"/caregiver/browse-organizations/get-started"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Become a Caregiver
                           </Link>
                         </>
                       )}
@@ -698,12 +712,26 @@ function MainNavContent() {
                         </>
                       ) : (
                         <>
-                          {/* No provider profile */}
+                          {/* No provider profile - show generic options with landing pages */}
                           <Link href={"/provider/requests"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
                           <Link href={"/provider/dashboard"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             My Provider Profile
+                          </Link>
+
+                          {/* Landing pages divider */}
+                          <div className="border-t border-gray-200 my-2"></div>
+                          <div className="px-3 py-2">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Get Started</p>
+                          </div>
+
+                          {/* Provider landing pages */}
+                          <Link href={"/provider/hire-staff/get-started"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Hire Care Staff
+                          </Link>
+                          <Link href={"/caregiver/browse-organizations/get-started"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Become a Caregiver
                           </Link>
                         </>
                       )}

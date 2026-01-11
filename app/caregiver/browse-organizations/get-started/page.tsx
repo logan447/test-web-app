@@ -28,8 +28,17 @@ export default function CaregiverGetStartedPage() {
     try {
       const response = await fetch('/api/providers/me');
       if (response.ok) {
-        // User already has a provider profile, redirect to browse organizations
-        router.push('/caregiver/browse-organizations');
+        const provider = await response.json();
+        // User already has a provider profile with type selected, redirect accordingly
+        if (provider.providerType === 'INDEPENDENT_CAREGIVER') {
+          router.push('/caregiver/browse-organizations');
+        } else if (provider.providerType === 'ORGANIZATION') {
+          // Organizations shouldn't access caregiver landing page
+          router.push('/provider/requests');
+        } else {
+          // Has profile but no type yet (edge case), show landing page
+          setLoading(false);
+        }
       } else {
         // No provider profile, show the landing page
         setLoading(false);
