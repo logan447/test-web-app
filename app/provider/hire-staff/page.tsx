@@ -61,8 +61,8 @@ export default function HireStaffPage() {
         fetchCaregivers();
         fetchSentRequests();
       } else {
-        // No provider profile, redirect to create one
-        router.push('/dashboard/provider-profile');
+        // No provider profile, redirect to get started page
+        router.push('/provider/hire-staff/get-started');
       }
     } catch (err) {
       console.error('Error checking provider type:', err);

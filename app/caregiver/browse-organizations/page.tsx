@@ -60,8 +60,8 @@ export default function BrowseOrganizationsPage() {
         fetchOrganizations();
         fetchSentHiringRequests();
       } else {
-        // No provider profile, redirect to create one
-        router.push('/dashboard/provider-profile');
+        // No provider profile, redirect to get started page
+        router.push('/caregiver/browse-organizations/get-started');
       }
     } catch (err) {
       console.error('Error checking provider type:', err);
