@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
+import { withViewTransition } from "@/lib/view-transitions";
 
 const MAIN_CATEGORIES = [
   {
@@ -171,20 +172,12 @@ function MainNavContent() {
       // Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Navigate with smooth transitions
-      const navigate = () => {
+      // Navigate with smooth transitions using our utility
+      // Use 150ms delay for older browsers to ensure session propagates
+      withViewTransition(() => {
         router.push(data.landingPage);
         setSwitchingMode(false);
-      };
-
-      // Use View Transitions API if supported (modern browsers)
-      if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-        // @ts-ignore - View Transitions API
-        document.startViewTransition(navigate);
-      } else {
-        // Brief delay to ensure session propagates to middleware
-        setTimeout(navigate, 150);
-      }
+      }, 150);
     } catch (error) {
       console.error('Error switching mode:', error);
       showToast.error('Failed to switch mode');
