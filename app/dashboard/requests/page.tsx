@@ -175,8 +175,15 @@ function RequestsPageContent() {
 
   if (loading || status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-200 rounded w-1/3 mb-2"></div>
+            <div className="h-6 bg-gray-200 rounded w-2/3 mb-8"></div>
+            <div className="h-64 bg-gray-200 rounded"></div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -187,14 +194,18 @@ function RequestsPageContent() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <Link href="/dashboard" className="text-primary-600 hover:text-primary-700">
-            ← Back to Dashboard
-          </Link>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            My Providers
+          </h1>
+          <p className="text-lg text-gray-600">
+            {isFamily
+              ? "Track your consultation requests with care providers. View responses, start conversations, and manage your connections."
+              : "Manage consultation requests from families seeking care. Respond to inquiries and connect with potential clients."}
+          </p>
         </div>
-
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">My Requests</h1>
 
         <div className="mb-6 border-b border-gray-200">
           <nav className="flex space-x-8">
@@ -222,19 +233,44 @@ function RequestsPageContent() {
         </div>
 
         {requests.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-600 mb-4">
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
+            <svg
+              className="mx-auto h-16 w-16 text-gray-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+            <h3 className="mt-4 text-xl font-semibold text-gray-900">
+              {activeTab === "sent" ? "No requests sent yet" : "No requests received yet"}
+            </h3>
+            <p className="mt-2 text-gray-600">
               {activeTab === "sent"
-                ? "You haven't sent any requests yet."
-                : "No requests yet."}
+                ? isFamily
+                  ? "Start browsing providers and send consultation requests to connect with the right care."
+                  : "You haven't sent any requests to families yet."
+                : isFamily
+                ? "When providers respond to your requests, they'll appear here."
+                : "When families send you consultation requests, they'll appear here."}
             </p>
             {isFamily && activeTab === "sent" && (
-              <Link
-                href="/providers"
-                className="inline-block bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700"
-              >
-                Browse Providers
-              </Link>
+              <div className="mt-6">
+                <Link
+                  href="/"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 font-semibold transition-all shadow-sm hover:shadow-md"
+                >
+                  Browse Providers
+                  <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
             )}
           </div>
         ) : (
