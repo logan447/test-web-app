@@ -390,7 +390,7 @@ function MainNavContent() {
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
                               <Link href={"/caregiver/browse-organizations"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Hiring Organizations
+                                Find Hiring Organizations
                               </Link>
                               <Link href={"/provider/hiring-requests"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 My Job Opportunities
@@ -681,7 +681,7 @@ function MainNavContent() {
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
                               <Link href={"/caregiver/browse-organizations"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                                Hiring Organizations
+                                Find Hiring Organizations
                               </Link>
                               <Link href={"/provider/hiring-requests"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 My Job Opportunities

@@ -131,9 +131,9 @@ export default function BrowseOrganizationsPage() {
         <MainNav />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Care Organizations</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Hiring Organizations</h1>
             <p className="text-lg text-gray-600">
-              Find care organizations that may be hiring caregivers in your area
+              Discover care organizations actively hiring caregivers. Browse profiles, connect with potential employers, and take the next step in your care career.
             </p>
           </div>
           <ProfileCardsSkeleton count={6} />
@@ -148,9 +148,9 @@ export default function BrowseOrganizationsPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Care Organizations</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Hiring Organizations</h1>
           <p className="text-lg text-gray-600">
-            Find care organizations that may be hiring caregivers in your area
+            Discover care organizations actively hiring caregivers. Browse profiles, connect with potential employers, and take the next step in your care career.
           </p>
         </div>
 
