@@ -75,8 +75,12 @@ function DashboardPageContent() {
     }
   };
 
-  // Show loading state
-  if (status === "loading" || loading) {
+  // Check activeMode, not base role, to determine what dashboard content to show
+  const isFamily = session?.user.activeMode !== 'PROVIDER';
+  const isProvider = session?.user.role === "PROVIDER";
+
+  // Show loading state - session not yet loaded
+  if (status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
@@ -94,9 +98,56 @@ function DashboardPageContent() {
     );
   }
 
-  // Check activeMode, not base role, to determine what dashboard content to show
-  const isFamily = session?.user.activeMode !== 'PROVIDER';
-  const isProvider = session?.user.role === "PROVIDER";
+  // Show structure immediately while data loads
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header - show immediately with correct title */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              {isFamily ? "My Care Profile" : "Provider Dashboard"}
+            </h1>
+            <p className="text-lg text-gray-600">
+              {isFamily
+                ? "Maintain your care profile to help providers understand your needs and match you with the right care."
+                : "Connect with families who need your services"}
+            </p>
+          </div>
+
+          {/* Stats Grid - skeleton */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-lg shadow animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+              <div className="h-8 bg-gray-200 rounded w-16"></div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+              <div className="h-8 bg-gray-200 rounded w-16"></div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+              <div className="h-8 bg-gray-200 rounded w-16"></div>
+            </div>
+          </div>
+
+          {/* Quick Actions - skeleton */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white p-4 rounded-lg shadow animate-pulse">
+                  <div className="h-12 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const filteredActivities = filterType === "all"
     ? activities
