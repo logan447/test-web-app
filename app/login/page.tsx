@@ -32,8 +32,10 @@ export default function LoginPage() {
     }
 
     if (result?.ok) {
-      // Redirect to server-side route that will check JWT and redirect based on mode
-      window.location.href = '/api/post-login';
+      // Small delay to ensure JWT cookie is committed
+      setTimeout(() => {
+        window.location.href = '/api/post-login';
+      }, 200);
     }
   };
 
