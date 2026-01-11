@@ -19,11 +19,22 @@ export default function LoginPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    // Let NextAuth handle everything - it will call the redirect callback automatically
-    await signIn("credentials", {
+    const result = await signIn("credentials", {
       email,
       password,
+      redirect: false,
     });
+
+    if (result?.error) {
+      setError("Invalid email or password");
+      setLoading(false);
+      return;
+    }
+
+    if (result?.ok) {
+      // Redirect to server-side route that will check JWT and redirect based on mode
+      window.location.href = '/api/post-login';
+    }
   };
 
   return (
