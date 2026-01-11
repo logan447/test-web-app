@@ -19,17 +19,11 @@ export default function LoginPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const result = await signIn("credentials", {
+    // Let NextAuth handle everything - it will call the redirect callback automatically
+    await signIn("credentials", {
       email,
       password,
-      callbackUrl: "/auth/redirect",
     });
-
-    // If signIn doesn't redirect (error case), show error
-    if (result?.error) {
-      setError("Invalid email or password");
-      setLoading(false);
-    }
   };
 
   return (

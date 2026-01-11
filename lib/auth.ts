@@ -151,17 +151,30 @@ export const authOptions: NextAuthOptions = {
         },
       };
     },
-    async redirect({ url, baseUrl }) {
-      console.log('[NextAuth redirect callback] url:', url, 'baseUrl:', baseUrl);
+    async redirect({ url, baseUrl, ...params }) {
+      console.log('[NextAuth redirect] url:', url, 'baseUrl:', baseUrl);
 
-      // Allow redirect to /auth/redirect for post-login routing
-      if (url.includes('/auth/redirect')) {
-        console.log('[NextAuth redirect callback] Allowing redirect to /auth/redirect');
-        return url;
+      try {
+        // Try to get the token to determine user mode
+        const req = (params as any).req;
+        if (req) {
+          const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+          console.log('[NextAuth redirect] Token activeMode:', token?.activeMode);
+
+          if (token?.activeMode === 'PROVIDER') {
+            console.log('[NextAuth redirect] Redirecting PROVIDER to /provider/requests');
+            return `${baseUrl}/provider/requests`;
+          } else if (token?.activeMode === 'FAMILY') {
+            console.log('[NextAuth redirect] Redirecting FAMILY to /');
+            return baseUrl;
+          }
+        }
+      } catch (error) {
+        console.error('[NextAuth redirect] Error getting token:', error);
       }
 
-      // Default behavior
-      console.log('[NextAuth redirect callback] Using default redirect logic');
+      // Default behavior if no token or error
+      console.log('[NextAuth redirect] Using default redirect');
       if (url.startsWith(baseUrl)) return url;
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       return baseUrl;
