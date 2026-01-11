@@ -66,6 +66,63 @@ type Provider = {
   longitude: number | null;
   neighborhoodDescription: string | null;
   nearbyAmenities: string[];
+  // Sprint 4 - Care Services
+  detailedMedicalServices?: string[];
+  detailedPersonalCareServices?: string[];
+  detailedDailyLivingServices?: string[];
+  detailedMemoryCareServices?: string[];
+  detailedSocialRecServices?: string[];
+  // Sprint 5 - Pricing & Amenities
+  privateRoomMin?: number | null;
+  privateRoomMax?: number | null;
+  semiPrivateRoomMin?: number | null;
+  semiPrivateRoomMax?: number | null;
+  includedServices?: string[];
+  additionalServicesJson?: string;
+  communityFee?: number | null;
+  securityDeposit?: number | null;
+  applicationFee?: number | null;
+  acceptsFinancialAssistance?: boolean;
+  financialAssistanceTypes?: string[];
+  offersPaymentPlans?: boolean;
+  paymentPlanDetails?: string;
+  safetySecurityFeatures?: string[];
+  medicalAmenities?: string[];
+  // Sprint 6 - Staff Information
+  daytimeStaffRatio?: string;
+  eveningStaffRatio?: string;
+  nightStaffRatio?: string;
+  staffCredentials?: string[];
+  staffTrainingDescription?: string;
+  hasOnCallPhysician?: boolean;
+  hasPharmacyPartnership?: boolean;
+  // Sprint 7 - Certifications & Licensing
+  certificateUrls?: string[];
+  accreditations?: string[];
+  awardsJson?: string;
+  // Sprint 8 - Specialty Programs & Policies
+  specialtyProgramsJson?: string;
+  petPolicy?: string;
+  petPolicyDetails?: string;
+  visitorPolicy?: string;
+  smokingPolicy?: string;
+  hasTrialPeriod?: boolean;
+  trialPeriodDuration?: string;
+  // Sprint 9 - About Us, Meet the Team & Virtual Tours
+  establishedYear?: string;
+  facilityHistory?: string;
+  missionStatement?: string;
+  whatMakesUsUnique?: string;
+  teamMembersJson?: string;
+  virtualTourUrl?: string;
+  virtualTourType?: string;
+  brochureUrl?: string;
+  floorPlanUrls?: string[];
+  // Legacy fields
+  hasMemoryCare?: boolean;
+  hasRespiteCare?: boolean;
+  hasHospiceCare?: boolean;
+  specialtyPrograms?: string[];
 };
 
 const PROVIDER_TYPES = [
