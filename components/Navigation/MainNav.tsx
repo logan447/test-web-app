@@ -343,7 +343,7 @@ function MainNavContent() {
                   </svg>
                 </button>
 
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                   <div className="px-4 py-2 border-b border-gray-200">
                     <p className="text-sm font-medium text-gray-900 truncate">{session.user?.name}</p>
                     <p className="text-xs text-gray-500 break-words">{session.user?.email}</p>
@@ -417,9 +417,6 @@ function MainNavContent() {
 
                           {/* Landing pages divider */}
                           <div className="border-t border-gray-200 my-1"></div>
-                          <div className="px-4 py-2">
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Get Started</p>
-                          </div>
 
                           {/* Provider landing pages */}
                           <Link href={"/provider/hire-staff/get-started"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -722,9 +719,6 @@ function MainNavContent() {
 
                           {/* Landing pages divider */}
                           <div className="border-t border-gray-200 my-2"></div>
-                          <div className="px-3 py-2">
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Get Started</p>
-                          </div>
 
                           {/* Provider landing pages */}
                           <Link href={"/provider/hire-staff/get-started"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
