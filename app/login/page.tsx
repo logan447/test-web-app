@@ -33,6 +33,9 @@ export default function LoginPage() {
       }
 
       if (result?.ok) {
+        // Set a flag to indicate the user just logged in
+        sessionStorage.setItem('justLoggedIn', 'true');
+
         // Redirect to auth handler page which will check session and route appropriately
         router.push('/auth/redirect');
       }

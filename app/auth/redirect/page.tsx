@@ -19,12 +19,17 @@ export default function AuthRedirectPage() {
 
     if (!session) {
       console.log('[AuthRedirect] No session, redirecting to login');
+      // Clear the login flag
+      sessionStorage.removeItem('justLoggedIn');
       router.replace("/login");
       return;
     }
 
     const mode = session.user?.activeMode;
     console.log('[AuthRedirect] User mode:', mode);
+
+    // Clear the "just logged in" flag
+    sessionStorage.removeItem('justLoggedIn');
 
     // Redirect based on user mode - use window.location for full page reload
     if (mode === 'PROVIDER') {
