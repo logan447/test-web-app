@@ -152,12 +152,16 @@ export const authOptions: NextAuthOptions = {
       };
     },
     async redirect({ url, baseUrl }) {
+      console.log('[NextAuth redirect callback] url:', url, 'baseUrl:', baseUrl);
+
       // Allow redirect to /auth/redirect for post-login routing
       if (url.includes('/auth/redirect')) {
+        console.log('[NextAuth redirect callback] Allowing redirect to /auth/redirect');
         return url;
       }
 
       // Default behavior
+      console.log('[NextAuth redirect callback] Using default redirect logic');
       if (url.startsWith(baseUrl)) return url;
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       return baseUrl;
