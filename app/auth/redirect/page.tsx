@@ -9,34 +9,26 @@ export default function AuthRedirectPage() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('[AuthRedirect] Status:', status);
-    console.log('[AuthRedirect] Session:', session);
-
     if (status === "loading") {
-      console.log('[AuthRedirect] Still loading session...');
+      console.log('[AuthRedirect] Loading session...');
       return;
     }
 
     if (!session) {
-      console.log('[AuthRedirect] No session, redirecting to login');
-      // Clear the login flag
-      sessionStorage.removeItem('justLoggedIn');
+      console.log('[AuthRedirect] No session found');
       router.replace("/login");
       return;
     }
 
     const mode = session.user?.activeMode;
-    console.log('[AuthRedirect] User mode:', mode);
+    console.log('[AuthRedirect] Logged in as mode:', mode);
 
-    // Clear the "just logged in" flag
-    sessionStorage.removeItem('justLoggedIn');
-
-    // Redirect based on user mode - use window.location for full page reload
+    // Redirect based on user mode
     if (mode === 'PROVIDER') {
-      console.log('[AuthRedirect] Redirecting to /provider/requests');
+      console.log('[AuthRedirect] PROVIDER → /provider/requests');
       window.location.href = '/provider/requests';
     } else {
-      console.log('[AuthRedirect] Redirecting to home');
+      console.log('[AuthRedirect] FAMILY → /');
       window.location.href = '/';
     }
   }, [session, status, router]);

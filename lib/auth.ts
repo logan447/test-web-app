@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { prisma } from "./prisma";
+import { getToken } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -151,13 +152,12 @@ export const authOptions: NextAuthOptions = {
       };
     },
     async redirect({ url, baseUrl }) {
-      // If redirecting to /auth/redirect, read the JWT token to determine mode
-      if (url.startsWith(baseUrl + '/auth/redirect')) {
-        // This will be handled by the /auth/redirect page
+      // Allow redirect to /auth/redirect for post-login routing
+      if (url.includes('/auth/redirect')) {
         return url;
       }
 
-      // Default behavior for other redirects
+      // Default behavior
       if (url.startsWith(baseUrl)) return url;
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       return baseUrl;

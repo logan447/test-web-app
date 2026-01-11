@@ -20,26 +20,15 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     try {
-      const result = await signIn("credentials", {
+      // Let NextAuth handle the redirect automatically
+      await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        callbackUrl: '/auth/redirect',
       });
-
-      if (result?.error) {
-        setError("Invalid email or password");
-        setLoading(false);
-        return;
-      }
-
-      if (result?.ok) {
-        console.log('[Login] Sign in successful, redirecting to post-login handler');
-        // Use window.location for full page reload to ensure JWT cookie is set
-        window.location.href = '/api/auth/post-login-redirect';
-      }
     } catch (error) {
       console.error('Login error:', error);
-      setError("Something went wrong");
+      setError("Invalid email or password");
       setLoading(false);
     }
   };
