@@ -877,7 +877,7 @@ export default function ProviderProfilePage() {
   ];
 
   // Show loading state with title immediately
-  if (loading) {
+  if (loading || status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
