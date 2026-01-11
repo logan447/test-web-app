@@ -70,7 +70,7 @@ export default function CaregiverGetStartedPage() {
             Become a Caregiver on Olera
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Join Olera's network of professional caregivers and connect with organizations actively hiring. Get discovered by care facilities and agencies looking for talented professionals like you.
+            Join Olera&apos;s network of professional caregivers and connect with organizations actively hiring. Get discovered by care facilities and agencies looking for talented professionals like you.
           </p>
         </div>
 
@@ -116,7 +116,7 @@ export default function CaregiverGetStartedPage() {
 
         {/* What You'll Get Section */}
         <div className="bg-white rounded-xl border border-gray-100 p-10 shadow-sm mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">What You'll Get</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">What You&apos;ll Get</h2>
           <div className="space-y-4">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
