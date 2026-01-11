@@ -274,80 +274,153 @@ function RequestsPageContent() {
             )}
           </div>
         ) : (
-          <div className="space-y-4">
-            {requests.map((request) => (
-              <div key={request.id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1 pr-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {isFamily ? request.provider.name : request.familyProfile?.user.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {isFamily
-                        ? `${request.provider.city}, ${request.provider.state}`
-                        : request.familyProfile
-                        ? `${request.familyProfile.city}, ${request.familyProfile.state}`
-                        : ""}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {activeTab === "sent"
-                        ? `To: ${isFamily ? request.provider.name : request.familyProfile?.user.name}`
-                        : `From: ${request.sender.name}`} •{" "}
-                      {new Date(request.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    {request._count && request._count.messages > 0 && (
-                      <div className="flex items-center gap-1 bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+          <div className="grid md:grid-cols-2 gap-6">
+            {requests.map((request) => {
+              const providerData = isFamily ? request.provider : null;
+              const familyData = !isFamily ? request.familyProfile : null;
+              const displayName = isFamily ? providerData?.name : familyData?.user.name;
+              const displayLocation = isFamily
+                ? `${providerData?.city}, ${providerData?.state}`
+                : familyData ? `${familyData.city}, ${familyData.state}` : "";
+              const imageUrl = providerData?.coverPhoto || providerData?.photos?.[0] || "/default-provider-image.jpg";
+
+              return (
+                <div
+                  key={request.id}
+                  className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+                >
+                  {/* Image Section */}
+                  {isFamily && (
+                    <div className="relative h-36 bg-gray-200 overflow-hidden">
+                      <img
+                        src={imageUrl}
+                        alt={displayName || "Provider"}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+
+                      {/* Status Badge Overlay */}
+                      <div className="absolute top-3 left-3">
+                        <Tooltip content={getStatusTooltip(request.status, activeTab)}>
+                          <span className={`px-3 py-1.5 rounded-md text-xs font-semibold ${getStatusColor(request.status)} cursor-help shadow-sm`}>
+                            {getCombinedBadgeText(request.status, activeTab)}
+                          </span>
+                        </Tooltip>
+                      </div>
+
+                      {/* New Messages Badge */}
+                      {request._count && request._count.messages > 0 && (
+                        <div className="absolute top-3 right-3">
+                          <div className="flex items-center gap-1 bg-red-600 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm">
+                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
+                            <span>{request._count.messages}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Request Date Badge */}
+                      <div className="absolute bottom-3 right-3">
+                        <span className="bg-white/95 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm">
+                          {new Date(request.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Content Section */}
+                  <div className="p-5">
+                    {/* Header */}
+                    <div className="mb-3">
+                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-1 mb-1">
+                        {displayName}
+                      </h3>
+                      <p className="text-sm text-gray-600 flex items-center gap-1">
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span>{request._count.messages} new message{request._count.messages > 1 ? 's' : ''}</span>
+                        {displayLocation}
+                      </p>
+                      {!isFamily && (
+                        <div className="flex items-center gap-2 mt-2">
+                          {request._count && request._count.messages > 0 && (
+                            <div className="flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-1 rounded-md text-xs font-medium">
+                              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                              </svg>
+                              <span>{request._count.messages}</span>
+                            </div>
+                          )}
+                          <Tooltip content={getStatusTooltip(request.status, activeTab)}>
+                            <span className={`px-2.5 py-1 rounded-md text-xs font-semibold ${getStatusColor(request.status)} cursor-help`}>
+                              {getCombinedBadgeText(request.status, activeTab)}
+                            </span>
+                          </Tooltip>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Request Info */}
+                    <div className="mb-3">
+                      <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {activeTab === "sent"
+                          ? `Sent to ${displayName}`
+                          : `From ${request.sender.name}`} • {new Date(request.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
+                      <p className="text-sm text-gray-700 leading-relaxed line-clamp-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                        {request.message}
+                      </p>
+                    </div>
+
+                    {/* Action Buttons */}
+                    {request.status === "PENDING" && activeTab === "received" && (
+                      <div className="flex gap-2 mb-3 pb-3 border-b border-gray-100">
+                        <button
+                          onClick={() => handleStatusUpdate(request.id, "ACCEPTED")}
+                          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => handleStatusUpdate(request.id, "DECLINED")}
+                          className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium transition-colors"
+                        >
+                          Decline
+                        </button>
                       </div>
                     )}
-                    <Tooltip content={getStatusTooltip(request.status, activeTab)}>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)} cursor-help`}>
-                        {getCombinedBadgeText(request.status, activeTab)}
-                      </span>
-                    </Tooltip>
+
+                    {/* View Request & Delete */}
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/dashboard/requests/${request.id}`}
+                        className="flex-1 flex items-center justify-center gap-2 bg-primary-600 text-white px-4 py-2.5 rounded-lg hover:bg-primary-700 font-medium transition-colors text-sm"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        View Details
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(request.id)}
+                        className="bg-white border border-gray-200 text-gray-600 p-2.5 rounded-lg hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors"
+                        title="Delete request"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <p className="text-gray-700 mb-4">{request.message}</p>
-
-                <div className="flex gap-2 flex-wrap">
-                  {request.status === "PENDING" && activeTab === "received" && (
-                    <>
-                      <button
-                        onClick={() => handleStatusUpdate(request.id, "ACCEPTED")}
-                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm"
-                      >
-                        Yes, Let&apos;s Connect
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(request.id, "DECLINED")}
-                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm"
-                      >
-                        No Thanks
-                      </button>
-                    </>
-                  )}
-                  <Link
-                    href={`/dashboard/requests/${request.id}`}
-                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-sm"
-                  >
-                    View Request
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(request.id)}
-                    className="ml-auto bg-white border border-red-300 text-red-600 px-4 py-2 rounded-md hover:bg-red-50 text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
