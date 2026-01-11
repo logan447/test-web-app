@@ -102,10 +102,10 @@ type Provider = {
   awardsJson?: string;
   // Sprint 8 - Specialty Programs & Policies
   specialtyProgramsJson?: string;
-  petPolicy?: string;
+  petPolicy?: "allowed" | "service_only" | "not_allowed" | "";
   petPolicyDetails?: string;
   visitorPolicy?: string;
-  smokingPolicy?: string;
+  smokingPolicy?: "non_smoking" | "designated_areas" | "allowed" | "";
   hasTrialPeriod?: boolean;
   trialPeriodDuration?: string;
   // Sprint 9 - About Us, Meet the Team & Virtual Tours
@@ -578,10 +578,10 @@ function ProviderProfilePageContent({
     // Initialize specialty programs & policies (Sprint 8 - backward compatible)
     setSpecialtyProgramsPolicies({
       specialtyPrograms: data.specialtyProgramsJson ? JSON.parse(data.specialtyProgramsJson) : [],
-      petPolicy: data.petPolicy || "",
+      petPolicy: (data.petPolicy || "") as "" | "allowed" | "service_only" | "not_allowed",
       petPolicyDetails: data.petPolicyDetails || "",
       visitorPolicy: data.visitorPolicy || "",
-      smokingPolicy: data.smokingPolicy || "",
+      smokingPolicy: (data.smokingPolicy || "") as "" | "non_smoking" | "designated_areas" | "allowed",
       hasTrialPeriod: data.hasTrialPeriod || false,
       trialPeriodDuration: data.trialPeriodDuration || "",
     });
