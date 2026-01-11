@@ -9,18 +9,29 @@ export default function AuthRedirectPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "loading") return;
+    console.log('[AuthRedirect] Status:', status);
+    console.log('[AuthRedirect] Session:', session);
+
+    if (status === "loading") {
+      console.log('[AuthRedirect] Still loading session...');
+      return;
+    }
 
     if (!session) {
-      // Not logged in, redirect to login
+      console.log('[AuthRedirect] No session, redirecting to login');
       router.replace("/login");
       return;
     }
 
-    // Redirect based on user mode
-    if (session.user?.activeMode === 'PROVIDER') {
+    const mode = session.user?.activeMode;
+    console.log('[AuthRedirect] User mode:', mode);
+
+    // Redirect based on user mode - use window.location for full page reload
+    if (mode === 'PROVIDER') {
+      console.log('[AuthRedirect] Redirecting to /provider/requests');
       window.location.href = '/provider/requests';
     } else {
+      console.log('[AuthRedirect] Redirecting to home');
       window.location.href = '/';
     }
   }, [session, status, router]);
@@ -30,6 +41,8 @@ export default function AuthRedirectPage() {
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
         <p className="text-gray-600">Redirecting...</p>
+        {status === "loading" && <p className="text-sm text-gray-500 mt-2">Loading session...</p>}
+        {session && <p className="text-sm text-gray-500 mt-2">Mode: {session.user?.activeMode}</p>}
       </div>
     </div>
   );

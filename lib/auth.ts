@@ -150,5 +150,17 @@ export const authOptions: NextAuthOptions = {
         },
       };
     },
+    async redirect({ url, baseUrl }) {
+      // If redirecting to /auth/redirect, read the JWT token to determine mode
+      if (url.startsWith(baseUrl + '/auth/redirect')) {
+        // This will be handled by the /auth/redirect page
+        return url;
+      }
+
+      // Default behavior for other redirects
+      if (url.startsWith(baseUrl)) return url;
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      return baseUrl;
+    },
   },
 };

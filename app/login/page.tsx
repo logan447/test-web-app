@@ -33,8 +33,8 @@ export default function LoginPage() {
       }
 
       if (result?.ok) {
-        // Sign in successful, redirect to auth handler which will read session and redirect based on mode
-        window.location.href = '/auth/redirect';
+        // Redirect to auth handler page which will check session and route appropriately
+        router.push('/auth/redirect');
       }
     } catch (error) {
       console.error('Login error:', error);
