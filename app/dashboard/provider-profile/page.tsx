@@ -876,14 +876,12 @@ export default function ProviderProfilePage() {
     },
   ];
 
-  // ALWAYS show the page structure and title immediately
-  // Don't wait for session or data - show title from the start
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ALWAYS show title immediately - never conditional */}
+        {/* Title ALWAYS shows immediately - no conditions */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">My Provider Profile</h1>
           {provider && !editing && !loading && status === "authenticated" && (
@@ -902,7 +900,7 @@ export default function ProviderProfilePage() {
           </div>
         )}
 
-        {(status === "loading" || loading) ? (
+        {loading ? (
           // Loading provider data - show skeleton content only
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2">
