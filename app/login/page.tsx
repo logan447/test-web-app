@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -33,15 +33,8 @@ export default function LoginPage() {
       }
 
       if (result?.ok) {
-        // Sign in successful, fetch session and redirect
-        const session = await getSession();
-
-        // Redirect based on user mode
-        if (session?.user?.activeMode === 'PROVIDER') {
-          window.location.href = '/provider/requests';
-        } else {
-          window.location.href = '/';
-        }
+        // Sign in successful, redirect to auth handler which will read session and redirect based on mode
+        window.location.href = '/auth/redirect';
       }
     } catch (error) {
       console.error('Login error:', error);
