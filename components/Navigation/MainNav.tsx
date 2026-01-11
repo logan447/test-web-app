@@ -171,11 +171,20 @@ function MainNavContent() {
       // Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Brief delay to show toast, then navigate smoothly with router
-      setTimeout(() => {
+      // Navigate with smooth transitions
+      const navigate = () => {
         router.push(data.landingPage);
         setSwitchingMode(false);
-      }, 500);
+      };
+
+      // Use View Transitions API if supported (modern browsers)
+      if (typeof document !== 'undefined' && 'startViewTransition' in document) {
+        // @ts-ignore - View Transitions API
+        document.startViewTransition(navigate);
+      } else {
+        // Brief delay to ensure session propagates to middleware
+        setTimeout(navigate, 150);
+      }
     } catch (error) {
       console.error('Error switching mode:', error);
       showToast.error('Failed to switch mode');
