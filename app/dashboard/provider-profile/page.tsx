@@ -753,8 +753,12 @@ function ProviderProfilePageContent({
         throw new Error(result.error || "Failed to save profile");
       }
 
+      const updatedProvider = await response.json();
+      setProvider(updatedProvider);
+      onDataUpdate(updatedProvider);
+      setEditing(false);
+      setSaving(false);
       showToast.success(provider ? "Profile updated" : "Profile created");
-      fetchProvider();
     } catch (err: any) {
       setError(err.message || "Failed to save profile");
       showToast.error(err.message || "Failed to save profile");
