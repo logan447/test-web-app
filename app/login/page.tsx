@@ -33,11 +33,9 @@ export default function LoginPage() {
       }
 
       if (result?.ok) {
-        // Set a flag to indicate the user just logged in
-        sessionStorage.setItem('justLoggedIn', 'true');
-
-        // Redirect to auth handler page which will check session and route appropriately
-        router.push('/auth/redirect');
+        console.log('[Login] Sign in successful, redirecting to post-login handler');
+        // Use window.location for full page reload to ensure JWT cookie is set
+        window.location.href = '/api/auth/post-login-redirect';
       }
     } catch (error) {
       console.error('Login error:', error);
