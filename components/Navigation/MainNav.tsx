@@ -437,7 +437,7 @@ function MainNavContent() {
                         )}
                       </Link>
                       <Link href={"/dashboard"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        My Dashboard
+                        My Care Profile
                       </Link>
                     </>
                   )}
@@ -728,7 +728,7 @@ function MainNavContent() {
                         )}
                       </Link>
                       <Link href={"/dashboard"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        My Dashboard
+                        My Care Profile
                       </Link>
                     </>
                   )}

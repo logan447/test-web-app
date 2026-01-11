@@ -163,12 +163,12 @@ function DashboardPageContent() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {isFamily ? "My Dashboard" : "Provider Dashboard"}
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                {isFamily ? "My Care Profile" : "Provider Dashboard"}
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-lg text-gray-600">
                 {isFamily
-                  ? "Manage your care search and consultation requests"
+                  ? "Maintain your care profile to help providers understand your needs and match you with the right care."
                   : "Connect with families who need your services"}
               </p>
             </div>
