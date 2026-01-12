@@ -67,22 +67,25 @@ export default function SavedProviderCard({
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden group transform hover:-translate-y-1">
       {/* Image with Badges */}
-      <div className="relative h-48 bg-gray-200 overflow-hidden">
+      <div className="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
         <Image
           src={getImageUrl()}
           alt={saved.provider.name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          className="object-cover group-hover:scale-110 transition-transform duration-500"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           onError={() => setImageError(true)}
         />
 
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/20" />
+
         {/* Badges Overlay */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2 max-w-[calc(100%-6rem)]">
           {saved.provider.verified && (
-            <span className="bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-semibold inline-flex items-center gap-1">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-1.5 rounded-full text-xs font-bold inline-flex items-center gap-1.5 shadow-lg backdrop-blur-sm">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
@@ -94,7 +97,7 @@ export default function SavedProviderCard({
             </span>
           )}
           {hasRequest && (
-            <span className="bg-green-600 text-white px-2 py-1 rounded-md text-xs font-semibold inline-flex items-center gap-1">
+            <span className="bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-1.5 rounded-full text-xs font-bold inline-flex items-center gap-1.5 shadow-lg backdrop-blur-sm">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
@@ -125,10 +128,10 @@ export default function SavedProviderCard({
       </div>
 
       {/* Card Body */}
-      <div className="p-5">
+      <div className="p-6">
         {/* Header */}
         <div className="mb-4">
-          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
+          <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors mb-2 line-clamp-2 leading-tight">
             {saved.provider.name}
           </h3>
 

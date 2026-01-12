@@ -73,10 +73,15 @@ export default function SavedFamilyCard({
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden group transform hover:-translate-y-1">
       {/* Header with Location and Status */}
-      <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-4 border-b border-primary-200">
-        <div className="flex items-start justify-between">
+      <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-5 border-b-0 relative overflow-hidden">
+        {/* Decorative Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+        </div>
+
+        <div className="relative flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <svg
@@ -138,7 +143,7 @@ export default function SavedFamilyCard({
       </div>
 
       {/* Card Body */}
-      <div className="p-5">
+      <div className="p-6">
         {/* Budget and Timeline */}
         <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
           <div>
