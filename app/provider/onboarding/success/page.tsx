@@ -34,7 +34,7 @@ export default function ProviderOnboardingSuccess() {
             <li className="flex items-start gap-2">
               <span className="flex-shrink-0 mt-1">✓</span>
               <span>
-                You'll receive consultation requests from families in your area
+                You&apos;ll receive consultation requests from families in your area
               </span>
             </li>
             <li className="flex items-start gap-2">
