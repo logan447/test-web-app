@@ -61,6 +61,12 @@ export async function GET(req: Request) {
       where.availableForOrganizations = true;
     }
 
+    // Filter for organizations actively hiring caregivers
+    const hiringCaregivers = searchParams.get("hiringCaregivers");
+    if (hiringCaregivers === "true") {
+      where.hiringCaregivers = true;
+    }
+
     // Price range filter
     if (priceMinParam) {
       where.priceMin = { gte: parseInt(priceMinParam) };

@@ -54,6 +54,7 @@ async function main() {
           mobilityStatus: 'walker',
           timeline: 'Within 3 months',
           description: 'Looking for a warm, friendly assisted living community for my mother.',
+          visibleToProviders: true,
         },
       },
     },
@@ -82,6 +83,7 @@ async function main() {
           budgetMax: 5000,
           medicalConditions: ['Diabetes'],
           timeline: 'Within 6 months',
+          visibleToProviders: true,
         },
       },
     },
@@ -116,6 +118,7 @@ async function main() {
           mobilityStatus: 'independent',
           timeline: 'Within 1 month',
           description: 'Seeking specialized memory care for my mother with early-stage Alzheimers.',
+          visibleToProviders: true,
         },
       },
     },
@@ -150,6 +153,7 @@ async function main() {
           mobilityStatus: 'wheelchair',
           timeline: 'Immediate',
           description: 'Need to transfer my father to a better memory care facility urgently.',
+          visibleToProviders: true,
         },
       },
     },
@@ -184,6 +188,7 @@ async function main() {
           mobilityStatus: 'assisted',
           timeline: 'Within 2 weeks',
           description: 'Looking for a live-in caregiver for my father with Parkinsons.',
+          visibleToProviders: true,
         },
       },
     },
@@ -212,6 +217,7 @@ async function main() {
           budgetMax: 3500,
           medicalConditions: ['Arthritis'],
           timeline: 'Within 1 month',
+          visibleToProviders: true,
         },
       },
     },
@@ -246,6 +252,7 @@ async function main() {
           mobilityStatus: 'bedridden',
           timeline: 'Immediate',
           description: 'Mother needs skilled nursing care after recent stroke.',
+          visibleToProviders: true,
         },
       },
     },
@@ -274,6 +281,7 @@ async function main() {
           budgetMax: 4000,
           timeline: 'Within 6 months',
           description: 'Looking for an active senior living community.',
+          visibleToProviders: true,
         },
       },
     },
@@ -302,6 +310,7 @@ async function main() {
           budgetMax: 3000,
           medicalConditions: ['Arthritis'],
           timeline: 'Within 3 months',
+          visibleToProviders: true,
         },
       },
     },
@@ -336,6 +345,7 @@ async function main() {
           mobilityStatus: 'independent',
           timeline: 'Within 3 months',
           description: 'Seeking premium assisted living with resort-style amenities.',
+          visibleToProviders: true,
         },
       },
     },
@@ -363,6 +373,7 @@ async function main() {
           budgetMin: 3000,
           budgetMax: 4000,
           timeline: 'Within 2 weeks',
+          visibleToProviders: true,
         },
       },
     },
@@ -385,6 +396,7 @@ async function main() {
           city: 'San Francisco',
           state: 'CA',
           zipCode: '94103',
+          visibleToProviders: true,
         },
       },
     },
@@ -445,6 +457,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
         },
       },
     },
@@ -525,6 +538,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
         },
       },
     },
@@ -562,6 +576,7 @@ async function main() {
             'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
             'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
           ],
+          coverPhoto: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
           roomFeatures: ['Private or shared rooms', 'Cable TV'],
           commonAreas: ['Garden', 'TV lounge'],
           medicalServices: ['Daily nursing visits', 'Medication management'],
@@ -573,6 +588,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
         },
       },
     },
@@ -626,6 +642,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
         },
       },
     },
@@ -665,6 +682,7 @@ async function main() {
             'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
             'https://images.unsplash.com/photo-1581093458791-9f3c3250a740?w=800',
           ],
+          coverPhoto: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
           roomFeatures: ['Private rooms', 'WiFi', 'Emergency call'],
           commonAreas: ['Library', 'Courtyard', 'Chapel', 'Salon'],
           medicalServices: ['24/7 nursing', 'Memory care unit'],
@@ -676,6 +694,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
         },
       },
     },
@@ -715,6 +734,7 @@ async function main() {
             'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
             'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
           ],
+          coverPhoto: 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=800',
           roomFeatures: ['Hospital beds', 'Medical equipment', 'Call systems'],
           medicalServices: ['24/7 RN', 'Physical therapy', 'Wound care', 'IV therapy'],
           staffToResidentRatio: '1:4',
@@ -724,6 +744,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
         },
       },
     },
@@ -763,6 +784,7 @@ async function main() {
             'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800',
             'https://images.unsplash.com/photo-1605684954998-685c79d6a018?w=800',
           ],
+          coverPhoto: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800',
           medicalServices: ['Skilled nursing', 'Physical therapy', 'Medication management'],
           languagesSpoken: ['English', 'Spanish', 'Tagalog', 'Vietnamese'],
           averageRating: 4.8,
@@ -770,6 +792,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
           availableForFamilies: true,
           availableForOrganizations: true,
         },
@@ -811,6 +834,7 @@ async function main() {
             'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
             'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
           ],
+          coverPhoto: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
           roomFeatures: ['Full kitchens', 'Washer/dryer', 'Patio or balcony'],
           commonAreas: ['Pool', 'Fitness center', 'Clubhouse', 'Tennis courts'],
           activitiesOffered: ['Social clubs', 'Day trips', 'Classes', 'Events'],
@@ -821,6 +845,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
         },
       },
     },
@@ -860,6 +885,7 @@ async function main() {
             'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
             'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
           ],
+          coverPhoto: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
           roomFeatures: ['Full apartments', 'Modern finishes', 'Smart home tech'],
           commonAreas: ['Resort pool', 'Spa', 'Restaurant', 'Theater', 'Library'],
           medicalServices: ['Health center', 'Memory care', 'Skilled nursing'],
@@ -871,6 +897,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
         },
       },
     },
@@ -910,6 +937,7 @@ async function main() {
             'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
             'https://images.unsplash.com/photo-1581093458791-9f3c3250a740?w=800',
           ],
+          coverPhoto: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
           roomFeatures: ['Private rooms', 'WiFi', 'Cable TV'],
           commonAreas: ['Garden', 'Activity room', 'Dining room'],
           medicalServices: ['Daily nursing', 'Medication management'],
@@ -920,6 +948,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
           availableForFamilies: true,
           availableForOrganizations: true,
         },
@@ -960,6 +989,7 @@ async function main() {
             'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800',
             'https://images.unsplash.com/photo-1605684954998-685c79d6a018?w=800',
           ],
+          coverPhoto: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800',
           medicalServices: ['Dementia care', 'Parkinsons care', 'Stroke recovery'],
           languagesSpoken: ['English', 'Spanish', 'Mandarin'],
           averageRating: 4.9,
@@ -967,6 +997,7 @@ async function main() {
           claimed: true,
           verified: true,
           active: true,
+          hiringCaregivers: true,
           availableForFamilies: true,
           availableForOrganizations: true,
         },
@@ -1010,6 +1041,7 @@ async function main() {
           priceMax: 35,
           priceDescription: 'Per hour. Live-in care negotiable.',
           photos: ['https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400'],
+          coverPhoto: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
           certifications: ['CNA', 'CPR', 'First Aid', 'Dementia Care Specialist'],
           languagesSpoken: ['English', 'Spanish', 'Tagalog'],
           backgroundChecked: true,
@@ -1053,6 +1085,7 @@ async function main() {
           priceMin: 28,
           priceMax: 38,
           photos: ['https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400'],
+          coverPhoto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
           certifications: ['CNA', 'Dementia Care Specialist', 'Alzheimers Care Training'],
           languagesSpoken: ['English'],
           backgroundChecked: true,
@@ -1097,6 +1130,7 @@ async function main() {
           priceMax: 65,
           priceDescription: 'Per hour for skilled nursing services.',
           photos: ['https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400'],
+          coverPhoto: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400',
           certifications: ['RN', 'IV Certification', 'Wound Care Specialist', 'CPR'],
           languagesSpoken: ['English', 'Spanish'],
           backgroundChecked: true,
@@ -1138,6 +1172,7 @@ async function main() {
           licenseNumber: 'CA-CNA-44444',
           yearsInBusiness: 5,
           photos: ['https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400'],
+          coverPhoto: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400',
           certifications: ['CNA', 'CPR', 'First Aid'],
           languagesSpoken: ['English'],
           backgroundChecked: true,
@@ -1177,6 +1212,7 @@ async function main() {
           licenseNumber: 'CA-CNA-55555',
           yearsInBusiness: 7,
           photos: ['https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400'],
+          coverPhoto: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400',
           certifications: ['CNA', 'Dementia Care Specialist', 'Memory Care Training'],
           languagesSpoken: ['English', 'Spanish'],
           backgroundChecked: true,
@@ -1218,6 +1254,7 @@ async function main() {
           priceMin: 20,
           priceMax: 28,
           photos: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400'],
+          coverPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
           certifications: ['CPR', 'First Aid'],
           languagesSpoken: ['English'],
           backgroundChecked: true,
@@ -1670,11 +1707,79 @@ async function main() {
     ],
   });
 
+  // SavedFamilyProfile: Caregivers saving families
+  await prisma.savedFamilyProfile.createMany({
+    data: [
+      {
+        userId: caregiver1.id,
+        familyProfileId: familyProfiles.find(fp => fp.userId === family1.id)!.id,
+        notes: 'Good match for my skills, close to home',
+      },
+      {
+        userId: caregiver1.id,
+        familyProfileId: familyProfiles.find(fp => fp.userId === family3.id)!.id,
+        notes: 'Memory care specialist needed - my expertise',
+      },
+      {
+        userId: caregiver1.id,
+        familyProfileId: familyProfiles.find(fp => fp.userId === family5.id)!.id,
+        notes: 'Live-in position - currently discussing',
+      },
+    ],
+  });
+
+  // Additional hiring requests for caregiver1
+  const hiringRequest1 = await prisma.consultRequest.create({
+    data: {
+      senderId: org11.id, // Hillcrest Assisted Living
+      familyProfileId: familyProfiles[0].id,
+      providerId: providers.find(p => p.userId === caregiver1.id)!.id,
+      requestType: 'HIRING',
+      message: 'Hi Maria, we have reviewed your profile and would love to discuss a full-time caregiver position at Hillcrest. Your dementia care experience is exactly what we need. Are you available for an interview this week?',
+      status: 'ACCEPTED',
+      createdAt: new Date('2026-01-09T09:00:00Z'),
+    },
+  });
+
+  await prisma.message.createMany({
+    data: [
+      {
+        consultRequestId: hiringRequest1.id,
+        senderId: caregiver1.id,
+        content: 'Thank you for reaching out! Yes, I am very interested in this position. I would love to learn more about the role and your facility. I am available for an interview any day this week.',
+        createdAt: new Date('2026-01-09T10:00:00Z'),
+        status: 'READ',
+        readAt: new Date('2026-01-09T10:15:00Z'),
+      },
+      {
+        consultRequestId: hiringRequest1.id,
+        senderId: org11.id,
+        content: 'Wonderful! How about Thursday at 2pm? We can give you a tour of the facility and discuss the position details, benefits, and schedule options.',
+        createdAt: new Date('2026-01-09T11:00:00Z'),
+        status: 'READ',
+        readAt: new Date('2026-01-09T11:30:00Z'),
+      },
+    ],
+  });
+
+  const hiringRequest2 = await prisma.consultRequest.create({
+    data: {
+      senderId: org8.id, // CareFirst Home Services
+      familyProfileId: familyProfiles[0].id,
+      providerId: providers.find(p => p.userId === caregiver1.id)!.id,
+      requestType: 'HIRING',
+      message: 'Maria, CareFirst is expanding and looking for experienced caregivers like you to join our team. We offer flexible schedules, competitive pay, and ongoing training. Would you like to discuss opportunities with us?',
+      status: 'PENDING',
+      createdAt: new Date('2026-01-10T14:00:00Z'),
+    },
+  });
+
   console.log('✅ Created engagement data:\n');
-  console.log('   - 14 consultation/hiring requests');
-  console.log('   - 18 messages across conversations');
+  console.log('   - 16 consultation/hiring requests');
+  console.log('   - 23 messages across conversations');
   console.log('   - 1 scheduled tour');
-  console.log('   - 10 saved providers\n');
+  console.log('   - 10 saved providers');
+  console.log('   - 3 saved families\n');
 
   console.log('📊 Seed Summary:');
   console.log('   - 30 total user accounts (12 families, 12 orgs, 6 caregivers)');

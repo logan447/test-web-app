@@ -189,7 +189,8 @@ model FamilyProfile {
   profileNotes             String?
 
   // Visibility
-  isPublic      Boolean   @default(false) // Whether profile is visible to all providers
+  isPublic            Boolean   @default(false) // Whether profile is visible to all providers
+  visibleToProviders  Boolean   @default(false) // Explicit toggle - profile shows in Find Families for providers
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -352,6 +353,9 @@ model Provider {
   // Availability (for individual caregivers)
   availableForFamilies      Boolean  @default(true)   // Available for direct hire by families
   availableForOrganizations Boolean  @default(false)  // Available for hire by care organizations
+
+  // Hiring status (for organizations)
+  hiringCaregivers          Boolean  @default(false)  // Organization actively hiring caregivers
 
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt

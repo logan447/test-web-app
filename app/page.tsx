@@ -447,7 +447,7 @@ export default function Home() {
 
             {/* Results */}
             {loading ? (
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <ProviderCardSkeleton key={i} />
                 ))}
@@ -462,7 +462,7 @@ export default function Home() {
             ) : viewMode === "map" ? (
               <MapView providers={providers} />
             ) : (
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {providers.map((provider) => {
                   const requestId = requestedProviderIds.get(provider.id);
                   const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;

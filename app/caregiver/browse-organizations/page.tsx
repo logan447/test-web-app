@@ -71,11 +71,11 @@ export default function BrowseOrganizationsPage() {
 
   const fetchOrganizations = async () => {
     try {
-      // Fetch all organization-type providers (exclude independent caregivers)
-      const response = await fetch('/api/providers');
+      // Fetch organizations actively hiring caregivers
+      const response = await fetch('/api/providers?hiringCaregivers=true');
       if (response.ok) {
         const allProviders = await response.json();
-        // Filter to only include organization types
+        // Filter to only include organization types (should already be filtered by API)
         const orgs = allProviders.filter((p: Organization) =>
           p.providerType !== 'INDEPENDENT_CAREGIVER'
         );

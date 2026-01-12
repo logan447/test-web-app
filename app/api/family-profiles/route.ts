@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     const state = searchParams.get("state");
 
     const where: any = {
-      isPublic: true, // Only show public profiles in Browse Care Requests
+      visibleToProviders: true, // Only show profiles visible to providers in Find Families
     };
 
     if (city) {
