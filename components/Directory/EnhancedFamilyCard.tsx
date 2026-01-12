@@ -74,53 +74,62 @@ export default function EnhancedFamilyCard({
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden group transform hover:-translate-y-1">
       {/* Header with Location and Status */}
-      <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-4 border-b border-primary-200">
-        <div className="flex items-start justify-between">
+      <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-5 relative overflow-hidden">
+        {/* Decorative Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+        </div>
+
+        <div className="relative flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <svg
-                className="w-5 h-5 text-primary-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              <h3 className="text-lg font-bold text-gray-900">
-                {profile.city}, {profile.state}
-              </h3>
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                <svg
+                  className="w-5 h-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white leading-tight">
+                  {profile.city}, {profile.state}
+                </h3>
+                <p className="text-xs text-white/90 font-medium mt-0.5">
+                  Posted {daysSincePosted === 0 ? "today" : `${daysSincePosted} day${daysSincePosted > 1 ? "s" : ""} ago`}
+                </p>
+              </div>
             </div>
-            <p className="text-sm text-gray-600">
-              Posted {daysSincePosted === 0 ? "today" : `${daysSincePosted} day${daysSincePosted > 1 ? "s" : ""} ago`}
-            </p>
           </div>
 
           {/* Save Button */}
           <button
             onClick={() => onToggleSave(profile.id)}
-            className="p-2 rounded-full hover:bg-white/50 transition-colors"
+            className="p-2.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-all hover:scale-110"
             title={isSaved ? "Remove from saved" : "Save for later"}
           >
             {isSaved ? (
-              <svg className="w-6 h-6 text-red-500 fill-current" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-white fill-current drop-shadow-lg" viewBox="0 0 24 24">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
               </svg>
             ) : (
               <svg
-                className="w-6 h-6 text-gray-400 hover:text-red-500 transition-colors"
+                className="w-6 h-6 text-white hover:scale-110 transition-transform drop-shadow-lg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -128,7 +137,7 @@ export default function EnhancedFamilyCard({
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
@@ -140,23 +149,22 @@ export default function EnhancedFamilyCard({
       {/* Card Body */}
       <div className="p-6">
         {/* Budget and Timeline */}
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Budget</p>
-            <p className="text-xl font-bold text-primary-600">
+        <div className="flex items-center justify-between mb-5 pb-5 border-b border-gray-100">
+          <div className="flex-1">
+            <p className="text-xs text-gray-500 mb-1 font-semibold uppercase tracking-wider">Budget Range</p>
+            <p className="text-2xl font-bold text-gray-900">
               {formatBudget(profile.budgetMin, profile.budgetMax)}
             </p>
           </div>
           {profile.timeline && (
             <div>
               <span
-                className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium border ${getTimelineBadgeColor(profile.timeline)}`}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border shadow-sm ${getTimelineBadgeColor(profile.timeline)}`}
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
@@ -167,21 +175,21 @@ export default function EnhancedFamilyCard({
         </div>
 
         {/* Care Types */}
-        <div className="mb-4">
-          <p className="text-sm font-semibold text-gray-700 mb-2">Care Types Needed:</p>
+        <div className="mb-5">
+          <p className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wider flex items-center gap-2">
+            <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            Care Types Needed
+          </p>
           <div className="flex flex-wrap gap-2">
             {profile.careTypes.map((type) => (
               <span
                 key={type}
-                className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg border border-blue-200"
+                className="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 text-sm font-semibold rounded-xl border border-blue-200 shadow-sm"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 {formatCareType(type)}
               </span>
@@ -191,8 +199,8 @@ export default function EnhancedFamilyCard({
 
         {/* Description Preview */}
         {profile.description && (
-          <div className="mb-4">
-            <p className="text-sm font-semibold text-gray-700 mb-1">Additional Details:</p>
+          <div className="mb-5">
+            <p className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Additional Details</p>
             <p className="text-gray-600 text-sm line-clamp-3 leading-relaxed">
               {profile.description}
             </p>
@@ -201,9 +209,9 @@ export default function EnhancedFamilyCard({
 
         {/* Request Status Badge */}
         {hasRequest && (
-          <div className="mb-4">
-            <span className="inline-flex items-center gap-1.5 text-sm bg-green-100 text-green-800 font-medium px-3 py-1.5 rounded-lg border border-green-200">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <div className="mb-5">
+            <span className="inline-flex items-center gap-2 text-sm bg-gradient-to-r from-green-50 to-green-100 text-green-800 font-bold px-4 py-2.5 rounded-xl border border-green-200 shadow-sm">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -216,17 +224,16 @@ export default function EnhancedFamilyCard({
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 border-t border-gray-100">
+        <div className="pt-4 border-t border-gray-100">
           {hasRequest && requestId ? (
             <Link
               href={`/dashboard/requests/${requestId}`}
-              className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-green-800 font-semibold text-center transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-2.5 w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3.5 rounded-xl hover:from-green-700 hover:to-green-800 font-bold text-center transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
                   d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                 />
               </svg>
@@ -235,13 +242,12 @@ export default function EnhancedFamilyCard({
           ) : (
             <Link
               href={`/provider/requests/${profile.id}`}
-              className="flex-1 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-lg hover:from-primary-700 hover:to-primary-800 font-semibold text-center transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-2.5 w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3.5 rounded-xl hover:from-primary-700 hover:to-primary-800 font-bold text-center transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02]"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
                   d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                 />
               </svg>
