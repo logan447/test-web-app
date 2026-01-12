@@ -81,7 +81,7 @@ export default function FamilyOnboardingStep5() {
         {/* Budget section */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            What's your monthly budget?
+            What&apos;s your monthly budget?
           </h2>
           <div className="space-y-2">
             {budgetOptions.map((option) => (

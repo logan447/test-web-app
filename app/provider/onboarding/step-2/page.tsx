@@ -46,10 +46,10 @@ export default function ProviderOnboardingStep2() {
 
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            What's your business name? *
+            What&apos;s your business name? *
           </h1>
           <p className="text-gray-600">
-            Enter your organization or business name as you'd like it to appear
+            Enter your organization or business name as you&apos;d like it to appear
           </p>
         </div>
 

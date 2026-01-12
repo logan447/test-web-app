@@ -39,27 +39,27 @@ export default function FamilyOnboardingSuccess() {
             </svg>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            You're all set!
+            You&apos;re all set!
           </h1>
           <p className="text-xl text-gray-600">
             Your care profile is complete
           </p>
         </div>
 
-        {/* What's next */}
+        {/* What&apos;s next */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
           <h2 className="font-semibold text-blue-900 mb-3">What happens next?</h2>
           <ul className="space-y-2 text-sm text-blue-900">
             <li className="flex items-start gap-2">
               <span className="flex-shrink-0 mt-1">✓</span>
               <span>
-                <span className="font-semibold">Providers can now see you're looking for care</span> in your area
+                <span className="font-semibold">Providers can now see you&apos;re looking for care</span> in your area
               </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="flex-shrink-0 mt-1">✓</span>
               <span>
-                You'll appear in search results for providers offering the care types you selected
+                You&apos;ll appear in search results for providers offering the care types you selected
               </span>
             </li>
             <li className="flex items-start gap-2">

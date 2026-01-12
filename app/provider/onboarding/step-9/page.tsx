@@ -153,7 +153,7 @@ export default function ProviderOnboardingStep9() {
                     Actively hiring caregivers
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Caregivers can see you're hiring and apply to work with you
+                    Caregivers can see you&apos;re hiring and apply to work with you
                   </p>
                 </div>
                 <button

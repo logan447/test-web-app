@@ -18,7 +18,7 @@ export default function ProviderOnboardingSuccess() {
             Your profile is live!
           </h1>
           <p className="text-xl text-gray-600">
-            You're all set to connect with families
+            You&apos;re all set to connect with families
           </p>
         </div>
 

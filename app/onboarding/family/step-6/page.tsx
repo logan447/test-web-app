@@ -130,7 +130,7 @@ export default function FamilyOnboardingStep6() {
                   ✓ Make my profile visible to providers
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Qualified care providers in your area can see you're looking for care and reach out with availability. <span className="font-semibold text-green-700">Recommended</span>
+                  Qualified care providers in your area can see you&apos;re looking for care and reach out with availability. <span className="font-semibold text-green-700">Recommended</span>
                 </p>
                 <p className="text-sm text-indigo-600 mt-2">
                   ⚡ Get responses up to 10x faster
@@ -164,7 +164,7 @@ export default function FamilyOnboardingStep6() {
                   Keep my profile private
                 </h3>
                 <p className="text-sm text-gray-600">
-                  You'll browse and contact providers yourself. Providers cannot see your profile or contact you first.
+                  You&apos;ll browse and contact providers yourself. Providers cannot see your profile or contact you first.
                 </p>
               </div>
             </div>

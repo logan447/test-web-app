@@ -74,7 +74,7 @@ export default function FamilyOnboardingStep3() {
             Where are you located? *
           </h1>
           <p className="text-gray-600">
-            We'll show you providers in your area
+            We&apos;ll show you providers in your area
           </p>
         </div>
 

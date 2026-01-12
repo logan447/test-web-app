@@ -37,7 +37,7 @@ export default function FamilyOnboardingWelcome() {
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Find the best matches</h3>
-              <p className="text-gray-600">We'll show you providers that meet your specific needs</p>
+              <p className="text-gray-600">We&apos;ll show you providers that meet your specific needs</p>
             </div>
           </div>
 
@@ -69,7 +69,7 @@ export default function FamilyOnboardingWelcome() {
         {/* Privacy note */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
           <p className="text-sm text-blue-900">
-            <span className="font-semibold">100% Free for Families.</span> We'll never charge you to search for care or connect with providers.
+            <span className="font-semibold">100% Free for Families.</span> We&apos;ll never charge you to search for care or connect with providers.
           </p>
         </div>
 

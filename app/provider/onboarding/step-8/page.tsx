@@ -91,7 +91,7 @@ export default function ProviderOnboardingStep8() {
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <p className="text-sm text-blue-900">
-            <span className="font-semibold">Why is this required?</span> License verification helps families trust your services. We may verify this information to display a "Verified" badge on your profile.
+            <span className="font-semibold">Why is this required?</span> License verification helps families trust your services. We may verify this information to display a &quot;Verified&quot; badge on your profile.
           </p>
         </div>
 
