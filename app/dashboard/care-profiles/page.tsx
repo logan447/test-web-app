@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import EnhancedFamilyCard from "@/components/Directory/EnhancedFamilyCard";
 
 type FamilyProfile = {
   id: string;
@@ -31,12 +32,16 @@ export default function BrowseFamiliesPage() {
   const [loading, setLoading] = useState(true);
   const [searchCity, setSearchCity] = useState("");
   const [searchState, setSearchState] = useState("");
+  const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
+  const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated") {
       fetchProfiles();
+      fetchSavedProfiles();
+      fetchSentRequests();
     }
   }, [status]);
 
@@ -55,6 +60,76 @@ export default function BrowseFamiliesPage() {
       console.error("Error fetching profiles:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSavedProfiles = async () => {
+    try {
+      const response = await fetch('/api/saved-families');
+      if (response.ok) {
+        const savedProfiles = await response.json();
+        const ids = new Set<string>(savedProfiles.map((p: any) => p.id));
+        setSavedProfileIds(ids);
+      }
+    } catch (err) {
+      console.error('Error fetching saved profiles:', err);
+    }
+  };
+
+  const fetchSentRequests = async () => {
+    try {
+      const response = await fetch('/api/requests?type=sent');
+      if (response.ok) {
+        const requests = await response.json();
+        const profileMap = new Map<string, string>();
+        requests.forEach((req: any) => {
+          if (req.familyProfileId) {
+            profileMap.set(req.familyProfileId, req.id);
+          }
+        });
+        setRequestedProfileIds(profileMap);
+      }
+    } catch (error) {
+      console.error('Error fetching sent requests:', error);
+    }
+  };
+
+  const handleToggleSave = async (profileId: string) => {
+    const isSaved = savedProfileIds.has(profileId);
+
+    setSavedProfileIds(prev => {
+      const next = new Set(prev);
+      if (isSaved) {
+        next.delete(profileId);
+      } else {
+        next.add(profileId);
+      }
+      return next;
+    });
+
+    try {
+      if (isSaved) {
+        await fetch(`/api/saved-families?familyProfileId=${profileId}`, {
+          method: 'DELETE',
+        });
+      } else {
+        await fetch('/api/saved-families', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ familyProfileId: profileId }),
+        });
+      }
+    } catch (err) {
+      console.error('Error toggling save:', err);
+      setSavedProfileIds(prev => {
+        const next = new Set(prev);
+        if (isSaved) {
+          next.add(profileId);
+        } else {
+          next.delete(profileId);
+        }
+        return next;
+      });
     }
   };
 
@@ -166,93 +241,14 @@ export default function BrowseFamiliesPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {profiles.map((profile) => (
-              <div key={profile.id} className="bg-white rounded-lg shadow p-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {profile.user.name}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {profile.city}, {profile.state}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Posted {new Date(profile.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-
-                <div className="space-y-3 mb-4">
-                  <div>
-                    <h4 className="text-xs font-medium text-gray-500 mb-1">
-                      Care Types
-                    </h4>
-                    <div className="flex flex-wrap gap-1">
-                      {profile.careTypes.map((type) => (
-                        <span
-                          key={type}
-                          className="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs"
-                        >
-                          {type.replace(/_/g, " ")}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {(profile.budgetMin || profile.budgetMax) && (
-                    <div>
-                      <h4 className="text-xs font-medium text-gray-500 mb-1">
-                        Budget
-                      </h4>
-                      <p className="text-sm text-gray-900">
-                        ${profile.budgetMin?.toLocaleString() || "0"} - $
-                        {profile.budgetMax?.toLocaleString() || "Flexible"}
-                        /month
-                      </p>
-                    </div>
-                  )}
-
-                  {profile.timeline && (
-                    <div>
-                      <h4 className="text-xs font-medium text-gray-500 mb-1">
-                        Timeline
-                      </h4>
-                      <p className="text-sm text-gray-900">{profile.timeline}</p>
-                    </div>
-                  )}
-
-                  {profile.description && (
-                    <div>
-                      <h4 className="text-xs font-medium text-gray-500 mb-1">
-                        Description
-                      </h4>
-                      <p className="text-sm text-gray-700 line-clamp-3">
-                        {profile.description}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="border-t pt-4 space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Email:</span>
-                    <a
-                      href={`mailto:${profile.user.email}`}
-                      className="text-primary-600 hover:text-primary-700"
-                    >
-                      Contact
-                    </a>
-                  </div>
-                  {profile.user.phone && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Phone:</span>
-                      <a
-                        href={`tel:${profile.user.phone}`}
-                        className="text-primary-600 hover:text-primary-700"
-                      >
-                        {profile.user.phone}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <EnhancedFamilyCard
+                key={profile.id}
+                profile={profile}
+                isSaved={savedProfileIds.has(profile.id)}
+                hasRequest={requestedProfileIds.has(profile.id)}
+                requestId={requestedProfileIds.get(profile.id)}
+                onToggleSave={handleToggleSave}
+              />
             ))}
           </div>
         )}
