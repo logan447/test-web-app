@@ -83,6 +83,13 @@ model User {
   // Real-time presence
   lastSeen      DateTime? // Last activity timestamp for online/offline status
 
+  // Onboarding tracking (Sprint 0)
+  familyOnboardingComplete   Boolean   @default(false)
+  providerOnboardingComplete Boolean   @default(false)
+  onboardingSkippedAt        DateTime?
+  familyProfileCompletedAt   DateTime?
+  providerProfileCompletedAt DateTime?
+
   // Relationships
   familyProfile        FamilyProfile?
   provider             Provider?
@@ -92,6 +99,7 @@ model User {
   subscription         Subscription?
   contactViews         ContactView[]
   reviews              Review[]
+  claimAttempts        ClaimAttempt[]
 }
 
 model ProviderIdentity {
@@ -119,6 +127,11 @@ model FamilyProfile {
   userId        String    @unique
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Onboarding fields (Sprint 0)
+  whoNeedsCare  String?   // "Myself", "Parent", "Spouse", "Other" - optional
+  careType      String[]  @default([]) // ["Memory care", "Assisted living", etc.] - required for matching
+  careNeeds     String[]  @default([]) // ["Alzheimer's", "Mobility issues", etc.] - required for matching
+
   // About loved one (Sprint 2)
   profilePhoto    String?
   lovedOneName    String?
@@ -143,7 +156,7 @@ model FamilyProfile {
   languagePreferences     String[]   @default([])
   petPreferences          String?
 
-  // Care needs
+  // Care needs (legacy - kept for backwards compatibility)
   careTypes     CareType[]
   location      String
   city          String
@@ -188,9 +201,9 @@ model FamilyProfile {
   hideFromSearch           Boolean    @default(false)
   profileNotes             String?
 
-  // Visibility
-  isPublic            Boolean   @default(false) // Whether profile is visible to all providers
-  visibleToProviders  Boolean   @default(false) // Explicit toggle - profile shows in Find Families for providers
+  // Visibility (Sprint 0: defaults to ON - opt-out model)
+  isPublic            Boolean   @default(true) // Whether profile is visible to all providers
+  visibleToProviders  Boolean   @default(true) // Explicit toggle - profile shows in Find Families for providers
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -208,7 +221,7 @@ model Provider {
   user            User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Basic info
-  name            String
+  name            String  // Business/Organization name (required for onboarding)
   providerType    ProviderType
   description     String?
 
@@ -218,7 +231,8 @@ model Provider {
   website         String?
 
   // Location
-  address         String
+  address         String  // Full street address (legacy)
+  street          String? // Street address (Sprint 0 onboarding)
   city            String
   state           String
   zipCode         String
@@ -229,7 +243,8 @@ model Provider {
 
   // Details
   licensed        Boolean        @default(false)
-  licenseNumber   String?
+  licenseNumber   String?  // License/certification number (required for Sprint 0)
+  licenseState    String?  // State where license was issued (Sprint 0)
   yearsInBusiness Int?
   capacity        Int?
 
@@ -272,6 +287,7 @@ model Provider {
   // Photos
   photos          String[]       // Array of photo URLs
   coverPhoto      String?        // Main hero image URL
+  primaryPhoto    String?        // Primary photo (required for Sprint 0 onboarding)
 
   // Reviews & Ratings
   averageRating   Float?         // Average rating from all reviews (1-5)
@@ -347,15 +363,20 @@ model Provider {
 
   // Status
   claimed         Boolean        @default(false)
+  claimedAt       DateTime?      // When profile was claimed (Sprint 0)
+  claimedBy       String?        // User ID who claimed this profile (Sprint 0)
+  seededFrom      String?        // Source of seeded data (e.g., "public_data", "web_scraping") (Sprint 0)
+  verificationMethod String?     // "phone", "email", "document" (Sprint 0)
+  verificationStatus String?     // "pending", "verified", "rejected" (Sprint 0)
   verified        Boolean        @default(false)
   active          Boolean        @default(true)
 
-  // Availability (for individual caregivers)
+  // Availability (for individual caregivers) - Sprint 0: defaults to ON (opt-out)
   availableForFamilies      Boolean  @default(true)   // Available for direct hire by families
-  availableForOrganizations Boolean  @default(false)  // Available for hire by care organizations
+  availableForOrganizations Boolean  @default(true)   // Available for hire by care organizations (for caregivers)
 
-  // Hiring status (for organizations)
-  hiringCaregivers          Boolean  @default(false)  // Organization actively hiring caregivers
+  // Hiring status (for organizations) - Sprint 0: defaults to ON (opt-out)
+  hiringCaregivers          Boolean  @default(true)   // Organization actively hiring caregivers
 
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -364,6 +385,7 @@ model Provider {
   savedBy         SavedProvider[]
   consultRequests ConsultRequest[]
   reviews         Review[]
+  claimAttempts   ClaimAttempt[]
 
   @@index([city, state])
   @@index([providerType])
@@ -548,4 +570,22 @@ model Review {
   @@index([providerId])
   @@index([userId])
   @@unique([providerId, userId]) // One review per user per provider
+}
+
+model ClaimAttempt {
+  id                String    @id @default(cuid())
+  providerProfileId String
+  userId            String
+  attemptedAt       DateTime  @default(now())
+  ipAddress         String
+  verificationMethod String   // "phone", "email", "document"
+  status            String    // "pending", "verified", "rejected", "fraud"
+
+  // Relationships
+  provider          Provider  @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([providerProfileId])
+  @@index([userId])
+  @@index([status])
 }
