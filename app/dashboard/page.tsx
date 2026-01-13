@@ -39,6 +39,8 @@ function DashboardPageContent() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
+  const [matches, setMatches] = useState<any[]>([]);
+  const [matchesLoading, setMatchesLoading] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -51,6 +53,7 @@ function DashboardPageContent() {
     // Middleware handles mode-based access control
     // Fetch dashboard data
     fetchDashboardData();
+    fetchMatches();
   }, [session, status, router]);
 
   const fetchDashboardData = async () => {
@@ -74,6 +77,64 @@ function DashboardPageContent() {
       console.error("Failed to fetch dashboard data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMatches = async () => {
+    if (!session) return;
+
+    try {
+      setMatchesLoading(true);
+      const isFamily = session.user.activeMode !== 'PROVIDER';
+
+      if (isFamily) {
+        // Fetch user's family profile to get city and care types
+        const profileRes = await fetch('/api/family-profiles/me');
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          if (profile && profile.city && profile.careType) {
+            // Search for matching providers
+            const matchesRes = await fetch('/api/matching/search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                city: profile.city,
+                careTypes: profile.careType,
+                userType: 'family'
+              }),
+            });
+            if (matchesRes.ok) {
+              const data = await matchesRes.json();
+              setMatches(data.matches || []);
+            }
+          }
+        }
+      } else {
+        // Fetch provider profile to get city and care types
+        const profileRes = await fetch('/api/providers/me');
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          if (profile && profile.city && profile.careTypesOffered) {
+            // Search for matching families
+            const matchesRes = await fetch('/api/matching/families', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                city: profile.city,
+                careTypes: profile.careTypesOffered,
+              }),
+            });
+            if (matchesRes.ok) {
+              const data = await matchesRes.json();
+              setMatches(data.matches || []);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch matches:', error);
+    } finally {
+      setMatchesLoading(false);
     }
   };
 
@@ -245,6 +306,81 @@ function DashboardPageContent() {
         <div className="mb-8">
           <ProfileCompletionWidget />
         </div>
+
+        {/* Verify Your Matches Section */}
+        {!matchesLoading && matches.length > 0 && (
+          <div className="mb-8 bg-gradient-to-r from-primary-50 to-blue-50 border-2 border-primary-200 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Verify Your Matches
+                </h2>
+                <p className="text-gray-600 mt-1">
+                  {isFamily
+                    ? `We found ${matches.length} provider${matches.length > 1 ? 's' : ''} that match your needs`
+                    : `We found ${matches.length} famil${matches.length > 1 ? 'ies' : 'y'} looking for your services`
+                  }
+                </p>
+              </div>
+              <Link
+                href={isFamily ? "/" : "/provider/requests"}
+                className="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+              >
+                View All Matches
+              </Link>
+            </div>
+
+            {/* Match Preview Cards */}
+            <div className="grid md:grid-cols-3 gap-4">
+              {matches.slice(0, 3).map((match) => (
+                <Link
+                  key={match.id}
+                  href={isFamily ? `/providers/${match.id}` : `/provider/requests`}
+                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow border border-gray-200"
+                >
+                  {isFamily ? (
+                    <>
+                      <h3 className="font-semibold text-gray-900 mb-1">{match.name}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{match.providerType}</p>
+                      <p className="text-sm text-gray-500">{match.city}, {match.state}</p>
+                      {match.averageRating && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          <span className="text-sm font-medium">{match.averageRating.toFixed(1)}</span>
+                          <span className="text-xs text-gray-500">({match.reviewCount})</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="font-semibold text-gray-900 mb-1">Care Request</h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {match.careType && match.careType[0]}
+                      </p>
+                      <p className="text-sm text-gray-500">{match.city}, {match.state}</p>
+                      {match.budgetMax && (
+                        <p className="text-sm font-medium text-primary-600 mt-2">
+                          Budget: ${match.budgetMin || 0} - ${match.budgetMax}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </Link>
+              ))}
+            </div>
+
+            {matches.length > 3 && (
+              <p className="text-center text-sm text-gray-600 mt-4">
+                + {matches.length - 3} more match{matches.length - 3 > 1 ? 'es' : ''}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
