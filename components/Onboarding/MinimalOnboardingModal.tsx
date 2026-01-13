@@ -156,6 +156,8 @@ export default function MinimalOnboardingModal({
       if (modeResponse.ok) {
         // Refresh session to reflect mode change
         await updateSession();
+        // Force router to refresh server-side data
+        router.refresh();
       }
 
       // Claim the profile
@@ -172,8 +174,8 @@ export default function MinimalOnboardingModal({
 
       onComplete();
 
-      // Small delay to ensure session update completes
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Longer delay to ensure session and router refresh complete before routing
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       router.push('/dashboard/care-profiles'); // Route to Find Families browse page
     } catch (err) {
@@ -200,9 +202,12 @@ export default function MinimalOnboardingModal({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'FAMILY' }),
         });
-        if (modeResponse.ok) await updateSession();
+        if (modeResponse.ok) {
+          await updateSession();
+          router.refresh();
+        }
         onComplete();
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 200));
         router.push('/providers'); // Route to Find Providers browse page
         return;
       }
@@ -214,9 +219,12 @@ export default function MinimalOnboardingModal({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'FAMILY' }),
         });
-        if (modeResponse.ok) await updateSession();
+        if (modeResponse.ok) {
+          await updateSession();
+          router.refresh();
+        }
         onComplete();
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 200));
         router.push('/providers'); // Route to Find Providers browse page
         return;
       }
@@ -228,9 +236,12 @@ export default function MinimalOnboardingModal({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'PROVIDER' }),
         });
-        if (modeResponse.ok) await updateSession();
+        if (modeResponse.ok) {
+          await updateSession();
+          router.refresh();
+        }
         onComplete();
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 200));
         router.push('/dashboard/care-profiles'); // Route to Find Families browse page
         return;
       }
@@ -256,6 +267,8 @@ export default function MinimalOnboardingModal({
       if (modeResponse.ok) {
         // Refresh session to reflect mode change
         await updateSession();
+        // Force router to refresh server-side data
+        router.refresh();
       }
 
       // Create minimal family profile
@@ -278,8 +291,8 @@ export default function MinimalOnboardingModal({
 
       onComplete();
 
-      // Small delay to ensure session update completes
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Longer delay to ensure session and router refresh complete before routing
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       router.push('/providers'); // Route to Find Providers browse page
     } catch (err) {
@@ -307,6 +320,8 @@ export default function MinimalOnboardingModal({
       if (modeResponse.ok) {
         // CRITICAL: Refresh session to reflect mode change
         await updateSession();
+        // Force router to refresh server-side data
+        router.refresh();
       }
 
       // Create minimal provider profile
@@ -334,8 +349,8 @@ export default function MinimalOnboardingModal({
 
       onComplete();
 
-      // Small delay to ensure session update completes before routing
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Longer delay to ensure session and router refresh complete before routing
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       router.push('/dashboard/care-profiles'); // Route to Find Families browse page
     } catch (err) {
