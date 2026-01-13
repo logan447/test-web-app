@@ -581,7 +581,27 @@ model ClaimAttempt {
   attemptedAt       DateTime  @default(now())
   ipAddress         String
   verificationMethod String   // "phone", "email", "document"
-  status            String    // "pending", "verified", "rejected", "fraud"
+  status            String    // "pending", "approved", "rejected", "fraud"
+
+  // Verification signals (JSON-stored)
+  verificationScore Int?      // 0-100 overall score
+  signals           String?   @db.Text // JSON string of all signals
+  autoApproved      Boolean   @default(false)
+
+  // Admin review
+  reviewedBy        String?   // Admin user ID who reviewed
+  reviewedAt        DateTime?
+  reviewNotes       String?   @db.Text // Internal admin notes
+
+  // User context
+  userEmail         String
+  userName          String
+  userAccountAge    Int?      // Days since account creation
+
+  // Provider context
+  providerName      String
+  providerEmail     String
+  providerWebsite   String?
 
   // Relationships
   provider          Provider  @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
@@ -590,6 +610,8 @@ model ClaimAttempt {
   @@index([providerProfileId])
   @@index([userId])
   @@index([status])
+  @@index([autoApproved])
+  @@index([attemptedAt])
 }
 
 model ProviderVerificationToken {

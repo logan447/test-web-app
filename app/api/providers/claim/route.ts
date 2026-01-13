@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createProviderVerificationToken, sendProviderVerificationEmail } from '@/lib/verification';
+import { calculateVerificationSignals } from '@/lib/verification-signals';
 
 /**
  * POST /api/providers/claim
@@ -65,9 +66,53 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Calculate verification signals for automatic approval logic
+    const verificationSignals = await calculateVerificationSignals(
+      session.user.email!,
+      session.user.name,
+      providerId,
+      session.user.id
+    );
+
+    // Get user account age for ClaimAttempt
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { createdAt: true },
+    });
+
+    const accountAgeInDays = user
+      ? Math.floor((Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24))
+      : 0;
+
+    // Get client IP address
+    const ipAddress = req.headers.get('x-forwarded-for') ||
+      req.headers.get('x-real-ip') ||
+      'unknown';
+
     // CRITICAL: Use transaction to ensure all operations succeed or fail together
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Claim the provider profile
+      // 1. Create ClaimAttempt record with verification signals
+      const claimAttempt = await tx.claimAttempt.create({
+        data: {
+          providerProfileId: providerId,
+          userId: session.user.id,
+          ipAddress,
+          verificationMethod: 'email',
+          status: verificationSignals.autoApprove ? 'approved' : 'pending',
+          verificationScore: verificationSignals.overallScore,
+          signals: JSON.stringify(verificationSignals),
+          autoApproved: verificationSignals.autoApprove,
+          userEmail: session.user.email!,
+          userName: session.user.name,
+          userAccountAge: accountAgeInDays,
+          providerName: provider.name,
+          providerEmail: provider.email,
+          providerWebsite: provider.website,
+        },
+      });
+
+      // 2. Claim the provider profile
+      // If auto-approved, set status to 'verified', otherwise 'pending'
       const claimedProvider = await tx.provider.update({
         where: { id: providerId },
         data: {
@@ -75,11 +120,12 @@ export async function POST(req: NextRequest) {
           claimed: true,
           claimedAt: new Date(),
           claimedBy: session.user.id,
-          verificationStatus: 'pending',
+          verificationStatus: verificationSignals.autoApprove ? 'verified' : 'pending',
+          verified: verificationSignals.autoApprove,
         },
       });
 
-      // 2. Update user onboarding status
+      // 3. Update user onboarding status
       await tx.user.update({
         where: { id: session.user.id },
         data: {
@@ -89,7 +135,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // 3. Create or update ProviderIdentity
+      // 4. Create or update ProviderIdentity
       await tx.providerIdentity.upsert({
         where: { userId: session.user.id },
         create: {
@@ -107,29 +153,35 @@ export async function POST(req: NextRequest) {
       return claimedProvider;
     });
 
-    // Create verification token and send email
-    try {
-      const verificationToken = await createProviderVerificationToken(
-        providerId,
-        session.user.id,
-        provider.email
-      );
+    // If NOT auto-approved, create verification token and send email
+    if (!verificationSignals.autoApprove) {
+      try {
+        const verificationToken = await createProviderVerificationToken(
+          providerId,
+          session.user.id,
+          provider.email
+        );
 
-      await sendProviderVerificationEmail(
-        provider.email,
-        verificationToken.token,
-        provider.name
-      );
-    } catch (emailError) {
-      // Log error but don't fail the claim - verification can be resent later
-      console.error('Failed to send verification email:', emailError);
+        await sendProviderVerificationEmail(
+          provider.email,
+          verificationToken.token,
+          provider.name
+        );
+      } catch (emailError) {
+        // Log error but don't fail the claim - verification can be resent later
+        console.error('Failed to send verification email:', emailError);
+      }
     }
 
     return NextResponse.json({
       success: true,
       providerId: result.id,
-      message: 'Provider profile claimed successfully. Verification email sent.',
-      pendingVerification: true,
+      message: verificationSignals.autoApprove
+        ? 'Provider profile claimed and verified automatically!'
+        : 'Provider profile claimed successfully. Awaiting admin review.',
+      autoApproved: verificationSignals.autoApprove,
+      pendingVerification: !verificationSignals.autoApprove,
+      verificationScore: verificationSignals.overallScore,
     });
   } catch (error) {
     console.error('Error claiming provider:', error);

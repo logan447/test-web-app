@@ -39,6 +39,7 @@ export default function MinimalOnboardingModal({
   const [unclaimedProfiles, setUnclaimedProfiles] = useState<any[]>([]);
   const [searchingClaims, setSearchingClaims] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState(false);
+  const [claimAutoApproved, setClaimAutoApproved] = useState(false);
 
   if (!isOpen) return null;
 
@@ -166,9 +167,10 @@ export default function MinimalOnboardingModal({
         body: JSON.stringify({ providerId }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to claim profile');
+        throw new Error(data.error || 'Failed to claim profile');
       }
 
       // SUCCESS: Show success message and hide claim results
@@ -176,12 +178,13 @@ export default function MinimalOnboardingModal({
       setShowClaimResults(false);
       setUnclaimedProfiles([]);
       setClaimSuccess(true); // Show success UI
+      setClaimAutoApproved(data.autoApproved || false);
 
       // Clear any previous errors
       setError('');
 
       // User can now continue with the form or exit naturally
-      // Verification email has been sent (handled by backend)
+      // Verification email/admin review depending on auto-approval
     } catch (err) {
       console.error('Error claiming profile:', err);
       setError(err instanceof Error ? err.message : 'Failed to claim profile. Please try again.');
@@ -652,21 +655,34 @@ export default function MinimalOnboardingModal({
 
                     {/* Claim Success Message */}
                     {claimSuccess && (
-                      <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                      <div className={`p-4 ${claimAutoApproved ? 'bg-green-50 border-2 border-green-200' : 'bg-blue-50 border-2 border-blue-200'} rounded-lg`}>
                         <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className={`w-6 h-6 ${claimAutoApproved ? 'text-green-600' : 'text-blue-600'} flex-shrink-0 mt-0.5`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <div className="flex-1">
-                            <h3 className="font-semibold text-green-900 mb-1">
-                              Profile Claimed Successfully!
+                            <h3 className={`font-semibold ${claimAutoApproved ? 'text-green-900' : 'text-blue-900'} mb-1`}>
+                              {claimAutoApproved ? 'Profile Claimed & Verified!' : 'Profile Claim Submitted!'}
                             </h3>
-                            <p className="text-sm text-green-800 mb-2">
-                              We&apos;ve sent a verification email to confirm your ownership of this profile. Please check your inbox and click the verification link to unlock full access.
-                            </p>
-                            <p className="text-xs text-green-700">
-                              You can continue setting up your account below or exit and complete verification later.
-                            </p>
+                            {claimAutoApproved ? (
+                              <>
+                                <p className="text-sm text-green-800 mb-2">
+                                  Your claim has been automatically verified! You now have full access to edit your profile and view leads.
+                                </p>
+                                <p className="text-xs text-green-700">
+                                  You can continue setting up your account below or close this modal to get started.
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p className="text-sm text-blue-800 mb-2">
+                                  Your claim is pending admin review. Our team will review your request within 24 hours. You&apos;ll receive an email when your claim is approved.
+                                </p>
+                                <p className="text-xs text-blue-700">
+                                  You can continue setting up your account below. Full access will be unlocked after approval.
+                                </p>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
