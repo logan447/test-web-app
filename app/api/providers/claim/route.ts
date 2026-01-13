@@ -30,6 +30,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // CRITICAL: Check if user already has a claimed provider profile
+    const existingProvider = await prisma.provider.findFirst({
+      where: {
+        userId: session.user.id,
+        claimed: true,
+      },
+    });
+
+    if (existingProvider) {
+      return NextResponse.json(
+        { error: 'You already have a claimed provider profile. Please contact support if you need to claim a different profile.' },
+        { status: 400 }
+      );
+    }
+
     // Check if provider exists and is unclaimed
     const provider = await prisma.provider.findUnique({
       where: { id: providerId },
@@ -44,51 +59,56 @@ export async function POST(req: NextRequest) {
 
     if (provider.claimed) {
       return NextResponse.json(
-        { error: 'Provider profile is already claimed' },
+        { error: 'This provider profile has already been claimed by another user' },
         { status: 400 }
       );
     }
 
-    // Claim the provider profile
-    const claimedProvider = await prisma.provider.update({
-      where: { id: providerId },
-      data: {
-        userId: session.user.id,
-        claimed: true,
-        claimedAt: new Date(),
-        claimedBy: session.user.id,
-        verificationStatus: 'pending',
-      },
-    });
+    // CRITICAL: Use transaction to ensure all operations succeed or fail together
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Claim the provider profile
+      const claimedProvider = await tx.provider.update({
+        where: { id: providerId },
+        data: {
+          userId: session.user.id,
+          claimed: true,
+          claimedAt: new Date(),
+          claimedBy: session.user.id,
+          verificationStatus: 'pending',
+        },
+      });
 
-    // Update user onboarding status
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        providerOnboardingComplete: true,
-        providerProfileCompletedAt: new Date(),
-        activeMode: 'PROVIDER',
-      },
-    });
+      // 2. Update user onboarding status
+      await tx.user.update({
+        where: { id: session.user.id },
+        data: {
+          providerOnboardingComplete: true,
+          providerProfileCompletedAt: new Date(),
+          activeMode: 'PROVIDER',
+        },
+      });
 
-    // Create ProviderIdentity if it doesn't exist
-    await prisma.providerIdentity.upsert({
-      where: { userId: session.user.id },
-      create: {
-        userId: session.user.id,
-        providerId: providerId,
-        type: provider.providerType === 'INDEPENDENT_CAREGIVER' ? 'INDIVIDUAL' : 'ORGANIZATION',
-        onboardingComplete: true,
-      },
-      update: {
-        providerId: providerId,
-        onboardingComplete: true,
-      },
+      // 3. Create or update ProviderIdentity
+      await tx.providerIdentity.upsert({
+        where: { userId: session.user.id },
+        create: {
+          userId: session.user.id,
+          providerId: providerId,
+          type: provider.providerType === 'INDEPENDENT_CAREGIVER' ? 'INDIVIDUAL' : 'ORGANIZATION',
+          onboardingComplete: true,
+        },
+        update: {
+          providerId: providerId,
+          onboardingComplete: true,
+        },
+      });
+
+      return claimedProvider;
     });
 
     return NextResponse.json({
       success: true,
-      providerId: claimedProvider.id,
+      providerId: result.id,
       message: 'Provider profile claimed successfully',
     });
   } catch (error) {

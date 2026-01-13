@@ -20,21 +20,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Trim and validate inputs
+    const trimmedName = name.trim();
+    const trimmedCity = city.trim();
+
+    if (trimmedName.length < 2) {
+      return NextResponse.json(
+        { error: 'Name must be at least 2 characters' },
+        { status: 400 }
+      );
+    }
+
+    if (trimmedCity.length < 2) {
+      return NextResponse.json(
+        { error: 'City must be at least 2 characters' },
+        { status: 400 }
+      );
+    }
+
     // Search for unclaimed providers with similar name in the same city
     const unclaimedProviders = await prisma.provider.findMany({
       where: {
         // Not claimed yet
         claimed: false,
 
-        // City match (case-insensitive)
+        // City match (case-insensitive, using trimmed value)
         city: {
-          equals: city,
+          equals: trimmedCity,
           mode: 'insensitive',
         },
 
-        // Name similarity search (case-insensitive contains)
+        // Name similarity search (case-insensitive contains, using trimmed value)
         name: {
-          contains: name,
+          contains: trimmedName,
           mode: 'insensitive',
         },
 
