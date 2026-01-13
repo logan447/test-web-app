@@ -54,11 +54,11 @@ export default function IncompleteProfileBanner({ dismissible = true }: Incomple
 
   const handleCompleteProfile = () => {
     if (profileStatus?.profileType === 'family') {
-      // Redirect to dashboard with query parameter to open profile modal
-      router.push('/dashboard?openProfile=true');
+      // Redirect to care profile page
+      router.push('/dashboard/care-profile');
     } else {
-      // For providers, redirect to dashboard with query parameter
-      router.push('/provider/dashboard?openProfile=true');
+      // For providers, redirect to provider profile page
+      router.push('/dashboard/provider-profile');
     }
   };
 

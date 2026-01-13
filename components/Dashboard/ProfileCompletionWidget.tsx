@@ -55,7 +55,7 @@ export default function ProfileCompletionWidget() {
   }
 
   const isProvider = data.mode === "PROVIDER";
-  const profileUrl = isProvider ? "/provider/dashboard?openProfile=true" : "/dashboard?openProfile=true";
+  const profileUrl = isProvider ? "/dashboard/provider-profile" : "/dashboard/care-profile";
 
   const getProgressColor = () => {
     if (data.completionPercentage >= 80) return "bg-green-500";

@@ -53,8 +53,8 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirect to dashboard - OnboardingManager will auto-open modal
-      router.push("/dashboard");
+      // Redirect to welcome page to choose mode and complete onboarding
+      router.push("/welcome");
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
