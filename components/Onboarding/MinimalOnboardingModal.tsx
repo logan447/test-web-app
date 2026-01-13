@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 interface MinimalOnboardingModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export default function MinimalOnboardingModal({
   onComplete,
 }: MinimalOnboardingModalProps) {
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
   const [providerType, setProviderType] = useState<ProviderType>(null);
@@ -44,11 +46,16 @@ export default function MinimalOnboardingModal({
 
     // CRITICAL: Set mode immediately on selection for persistence
     try {
-      await fetch('/api/mode', {
+      const response = await fetch('/api/mode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: role === 'family' ? 'FAMILY' : 'PROVIDER' }),
       });
+
+      if (response.ok) {
+        // Refresh NextAuth session to reflect the mode change
+        await updateSession();
+      }
     } catch (err) {
       console.error('Error setting mode:', err);
       // Continue anyway - user can still proceed
@@ -123,9 +130,8 @@ export default function MinimalOnboardingModal({
       if (response.ok) {
         const data = await response.json();
         setUnclaimedProfiles(data.profiles || []);
-        if (data.profiles && data.profiles.length > 0) {
-          setShowClaimResults(true);
-        }
+        // ALWAYS show results section, even if empty (to display empty state)
+        setShowClaimResults(true);
       }
     } catch (err) {
       console.error('Error searching unclaimed profiles:', err);
