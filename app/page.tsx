@@ -64,7 +64,10 @@ export default function Home() {
   const router = useRouter();
   const { data: session } = useSession();
   const [providers, setProviders] = useState<Provider[]>([]);
+  const [matchedProviders, setMatchedProviders] = useState<Provider[]>([]);
+  const [hasProfile, setHasProfile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [matchesLoading, setMatchesLoading] = useState(true);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("");
@@ -92,6 +95,9 @@ export default function Home() {
     fetchProviders();
     if (session) {
       fetchSentRequests();
+      fetchMatches();
+    } else {
+      setMatchesLoading(false);
     }
   }, [session]);
 
@@ -155,6 +161,41 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error fetching sent requests:', error);
+    }
+  };
+
+  const fetchMatches = async () => {
+    setMatchesLoading(true);
+    try {
+      // First, get the family's care profile
+      const profileResponse = await fetch('/api/care-profiles');
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        if (profileData.profile && profileData.profile.careType && profileData.profile.careType.length > 0) {
+          setHasProfile(true);
+
+          // Fetch matched providers
+          const matchResponse = await fetch('/api/matching/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              city: profileData.profile.city,
+              careTypes: profileData.profile.careType,
+            }),
+          });
+
+          if (matchResponse.ok) {
+            const matchData = await matchResponse.json();
+            setMatchedProviders(matchData.matches || []);
+          }
+        } else {
+          setHasProfile(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching matches:', error);
+    } finally {
+      setMatchesLoading(false);
     }
   };
 
@@ -445,6 +486,61 @@ export default function Home() {
               onClearAll={handleClearAllFilters}
             />
 
+            {/* Your Matches Section */}
+            {session && hasProfile && !matchesLoading && matchedProviders.length > 0 && (
+              <div className="mb-8">
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 mb-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <h2 className="text-xl font-bold text-indigo-900">
+                      Your Matches ({matchedProviders.length})
+                    </h2>
+                  </div>
+                  <p className="text-sm text-indigo-800">
+                    These providers match your care needs and are located in your area
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {matchedProviders.slice(0, 6).map((provider) => {
+                    const requestId = requestedProviderIds.get(provider.id);
+                    const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
+
+                    return (
+                      <EnhancedProviderCard
+                        key={provider.id}
+                        provider={provider}
+                        linkHref={linkHref}
+                        hasRequestSent={!!requestId}
+                      />
+                    );
+                  })}
+                </div>
+
+                {matchedProviders.length > 6 && (
+                  <div className="text-center mb-8">
+                    <button
+                      onClick={() => {
+                        // Show all matches by scrolling to the "All Providers" section
+                        window.scrollTo({ top: document.getElementById('all-providers')?.offsetTop || 0, behavior: 'smooth' });
+                      }}
+                      className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                    >
+                      View all {matchedProviders.length} matches →
+                    </button>
+                  </div>
+                )}
+
+                <div className="border-t-2 border-gray-200 my-8"></div>
+
+                <h2 className="text-xl font-bold text-gray-900 mb-4" id="all-providers">
+                  All Providers
+                </h2>
+              </div>
+            )}
+
             {/* Results */}
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -463,19 +559,27 @@ export default function Home() {
               <MapView providers={providers} />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {providers.map((provider) => {
-                  const requestId = requestedProviderIds.get(provider.id);
-                  const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
+                {providers
+                  .filter(p => {
+                    // Filter out matched providers to avoid duplicates
+                    if (session && hasProfile && matchedProviders.length > 0) {
+                      return !matchedProviders.some(mp => mp.id === p.id);
+                    }
+                    return true;
+                  })
+                  .map((provider) => {
+                    const requestId = requestedProviderIds.get(provider.id);
+                    const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
 
-                  return (
-                    <EnhancedProviderCard
-                      key={provider.id}
-                      provider={provider}
-                      linkHref={linkHref}
-                      hasRequestSent={!!requestId}
-                    />
-                  );
-                })}
+                    return (
+                      <EnhancedProviderCard
+                        key={provider.id}
+                        provider={provider}
+                        linkHref={linkHref}
+                        hasRequestSent={!!requestId}
+                      />
+                    );
+                  })}
               </div>
             )}
           </div>
