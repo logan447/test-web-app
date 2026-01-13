@@ -34,7 +34,10 @@ function ProviderRequestsContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
+  const [matchedFamilies, setMatchedFamilies] = useState<FamilyProfile[]>([]);
+  const [hasProviderProfile, setHasProviderProfile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [matchesLoading, setMatchesLoading] = useState(true);
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
   const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
   const [paywallOpen, setPaywallOpen] = useState(false);
@@ -63,6 +66,7 @@ function ProviderRequestsContent() {
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
+    fetchMatches();
   }, [session, status, router]);
 
   const fetchProfiles = async () => {
@@ -144,6 +148,59 @@ function ProviderRequestsContent() {
       setRequestedProfileIds(profileMap);
     } catch (error) {
       console.error('Error fetching requests:', error);
+    }
+  };
+
+  const fetchMatches = async () => {
+    setMatchesLoading(true);
+    try {
+      // First, get the provider's profile
+      const profileResponse = await fetch('/api/providers/me');
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        if (profileData.provider && profileData.provider.careTypesOffered && profileData.provider.careTypesOffered.length > 0) {
+          setHasProviderProfile(true);
+
+          // Fetch matched families
+          const matchResponse = await fetch('/api/matching/families', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              city: profileData.provider.city,
+              careTypes: profileData.provider.careTypesOffered,
+            }),
+          });
+
+          if (matchResponse.ok) {
+            const matchData = await matchResponse.json();
+            // Map to FamilyProfile format
+            const mappedMatches = matchData.matches.map((family: any) => ({
+              id: family.id,
+              user: {
+                name: 'Family',
+                email: '',
+                phone: null,
+              },
+              careTypes: family.careType || [],
+              location: `${family.city}, ${family.state}`,
+              city: family.city,
+              state: family.state,
+              budgetMin: family.budgetMin,
+              budgetMax: family.budgetMax,
+              timeline: family.timeline,
+              description: family.careNeeds?.join(', ') || null,
+              createdAt: family.createdAt,
+            }));
+            setMatchedFamilies(mappedMatches || []);
+          }
+        } else {
+          setHasProviderProfile(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching matches:', error);
+    } finally {
+      setMatchesLoading(false);
     }
   };
 
@@ -341,6 +398,57 @@ function ProviderRequestsContent() {
           </div>
         </div>
 
+        {/* Your Matches Section */}
+        {hasProviderProfile && !matchesLoading && matchedFamilies.length > 0 && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 mb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <h2 className="text-xl font-bold text-indigo-900">
+                  Your Matches ({matchedFamilies.length})
+                </h2>
+              </div>
+              <p className="text-sm text-indigo-800">
+                These families match your services and are located in your area
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {matchedFamilies.slice(0, 6).map((profile) => (
+                <EnhancedFamilyCard
+                  key={profile.id}
+                  profile={profile}
+                  isSaved={savedProfileIds.has(profile.id)}
+                  hasRequest={requestedProfileIds.has(profile.id)}
+                  requestId={requestedProfileIds.get(profile.id)}
+                  onToggleSave={handleToggleSave}
+                />
+              ))}
+            </div>
+
+            {matchedFamilies.length > 6 && (
+              <div className="text-center mb-8">
+                <button
+                  onClick={() => {
+                    window.scrollTo({ top: document.getElementById('all-families')?.offsetTop || 0, behavior: 'smooth' });
+                  }}
+                  className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                >
+                  View all {matchedFamilies.length} matches →
+                </button>
+              </div>
+            )}
+
+            <div className="border-t-2 border-gray-200 my-8"></div>
+
+            <h2 className="text-xl font-bold text-gray-900 mb-4" id="all-families">
+              All Families
+            </h2>
+          </div>
+        )}
+
         {/* Results */}
         {filteredProfiles.length === 0 ? (
           <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
@@ -376,16 +484,24 @@ function ProviderRequestsContent() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProfiles.map((profile) => (
-              <EnhancedFamilyCard
-                key={profile.id}
-                profile={profile}
-                isSaved={savedProfileIds.has(profile.id)}
-                hasRequest={requestedProfileIds.has(profile.id)}
-                requestId={requestedProfileIds.get(profile.id)}
-                onToggleSave={handleToggleSave}
-              />
-            ))}
+            {filteredProfiles
+              .filter(profile => {
+                // Filter out matched families to avoid duplicates
+                if (hasProviderProfile && matchedFamilies.length > 0) {
+                  return !matchedFamilies.some(mf => mf.id === profile.id);
+                }
+                return true;
+              })
+              .map((profile) => (
+                <EnhancedFamilyCard
+                  key={profile.id}
+                  profile={profile}
+                  isSaved={savedProfileIds.has(profile.id)}
+                  hasRequest={requestedProfileIds.has(profile.id)}
+                  requestId={requestedProfileIds.get(profile.id)}
+                  onToggleSave={handleToggleSave}
+                />
+              ))}
           </div>
         )}
       </div>
