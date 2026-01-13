@@ -38,6 +38,7 @@ export default function MinimalOnboardingModal({
   const [showClaimResults, setShowClaimResults] = useState(false);
   const [unclaimedProfiles, setUnclaimedProfiles] = useState<any[]>([]);
   const [searchingClaims, setSearchingClaims] = useState(false);
+  const [claimSuccess, setClaimSuccess] = useState(false);
 
   if (!isOpen) return null;
 
@@ -146,9 +147,6 @@ export default function MinimalOnboardingModal({
     setError('');
 
     try {
-      // CRITICAL: Set dismissal cookie to prevent modal from reopening
-      document.cookie = 'onboarding-dismissed=true; path=/; max-age=31536000; SameSite=Lax';
-
       // Set user mode to PROVIDER
       const modeResponse = await fetch('/api/mode/set', {
         method: 'POST',
@@ -159,10 +157,9 @@ export default function MinimalOnboardingModal({
       if (modeResponse.ok) {
         // Refresh session to reflect mode change
         await updateSession();
-        // Force router to refresh server-side data
       }
 
-      // Claim the profile
+      // Claim the profile (sets verificationStatus to 'pending')
       const response = await fetch('/api/providers/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -174,15 +171,20 @@ export default function MinimalOnboardingModal({
         throw new Error(errorData.error || 'Failed to claim profile');
       }
 
-      onComplete();
+      // SUCCESS: Show success message and hide claim results
+      // Do NOT redirect - let user finish the modal flow naturally
+      setShowClaimResults(false);
+      setUnclaimedProfiles([]);
+      setClaimSuccess(true); // Show success UI
 
-      // Longer delay to ensure session and router refresh complete before routing
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Clear any previous errors
+      setError('');
 
-      router.push('/dashboard/care-profiles'); // Route to Find Families browse page
+      // User can now continue with the form or exit naturally
+      // Verification email has been sent (handled by backend)
     } catch (err) {
       console.error('Error claiming profile:', err);
-      setError('Failed to claim profile. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to claim profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -648,8 +650,30 @@ export default function MinimalOnboardingModal({
                       />
                     </div>
 
+                    {/* Claim Success Message */}
+                    {claimSuccess && (
+                      <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-green-900 mb-1">
+                              Profile Claimed Successfully!
+                            </h3>
+                            <p className="text-sm text-green-800 mb-2">
+                              We&apos;ve sent a verification email to confirm your ownership of this profile. Please check your inbox and click the verification link to unlock full access.
+                            </p>
+                            <p className="text-xs text-green-700">
+                              You can continue setting up your account below or exit and complete verification later.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Check for existing profiles button (Organizations only) */}
-                    {providerType === 'organization' && providerName && providerCity && !showClaimResults && (
+                    {providerType === 'organization' && providerName && providerCity && !showClaimResults && !claimSuccess && (
                       <div>
                         <button
                           onClick={searchUnclaimedProfiles}
@@ -660,7 +684,7 @@ export default function MinimalOnboardingModal({
                             <>
                               <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <path className="opacity-75" fill="currentColor" d="M4 12 a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                               Searching...
                             </>

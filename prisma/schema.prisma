@@ -97,9 +97,10 @@ model User {
   sentRequests         ConsultRequest[] @relation("RequestSender")
   savedFamilyProfiles  SavedFamilyProfile[]
   subscription         Subscription?
-  contactViews         ContactView[]
-  reviews              Review[]
-  claimAttempts        ClaimAttempt[]
+  contactViews             ContactView[]
+  reviews                  Review[]
+  claimAttempts            ClaimAttempt[]
+  providerVerificationTokens ProviderVerificationToken[]
 }
 
 model ProviderIdentity {
@@ -382,10 +383,11 @@ model Provider {
   updatedAt       DateTime       @updatedAt
 
   // Relationships
-  savedBy         SavedProvider[]
-  consultRequests ConsultRequest[]
-  reviews         Review[]
-  claimAttempts   ClaimAttempt[]
+  savedBy                  SavedProvider[]
+  consultRequests          ConsultRequest[]
+  reviews                  Review[]
+  claimAttempts            ClaimAttempt[]
+  verificationTokens       ProviderVerificationToken[]
 
   @@index([city, state])
   @@index([providerType])
@@ -588,4 +590,26 @@ model ClaimAttempt {
   @@index([providerProfileId])
   @@index([userId])
   @@index([status])
+}
+
+model ProviderVerificationToken {
+  id          String    @id @default(cuid())
+  providerId  String
+  userId      String
+  token       String    @unique // Unique verification token
+  email       String    // Email to verify
+  expiresAt   DateTime  // Token expiration (24-48 hours)
+  verified    Boolean   @default(false)
+  verifiedAt  DateTime?
+
+  createdAt   DateTime  @default(now())
+
+  // Relationships
+  provider    Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@index([userId])
+  @@index([token])
+  @@index([email])
 }

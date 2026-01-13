@@ -8,6 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
 import IncompleteProfileBanner from "@/components/Profile/IncompleteProfileBanner";
+import PendingVerificationBanner from "@/components/Provider/PendingVerificationBanner";
 import OnboardingManager from "@/components/Onboarding/OnboardingManager";
 import { useUserMode } from "@/hooks/useUserMode";
 
@@ -303,6 +304,9 @@ function DashboardPageContent() {
 
         {/* Incomplete Profile Banner */}
         <IncompleteProfileBanner dismissible={true} />
+
+        {/* Pending Verification Banner (for claimed provider profiles) */}
+        <PendingVerificationBanner />
 
         {/* Profile Completion Widget */}
         <div className="mb-8">

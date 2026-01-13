@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { createProviderVerificationToken, sendProviderVerificationEmail } from '@/lib/verification';
 
 /**
  * POST /api/providers/claim
@@ -106,10 +107,29 @@ export async function POST(req: NextRequest) {
       return claimedProvider;
     });
 
+    // Create verification token and send email
+    try {
+      const verificationToken = await createProviderVerificationToken(
+        providerId,
+        session.user.id,
+        provider.email
+      );
+
+      await sendProviderVerificationEmail(
+        provider.email,
+        verificationToken.token,
+        provider.name
+      );
+    } catch (emailError) {
+      // Log error but don't fail the claim - verification can be resent later
+      console.error('Failed to send verification email:', emailError);
+    }
+
     return NextResponse.json({
       success: true,
       providerId: result.id,
-      message: 'Provider profile claimed successfully',
+      message: 'Provider profile claimed successfully. Verification email sent.',
+      pendingVerification: true,
     });
   } catch (error) {
     console.error('Error claiming provider:', error);
