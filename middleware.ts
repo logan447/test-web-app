@@ -19,7 +19,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // User is authenticated - enforce mode-based access control
-  const activeMode = token.activeMode as string;
+  // PRIORITY: Read mode from cookie first (immediate), fall back to token (session)
+  const modeCookie = request.cookies.get('user-mode')?.value;
+  const activeMode = modeCookie || (token.activeMode as string) || 'FAMILY';
 
   // FAMILY mode users: block access to /provider/* routes
   if (activeMode === 'FAMILY' && pathname.startsWith('/provider')) {

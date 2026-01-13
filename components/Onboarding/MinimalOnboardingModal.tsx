@@ -44,17 +44,17 @@ export default function MinimalOnboardingModal({
   const handleRoleSelect = async (role: UserRole) => {
     setSelectedRole(role);
 
-    // CRITICAL: Set mode immediately on selection for persistence
+    // CRITICAL: Set mode immediately using robust cookie + database endpoint
     try {
-      const response = await fetch('/api/mode', {
+      const response = await fetch('/api/mode/set', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: role === 'family' ? 'FAMILY' : 'PROVIDER' }),
       });
 
       if (response.ok) {
-        // Refresh NextAuth session to reflect the mode change
-        await updateSession();
+        // Mode is now in cookie (immediate) and database (persistent)
+        await updateSession(); // Update session for compatibility
       }
     } catch (err) {
       console.error('Error setting mode:', err);
@@ -147,7 +147,7 @@ export default function MinimalOnboardingModal({
 
     try {
       // Set user mode to PROVIDER
-      const modeResponse = await fetch('/api/mode', {
+      const modeResponse = await fetch('/api/mode/set', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'PROVIDER' }),
@@ -157,7 +157,6 @@ export default function MinimalOnboardingModal({
         // Refresh session to reflect mode change
         await updateSession();
         // Force router to refresh server-side data
-        router.refresh();
       }
 
       // Claim the profile
@@ -175,7 +174,7 @@ export default function MinimalOnboardingModal({
       onComplete();
 
       // Longer delay to ensure session and router refresh complete before routing
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       router.push('/dashboard/care-profiles'); // Route to Find Families browse page
     } catch (err) {
@@ -197,51 +196,48 @@ export default function MinimalOnboardingModal({
     try {
       // If no role selected yet, default to FAMILY mode
       if (!selectedRole) {
-        const modeResponse = await fetch('/api/mode', {
+        const modeResponse = await fetch('/api/mode/set', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'FAMILY' }),
         });
         if (modeResponse.ok) {
           await updateSession();
-          router.refresh();
         }
         onComplete();
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
         router.push('/providers'); // Route to Find Providers browse page
         return;
       }
 
       // If family selected, set mode and route to Find Providers
       if (selectedRole === 'family') {
-        const modeResponse = await fetch('/api/mode', {
+        const modeResponse = await fetch('/api/mode/set', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'FAMILY' }),
         });
         if (modeResponse.ok) {
           await updateSession();
-          router.refresh();
         }
         onComplete();
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
         router.push('/providers'); // Route to Find Providers browse page
         return;
       }
 
       // If provider selected, set mode and route to Find Families
       if (selectedRole === 'provider') {
-        const modeResponse = await fetch('/api/mode', {
+        const modeResponse = await fetch('/api/mode/set', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'PROVIDER' }),
         });
         if (modeResponse.ok) {
           await updateSession();
-          router.refresh();
         }
         onComplete();
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
         router.push('/dashboard/care-profiles'); // Route to Find Families browse page
         return;
       }
@@ -258,7 +254,7 @@ export default function MinimalOnboardingModal({
 
     try {
       // Set user mode to FAMILY
-      const modeResponse = await fetch('/api/mode', {
+      const modeResponse = await fetch('/api/mode/set', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'FAMILY' }),
@@ -268,7 +264,6 @@ export default function MinimalOnboardingModal({
         // Refresh session to reflect mode change
         await updateSession();
         // Force router to refresh server-side data
-        router.refresh();
       }
 
       // Create minimal family profile
@@ -292,7 +287,7 @@ export default function MinimalOnboardingModal({
       onComplete();
 
       // Longer delay to ensure session and router refresh complete before routing
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       router.push('/providers'); // Route to Find Providers browse page
     } catch (err) {
@@ -311,7 +306,7 @@ export default function MinimalOnboardingModal({
 
     try {
       // Set user mode to PROVIDER
-      const modeResponse = await fetch('/api/mode', {
+      const modeResponse = await fetch('/api/mode/set', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'PROVIDER' }),
@@ -321,7 +316,6 @@ export default function MinimalOnboardingModal({
         // CRITICAL: Refresh session to reflect mode change
         await updateSession();
         // Force router to refresh server-side data
-        router.refresh();
       }
 
       // Create minimal provider profile
@@ -350,7 +344,7 @@ export default function MinimalOnboardingModal({
       onComplete();
 
       // Longer delay to ensure session and router refresh complete before routing
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       router.push('/dashboard/care-profiles'); // Route to Find Families browse page
     } catch (err) {
