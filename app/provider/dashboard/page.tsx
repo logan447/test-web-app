@@ -630,9 +630,9 @@ function ProviderDashboardPageContent() {
       {/* Provider Profile Edit Modal */}
       <ProviderOnboardingModal
         isOpen={profileModalOpen}
-        onClose={() => setProfileModalOpen(false)}
-        onComplete={() => {
-          // Refresh the dashboard data after profile completion
+        onClose={() => {
+          setProfileModalOpen(false);
+          // Refresh the dashboard data after modal closes
           fetchDashboardData();
         }}
       />
