@@ -121,15 +121,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Build create data object with only provided fields
+    // Build create data object with required fields
     const createData: any = {
       userId: session.user.id,
       providerType,
       name: finalBusinessName,
       careTypesOffered: careTypes,
       city,
+      state: state || '', // Required field - empty for minimal mode
+      zipCode: zipCode || '', // Required field - empty for minimal mode
+      phone: phone || '', // Required field - empty for minimal mode
       address: city, // Will be updated if we have more address details
       email: session.user.email || '',
+      photos: photoUrl ? [photoUrl] : [], // Required array field
       availableForFamilies: availableForFamilies ?? true,
       availableForOrganizations: availableForOrganizations ?? false,
       hiringCaregivers: isHiringCaregivers || hiringCaregivers || false,
@@ -138,16 +142,12 @@ export async function POST(req: NextRequest) {
 
     // Only add optional fields if they have values
     if (street) createData.street = street;
-    if (state) createData.state = state;
-    if (zipCode) createData.zipCode = zipCode;
     if (street && state && zipCode) {
       createData.address = `${street}, ${city}, ${state} ${zipCode}`;
     }
-    if (phone) createData.phone = phone;
     if (website) createData.website = website;
     if (photoUrl) {
       createData.primaryPhoto = photoUrl;
-      createData.photos = [photoUrl];
     }
     if (description) createData.description = description;
     if (licenseNumber) {
@@ -166,13 +166,13 @@ export async function POST(req: NextRequest) {
         careTypesOffered: careTypes,
         street: street || undefined,
         city,
-        state: state || undefined,
-        zipCode: zipCode || undefined,
-        address: street ? `${street}, ${city}, ${state} ${zipCode}` : city,
-        phone: phone || undefined,
+        state: state || '',
+        zipCode: zipCode || '',
+        address: street && state && zipCode ? `${street}, ${city}, ${state} ${zipCode}` : city,
+        phone: phone || '',
         website: website || undefined,
         primaryPhoto: photoUrl || undefined,
-        photos: photoUrl ? [photoUrl] : undefined,
+        photos: photoUrl ? [photoUrl] : [],
         description: description || undefined,
         licenseNumber: licenseNumber || undefined,
         licenseState: licenseState || undefined,

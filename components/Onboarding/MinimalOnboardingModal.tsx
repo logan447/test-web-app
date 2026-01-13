@@ -146,7 +146,7 @@ export default function MinimalOnboardingModal({
           name: providerName,
           city: providerCity,
           careTypes: selectedCareTypes,
-          providerType: providerType === 'individual' ? 'INDIVIDUAL' : 'AGENCY',
+          providerType: providerType === 'individual' ? 'INDEPENDENT_CAREGIVER' : 'HOME_CARE',
           isHiringCaregivers: providerType === 'organization' ? hiringCaregivers : false,
           minimalOnboarding: true,
         }),
