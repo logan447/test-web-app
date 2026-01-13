@@ -111,6 +111,7 @@ export default function FamilyOnboardingModal({
       await saveDraft();
       onClose();
       router.push('/dashboard');
+      router.refresh(); // Force refresh to update completion status
     } catch (error) {
       console.error('Error completing onboarding:', error);
     } finally {

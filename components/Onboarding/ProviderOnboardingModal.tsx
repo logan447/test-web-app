@@ -123,6 +123,7 @@ export default function ProviderOnboardingModal({
       await saveDraft();
       onClose();
       router.push('/provider/dashboard');
+      router.refresh(); // Force refresh to update completion status
     } catch (error) {
       console.error('Error completing onboarding:', error);
     } finally {
