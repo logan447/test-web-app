@@ -41,19 +41,16 @@ export default function SignupPage() {
         return;
       }
 
-      console.log('[SIGNUP] Account created successfully, userId:', result.userId);
-
-      // Sign in the user
-      console.log('[SIGNUP] Calling signIn with callbackUrl: /welcome?new=true');
+      // Sign in the user and redirect to dashboard
+      // OnboardingManager will handle showing the mode selection modal
       const signInResult = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: true, // Let NextAuth handle redirect
-        callbackUrl: "/welcome?new=true", // Mark as new user with query param
+        redirect: true,
+        callbackUrl: "/dashboard",
       });
 
-      // If we get here, signin failed (redirect: true means success navigates away)
-      console.log('[SIGNUP] signIn returned (should not see this if redirect worked):', signInResult);
+      // If we get here, signin failed
       if (signInResult?.error) {
         setError("Account created but login failed. Please try logging in.");
         setLoading(false);
