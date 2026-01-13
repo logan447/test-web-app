@@ -20,9 +20,15 @@ export default function WelcomePage() {
   }, [status, router]);
 
   // Check if user has already completed onboarding
+  // Add a small delay to allow new signups to see the welcome page
   useEffect(() => {
     if (status === 'authenticated') {
-      checkOnboardingStatus();
+      // Wait a moment before checking onboarding status
+      // This allows new users to see the welcome page
+      const timer = setTimeout(() => {
+        checkOnboardingStatus();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [status]);
 

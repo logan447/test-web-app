@@ -45,6 +45,7 @@ export default function SignupPage() {
         email: data.email,
         password: data.password,
         redirect: false,
+        callbackUrl: "/welcome",
       });
 
       if (signInResult?.error) {
@@ -53,8 +54,11 @@ export default function SignupPage() {
         return;
       }
 
-      // Use window.location for hard redirect to ensure it's not intercepted
-      window.location.href = "/welcome";
+      // Wait a moment for session to be established, then redirect
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Hard redirect to welcome page
+      window.location.replace("/welcome");
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);

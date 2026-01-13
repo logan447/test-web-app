@@ -151,52 +151,16 @@ export const authOptions: NextAuthOptions = {
         },
       };
     },
-    async redirect({ url, baseUrl, ...params }) {
+    async redirect({ url, baseUrl }) {
+      // Simple redirect logic - don't intercept app-level redirects
+      // Let the app handle its own routing after signin
       console.log('[NextAuth redirect] url:', url, 'baseUrl:', baseUrl);
 
-      try {
-        // Try to get the token to determine user mode
-        const req = (params as any).req;
-        if (req) {
-          const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-          console.log('[NextAuth redirect] Token activeMode:', token?.activeMode);
-
-          // Check if user has completed onboarding
-          const user = await prisma.user.findUnique({
-            where: { id: token?.id as string },
-            select: {
-              familyOnboardingComplete: true,
-              providerOnboardingComplete: true,
-              activeMode: true,
-            },
-          });
-
-          if (token?.activeMode === 'PROVIDER') {
-            // Check if provider onboarding is complete
-            if (!user?.providerOnboardingComplete) {
-              console.log('[NextAuth redirect] Provider onboarding incomplete, redirecting to /welcome');
-              return `${baseUrl}/welcome`;
-            }
-            console.log('[NextAuth redirect] Redirecting PROVIDER to /provider/requests');
-            return `${baseUrl}/provider/requests`;
-          } else if (token?.activeMode === 'FAMILY') {
-            // Check if family onboarding is complete
-            if (!user?.familyOnboardingComplete) {
-              console.log('[NextAuth redirect] Family onboarding incomplete, redirecting to /welcome');
-              return `${baseUrl}/welcome`;
-            }
-            console.log('[NextAuth redirect] Redirecting FAMILY to /');
-            return baseUrl;
-          }
-        }
-      } catch (error) {
-        console.error('[NextAuth redirect] Error getting token:', error);
-      }
-
-      // Default behavior if no token or error
-      console.log('[NextAuth redirect] Using default redirect');
-      if (url.startsWith(baseUrl)) return url;
+      // If the URL is relative, make it absolute
       if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // If the URL is already absolute and on the same origin, use it
+      if (url.startsWith(baseUrl)) return url;
+      // Otherwise, default to base URL
       return baseUrl;
     },
   },
