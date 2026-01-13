@@ -8,6 +8,7 @@ import AuthModal from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
 import { withViewTransition } from "@/lib/view-transitions";
+import { ProfileCompletionDot } from "@/components/Profile/ProfileCompletionIndicator";
 
 const MAIN_CATEGORIES = [
   {
@@ -379,8 +380,9 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
-                          <Link href={"/provider/dashboard"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            My Provider Profile
+                          <Link href={"/provider/dashboard"} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <span>My Provider Profile</span>
+                            <ProfileCompletionDot />
                           </Link>
 
                           {/* Hiring section divider */}
@@ -447,8 +449,9 @@ function MainNavContent() {
                           </span>
                         )}
                       </Link>
-                      <Link href={"/dashboard"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        My Care Profile
+                      <Link href={"/dashboard"} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <span>My Care Profile</span>
+                        <ProfileCompletionDot />
                       </Link>
                     </>
                   )}
@@ -681,8 +684,9 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
-                          <Link href={"/provider/dashboard"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            My Provider Profile
+                          <Link href={"/provider/dashboard"} className="flex items-center gap-2 px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            <span>My Provider Profile</span>
+                            <ProfileCompletionDot />
                           </Link>
 
                           {/* Hiring section divider */}
@@ -749,8 +753,9 @@ function MainNavContent() {
                           </span>
                         )}
                       </Link>
-                      <Link href={"/dashboard"} className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        My Care Profile
+                      <Link href={"/dashboard"} className="flex items-center gap-2 px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        <span>My Care Profile</span>
+                        <ProfileCompletionDot />
                       </Link>
                     </>
                   )}
