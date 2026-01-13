@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canEditProviderProfile } from "@/lib/permissions";
 
 export async function GET(
   req: Request,
@@ -42,7 +43,28 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    // Verify the provider belongs to the logged-in user
+
+    // Check if user has permission to edit (requires verification)
+    const permissionCheck = await canEditProviderProfile(session.user.id);
+
+    if (!permissionCheck.allowed) {
+      if (permissionCheck.requiresVerification) {
+        return NextResponse.json(
+          {
+            error: "Provider profile requires verification",
+            verificationStatus: permissionCheck.verificationStatus,
+            requiresVerification: true
+          },
+          { status: 403 }
+        );
+      }
+      return NextResponse.json(
+        { error: permissionCheck.reason || "Access denied" },
+        { status: 403 }
+      );
+    }
+
+    // Verify the provider belongs to the logged-in user and matches permission check
     const existingProvider = await prisma.provider.findUnique({
       where: { id },
     });
@@ -54,7 +76,7 @@ export async function PATCH(
       );
     }
 
-    if (existingProvider.userId !== session.user.id) {
+    if (existingProvider.userId !== session.user.id || existingProvider.id !== permissionCheck.providerId) {
       return NextResponse.json(
         { error: "Unauthorized to update this provider" },
         { status: 403 }

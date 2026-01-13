@@ -15,8 +15,6 @@ type VerificationStatus = {
 export default function PendingVerificationBanner() {
   const [status, setStatus] = useState<VerificationStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [resendingEmail, setResendingEmail] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     fetchVerificationStatus();
@@ -33,26 +31,6 @@ export default function PendingVerificationBanner() {
       console.error('Error fetching verification status:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleResendEmail = async () => {
-    setResendingEmail(true);
-    setEmailSent(false);
-
-    try {
-      const response = await fetch('/api/providers/resend-verification', {
-        method: 'POST',
-      });
-
-      if (response.ok) {
-        setEmailSent(true);
-        setTimeout(() => setEmailSent(false), 5000); // Hide message after 5 seconds
-      }
-    } catch (error) {
-      console.error('Error resending verification email:', error);
-    } finally {
-      setResendingEmail(false);
     }
   };
 
@@ -75,38 +53,23 @@ export default function PendingVerificationBanner() {
         </div>
         <div className="ml-3 flex-1">
           <h3 className="text-sm font-medium text-yellow-800">
-            Provider Profile Pending Verification
+            Provider Profile Pending Admin Review
           </h3>
           <div className="mt-2 text-sm text-yellow-700">
             <p className="mb-2">
-              Your claim to <span className="font-semibold">{status?.providerName}</span> is pending verification.
-              We&apos;ve sent a verification email to <span className="font-semibold">{status?.email}</span>.
+              Your claim to <span className="font-semibold">{status?.providerName}</span> is being reviewed by our team.
             </p>
             <p className="mb-3">
-              Until verified, you have limited access. You can browse but cannot:
+              Until approved, you have limited access. You can browse but cannot:
             </p>
             <ul className="list-disc list-inside space-y-1 mb-3">
               <li>Edit your provider profile</li>
               <li>View or respond to leads and inquiries</li>
               <li>Access sensitive information</li>
             </ul>
-            <p className="text-xs mb-3">
-              Please check your inbox (including spam folder) and click the verification link to unlock full access.
+            <p className="text-xs mb-3 font-medium">
+              Our team typically reviews claims within 24 hours. You&apos;ll receive an email at <span className="font-semibold">{status?.email}</span> when your claim is approved or if we need additional information.
             </p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={handleResendEmail}
-              disabled={resendingEmail}
-              className="text-sm font-medium text-yellow-800 hover:text-yellow-900 underline disabled:opacity-50"
-            >
-              {resendingEmail ? 'Sending...' : 'Resend Verification Email'}
-            </button>
-            {emailSent && (
-              <span className="text-sm text-green-700 font-medium">
-                ✓ Email sent!
-              </span>
-            )}
           </div>
         </div>
         <div className="ml-3 flex-shrink-0">
