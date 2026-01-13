@@ -161,10 +161,30 @@ export const authOptions: NextAuthOptions = {
           const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
           console.log('[NextAuth redirect] Token activeMode:', token?.activeMode);
 
+          // Check if user has completed onboarding
+          const user = await prisma.user.findUnique({
+            where: { id: token?.id as string },
+            select: {
+              familyOnboardingComplete: true,
+              providerOnboardingComplete: true,
+              activeMode: true,
+            },
+          });
+
           if (token?.activeMode === 'PROVIDER') {
+            // Check if provider onboarding is complete
+            if (!user?.providerOnboardingComplete) {
+              console.log('[NextAuth redirect] Provider onboarding incomplete, redirecting to /provider/onboarding');
+              return `${baseUrl}/provider/onboarding`;
+            }
             console.log('[NextAuth redirect] Redirecting PROVIDER to /provider/requests');
             return `${baseUrl}/provider/requests`;
           } else if (token?.activeMode === 'FAMILY') {
+            // Check if family onboarding is complete
+            if (!user?.familyOnboardingComplete) {
+              console.log('[NextAuth redirect] Family onboarding incomplete, redirecting to /onboarding/family');
+              return `${baseUrl}/onboarding/family`;
+            }
             console.log('[NextAuth redirect] Redirecting FAMILY to /');
             return baseUrl;
           }
