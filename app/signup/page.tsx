@@ -53,8 +53,8 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirect to family onboarding flow (Sprint 0)
-      router.push("/onboarding/family");
+      // Redirect to welcome page to choose mode
+      router.push("/welcome");
       router.refresh();
     } catch (error) {
       setError("Something went wrong");
