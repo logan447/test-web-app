@@ -121,32 +121,45 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Build create data object with only provided fields
+    const createData: any = {
+      userId: session.user.id,
+      providerType,
+      name: finalBusinessName,
+      careTypesOffered: careTypes,
+      city,
+      address: city, // Will be updated if we have more address details
+      email: session.user.email || '',
+      availableForFamilies: availableForFamilies ?? true,
+      availableForOrganizations: availableForOrganizations ?? false,
+      hiringCaregivers: isHiringCaregivers || hiringCaregivers || false,
+      licensed: false, // Default to false, will be set to true if license provided
+    };
+
+    // Only add optional fields if they have values
+    if (street) createData.street = street;
+    if (state) createData.state = state;
+    if (zipCode) createData.zipCode = zipCode;
+    if (street && state && zipCode) {
+      createData.address = `${street}, ${city}, ${state} ${zipCode}`;
+    }
+    if (phone) createData.phone = phone;
+    if (website) createData.website = website;
+    if (photoUrl) {
+      createData.primaryPhoto = photoUrl;
+      createData.photos = [photoUrl];
+    }
+    if (description) createData.description = description;
+    if (licenseNumber) {
+      createData.licenseNumber = licenseNumber;
+      createData.licensed = true;
+    }
+    if (licenseState) createData.licenseState = licenseState;
+
     // Create or update provider profile
     const provider = await prisma.provider.upsert({
       where: { userId: session.user.id },
-      create: {
-        userId: session.user.id,
-        providerType,
-        name: finalBusinessName,
-        careTypesOffered: careTypes,
-        street: street || '',
-        city,
-        state: state || '',
-        zipCode: zipCode || '',
-        address: street ? `${street}, ${city}, ${state} ${zipCode}` : city, // Legacy field
-        phone: phone || '',
-        website: website || '',
-        email: session.user.email || '',
-        primaryPhoto: photoUrl,
-        photos: photoUrl ? [photoUrl] : [],
-        description: description || '',
-        licenseNumber: licenseNumber || '',
-        licenseState: licenseState || '',
-        licensed: !!licenseNumber,
-        availableForFamilies: availableForFamilies ?? true,
-        availableForOrganizations: availableForOrganizations ?? false,
-        hiringCaregivers: isHiringCaregivers || hiringCaregivers || false,
-      },
+      create: createData,
       update: {
         providerType,
         name: finalBusinessName,
@@ -185,8 +198,14 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('Error completing provider onboarding:', error);
+
+    // Return more specific error message
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Failed to create provider profile',
+        details: errorMessage,
+      },
       { status: 500 }
     );
   }
