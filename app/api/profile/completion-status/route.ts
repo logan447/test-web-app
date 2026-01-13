@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
  * GET /api/profile/completion-status
  *
  * Returns the completion status of the user's profile based on their active mode.
+ * Updated for modal onboarding - only checks REQUIRED fields.
  *
  * For families, checks if they have completed required onboarding fields:
  * - careType (required)
@@ -17,11 +18,8 @@ import { prisma } from '@/lib/prisma';
  * - providerType (required)
  * - name/businessName (required)
  * - careTypesOffered (required)
- * - location: street, city, state, zipCode (required)
- * - phone + website (required)
- * - primaryPhoto (required)
- * - description (required)
- * - licenseNumber + licenseState (required)
+ * - city + state (required)
+ * - phone + email (required)
  */
 export async function GET(req: NextRequest) {
   try {
@@ -91,7 +89,7 @@ export async function GET(req: NextRequest) {
         isComplete = false;
         missingFields = ['Provider profile not created', 'All required fields'];
       } else {
-        // Required fields for provider onboarding (Sprint 0) - 8 required fields
+        // Required fields for modal onboarding - only essential fields
         if (!profile.providerType) {
           missingFields.push('providerType');
         }
@@ -101,40 +99,17 @@ export async function GET(req: NextRequest) {
         if (!profile.careTypesOffered || profile.careTypesOffered.length === 0) {
           missingFields.push('careTypesOffered');
         }
-        // Location fields
-        if (!profile.street && !profile.address) {
-          missingFields.push('street');
-        }
         if (!profile.city) {
           missingFields.push('city');
         }
         if (!profile.state) {
           missingFields.push('state');
         }
-        if (!profile.zipCode) {
-          missingFields.push('zipCode');
-        }
-        // Contact fields
         if (!profile.phone) {
           missingFields.push('phone');
         }
-        if (!profile.website) {
-          missingFields.push('website');
-        }
-        // Photo (required)
-        if (!profile.primaryPhoto && (!profile.photos || profile.photos.length === 0)) {
-          missingFields.push('primaryPhoto');
-        }
-        // Description (required)
-        if (!profile.description) {
-          missingFields.push('description');
-        }
-        // License (required)
-        if (!profile.licenseNumber) {
-          missingFields.push('licenseNumber');
-        }
-        if (!profile.licenseState) {
-          missingFields.push('licenseState');
+        if (!profile.email) {
+          missingFields.push('email');
         }
 
         isComplete = missingFields.length === 0;
