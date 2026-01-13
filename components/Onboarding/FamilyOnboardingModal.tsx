@@ -84,6 +84,27 @@ export default function FamilyOnboardingModal({
     await saveDraft();
   };
 
+  const handleSwitchMode = async () => {
+    // Save current draft before switching modes
+    await saveDraft();
+
+    // Update user mode to provider
+    try {
+      await fetch('/api/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'PROVIDER' }),
+      });
+    } catch (error) {
+      console.error('Error updating mode:', error);
+    }
+
+    // Trigger the switch callback
+    if (onSwitchToProvider) {
+      onSwitchToProvider();
+    }
+  };
+
   const handleComplete = async () => {
     setSaving(true);
     try {
@@ -245,7 +266,7 @@ export default function FamilyOnboardingModal({
             <p className="text-sm text-gray-600">
               Are you a care provider?{' '}
               <button
-                onClick={onSwitchToProvider}
+                onClick={handleSwitchMode}
                 className="text-indigo-600 hover:text-indigo-700 font-medium"
               >
                 Switch to provider onboarding →
