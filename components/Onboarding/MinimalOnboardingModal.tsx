@@ -39,8 +39,21 @@ export default function MinimalOnboardingModal({
 
   if (!isOpen) return null;
 
-  const handleRoleSelect = (role: UserRole) => {
+  const handleRoleSelect = async (role: UserRole) => {
     setSelectedRole(role);
+
+    // CRITICAL: Set mode immediately on selection for persistence
+    try {
+      await fetch('/api/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: role === 'family' ? 'FAMILY' : 'PROVIDER' }),
+      });
+    } catch (err) {
+      console.error('Error setting mode:', err);
+      // Continue anyway - user can still proceed
+    }
+
     setStep(2);
   };
 
@@ -640,9 +653,9 @@ export default function MinimalOnboardingModal({
 
                         <button
                           onClick={handleSkipClaim}
-                          className="w-full py-2 text-sm text-gray-600 hover:text-gray-900 font-medium"
+                          className="w-full py-2 text-sm text-primary-600 hover:text-primary-700 font-semibold underline"
                         >
-                          None of these are mine - Create new profile
+                          None of these match - Continue to create new profile
                         </button>
                       </div>
                     )}
@@ -650,9 +663,15 @@ export default function MinimalOnboardingModal({
                     {/* Show message if no matches found */}
                     {showClaimResults && unclaimedProfiles.length === 0 && (
                       <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                        <p className="text-sm text-gray-600 text-center">
+                        <p className="text-sm text-gray-600 text-center mb-3">
                           No existing profiles found. Let&apos;s create a new one for you!
                         </p>
+                        <button
+                          onClick={handleSkipClaim}
+                          className="w-full py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+                        >
+                          Continue to create profile
+                        </button>
                       </div>
                     )}
 

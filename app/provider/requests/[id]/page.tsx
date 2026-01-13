@@ -322,7 +322,7 @@ export default function FamilyProfileDetail() {
           setAuthModalOpen(false);
           router.push('/provider/requests');
         }}
-        defaultView="login"
+        defaultView="signup"
       />
     </div>
   );

@@ -101,7 +101,7 @@ function MainNavContent() {
   const [openOtherSubdropdown, setOpenOtherSubdropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
+  const [authModalView, setAuthModalView] = useState<"login" | "signup">("signup");
   const [signOutModalOpen, setSignOutModalOpen] = useState(false);
   const [switchingMode, setSwitchingMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);

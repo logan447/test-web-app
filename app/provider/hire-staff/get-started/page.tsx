@@ -231,7 +231,7 @@ export default function HireStaffGetStartedPage() {
           setAuthModalOpen(false);
           router.push('/');
         }}
-        defaultView="login"
+        defaultView="signup"
       />
     </div>
   );

@@ -383,7 +383,7 @@ export default function CaregiverHireDetailPage() {
           setAuthModalOpen(false);
           router.push('/provider/hire-staff');
         }}
-        defaultView="login"
+        defaultView="signup"
       />
     </div>
   );

@@ -434,7 +434,7 @@ export default function OrganizationDetailPage() {
           setAuthModalOpen(false);
           router.push('/caregiver/browse-organizations');
         }}
-        defaultView="login"
+        defaultView="signup"
       />
     </div>
   );

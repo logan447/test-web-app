@@ -175,7 +175,7 @@ function NewRequestContent() {
           setAuthModalOpen(false);
           router.push(`/providers/${providerId}`);
         }}
-        defaultView="login"
+        defaultView="signup"
       />
     </div>
   );

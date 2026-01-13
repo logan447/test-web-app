@@ -210,7 +210,7 @@ export default function BrowseOrganizationsPage() {
           setAuthModalOpen(false);
           router.push('/');
         }}
-        defaultView="login"
+        defaultView="signup"
       />
     </div>
   );

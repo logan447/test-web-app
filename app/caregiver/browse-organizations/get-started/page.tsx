@@ -232,7 +232,7 @@ export default function CaregiverGetStartedPage() {
           setAuthModalOpen(false);
           router.push('/');
         }}
-        defaultView="login"
+        defaultView="signup"
       />
     </div>
   );

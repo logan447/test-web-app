@@ -570,7 +570,7 @@ export default function ProviderProfilePage() {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        defaultView="login"
+        defaultView="signup"
       />
 
       {/* Review Modal */}
