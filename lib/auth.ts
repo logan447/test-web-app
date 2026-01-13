@@ -174,16 +174,16 @@ export const authOptions: NextAuthOptions = {
           if (token?.activeMode === 'PROVIDER') {
             // Check if provider onboarding is complete
             if (!user?.providerOnboardingComplete) {
-              console.log('[NextAuth redirect] Provider onboarding incomplete, redirecting to /provider/onboarding');
-              return `${baseUrl}/provider/onboarding`;
+              console.log('[NextAuth redirect] Provider onboarding incomplete, redirecting to /welcome');
+              return `${baseUrl}/welcome`;
             }
             console.log('[NextAuth redirect] Redirecting PROVIDER to /provider/requests');
             return `${baseUrl}/provider/requests`;
           } else if (token?.activeMode === 'FAMILY') {
             // Check if family onboarding is complete
             if (!user?.familyOnboardingComplete) {
-              console.log('[NextAuth redirect] Family onboarding incomplete, redirecting to /onboarding/family');
-              return `${baseUrl}/onboarding/family`;
+              console.log('[NextAuth redirect] Family onboarding incomplete, redirecting to /welcome');
+              return `${baseUrl}/welcome`;
             }
             console.log('[NextAuth redirect] Redirecting FAMILY to /');
             return baseUrl;

@@ -53,8 +53,8 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirect to welcome page to choose mode and complete onboarding
-      router.push("/welcome");
+      // Use window.location for hard redirect to ensure it's not intercepted
+      window.location.href = "/welcome";
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
