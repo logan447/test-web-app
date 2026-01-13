@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
@@ -31,6 +31,7 @@ interface Activity {
 function DashboardPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [stats, setStats] = useState<DashboardStats>({
     pendingRequests: 0,
     activeConversations: 0,
@@ -54,6 +55,16 @@ function DashboardPageContent() {
     // Fetch dashboard data
     fetchDashboardData();
   }, [session, status, router]);
+
+  // Handle ?openProfile=true query parameter
+  useEffect(() => {
+    const openProfile = searchParams.get('openProfile');
+    if (openProfile === 'true') {
+      setProfileModalOpen(true);
+      // Clean up URL without the query parameter
+      router.replace('/dashboard');
+    }
+  }, [searchParams, router]);
 
   const fetchDashboardData = async () => {
     try {

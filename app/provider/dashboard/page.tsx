@@ -2,13 +2,14 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
 import IncompleteProfileBanner from "@/components/Profile/IncompleteProfileBanner";
 import OnboardingManager from "@/components/Onboarding/OnboardingManager";
+import ProviderOnboardingModal from "@/components/Onboarding/ProviderOnboardingModal";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -34,6 +35,7 @@ interface ProviderProfile {
 function ProviderDashboardPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [stats, setStats] = useState<DashboardStats>({
     pendingRequests: 0,
     activeConversations: 0,
@@ -44,6 +46,7 @@ function ProviderDashboardPageContent() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
   const [providerProfile, setProviderProfile] = useState<ProviderProfile | null>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -57,6 +60,16 @@ function ProviderDashboardPageContent() {
     // Fetch dashboard data
     fetchDashboardData();
   }, [session, status, router]);
+
+  // Handle ?openProfile=true query parameter
+  useEffect(() => {
+    const openProfile = searchParams.get('openProfile');
+    if (openProfile === 'true') {
+      setProfileModalOpen(true);
+      // Clean up URL without the query parameter
+      router.replace('/provider/dashboard');
+    }
+  }, [searchParams, router]);
 
   const fetchDashboardData = async () => {
     try {
@@ -613,6 +626,16 @@ function ProviderDashboardPageContent() {
           </div>
         </div>
       </main>
+
+      {/* Provider Profile Edit Modal */}
+      <ProviderOnboardingModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        onComplete={() => {
+          // Refresh the dashboard data after profile completion
+          fetchDashboardData();
+        }}
+      />
     </div>
   );
 }
