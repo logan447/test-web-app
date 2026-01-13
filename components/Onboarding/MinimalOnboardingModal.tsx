@@ -147,11 +147,16 @@ export default function MinimalOnboardingModal({
 
     try {
       // Set user mode to PROVIDER
-      await fetch('/api/mode', {
+      const modeResponse = await fetch('/api/mode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'PROVIDER' }),
       });
+
+      if (modeResponse.ok) {
+        // Refresh session to reflect mode change
+        await updateSession();
+      }
 
       // Claim the profile
       const response = await fetch('/api/providers/claim', {
@@ -166,6 +171,10 @@ export default function MinimalOnboardingModal({
       }
 
       onComplete();
+
+      // Small delay to ensure session update completes
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       router.push('/dashboard/care-profiles'); // Route to Find Families browse page
     } catch (err) {
       console.error('Error claiming profile:', err);
@@ -186,36 +195,42 @@ export default function MinimalOnboardingModal({
     try {
       // If no role selected yet, default to FAMILY mode
       if (!selectedRole) {
-        await fetch('/api/mode', {
+        const modeResponse = await fetch('/api/mode', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'FAMILY' }),
         });
+        if (modeResponse.ok) await updateSession();
         onComplete();
+        await new Promise(resolve => setTimeout(resolve, 100));
         router.push('/providers'); // Route to Find Providers browse page
         return;
       }
 
       // If family selected, set mode and route to Find Providers
       if (selectedRole === 'family') {
-        await fetch('/api/mode', {
+        const modeResponse = await fetch('/api/mode', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'FAMILY' }),
         });
+        if (modeResponse.ok) await updateSession();
         onComplete();
+        await new Promise(resolve => setTimeout(resolve, 100));
         router.push('/providers'); // Route to Find Providers browse page
         return;
       }
 
       // If provider selected, set mode and route to Find Families
       if (selectedRole === 'provider') {
-        await fetch('/api/mode', {
+        const modeResponse = await fetch('/api/mode', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'PROVIDER' }),
         });
+        if (modeResponse.ok) await updateSession();
         onComplete();
+        await new Promise(resolve => setTimeout(resolve, 100));
         router.push('/dashboard/care-profiles'); // Route to Find Families browse page
         return;
       }
@@ -232,11 +247,16 @@ export default function MinimalOnboardingModal({
 
     try {
       // Set user mode to FAMILY
-      await fetch('/api/mode', {
+      const modeResponse = await fetch('/api/mode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'FAMILY' }),
       });
+
+      if (modeResponse.ok) {
+        // Refresh session to reflect mode change
+        await updateSession();
+      }
 
       // Create minimal family profile
       const mappedCareType = mapCareTypeToEnum(careType);
@@ -257,6 +277,10 @@ export default function MinimalOnboardingModal({
       }
 
       onComplete();
+
+      // Small delay to ensure session update completes
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       router.push('/providers'); // Route to Find Providers browse page
     } catch (err) {
       console.error('Error creating family profile:', err);
@@ -274,11 +298,16 @@ export default function MinimalOnboardingModal({
 
     try {
       // Set user mode to PROVIDER
-      await fetch('/api/mode', {
+      const modeResponse = await fetch('/api/mode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'PROVIDER' }),
       });
+
+      if (modeResponse.ok) {
+        // CRITICAL: Refresh session to reflect mode change
+        await updateSession();
+      }
 
       // Create minimal provider profile
       // Map user-friendly care type strings to CareType enum values
@@ -304,6 +333,10 @@ export default function MinimalOnboardingModal({
       }
 
       onComplete();
+
+      // Small delay to ensure session update completes before routing
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       router.push('/dashboard/care-profiles'); // Route to Find Families browse page
     } catch (err) {
       console.error('Error creating provider profile:', err);
@@ -666,24 +699,17 @@ export default function MinimalOnboardingModal({
                       </div>
                     )}
 
-                    {/* Show message if no matches found */}
+                    {/* Show inline message if no matches found - informational only, doesn't block form */}
                     {showClaimResults && unclaimedProfiles.length === 0 && (
-                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                        <p className="text-sm text-gray-600 text-center mb-3">
-                          No existing profiles found. Let&apos;s create a new one for you!
+                      <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                        <p className="text-sm text-gray-600 text-center">
+                          No existing profiles found. Continue below to create a new one.
                         </p>
-                        <button
-                          onClick={handleSkipClaim}
-                          className="w-full py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 font-semibold transition-colors"
-                        >
-                          Continue to create profile
-                        </button>
                       </div>
                     )}
 
-                    {/* Only show care types if not in claim results view */}
-                    {!showClaimResults && (
-                      <>
+                    {/* Always show care types - not conditional on claim results */}
+                    <>
                     {/* Care Types */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -725,7 +751,6 @@ export default function MinimalOnboardingModal({
                       </div>
                     )}
                     </>
-                    )}
                   </>
                 )}
               </div>
@@ -736,7 +761,7 @@ export default function MinimalOnboardingModal({
                 </div>
               )}
 
-              {providerType && !showClaimResults && (
+              {providerType && !(showClaimResults && unclaimedProfiles.length > 0) && (
                 <>
                   <div className="space-y-3">
                     <button
