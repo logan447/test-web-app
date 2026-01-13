@@ -7,6 +7,7 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
+import IncompleteProfileBanner from "@/components/Profile/IncompleteProfileBanner";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -236,6 +237,9 @@ function DashboardPageContent() {
             )}
           </div>
         </div>
+
+        {/* Incomplete Profile Banner */}
+        <IncompleteProfileBanner dismissible={true} />
 
         {/* Profile Completion Widget */}
         <div className="mb-8">

@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
         // Care type match (at least one overlap)
         careTypesOffered: {
-          hasSome: careTypes,
+          hasSome: careTypes as any,
         },
 
         // Visibility check
@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
           mode: 'insensitive',
         },
         careTypesOffered: {
-          hasSome: careTypes,
+          hasSome: careTypes as any,
         },
         availableForFamilies: true,
         active: true,
