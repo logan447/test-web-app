@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Calculate verification signals for automatic approval logic
     const verificationSignals = await calculateVerificationSignals(
       session.user.email!,
-      session.user.name,
+      session.user.name || '',
       providerId,
       session.user.id
     );
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
           signals: JSON.stringify(verificationSignals),
           autoApproved: verificationSignals.autoApprove,
           userEmail: session.user.email!,
-          userName: session.user.name,
+          userName: session.user.name || '',
           userAccountAge: accountAgeInDays,
           providerName: provider.name,
           providerEmail: provider.email,
