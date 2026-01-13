@@ -8,6 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
 import IncompleteProfileBanner from "@/components/Profile/IncompleteProfileBanner";
+import OnboardingManager from "@/components/Onboarding/OnboardingManager";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -164,6 +165,7 @@ function ProviderDashboardPageContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <OnboardingManager autoOpen={true} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
