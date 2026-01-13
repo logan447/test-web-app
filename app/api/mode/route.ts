@@ -27,18 +27,40 @@ export async function POST(req: Request) {
     }
 
     // Update user's active mode in database
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: session.user.id },
       data: { activeMode: mode as UserMode },
+      include: {
+        familyProfile: true,
+        provider: true,
+      },
     });
+
+    // Determine landing page based on mode and onboarding completion (Sprint 0)
+    let landingPage = '/';
+
+    if (mode === 'FAMILY') {
+      // Check if family onboarding is complete
+      if (!user.familyOnboardingComplete) {
+        landingPage = '/onboarding/family';
+      } else {
+        landingPage = '/providers'; // Browse providers
+      }
+    } else {
+      // PROVIDER mode
+      if (!user.providerOnboardingComplete) {
+        landingPage = '/provider/onboarding';
+      } else {
+        landingPage = '/provider/requests'; // Inbox
+      }
+    }
 
     // Return success with landing page info
     // Client should call session.update() to refresh the NextAuth session
     return NextResponse.json({
       success: true,
       mode,
-      // FAMILY mode → home page (find providers), PROVIDER mode → find families page
-      landingPage: mode === 'PROVIDER' ? '/provider/requests' : '/'
+      landingPage
     });
 
   } catch (error) {

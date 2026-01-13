@@ -53,8 +53,8 @@ export default function SignupPage() {
         return;
       }
 
-      // Always redirect to browse providers page (family mode default)
-      router.push("/providers");
+      // Redirect to family onboarding flow (Sprint 0)
+      router.push("/onboarding/family");
       router.refresh();
     } catch (error) {
       setError("Something went wrong");
