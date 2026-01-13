@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canEditProviderProfile } from "@/lib/permissions";
 
 export async function GET(req: Request) {
   try {
@@ -107,6 +108,26 @@ export async function PUT(req: Request) {
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user has permission to edit (requires verification)
+    const permissionCheck = await canEditProviderProfile(session.user.id);
+
+    if (!permissionCheck.allowed) {
+      if (permissionCheck.requiresVerification) {
+        return NextResponse.json(
+          {
+            error: "Provider profile requires verification",
+            verificationStatus: permissionCheck.verificationStatus,
+            requiresVerification: true
+          },
+          { status: 403 }
+        );
+      }
+      return NextResponse.json(
+        { error: permissionCheck.reason || "Access denied" },
+        { status: 403 }
+      );
     }
 
     const body = await req.json();
