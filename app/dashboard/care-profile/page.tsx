@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import MainNav from '@/components/Navigation/MainNav';
+import CareProfileView from '@/components/Profile/CareProfileView';
 
 interface CareProfile {
   id: string;
@@ -118,6 +119,7 @@ export default function CareProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Section expansion states
   const [expandedSections, setExpandedSections] = useState({
@@ -263,6 +265,19 @@ export default function CareProfilePage() {
     );
   }
 
+  // Show view mode if not editing and profile exists
+  if (!isEditMode && profile) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <CareProfileView
+          profile={profile}
+          onEdit={() => setIsEditMode(true)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
@@ -270,7 +285,7 @@ export default function CareProfilePage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Care Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Care Profile</h1>
           <p className="text-gray-600">
             Complete your profile to help providers understand your needs and match you with the right care options.
           </p>
@@ -617,13 +632,18 @@ export default function CareProfilePage() {
         {/* Save Button */}
         <div className="mt-8 flex justify-end gap-4">
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => setIsEditMode(false)}
             className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
           <button
-            onClick={handleSave}
+            onClick={async () => {
+              await handleSave();
+              if (!error) {
+                setIsEditMode(false);
+              }
+            }}
             disabled={saving || !isEssentialComplete}
             className={`px-6 py-3 font-semibold rounded-lg transition-colors ${
               saving || !isEssentialComplete

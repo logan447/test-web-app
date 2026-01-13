@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import MainNav from '@/components/Navigation/MainNav';
+import ProviderProfileView from '@/components/Profile/ProviderProfileView';
 
 interface ProviderProfile {
   id: string;
@@ -161,6 +162,7 @@ export default function ProviderProfileNew() {
   const [profile, setProfile] = useState<ProviderProfile | null>(null);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Form state - Required
   const [providerType, setProviderType] = useState('');
@@ -371,6 +373,19 @@ export default function ProviderProfileNew() {
     );
   }
 
+  // Show view mode if not editing and profile exists
+  if (!isEditMode && profile) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <ProviderProfileView
+          profile={profile}
+          onEdit={() => setIsEditMode(true)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
@@ -378,7 +393,7 @@ export default function ProviderProfileNew() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Provider Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Provider Profile</h1>
           <p className="text-gray-600">
             Complete your profile to help families find you and understand your services.
           </p>
@@ -861,7 +876,12 @@ export default function ProviderProfileNew() {
         {/* Save Button */}
         <div className="mt-8 flex gap-4">
           <button
-            onClick={handleSave}
+            onClick={async () => {
+              await handleSave();
+              if (!error) {
+                setIsEditMode(false);
+              }
+            }}
             disabled={saving}
             className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
@@ -869,7 +889,7 @@ export default function ProviderProfileNew() {
           </button>
 
           <button
-            onClick={() => router.push('/provider/dashboard')}
+            onClick={() => setIsEditMode(false)}
             className="px-6 py-4 bg-white hover:bg-gray-50 text-gray-700 font-medium border-2 border-gray-300 rounded-lg transition-colors"
           >
             Cancel
