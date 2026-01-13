@@ -9,6 +9,7 @@ import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWid
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
 import IncompleteProfileBanner from "@/components/Profile/IncompleteProfileBanner";
 import OnboardingManager from "@/components/Onboarding/OnboardingManager";
+import { useUserMode } from "@/hooks/useUserMode";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -30,6 +31,7 @@ interface Activity {
 function DashboardPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const currentMode = useUserMode(); // Read mode from cookie for reliable UI state
   const [stats, setStats] = useState<DashboardStats>({
     pendingRequests: 0,
     activeConversations: 0,
@@ -85,7 +87,7 @@ function DashboardPageContent() {
 
     try {
       setMatchesLoading(true);
-      const isFamily = session.user.activeMode !== 'PROVIDER';
+      const isFamily = currentMode !== 'PROVIDER';
 
       if (isFamily) {
         // Fetch user's family profile to get city and care types
@@ -138,8 +140,8 @@ function DashboardPageContent() {
     }
   };
 
-  // Check activeMode, not base role, to determine what dashboard content to show
-  const isFamily = session?.user.activeMode !== 'PROVIDER';
+  // Check activeMode from cookie (reliable), not session, to determine what dashboard content to show
+  const isFamily = currentMode !== 'PROVIDER';
   const isProvider = session?.user.role === "PROVIDER";
 
   // Show loading state - session not yet loaded

@@ -42,17 +42,28 @@ export async function POST(req: NextRequest) {
       data: { activeMode: mode as UserMode },
     });
 
-    // 2. Create response with mode cookie
+    // 2. Create response with mode cookies
     const response = NextResponse.json({
       success: true,
       mode,
       userId: session.user.id,
     });
 
-    // Set httpOnly cookie for immediate mode availability
-    // This cookie is read by middleware and pages for instant mode detection
+    // Set TWO cookies for dual-layer reliability:
+
+    // Cookie 1: httpOnly for middleware (server-side routing security)
     response.cookies.set('user-mode', mode, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      path: '/',
+    });
+
+    // Cookie 2: Readable cookie for client components (UI state)
+    // Not httpOnly so React can read it with document.cookie
+    response.cookies.set('user-mode-display', mode, {
+      httpOnly: false, // CRITICAL: Client-readable
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 365, // 1 year

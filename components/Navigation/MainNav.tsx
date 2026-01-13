@@ -9,6 +9,7 @@ import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
 import { withViewTransition } from "@/lib/view-transitions";
 import { ProfileCompletionDot } from "@/components/Profile/ProfileCompletionIndicator";
+import { useUserMode } from "@/hooks/useUserMode";
 
 const MAIN_CATEGORIES = [
   {
@@ -149,15 +150,15 @@ function MainNavContent() {
     return () => clearInterval(interval);
   }, [session]);
 
-  // Mode switching handler - uses session, no URL parameters
+  // Mode switching handler - uses cookie for immediate persistence
   const handleModeSwitch = async (newMode: 'FAMILY' | 'PROVIDER') => {
     if (switchingMode) return;
 
     setSwitchingMode(true);
 
     try {
-      // Update mode in database
-      const response = await fetch('/api/mode', {
+      // Update mode in database + set cookies (both httpOnly and readable)
+      const response = await fetch('/api/mode/set', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: newMode }),
@@ -165,20 +166,18 @@ function MainNavContent() {
 
       if (!response.ok) throw new Error('Failed to switch mode');
 
-      const data = await response.json();
-
-      // Update NextAuth session with new mode
+      // Update NextAuth session for compatibility
       await update({ activeMode: newMode });
 
       // Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Navigate with smooth transitions using our utility
-      // Use 150ms delay for older browsers to ensure session propagates
+      // Navigate - cookie is now set, no delay needed
       withViewTransition(() => {
-        router.push(data.landingPage);
+        const landingPage = newMode === 'PROVIDER' ? '/dashboard/care-profiles' : '/providers';
+        router.push(landingPage);
         setSwitchingMode(false);
-      }, 150);
+      }, 50);
     } catch (error) {
       console.error('Error switching mode:', error);
       showToast.error('Failed to switch mode');
@@ -186,8 +185,8 @@ function MainNavContent() {
     }
   };
 
-  // Read mode from session (source of truth)
-  const currentMode = session?.user?.activeMode || 'FAMILY';
+  // Read mode from cookie (immediate, reliable source of truth for UI)
+  const currentMode = useUserMode();
   const isProviderMode = currentMode === 'PROVIDER';
 
   return (
