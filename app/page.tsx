@@ -17,6 +17,7 @@ import EmptyState from "@/components/Directory/EmptyState";
 import ErrorState from "@/components/Directory/ErrorState";
 import TrustFooter from "@/components/Directory/TrustFooter";
 import ScrollToTop from "@/components/Directory/ScrollToTop";
+import ModeSelectionModal from "@/components/Onboarding/ModeSelectionModal";
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import("@/components/Directory/MapView"), {
@@ -62,7 +63,7 @@ type Provider = {
 
 export default function Home() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [matchedProviders, setMatchedProviders] = useState<Provider[]>([]);
   const [hasProfile, setHasProfile] = useState(false);
@@ -75,6 +76,10 @@ export default function Home() {
   const [providerType, setProviderType] = useState("");
   const [careType, setCareType] = useState("");
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
+
+  // Mode selection for new users
+  const [showModeSelection, setShowModeSelection] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   // Advanced filters
   const [priceMin, setPriceMin] = useState<number>(0);
@@ -90,6 +95,49 @@ export default function Home() {
 
   // View toggle (list/map)
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
+
+  // Check if user is brand new (needs mode selection)
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      checkIfNewUser();
+    }
+  }, [status, session]);
+
+  const checkIfNewUser = async () => {
+    try {
+      const response = await fetch('/api/profile/completion-status');
+      if (response.ok) {
+        const data = await response.json();
+        // If profile doesn't exist at all, user is brand new
+        if (data.missingFields && data.missingFields.includes('Profile not created')) {
+          setIsNewUser(true);
+          setShowModeSelection(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking if new user:', error);
+    }
+  };
+
+  const handleModeSelect = async (mode: 'family' | 'provider') => {
+    // Set the mode in the database
+    try {
+      await fetch('/api/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: mode === 'family' ? 'FAMILY' : 'PROVIDER' }),
+      });
+
+      // Close modal and redirect to dashboard
+      setShowModeSelection(false);
+      setIsNewUser(false);
+
+      // Redirect to dashboard where OnboardingManager will show the onboarding modal
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error setting mode:', error);
+    }
+  };
 
   useEffect(() => {
     fetchProviders();
@@ -591,6 +639,12 @@ export default function Home() {
 
       {/* Scroll to Top Button */}
       <ScrollToTop />
+
+      {/* Mode Selection Modal for new users */}
+      <ModeSelectionModal
+        isOpen={showModeSelection}
+        onSelectMode={handleModeSelect}
+      />
     </div>
   );
 }
