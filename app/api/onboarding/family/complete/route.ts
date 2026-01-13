@@ -25,11 +25,12 @@ export async function POST(req: NextRequest) {
       whoNeedsCare,
       careType, // Array of care types (required)
       city, // Required
-      state, // Required
+      state, // Required for full onboarding, optional for minimal
       careNeeds, // Array of care needs/disabilities (required)
       budget, // Optional
       timeline, // Optional
       isPublic, // Visibility toggle (defaults to true)
+      minimalOnboarding, // Flag for minimal onboarding
     } = body;
 
     // Validate required fields
@@ -40,18 +41,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!city || !state) {
+    if (!city) {
       return NextResponse.json(
-        { error: 'Location (city and state) is required' },
+        { error: 'City is required' },
         { status: 400 }
       );
     }
 
-    if (!careNeeds || careNeeds.length === 0) {
-      return NextResponse.json(
-        { error: 'Care needs are required' },
-        { status: 400 }
-      );
+    // For full onboarding, require state and careNeeds
+    // For minimal onboarding, we'll use defaults
+    if (!minimalOnboarding) {
+      if (!state) {
+        return NextResponse.json(
+          { error: 'State is required' },
+          { status: 400 }
+        );
+      }
+
+      if (!careNeeds || careNeeds.length === 0) {
+        return NextResponse.json(
+          { error: 'Care needs are required' },
+          { status: 400 }
+        );
+      }
     }
 
     // Create or update family profile
@@ -62,9 +74,9 @@ export async function POST(req: NextRequest) {
         whoNeedsCare,
         careType,
         city,
-        state,
-        careNeeds,
-        location: `${city}, ${state}`, // Legacy field
+        state: state || '', // Allow empty for minimal onboarding
+        careNeeds: careNeeds || careType, // Default to careType if not provided
+        location: state ? `${city}, ${state}` : city, // Legacy field
         zipCode: '', // Will be filled later
         isPublic: isPublic ?? true, // Default to true
         visibleToProviders: isPublic ?? true,
@@ -73,9 +85,9 @@ export async function POST(req: NextRequest) {
         whoNeedsCare,
         careType,
         city,
-        state,
-        careNeeds,
-        location: `${city}, ${state}`,
+        state: state || '', // Allow empty for minimal onboarding
+        careNeeds: careNeeds || careType,
+        location: state ? `${city}, ${state}` : city,
         isPublic: isPublic ?? true,
         visibleToProviders: isPublic ?? true,
       },

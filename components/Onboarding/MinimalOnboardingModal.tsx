@@ -103,7 +103,9 @@ export default function MinimalOnboardingModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: familyCity,
-          careType: careType,
+          state: '', // Will be filled in later via Edit Profile
+          careType: [careType], // Convert to array as API expects
+          careNeeds: [careType], // Use careType as initial care need
           minimalOnboarding: true,
         }),
       });

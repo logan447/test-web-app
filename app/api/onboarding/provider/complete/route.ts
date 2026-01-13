@@ -24,83 +24,101 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       providerType, // Required
-      businessName, // Required
+      businessName, // Required (called "name" in minimal onboarding)
+      name, // Alternative to businessName for minimal onboarding
       careTypes, // Array (required)
-      street, // Required
+      street, // Required for full, optional for minimal
       city, // Required
-      state, // Required
-      zipCode, // Required
-      phone, // Required
-      website, // Required
-      photoPreview, // Data URL (required)
-      description, // Required
-      licenseNumber, // Required
-      licenseState, // Required
+      state, // Required for full, optional for minimal
+      zipCode, // Required for full, optional for minimal
+      phone, // Required for full, optional for minimal
+      website, // Required for full, optional for minimal
+      photoPreview, // Data URL (required for full, optional for minimal)
+      description, // Required for full, optional for minimal
+      licenseNumber, // Required for full, optional for minimal
+      licenseState, // Required for full, optional for minimal
       availableForFamilies, // Boolean (defaults to true)
       availableForOrganizations, // Boolean (caregivers only)
       hiringCaregivers, // Boolean (organizations only)
+      isHiringCaregivers, // Alternative name for hiringCaregivers
+      minimalOnboarding, // Flag for minimal onboarding
     } = body;
 
+    // Use name if businessName not provided (for minimal onboarding)
+    const finalBusinessName = businessName || name;
+
     // Validate required fields
-    if (!providerType || !businessName || !careTypes || careTypes.length === 0) {
+    if (!providerType || !finalBusinessName || !careTypes || careTypes.length === 0) {
       return NextResponse.json(
-        { error: 'Provider type, business name, and care types are required' },
+        { error: 'Provider type, name, and care types are required' },
         { status: 400 }
       );
     }
 
-    if (!street || !city || !state || !zipCode) {
+    if (!city) {
       return NextResponse.json(
-        { error: 'Complete address is required' },
+        { error: 'City is required' },
         { status: 400 }
       );
     }
 
-    if (!phone || !website) {
-      return NextResponse.json(
-        { error: 'Phone and website are required' },
-        { status: 400 }
-      );
+    // For full onboarding, require additional fields
+    if (!minimalOnboarding) {
+      if (!street || !state || !zipCode) {
+        return NextResponse.json(
+          { error: 'Complete address is required' },
+          { status: 400 }
+        );
+      }
+
+      if (!phone || !website) {
+        return NextResponse.json(
+          { error: 'Phone and website are required' },
+          { status: 400 }
+        );
+      }
+
+      if (!photoPreview) {
+        return NextResponse.json(
+          { error: 'Photo is required' },
+          { status: 400 }
+        );
+      }
+
+      if (!description) {
+        return NextResponse.json(
+          { error: 'Description is required' },
+          { status: 400 }
+        );
+      }
+
+      if (!licenseNumber || !licenseState) {
+        return NextResponse.json(
+          { error: 'License information is required' },
+          { status: 400 }
+        );
+      }
     }
 
-    if (!photoPreview) {
-      return NextResponse.json(
-        { error: 'Photo is required' },
-        { status: 400 }
-      );
-    }
-
-    if (!description) {
-      return NextResponse.json(
-        { error: 'Description is required' },
-        { status: 400 }
-      );
-    }
-
-    if (!licenseNumber || !licenseState) {
-      return NextResponse.json(
-        { error: 'License information is required' },
-        { status: 400 }
-      );
-    }
-
-    // Upload photo to Vercel Blob
+    // Upload photo to Vercel Blob (skip for minimal onboarding if no photo)
     let photoUrl = '';
-    try {
-      // Extract base64 data from data URL
-      const base64Data = photoPreview.split(',')[1];
-      const buffer = Buffer.from(base64Data, 'base64');
-      const filename = `provider-${session.user.id}-${Date.now()}.jpg`;
+    if (photoPreview) {
+      try {
+        // Extract base64 data from data URL
+        const base64Data = photoPreview.split(',')[1];
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `provider-${session.user.id}-${Date.now()}.jpg`;
 
-      const blob = await put(filename, buffer, {
-        access: 'public',
-        contentType: 'image/jpeg',
-      });
+        const blob = await put(filename, buffer, {
+          access: 'public',
+          contentType: 'image/jpeg',
+        });
 
-      photoUrl = blob.url;
-    } catch (uploadError) {
-      console.error('Photo upload error:', uploadError);
-      // Continue without photo for now - will be empty string
+        photoUrl = blob.url;
+      } catch (uploadError) {
+        console.error('Photo upload error:', uploadError);
+        // Continue without photo for now - will be empty string
+      }
     }
 
     // Create or update provider profile
@@ -109,46 +127,46 @@ export async function POST(req: NextRequest) {
       create: {
         userId: session.user.id,
         providerType,
-        name: businessName,
+        name: finalBusinessName,
         careTypesOffered: careTypes,
-        street,
+        street: street || '',
         city,
-        state,
-        zipCode,
-        address: `${street}, ${city}, ${state} ${zipCode}`, // Legacy field
-        phone,
-        website,
+        state: state || '',
+        zipCode: zipCode || '',
+        address: street ? `${street}, ${city}, ${state} ${zipCode}` : city, // Legacy field
+        phone: phone || '',
+        website: website || '',
         email: session.user.email || '',
         primaryPhoto: photoUrl,
         photos: photoUrl ? [photoUrl] : [],
-        description,
-        licenseNumber,
-        licenseState,
-        licensed: true,
+        description: description || '',
+        licenseNumber: licenseNumber || '',
+        licenseState: licenseState || '',
+        licensed: !!licenseNumber,
         availableForFamilies: availableForFamilies ?? true,
         availableForOrganizations: availableForOrganizations ?? false,
-        hiringCaregivers: hiringCaregivers ?? false,
+        hiringCaregivers: isHiringCaregivers || hiringCaregivers || false,
       },
       update: {
         providerType,
-        name: businessName,
+        name: finalBusinessName,
         careTypesOffered: careTypes,
-        street,
+        street: street || undefined,
         city,
-        state,
-        zipCode,
-        address: `${street}, ${city}, ${state} ${zipCode}`,
-        phone,
-        website,
+        state: state || undefined,
+        zipCode: zipCode || undefined,
+        address: street ? `${street}, ${city}, ${state} ${zipCode}` : city,
+        phone: phone || undefined,
+        website: website || undefined,
         primaryPhoto: photoUrl || undefined,
         photos: photoUrl ? [photoUrl] : undefined,
-        description,
-        licenseNumber,
-        licenseState,
-        licensed: true,
+        description: description || undefined,
+        licenseNumber: licenseNumber || undefined,
+        licenseState: licenseState || undefined,
+        licensed: licenseNumber ? true : undefined,
         availableForFamilies: availableForFamilies ?? true,
         availableForOrganizations: availableForOrganizations ?? false,
-        hiringCaregivers: hiringCaregivers ?? false,
+        hiringCaregivers: isHiringCaregivers || hiringCaregivers || undefined,
       },
     });
 
