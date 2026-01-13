@@ -146,6 +146,9 @@ export default function MinimalOnboardingModal({
     setError('');
 
     try {
+      // CRITICAL: Set dismissal cookie to prevent modal from reopening
+      document.cookie = 'onboarding-dismissed=true; path=/; max-age=31536000; SameSite=Lax';
+
       // Set user mode to PROVIDER
       const modeResponse = await fetch('/api/mode/set', {
         method: 'POST',
@@ -194,6 +197,10 @@ export default function MinimalOnboardingModal({
   // Handle exit: Save progress and route to browse
   const handleExit = async () => {
     try {
+      // CRITICAL: Set dismissal cookie to prevent modal from reopening
+      // This cookie marks that onboarding has been explicitly dismissed/exited
+      document.cookie = 'onboarding-dismissed=true; path=/; max-age=31536000; SameSite=Lax';
+
       // If no role selected yet, default to FAMILY mode
       if (!selectedRole) {
         const modeResponse = await fetch('/api/mode/set', {
@@ -253,6 +260,9 @@ export default function MinimalOnboardingModal({
     setError('');
 
     try {
+      // CRITICAL: Set dismissal cookie to prevent modal from reopening
+      document.cookie = 'onboarding-dismissed=true; path=/; max-age=31536000; SameSite=Lax';
+
       // Set user mode to FAMILY
       const modeResponse = await fetch('/api/mode/set', {
         method: 'POST',
@@ -305,6 +315,9 @@ export default function MinimalOnboardingModal({
     setError('');
 
     try {
+      // CRITICAL: Set dismissal cookie to prevent modal from reopening
+      document.cookie = 'onboarding-dismissed=true; path=/; max-age=31536000; SameSite=Lax';
+
       // Set user mode to PROVIDER
       const modeResponse = await fetch('/api/mode/set', {
         method: 'POST',

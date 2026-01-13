@@ -105,6 +105,17 @@ export default function Home() {
 
   const checkIfNewUser = async () => {
     try {
+      // CRITICAL: Check if onboarding has been dismissed/completed
+      // If the dismissal cookie exists, never show the modal again
+      const cookies = document.cookie.split(';');
+      const dismissedCookie = cookies.find(c => c.trim().startsWith('onboarding-dismissed='));
+
+      if (dismissedCookie) {
+        // User has already gone through or dismissed onboarding
+        // Do not reopen the modal - treat early exit as valid terminal state
+        return;
+      }
+
       const response = await fetch('/api/profile/completion-status');
       if (response.ok) {
         const data = await response.json();
