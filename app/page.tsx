@@ -63,7 +63,7 @@ type Provider = {
 
 export default function Home() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [matchedProviders, setMatchedProviders] = useState<Provider[]>([]);
   const [hasProfile, setHasProfile] = useState(false);
@@ -132,13 +132,11 @@ export default function Home() {
       setShowModeSelection(false);
       setIsNewUser(false);
 
-      // Refresh the router to update session data
-      router.refresh();
+      // Update the NextAuth session to reflect the new mode
+      await update();
 
-      // Small delay to ensure session is updated before redirecting
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 300);
+      // Redirect to dashboard - session is now updated
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error setting mode:', error);
     }
