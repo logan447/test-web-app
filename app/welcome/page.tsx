@@ -12,6 +12,9 @@ export default function WelcomePage() {
   const [selectedMode, setSelectedMode] = useState<'family' | 'provider' | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Check if this is a new user from signup
+  const isNewUser = typeof window !== 'undefined' && window.location.search.includes('new=true');
+
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -20,17 +23,13 @@ export default function WelcomePage() {
   }, [status, router]);
 
   // Check if user has already completed onboarding
-  // Add a small delay to allow new signups to see the welcome page
+  // Skip this check for brand new users (they need to see this page!)
   useEffect(() => {
-    if (status === 'authenticated') {
-      // Wait a moment before checking onboarding status
-      // This allows new users to see the welcome page
-      const timer = setTimeout(() => {
-        checkOnboardingStatus();
-      }, 500);
-      return () => clearTimeout(timer);
+    if (status === 'authenticated' && !isNewUser) {
+      // Only check onboarding status for returning users
+      checkOnboardingStatus();
     }
-  }, [status]);
+  }, [status, isNewUser]);
 
   const checkOnboardingStatus = async () => {
     try {
@@ -49,6 +48,11 @@ export default function WelcomePage() {
 
   const handleModeSelect = async (mode: 'family' | 'provider') => {
     setSelectedMode(mode);
+
+    // Clean up the URL (remove ?new=true)
+    if (isNewUser && typeof window !== 'undefined') {
+      window.history.replaceState({}, '', '/welcome');
+    }
 
     // Set user mode in database
     try {

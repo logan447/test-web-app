@@ -41,24 +41,20 @@ export default function SignupPage() {
         return;
       }
 
+      // Sign in the user
       const signInResult = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false,
-        callbackUrl: "/welcome",
+        redirect: true, // Let NextAuth handle redirect
+        callbackUrl: "/welcome?new=true", // Mark as new user with query param
       });
 
+      // If we get here, signin failed (redirect: true means success navigates away)
       if (signInResult?.error) {
         setError("Account created but login failed. Please try logging in.");
         setLoading(false);
         return;
       }
-
-      // Wait a moment for session to be established, then redirect
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Hard redirect to welcome page
-      window.location.replace("/welcome");
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
