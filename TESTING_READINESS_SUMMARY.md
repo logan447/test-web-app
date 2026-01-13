@@ -7,20 +7,23 @@
 
 ## Pre-Mortem Results
 
-I simulated the complete testing flow and found **1 critical security bug** and **2 messaging inconsistencies**. All have been fixed.
+I simulated the complete testing flow and found **2 critical security bugs** (same issue in 2 endpoints) and **2 messaging inconsistencies**. All have been fixed.
 
 ---
 
 ## What Was Found & Fixed
 
-### 🚨 CRITICAL: Provider Edit API Security Hole (FIXED)
+### 🚨 CRITICAL: Provider Edit API Security Holes (FIXED - 2 endpoints)
 
 **Problem:**
 - Users with pending claims could bypass verification and edit their profiles
-- API only checked `userId` match, not verification status
+- TWO separate edit endpoints had the same security hole
+- APIs only checked `userId` match, not verification status
 - Created unauthorized access for unverified providers
 
-**File:** `/app/api/providers/[id]/route.ts`
+**Files Fixed:**
+1. `/app/api/providers/[id]/route.ts` (PATCH method)
+2. `/app/api/providers/me/route.ts` (PUT method)
 
 **Fix Applied:**
 ```typescript
@@ -40,9 +43,10 @@ if (!permissionCheck.allowed) {
 ```
 
 **Impact:**
-- ✅ Pending users now blocked from editing
-- ✅ Rejected users cannot access profile
+- ✅ Pending users now blocked from editing (both endpoints)
+- ✅ Rejected users cannot access profile (both endpoints)
 - ✅ Only verified users can make changes
+- ✅ No bypass routes remaining
 - ✅ Proper 403 responses with reason
 
 ---
