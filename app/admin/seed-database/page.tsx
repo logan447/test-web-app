@@ -73,11 +73,11 @@ export default function SeedDatabasePage() {
             How to test matching:
           </h2>
           <ol className="list-decimal list-inside space-y-1 text-gray-700 text-sm">
-            <li>Click "Seed Database" below</li>
+            <li>Click &quot;Seed Database&quot; below</li>
             <li>Log in as family.test@demo.com (password: demo123)</li>
-            <li>Browse providers → Should see "Your Matches" with Sunny Hills</li>
+            <li>Browse providers → Should see &quot;Your Matches&quot; with Sunny Hills</li>
             <li>Log out, then log in as provider.test@demo.com</li>
-            <li>Browse families → Should see "Your Matches" with Test Family</li>
+            <li>Browse families → Should see &quot;Your Matches&quot; with Test Family</li>
           </ol>
         </div>
 
