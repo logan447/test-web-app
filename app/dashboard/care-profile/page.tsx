@@ -427,10 +427,10 @@ export default function CareProfilePage() {
       // Scroll to top to show success message
       window.scrollTo({ top: 0, behavior: "smooth" });
 
-      // Clear success message after 5 seconds
+      // Redirect to dashboard after showing success message
       setTimeout(() => {
-        setSuccessMessage("");
-      }, 5000);
+        router.push("/dashboard");
+      }, 2000);
     } catch (err) {
       setError("Failed to save care profile. Please try again.");
 

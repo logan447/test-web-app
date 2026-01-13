@@ -297,7 +297,10 @@ export default function ProviderProfileNew() {
       if (response.ok) {
         setSuccessMessage('Profile updated successfully!');
         fetchProfile();
-        setTimeout(() => setSuccessMessage(''), 3000);
+        // Redirect to dashboard after showing success message
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 2000);
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to update profile');

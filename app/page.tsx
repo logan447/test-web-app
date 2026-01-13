@@ -17,7 +17,7 @@ import EmptyState from "@/components/Directory/EmptyState";
 import ErrorState from "@/components/Directory/ErrorState";
 import TrustFooter from "@/components/Directory/TrustFooter";
 import ScrollToTop from "@/components/Directory/ScrollToTop";
-import ModeSelectionModal from "@/components/Onboarding/ModeSelectionModal";
+import MinimalOnboardingModal from "@/components/Onboarding/MinimalOnboardingModal";
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import("@/components/Directory/MapView"), {
@@ -119,29 +119,11 @@ export default function Home() {
     }
   };
 
-  const handleModeSelect = async (mode: 'family' | 'provider') => {
-    // Set the mode in the database
-    try {
-      const selectedMode = mode === 'family' ? 'FAMILY' : 'PROVIDER';
-
-      await fetch('/api/mode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: selectedMode }),
-      });
-
-      // Close modal and update state
-      setShowModeSelection(false);
-      setIsNewUser(false);
-
-      // Update the NextAuth session with the new activeMode
-      await update({ activeMode: selectedMode });
-
-      // Redirect to dashboard - session is now updated
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Error setting mode:', error);
-    }
+  const handleOnboardingComplete = () => {
+    // Close modal and update state
+    setShowModeSelection(false);
+    setIsNewUser(false);
+    // Modal handles redirect internally
   };
 
   useEffect(() => {
@@ -645,10 +627,10 @@ export default function Home() {
       {/* Scroll to Top Button */}
       <ScrollToTop />
 
-      {/* Mode Selection Modal for new users */}
-      <ModeSelectionModal
+      {/* Minimal Onboarding Modal for new users */}
+      <MinimalOnboardingModal
         isOpen={showModeSelection}
-        onSelectMode={handleModeSelect}
+        onComplete={handleOnboardingComplete}
       />
     </div>
   );
