@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface MinimalOnboardingModalProps {
@@ -31,6 +31,11 @@ export default function MinimalOnboardingModal({
   const [providerCity, setProviderCity] = useState('');
   const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
   const [hiringCaregivers, setHiringCaregivers] = useState(false);
+
+  // Claim existing page flow (organizations only)
+  const [showClaimResults, setShowClaimResults] = useState(false);
+  const [unclaimedProfiles, setUnclaimedProfiles] = useState<any[]>([]);
+  const [searchingClaims, setSearchingClaims] = useState(false);
 
   if (!isOpen) return null;
 
@@ -83,6 +88,123 @@ export default function MinimalOnboardingModal({
     return true;
   };
 
+  // Search for unclaimed profiles (organizations only)
+  const searchUnclaimedProfiles = async () => {
+    if (!providerName || !providerCity || providerType !== 'organization') {
+      return;
+    }
+
+    setSearchingClaims(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/providers/search-unclaimed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: providerName,
+          city: providerCity,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUnclaimedProfiles(data.profiles || []);
+        if (data.profiles && data.profiles.length > 0) {
+          setShowClaimResults(true);
+        }
+      }
+    } catch (err) {
+      console.error('Error searching unclaimed profiles:', err);
+    } finally {
+      setSearchingClaims(false);
+    }
+  };
+
+  // Claim an existing provider profile
+  const handleClaimProfile = async (providerId: string) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Set user mode to PROVIDER
+      await fetch('/api/mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'PROVIDER' }),
+      });
+
+      // Claim the profile
+      const response = await fetch('/api/providers/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ providerId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to claim profile');
+      }
+
+      onComplete();
+      router.push('/dashboard/care-profiles'); // Route to Find Families browse page
+    } catch (err) {
+      console.error('Error claiming profile:', err);
+      setError('Failed to claim profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Skip claiming and continue to create new profile
+  const handleSkipClaim = () => {
+    setShowClaimResults(false);
+    setUnclaimedProfiles([]);
+  };
+
+  // Handle exit: Save progress and route to browse
+  const handleExit = async () => {
+    try {
+      // If no role selected yet, default to FAMILY mode
+      if (!selectedRole) {
+        await fetch('/api/mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'FAMILY' }),
+        });
+        onComplete();
+        router.push('/providers'); // Route to Find Providers browse page
+        return;
+      }
+
+      // If family selected, set mode and route to Find Providers
+      if (selectedRole === 'family') {
+        await fetch('/api/mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'FAMILY' }),
+        });
+        onComplete();
+        router.push('/providers'); // Route to Find Providers browse page
+        return;
+      }
+
+      // If provider selected, set mode and route to Find Families
+      if (selectedRole === 'provider') {
+        await fetch('/api/mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'PROVIDER' }),
+        });
+        onComplete();
+        router.push('/dashboard/care-profiles'); // Route to Find Families browse page
+        return;
+      }
+    } catch (err) {
+      console.error('Error saving on exit:', err);
+    }
+  };
+
   const handleFamilySubmit = async () => {
     if (!validateFamilyFields()) return;
 
@@ -116,7 +238,7 @@ export default function MinimalOnboardingModal({
       }
 
       onComplete();
-      router.push('/dashboard');
+      router.push('/providers'); // Route to Find Providers browse page
     } catch (err) {
       console.error('Error creating family profile:', err);
       setError('Failed to create profile. Please try again.');
@@ -163,7 +285,7 @@ export default function MinimalOnboardingModal({
       }
 
       onComplete();
-      router.push('/dashboard');
+      router.push('/dashboard/care-profiles'); // Route to Find Families browse page
     } catch (err) {
       console.error('Error creating provider profile:', err);
       setError('Failed to create profile. Please try again.');
@@ -201,7 +323,18 @@ export default function MinimalOnboardingModal({
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/50 backdrop-blur-sm">
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative">
+          {/* X Close Button */}
+          <button
+            onClick={handleExit}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Close"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
           {/* Step 1: Role Selection */}
           {step === 1 && (
             <>
@@ -340,16 +473,26 @@ export default function MinimalOnboardingModal({
                 </div>
               )}
 
-              <button
-                onClick={handleFamilySubmit}
-                disabled={loading}
-                className="w-full py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? 'Creating your profile...' : 'Continue to Dashboard'}
-              </button>
+              <div className="space-y-3">
+                <button
+                  onClick={handleFamilySubmit}
+                  disabled={loading}
+                  className="w-full py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  {loading ? 'Creating your profile...' : 'Continue to Browse Providers'}
+                </button>
+
+                <button
+                  onClick={handleExit}
+                  disabled={loading}
+                  className="w-full py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Save & Exit
+                </button>
+              </div>
 
               <p className="text-center text-sm text-gray-500 mt-4">
-                You&apos;ll be able to add more details later
+                You can complete your profile anytime
               </p>
             </>
           )}
@@ -431,6 +574,91 @@ export default function MinimalOnboardingModal({
                       />
                     </div>
 
+                    {/* Check for existing profiles button (Organizations only) */}
+                    {providerType === 'organization' && providerName && providerCity && !showClaimResults && (
+                      <div>
+                        <button
+                          onClick={searchUnclaimedProfiles}
+                          disabled={searchingClaims}
+                          className="w-full py-3 border-2 border-primary-600 text-primary-600 rounded-lg font-semibold hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                        >
+                          {searchingClaims ? (
+                            <>
+                              <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Searching...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                              </svg>
+                              Check for existing profiles
+                            </>
+                          )}
+                        </button>
+                        <p className="text-xs text-gray-500 mt-2 text-center">
+                          We&apos;ll see if your organization already has a profile you can claim
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Claim Results (Organizations only) */}
+                    {showClaimResults && unclaimedProfiles.length > 0 && (
+                      <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-2">
+                          We found {unclaimedProfiles.length} matching profile{unclaimedProfiles.length > 1 ? 's' : ''}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-4">
+                          Is one of these your organization? Claim it to get started faster.
+                        </p>
+
+                        <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                          {unclaimedProfiles.map((profile) => (
+                            <div key={profile.id} className="p-3 bg-white rounded-lg border border-gray-300">
+                              <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-gray-900">{profile.name}</h4>
+                                  <p className="text-sm text-gray-600">{profile.city}{profile.state ? `, ${profile.state}` : ''}</p>
+                                  {profile.description && (
+                                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{profile.description}</p>
+                                  )}
+                                </div>
+                                <button
+                                  onClick={() => handleClaimProfile(profile.id)}
+                                  disabled={loading}
+                                  className="ml-3 px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+                                >
+                                  Claim This
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <button
+                          onClick={handleSkipClaim}
+                          className="w-full py-2 text-sm text-gray-600 hover:text-gray-900 font-medium"
+                        >
+                          None of these are mine - Create new profile
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Show message if no matches found */}
+                    {showClaimResults && unclaimedProfiles.length === 0 && (
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <p className="text-sm text-gray-600 text-center">
+                          No existing profiles found. Let&apos;s create a new one for you!
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Only show care types if not in claim results view */}
+                    {!showClaimResults && (
+                      <>
                     {/* Care Types */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -471,6 +699,8 @@ export default function MinimalOnboardingModal({
                         </label>
                       </div>
                     )}
+                    </>
+                    )}
                   </>
                 )}
               </div>
@@ -481,18 +711,28 @@ export default function MinimalOnboardingModal({
                 </div>
               )}
 
-              {providerType && (
+              {providerType && !showClaimResults && (
                 <>
-                  <button
-                    onClick={handleProviderSubmit}
-                    disabled={loading}
-                    className="w-full py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {loading ? 'Creating your profile...' : 'Continue to Dashboard'}
-                  </button>
+                  <div className="space-y-3">
+                    <button
+                      onClick={handleProviderSubmit}
+                      disabled={loading}
+                      className="w-full py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {loading ? 'Creating your profile...' : 'Continue to Browse Families'}
+                    </button>
+
+                    <button
+                      onClick={handleExit}
+                      disabled={loading}
+                      className="w-full py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Save & Exit
+                    </button>
+                  </div>
 
                   <p className="text-center text-sm text-gray-500 mt-4">
-                    You&apos;ll be able to add more details later
+                    You can complete your profile anytime
                   </p>
                 </>
               )}
