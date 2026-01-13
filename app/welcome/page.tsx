@@ -15,9 +15,12 @@ export default function WelcomePage() {
   // Check if this is a new user from signup
   const isNewUser = typeof window !== 'undefined' && window.location.search.includes('new=true');
 
+  console.log('[WELCOME] Page loaded. isNewUser:', isNewUser, 'status:', status, 'url:', typeof window !== 'undefined' ? window.location.href : 'SSR');
+
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
+      console.log('[WELCOME] User not authenticated, redirecting to login');
       router.push('/login');
     }
   }, [status, router]);
@@ -26,23 +29,31 @@ export default function WelcomePage() {
   // Skip this check for brand new users (they need to see this page!)
   useEffect(() => {
     if (status === 'authenticated' && !isNewUser) {
+      console.log('[WELCOME] Authenticated returning user, checking onboarding status');
       // Only check onboarding status for returning users
       checkOnboardingStatus();
+    } else if (status === 'authenticated' && isNewUser) {
+      console.log('[WELCOME] New user detected (?new=true), skipping onboarding check - user will see welcome page');
     }
   }, [status, isNewUser]);
 
   const checkOnboardingStatus = async () => {
     try {
+      console.log('[WELCOME] Fetching profile completion status...');
       const response = await fetch('/api/profile/completion-status');
       if (response.ok) {
         const data = await response.json();
+        console.log('[WELCOME] Completion status:', data);
         // If profile is already complete, redirect to dashboard
         if (data.isComplete) {
+          console.log('[WELCOME] Profile complete, redirecting to dashboard');
           router.push('/dashboard');
+        } else {
+          console.log('[WELCOME] Profile incomplete, staying on welcome page');
         }
       }
     } catch (error) {
-      console.error('Error checking onboarding status:', error);
+      console.error('[WELCOME] Error checking onboarding status:', error);
     }
   };
 
