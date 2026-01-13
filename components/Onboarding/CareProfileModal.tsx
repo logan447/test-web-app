@@ -62,11 +62,11 @@ export default function CareProfileModal({
       setLoading(true);
       const response = await fetch('/api/care-profiles');
       if (response.ok) {
-        const data = await response.json();
-        const profile = data.profiles?.[0] || data.profile;
+        const profile = await response.json();
 
-        if (profile) {
-          setCareType(profile.careType || []);
+        if (profile && profile.id) {
+          // API returns careTypes (plural), not careType
+          setCareType(profile.careTypes || []);
           setCity(profile.city || '');
           setState(profile.state || '');
           setCareNeeds(profile.careNeeds || []);
@@ -86,25 +86,39 @@ export default function CareProfileModal({
 
   const saveProfile = async () => {
     try {
+      // First check if profile exists
+      const checkResponse = await fetch('/api/care-profiles');
+      const existingProfile = checkResponse.ok ? await checkResponse.json() : null;
+
+      // Prepare data with correct field names for the API
+      const profileData = {
+        careTypes: careType, // API expects 'careTypes' not 'careType'
+        city,
+        state,
+        careNeeds,
+        whoNeedsCare,
+        budgetMin: budgetMin ? parseInt(budgetMin) : null,
+        budgetMax: budgetMax ? parseInt(budgetMax) : null,
+        timeline,
+        additionalInfo,
+        isPublic: true,
+        visibleToProviders: true,
+        location: `${city}, ${state}`, // Add location field
+        zipCode: '', // Add empty zipCode as it's required by schema
+      };
+
+      // Use PATCH for updates, POST for new profiles
+      const method = existingProfile ? 'PATCH' : 'POST';
+
       const response = await fetch('/api/care-profiles', {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          careType,
-          city,
-          state,
-          careNeeds,
-          whoNeedsCare,
-          budgetMin: budgetMin ? parseInt(budgetMin) : null,
-          budgetMax: budgetMax ? parseInt(budgetMax) : null,
-          timeline,
-          additionalInfo,
-          isPublic: true,
-          visibleToProviders: true,
-        }),
+        body: JSON.stringify(profileData),
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Save error:', errorData);
         throw new Error('Failed to save profile');
       }
 

@@ -63,17 +63,29 @@ export default function FamilyOnboardingModal({
 
   const saveDraft = async () => {
     try {
+      // Check if profile exists first
+      const checkResponse = await fetch('/api/care-profiles');
+      const existingProfile = checkResponse.ok ? await checkResponse.json() : null;
+
+      // Use correct field names for API
+      const profileData = {
+        careTypes: careType, // API expects 'careTypes' not 'careType'
+        city,
+        state,
+        careNeeds,
+        isPublic: true,
+        visibleToProviders: true,
+        location: `${city}, ${state}`,
+        zipCode: '', // Required by schema
+      };
+
+      // Use PATCH for updates, POST for new
+      const method = existingProfile && existingProfile.id ? 'PATCH' : 'POST';
+
       await fetch('/api/care-profiles', {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          careType,
-          city,
-          state,
-          careNeeds,
-          isPublic: true,
-          visibleToProviders: true,
-        }),
+        body: JSON.stringify(profileData),
       });
     } catch (error) {
       console.error('Error saving draft:', error);
