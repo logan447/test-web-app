@@ -128,12 +128,17 @@ export default function Home() {
         body: JSON.stringify({ mode: mode === 'family' ? 'FAMILY' : 'PROVIDER' }),
       });
 
-      // Close modal and redirect to dashboard
+      // Close modal and update state
       setShowModeSelection(false);
       setIsNewUser(false);
 
-      // Redirect to dashboard where OnboardingManager will show the onboarding modal
-      router.push('/dashboard');
+      // Refresh the router to update session data
+      router.refresh();
+
+      // Small delay to ensure session is updated before redirecting
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 300);
     } catch (error) {
       console.error('Error setting mode:', error);
     }
