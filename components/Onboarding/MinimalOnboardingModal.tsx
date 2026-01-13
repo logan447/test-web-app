@@ -98,13 +98,14 @@ export default function MinimalOnboardingModal({
       });
 
       // Create minimal family profile
+      const mappedCareType = mapCareTypeToEnum(careType);
       const response = await fetch('/api/onboarding/family/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: familyCity,
           state: '', // Will be filled in later via Edit Profile
-          careType: [careType], // Convert to array as API expects
+          careType: [careType], // Keep user-friendly string for family profile
           careNeeds: [careType], // Use careType as initial care need
           minimalOnboarding: true,
         }),
@@ -139,13 +140,16 @@ export default function MinimalOnboardingModal({
       });
 
       // Create minimal provider profile
+      // Map user-friendly care type strings to CareType enum values
+      const mappedCareTypes = selectedCareTypes.map(mapCareTypeToEnum);
+
       const response = await fetch('/api/onboarding/provider/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: providerName,
           city: providerCity,
-          careTypes: selectedCareTypes,
+          careTypes: mappedCareTypes, // Send enum values
           providerType: providerType === 'individual' ? 'INDEPENDENT_CAREGIVER' : 'HOME_CARE',
           isHiringCaregivers: providerType === 'organization' ? hiringCaregivers : false,
           minimalOnboarding: true,
@@ -178,6 +182,21 @@ export default function MinimalOnboardingModal({
     'Hospice Care',
     'Other',
   ];
+
+  // Map user-friendly care type strings to CareType enum values
+  const mapCareTypeToEnum = (careType: string): string => {
+    const mapping: Record<string, string> = {
+      'Alzheimer\'s / Dementia': 'MEMORY_CARE',
+      'Physical Disability': 'PERSONAL_CARE',
+      'Developmental Disability': 'PERSONAL_CARE',
+      'Mental Health': 'COMPANION_CARE',
+      'Elderly Care': 'COMPANION_CARE',
+      'Respite Care': 'RESPITE_CARE',
+      'Hospice Care': 'HOSPICE_CARE',
+      'Other': 'COMPANION_CARE',
+    };
+    return mapping[careType] || 'COMPANION_CARE';
+  };
 
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/50 backdrop-blur-sm">
