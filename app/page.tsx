@@ -122,18 +122,20 @@ export default function Home() {
   const handleModeSelect = async (mode: 'family' | 'provider') => {
     // Set the mode in the database
     try {
+      const selectedMode = mode === 'family' ? 'FAMILY' : 'PROVIDER';
+
       await fetch('/api/mode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: mode === 'family' ? 'FAMILY' : 'PROVIDER' }),
+        body: JSON.stringify({ mode: selectedMode }),
       });
 
       // Close modal and update state
       setShowModeSelection(false);
       setIsNewUser(false);
 
-      // Update the NextAuth session to reflect the new mode
-      await update();
+      // Update the NextAuth session with the new activeMode
+      await update({ activeMode: selectedMode });
 
       // Redirect to dashboard - session is now updated
       router.push('/dashboard');
