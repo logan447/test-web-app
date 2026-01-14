@@ -98,6 +98,19 @@ Signup entry point determines the user's initial `activeMode`:
 
 **Implementation**: Add optional `intent` query param to signup (e.g., `/signup?intent=provider`). Use this to set `User.activeMode` on account creation.
 
+#### 1.2 Login Mode Defaulting (DECIDED)
+
+Always restore the user's last active mode from `User.activeMode` in the database.
+
+| Scenario | Behavior |
+|----------|----------|
+| Returning user logs in | Restore `User.activeMode` from DB (whatever they last used) |
+| New user logs in for first time | Use mode set during signup (per 1.1 decision) |
+
+**Rationale**: Profile-completion-based defaulting is confusing and unpredictable. Users should return to whatever mode they were last using.
+
+**Implementation**: Remove profile-completion-based mode calculation from login flow in `lib/auth.ts`. Simply read `User.activeMode` from DB.
+
 ---
 
 ## Chapter 2: Mode System (Family vs Provider)
