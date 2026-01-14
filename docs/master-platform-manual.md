@@ -135,6 +135,14 @@ Current JWT fields are sufficient for demo:
 
 **Post-demo**: Implement before real user testing.
 
+#### 1.5 Account Deletion (DECIDED)
+
+**Status**: ❌ Deferred for demo.
+
+**Rationale**: Test accounts reset via seed script. Requires cascading delete logic. GDPR/CCPA compliance not needed until real users.
+
+**Post-demo**: Implement before public launch.
+
 ---
 
 ## Chapter 2: Mode System (Family vs Provider)
