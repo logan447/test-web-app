@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-permissions';
 import { prisma } from '@/lib/prisma';
+import { sendClaimApprovedEmail, sendClaimRejectedEmail } from '@/lib/loops-email';
 
 /**
  * POST /api/admin/claims/review
@@ -112,6 +113,35 @@ export async function POST(req: NextRequest) {
 
       return updatedClaim;
     });
+
+    // Send email notification via Loops
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001';
+      const providerUrl = `${baseUrl}/providers/${claimAttempt.providerProfileId}`;
+
+      if (action === 'approve') {
+        // Email 3: Claim approved by admin
+        await sendClaimApprovedEmail({
+          email: claimAttempt.userEmail,
+          userName: claimAttempt.userName,
+          providerName: claimAttempt.providerName,
+          providerUrl,
+          adminNote: notes,
+        });
+      } else {
+        // Email 4: Claim rejected
+        await sendClaimRejectedEmail({
+          email: claimAttempt.userEmail,
+          userName: claimAttempt.userName,
+          providerName: claimAttempt.providerName,
+          reason: notes || 'We were unable to verify your ownership of this profile at this time.',
+          supportEmail: 'support@olera.com',
+        });
+      }
+    } catch (emailError) {
+      // Log error but don't fail the review action
+      console.error('Failed to send admin review email notification:', emailError);
+    }
 
     return NextResponse.json({
       success: true,

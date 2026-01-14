@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createProviderVerificationToken, sendProviderVerificationEmail } from '@/lib/verification';
 import { calculateVerificationSignals } from '@/lib/verification-signals';
+import { sendClaimAutoApprovedEmail, sendClaimPendingReviewEmail } from '@/lib/loops-email';
 
 /**
  * POST /api/providers/claim
@@ -171,6 +172,36 @@ export async function POST(req: NextRequest) {
         // Log error but don't fail the claim - verification can be resent later
         console.error('Failed to send verification email:', emailError);
       }
+    }
+
+    // Send notification email via Loops
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001';
+      const providerUrl = `${baseUrl}/providers/${providerId}`;
+
+      if (verificationSignals.autoApprove) {
+        // Email 1: Auto-approved
+        await sendClaimAutoApprovedEmail({
+          email: session.user.email!,
+          userName: session.user.name || 'Provider',
+          providerName: provider.name,
+          providerUrl,
+          score: verificationSignals.overallScore,
+        });
+      } else {
+        // Email 2: Pending review
+        await sendClaimPendingReviewEmail({
+          email: session.user.email!,
+          userName: session.user.name || 'Provider',
+          providerName: provider.name,
+          providerUrl,
+          score: verificationSignals.overallScore,
+          reviewTimeframe: '24 hours',
+        });
+      }
+    } catch (emailError) {
+      // Log error but don't fail the claim
+      console.error('Failed to send Loops email notification:', emailError);
     }
 
     return NextResponse.json({
