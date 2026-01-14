@@ -249,7 +249,17 @@ No separate mode-selection modal. Mode is determined by:
 ### Key Questions
 - [x] Should onboarding be skippable or mandatory? → **Skippable, non-blocking**
 - [x] What are the distinct entry points? → **See 3.1 below**
-- [ ] What is the minimum info required for each user type? → **To be defined in Ch 4 & 5**
+- [x] What is the minimum info required for each user type? → **None beyond email/password (see below)**
+
+### Profile Data Philosophy (DECIDED)
+
+| Principle | Detail |
+|-----------|--------|
+| **Account creation** | Only email + password required |
+| **All profile fields** | Optional for access and functionality |
+| **"Required" fields** | Means improves matching quality, NOT blocking |
+| **User experience** | Explore freely, rewarded for stronger profiles |
+| **Matching thresholds** | Defined in Ch 4 & 5, not enforced in onboarding |
 
 ### Architectural Notes
 
