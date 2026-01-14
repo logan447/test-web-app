@@ -568,12 +568,31 @@ Current field structure accepted as-is for demo:
 | 5.14 Type-Specific Field Display | 🟡 | May not be conditional by provider type |
 
 ### Key Questions
-- [ ] Which fields should be required vs optional per provider type?
+- [x] Which fields should be required vs optional per provider type? → **See Two-Threshold Model + below**
 - [ ] How should unclaimed profiles differ in display/editing?
-- [ ] What is the minimum viable profile for each provider type?
+- [x] What is the minimum viable profile for each provider type? → **See Two-Threshold Model**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 5.1 Provider Profile Location (DECIDED)
+
+Provider profile editing lives within the Provider Dashboard (`/provider/dashboard`), not as a separate page.
+
+| Component | Location |
+|-----------|----------|
+| Initial creation | Onboarding wizard (Chapter 3) |
+| Full editing | Tab within `/provider/dashboard` |
+
+**Provider Dashboard Structure** (tabs/sections):
+
+| Section | Purpose |
+|---------|---------|
+| **Overview** | Summary stats, quick links, engagement metrics |
+| **Provider Profile** | Edit profile fields (conditional by provider type) |
+| **Schedule/Calendar** | Upcoming tours, consults, interviews |
+| **Activity Stream** | Recent activity, notifications |
+
+**Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
 ---
 
