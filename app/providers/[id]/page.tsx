@@ -248,8 +248,8 @@ export default function ProviderProfilePage() {
 
   const handleClaimProfile = () => {
     if (!session?.user) {
-      // Redirect to auth with return URL that includes claim=true
-      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/providers/${provider?.id}?claim=true`)}`);
+      // Redirect to login with return URL that includes claim=true
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/providers/${provider?.id}?claim=true`)}`);
       return;
     }
 
