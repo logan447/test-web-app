@@ -111,6 +111,20 @@ Always restore the user's last active mode from `User.activeMode` in the databas
 
 **Implementation**: Remove profile-completion-based mode calculation from login flow in `lib/auth.ts`. Simply read `User.activeMode` from DB.
 
+#### 1.3 Session (JWT) Contents (DECIDED)
+
+Current JWT fields are sufficient for demo:
+
+| Field | Purpose |
+|-------|---------|
+| `id` | User identification for DB lookups |
+| `email` | Display in UI |
+| `name` | Display greeting/avatars |
+| `role` | Access control (FAMILY/PROVIDER/ADMIN) |
+| `activeMode` | Which view to render (family vs provider) |
+
+**Note**: Additional fields (e.g., `providerId`) can be added later if needed. Keep JWT minimal for now.
+
 ---
 
 ## Chapter 2: Mode System (Family vs Provider)
