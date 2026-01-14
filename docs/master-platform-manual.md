@@ -487,6 +487,23 @@ Care profile editing lives within the Family Dashboard (`/family/dashboard`), no
 
 **Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
+#### 4.2–4.7 Profile Field Categories (DECIDED)
+
+Current field structure accepted as-is for demo:
+
+| Category | Status | Notes |
+|----------|--------|-------|
+| 4.2 Loved One Info | ✅ Accept | Name, age, relationship, gender |
+| 4.3 Care Needs | ✅ Accept | Care level, conditions, mobility |
+| 4.4 Personality & Preferences | ✅ Accept | Hobbies, communication style |
+| 4.5 Location & Contact | ✅ Accept | Address, contact preferences |
+| 4.6 Budget & Timeline | ✅ Accept | Budget range, urgency |
+| 4.7 Visibility | ✅ Accept | Visible to providers toggle |
+
+**Required for visibility** (per Two-Threshold Model): Name, location, care type needed.
+
+**All other fields**: Optional, improve matching quality.
+
 #### 4.9 Multiple Care Profiles (DECIDED)
 
 **Demo**: Single care profile per account.
