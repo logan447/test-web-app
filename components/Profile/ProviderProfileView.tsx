@@ -24,6 +24,9 @@ interface ProviderProfile {
   availableSpots?: number | null;
   availableForFamilies: boolean;
   availableForOrganizations: boolean;
+  claimed?: boolean;
+  verificationStatus?: string | null;
+  verified?: boolean;
 }
 
 interface ProviderProfileViewProps {
@@ -93,21 +96,55 @@ export default function ProviderProfileView({ profile, onEdit }: ProviderProfile
 
   const completion = calculateCompletion();
   const priceDisplay = formatPrice();
+  const isPending = profile.verificationStatus === 'pending' || (profile.claimed && !profile.verified);
+  const isVerified = profile.verificationStatus === 'verified' || profile.verified === true;
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Pending Verification Banner */}
+      {isPending && (
+        <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-5 mb-6">
+          <div className="flex items-start gap-4">
+            <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1">
+              <h3 className="font-semibold text-blue-900 text-lg mb-1.5">
+                Profile Pending Verification
+              </h3>
+              <p className="text-sm text-blue-800 leading-relaxed mb-3">
+                Your claim is currently under admin review. Our team typically reviews claims within 24 hours. You&apos;ll receive an email when your profile is approved and you can begin editing.
+              </p>
+              <p className="text-xs text-blue-700 font-medium">
+                Full edit access will be granted after verification is complete.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header with Edit Button */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Provider Profile</h1>
           <p className="text-gray-600">This is how families see your profile</p>
         </div>
-        <button
-          onClick={onEdit}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
-        >
-          Edit Profile
-        </button>
+        {isVerified ? (
+          <button
+            onClick={onEdit}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+          >
+            Edit Profile
+          </button>
+        ) : (
+          <button
+            disabled
+            className="bg-gray-300 text-gray-500 font-semibold px-6 py-3 rounded-lg cursor-not-allowed"
+            title="Profile editing requires verification"
+          >
+            Edit Profile
+          </button>
+        )}
       </div>
 
       {/* Profile Completion Banner */}

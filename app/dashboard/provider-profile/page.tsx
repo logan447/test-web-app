@@ -35,6 +35,10 @@ interface ProviderProfile {
   // Privacy
   availableForFamilies: boolean;
   availableForOrganizations: boolean;
+  // Verification status
+  claimed?: boolean;
+  verificationStatus?: string | null;
+  verified?: boolean;
 }
 
 interface CollapsibleSectionProps {
