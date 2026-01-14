@@ -1028,24 +1028,208 @@ Leaflet map integration exists with list/map toggle.
 
 **Purpose**: Allow organizations to claim their pre-seeded directory profiles and gain edit access.
 
-**Important**: Only organizations have unclaimed profiles. Families and individual caregivers never have unclaimed profiles.
+**Important**: Only organizations have unclaimed profiles. Families and individual caregivers never have unclaimed profiles — they create profiles directly.
+
+**Cross-reference**: See Chapter 5.12 for three-tier provider access model (Unclaimed → Claimed → Subscribed).
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 8.1 Claim Request Submission | ⬜ | No claim workflow visible |
-| 8.2 Verification Methods | ⬜ | Email domain, phone, documentation |
-| 8.3 Admin Review Queue | ⬜ | No admin claim review |
-| 8.4 Claimed → Editable Transition | 🟡 | `claimed` field exists, logic unclear |
+| 8.1 Claim Request Submission | 🟡 | Placeholder exists, workflow not implemented |
+| 8.2 Verification Methods | ⬜ | Not implemented |
+| 8.3 Admin Review Queue | ⬜ | Not implemented |
+| 8.4 Claimed → Editable Transition | 🟡 | `claimed` field exists, logic needed |
 | 8.5 Claim Notifications | ⬜ | Not implemented |
 | 8.6 Rejection Handling | ⬜ | Not implemented |
 
 ### Key Questions
-- [ ] What verification methods should be supported?
-- [ ] What information can unclaimed profiles display?
-- [ ] Admin review workflow requirements?
+- [x] What verification methods should be supported? → **See 8.2 below**
+- [x] What information can unclaimed profiles display? → **See Chapter 5.12**
+- [x] Admin review workflow requirements? → **See 8.3 below**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 8.1 Claim Request Submission (DECIDED)
+
+##### Demo Scope
+- Self-service claiming with **instant approval**
+- User clicks "Claim this listing" → signs up/logs in → provides attestation → claim approved
+- No admin review queue
+- No verification beyond role attestation
+
+##### Production Scope
+- Self-service submission with soft verification
+- Auto-approve if email domain matches provider domain
+- Otherwise, route to admin review queue
+- Full audit trail of all claim activity
+
+**Claim Flow**:
+
+```
+User clicks "Claim this listing" on /providers/[id]
+    ↓
+User signs up or logs in (if not authenticated)
+    ↓
+User completes claim form:
+  - Role attestation checkbox (required)
+  - Work email (for domain matching)
+  - Optional: additional verification info
+    ↓
+[Demo] → Instant approval
+[Production] → Domain match check
+    ↓
+If domain matches → Auto-approve
+If no match → Route to admin review queue
+    ↓
+On approval: Provider.claimed = true, Provider.userId = user.id
+```
+
+**Entry Points**:
+
+| Entry Point | CTA | Behavior |
+|-------------|-----|----------|
+| `/providers/[id]` (unclaimed) | "Claim this listing" button | Opens claim flow |
+| `/provider/onboarding` | "Claim Existing Listing" option | Search for listing, then claim |
+| `/for-providers` marketing | "Already listed? Claim your profile" | Search for listing, then claim |
+
+#### 8.2 Verification Methods (DECIDED)
+
+##### Demo Scope
+
+| Method | Included | Notes |
+|--------|----------|-------|
+| Role attestation checkbox | ✅ | "I am authorized to manage this listing" |
+| All others | ❌ | Deferred |
+
+##### Production Scope
+
+| Method | Required | Notes |
+|--------|----------|-------|
+| Role attestation checkbox | ✅ Required | Legal attestation of authority |
+| Work email domain match | ✅ Auto-approve trigger | user@sunrisesenior.com → Sunrise Senior Living |
+| Phone verification (call/SMS) | ✅ Required | Verify via listed phone number |
+| Document upload | Optional | Business license, authorization letter |
+| Video verification | Consider | For high-value or disputed claims |
+
+**Production verification logic**:
+1. If work email domain matches provider's website domain → **Auto-approve**
+2. If phone verification succeeds → **Auto-approve**
+3. Otherwise → **Route to admin review**
+
+#### 8.3 Admin Review Queue (DECIDED)
+
+##### Demo Scope
+Not implemented. All claims auto-approved instantly.
+
+##### Production Scope
+
+**Human-in-the-Loop Process**:
+
+When a claim cannot be auto-verified, the system initiates a human review process:
+
+1. **Claim Submission**: User submits claim that doesn't match auto-approval criteria
+2. **Slack Alert**: System posts to internal `#claim-reviews` Slack channel with:
+   - Provider name and location
+   - Claimant name and email
+   - Verification info provided
+   - Link to admin review panel
+3. **Admin Review**: Reviewer logs into admin panel (`/admin/claims`) to:
+   - View claim details and submitted documentation
+   - View provider profile and any existing owner info
+   - Cross-reference public info (website, LinkedIn, etc.)
+   - Approve, reject, or request additional information
+4. **Resolution**: Admin action triggers:
+   - Database update (claimed status, userId assignment)
+   - Notification to claimant (see 8.5)
+   - Audit log entry
+
+**Admin Panel Requirements**:
+
+| Feature | Description |
+|---------|-------------|
+| Pending claims list | Filterable, sortable queue |
+| Claim detail view | All submitted info, provider profile, history |
+| Quick actions | Approve, Reject, Request More Info |
+| Bulk actions | Approve/reject multiple claims |
+| Claim history | Audit trail of all claim activity |
+| Metrics dashboard | Claims per day, approval rate, average review time |
+
+**SLA Target**: Review within 24-48 hours of submission.
+
+#### 8.4 Claimed → Editable Transition (DECIDED)
+
+**On successful claim approval**:
+
+| Action | Implementation |
+|--------|----------------|
+| Set `Provider.claimed = true` | DB update |
+| Set `Provider.userId = claimingUser.id` | DB update |
+| Grant edit access | Middleware checks `userId` matches session |
+| Add to Provider Dashboard | Provider appears in user's `/provider/dashboard` |
+| Remove "Unclaimed" badge | Conditional rendering based on `claimed` |
+| Enable lead viewing | Per three-tier model (Chapter 5.12) |
+
+**Access after claiming** (per three-tier model):
+- ✅ Edit profile
+- ✅ View inbound leads (read-only)
+- ❌ Respond to leads (requires subscription)
+- ❌ Initiate outreach (requires subscription)
+
+#### 8.5 Claim Notifications (DECIDED)
+
+##### Demo Scope
+Not implemented.
+
+##### Production Scope
+
+**Claimant Notifications** (via Email):
+
+| Notification | Trigger | Content |
+|--------------|---------|---------|
+| Claim received (pending) | Claim submitted, pending review | Confirmation, expected timeline |
+| Claim approved | Auto-approved or admin approved | Welcome, next steps, dashboard link |
+| Claim rejected | Admin rejects | Reason, what to provide, appeal instructions |
+| Additional info requested | Admin requests docs | What's needed, how to submit |
+
+**Admin Notifications** (via Slack to `#claim-reviews`):
+
+| Notification | Trigger | Content |
+|--------------|---------|---------|
+| New claim pending | Claim enters review queue | Provider info, claimant info, review link |
+| Claim SLA warning | Claim pending > 24 hours | Reminder with claim details |
+| Daily digest | Morning summary | Count of pending claims, oldest claim age |
+
+#### 8.6 Rejection & Appeal Handling (DECIDED)
+
+##### Demo Scope
+Not implemented (no rejections since auto-approve).
+
+##### Production Scope
+
+**Rejection Flow**:
+1. Admin rejects claim with required reason
+2. Claimant receives rejection email with:
+   - Clear reason for rejection
+   - What additional info might help
+   - Appeal instructions and link
+   - Support contact for questions
+
+**Appeal Process**:
+1. Claimant submits appeal via form (within 30 days of rejection)
+2. Appeal routed to senior reviewer (different from original reviewer)
+3. Senior reviewer can:
+   - Uphold rejection (with explanation)
+   - Overturn and approve claim
+   - Request additional verification
+
+**Reclaim After Appeal**:
+- If appeal approved → Standard claim transition applies (8.4)
+- If appeal denied → Claimant may re-apply after 30 days with new documentation
+
+**Disputed Claims** (edge case):
+- If multiple users claim same provider → Flag for manual review
+- First verified claimant gets priority
+- Others notified and can appeal with documentation
+- May require conference call or additional verification
 
 ---
 
