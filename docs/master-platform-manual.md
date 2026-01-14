@@ -504,6 +504,28 @@ Current field structure accepted as-is for demo:
 
 **All other fields**: Optional, improve matching quality.
 
+#### 4.8 Profile Completion Tracking (DECIDED)
+
+**Storage**: `FamilyProfile.completionPercentage` field in DB (not calculated on-the-fly).
+
+**Calculation**: Recalculate on profile save.
+
+**Display**: Progress bar/indicator in Family Dashboard.
+
+**Nudging**: "Complete your profile" prompt if below visibility threshold.
+
+**Suggested completion weights**:
+
+| Field Group | Weight | Notes |
+|-------------|--------|-------|
+| Visibility threshold (name, location, care type) | 40% | Must complete to be visible |
+| Care needs details | 20% | Improves matching |
+| Personality & preferences | 15% | Improves matching |
+| Budget & timeline | 15% | Improves matching |
+| Contact preferences | 10% | Improves engagement |
+
+**Note**: Crossing visibility threshold ≈ 40% complete. Weights can be tuned later.
+
 #### 4.9 Multiple Care Profiles (DECIDED)
 
 **Demo**: Single care profile per account.
