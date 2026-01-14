@@ -2,13 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
-/**
- * POST /api/admin/create-admin
- *
- * Creates admin@olera.com account
- * For initial setup only - no auth required
- */
-export async function POST() {
+async function createAdminAccount() {
   try {
     const hashedPassword = await bcrypt.hash('admin123', 10);
 
@@ -39,19 +33,37 @@ export async function POST() {
       // user3@test.com doesn't exist, skip
     }
 
-    return NextResponse.json({
+    return {
       success: true,
       message: 'Admin accounts created/updated',
       accounts: [
         { email: 'admin@olera.com', password: 'admin123', created: true },
         ...(user3Updated ? [{ email: 'user3@test.com', password: 'password123', upgraded: true }] : []),
       ],
-    });
-  } catch (error) {
+    };
+  } catch (error: any) {
     console.error('Error creating admin:', error);
-    return NextResponse.json(
-      { error: 'Failed to create admin accounts' },
-      { status: 500 }
-    );
+    return {
+      success: false,
+      error: 'Failed to create admin accounts',
+      details: error.message,
+    };
   }
+}
+
+/**
+ * GET /api/admin/create-admin
+ * POST /api/admin/create-admin
+ *
+ * Creates admin@olera.com account
+ * For initial setup only - no auth required
+ */
+export async function GET() {
+  const result = await createAdminAccount();
+  return NextResponse.json(result, { status: result.success ? 200 : 500 });
+}
+
+export async function POST() {
+  const result = await createAdminAccount();
+  return NextResponse.json(result, { status: result.success ? 200 : 500 });
 }

@@ -294,6 +294,22 @@ export default function ProviderProfilePage() {
           ? 'Profile claimed and verified!'
           : 'Claim submitted for review'
       );
+
+      // Switch user to PROVIDER mode and redirect to dashboard
+      try {
+        await fetch('/api/auth/user-mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'PROVIDER' }),
+        });
+      } catch (modeError) {
+        console.error('Failed to switch mode:', modeError);
+      }
+
+      // Redirect to provider dashboard after short delay
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1500);
     } catch (error: any) {
       console.error('Error claiming profile:', error);
       showToast.error(error.message || 'Failed to claim profile');
