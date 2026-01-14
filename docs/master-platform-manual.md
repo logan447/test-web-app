@@ -65,6 +65,91 @@
 
 ---
 
+## Foundational Architectural Decisions
+
+> These decisions apply across multiple chapters and establish the core patterns for the platform.
+
+### Two-Threshold Model (DECIDED)
+
+| Threshold | Requirements | What It Enables |
+|-----------|--------------|-----------------|
+| **Account Creation** | Email + password (or social auth) | Explore platform, but profile invisible, no matching |
+| **Profile Visibility + Matching** | Name, location, basic role-specific fields | Profile card renders, visibility toggles work, matching activates |
+
+**Visibility Threshold Fields** (minimum to cross):
+
+| Profile Type | Required for Visibility |
+|--------------|------------------------|
+| Family | Full name, location, care type needed |
+| Individual Caregiver | Full name, location, services offered |
+| Provider Organization | Org name, location, provider type |
+
+**Behavior if threshold not met**:
+- Profile exists but marked invisible
+- User prompted to complete required fields if they try to enable visibility
+- Matching algorithm ignores profiles below threshold
+
+### Route Architecture Principles (DECIDED)
+
+| Principle | Meaning |
+|-----------|---------|
+| **No dynamic dashboards** | Each dashboard is a separate, explicit page |
+| **No mode-dependent routes** | URL determines content, not mode |
+| **One page, one purpose** | No overloaded pages that change based on context |
+| **Dropdown = Route map** | Each account dropdown item → one static route |
+| **Mode controls visibility only** | Mode affects nav items shown, not page behavior |
+| **Profiles inside dashboards** | Care Profile and Provider Profile are sections within dashboards, not separate nav items |
+
+### Family Mode Navigation (DECIDED)
+
+| Nav Item | Route | Contains |
+|----------|-------|----------|
+| **Find Providers** | `/` (homepage) | Provider directory with filters |
+| **Saved Providers** | `/family/saved-providers` | Saved provider list |
+| **My Providers** | `/family/my-providers` | All engagements (requests, messages, conversations) |
+| **Family Dashboard** | `/family/dashboard` | Summary, schedule, activity, **Care Profile editing** |
+
+### Provider Mode Navigation (DECIDED)
+
+| Nav Item | Route | Contains |
+|----------|-------|----------|
+| **Find Families** | `/provider/find-families` | Browse families with visibility enabled |
+| **Saved Families** | `/provider/saved-families` | Saved family list |
+| **My Families** | `/provider/my-families` | All engagements with families |
+| **Provider Dashboard** | `/provider/dashboard` | Summary, stats, calendar, **Provider Profile editing** |
+
+### Org Provider — Additional Navigation (Conditional)
+
+| Nav Item | Route | Purpose |
+|----------|-------|---------|
+| **Find Care Staff** | `/provider/find-caregivers` | Browse caregivers seeking jobs |
+| **My Candidates** | `/provider/my-candidates` | Engagements with caregivers |
+
+### Individual Caregiver — Additional Navigation (Conditional)
+
+| Nav Item | Route | Purpose |
+|----------|-------|---------|
+| **Find Hiring Orgs** | `/caregiver/find-organizations` | Browse orgs with hiring enabled |
+| **My Job Opportunities** | `/caregiver/my-opportunities` | Job engagements with orgs |
+
+### Route Migration Summary
+
+| Current Route | New Route | Action |
+|---------------|-----------|--------|
+| `/dashboard` | `/family/dashboard` | Rename |
+| `/dashboard/requests` | `/family/my-providers` | Rename |
+| `/dashboard/saved` | `/family/saved-providers` | Rename |
+| `/dashboard/care-profiles` | Remove | Consolidate into `/family/dashboard` |
+| `/provider/requests` | `/provider/find-families` | Rename |
+| `/provider/saved` | `/provider/saved-families` | Rename |
+| `/provider/hire-staff` | `/provider/find-caregivers` | Rename |
+| `/provider/hiring-requests` | `/provider/my-candidates` | Rename |
+| `/caregiver/browse-organizations` | `/caregiver/find-organizations` | Rename |
+| (new) | `/provider/my-families` | Create |
+| (new) | `/caregiver/my-opportunities` | Create |
+
+---
+
 ## Chapter 1: Authentication & Account Management
 
 **Purpose**: User registration, login, session management, and account lifecycle.
@@ -195,10 +280,12 @@ Current JWT fields are sufficient for demo:
 
 | Mode Switched To | Landing Page | Notes |
 |------------------|--------------|-------|
-| FAMILY | `/providers` ("Find Providers") | Discovery-first, not dashboard |
-| PROVIDER | `/provider/requests` ("Find Families") | Discovery-first, not dashboard |
+| FAMILY | `/` ("Find Providers") | Discovery-first, not dashboard |
+| PROVIDER | `/provider/find-families` ("Find Families") | Discovery-first, not dashboard |
 
 Dashboards remain accessible via nav but are not the default landing on mode switch.
+
+**Cross-reference**: See Foundational Architectural Decisions for full route architecture.
 
 **Provider Mode Without Profile** — No Blocking:
 
@@ -210,8 +297,6 @@ Dashboards remain accessible via nav but are not the default landing on mode swi
 | Gentle nudges | Encourage profile creation without blocking exploration |
 
 **Key**: Low friction, user autonomy. Avoid drop-off from forced flows.
-
-**Note**: URL/label cleanup (`/provider/requests` → `/provider/families` or similar) can be handled in a later pass.
 
 #### 2.3–2.5 Mode Defaulting, Persistence, URL Parameter (DECIDED)
 
@@ -253,13 +338,19 @@ No separate mode-selection modal. Mode is determined by:
 
 ### Profile Data Philosophy (DECIDED)
 
+**Cross-reference**: See Foundational Architectural Decisions → Two-Threshold Model for full details.
+
+| Threshold | Requirements | What It Enables |
+|-----------|--------------|-----------------|
+| **Account Creation** | Email + password only | Explore platform freely |
+| **Visibility + Matching** | Name, location, basic role fields | Profile visible, matching active |
+
 | Principle | Detail |
 |-----------|--------|
-| **Account creation** | Only email + password required |
-| **All profile fields** | Optional for access and functionality |
-| **"Required" fields** | Means improves matching quality, NOT blocking |
-| **User experience** | Explore freely, rewarded for stronger profiles |
-| **Matching thresholds** | Defined in Ch 4 & 5, not enforced in onboarding |
+| **Low friction at signup** | Only email + password required to create account |
+| **Intentional friction for visibility** | Minimal fields required before profile can be discovered |
+| **Progressive enhancement** | Additional fields improve match quality and confidence |
+| **No blocking** | Users can explore without completing profile |
 
 ### Architectural Notes
 
