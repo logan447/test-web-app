@@ -185,6 +185,32 @@ Current JWT fields are sufficient for demo:
 
 **Implementation**: Remove all `?mode=` URL parameter handling from codebase.
 
+#### 2.2 Mode Switching Behavior (DECIDED)
+
+**Toggle Location**: Available in both account dropdown AND main navigation. Always shows opposite mode.
+
+**Landing Pages by Mode**:
+
+| Mode Switched To | Landing Page | Notes |
+|------------------|--------------|-------|
+| FAMILY | `/providers` ("Find Providers") | Discovery-first, not dashboard |
+| PROVIDER | `/provider/requests` ("Find Families") | Discovery-first, not dashboard |
+
+Dashboards remain accessible via nav but are not the default landing on mode switch.
+
+**Provider Mode Without Profile** — No Blocking:
+
+| Principle | Behavior |
+|-----------|----------|
+| No forced onboarding | User can explore all provider tabs freely |
+| Lightweight wizard | Dismissible modal prompts profile creation |
+| Saveable & exitable | User can partially complete and return later |
+| Gentle nudges | Encourage profile creation without blocking exploration |
+
+**Key**: Low friction, user autonomy. Avoid drop-off from forced flows.
+
+**Note**: URL/label cleanup (`/provider/requests` → `/provider/families` or similar) can be handled in a later pass.
+
 ---
 
 ## Chapter 3: Onboarding Flows
