@@ -7,6 +7,13 @@
 > - 🟡 **Partial** — Some features exist, gaps or fragility present
 > - ⬜ **Not Built** — Planned but not yet implemented
 > - ❌ **Deferred** — Out of scope for demo
+>
+> **Demo vs. Production Scope**:
+> This manual documents both the demo implementation and the full production system design. The distinction is made clear throughout:
+> - **Simple deferrals** are noted inline (e.g., "❌ Deferred for demo" with rationale and "Post-demo" notes)
+> - **Complex multi-phase features** use explicit **Demo Scope** and **Production Scope** subsections
+>
+> This ensures reviewers understand that the demo is intentionally simplified, while the full system has been thoughtfully designed even where features are deferred.
 
 ---
 
