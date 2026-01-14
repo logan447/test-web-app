@@ -83,7 +83,20 @@
 - [ ] Password reset priority?
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 1.1 Signup Entry Points & Mode Defaulting (DECIDED)
+
+Signup entry point determines the user's initial `activeMode`:
+
+| Entry Point | Default Mode | Rationale |
+|-------------|--------------|-----------|
+| `/signup` (direct) | FAMILY | Most users seeking care |
+| `/for-providers` CTA | PROVIDER | Explicitly targeting providers |
+| `/providers/[id]` — "Claim this page" CTA | PROVIDER | Provider claiming action |
+| `/providers/[id]` — save/contact action | FAMILY | User was browsing as family |
+| Inline modal (anywhere) | Inherit from context | Preserve user intent |
+
+**Implementation**: Add optional `intent` query param to signup (e.g., `/signup?intent=provider`). Use this to set `User.activeMode` on account creation.
 
 ---
 
