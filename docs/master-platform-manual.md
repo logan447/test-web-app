@@ -167,12 +167,23 @@ Current JWT fields are sufficient for demo:
 | 2.6 Mode Selection Modal (signup/onboarding) | 🟡 | May be broken/incomplete |
 
 ### Key Questions
-- [ ] Should signup source (e.g., `/for-providers`) influence default mode?
-- [ ] Is the URL `?mode=` parameter necessary, or can we rely solely on DB state?
-- [ ] What triggers mode defaulting on login?
+- [x] Should signup source (e.g., `/for-providers`) influence default mode? → **Yes (see Chapter 1.1)**
+- [x] Is the URL `?mode=` parameter necessary, or can we rely solely on DB state? → **Remove URL param, DB only**
+- [x] What triggers mode defaulting on login? → **Restore from DB (see Chapter 1.2)**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 2.1 Mode Storage — Single Source of Truth (DECIDED)
+
+`User.activeMode` in the database is the sole source of truth for mode.
+
+| Layer | Role |
+|-------|------|
+| Database (`User.activeMode`) | Authoritative source |
+| JWT Session (`activeMode`) | Mirrors DB, refreshed on login/mode switch |
+| URL (`?mode=`) | ❌ **Remove entirely** — causes sync bugs and "bleeding" |
+
+**Implementation**: Remove all `?mode=` URL parameter handling from codebase.
 
 ---
 
