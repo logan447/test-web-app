@@ -32,8 +32,20 @@ export default function LoginPage() {
     }
 
     if (result?.ok) {
-      // Redirect to dashboard - middleware will redirect PROVIDER users to Find Families
-      window.location.href = '/dashboard';
+      // Check user role and redirect accordingly
+      try {
+        const userResponse = await fetch(`/api/user/role?email=${encodeURIComponent(email)}`);
+        const userData = await userResponse.json();
+
+        if (userData?.role === 'ADMIN') {
+          window.location.href = '/admin/claims';
+        } else {
+          window.location.href = '/dashboard';
+        }
+      } catch (error) {
+        // Fallback to dashboard if role check fails
+        window.location.href = '/dashboard';
+      }
     }
   };
 

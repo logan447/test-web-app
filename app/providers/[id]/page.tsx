@@ -106,23 +106,18 @@ export default function ProviderProfilePage() {
     }
   }, [session]);
 
-  // Auto-trigger claim if ?claim=true is present after auth OR wantsToClaimAfterAuth flag set
+  // Auto-trigger claim if ?claim=true is present after auth (for callback URLs)
   useEffect(() => {
     const shouldClaimFromUrl = searchParams.get('claim') === 'true';
-    const shouldClaim = (shouldClaimFromUrl || wantsToClaimAfterAuth) && session?.user && provider && !provider.claimed && !claiming && !claimSuccess;
-
-    if (shouldClaim) {
+    if (shouldClaimFromUrl && session?.user && provider && !provider.claimed && !claiming && !claimSuccess) {
       // Auto-trigger claim after successful authentication
       handleClaimProfileDirect();
-      // Clear flags and URL params
-      setWantsToClaimAfterAuth(false);
-      if (shouldClaimFromUrl) {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('claim');
-        window.history.replaceState({}, '', url.toString());
-      }
+      // Remove claim param from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('claim');
+      window.history.replaceState({}, '', url.toString());
     }
-  }, [searchParams, session, provider, wantsToClaimAfterAuth]);
+  }, [searchParams, session, provider]);
 
   const fetchProvider = async () => {
     try {
@@ -250,6 +245,13 @@ export default function ProviderProfilePage() {
     return type.split('_').map(word =>
       word.charAt(0) + word.slice(1).toLowerCase()
     ).join(' ');
+  };
+
+  const handleAuthSuccessForClaim = async () => {
+    // After successful auth, trigger claim
+    // Wait a bit for session to update
+    await new Promise(resolve => setTimeout(resolve, 500));
+    handleClaimProfileDirect();
   };
 
   const handleClaimProfile = () => {
@@ -759,8 +761,12 @@ export default function ProviderProfilePage() {
       {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+        onClose={() => {
+          setAuthModalOpen(false);
+          setWantsToClaimAfterAuth(false);
+        }}
         defaultView="signup"
+        onAuthSuccess={wantsToClaimAfterAuth ? handleAuthSuccessForClaim : undefined}
       />
 
       {/* Review Modal */}

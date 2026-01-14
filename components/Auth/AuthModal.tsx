@@ -10,9 +10,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultView?: "login" | "signup";
+  onAuthSuccess?: () => void; // Callback after successful auth, prevents default redirect
 }
 
-export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, defaultView = "signup", onAuthSuccess }: AuthModalProps) {
   const router = useRouter();
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
@@ -42,14 +43,23 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
         return;
       }
 
-      // Fetch user role from our API
+      // Close modal
+      onClose();
+
+      // If custom success handler provided, use it instead of default redirect
+      if (onAuthSuccess) {
+        onAuthSuccess();
+        return;
+      }
+
+      // Default: Fetch user role and redirect
       const userResponse = await fetch(`/api/user/role?email=${encodeURIComponent(email)}`);
       const userData = await userResponse.json();
 
-      // Close modal and redirect based on user role with smooth transition
-      onClose();
       withViewTransition(() => {
-        if (userData?.role === "FAMILY") {
+        if (userData?.role === "ADMIN") {
+          router.push("/admin/claims");
+        } else if (userData?.role === "FAMILY") {
           router.push("/");
         } else {
           router.push("/dashboard");
@@ -105,8 +115,16 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
         return;
       }
 
-      // Close modal and redirect based on user role with smooth transition
+      // Close modal
       onClose();
+
+      // If custom success handler provided, use it instead of default redirect
+      if (onAuthSuccess) {
+        onAuthSuccess();
+        return;
+      }
+
+      // Default: Redirect based on user role with smooth transition
       withViewTransition(() => {
         if (role === "FAMILY") {
           router.push("/");
