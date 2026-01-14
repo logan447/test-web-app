@@ -461,12 +461,31 @@ Visibility is a prominent wizard step. Controls who can discover the profile.
 | 4.9 Multiple Care Profiles per Account | 🟡 | Schema supports single profile per user currently |
 
 ### Key Questions
-- [ ] Should families be able to create multiple care profiles (e.g., for different family members)?
-- [ ] Which fields are truly required vs optional?
-- [ ] How does profile completion affect matching/visibility?
+- [x] Should families be able to create multiple care profiles (e.g., for different family members)?
+- [x] Which fields are truly required vs optional? → **See Foundational Decisions: Two-Threshold Model**
+- [x] How does profile completion affect matching/visibility? → **See Foundational Decisions: Two-Threshold Model**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 4.1 Care Profile Location (DECIDED)
+
+Care profile editing lives within the Family Dashboard (`/family/dashboard`), not as a separate page.
+
+| Component | Location |
+|-----------|----------|
+| Initial creation | Onboarding wizard (Chapter 3) |
+| Full editing | Tab within `/family/dashboard` |
+
+**Family Dashboard Structure** (tabs/sections):
+
+| Section | Purpose |
+|---------|---------|
+| **Overview** | Summary stats, quick links |
+| **Care Profile** | Edit care profile fields |
+| **Schedule/Calendar** | Upcoming tours, consults, interviews |
+| **Activity Stream** | Recent activity, notifications |
+
+**Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
 ---
 
