@@ -148,6 +148,97 @@
 | (new) | `/provider/my-families` | Create |
 | (new) | `/caregiver/my-opportunities` | Create |
 
+### Homepage vs Directory Architecture (DECIDED)
+
+> This section defines the relationship between the homepage and provider directory, affecting UX flows, SEO strategy, and navigation.
+
+#### Purpose & Design Direction
+
+| Page | Purpose | Design Model | Primary Audience |
+|------|---------|--------------|------------------|
+| **Homepage `/`** | Marketing landing, value communication, quick entry | Airbnb-style | First-time visitors, undecided users |
+| **Directory `/providers`** | Full-featured search and discovery | Zillow-style | Users ready to search and compare |
+
+#### Homepage Structure (DECIDED)
+
+The homepage is a **marketing-first landing page**, not a directory.
+
+| Section | Purpose |
+|---------|---------|
+| **Hero** | Value proposition + simplified search widget (location + care type only) |
+| **Category Cards** | Quick entry by provider type → links to pre-filtered `/providers` |
+| **How It Works** | 3-step explanation for families |
+| **Trust Signals** | Stats, testimonials, security badges |
+| **For Providers CTA** | Secondary CTA for provider acquisition |
+| **Footer** | Links, legal, etc. |
+
+**What homepage should NOT have**:
+- Full filter sidebar
+- Paginated provider listings
+- Map view toggle
+
+#### Directory Structure (DECIDED)
+
+`/providers` is the **full-featured search directory**.
+
+| Feature | Demo Scope | Post-Demo |
+|---------|------------|-----------|
+| Full filter sidebar | ✅ | ✅ |
+| Provider card grid | ✅ | ✅ |
+| Map view toggle | ✅ (if stable) | ✅ |
+| Paginated results | ✅ | ✅ |
+| URL-based filter state | 🟡 Nice-to-have | ✅ (for sharing, SEO) |
+
+#### Entry Point Flows (DECIDED)
+
+| Entry Point | Destination | Behavior |
+|-------------|-------------|----------|
+| Homepage search widget | `/providers?city=X&careType=Y` | Pre-filtered results |
+| Homepage category card | `/providers?providerType=X` | Pre-filtered by type |
+| Nav "Find Providers" (Family mode) | `/providers` | Full directory, no pre-filter |
+| Direct URL | `/providers` | Full directory |
+| Provider detail "Back" | `/providers` | Return to directory (preserve filters later) |
+| SEO city pages (future) | `/providers?city=X&state=Y` | Pre-filtered by location |
+
+#### Standardized Filter Set (DECIDED)
+
+Consistent filters across `/providers` and future SEO pages:
+
+| Filter | Demo | Post-Demo |
+|--------|------|-----------|
+| Location (city/state) | ✅ | ✅ |
+| Location (zip + radius) | ❌ Deferred | ✅ |
+| Provider type | ✅ | ✅ |
+| Care type / services | ✅ | ✅ |
+| Price range | ✅ | ✅ |
+| Rating | ✅ | ✅ |
+| Payment accepted | 🟡 Optional | ✅ |
+| Availability | ❌ Deferred | ✅ |
+| Amenities | 🟡 Optional | ✅ |
+| Geolocation ("Near Me") | ❌ Deferred | ✅ |
+
+#### UX Flow Principles (DECIDED)
+
+| Principle | Implementation |
+|-----------|----------------|
+| **No redundancy** | Homepage = entry point, `/providers` = search experience |
+| **Clear navigation** | "Find Providers" in nav always goes to `/providers` |
+| **Smooth transitions** | Search from homepage lands on filtered `/providers` |
+| **Consistent back nav** | Detail page "Back" returns to `/providers` |
+| **Non-blocking** | Users can browse without login; actions prompt auth |
+
+#### Demo vs Post-Demo Scope
+
+| Component | Demo | Post-Demo |
+|-----------|------|-----------|
+| Homepage | Simplified Airbnb-style (hero, categories, trust) | Full design polish |
+| `/providers` | Full filters, cards, map toggle | SEO optimization, URL state |
+| SEO pages | ❌ Deferred | `/care/[state]/[city]` pages |
+| Geolocation | ❌ Deferred | Browser-based "Near Me" |
+| Search caching | ❌ Deferred | Performance optimization |
+
+**Note**: Current homepage functions as a de facto directory. This is acceptable during development but will be refactored to match this architecture.
+
 ---
 
 ## Chapter 1: Authentication & Account Management
@@ -831,28 +922,105 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 **Purpose**: Public-facing directory for families to discover and search for care providers.
 
+**Cross-reference**: See Foundational Decisions → **Homepage vs Directory Architecture** for the relationship between homepage and `/providers`.
+
 | Item | Status | Notes |
 |------|--------|-------|
-| 7.1 Provider Listing Page | ✅ | `/providers` |
-| 7.2 Location-Based Search | ✅ | By zip, city, radius |
-| 7.3 Filter by Provider Type | ✅ | HOME_CARE, ASSISTED_LIVING, etc. |
-| 7.4 Filter by Services/Specialties | 🟡 | May need verification |
-| 7.5 Filter by Price Range | 🟡 | If pricing is public |
-| 7.6 Sort Options | 🟡 | Distance, rating, newest |
-| 7.7 Provider Cards | ✅ | Components exist |
-| 7.8 Provider Detail Page | ✅ | `/providers/[id]` |
-| 7.9 Map View | 🟡 | Leaflet integrated, unclear if working |
-| 7.10 "Near Me" Geolocation | 🟡 | Browser geolocation |
-| 7.11 City/State SEO Pages | ⬜ | Not built |
-| 7.12 Search Results Caching | ⬜ | Performance optimization |
+| 7.1 Provider Listing Page | ✅ | `/providers` (currently redirects to `/`, will be separate) |
+| 7.2 Location-Based Search | ✅ | City/state for demo; zip+radius deferred |
+| 7.3 Filter by Provider Type | ✅ | All provider types in dropdown |
+| 7.4 Filter by Services/Specialties | ✅ | Care type dropdown exists |
+| 7.5 Filter by Price Range | ✅ | Price slider (0–15000) |
+| 7.6 Sort Options | ✅ | Sort dropdown exists |
+| 7.7 Provider Cards | ✅ | `EnhancedProviderCard` component |
+| 7.8 Provider Detail Page | ✅ | `/providers/[id]` with full sections |
+| 7.9 Map View | ✅ | Leaflet integration, list/map toggle |
+| 7.10 "Near Me" Geolocation | ❌ | Deferred for demo |
+| 7.11 City/State SEO Pages | ❌ | Deferred for demo |
+| 7.12 Search Results Caching | ❌ | Deferred for demo |
 
 ### Key Questions
-- [ ] What filters are most important for demo?
-- [ ] Is map view needed for demo?
-- [ ] SEO pages priority?
+- [x] What filters are most important for demo? → **See Foundational Decisions: Standardized Filter Set**
+- [x] Is map view needed for demo? → **Yes, if stable; otherwise defer**
+- [x] SEO pages priority? → **Deferred for demo**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 7.1 Directory Location (DECIDED)
+
+`/providers` is the dedicated provider directory page (Zillow-style).
+
+**Current state**: `/providers` redirects to `/` (homepage). This will be refactored so:
+- Homepage (`/`) = Marketing landing (Airbnb-style)
+- Directory (`/providers`) = Full search experience (Zillow-style)
+
+**Cross-reference**: See Foundational Decisions → Homepage vs Directory Architecture.
+
+#### 7.2 Location Search (DECIDED)
+
+| Feature | Demo | Post-Demo |
+|---------|------|-----------|
+| City search | ✅ | ✅ |
+| State search | ✅ | ✅ |
+| Zip code search | ❌ Deferred | ✅ |
+| Radius filtering | ❌ Deferred | ✅ |
+
+#### 7.3–7.6 Filters and Sort (DECIDED)
+
+All current filters accepted for demo:
+- Provider type dropdown
+- Care type dropdown
+- Price range slider
+- Rating filter
+- Sort options (newest, etc.)
+
+**Cross-reference**: See Foundational Decisions → Standardized Filter Set for full list.
+
+#### 7.7 Provider Cards (DECIDED)
+
+`EnhancedProviderCard` component displays:
+- Cover photo
+- Provider name and type
+- Location
+- Rating and review count
+- Price range
+- Badges (verified, licensed, etc.)
+- Specialty indicators (memory care, hospice, etc.)
+
+**Additional requirement**: Cards for unclaimed providers should show "Unclaimed" badge per Chapter 5.12.
+
+#### 7.8 Provider Detail Page (DECIDED)
+
+`/providers/[id]` includes comprehensive sections:
+- Photo gallery
+- Basic info (name, type, description)
+- Contact section with CTAs
+- Amenities
+- Staff information
+- Location with map
+- Reviews
+- Specialty care programs
+
+**Requirements per earlier decisions**:
+- Show "Unclaimed" badge for unclaimed providers
+- Show appropriate CTAs based on claimed/subscription status
+- "Back" navigation returns to `/providers`
+
+#### 7.9 Map View (DECIDED)
+
+Leaflet map integration exists with list/map toggle.
+
+**Demo scope**: Include if stable. If buggy, hide toggle and defer.
+
+**Post-demo**: Full interactive map with clustering, hover previews.
+
+#### 7.10–7.12 Deferred Items (DECIDED)
+
+| Item | Reason for Deferral |
+|------|---------------------|
+| 7.10 Geolocation | Adds complexity (permissions, accuracy); city/state sufficient |
+| 7.11 SEO Pages | Not needed for demo functionality; important for organic traffic post-launch |
+| 7.12 Caching | Performance optimization; only needed at scale |
 
 ---
 
