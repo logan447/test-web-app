@@ -248,10 +248,47 @@ export default function ProviderProfilePage() {
   };
 
   const handleAuthSuccessForClaim = async () => {
-    // After successful auth, trigger claim
+    // After successful auth, trigger claim directly
+    if (!provider?.id) return;
+
     // Wait a bit for session to update
-    await new Promise(resolve => setTimeout(resolve, 500));
-    handleClaimProfileDirect();
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    try {
+      // Claim the profile
+      const response = await fetch('/api/providers/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ providerId: provider.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showToast.error(data.error || 'Failed to claim profile');
+        return;
+      }
+
+      // Switch to PROVIDER mode
+      await fetch('/api/auth/user-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'PROVIDER' }),
+      });
+
+      // Show toast
+      showToast.success(
+        data.autoApproved
+          ? 'Profile claimed and verified!'
+          : 'Claim submitted for review'
+      );
+
+      // Hard redirect to provider profile
+      window.location.href = '/dashboard/provider-profile';
+    } catch (error: any) {
+      console.error('Error claiming profile:', error);
+      showToast.error(error.message || 'Failed to claim profile');
+    }
   };
 
   const handleClaimProfile = () => {
@@ -297,21 +334,25 @@ export default function ProviderProfilePage() {
           : 'Claim submitted for review'
       );
 
-      // Switch user to PROVIDER mode and redirect to dashboard
+      // Switch user to PROVIDER mode and redirect to provider profile
       try {
         await fetch('/api/auth/user-mode', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'PROVIDER' }),
         });
+
+        // Hard redirect to provider profile after mode switch
+        setTimeout(() => {
+          window.location.href = '/dashboard/provider-profile';
+        }, 1000);
       } catch (modeError) {
         console.error('Failed to switch mode:', modeError);
+        // Fallback: still try to redirect
+        setTimeout(() => {
+          window.location.href = '/dashboard/provider-profile';
+        }, 1000);
       }
-
-      // Redirect to provider dashboard after short delay
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1500);
     } catch (error: any) {
       console.error('Error claiming profile:', error);
       showToast.error(error.message || 'Failed to claim profile');
