@@ -487,6 +487,24 @@ Care profile editing lives within the Family Dashboard (`/family/dashboard`), no
 
 **Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
+#### 4.9 Multiple Care Profiles (DECIDED)
+
+**Demo**: Single care profile per account.
+
+**Post-demo**: Support multiple profiles if user research confirms need.
+
+| Phase | Behavior |
+|-------|----------|
+| Demo | One `FamilyProfile` per user |
+| Future | Multiple profiles with separate visibility toggles |
+
+**Rationale**: Single profile simplifies matching, UI, and data model. Multi-profile can be added later without breaking changes.
+
+**Future implementation notes** (if needed):
+- Dashboard shows list of profiles with "Add another loved one"
+- Each profile has independent visibility toggle
+- Matching considers all visible profiles
+
 ---
 
 ## Chapter 5: Provider Profiles
