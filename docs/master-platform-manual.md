@@ -641,6 +641,54 @@ Current field structure accepted as-is for demo:
 
 **All other fields**: Optional, improve matching quality.
 
+#### 5.12 Claimed vs Unclaimed Status (DECIDED)
+
+**Context**: Only organizations have unclaimed profiles (seeded nationwide directory). Individual caregivers and families never have unclaimed profiles.
+
+**Visibility**:
+
+| Aspect | Unclaimed | Claimed |
+|--------|-----------|---------|
+| **Visible to families** | ✅ Yes | ✅ Yes |
+| **Visible to caregivers** (hiring view) | ✅ Yes | ✅ Yes |
+| **Editing** | ❌ No (no owner) | ✅ Full editing by owner |
+| **Contact info** | Publicly sourced info from ingestion | Full contact info |
+| **Profile badge** | "Unclaimed" indicator | No badge (or "Verified") |
+| **CTA** | "Claim this listing" button | No claim CTA |
+
+**Engagement with Unclaimed Profiles**:
+
+| Action | Allowed? | Notes |
+|--------|----------|-------|
+| Families initiate request/message | ✅ Yes | Engagement is created |
+| Caregivers initiate inquiry | ✅ Yes | Engagement is created |
+| Provider responds | ❌ No | Cannot respond until claimed |
+
+**User Notice** (when engaging with unclaimed provider):
+- "This provider is currently unclaimed on Olera"
+- "We will attempt to forward your message to the provider"
+- "You are encouraged to also contact them directly"
+- "Claiming enables full communication through the platform"
+
+**Key principles**:
+- Maintains transparency and user trust
+- Encourages provider claiming
+- Aligns with directory-first strategy
+
+**Cross-reference**: Claiming workflow details in Chapter 8.
+
+#### 5.13 Provider Profile Completion Tracking (DECIDED)
+
+**Storage**: `Provider.completionPercentage` field in DB (not calculated on-the-fly).
+
+**Calculation**: Recalculate on profile save.
+
+**Display**: Progress bar/indicator in Provider Dashboard.
+
+**Nudging**: "Complete your profile" prompt if below visibility threshold.
+
+**Note**: Completion weights similar to family profiles — visibility threshold fields ≈ 40%, additional fields improve matching. Exact weights can be tuned later.
+
 ---
 
 ## Chapter 6: Provider Identity & Gating
