@@ -89,6 +89,9 @@ export default function ProviderProfilePage() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactReason, setContactReason] = useState("Ask a question");
+  const [claiming, setClaiming] = useState(false);
+  const [claimSuccess, setClaimSuccess] = useState(false);
+  const [claimAutoApproved, setClaimAutoApproved] = useState(false);
 
   // Determine back link based on where user came from
   const fromSaved = searchParams.get('from') === 'saved';
@@ -101,6 +104,19 @@ export default function ProviderProfilePage() {
       checkIfSaved();
     }
   }, [session]);
+
+  // Auto-trigger claim if ?claim=true is present after auth
+  useEffect(() => {
+    const shouldClaim = searchParams.get('claim') === 'true';
+    if (shouldClaim && session?.user && provider && !provider.claimed && !claiming && !claimSuccess) {
+      // Auto-trigger claim after successful authentication
+      handleClaimProfileDirect();
+      // Remove claim param from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('claim');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [searchParams, session, provider]);
 
   const fetchProvider = async () => {
     try {
@@ -232,13 +248,51 @@ export default function ProviderProfilePage() {
 
   const handleClaimProfile = () => {
     if (!session?.user) {
-      // Redirect to auth with return URL
-      router.push(`/auth/signin?callbackUrl=/providers/${provider?.id}?claim=true`);
+      // Redirect to auth with return URL that includes claim=true
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/providers/${provider?.id}?claim=true`)}`);
       return;
     }
 
-    // Redirect to onboarding with claim flow
-    router.push(`/onboarding?providerId=${provider?.id}&claim=true`);
+    // User is logged in - trigger claim directly
+    handleClaimProfileDirect();
+  };
+
+  const handleClaimProfileDirect = async () => {
+    if (!provider?.id || claiming) return;
+
+    setClaiming(true);
+    try {
+      const response = await fetch('/api/providers/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ providerId: provider.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to claim profile');
+      }
+
+      // Success - update UI
+      setClaimSuccess(true);
+      setClaimAutoApproved(data.autoApproved || false);
+
+      // Refresh provider data to show new claimed status
+      await fetchProvider();
+
+      // Show success toast
+      showToast.success(
+        data.autoApproved
+          ? 'Profile claimed and verified!'
+          : 'Claim submitted for review'
+      );
+    } catch (error: any) {
+      console.error('Error claiming profile:', error);
+      showToast.error(error.message || 'Failed to claim profile');
+    } finally {
+      setClaiming(false);
+    }
   };
 
   if (loading) {
@@ -270,8 +324,65 @@ export default function ProviderProfilePage() {
           {backText}
         </Link>
 
+        {/* Claim Success Banner (Auto-Approved) */}
+        {claimSuccess && claimAutoApproved && (
+          <div className="bg-green-50 border-l-4 border-green-400 rounded-lg p-5 mb-6 fade-in">
+            <div className="flex items-start gap-4">
+              <svg className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <h3 className="font-semibold text-green-900 text-lg mb-1.5">
+                  Profile Claimed & Verified!
+                </h3>
+                <p className="text-sm text-green-800 leading-relaxed">
+                  Congratulations! Your claim has been automatically verified. You now have full access to manage this profile.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Claim Success Banner (Pending Review) */}
+        {claimSuccess && !claimAutoApproved && (
+          <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-5 mb-6 fade-in">
+            <div className="flex items-start gap-4">
+              <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <h3 className="font-semibold text-blue-900 text-lg mb-1.5">
+                  Claim Submitted for Review
+                </h3>
+                <p className="text-sm text-blue-800 leading-relaxed">
+                  Your claim is pending admin review. Our team will review your request within 24 hours and you'll receive an email when approved.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* User's Own Pending Provider Profile */}
+        {!claimSuccess && provider.claimed && provider.userId === session?.user?.id && provider.verificationStatus === 'pending' && (
+          <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-5 mb-6 fade-in">
+            <div className="flex items-start gap-4">
+              <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <h3 className="font-semibold text-blue-900 text-lg mb-1.5">
+                  Your Profile is Pending Verification
+                </h3>
+                <p className="text-sm text-blue-800 leading-relaxed">
+                  This is your provider profile. Your claim is currently under admin review. You'll receive an email within 24 hours with the decision. Full edit access will be granted after approval.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Unclaimed Profile Banner */}
-        {!provider.claimed && (
+        {!provider.claimed && !claimSuccess && (
           <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-5 mb-6 fade-in">
             <div className="flex items-start gap-4">
               <svg className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -287,12 +398,25 @@ export default function ProviderProfilePage() {
                 </p>
                 <button
                   onClick={handleClaimProfile}
-                  className="bg-yellow-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-yellow-700 transition-colors inline-flex items-center gap-2 shadow-sm"
+                  disabled={claiming}
+                  className="bg-yellow-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2 shadow-sm"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Claim This Profile
+                  {claiming ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Claiming...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Claim This Profile
+                    </>
+                  )}
                 </button>
               </div>
             </div>
