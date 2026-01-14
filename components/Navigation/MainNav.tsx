@@ -472,6 +472,16 @@ function MainNavContent() {
                         {switchingMode ? 'Switching...' : 'For Providers'}
                       </button>
                     )}
+                    {session?.user?.role === 'ADMIN' && (
+                      <Link href={"/admin/claims"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <div className="flex items-center justify-between">
+                          <span>Claim Review Board</span>
+                          <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-indigo-700 bg-indigo-100 rounded">
+                            ADMIN
+                          </span>
+                        </div>
+                      </Link>
+                    )}
                     <Link href={"/settings"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Settings
                     </Link>
