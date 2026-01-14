@@ -569,7 +569,7 @@ Current field structure accepted as-is for demo:
 
 ### Key Questions
 - [x] Which fields should be required vs optional per provider type? → **See Two-Threshold Model + below**
-- [ ] How should unclaimed profiles differ in display/editing?
+- [x] How should unclaimed profiles differ in display/editing? → **See 5.12 Three-Tier Model**
 - [x] What is the minimum viable profile for each provider type? → **See Two-Threshold Model**
 
 ### Architectural Notes
@@ -645,37 +645,64 @@ Current field structure accepted as-is for demo:
 
 **Context**: Only organizations have unclaimed profiles (seeded nationwide directory). Individual caregivers and families never have unclaimed profiles.
 
-**Visibility**:
+**Three-Tier Provider Access Model**:
 
-| Aspect | Unclaimed | Claimed |
-|--------|-----------|---------|
-| **Visible to families** | ✅ Yes | ✅ Yes |
-| **Visible to caregivers** (hiring view) | ✅ Yes | ✅ Yes |
-| **Editing** | ❌ No (no owner) | ✅ Full editing by owner |
-| **Contact info** | Publicly sourced info from ingestion | Full contact info |
-| **Profile badge** | "Unclaimed" indicator | No badge (or "Verified") |
-| **CTA** | "Claim this listing" button | No claim CTA |
+| Tier | Cost | Access Level |
+|------|------|--------------|
+| **Unclaimed** | N/A | Profile visible, no owner access |
+| **Claimed (Free)** | Free | View inbound leads, edit profile |
+| **Subscribed (Paid)** | Paid | Full engagement capabilities |
 
-**Engagement with Unclaimed Profiles**:
+**Key distinction**:
+- **Claiming = Visibility + Access** (see leads, edit profile)
+- **Subscription = Interaction + Action** (respond, initiate outreach)
+
+**Permissions Matrix**:
+
+| Capability | Unclaimed | Claimed (Free) | Subscribed |
+|------------|-----------|----------------|------------|
+| Visible in directory | ✅ | ✅ | ✅ |
+| Visible to caregivers (hiring) | ✅ | ✅ | ✅ |
+| Profile badge | "Unclaimed" | None | "Verified" or premium badge |
+| Edit profile | ❌ | ✅ | ✅ |
+| View inbound requests | ❌ | ✅ (read-only) | ✅ |
+| View inbound messages | ❌ | ✅ (read-only) | ✅ |
+| Respond to messages | ❌ | ❌ | ✅ |
+| Accept/decline requests | ❌ | ❌ | ✅ |
+| Initiate outreach to families | ❌ | ❌ | ✅ |
+| Initiate outreach to caregivers | ❌ | ❌ | ✅ |
+| Schedule tours/consults | ❌ | ❌ | ✅ |
+| Access analytics | ❌ | Basic | Full |
+
+**Engagement with Unclaimed Profiles** (from family/caregiver side):
 
 | Action | Allowed? | Notes |
 |--------|----------|-------|
-| Families initiate request/message | ✅ Yes | Engagement is created |
-| Caregivers initiate inquiry | ✅ Yes | Engagement is created |
-| Provider responds | ❌ No | Cannot respond until claimed |
+| Families initiate request/message | ✅ Yes | Engagement is created, stored |
+| Caregivers initiate inquiry | ✅ Yes | Engagement is created, stored |
+| Provider sees engagement | ❌ No | Must claim first |
+| Provider responds | ❌ No | Must claim + subscribe |
 
 **User Notice** (when engaging with unclaimed provider):
-- "This provider is currently unclaimed on Olera"
+- "This provider has not yet claimed their Olera profile"
 - "We will attempt to forward your message to the provider"
 - "You are encouraged to also contact them directly"
-- "Claiming enables full communication through the platform"
+- "Response times may vary for unclaimed listings"
+
+**Claimed Provider Paywall Notice** (when trying to respond without subscription):
+- "Upgrade to respond to this inquiry"
+- "You have X new leads waiting — subscribe to connect"
+- Show preview of message/request without full details
 
 **Key principles**:
+- Claiming is free and frictionless (encourages adoption)
+- Leads are visible but "locked" until subscription (creates value demonstration)
 - Maintains transparency and user trust
-- Encourages provider claiming
-- Aligns with directory-first strategy
+- Aligns with directory-first, freemium monetization strategy
 
-**Cross-reference**: Claiming workflow details in Chapter 8.
+**Cross-reference**:
+- Claiming workflow details in Chapter 8
+- Subscription tiers and pricing in Chapter 18
 
 #### 5.13 Provider Profile Completion Tracking (DECIDED)
 
@@ -693,23 +720,110 @@ Current field structure accepted as-is for demo:
 
 ## Chapter 6: Provider Identity & Gating
 
-**Purpose**: Gate provider features for new users until they establish their provider identity.
+**Purpose**: Control access to provider features based on profile existence and subscription status.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 6.1 ProviderIdentity Model | ✅ | Exists in schema |
-| 6.2 Identity Type (ORGANIZATION vs INDIVIDUAL) | ✅ | Field exists |
-| 6.3 Onboarding Complete Flag | ✅ | Field exists |
-| 6.4 Linking to Provider Profile | ✅ | `providerId` field |
-| 6.5 Feature Gating Logic | 🟡 | Unclear how/if used consistently |
+| 6.1 ProviderIdentity Model | ❌ Remove | Redundant, simplify to Provider existence |
+| 6.2 Identity Type (ORGANIZATION vs INDIVIDUAL) | ✅ | Use `Provider.providerType` instead |
+| 6.3 Onboarding Complete Flag | ❌ Remove | Use profile completion % instead |
+| 6.4 Linking to Provider Profile | ✅ | Direct User → Provider relationship |
+| 6.5 Feature Gating Logic | 🟡 | Needs implementation per three-tier model |
 
 ### Key Questions
-- [ ] What features are gated behind ProviderIdentity?
-- [ ] Is this model necessary, or can gating be simplified?
-- [ ] How does this interact with mode system?
+- [x] What features are gated behind ProviderIdentity? → **See three-tier model in 5.12**
+- [x] Is this model necessary, or can gating be simplified? → **Remove ProviderIdentity, use Provider + subscription**
+- [x] How does this interact with mode system? → **Mode controls nav, gating controls actions**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 6.1 Remove ProviderIdentity Model (DECIDED)
+
+**Problem**: `ProviderIdentity` creates unnecessary indirection (User → ProviderIdentity → Provider).
+
+**Solution**: Simplify to direct User → Provider relationship.
+
+| What ProviderIdentity Tracked | New Location |
+|-------------------------------|--------------|
+| User has provider identity | Provider record exists for user |
+| Type (ORG vs INDIVIDUAL) | `Provider.providerType` field |
+| Onboarding complete | Profile completion % (Two-Threshold Model) |
+
+**Migration steps**:
+1. Remove `/api/provider-identity` route
+2. Update auth to check Provider existence directly
+3. Drop `ProviderIdentity` table from schema
+4. Update any code referencing `hasProviderIdentity`
+
+#### 6.2 Provider Type Determination (DECIDED)
+
+Provider type is determined by `Provider.providerType`:
+
+| providerType Value | Category |
+|--------------------|----------|
+| `INDEPENDENT_CAREGIVER` | Individual |
+| All others (ASSISTED_LIVING, HOME_CARE, etc.) | Organization |
+
+**Helper function**:
+```
+isIndividualCaregiver(provider) = provider.providerType === 'INDEPENDENT_CAREGIVER'
+isOrganization(provider) = provider.providerType !== 'INDEPENDENT_CAREGIVER'
+```
+
+#### 6.3 Three-Tier Gating Logic (DECIDED)
+
+**Cross-reference**: See Chapter 5.12 for full permissions matrix.
+
+**Gating checks**:
+
+| Check | How to Determine |
+|-------|------------------|
+| User is a provider | `Provider` record exists with `userId` |
+| Provider is claimed | `Provider.claimed === true` OR provider was user-created |
+| Provider is subscribed | `Provider.subscriptionStatus === 'ACTIVE'` |
+
+**Tier determination**:
+
+```
+if (!provider) → Not a provider (family-only user)
+if (provider && !provider.claimed) → Unclaimed (seeded, no owner)
+if (provider && provider.claimed && !isSubscribed) → Claimed (Free)
+if (provider && provider.claimed && isSubscribed) → Subscribed
+```
+
+**Note**: User-created providers (via onboarding) are automatically `claimed = true`.
+
+#### 6.4 Feature Gating Implementation (DECIDED)
+
+**No hard blocking** — use nudges and paywalls instead of preventing navigation.
+
+| Feature | Gating Behavior |
+|---------|-----------------|
+| Browse `/provider/find-families` | ✅ Always accessible in provider mode |
+| View family profiles | ✅ Accessible (families control their own visibility) |
+| Provider Dashboard | ✅ Accessible (shows upgrade prompts if needed) |
+| Edit provider profile | Requires: Provider exists |
+| View inbound leads | Requires: Provider claimed |
+| Respond to leads | Requires: Subscription (shows paywall if not) |
+| Initiate outreach | Requires: Subscription (shows paywall if not) |
+
+**Paywall UX**:
+- Show lead count and preview
+- "Upgrade to connect with these families"
+- Clear value proposition
+
+#### 6.5 Mode vs Gating Separation (DECIDED)
+
+| Concept | What It Controls |
+|---------|------------------|
+| **Mode** (FAMILY/PROVIDER) | Which nav items appear, which landing page |
+| **Gating** (tier) | What actions are allowed within provider mode |
+
+**Key principle**: Mode switch is always instant and free. Gating applies to specific actions within provider mode.
+
+**Cross-reference**:
+- Mode system details in Chapter 2
+- Subscription tiers in Chapter 18
 
 ---
 
