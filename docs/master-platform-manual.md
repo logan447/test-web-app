@@ -125,6 +125,16 @@ Current JWT fields are sufficient for demo:
 
 **Note**: Additional fields (e.g., `providerId`) can be added later if needed. Keep JWT minimal for now.
 
+#### 1.4 Password Reset (DECIDED)
+
+**Status**: ❌ Deferred for demo.
+
+**Rationale**: Demo users will use known test accounts. Requires email service integration which is out of scope for initial demo.
+
+**Workaround**: Provide demo credentials list. Manual DB reset if needed.
+
+**Post-demo**: Implement before real user testing.
+
 ---
 
 ## Chapter 2: Mode System (Family vs Provider)
