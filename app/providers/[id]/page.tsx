@@ -355,7 +355,7 @@ export default function ProviderProfilePage() {
                   Claim Submitted for Review
                 </h3>
                 <p className="text-sm text-blue-800 leading-relaxed">
-                  Your claim is pending admin review. Our team will review your request within 24 hours and you'll receive an email when approved.
+                  Your claim is pending admin review. Our team will review your request within 24 hours and you&apos;ll receive an email when approved.
                 </p>
               </div>
             </div>
@@ -374,7 +374,7 @@ export default function ProviderProfilePage() {
                   Your Profile is Pending Verification
                 </h3>
                 <p className="text-sm text-blue-800 leading-relaxed">
-                  This is your provider profile. Your claim is currently under admin review. You'll receive an email within 24 hours with the decision. Full edit access will be granted after approval.
+                  This is your provider profile. Your claim is currently under admin review. You&apos;ll receive an email within 24 hours with the decision. Full edit access will be granted after approval.
                 </p>
               </div>
             </div>
