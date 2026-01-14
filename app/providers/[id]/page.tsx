@@ -92,6 +92,7 @@ export default function ProviderProfilePage() {
   const [claiming, setClaiming] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState(false);
   const [claimAutoApproved, setClaimAutoApproved] = useState(false);
+  const [wantsToClaimAfterAuth, setWantsToClaimAfterAuth] = useState(false);
 
   // Determine back link based on where user came from
   const fromSaved = searchParams.get('from') === 'saved';
@@ -105,18 +106,23 @@ export default function ProviderProfilePage() {
     }
   }, [session]);
 
-  // Auto-trigger claim if ?claim=true is present after auth
+  // Auto-trigger claim if ?claim=true is present after auth OR wantsToClaimAfterAuth flag set
   useEffect(() => {
-    const shouldClaim = searchParams.get('claim') === 'true';
-    if (shouldClaim && session?.user && provider && !provider.claimed && !claiming && !claimSuccess) {
+    const shouldClaimFromUrl = searchParams.get('claim') === 'true';
+    const shouldClaim = (shouldClaimFromUrl || wantsToClaimAfterAuth) && session?.user && provider && !provider.claimed && !claiming && !claimSuccess;
+
+    if (shouldClaim) {
       // Auto-trigger claim after successful authentication
       handleClaimProfileDirect();
-      // Remove claim param from URL
-      const url = new URL(window.location.href);
-      url.searchParams.delete('claim');
-      window.history.replaceState({}, '', url.toString());
+      // Clear flags and URL params
+      setWantsToClaimAfterAuth(false);
+      if (shouldClaimFromUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('claim');
+        window.history.replaceState({}, '', url.toString());
+      }
     }
-  }, [searchParams, session, provider]);
+  }, [searchParams, session, provider, wantsToClaimAfterAuth]);
 
   const fetchProvider = async () => {
     try {
@@ -248,8 +254,9 @@ export default function ProviderProfilePage() {
 
   const handleClaimProfile = () => {
     if (!session?.user) {
-      // Redirect to login with return URL that includes claim=true
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/providers/${provider?.id}?claim=true`)}`);
+      // Set flag to claim after auth, then open modal (defaults to signup)
+      setWantsToClaimAfterAuth(true);
+      setAuthModalOpen(true);
       return;
     }
 
