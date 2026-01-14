@@ -594,6 +594,53 @@ Provider profile editing lives within the Provider Dashboard (`/provider/dashboa
 
 **Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
+#### 5.2 & 5.14 Provider Types and Type-Specific Fields (DECIDED)
+
+**Provider Type Categories**:
+
+| Category | Provider Types |
+|----------|----------------|
+| **Facility-based** | Assisted Living, Memory Care, Nursing Home, Rehabilitation, Independent Living, Adult Day Care |
+| **Home-based services** | Home Care, Home Health, Hospice |
+| **Individual** | Independent Caregiver |
+
+**Type-Specific Field Display**:
+
+| Category | Relevant Field Categories |
+|----------|---------------------------|
+| **Facility-based** | Amenities, room types, capacity, staff ratios, virtual tour, photos |
+| **Home-based services** | Service area/radius, in-home services, scheduling flexibility |
+| **Individual Caregiver** | Personal skills, certifications, availability, hourly rate, employment preferences |
+
+**Implementation**:
+- Profile form detects `providerType` and shows relevant sections
+- Hidden sections are not required, just not displayed
+- All fields stored in same `Provider` model (schema unchanged)
+
+**Demo approach**: Accept that some fields may show for all types initially. Full conditional logic refined during UI polish phase.
+
+#### 5.3–5.11 Profile Field Categories (DECIDED)
+
+Current field structure accepted as-is for demo:
+
+| Category | Status | Notes |
+|----------|--------|-------|
+| 5.3 Services Offered | ✅ Accept | `careTypesOffered`, service arrays |
+| 5.4 Location & Service Area | ✅ Accept | Address, zip, serviceRadius |
+| 5.5 Photos & Media | ✅ Accept | photos array, coverPhoto |
+| 5.6 Licensing & Certifications | ✅ Accept | Fields exist |
+| 5.7 Pricing Information | ✅ Accept | Extensive pricing fields |
+| 5.8 Staff Information | ✅ Accept | Ratios, credentials, training |
+| 5.9 Amenities & Features | ✅ Accept | Multiple arrays |
+| 5.10 Specialty Programs | ✅ Accept | Memory care, hospice, etc. |
+| 5.11 About / Team / Virtual Tour | ✅ Accept | teamMembersJson, virtualTourUrl |
+
+**Required for visibility** (per Two-Threshold Model):
+- Organization: Org name, location, provider type
+- Individual Caregiver: Full name, location, services offered
+
+**All other fields**: Optional, improve matching quality.
+
 ---
 
 ## Chapter 6: Provider Identity & Gating
