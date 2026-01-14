@@ -79,8 +79,8 @@
 | 1.6 Email Verification | ⬜ | Not implemented |
 
 ### Key Questions
-- [ ] Is email verification required for demo?
-- [ ] Password reset priority?
+- [x] Is email verification required for demo? → **No, deferred**
+- [x] Password reset priority? → **Deferred for demo**
 
 ### Architectural Notes
 
@@ -142,6 +142,14 @@ Current JWT fields are sufficient for demo:
 **Rationale**: Test accounts reset via seed script. Requires cascading delete logic. GDPR/CCPA compliance not needed until real users.
 
 **Post-demo**: Implement before public launch.
+
+#### 1.6 Email Verification (DECIDED)
+
+**Status**: ❌ Deferred for demo.
+
+**Rationale**: Demo uses test accounts with known emails. Spam prevention not a concern during controlled demo.
+
+**Post-demo**: Consider implementing before public launch to prevent fake accounts.
 
 ---
 
