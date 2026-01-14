@@ -15,7 +15,7 @@
 ### Core Platform Systems
 1. [Authentication & Account Management](#chapter-1-authentication--account-management)
 2. [Mode System (Family vs Provider)](#chapter-2-mode-system-family-vs-provider)
-3. [Onboarding Flows](#chapter-3-onboarding-flows)
+3. [Onboarding Wizard (Shared System)](#chapter-3-onboarding-wizard-shared-system)
 4. [Family Care Profiles](#chapter-4-family-care-profiles)
 5. [Provider Profiles](#chapter-5-provider-profiles)
 6. [Provider Identity & Gating](#chapter-6-provider-identity--gating)
@@ -97,6 +97,8 @@ Signup entry point determines the user's initial `activeMode`:
 | Inline modal (anywhere) | Inherit from context | Preserve user intent |
 
 **Implementation**: Add optional `intent` query param to signup (e.g., `/signup?intent=provider`). Use this to set `User.activeMode` on account creation.
+
+**Cross-reference**: Signup triggers the onboarding wizard — see Chapter 3 for wizard details.
 
 #### 1.2 Login Mode Defaulting (DECIDED)
 
@@ -211,29 +213,133 @@ Dashboards remain accessible via nav but are not the default landing on mode swi
 
 **Note**: URL/label cleanup (`/provider/requests` → `/provider/families` or similar) can be handled in a later pass.
 
+#### 2.3–2.5 Mode Defaulting, Persistence, URL Parameter (DECIDED)
+
+These items are resolved by decisions above:
+- **2.3 Mode Defaulting on Login**: Restore from DB (see Chapter 1.2)
+- **2.4 Mode Persistence**: Stored in `User.activeMode` (see 2.1)
+- **2.5 URL Mode Parameter**: Remove entirely (see 2.1)
+
+#### 2.6 Mode Selection (DECIDED)
+
+No separate mode-selection modal. Mode is determined by:
+- Signup intent (`?intent=` param) — see Chapter 1.1
+- Onboarding wizard first question ("Get Started" flow) — see Chapter 3
+- Manual toggle — see 2.2
+
+**Cross-reference**: All onboarding wizard details are in Chapter 3.
+
 ---
 
-## Chapter 3: Onboarding Flows
+## Chapter 3: Onboarding Wizard (Shared System)
 
-**Purpose**: Guide new users through initial setup based on their intent (seeking care vs providing care).
+**Purpose**: Single, lightweight wizard supporting multiple entry points and user types. This is a shared system referenced by other chapters.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 3.1 Intent Selection Modal ("Looking for care" vs "Care provider") | 🟡 | May exist but unclear state |
-| 3.2 Family Onboarding (minimal info collection) | 🟡 | Care profile creation exists |
-| 3.3 Provider Onboarding — Individual Caregiver | 🟡 | `/provider/onboarding` exists |
-| 3.4 Provider Onboarding — Organization Claiming | ⬜ | Claiming flow incomplete |
-| 3.5 Caregiver Onboarding (job-seeking) | ⬜ | Partially scaffolded |
-| 3.6 Exit/Skip Behavior (X to dismiss) | 🟡 | Unclear if working properly |
-| 3.7 Post-Onboarding Routing | 🟡 | Where does user land after completing onboarding? |
+| 3.1 Wizard Triggers | 🟡 | Multiple entry points, needs consolidation |
+| 3.2 Wizard Variants (Family / Caregiver / Org) | 🟡 | Exists but may need cleanup |
+| 3.3 Intent & Subtype Selection | 🟡 | "Get Started" + provider subtype question |
+| 3.4 Field Collection | 🟡 | Maps to FamilyProfile / Provider models |
+| 3.5 Visibility Settings | 🟡 | Toggles per user type |
+| 3.6 Early Exit & Partial Completion | 🟡 | Save-as-you-go, safe defaults |
+| 3.7 Post-Wizard Routing | 🟡 | New signup → dashboard; returning → stay |
+| 3.8 Profile Completion Integration | 🟡 | Contributes to completion % |
 
 ### Key Questions
-- [ ] What is the minimum info required for each user type?
-- [ ] Should onboarding be skippable or mandatory?
-- [ ] What are the distinct entry points that trigger onboarding?
+- [x] Should onboarding be skippable or mandatory? → **Skippable, non-blocking**
+- [x] What are the distinct entry points? → **See 3.1 below**
+- [ ] What is the minimum info required for each user type? → **To be defined in Ch 4 & 5**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 3.1 Wizard Triggers (DECIDED)
+
+| Entry Point | Wizard Variant | Intent Source |
+|-------------|----------------|---------------|
+| "Get Started" button (main nav) | Asks first: Family or Provider? | Explicit selection |
+| `/signup` (direct) | Family | Implicit (default) |
+| `/signup?intent=provider` | Provider (asks subtype) | Implicit from param |
+| `/for-providers` CTA | Provider (asks subtype) | Implicit from context |
+| "Claim this page" on `/providers/[id]` | Provider Org | Implicit from context |
+| "Contact provider" on `/providers/[id]` | Family | Implicit from context |
+| First switch to provider mode (no profile) | Provider (asks subtype) | Implicit from mode |
+| First switch to family mode (no profile) | Family | Implicit from mode |
+
+#### 3.2 Wizard Variants (DECIDED)
+
+| Variant | User Type | Key Characteristics |
+|---------|-----------|---------------------|
+| **Family** | Families seeking care | Collects care needs, loved one info |
+| **Individual Caregiver** | Independent caregivers | Collects skills, availability, employment preferences |
+| **Provider Organization** | Care facilities, agencies | Collects org info, services, may involve claiming |
+
+#### 3.3 Intent & Subtype Selection (DECIDED)
+
+**"Get Started" flow** (explicit intent):
+- Step 1: "Are you looking for care?" vs "Are you a care provider?"
+- If provider → Step 2: "Are you an individual caregiver?" vs "Are you a care organization?"
+
+**All other entry points**: Intent is implicit, wizard skips to relevant variant.
+
+**Provider subtype is required** before any other provider fields can be saved.
+
+#### 3.4 Field Collection (DECIDED)
+
+Wizard collects essential fields only. Full profile editing happens in dedicated profile pages.
+
+| Variant | Essential Fields | Stores To |
+|---------|------------------|-----------|
+| Family | Name, location, care type needed, relationship | `FamilyProfile` |
+| Individual Caregiver | Name, location, services offered, availability | `Provider` (type=INDEPENDENT_CAREGIVER) |
+| Provider Org | Org name, location, provider type, services | `Provider` |
+
+**Detailed field lists**: See Chapter 4 (Family) and Chapter 5 (Provider).
+
+#### 3.5 Visibility Settings (DECIDED)
+
+Visibility is a prominent wizard step. Controls who can discover the profile.
+
+**Default Visibility** (if user exits before setting):
+
+| Profile Type | Default | Rationale |
+|--------------|---------|-----------|
+| Family | **Not visible** | Privacy-first; opt-in to be discovered |
+| Individual Caregiver | **Not visible** | Privacy-first; opt-in |
+| Provider Organization | **Visible to families** | Directory model; orgs expect to be found |
+
+**Visibility Toggles by Type**:
+
+| Profile Type | Toggle 1 | Toggle 2 |
+|--------------|----------|----------|
+| Family | Visible to providers | — |
+| Individual Caregiver | Visible to families | Visible to hiring orgs |
+| Provider Org | Visible to families | Visible as hiring org to caregivers |
+
+#### 3.6 Early Exit & Partial Completion (DECIDED)
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Dismissible** | X button always visible; closes wizard immediately |
+| **Save-as-you-go** | Each field/section saves on blur or "Next" |
+| **Resume later** | Partial progress stored; wizard reopens where user left off |
+| **No hard blocks** | User can navigate away and explore freely |
+| **Safe defaults** | Visibility defaults applied if not explicitly set |
+| **Subtype required** | Provider wizard requires subtype before saving any data |
+
+#### 3.7 Post-Wizard Routing (DECIDED)
+
+| Scenario | Redirect To |
+|----------|-------------|
+| New user completing signup wizard | Dashboard (family or provider) |
+| Returning user completing wizard | Stay on current page |
+| User dismisses wizard early | Stay on current page |
+
+#### 3.8 Profile Completion Integration (DECIDED)
+
+- Wizard progress contributes to visible profile completion %
+- Incomplete profiles show nudge in dashboard/nav: "Complete your profile"
+- Completion % stored in DB (not calculated on-the-fly) — details in Chapter 17
 
 ---
 
