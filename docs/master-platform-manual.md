@@ -1469,9 +1469,39 @@ Provider Dashboard (`/provider/dashboard`) uses calendar-first design with three
 |----------|-----------|---------|
 | 1 | **Calendar** | All scheduled tours, consultations, interviews |
 | 2 | **Lead Summary / Paywall** | New leads count; upgrade CTA if not subscribed |
-| 3 | **Profile Completion** | Progress bar with CTA if below threshold |
-| 4 | **Activity Feed** | Recent engagement activity |
-| 5 | **Quick Actions & Stats** | Navigation shortcuts |
+| 3 | **Reviews Summary Card** | Unresponded reviews count, quick response access |
+| 4 | **Profile Completion** | Progress bar with CTA if below threshold |
+| 5 | **Activity Feed** | Recent engagement activity, including new reviews |
+| 6 | **Quick Actions & Stats** | Navigation shortcuts |
+
+#### Reviews Summary Card (DECIDED)
+
+A persistent dashboard card for review management:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  REVIEWS                                    [View All]  │
+├─────────────────────────────────────────────────────────┤
+│  ★ 4.5 average  •  47 reviews  •  2 awaiting response  │
+│                                                         │
+│  Recent:                                                │
+│  ★★★★★ Jane D. — "Exceptional care..."    [Respond]   │
+│  ★★★★☆ Michael R. — "Good experience..."  ✓ Responded │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Card Features:**
+- Aggregate stats (average rating, total count)
+- Unresponded review count (highlighted if >0)
+- Quick links to recent reviews needing response
+- "View All" opens full review management view
+
+**"View All" Review Management** (sub-view within dashboard, not a top-level tab):
+- Filterable list: All | Awaiting Response | Responded
+- Each review expandable or links to detail panel
+- Response form accessible inline or via slide-out
+
+**Cross-reference:** See Chapter 15 for full review response workflow.
 
 **Three-Tier Gating Display**:
 
@@ -2669,10 +2699,91 @@ Optional workflow for early relationship health checks:
 
 #### 15.13 Provider Response to Reviews (DECIDED)
 
+**Core Rules:**
 - Provider can post **one public response** per review
 - Shows engagement and accountability
 - Must be respectful (subject to moderation)
 - Response appears below review on profile
+- Response is FREE for all providers (not gated behind membership)
+
+**Review Response Workflow:**
+
+```
+New Review Submitted
+        │
+        ▼
+┌───────────────────────────────────────┐
+│ 1. Activity Feed Notification         │
+│    "New 5-star review from Jane D."   │
+│    [View & Respond]                   │
+└───────────────────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────────────┐
+│ 2. Reviews Summary Card Updates       │
+│    "2 awaiting response"              │
+│    Recent review appears in card      │
+└───────────────────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────────────┐
+│ 3. Provider Clicks "Respond"          │
+│    Opens Review Detail Panel          │
+│    (slide-out or modal)               │
+└───────────────────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────────────┐
+│ 4. Provider Composes Response         │
+│    Sees full review + response form   │
+│    Warning: "This will be public"     │
+└───────────────────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────────────┐
+│ 5. Response Published                 │
+│    Appears on public provider profile │
+│    Family notified (optional)         │
+└───────────────────────────────────────┘
+```
+
+**Dashboard Integration:**
+
+| Surface | Purpose |
+|---------|---------|
+| **Activity Feed** | Notification when new review received |
+| **Reviews Summary Card** | Persistent access to reviews, unresponded count |
+| **Review Detail Panel** | Full review + response form (slide-out/modal) |
+| **"View All" Sub-view** | Filterable list within dashboard |
+
+**Cross-reference:** See Chapter 10 → Reviews Summary Card for dashboard layout.
+
+**Review Response Reminders:**
+
+Providers receive escalating reminders for unresponded reviews:
+
+| Timing | Channel | Message |
+|--------|---------|---------|
+| Day 0 | In-app, Email, SMS | "New review from Jane D. — respond to show you care" |
+| Day 3 | In-app, Email | "Reminder: Jane D.'s review is awaiting your response" |
+| Day 7 | In-app, Email | "Final reminder: Reviews with responses build trust" |
+
+**Cross-reference:** See Chapter 16 → Review Response Reminders for notification details.
+
+**Public Display:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ★★★★★ "Exceptional care for my mother..."             │
+│  Jane D. • Verified Family • Ongoing Care • 6 months   │
+│  Dec 15, 2024                                          │
+│                                                         │
+│  ↳ Response from Sunrise Senior Living:                │
+│    "Thank you so much for your kind words, Jane.       │
+│    It was our privilege to care for your mother."      │
+│    — Dec 16, 2024                                      │
+└─────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -2942,6 +3053,18 @@ All types below are delivered via **all three channels** (In-App + Email + SMS) 
 | Review reminder | Both | "Don't forget to leave a review" |
 | New review received | Provider | "You received a new 5-star review" |
 | Review response received | Family | "Sunrise responded to your review" |
+
+**Review Response Reminders (Escalating):**
+
+Providers receive reminders to respond to reviews, with escalating urgency:
+
+| Timing | Channels | Message |
+|--------|----------|---------|
+| Day 0 (new review) | In-app, Email, SMS | "New review from Jane D. — respond to show you care" |
+| Day 3 (if unresponded) | In-app, Email | "Reminder: Jane D.'s review is awaiting your response" |
+| Day 7 (if unresponded) | In-app, Email | "Final reminder: Reviews with responses build trust" |
+
+**Cross-reference:** See Chapter 15 → Provider Response to Reviews for full workflow.
 
 **System Notifications:**
 
@@ -3554,26 +3677,278 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ## Chapter 18: Subscriptions & Paywalls
 
-**Purpose**: Monetization through tiered access to premium features.
+**Purpose**: Simple, action-gated monetization where providers pay to engage, not to browse.
+
+### Core Principle (DECIDED)
+
+> **Families are always free. Providers pay to engage.**
+>
+> The paywall sits at the engagement layer. Everything is visible (profiles, marketplaces, inbound activity). The paywall only appears when a provider tries to take action.
+
+### Provider States
+
+| State | Who | Can Become Active? |
+|-------|-----|-------------------|
+| **Unclaimed** | No one controls listing | ❌ No account to pay with |
+| **Claimed (Non-Active)** | Provider has account | ✅ Yes |
+| **Claimed (Active)** | Provider has paid membership | ✅ Already is |
+
+### Features
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 18.1 Subscription Model | ✅ | `Subscription` model exists |
-| 18.2 Tiers | ✅ | FREE, BASIC, PRO |
-| 18.3 Contact View Limits | ✅ | `contactViewsUsed`, `contactViewsLimit` |
-| 18.4 Contact View Tracking | ✅ | `ContactView` model, API |
-| 18.5 Contact Masking | 🟡 | `contact-masking.ts` exists |
-| 18.6 Paywall UI | 🟡 | `/components/Paywall` exists |
-| 18.7 Stripe Integration | ⬜ | Fields exist, not connected |
-| 18.8 Subscription Management Portal | ⬜ | Not implemented |
-| 18.9 Upgrade/Downgrade Flow | ⬜ | Not implemented |
+| 18.1 Membership Model | ⬜ | Two-tier: Non-Active (free) vs Active (paid) |
+| 18.2 Pricing | ⬜ | $25/mo or $240/year ($20/mo) |
+| 18.3 Paywall UI | 🟡 | Exists, needs update for new model |
+| 18.4 Paywall Triggers | ⬜ | Engagement actions only |
+| 18.5 "Active" Badge | ⬜ | Subtle indicator on provider cards |
+| 18.6 Unclaimed Provider UX | ⬜ | Clear messaging for families |
+| 18.7 Stripe Integration | ⬜ | Production only |
+| 18.8 Mock Membership (Demo) | ⬜ | Admin toggle for demo |
+| 18.9 Grace Period | ⬜ | 7 days for failed payments |
+| 18.10 Review Tools Gating | ⬜ | Active review generation = paid |
 
-### Key Questions
-- [ ] Is Stripe needed for demo, or mock subscription states?
-- [ ] What features are gated at each tier?
+### Key Questions — RESOLVED
+
+- [x] **Is Stripe needed for demo, or mock subscription states?**
+  - **DECIDED**: Mock for demo (admin toggle), Stripe for production.
+
+- [x] **What features are gated?**
+  - **DECIDED**: Engagement actions only. Browse, view, and receive are free.
+
+- [x] **Single tier or multiple tiers?**
+  - **DECIDED**: Two-tier only. Non-Active (free) vs Active (paid). No BASIC/PRO complexity.
+
+- [x] **Are review tools gated?**
+  - **DECIDED**: Receiving/responding = free. Active generation (QR, requests, staff links) = paid.
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+---
+
+#### 18.1 Two-Tier Membership Model (DECIDED)
+
+**Families: Always Free**
+
+| Capability | Access |
+|------------|--------|
+| Create/edit profile | ✅ |
+| Browse all providers | ✅ |
+| View provider contact info (public) | ✅ |
+| Send engagements | ✅ |
+| Receive/respond to messages | ✅ |
+| Leave reviews | ✅ |
+| Full platform access | ✅ |
+
+**Providers: Two-Tier Membership**
+
+| Capability | Non-Active (Free) | Active ($25/mo) |
+|------------|-------------------|-----------------|
+| Create/edit profile | ✅ | ✅ |
+| Appear in directory | ✅ | ✅ |
+| Browse all marketplaces | ✅ | ✅ |
+| View family profiles | ✅ | ✅ |
+| See inbound engagements (full details) | ✅ | ✅ |
+| See messages from families (read-only) | ✅ | ✅ |
+| Receive reviews | ✅ | ✅ |
+| Respond to reviews | ✅ | ✅ |
+| **Send engagements** | ❌ Paywall | ✅ |
+| **Accept/decline engagements** | ❌ Paywall | ✅ |
+| **Respond to messages** | ❌ Paywall | ✅ |
+| **Generate review QR codes** | ❌ Paywall | ✅ |
+| **Send review requests** | ❌ Paywall | ✅ |
+| **Distribute staff review links** | ❌ Paywall | ✅ |
+| **View review analytics** | ❌ Paywall | ✅ |
+| Access hiring marketplace (browse) | ✅ | ✅ |
+| Hiring: send/respond to interest | ❌ Paywall | ✅ |
+
+**Key Insight:** One membership unlocks engagement in BOTH marketplaces:
+- Provider ↔ Families (demand generation)
+- Provider ↔ Providers (hiring / staffing supply)
+
+---
+
+#### 18.2 Pricing (DECIDED)
+
+| Plan | Price | Effective Monthly |
+|------|-------|-------------------|
+| Monthly | $25/month | $25 |
+| Annual | $240/year | $20 (20% savings) |
+
+---
+
+#### 18.4 Paywall Triggers (DECIDED)
+
+The paywall appears when a non-active provider clicks:
+
+**Engagement Actions:**
+- "Accept" or "Decline" on an engagement
+- "Reply" or "Send Message"
+- "Express Interest" (hiring)
+- "Schedule" or any engagement workflow action
+
+**Review Generation Actions:**
+- "Generate Review QR Code"
+- "Send Review Request"
+- "Get Staff Review Links"
+- "View Review Analytics"
+
+**Paywall Modal:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  🔓 Go Active to Respond                                │
+│                                                         │
+│  Jane D. is waiting to hear from you about a tour.     │
+│                                                         │
+│  Active membership includes:                            │
+│  ✓ Respond to all engagement requests                  │
+│  ✓ Message families directly                           │
+│  ✓ Access the caregiver hiring marketplace             │
+│  ✓ Generate review links and QR codes                  │
+│  ✓ Complete bookings and grow your business            │
+│                                                         │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  $25/month                      [Start Monthly] │   │
+│  │  $240/year ($20/mo, save 20%)   [Start Annual]  │   │
+│  └─────────────────────────────────────────────────┘   │
+│                                                         │
+│  Questions? Contact support@olera.com                  │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 18.5 "Active" Badge (DECIDED)
+
+Providers with active membership show a subtle badge:
+
+- **Label**: "Active" (not "Member" or "Paid")
+- **Meaning**: Active = paid + can engage
+- **Display**: Small badge on provider cards in directory
+
+This helps families identify providers who can respond through the platform, while not stigmatizing non-active providers.
+
+---
+
+#### 18.6 Unclaimed Provider UX (DECIDED)
+
+When a family engages an unclaimed provider:
+
+**Family Sees:**
+```
+┌─────────────────────────────────────────────────────────┐
+│  ℹ️ This provider hasn't claimed their listing yet      │
+│                                                         │
+│  They may not receive your request through Olera.      │
+│  You can contact them directly:                        │
+│                                                         │
+│  📞 (555) 123-4567                                     │
+│  🌐 www.sunriseseniorliving.com                        │
+│                                                         │
+│  [Send Request Anyway]  [Find Similar Providers]       │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Points:**
+- Families always have access to public provider contact info (phone, email, website)
+- We do NOT gate provider contact info — directory remains fully useful
+- Clear messaging that in-platform workflows require claimed/active provider
+- Families can contact off-platform if needed
+
+---
+
+#### 18.7-18.8 Stripe vs Mock (DECIDED)
+
+**Demo Scope: Mock Membership**
+- Admin can toggle provider membership status
+- Paywall modal shows but "Start Monthly" instantly upgrades (no payment)
+- Allows demonstrating full user flow without Stripe setup
+
+**Production Scope: Stripe Integration**
+- Stripe Checkout for initial subscription
+- Stripe Customer Portal for management
+- Webhook handling for subscription events
+- Automatic downgrade on payment failure (after grace period)
+
+---
+
+#### 18.9 Grace Period (DECIDED)
+
+When payment fails:
+
+| Day | Action |
+|-----|--------|
+| 0 | Payment fails, retry automatically |
+| 1 | Email: "Payment failed, please update your card" |
+| 3 | Email + In-app: "Your membership will be paused in 4 days" |
+| 7 | Membership paused → provider becomes non-active |
+
+Provider can re-activate by updating payment method and paying.
+
+---
+
+#### 18.10 Review Tools Gating (DECIDED)
+
+| Review Capability | Non-Active (Free) | Active (Paid) |
+|-------------------|-------------------|---------------|
+| Receive reviews | ✅ | ✅ |
+| Respond to reviews | ✅ | ✅ |
+| View reviews & basic stats | ✅ | ✅ |
+| Generate QR code | ❌ Paywall | ✅ |
+| Send review requests | ❌ Paywall | ✅ |
+| Distribute staff review links | ❌ Paywall | ✅ |
+| Review analytics | ❌ Paywall | ✅ |
+
+**Rationale:**
+- Passive receipt benefits the marketplace (more reviews = better directory)
+- Active solicitation is a business tool that adds value to membership
+
+**Cross-reference:** See Chapter 15 for full review system details.
+
+---
+
+### Data Model
+
+```prisma
+model ProviderMembership {
+  id              String    @id @default(cuid())
+  providerId      String    @unique
+
+  // Membership status
+  status          String    @default("INACTIVE") // INACTIVE, ACTIVE, GRACE_PERIOD, CANCELLED
+  plan            String?   // MONTHLY, ANNUAL
+
+  // Billing
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+
+  // Grace period tracking
+  gracePeriodStart     DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  provider        Provider  @relation(fields: [providerId], references: [id])
+}
+```
+
+---
+
+### Demo vs Production Summary
+
+| Feature | Demo Scope | Production Scope |
+|---------|------------|------------------|
+| Membership states | Mock (admin toggle) | Stripe integration |
+| Paywall UI | Functional modal | Same + payment flow |
+| Payment processing | Skip (instant upgrade) | Stripe Checkout |
+| Subscription management | Admin panel only | Self-service portal |
+| Billing history | Not needed | Stripe Customer Portal |
+| Grace period | Manual toggle | Automated (7 days) |
+| "Active" badge | Displayed | Same |
+| Unclaimed provider UX | Clear messaging | Same |
 
 ---
 
