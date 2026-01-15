@@ -1419,26 +1419,233 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 ## Chapter 10: Provider Dashboard
 
-**Purpose**: Central hub for providers to manage inquiries and their profile.
+**Purpose**: Central hub for providers to manage inquiries, engagements, and their profile.
+
+**Cross-reference**: See Foundational Decisions → Route Architecture for navigation structure.
+
+**Important**: All pages are explicit and separate — no dynamic/conditional dashboards that mirror each other. Each user type has dedicated pages for their specific workflows.
 
 | Item | Status | Notes |
 |------|--------|-------|
 | 10.1 Dashboard Home | ✅ | `/provider/dashboard` |
-| 10.2 Inbound Requests (from families) | ✅ | `/provider/requests` |
-| 10.3 Request Detail + Messaging | ✅ | `/provider/requests/[id]` |
-| 10.4 Saved Families | ✅ | `/provider/saved` |
-| 10.5 Hiring Requests (from/to caregivers) | 🟡 | `/provider/hiring-requests` exists |
-| 10.6 Browse Caregivers to Hire | 🟡 | `/provider/hire-staff` exists |
-| 10.7 Profile Completion Tracking | 🟡 | API exists |
-| 10.8 Scheduled Appointments | 🟡 | `/api/dashboard/tours` exists |
-| 10.9 Profile Edit Access | 🟡 | Link to edit provider profile |
+| 10.2 My Families (engagements) | ✅ | `/provider/my-families` (renamed) |
+| 10.3 Engagement Detail + Messaging | ✅ | `/provider/my-families/[id]` |
+| 10.4 Saved Families | ✅ | `/provider/saved-families` (renamed) |
+| 10.5 Hiring: Find Caregivers | 🟡 | `/provider/find-caregivers` (org providers only) |
+| 10.6 Hiring: My Candidates | 🟡 | `/provider/my-candidates` (org providers only) |
+| 10.7 Profile Completion Tracking | 🟡 | Widget in dashboard |
+| 10.8 Calendar (Scheduled Appointments) | 🟡 | Primary dashboard element |
+| 10.9 Provider Profile Edit | 🟡 | Tab within dashboard |
 
 ### Key Questions
-- [ ] What should provider dashboard prioritize?
-- [ ] Hiring features needed for demo?
+- [x] What should provider dashboard prioritize? → **Calendar first, then leads/paywall, profile completion, activity**
+- [x] Hiring features needed for demo? → **Yes, simplified model (no job postings/applications)**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### Two Distinct Engagement Systems (DECIDED)
+
+| System | Parties | Purpose | Completely Separate |
+|--------|---------|---------|---------------------|
+| **Care-Seeking** | Family ↔ Provider | Finding and engaging care | ✅ |
+| **Hiring** | Organization ↔ Individual Caregiver | Employment/staffing | ✅ |
+
+These systems do NOT overlap. A provider's "My Families" page shows family engagements only. Hiring engagements appear in "My Candidates" only.
+
+#### 10.1 Dashboard Home Structure (DECIDED)
+
+Provider Dashboard (`/provider/dashboard`) uses calendar-first design with three-tier gating.
+
+**Tab Structure**:
+
+| Tab | Content |
+|-----|---------|
+| **Overview** | Calendar, lead summary, activity feed, quick actions |
+| **Provider Profile** | Edit provider profile fields |
+
+**Overview Layout Priority**:
+
+| Priority | Component | Purpose |
+|----------|-----------|---------|
+| 1 | **Calendar** | All scheduled tours, consultations, interviews |
+| 2 | **Lead Summary / Paywall** | New leads count; upgrade CTA if not subscribed |
+| 3 | **Profile Completion** | Progress bar with CTA if below threshold |
+| 4 | **Activity Feed** | Recent engagement activity |
+| 5 | **Quick Actions & Stats** | Navigation shortcuts |
+
+**Three-Tier Gating Display**:
+
+| Tier | Dashboard Experience |
+|------|---------------------|
+| Unclaimed | N/A (no dashboard access) |
+| Claimed (Free) | See lead count, blurred previews, "Upgrade to respond" CTA |
+| Subscribed | Full access to all features |
+
+#### 10.2–10.3 My Families — Bidirectional Engagement (DECIDED)
+
+**Route**: `/provider/my-families` (renamed from `/provider/requests`)
+
+**Purpose**: All engagements with families — both inbound AND outbound.
+
+**Bidirectional Support**:
+
+| Direction | Initiated By | Examples |
+|-----------|--------------|----------|
+| **Inbound** | Family | Tour request, consultation request, inquiry |
+| **Outbound** | Provider | Follow-up, availability outreach, proactive contact |
+
+**Engagement Data Model**:
+
+```
+Engagement {
+  id
+  familyId        → Family
+  providerId      → Provider (org or individual)
+  initiatedBy     → FAMILY | PROVIDER
+  type            → TOUR | CONSULTATION | INQUIRY | OUTREACH
+  status          → PENDING | ACTIVE | COMPLETED | DECLINED | CANCELLED
+  messages[]
+  scheduledEvents[]
+}
+```
+
+**Key Principle**: One engagement record, two views. Family sees it in "My Providers", Provider sees it in "My Families".
+
+**Features**:
+
+| Feature | Status |
+|---------|--------|
+| Unified list (inbound + outbound) | ✅ |
+| Filter by direction | ✅ |
+| Filter by status | ✅ |
+| Filter by engagement type | ✅ |
+| Engagement detail view | ✅ |
+| In-context messaging | ✅ |
+| Response actions | ✅ (gated by subscription) |
+
+**Context-Aware CTAs**: Button labels must match engagement type and context:
+- Tour: "Schedule Tour", "Confirm Tour", "Reschedule"
+- Consultation: "Schedule Consultation", "Confirm Time"
+- Interview: "Schedule Interview", "Confirm Interview"
+- General: "Send Message", "Accept", "Decline"
+
+#### 10.4 Saved Families (DECIDED)
+
+**Route**: `/provider/saved-families` (renamed from `/provider/saved`)
+
+**Purpose**: Families the provider has bookmarked.
+
+**Note**: Only families with visibility enabled appear in browse/save.
+
+#### 10.5–10.6 Hiring System — Simplified Model (DECIDED)
+
+**Applies to**: Organization providers hiring individual caregivers.
+
+**What hiring is NOT**:
+- ❌ No job posting system
+- ❌ No application tracking
+- ❌ No formal application workflow
+
+**What hiring IS**:
+- ✅ Profile visibility toggles (caregiver marks "available for hiring", org marks "currently hiring")
+- ✅ Browse pages (Find Caregivers / Find Organizations)
+- ✅ Save functionality
+- ✅ Direct engagement initiation
+- ✅ Messaging within engagement
+- ✅ Interview scheduling
+
+**Organization Provider Pages**:
+
+| Page | Route | Purpose |
+|------|-------|---------|
+| **Find Caregivers** | `/provider/find-caregivers` | Browse caregivers with `availableForHiring = true` |
+| **Saved Caregivers** | `/provider/saved-caregivers` | Bookmarked candidates |
+| **My Candidates** | `/provider/my-candidates` | All hiring engagements |
+
+**Individual Caregiver Pages** (for completeness):
+
+| Page | Route | Purpose |
+|------|-------|---------|
+| **Find Organizations** | `/caregiver/find-organizations` | Browse orgs with `hiringEnabled = true` |
+| **Saved Organizations** | `/caregiver/saved-organizations` | Bookmarked potential employers |
+| **My Opportunities** | `/caregiver/my-opportunities` | All hiring engagements |
+
+**Hiring Engagement Model**:
+
+```
+HiringEngagement {
+  id
+  organizationId  → Provider (org type)
+  caregiverId     → Provider (individual caregiver)
+  initiatedBy     → ORGANIZATION | CAREGIVER
+  type            → INTERVIEW_REQUEST | INQUIRY
+  status          → PENDING | INTERVIEWING | HIRED | DECLINED | WITHDRAWN
+  messages[]
+  scheduledInterviews[]
+}
+```
+
+**Bidirectional**:
+
+| Direction | Initiated By | Appears In |
+|-----------|--------------|------------|
+| Org → Caregiver | Organization | Org's "My Candidates" + Caregiver's "My Opportunities" |
+| Caregiver → Org | Caregiver | Caregiver's "My Opportunities" + Org's "My Candidates" |
+
+**Navigation Display**: Hiring pages appear in account dropdown only for relevant user types:
+- Org providers see: Find Caregivers, My Candidates
+- Individual caregivers see: Find Organizations, My Opportunities
+
+#### 10.7 Profile Completion Tracking (DECIDED)
+
+Same pattern as Family Dashboard:
+- Progress bar widget
+- CTA if below visibility threshold
+- Cross-reference: Chapter 5.13
+
+#### 10.8 Calendar as Primary Element (DECIDED)
+
+**Engagement Type Visual Distinction**:
+
+| Type | Color | System |
+|------|-------|--------|
+| Tour | Blue | Care-Seeking |
+| Consultation | Green | Care-Seeking |
+| Interview (with family) | Purple | Care-Seeking |
+| Hiring Interview | Orange | Hiring |
+
+**Features**: Same as Family Dashboard (week view, click to detail, type colors).
+
+#### 10.9 Provider Profile Edit (DECIDED)
+
+**Location**: Tab within `/provider/dashboard`
+
+**Cross-reference**: See Chapter 5 for provider profile fields.
+
+#### Activity Feed — All Systems (DECIDED)
+
+**Care-Seeking Activities**:
+
+| Activity | Direction |
+|----------|-----------|
+| Inquiry received | Inbound |
+| Inquiry sent | Outbound |
+| Tour scheduled | Both |
+| Consultation scheduled | Both |
+| Message received | Inbound |
+| Status changed | Both |
+
+**Hiring Activities** (org providers):
+
+| Activity | Direction |
+|----------|-----------|
+| Interview request received | Inbound |
+| Interview request sent | Outbound |
+| Interview scheduled | Both |
+| Candidate message received | Inbound |
+| Hiring status changed | Both |
+
+**All activities include inbound AND outbound across both systems.**
 
 ---
 
