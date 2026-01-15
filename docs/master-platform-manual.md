@@ -70,6 +70,9 @@
 32. [Data Export & Portability](#chapter-32-data-export--portability)
 33. [Performance & Caching](#chapter-33-performance--caching)
 
+### Core Systems (Planned)
+34. [Communications & Automation](#chapter-34-communications--automation) ⭐ *Core system — to be developed*
+
 ---
 
 ## Foundational Architectural Decisions
@@ -4424,25 +4427,848 @@ Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 
 ## Chapter 20: Admin System
 
-**Purpose**: Administrative tools for platform management and oversight.
+**Purpose**: The central operational hub for the entire Olera platform. This is the single internal interface where all platform operations, monitoring, and management occur.
+
+### Core Principles
+
+> **One system, one source of truth** — No fragmented internal tools. All operational work happens here.
+>
+> **Comprehensive, not fragmented** — All current and future systems are manageable from the admin panel.
+>
+> **Human-in-the-loop by design** — Clear definition of where humans monitor, oversee, intervene, or take action.
+>
+> **Self-documenting** — New team members can onboard entirely within the admin system.
+
+### Features Overview
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 20.1 Admin Role | ✅ | `UserRole.ADMIN` exists |
-| 20.2 Seed Database | ✅ | `/admin/seed` |
-| 20.3 Clear Requests | ✅ | `/admin/clear-requests` |
-| 20.4 User Management UI | ⬜ | No admin UI |
-| 20.5 Provider Management UI | ⬜ | No admin UI |
-| 20.6 Claim Review Queue | ⬜ | Not implemented |
-| 20.7 Review Moderation Queue | ⬜ | Not implemented |
-| 20.8 Analytics Dashboard | ⬜ | Not implemented |
+| 20.1 Admin Mode (3rd mode) | ⬜ | Accessible via account dropdown for ADMIN users |
+| 20.2 Admin Dashboard Home | ⬜ | Queue counts, system health, recent activity |
+| 20.3 Claims Queue | ⬜ | Provider claim review workflow |
+| 20.4 Reviews Queue | ⬜ | Review moderation workflow |
+| 20.5 Provider Requests Queue | ⬜ | Provider-initiated requests (edits, removals, complaints) |
+| 20.6 User Reports Queue | ⬜ | Content/user reports from platform users |
+| 20.7 Support Queue | ⬜ | General support requests |
+| 20.8 Legal & Compliance Queue | ⬜ | Legal requests (C&D, DMCA, GDPR, CCPA) |
+| 20.9 Provider Data Management | ⬜ | Full CRUD for provider records |
+| 20.10 User Data Management | ⬜ | User account management |
+| 20.11 Family Data Management | ⬜ | Family profile management |
+| 20.12 Engagement Data View | ⬜ | View/manage engagements |
+| 20.13 System Health Dashboard | ⬜ | API, DB, delivery metrics |
+| 20.14 Background Jobs Monitor | ⬜ | Job status, failures |
+| 20.15 Activity Logs | ⬜ | Admin action history |
+| 20.16 External Tools Map | ⬜ | Links + context for external systems |
+| 20.17 Embedded Documentation | ⬜ | SOPs, policies, guides |
+| 20.18 Database Seeding Tools | ✅ | `/admin/seed` exists |
+| 20.19 Data Clear Tools | ✅ | `/admin/clear-requests` exists |
+| 20.20 SEO Content Management | ⬜ | Future: SEO page creation |
+| 20.21 Help Article Management | ⬜ | Future: Help center content |
+| 20.22 Notification Template Management | ⬜ | Future: Edit notification templates |
 
-### Key Questions
-- [ ] What admin features are needed for demo?
-- [ ] Claim review workflow priority?
+### Key Questions — RESOLVED
+
+- [x] **What admin features are needed for demo?**
+  - **DECIDED**: Full structure visible, demo-depth in Claims Queue, Provider Requests Queue, Provider Data Management, External Tools Map, and at least one SOP per major area.
+
+- [x] **Should there be role-based permissions?**
+  - **DECIDED**: Single ADMIN role for demo. Role tiers (Admin, Support, Content Manager) deferred to production.
+
+- [x] **Should audit logging be implemented?**
+  - **DECIDED**: Deferred for demo. Structure exists but logging not active.
+
+- [x] **How do providers submit requests?**
+  - **DECIDED**: Both channels — email to support@olera.com AND contact form on unclaimed listing pages.
+
+---
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 20.1 Admin Mode Access (DECIDED)
+
+Admin Mode is the **third mode** alongside Family Mode and Provider Mode.
+
+| Mode | Available To | Dropdown Label |
+|------|--------------|----------------|
+| Family Mode | Users with FamilyProfile | "Family Mode" |
+| Provider Mode | Users with Provider | "Provider Mode" |
+| **Admin Mode** | Users with `role: ADMIN` | "Admin Mode" |
+
+**Access Control:**
+- Only users with `User.role === 'ADMIN'` see the Admin Mode option
+- Admin Mode uses `/admin/*` routes, completely separate from family/provider dashboards
+- Admins can still access Family/Provider modes if they have those profiles (useful for testing)
+
+```
+Account Dropdown (Admin user):
+├── 👨‍👩‍👧 Family Mode        → /family/dashboard
+├── 🏢 Provider Mode      → /provider/dashboard
+├── ─────────────────────
+└── ⚙️ Admin Mode         → /admin
+```
+
+---
+
+#### Admin Navigation Structure (DECIDED)
+
+```
+/admin                          → Dashboard Home
+│
+├── /admin/queues
+│   ├── /admin/queues/claims           → Provider Claims Queue
+│   ├── /admin/queues/reviews          → Review Moderation Queue
+│   ├── /admin/queues/provider-requests → Provider Requests Queue
+│   ├── /admin/queues/reports          → User/Content Reports Queue
+│   ├── /admin/queues/support          → Support Tickets Queue
+│   └── /admin/queues/legal            → Legal & Compliance Queue
+│
+├── /admin/data
+│   ├── /admin/data/providers          → Provider Data Management
+│   ├── /admin/data/users              → User Account Management
+│   ├── /admin/data/families           → Family Profile Management
+│   ├── /admin/data/engagements        → Engagement Records
+│   └── /admin/data/reviews            → Review Records
+│
+├── /admin/system
+│   ├── /admin/system/health           → System Health Dashboard
+│   ├── /admin/system/jobs             → Background Jobs Monitor
+│   ├── /admin/system/logs             → Activity & Audit Logs
+│   └── /admin/system/external         → External Tools Map
+│
+├── /admin/content
+│   ├── /admin/content/seo             → SEO Page Management
+│   ├── /admin/content/help            → Help Articles
+│   └── /admin/content/templates       → Notification Templates
+│
+├── /admin/tools
+│   ├── /admin/tools/seed              → Database Seeding
+│   ├── /admin/tools/clear             → Clear Test Data
+│   └── /admin/tools/bulk              → Bulk Operations
+│
+└── /admin/docs
+    ├── /admin/docs/getting-started    → Onboarding Guide
+    ├── /admin/docs/sops               → Standard Operating Procedures
+    ├── /admin/docs/policies           → Policies & Guidelines
+    ├── /admin/docs/systems            → External Systems Guide
+    └── /admin/docs/troubleshooting    → Troubleshooting Guide
+```
+
+---
+
+#### 20.2 Admin Dashboard Home (DECIDED)
+
+The landing page after entering Admin Mode:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  OLERA ADMIN                              Jan 15, 2026      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  QUEUES REQUIRING ATTENTION                                 │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐         │
+│  │ Claims       │ │ Reviews      │ │ Provider Req │         │
+│  │ 3 pending    │ │ 1 flagged    │ │ 5 open       │         │
+│  │ [View →]     │ │ [View →]     │ │ [View →]     │         │
+│  └──────────────┘ └──────────────┘ └──────────────┘         │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐         │
+│  │ Reports      │ │ Support      │ │ Legal        │         │
+│  │ 0 pending    │ │ 2 open       │ │ 1 active     │         │
+│  │ [View →]     │ │ [View →]     │ │ [View →]     │         │
+│  └──────────────┘ └──────────────┘ └──────────────┘         │
+│                                                             │
+│  SYSTEM HEALTH                                              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │ ✅ API: 45ms avg │ ✅ DB: OK │ ✅ Jobs: Running     │    │
+│  │ ✅ Email: 98.5%  │ ✅ SMS: 97.2%  │ ⚠️ 2 warnings  │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                             │
+│  RECENT ADMIN ACTIVITY                                      │
+│  • Jane D. approved claim for Sunrise Senior Living (2h ago)│
+│  • System: Daily backup completed successfully (6h ago)     │
+│  • John S. resolved support ticket #1234 (yesterday)        │
+│                                                             │
+│  QUICK ACTIONS                                              │
+│  [📚 View Docs] [🌱 Seed Database] [🗑️ Clear Test Data]    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Queue System Design
+
+#### Human Intervention Types
+
+| Type | Definition | Example Queues |
+|------|------------|----------------|
+| **Decision Required** | Item cannot proceed without human judgment | Claims, Legal |
+| **Review Required** | Item flagged for human verification | Reviews, Reports |
+| **Response Required** | External party awaiting response | Provider Requests, Support |
+| **Awareness Only** | Informational, no action needed | Logs, Health alerts |
+
+#### Standard Queue Interface Pattern
+
+All queues follow a consistent UI pattern:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  [QUEUE NAME]                               [X] items       │
+├─────────────────────────────────────────────────────────────┤
+│  Filter: [Status ▼] [Type ▼] [Date ▼]    Sort: [Oldest ▼]  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ [Priority Indicator] [ITEM TYPE]           [SLA Badge] ││
+│  │ Primary identifier / title                              ││
+│  │ Secondary info (date, source, etc.)                     ││
+│  │ Brief description or excerpt...                         ││
+│  │                                                         ││
+│  │ [Action 1] [Action 2] [Action 3] [More ▼]              ││
+│  └─────────────────────────────────────────────────────────┘│
+│                                                             │
+│  [Pagination: < 1 2 3 ... 10 >]                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 20.3 Claims Queue (DECIDED — Demo-Critical)
+
+**Purpose**: Review and process provider ownership claims.
+
+**Queue Items:**
+
+| Status | Meaning |
+|--------|---------|
+| `PENDING` | Awaiting initial review |
+| `INFO_REQUESTED` | Additional documentation requested |
+| `APPROVED` | Claim approved, ownership transferred |
+| `REJECTED` | Claim rejected (with reason) |
+| `APPEALED` | Rejection appealed by claimant |
+
+**Actions Available:**
+- View claim details and submitted documentation
+- View provider listing
+- Approve claim
+- Reject claim (with reason selection)
+- Request more information
+- Escalate to senior admin
+
+**SLA**: 48 hours for initial response
+
+**Demo Implementation**: Full workflow with sample claims in seed data.
+
+---
+
+#### 20.5 Provider Requests Queue (DECIDED — Demo-Critical)
+
+**Purpose**: Handle provider-initiated requests that are not claims.
+
+**Request Types:**
+
+| Type | Description | SLA | Actions |
+|------|-------------|-----|---------|
+| `EDIT_UNCLAIMED` | Provider wants data corrected on unclaimed listing | 48h | Edit, Invite to Claim, Respond |
+| `REMOVE_LISTING` | Provider wants page removed | 48h | Verify, Remove, Suppress, Decline |
+| `SUPPRESS_LISTING` | Provider wants reduced visibility | 48h | Suppress, Respond |
+| `CLAIM_DISPUTE` | Provider disputes another's claim | 24h | Investigate, Escalate |
+| `REVIEW_COMPLAINT` | Provider disputes a review (non-legal) | 72h | Review, Remove, Decline |
+| `DATA_CORRECTION` | Claimed provider reports platform error | 48h | Verify, Correct |
+| `VISIBILITY_ISSUE` | Provider unhappy with search ranking | 72h | Investigate, Explain |
+| `GENERAL_FEEDBACK` | Suggestions, complaints, other | 1 week | Log, Respond, Route |
+
+**Intake Channels:**
+1. Email to support@olera.com (creates queue item automatically)
+2. Contact form on unclaimed listing pages (creates queue item)
+
+**Demo Implementation**: Full workflow with sample requests in seed data.
+
+---
+
+#### 20.8 Legal & Compliance Queue (DECIDED)
+
+**Purpose**: Handle requests with legal implications requiring careful handling.
+
+**Request Types:**
+
+| Type | Source | SLA | Escalation |
+|------|--------|-----|------------|
+| `DMCA_TAKEDOWN` | Content owner claims infringement | 24h ack | Legal counsel |
+| `DEFAMATION_CLAIM` | Provider claims review is defamatory | 48h ack | Legal counsel |
+| `CEASE_DESIST` | Lawyer letter | 24h ack | Legal counsel |
+| `REGULATORY_INQUIRY` | State/federal agency | Immediate | Leadership + Legal |
+| `GDPR_REQUEST` | EU user data request | 30 days | Process per SOP |
+| `CCPA_REQUEST` | CA user data request | 45 days | Process per SOP |
+| `SUBPOENA` | Court order | Per order | Legal counsel |
+
+**Access**: Visible to all admins for demo. Production may restrict to senior admins.
+
+**Demo Implementation**: Structure and placeholder SOPs. One sample legal item in seed data.
+
+---
+
+### Data Management Design
+
+#### 20.9 Provider Data Management (DECIDED — Demo-Critical)
+
+**Purpose**: Full CRUD operations on provider records.
+
+**Capabilities:**
+
+| Action | Description | Demo Status |
+|--------|-------------|-------------|
+| **List** | Paginated, filterable provider list | ✅ Implement |
+| **Search** | Search by name, location, type | ✅ Implement |
+| **View** | Full provider detail view | ✅ Implement |
+| **Edit** | Modify any provider field | ✅ Implement |
+| **Create** | Add new provider (manual entry) | 🟡 Basic |
+| **Delete** | Remove provider (soft delete) | ✅ Implement |
+| **Bulk Edit** | Edit multiple providers | ⬜ Placeholder |
+| **Import** | Bulk import from CSV | ⬜ Placeholder |
+| **Export** | Export provider data | ⬜ Placeholder |
+| **Audit Trail** | View change history | ⬜ Placeholder |
+
+**Provider List View:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  PROVIDERS                                    1,247 total   │
+├─────────────────────────────────────────────────────────────┤
+│  [+ Add Provider]  [Import CSV]  [Export]                   │
+│                                                             │
+│  Search: [________________________] [🔍]                    │
+│  Filter: [Type ▼] [Status ▼] [State ▼] [Claimed ▼]         │
+├─────────────────────────────────────────────────────────────┤
+│  Name                  │ Type        │ Location │ Status   │
+│  ──────────────────────┼─────────────┼──────────┼──────────│
+│  Sunrise Senior Living │ Assisted    │ Austin   │ Claimed  │
+│  Memory Care of Austin │ Memory Care │ Austin   │ Unclaimed│
+│  Golden Years Home Care│ Home Care   │ Dallas   │ Claimed  │
+│  ...                                                        │
+├─────────────────────────────────────────────────────────────┤
+│  [< Prev] Page 1 of 125 [Next >]    Showing 10 per page    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Provider Edit View:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  EDIT PROVIDER: Sunrise Senior Living                       │
+│  ID: clx123abc | Created: 2024-06-15 | Last Edit: 2026-01-10│
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  BASIC INFORMATION                                          │
+│  Name: [Sunrise Senior Living____________]                  │
+│  Type: [Assisted Living ▼]                                  │
+│  Status: [● Active ○ Inactive ○ Closed]                    │
+│                                                             │
+│  LOCATION                                                   │
+│  Address: [123 Care Lane_________________]                  │
+│  City: [Austin___] State: [TX ▼] Zip: [78701__]            │
+│                                                             │
+│  CONTACT                                                    │
+│  Phone: [512-555-1234____]                                  │
+│  Email: [info@sunrisesenior.com__________]                  │
+│  Website: [https://sunrisesenior.com_____]                  │
+│                                                             │
+│  OWNERSHIP                                                  │
+│  Claim Status: [● Claimed ○ Unclaimed]                     │
+│  Claimed By: John Smith (john@sunrisesenior.com)           │
+│  Claimed On: 2025-08-20                                     │
+│  [Revoke Claim]                                             │
+│                                                             │
+│  [Save Changes] [Cancel] [Delete Provider]                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### System Operations Design
+
+#### 20.13 System Health Dashboard (DECIDED)
+
+**Purpose**: At-a-glance view of platform operational status.
+
+**Metrics Displayed:**
+
+| Category | Metrics | Source |
+|----------|---------|--------|
+| **API** | Response time (avg, p95), error rate | Application logs |
+| **Database** | Connection status, query latency | Neon |
+| **Email** | Delivery rate, bounce rate | Resend |
+| **SMS** | Delivery rate, failure rate | Twilio |
+| **Jobs** | Running, completed, failed (24h) | Job queue |
+| **Storage** | Usage, upload failures | Vercel Blob |
+
+**Alert Thresholds:**
+
+| Metric | Warning | Critical |
+|--------|---------|----------|
+| API error rate | >1% | >5% |
+| API p95 latency | >2s | >5s |
+| DB connection | Slow | Failed |
+| Email delivery | <95% | <90% |
+| SMS delivery | <95% | <90% |
+| Failed jobs | >5 | >20 |
+
+**Demo Implementation**: Basic metrics display with mock data. Real integrations in production.
+
+---
+
+#### 20.16 External Tools Map (DECIDED — Demo-Critical)
+
+**Purpose**: Central reference for all external systems Olera relies on.
+
+**Comprehensive Tool List:**
+
+| Tool | Category | Purpose | Demo Status |
+|------|----------|---------|-------------|
+| **Neon** | Infrastructure | PostgreSQL database | ✅ Document |
+| **Vercel** | Infrastructure | Hosting, serverless, deployments | ✅ Document |
+| **Vercel Blob** | Storage | User uploads (photos, documents) | ✅ Document |
+| **Twilio** | Communications | SMS notifications | ✅ Document |
+| **Resend** | Communications | Transactional email | ✅ Document |
+| **Stripe** | Payments | Subscriptions, billing | ✅ Document |
+| **Sentry** | Monitoring | Error tracking, alerting | ✅ Document |
+| **Google Calendar API** | Integration | Calendar invites | 🟡 Note |
+| **1Password** | Security | Credential management | ✅ Document |
+| **GitHub** | Development | Code repository | ✅ Document |
+| **Slack** | Internal Comms | Team communication, alerts | 🟡 Future |
+| **Intercom/Crisp** | Support | Live chat (future) | ⬜ Placeholder |
+| **Checkr** | Trust & Safety | Background checks (future) | ⬜ Placeholder |
+| **Plausible/PostHog** | Analytics | Usage analytics (future) | ⬜ Placeholder |
+| **Zendesk** | Support | Ticketing system (future) | ⬜ Placeholder |
+
+**External Tool Entry Format:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  🗄️  NEON (PostgreSQL Database)                             │
+├─────────────────────────────────────────────────────────────┤
+│  Purpose: Primary data store for all platform data          │
+│                                                             │
+│  When to use:                                               │
+│  • Direct data queries when admin UI insufficient           │
+│  • Emergency data fixes                                     │
+│  • Bulk operations not available in admin panel             │
+│  • Database performance investigation                       │
+│                                                             │
+│  Access Information:                                        │
+│  • URL: console.neon.tech                                   │
+│  • Account: ops@olera.com                                   │
+│  • Credentials: 1Password → "Neon Production"               │
+│                                                             │
+│  ⚠️  Important Notes:                                        │
+│  • Direct DB changes bypass audit logging                   │
+│  • Document all manual changes in #ops-log Slack            │
+│  • Never modify production without backup verification      │
+│                                                             │
+│  [🔗 Open Neon Console]  [📖 Neon Operations Guide]         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Embedded Documentation Design
+
+#### Documentation Architecture (DECIDED — Demo-Critical)
+
+```
+/admin/docs
+│
+├── 📚 GETTING STARTED
+│   ├── Welcome to Olera Admin
+│   ├── System Overview & Architecture
+│   ├── Your First Day Checklist ⭐
+│   ├── Key Concepts & Terminology
+│   └── Navigation Guide
+│
+├── 📋 STANDARD OPERATING PROCEDURES (SOPs)
+│   │
+│   ├── QUEUES
+│   │   ├── SOP: Processing Provider Claims ⭐ Demo-Critical
+│   │   ├── SOP: Review Moderation [Placeholder]
+│   │   ├── SOP: User Report Handling [Placeholder]
+│   │   └── SOP: Support Ticket Resolution [Placeholder]
+│   │
+│   ├── PROVIDER REQUESTS
+│   │   ├── SOP: Unclaimed Listing Edit Requests ⭐ Demo-Critical
+│   │   ├── SOP: Provider Removal Requests ⭐ Demo-Critical
+│   │   ├── SOP: Claim Disputes [Placeholder]
+│   │   └── SOP: Visibility Complaints [Placeholder]
+│   │
+│   ├── DATA MANAGEMENT
+│   │   ├── SOP: Provider Data Editing ⭐ Demo-Critical
+│   │   ├── SOP: User Account Management [Placeholder]
+│   │   ├── SOP: Bulk Data Operations [Placeholder]
+│   │   └── SOP: Data Quality Audits [Placeholder]
+│   │
+│   ├── LEGAL & COMPLIANCE
+│   │   ├── SOP: Cease & Desist Response [Placeholder]
+│   │   ├── SOP: DMCA Takedown Process [Placeholder]
+│   │   ├── SOP: GDPR Data Requests [Placeholder]
+│   │   ├── SOP: CCPA Consumer Requests [Placeholder]
+│   │   └── SOP: Regulatory Inquiry Response [Placeholder]
+│   │
+│   └── SYSTEM OPERATIONS
+│       ├── SOP: Database Seeding ⭐ Demo-Critical
+│       ├── SOP: Incident Response [Placeholder]
+│       └── SOP: Deployment Rollback [Placeholder]
+│
+├── 📜 POLICIES & GUIDELINES
+│   ├── Review Content Guidelines
+│   ├── Provider Data Standards
+│   ├── Moderation Decision Framework
+│   ├── Escalation Matrix
+│   └── Response Time SLAs
+│
+├── 🗺️ EXTERNAL SYSTEMS
+│   ├── System Map Overview (see 20.16)
+│   ├── Neon Operations Guide
+│   ├── Vercel Operations Guide
+│   ├── Twilio Operations Guide
+│   ├── Stripe Operations Guide
+│   └── Sentry Operations Guide
+│
+└── 🆘 TROUBLESHOOTING
+    ├── Common Issues & Solutions
+    ├── Error Code Reference
+    ├── FAQ for Operators
+    └── Emergency Procedures
+```
+
+⭐ = Demo-critical: Fully written for demo
+[Placeholder] = Structure exists, content is placeholder text
+
+---
+
+#### Demo-Critical SOP: Processing Provider Claims
+
+```markdown
+# SOP: Processing Provider Claims
+
+**Version**: 1.0
+**Last Updated**: 2026-01-15
+**SLA**: 48 hours from submission
+
+## Purpose
+
+This procedure covers how to review and process provider claims when
+a user requests to claim an unclaimed listing.
+
+## When to Use
+
+- New item appears in Claims Queue
+- Claim requires manual review (not auto-approved)
+
+## Procedure
+
+### 1. Open the Claim
+
+Navigate to **Queues → Claims** and select the pending claim.
+
+### 2. Verify Requester Identity
+
+Check the following:
+
+- [ ] Email domain matches provider name/website
+- [ ] Submitted documentation is legible
+- [ ] Business license (if provided) matches provider
+- [ ] Government ID (if provided) shows authorized person
+
+### 3. Cross-Reference Provider Data
+
+- [ ] Google the provider to verify existence
+- [ ] Check provider's official website (if exists)
+- [ ] Verify phone number matches public records
+
+### 4. Make a Decision
+
+**IF all verification passes:**
+→ Click **[Approve]**
+→ System will notify claimant and transfer ownership
+
+**IF verification is inconclusive:**
+→ Click **[Request More Info]**
+→ Select what additional documentation is needed
+→ Claim returns to queue when user responds
+
+**IF verification fails:**
+→ Click **[Reject]**
+→ Select rejection reason from dropdown
+→ Add notes explaining the decision
+→ System will notify claimant with appeal option
+
+### 5. Document Your Decision
+
+Add notes to the claim record explaining your verification steps
+and reasoning. This is required for audit purposes.
+
+## Escalation
+
+Escalate to a senior admin if:
+
+- Claim involves a large/notable provider
+- Multiple people are claiming the same provider
+- You suspect fraud or impersonation
+- The claimant is being hostile or threatening
+
+## Common Issues
+
+| Issue | Resolution |
+|-------|------------|
+| Claimant uses personal email (gmail, etc.) | Request business email or additional documentation |
+| Provider has no website | Verify via state licensing database if applicable |
+| Documentation is blurry/illegible | Request clearer copies |
+| Claimant is not the owner but an employee | Request authorization letter from owner |
+
+## Related SOPs
+
+- SOP: Claim Disputes
+- SOP: Provider Data Editing
+```
+
+---
+
+#### Demo-Critical SOP: Provider Removal Requests
+
+```markdown
+# SOP: Provider Removal Requests
+
+**Version**: 1.0
+**Last Updated**: 2026-01-15
+**SLA**: 48 hours from submission
+
+## Purpose
+
+This procedure covers how to handle requests from providers who want
+their unclaimed listing removed from Olera.
+
+## When to Use
+
+- Provider Requests Queue: "Remove Unclaimed Listing" type
+- Email/contact form requesting page removal
+
+## Background
+
+Olera aggregates publicly available provider information to help
+families find care. Providers may request removal for various reasons.
+Our default is to accommodate reasonable requests while explaining
+the value of claiming their page instead.
+
+## Procedure
+
+### 1. Verify Requester Authorization
+
+The requester must prove they represent the provider:
+
+- [ ] Email from business domain (@providername.com)
+- [ ] OR verifiable phone call from listed number
+- [ ] OR documentation proving authorization
+
+**If unverified:** Request verification before proceeding.
+
+### 2. Understand the Request
+
+Ask clarifying questions if needed:
+
+- What specifically concerns them about the listing?
+- Is the information inaccurate?
+- Are they aware they can claim and control the page?
+
+### 3. Offer Alternatives
+
+Before removing, offer these options:
+
+**Option A: CLAIM THE PAGE (Preferred)**
+
+> "By claiming your page, you gain full control over your listing,
+> can respond to reviews, and connect with families seeking care."
+
+→ Send claim invitation email
+
+**Option B: CORRECT THE DATA**
+
+> "If specific information is wrong, we can correct it immediately.
+> What needs to be changed?"
+
+→ Edit the listing per their corrections
+
+**Option C: SUPPRESS VISIBILITY**
+
+> "We can reduce the visibility of your listing so it doesn't appear
+> in search results, while keeping the data available if families
+> search by name."
+
+→ Mark listing as "suppressed"
+
+### 4. If Provider Insists on Removal
+
+If the provider declines all alternatives:
+
+1. [ ] Confirm their identity one final time
+2. [ ] Document the request and interaction
+3. [ ] Process the removal:
+   - Navigate to provider in **Data → Providers**
+   - Click **[Delete Provider]**
+   - Select reason: "Provider removal request"
+   - Confirm deletion
+4. [ ] Send confirmation email to requester
+
+### 5. Document the Outcome
+
+Add notes to the request record:
+
+- Verification method used
+- Alternatives offered
+- Final outcome and reason
+
+## Escalation
+
+Escalate to **Legal queue** if:
+
+- Request mentions lawyers or legal action
+- Request cites specific laws (GDPR, CCPA, etc.)
+- Requester is hostile or threatening
+- You're unsure whether removal is appropriate
+
+## DO NOT Remove If
+
+- Requester cannot verify authorization
+- Request appears to be from competitor
+- Provider is under active investigation
+- There are active engagements with families
+
+## Related SOPs
+
+- SOP: Processing Provider Claims
+- SOP: Cease & Desist Response
+- SOP: GDPR Data Requests
+```
+
+---
+
+### Legal & Compliance Framework
+
+#### Policy Reference Structure
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  📜 LEGAL & COMPLIANCE REFERENCE                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  PLATFORM POLICIES                                          │
+│  ├── Terms of Service (/terms)                              │
+│  ├── Privacy Policy (/privacy)                              │
+│  ├── Review Guidelines                                      │
+│  ├── Provider Data Usage Policy                             │
+│  ├── Acceptable Use Policy                                  │
+│  └── Content Moderation Policy                              │
+│                                                             │
+│  LEGAL SOPs [Placeholder structure for demo]                │
+│  ├── SOP: Responding to Cease & Desist Letters              │
+│  ├── SOP: DMCA Takedown Process                             │
+│  ├── SOP: Review Defamation Claims                          │
+│  ├── SOP: GDPR Data Subject Requests                        │
+│  ├── SOP: CCPA Consumer Requests                            │
+│  └── SOP: Regulatory Inquiry Response                       │
+│                                                             │
+│  ESCALATION CONTACTS                                        │
+│  ├── Legal Counsel: [To be added]                           │
+│  ├── Executive Escalation: [To be added]                    │
+│  └── Emergency (after hours): [To be added]                 │
+│                                                             │
+│  RESPONSE TEMPLATES                                         │
+│  ├── Acknowledgment: Legal Letter Received                  │
+│  ├── Acknowledgment: Data Request Received                  │
+│  ├── Response: Removal Request - Approved                   │
+│  ├── Response: Removal Request - Declined                   │
+│  └── Response: Review Complaint - Resolution                │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Demo vs Production Scope
+
+| Admin Feature | Demo | Production |
+|---------------|------|------------|
+| **Admin Mode access** | ✅ Single ADMIN role | Tiered roles |
+| **Dashboard Home** | ✅ Queue counts + health | + Analytics, trends |
+| **Claims Queue** | ✅ Full workflow | + Auto-approve rules |
+| **Reviews Queue** | 🟡 Basic structure | Full moderation |
+| **Provider Requests Queue** | ✅ Full workflow | Same |
+| **User Reports Queue** | 🟡 Basic structure | + AI triage |
+| **Support Queue** | 🟡 Basic structure | + Ticketing integration |
+| **Legal Queue** | 🟡 Structure + placeholders | Full workflow |
+| **Provider Data Management** | ✅ Full CRUD | + Bulk ops, import/export |
+| **User/Family Data** | 🟡 View + basic edit | Full management |
+| **System Health** | 🟡 Basic metrics | Full observability |
+| **External Tools Map** | ✅ Complete documentation | + Embedded widgets |
+| **Embedded Docs** | ✅ Structure + demo SOPs | All SOPs complete |
+| **Legal SOPs** | 🟡 Placeholder structure | Fully written |
+| **Audit Logging** | ⬜ Defer | Full action logging |
+| **Role-based Permissions** | ⬜ Defer | Tiered access control |
+| **Bulk Operations** | ⬜ Defer | Import/export, batch edit |
+| **Analytics Dashboard** | ⬜ Defer | Usage, conversion metrics |
+
+---
+
+### Cross-Chapter Integration
+
+The Admin System integrates with every other chapter:
+
+| Chapter | Admin Integration |
+|---------|-------------------|
+| **Ch 1: Auth** | User management, account recovery |
+| **Ch 5-7: Providers** | Provider data management |
+| **Ch 8: Claiming** | Claims queue |
+| **Ch 11: Engagements** | Engagement data view, dispute handling |
+| **Ch 12: Messaging** | Message reports queue |
+| **Ch 15: Reviews** | Reviews queue, moderation |
+| **Ch 16: Notifications** | Delivery monitoring, template management |
+| **Ch 18: Subscriptions** | Billing support (via Stripe link) |
+| **Ch 19: Hiring** | Hiring engagement management |
+| **Ch 21: Seeding** | Seeding tools |
+| **Ch 24: SEO** | SEO content management |
+| **Ch 26: Trust** | Reports queue, fraud investigation |
+| **Ch 27: Help** | Help article management |
+| **Ch 28: Errors** | System health, logs |
+
+---
+
+### Future Chapter Reference: Communications & Automation
+
+> **Note**: A dedicated **Communications & Automation** chapter is required as a core platform system. This will cover:
+>
+> **Transactional Communications**
+> - Email notifications (engagement updates, reminders, reviews)
+> - SMS notifications (reminders, verification, alerts)
+> - Template management and personalization
+>
+> **Lifecycle Automation**
+> - Welcome sequences
+> - Re-engagement campaigns
+> - Profile completion reminders
+> - Inactivity follow-ups
+>
+> **Operational Communications**
+> - Admin-initiated outreach
+> - Call center workflow triggers
+> - Outbound call scheduling and tracking
+> - Multi-channel communication sequences
+>
+> **Automation Engine**
+> - Trigger definitions (events, conditions, timing)
+> - Action definitions (send email, send SMS, create task, notify admin)
+> - Rule builder for complex workflows
+> - Delivery tracking and analytics
+>
+> This system is critical because it can offload significant manual work while ensuring consistent, timely communication across all user touchpoints.
+>
+> **Proposed**: Chapter 34 (Communications & Automation) — to be developed after completing current chapter sequence.
 
 ---
 
