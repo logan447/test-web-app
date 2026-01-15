@@ -3144,25 +3144,411 @@ This notification system supports all previously decided flows:
 
 ## Chapter 17: Profile Completion & Matching
 
-**Purpose**: Track profile completeness and provide basic matching between families and providers.
+**Purpose**: Track profile completeness and provide intelligent matching across all user relationships — families finding providers, and organizations finding caregivers.
+
+### Core Principle
+
+> **Better data → Better matches**
+>
+> As profiles become more complete and detailed, match quality improves. Users should visibly see this relationship: adding more information leads to stronger, more relevant recommendations.
+
+### Matching Contexts
+
+| Context | Party A | Party B | Purpose |
+|---------|---------|---------|---------|
+| **Care-Seeking** | Family | Provider Organization | Family finds care facilities/agencies |
+| **Care-Seeking** | Family | Individual Caregiver | Family finds independent caregivers |
+| **Hiring** | Organization | Individual Caregiver | Organization finds employees |
+
+### Features
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 17.1 Provider Profile Completion % | 🟡 | API exists, used for mode defaulting |
-| 17.2 Family Profile Completion % | 🟡 | Unclear if tracked |
-| 17.3 "Complete Your Profile" Prompts | 🟡 | May exist in dashboard |
-| 17.4 Completion Storage (DB vs calculated) | 🟡 | Currently calculated on-the-fly |
-| 17.5 Match Scoring (family ↔ provider) | ⬜ | Not implemented |
-| 17.6 Recommended Providers (for families) | ⬜ | Not implemented |
-| 17.7 Recommended Families (for providers) | ⬜ | Not implemented |
+| 17.1 Profile Completion % (All Types) | 🟡 | Needs explicit storage |
+| 17.2 Completion Storage | ⬜ | Store in DB for matching |
+| 17.3 "Complete Your Profile" Prompts | 🟡 | May exist, needs verification |
+| 17.4 Match Scoring Algorithm | ⬜ | Rule-based, weighted |
+| 17.5 Match Score Display | ⬜ | Percentage or qualitative |
+| 17.6 "Best Matches" - Family → Provider | ⬜ | Dashboard recommendations |
+| 17.7 "Best Matches" - Provider → Family | ⬜ | Dashboard recommendations |
+| 17.8 "Best Matches" - Org → Caregiver | ⬜ | Hiring recommendations |
+| 17.9 "Best Matches" - Caregiver → Org | ⬜ | Opportunity recommendations |
+| 17.10 Olera Score Integration | ⬜ | Factors into match ranking |
 
-### Key Questions
-- [ ] Should completion % be stored in DB or calculated?
-- [ ] Match scoring algorithm requirements?
-- [ ] Is matching needed for demo?
+### Key Questions — RESOLVED
+
+- [x] **Should completion % be stored in DB or calculated?**
+  - **DECIDED**: Stored in DB. Enables sophisticated matching and progressive enhancement.
+
+- [x] **Match scoring algorithm requirements?**
+  - **DECIDED**: Rule-based weighted matching. No ML for demo. More attribute overlap = higher score.
+
+- [x] **Is matching needed for demo?**
+  - **DECIDED**: Yes. Must demonstrate that better profile data leads to better matches.
+
+- [x] **Should Olera Score factor into matching?**
+  - **DECIDED**: Yes. Higher-quality providers are preferentially recommended.
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+---
+
+#### 17.1-17.2 Profile Completion — Stored Explicitly (DECIDED)
+
+Profile completion is **stored in the database**, not calculated on-the-fly.
+
+**Why Store:**
+- Enables efficient matching queries
+- Supports progressive enhancement (demo → production)
+- Allows tracking completion over time
+- Required for "better data → better matches" demonstration
+
+**Completion Calculation:**
+
+Each profile type has **required fields** (visibility threshold) and **optional fields** (richness).
+
+```
+Completion % = (Filled Required Fields / Total Required) * 60%
+             + (Filled Optional Fields / Total Optional) * 40%
+```
+
+Required fields contribute 60% of completion score (ensures threshold is weighted heavily).
+Optional fields contribute 40% (rewards additional detail).
+
+---
+
+#### Profile Attributes by Type
+
+**Family Care Profile:**
+
+| Field | Category | Matching Weight |
+|-------|----------|-----------------|
+| Location (city/zip) | Required | High |
+| Care type needed | Required | High |
+| Care recipient relationship | Required | - |
+| Budget range | Optional | Medium |
+| Schedule/timing preferences | Optional | Medium |
+| Specific care needs | Optional | High |
+| Preferences (language, gender) | Optional | Medium |
+| Timeline/urgency | Optional | Low |
+| Living situation | Optional | Medium |
+
+**Provider Organization:**
+
+| Field | Category | Matching Weight |
+|-------|----------|-----------------|
+| Organization name | Required | - |
+| Location | Required | High |
+| Provider type | Required | High |
+| Services offered | Optional | High |
+| Price range | Optional | Medium |
+| Availability/capacity | Optional | Medium |
+| Specializations | Optional | High |
+| Amenities | Optional | Low |
+| Photos | Optional | - |
+| Description | Optional | - |
+| Olera Score | System | High |
+
+**Individual Caregiver:**
+
+| Field | Category | Matching Weight |
+|-------|----------|-----------------|
+| Name | Required | - |
+| Location | Required | High |
+| Services offered | Required | High |
+| Experience level | Optional | Medium |
+| Certifications | Optional | High |
+| Availability/schedule | Optional | High |
+| Rate range | Optional | Medium |
+| Specializations | Optional | High |
+| Languages | Optional | Medium |
+| Bio | Optional | - |
+| Olera Score | System | High |
+
+**Organization as Employer (Hiring Context):**
+
+| Field | Category | Matching Weight |
+|-------|----------|-----------------|
+| Location | Required | High |
+| Roles/positions needed | Optional | High |
+| Experience requirements | Optional | Medium |
+| Certifications required | Optional | High |
+| Schedule needs | Optional | High |
+| Pay range offered | Optional | Medium |
+| Benefits offered | Optional | Low |
+
+---
+
+#### 17.4 Match Scoring Algorithm (DECIDED)
+
+**Approach:** Rule-based weighted matching. No ML required.
+
+**Core Logic:**
+```
+Match Score = Base Alignment Score
+            + Attribute Overlap Score
+            + Olera Score Bonus
+            + Profile Completeness Bonus
+```
+
+**Scoring Breakdown:**
+
+| Component | Description | Max Points |
+|-----------|-------------|------------|
+| **Base Alignment** | Required attributes match (location proximity, care type) | 40 |
+| **Attribute Overlap** | Each matching optional attribute adds points | 40 |
+| **Olera Score Bonus** | Provider quality signal (Olera Score × 4) | 20 |
+| **Completeness Bonus** | Both profiles highly complete | 10 |
+| **Total** | | 110 |
+
+**Displayed as:** Percentage (score/110 × 100) or qualitative tier
+
+---
+
+#### Match Scoring: Family ↔ Provider
+
+```
+BASE ALIGNMENT (40 points max)
+├── Location within service area     +20 (required for any match)
+└── Care type alignment              +20 (required for any match)
+
+ATTRIBUTE OVERLAP (40 points max)
+├── Budget aligns with pricing       +8
+├── Schedule aligns with availability +8
+├── Specific needs match services    +4 each (max +16)
+└── Preferences match (language, etc.) +4 each (max +8)
+
+OLERA SCORE BONUS (20 points max)
+└── Provider Olera Score × 4         (e.g., 4.5 → +18)
+
+COMPLETENESS BONUS (10 points max)
+├── Family profile >80% complete     +5
+└── Provider profile >80% complete   +5
+
+TOTAL POSSIBLE: 110 points
+```
+
+**Example Scenarios:**
+
+| Family Profile | Provider Profile | Match Score | Display |
+|----------------|------------------|-------------|---------|
+| Minimal (location + care type only) | Full profile | ~55/110 | "50% Match" |
+| Partial (+ budget, schedule) | Full profile | ~75/110 | "68% Match" |
+| Complete (all fields) | Full profile, high Olera | ~100/110 | "91% Match" |
+
+**Key Insight:** A family with minimal profile data CAN still see providers, but match scores will be lower because fewer dimensions can be compared. Adding budget, schedule, and specific needs unlocks higher match scores.
+
+---
+
+#### Match Scoring: Organization ↔ Caregiver (Hiring)
+
+```
+BASE ALIGNMENT (40 points max)
+├── Location within commute range    +20 (required)
+└── Role/service type alignment      +20 (required)
+
+ATTRIBUTE OVERLAP (40 points max)
+├── Experience meets requirements    +10
+├── Certifications match needs       +10
+├── Schedule/availability aligns     +10
+└── Pay range overlaps               +10
+
+OLERA SCORE BONUS (20 points max)
+└── Caregiver Olera Score × 4        (if applicable)
+
+COMPLETENESS BONUS (10 points max)
+├── Org hiring profile >80% complete +5
+└── Caregiver profile >80% complete  +5
+
+TOTAL POSSIBLE: 110 points
+```
+
+---
+
+#### 17.5 Match Score Display (DECIDED)
+
+**Options:**
+
+| Format | Example | Pros | Cons |
+|--------|---------|------|------|
+| Percentage | "78% Match" | Precise, familiar | May feel arbitrary |
+| Qualitative | "Strong Match" | Friendly, simple | Less granular |
+| Stars | ★★★★☆ | Visual | Confuses with ratings |
+
+**Recommendation for Demo:** **Percentage with qualitative label**
+
+| Score Range | Label | Display |
+|-------------|-------|---------|
+| 85-100% | Excellent Match | "92% Match ✓ Excellent" |
+| 70-84% | Strong Match | "76% Match — Strong" |
+| 50-69% | Good Match | "58% Match — Good" |
+| 30-49% | Partial Match | "42% Match" |
+| <30% | Low Match | Not shown in recommendations |
+
+---
+
+#### 17.3 "Complete Your Profile" Prompts (DECIDED)
+
+**Prompt Triggers:**
+
+| Condition | Location | Message | Priority |
+|-----------|----------|---------|----------|
+| Below visibility threshold | Dashboard banner (persistent) | "Complete your profile to be visible and get matched" | Critical |
+| 50-79% complete | Dashboard card (dismissible) | "Add more details to improve your match quality" | Medium |
+| 80%+ complete | None | Profile is considered complete | - |
+| After viewing low match | Contextual tooltip | "Add [field] to improve matches like this" | Low |
+
+**Contextual Prompts (Demo Enhancement):**
+
+When a user views a provider with a low match score, show:
+> "This match could be stronger. Add your budget and schedule preferences to see better matches."
+
+This directly reinforces: **better data → better matches**.
+
+---
+
+#### 17.6-17.9 "Best Matches" Recommendations (DECIDED)
+
+**Framing:** "Best matches for your needs" (not "Nearby" or "Recommended")
+
+**Family Dashboard:**
+```
+┌─────────────────────────────────────────────────────────┐
+│  BEST MATCHES FOR YOUR NEEDS                            │
+│  Based on your care profile                             │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────┐                                            │
+│  │ [Photo] │  Sunrise Senior Living                     │
+│  │         │  ★ 4.5 Olera Score │ 92% Match ✓ Excellent│
+│  │         │  Assisted Living • 2.3 mi                  │
+│  └─────────┘  [View Profile]                            │
+│                                                         │
+│  ┌─────────┐                                            │
+│  │ [Photo] │  Maria G. — Independent Caregiver          │
+│  │         │  ★ 4.2 Olera Score │ 78% Match — Strong   │
+│  │         │  Home Care • 1.8 mi                        │
+│  └─────────┘  [View Profile]                            │
+├─────────────────────────────────────────────────────────┤
+│  💡 Add your budget and schedule to improve matches     │
+│     [Complete Profile]                                  │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Provider Dashboard (Care-Seeking Leads):**
+```
+┌─────────────────────────────────────────────────────────┐
+│  FAMILIES MATCHING YOUR SERVICES                        │
+├─────────────────────────────────────────────────────────┤
+│  Jane D. — Looking for Memory Care                      │
+│  85% Match ✓ Excellent │ Budget: $5-7k/mo              │
+│  [View Profile] [Send Message]                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Provider Dashboard (Hiring — Organizations):**
+```
+┌─────────────────────────────────────────────────────────┐
+│  BEST CAREGIVER MATCHES                                 │
+│  Based on your hiring needs                             │
+├─────────────────────────────────────────────────────────┤
+│  Sarah M. — CNA, 5 years experience                     │
+│  88% Match ✓ Excellent │ Available: Full-time          │
+│  [View Profile] [Express Interest]                      │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Provider Dashboard (Hiring — Individual Caregivers):**
+```
+┌─────────────────────────────────────────────────────────┐
+│  BEST OPPORTUNITIES FOR YOU                             │
+│  Organizations looking for your skills                  │
+├─────────────────────────────────────────────────────────┤
+│  Sunrise Home Care — Hiring CNAs                        │
+│  82% Match — Strong │ Pay: $22-28/hr                   │
+│  [View Details] [Express Interest]                      │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 17.10 Olera Score Integration (DECIDED)
+
+Olera Score factors into matching as a **quality signal**:
+
+- Higher Olera Score → Higher match score (all else equal)
+- Ensures quality providers surface to the top
+- Does NOT replace attribute matching (a 5-star provider with wrong care type won't match)
+
+**Weight:** Olera Score contributes up to ~18% of total match score (20/110 points)
+
+---
+
+### Data Model
+
+```prisma
+model ProfileCompletion {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  // Completion percentages
+  familyCompletion    Int?     // 0-100, null if no family profile
+  providerCompletion  Int?     // 0-100, null if no provider profile
+  hiringCompletion    Int?     // 0-100, for org hiring profile
+
+  // Threshold status
+  familyVisibilityMet    Boolean @default(false)
+  providerVisibilityMet  Boolean @default(false)
+
+  // Field-level tracking (for prompts)
+  missingFields       Json    @default("[]") // Array of field names
+
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+// Match scores could be cached or calculated on-demand
+// For demo: calculate on-demand
+// For production: consider caching with invalidation
+```
+
+---
+
+### Demonstrating "Better Data → Better Matches" in Demo
+
+**User Flow (Demo Scenario):**
+
+1. **Family signs up** with minimal profile (location, care type)
+2. **Views "Best Matches"** — sees providers with 40-60% match scores
+3. **Sees prompt:** "Add your budget to see better matches"
+4. **Adds budget** — match scores for budget-aligned providers jump to 60-75%
+5. **Adds schedule preferences** — scores jump again to 70-85%
+6. **Adds specific care needs** — some providers now show 85-95% match
+
+**Visual Progression:**
+```
+Step 1: "58% Match — Good"
+Step 2: "72% Match — Strong"  (+14 from budget)
+Step 3: "81% Match — Strong"  (+9 from schedule)
+Step 4: "93% Match ✓ Excellent" (+12 from care needs)
+```
+
+This creates a clear, demonstrable relationship that will resonate with stakeholders.
+
+---
+
+### Demo vs Production Summary
+
+| Feature | Demo Scope | Production Scope |
+|---------|------------|------------------|
+| Profile Completion Storage | Stored in DB | Same + historical tracking |
+| Completion Prompts | Dashboard + contextual | Same + email nudges |
+| Match Algorithm | Rule-based weighted | Same, refined weights |
+| Match Display | Percentage + label | Same + explanation tooltip |
+| "Best Matches" Sections | All 4 contexts | Same + personalization |
+| Olera Score Integration | Fixed weight (×4) | Tunable weight |
+| Match Caching | Calculate on-demand | Cached with invalidation |
+| ML Enhancement | ❌ Not included | Future consideration |
 
 ---
 
