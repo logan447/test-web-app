@@ -1649,26 +1649,246 @@ Same pattern as Family Dashboard:
 
 ---
 
-## Chapter 11: Consultation Requests
+## Chapter 11: Engagements
 
-**Purpose**: Enable families to initiate contact with providers through structured requests.
+**Purpose**: The unified system for all interactions between parties — covering care-seeking (Family ↔ Provider) and hiring (Org ↔ Caregiver).
+
+**Cross-reference**:
+- Chapter 9 (Family Dashboard) and Chapter 10 (Provider Dashboard) for engagement views
+- Chapter 12 for messaging within engagements
+- Chapter 13 for scheduling within engagements
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 11.1 Request Creation (family → provider) | ✅ | `/dashboard/requests/new` |
-| 11.2 Request Types | ✅ | CONSULTATION, HIRING |
-| 11.3 Request Status Workflow | ✅ | PENDING → ACCEPTED → DECLINED / COMPLETED / CANCELLED |
-| 11.4 Contact Reason | ✅ | Tour, pricing, question, placement assistance |
-| 11.5 Preferred Contact Method | ✅ | Field exists |
-| 11.6 Request Listing (both sides) | ✅ | Works |
-| 11.7 Request Expiration | ⬜ | Auto-close stale requests |
+| 11.1 Engagement Creation | ✅ | Bidirectional (any party can initiate) |
+| 11.2 Engagement Types | 🟡 | Expand beyond CONSULTATION/HIRING |
+| 11.3 Engagement Status Workflow | ✅ | PENDING → ACCEPTED → ACTIVE → COMPLETED |
+| 11.4 Engagement Context/Reason | ✅ | Aligned with types |
+| 11.5 Contact Preferences & Video | 🟡 | Phone/Email/Video |
+| 11.6 Engagement Listing | ✅ | Bidirectional views per user type |
+| 11.7 Engagement Expiration | ⬜ | Deferred for demo |
+| 11.8 Systems Separation | 🟡 | Separate models for Care-Seeking vs Hiring |
 
 ### Key Questions
-- [ ] Are all request statuses being used correctly?
-- [ ] Request expiration rules?
+- [x] Are all request statuses being used correctly? → **Yes, added ACTIVE state**
+- [x] Request expiration rules? → **Deferred for demo, documented for production**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 11.1 Engagement Creation — Bidirectional (DECIDED)
+
+Any party can initiate an engagement.
+
+**Care-Seeking System**:
+
+| Initiator | Target | Examples |
+|-----------|--------|----------|
+| Family | Provider (org) | Tour request, consultation, inquiry |
+| Family | Provider (individual) | Interview request, inquiry |
+| Provider | Family | Availability outreach, follow-up |
+
+**Hiring System**:
+
+| Initiator | Target | Examples |
+|-----------|--------|----------|
+| Organization | Caregiver | Interview request, hiring inquiry |
+| Caregiver | Organization | Job inquiry, availability notice |
+
+**Implementation**: Current `ConsultRequest.senderId` already supports bidirectional initiation.
+
+#### 11.2 Engagement Types (DECIDED)
+
+Expanded beyond simple CONSULTATION/HIRING to granular types.
+
+**Care-Seeking Types**:
+
+| Type | Description | Typical Initiator |
+|------|-------------|-------------------|
+| `TOUR` | Facility visit scheduling | Family |
+| `CONSULTATION` | Service discussion | Family or Provider |
+| `INTERVIEW` | Family interviewing individual caregiver | Family |
+| `INQUIRY` | General question | Family or Provider |
+| `OUTREACH` | Proactive contact | Provider |
+
+**Hiring Types**:
+
+| Type | Description | Typical Initiator |
+|------|-------------|-------------------|
+| `HIRING_INTERVIEW` | Employment interview | Org or Caregiver |
+| `HIRING_INQUIRY` | Job-related question | Org or Caregiver |
+
+**Implementation**: Add `engagementType` enum field to models.
+
+#### 11.3 Engagement Status Workflow (DECIDED)
+
+| Status | Meaning | Transitions From |
+|--------|---------|------------------|
+| `PENDING` | Awaiting response from recipient | (initial) |
+| `ACCEPTED` | Recipient agreed to engage | PENDING |
+| `ACTIVE` | Ongoing conversation/scheduling | ACCEPTED |
+| `COMPLETED` | Engagement concluded successfully | ACTIVE |
+| `DECLINED` | Recipient declined | PENDING |
+| `CANCELLED` | Initiator withdrew | PENDING, ACCEPTED, ACTIVE |
+
+**Status Flow Diagram**:
+```
+PENDING → ACCEPTED → ACTIVE → COMPLETED
+    ↓         ↓         ↓
+ DECLINED  CANCELLED  CANCELLED
+```
+
+#### 11.3.1 Contact Information Release (DECIDED)
+
+**Contact info visibility rules by user type**:
+
+| User Type | Contact Info Visibility | Trigger |
+|-----------|------------------------|---------|
+| **Family** | Hidden until accepted | Engagement status = ACCEPTED |
+| **Individual Caregiver** | Hidden until accepted | Engagement status = ACCEPTED |
+| **Org Provider** | Always visible | No gating (public directory info) |
+
+**Rationale**:
+- Families and individual caregivers are individuals with privacy concerns
+- Org providers are businesses with publicly available contact info
+- Acceptance signals mutual intent to connect
+
+**What "contact info" includes** (gated for individuals):
+- Phone number
+- Email address
+- Full address
+
+**What's always visible** (regardless of acceptance):
+- Name
+- General location (city/state)
+- Profile details (services, description, etc.)
+
+#### 11.4 Engagement Context/Reason (DECIDED)
+
+`contactReason` field aligned with engagement types:
+
+| Type | Relevant Reasons |
+|------|------------------|
+| TOUR | Schedule tour, Reschedule tour |
+| CONSULTATION | Request pricing, Discuss services, Placement assistance |
+| INTERVIEW | Schedule interview, Discuss availability |
+| INQUIRY | Ask a question, Request information |
+| OUTREACH | Share availability, Follow up |
+
+#### 11.5 Contact Preferences & Video Calling (DECIDED)
+
+**Contact Method Options**:
+
+| Method | Demo | Production |
+|--------|------|------------|
+| Phone | ✅ | ✅ |
+| Email | ✅ | ✅ |
+| Video Call | ✅ | ✅ |
+| In-App Only | ❌ Defer | ✅ |
+
+**Video Calling Implementation**:
+
+##### Demo Scope
+- Video call button in engagement detail
+- Generate unique video call link (Daily.co or similar service)
+- User clicks to join in new browser tab
+- Link included in calendar invite
+
+##### Production Scope
+- Embedded video UI within platform
+- Recording capability (consider)
+- Virtual waiting room
+
+#### 11.5.1 Calendar Integration (DECIDED)
+
+**Approach**: Auto-invite as default (Option C), ICS fallback.
+
+##### Demo Scope
+
+| Feature | Included |
+|---------|----------|
+| Auto-send Google Calendar invite on acceptance | ✅ Target |
+| "Add to Calendar" (.ics download) | ✅ Fallback |
+| View calendar event in engagement detail | ✅ |
+| Re-send calendar invite button | ✅ |
+
+##### Production Scope
+
+| Feature | Included |
+|---------|----------|
+| All demo features | ✅ |
+| Calendar sync (read user's availability) | ✅ |
+| Availability checking before proposing times | ✅ |
+| Multiple calendar provider support | ✅ |
+
+**Auto-Invite Behavior**:
+
+| Trigger | Action |
+|---------|--------|
+| Engagement with scheduled date/time is ACCEPTED | System generates Google Calendar invite |
+| Invite sent to | Both parties' email addresses |
+| Invite includes | Title, date/time, location or video link, engagement link |
+
+**User Preferences** (set during onboarding):
+- "Allow calendar invitations to be sent to this email" — **default ON** (opt-out, not opt-in)
+- Can be changed in account settings
+
+**Engagement Detail Page Calendar Features**:
+- View calendar event details
+- Re-send calendar invite button
+- "Add to Calendar" (.ics) download link
+- Edit/reschedule triggers new invite
+
+#### 11.6 Engagement Listing — Bidirectional Views (DECIDED)
+
+**Cross-reference**: Already documented in Chapters 9 & 10.
+
+| User | Page | Shows |
+|------|------|-------|
+| Family | My Providers | All engagements with providers (inbound + outbound) |
+| Provider | My Families | All engagements with families (inbound + outbound) |
+| Org Provider | My Candidates | All hiring engagements (inbound + outbound) |
+| Individual Caregiver | My Opportunities | All hiring engagements (inbound + outbound) |
+
+#### 11.7 Engagement Expiration (DECIDED)
+
+##### Demo Scope
+Deferred — no automatic expiration.
+
+##### Production Scope
+
+| Rule | Behavior |
+|------|----------|
+| No response in 14 days | Mark as EXPIRED, notify initiator |
+| No activity in 30 days | Mark as STALE, prompt both parties |
+| Completed engagements | Archive after 90 days |
+
+**Notifications**:
+- "Your inquiry to [Provider] has expired with no response"
+- "Your conversation with [Family] has been inactive for 30 days"
+
+#### 11.8 Engagement Systems Separation (DECIDED)
+
+**Decision**: Separate models for Care-Seeking and Hiring (Option B).
+
+| System | Model | Parties |
+|--------|-------|---------|
+| **Care-Seeking** | `Engagement` | Family ↔ Provider |
+| **Hiring** | `HiringEngagement` | Org ↔ Individual Caregiver |
+
+**Rationale**: Aligns with "explicit, not dynamic" principle. Clean separation prevents conflation of different relationship types.
+
+**Shared Behavior** (implemented consistently across both models):
+- Bidirectional initiation
+- Status workflow
+- Messaging
+- Scheduling
+- Calendar integration
+
+**Separate Concerns**:
+- Different parties (family vs org/caregiver)
+- Different engagement types
+- Different pages/views
+- Different calendar colors
 
 ---
 
