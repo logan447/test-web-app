@@ -2330,24 +2330,488 @@ model SavedOpportunity {
 
 ## Chapter 15: Reviews & Ratings
 
-**Purpose**: Enable families to share experiences and help others make informed decisions.
+**Purpose**: Build a two-sided accountability system that creates trust, improves quality, and helps families make informed decisions across all care interactions.
+
+### Three Non-Negotiable Pillars
+
+| Pillar | Description |
+|--------|-------------|
+| **1. Universal Quality Signal** | Every provider (claimed or unclaimed) has an Olera Score. Families always see something meaningful. |
+| **2. Two-Sided Reviews** | Families ↔ Providers AND Organizations ↔ Caregivers. Accountability flows both directions. Reviews tied to actual interactions. |
+| **3. Care-Embedded Collection** | On-site QR reviews, provider-distributed tools, platform prompts, phone calls. All reviews live within Olera. |
+
+### Features
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 15.1 Review Model | ✅ | `Review` model exists |
-| 15.2 Submit Review | 🟡 | API exists |
-| 15.3 Display Reviews on Provider | 🟡 | Components likely exist |
-| 15.4 Aggregate Rating | ✅ | `averageRating`, `reviewCount` on Provider |
-| 15.5 Helpful Votes | ✅ | `helpfulCount` field, API exists |
-| 15.6 Review Moderation | 🟡 | `approved` field exists |
-| 15.7 Review Eligibility | ⬜ | Must have engaged with provider? |
+| 15.1 Olera Score (Unified) | 🟡 | Master score aggregating all signals |
+| 15.2 Review Model (Care-Seeking) | ✅ | `Review` model exists, needs expansion |
+| 15.3 Review Model (Hiring) | ⬜ | `HiringReview` model needed |
+| 15.4 Two-Sided Reviews | ⬜ | Family ↔ Provider, Org ↔ Caregiver |
+| 15.5 Blind Review Window | ⬜ | 14-day window, reveals when both submit |
+| 15.6 Interaction-Based Reviews | ⬜ | Tours, consults, interviews, ongoing care |
+| 15.7 Multi-Channel Collection | ⬜ | Platform prompts, QR, links, phone |
+| 15.8 Review Trigger Logic | ⬜ | "Did this happen?" confirmation flow |
+| 15.9 Prompt Cadence | ⬜ | Multiple reminders, quarterly for ongoing |
+| 15.10 Direct Provider Page Reviews | ⬜ | Public entry point with structured intake |
+| 15.11 Structured Feedback Sessions | ⬜ | Post-demo: scheduled feedback calls |
+| 15.12 Review Display & Trust Signals | 🟡 | Components exist, need refinement |
+| 15.13 Provider Response to Reviews | ⬜ | One public response allowed |
+| 15.14 Review Moderation | 🟡 | `approved` field exists |
+| 15.15 Helpful Votes | ✅ | `helpfulCount` field, API exists |
 
-### Key Questions
-- [ ] Who can leave reviews? Any verification?
-- [ ] Moderation workflow for demo?
+### Key Questions — RESOLVED
+
+- [x] **Who can leave reviews?**
+  - **DECIDED**: Engagement-gated preferred. Non-engagement reviews (QR/direct) accepted but marked "Unverified."
+
+- [x] **How do Olera Score and user reviews relate?**
+  - **DECIDED**: One unified Olera Score that incorporates all signals including Olera-native reviews over time.
+
+- [x] **Are provider→family reviews visible?**
+  - **DECIDED**: Two-sided reviews visible both ways (full transparency).
+
+- [x] **What about hiring context?**
+  - **DECIDED**: Organization ↔ Caregiver reviews included (demo if feasible, otherwise post-demo).
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+---
+
+#### 15.1 Olera Score — Unified Master Score (DECIDED)
+
+The Olera Score is the **single, primary quality signal** for every provider.
+
+**Inputs to Olera Score:**
+
+| Signal | Source | Weight (conceptual) |
+|--------|--------|---------------------|
+| Community Sentiment | AI-derived from public web | High |
+| Public Reputation | Aggregated reputation signals | Medium |
+| Google Reviews | When available | Medium |
+| Profile Completeness | Claimed provider data | Low-Medium |
+| **Olera-Native Reviews** | Platform reviews (as collected) | High (increasing over time) |
+
+**Key Properties:**
+- Always present (0-5 scale) for every provider, claimed or unclaimed
+- Does not require Olera reviews to exist (uses other signals)
+- Incorporates Olera reviews as additional strong signal when available
+- Becomes more accurate and credible as first-party data grows
+- Consistent methodology applied at nationwide scale
+- Not easily gameable by individual actions
+
+**Display:**
+- Prominent on all provider cards and profiles
+- "How is this calculated?" expandable explanation
+- Olera-native review count shown separately for transparency
+
+---
+
+#### 15.2-15.4 Two-Sided Review System (DECIDED)
+
+Reviews flow in both directions across both engagement systems:
+
+**Care-Seeking Context:**
+
+| Reviewer | Reviewed | Model | Visibility |
+|----------|----------|-------|------------|
+| Family | Provider | `Review` | Public (on provider profile) |
+| Provider | Family | `FamilyReview` | Visible to other providers |
+
+**Hiring Context:**
+
+| Reviewer | Reviewed | Model | Visibility |
+|----------|----------|-------|------------|
+| Organization | Caregiver | `HiringReview` | Visible to other organizations |
+| Caregiver | Organization | `HiringReview` | Public (on org profile) |
+
+**Rating Dimensions:**
+
+| Context | Reviewer | Dimensions |
+|---------|----------|------------|
+| Care-Seeking | Family → Provider | Overall, Care Quality, Communication, Responsiveness, (Facility Condition if applicable) |
+| Care-Seeking | Provider → Family | Overall, Communication, Reliability, Environment |
+| Hiring | Org → Caregiver | Overall, Professionalism, Reliability, Skills |
+| Hiring | Caregiver → Org | Overall, Communication, Work Environment, Support |
+
+---
+
+#### 15.5 Blind Review Window (DECIDED)
+
+Prevents retaliation, encourages honest feedback (Uber/Airbnb pattern).
+
+**Flow:**
+```
+Engagement/Interaction Completes (or scheduled time passes)
+                    │
+     ┌──────────────┴──────────────┐
+     ▼                              ▼
+┌─────────────┐              ┌─────────────┐
+│  Party A    │              │  Party B    │
+│ Prompted to │              │ Prompted to │
+│   Review    │              │   Review    │
+└──────┬──────┘              └──────┬──────┘
+       │                            │
+       └────────────┬───────────────┘
+                    │
+         BLIND WINDOW (14 days)
+                    │
+    ┌───────────────┴───────────────┐
+    │  Window expires OR both submit │
+    └───────────────┬───────────────┘
+                    │
+                    ▼
+         ┌─────────────────┐
+         │ Reviews Revealed │
+         │  to both parties │
+         └─────────────────┘
+```
+
+**Rules:**
+- 14-day window from interaction completion
+- Neither party sees the other's review until both submit OR window expires
+- Reminders sent during window (see Prompt Cadence)
+- Skipped reviews are recorded as "No review submitted"
+
+---
+
+#### 15.6 Interaction-Based Reviews (DECIDED)
+
+Reviews can be left for **any interaction type**, not just ongoing care:
+
+| Interaction Type | Review Prompt Trigger | Example Questions |
+|-----------------|----------------------|-------------------|
+| **Tour** | After scheduled tour date | "How was your facility visit?" |
+| **Consultation** | After scheduled consult | "Was the consultation helpful?" |
+| **Interview** | After scheduled interview | "How was your interview experience?" |
+| **One-Time Service** | After service date | "How was the service provided?" |
+| **Ongoing Care** | Periodic (quarterly) | "How is your ongoing care experience?" |
+
+**Why this matters:**
+- Early touchpoints affect family decisions
+- Increases review volume and transparency
+- Even if care never starts, the interaction experience matters
+
+---
+
+#### 15.7 Multi-Channel Review Collection (DECIDED)
+
+**Channel 1: Platform Prompts (Automated)**
+- Triggered after scheduled interaction time passes
+- Email + SMS + in-app notification
+- Multiple reminders over 14-day window
+- Quarterly prompts for ongoing care relationships
+
+**Channel 2: QR Code + Short Link (Care-Embedded)**
+- Each provider gets unique QR + `olera.co/r/[code]`
+- Mobile-optimized review intake
+- Staff can facilitate on-site during/after care
+- Printable for facility display
+
+**Channel 3: Provider-Distributed Links (Staff Tools)**
+- Provider admin generates shareable review links
+- Distributes to care staff for field collection
+- Optional attribution tracking (which staff collected)
+
+**Channel 4: Provider-Initiated Requests (Direct)**
+- Provider sends review request to specific family via Olera
+- Rate-limited to prevent spam (e.g., max 1 request per family per 30 days)
+- Clear opt-out for families
+
+**Channel 5: Direct on Provider Page (Public Entry)**
+- Review intake accessible from public provider page
+- Captures structured context (see 15.10)
+- Important for users arriving from Google
+
+**Channel 6: Phone Calls (Post-Demo)**
+- Phase 1: Human call center workflow (possibly AI-assisted transcription)
+- Phase 2: AI calling workflows with safeguards
+- Higher conversion, especially for elder care demographics
+
+---
+
+#### 15.8 Review Trigger Logic (DECIDED)
+
+We don't always have verified engagement completion, but we have scheduled timestamps.
+
+**Trigger Flow:**
+```
+Scheduled Interaction Time Passes
+              │
+              ▼
+    ┌─────────────────────┐
+    │ "Did this happen?"  │
+    │   confirmation      │
+    └──────────┬──────────┘
+               │
+       ┌───────┴───────┐
+       ▼               ▼
+   [YES]            [NO]
+       │               │
+       ▼               ▼
+┌─────────────┐  ┌──────────────────┐
+│ Review      │  │ Reschedule flow  │
+│ Prompt      │  │ + Alternative    │
+│             │  │   recommendations│
+└─────────────┘  └──────────────────┘
+```
+
+**Applies to:** Tours, consultations, interviews, ongoing care touchpoints
+
+---
+
+#### 15.9 Prompt Cadence (DECIDED)
+
+**For Single Interactions (Tour, Consult, Interview):**
+
+| Day | Action |
+|-----|--------|
+| 0 | Interaction scheduled time passes |
+| 0 | "Did this happen?" confirmation sent |
+| 1 | If confirmed: Review prompt (email + SMS + in-app) |
+| 4 | Reminder #1 (if not submitted) |
+| 10 | Reminder #2 (if not submitted) |
+| 14 | Final reminder + window closes |
+
+**For Ongoing Care Relationships:**
+
+| Interval | Action |
+|----------|--------|
+| After first visit/week | Initial review prompt |
+| Every 3-6 months | Periodic review prompt ("How is care going?") |
+| On relationship end | Final review prompt |
+
+**Growth Lever Mindset:**
+- Review collection is a core engagement loop
+- Multiple touchpoints increase conversion
+- Long-term cadence maintains review freshness
+
+---
+
+#### 15.10 Direct Provider Page Reviews (DECIDED)
+
+For users arriving at provider page without tracked engagement (e.g., from Google):
+
+**Structured Intake Captures:**
+
+| Field | Purpose |
+|-------|---------|
+| Reviewer Role | Family member, caregiver, other |
+| Interaction Type | Tour, consult, interview, ongoing care, other |
+| Timeframe | When did this occur? (date range) |
+| Duration | If ongoing, how long? |
+| Relationship to Care Recipient | Self, spouse, parent, etc. |
+
+**Verification Status:**
+- If reviewer has account + matching engagement: "Verified Review"
+- If reviewer has account, no matching engagement: "Olera Member"
+- If no account: "Unverified" (prompted to create account)
+
+---
+
+#### 15.11 Structured Feedback Sessions (Post-Demo)
+
+Optional workflow for early relationship health checks:
+
+**Flow:**
+1. After first visit (or within first 2-3 weeks), Olera prompts family
+2. Family can schedule short feedback call/session with provider
+3. Platform facilitates scheduling (uses engagement system)
+4. Structured agenda: What's working? What could improve?
+5. Follow-up prompt to convert session insights into review
+
+**Benefits:**
+- Organized, platform-supported feedback channel
+- Improves provider retention and quality
+- Surfaces issues before they become problems
+- Creates additional review collection opportunity
+
+**Scope:** Post-demo enhancement
+
+---
+
+#### 15.12 Review Display & Trust Signals (DECIDED)
+
+**On Provider Profile:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  OLERA SCORE: 4.2 ★★★★☆                                │
+│  Based on community data, reputation signals,           │
+│  and 47 Olera reviews                                   │
+│  [How is this calculated?]                              │
+├─────────────────────────────────────────────────────────┤
+│  OLERA REVIEWS (47)                     [Leave Review]  │
+│  ─────────────────                                      │
+│  ★★★★★ "Exceptional care for my mother..."             │
+│  Jane D. • Verified Family • Ongoing Care • 6 months   │
+│  [Provider Response: "Thank you Jane..."]              │
+│  👍 12 found this helpful                               │
+│                                                         │
+│  ★★★★☆ "Good tour experience, staff was helpful..."    │
+│  Michael R. • Verified Family • Tour • Dec 2024        │
+│  👍 3 found this helpful                                │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Trust Signals:**
+
+| Signal | Display |
+|--------|---------|
+| Verified Review | "Verified Family" / "Verified Caregiver" badge |
+| Interaction Type | Tour, Consultation, Ongoing Care, etc. |
+| Duration | For ongoing: "6 months", "2 years" |
+| Recency | Relative time ("3 months ago") |
+| Helpful Count | "X found this helpful" |
+| Provider Response | One response allowed, displayed below review |
+
+---
+
+#### 15.13 Provider Response to Reviews (DECIDED)
+
+- Provider can post **one public response** per review
+- Shows engagement and accountability
+- Must be respectful (subject to moderation)
+- Response appears below review on profile
+
+---
+
+#### 15.14 Review Moderation (DECIDED)
+
+**Demo Scope:**
+- Auto-approve all reviews (controlled environment)
+- Basic profanity filter (reject obvious violations)
+
+**Production Scope:**
+- Auto-approve with filters (profanity, spam detection)
+- Provider can flag reviews for admin review
+- Admin panel for moderation queue
+- Appeal process for disputed reviews
+
+---
+
+### New Models Required
+
+```prisma
+// Family reviews of Provider (care-seeking)
+model Review {
+  id              String    @id @default(cuid())
+  providerId      String
+  reviewerId      String    // User ID (family)
+  engagementId    String?   // Nullable for unverified reviews
+
+  // Ratings
+  overallRating   Int       // 1-5
+  careQuality     Int?      // 1-5, optional
+  communication   Int?      // 1-5, optional
+  responsiveness  Int?      // 1-5, optional
+
+  // Content
+  content         String
+  interactionType String    // TOUR, CONSULTATION, INTERVIEW, ONGOING_CARE, OTHER
+  duration        String?   // For ongoing: "6 months", etc.
+  timeframe       DateTime? // When interaction occurred
+
+  // Status
+  status          String    @default("PENDING") // PENDING, PUBLISHED, HIDDEN
+  verifiedReview  Boolean   @default(false)
+
+  // Response
+  providerResponse String?
+  respondedAt      DateTime?
+
+  // Engagement
+  helpfulCount    Int       @default(0)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  provider        Provider  @relation(fields: [providerId], references: [id])
+  reviewer        User      @relation(fields: [reviewerId], references: [id])
+  engagement      Engagement? @relation(fields: [engagementId], references: [id])
+}
+
+// Provider reviews of Family (care-seeking)
+model FamilyReview {
+  id              String    @id @default(cuid())
+  familyProfileId String
+  reviewerId      String    // Provider user ID
+  engagementId    String?
+
+  overallRating   Int
+  communication   Int?
+  reliability     Int?
+  environment     Int?
+
+  content         String
+
+  status          String    @default("PENDING")
+  createdAt       DateTime  @default(now())
+
+  familyProfile   FamilyProfile @relation(fields: [familyProfileId], references: [id])
+  reviewer        User      @relation(fields: [reviewerId], references: [id])
+}
+
+// Org ↔ Caregiver reviews (hiring context)
+model HiringReview {
+  id                  String    @id @default(cuid())
+  hiringEngagementId  String?
+  reviewerId          String
+  revieweeId          String    // Provider ID (org or caregiver)
+  reviewerType        String    // ORGANIZATION or CAREGIVER
+
+  overallRating       Int
+  professionalism     Int?
+  reliability         Int?
+  communication       Int?
+
+  content             String
+
+  status              String    @default("PENDING")
+  createdAt           DateTime  @default(now())
+
+  reviewer            User      @relation("HiringReviewAuthor", fields: [reviewerId], references: [id])
+  reviewee            Provider  @relation("HiringReviewSubject", fields: [revieweeId], references: [id])
+}
+
+// Review collection tracking
+model ReviewRequest {
+  id              String    @id @default(cuid())
+  providerId      String
+  familyUserId    String?
+  engagementId    String?
+
+  channel         String    // PLATFORM_PROMPT, QR_CODE, PROVIDER_LINK, PROVIDER_REQUEST, DIRECT, PHONE
+  shortCode       String?   @unique // For QR/link: olera.co/r/[shortCode]
+
+  sentAt          DateTime?
+  reminders       Json      @default("[]") // Array of reminder timestamps
+  completedAt     DateTime?
+  reviewId        String?   // Resulting review, if submitted
+
+  createdAt       DateTime  @default(now())
+}
+```
+
+---
+
+### Demo vs Production Summary
+
+| Feature | Demo Scope | Production Scope |
+|---------|------------|------------------|
+| Olera Score | Unified display, incorporates reviews | Same + refined weighting algorithm |
+| Two-Sided Reviews (Care) | Family ↔ Provider | Same |
+| Two-Sided Reviews (Hiring) | If feasible, otherwise specify | Org ↔ Caregiver |
+| Blind Review Window | 14 days | Same |
+| Collection: Platform Prompts | Email + in-app | + SMS |
+| Collection: QR + Links | Basic implementation | + Analytics |
+| Collection: Phone Calls | ❌ Defer | Human → AI calling |
+| Review Trigger Logic | "Did this happen?" flow | Same |
+| Prompt Cadence | Multiple reminders, quarterly ongoing | Same + A/B testing |
+| Direct Provider Page | Structured intake | Same + account prompts |
+| Feedback Sessions | ❌ Defer | Scheduled feedback calls |
+| Provider Responses | One response | Same + templates |
+| Moderation | Auto-approve | Filters + admin queue |
 
 ---
 
