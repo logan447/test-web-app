@@ -2070,34 +2070,165 @@ Deferred — no automatic expiration.
 
 ### Scheduling Contexts
 
-| Context | Relationship | Notes |
-|---------|--------------|-------|
-| **Tours** | Family → Facility (assisted living, memory care, nursing home, rehab) | Visit scheduling |
-| **Consultations** | Family → Home Care Agency | Service consultation |
-| **Interviews** | Family → Individual Caregiver | Hiring interview |
-| **Hiring Interviews** | Organization ↔ Individual Caregiver | Employment interview |
+| Context | Relationship | Engagement Type |
+|---------|--------------|-----------------|
+| **Tours** | Family → Facility (assisted living, memory care, nursing home, rehab) | TOUR |
+| **Consultations** | Family → Home Care Agency | CONSULTATION |
+| **Interviews** | Family → Individual Caregiver | INTERVIEW |
+| **Hiring Interviews** | Organization ↔ Individual Caregiver | HIRING_INTERVIEW |
 
 ### Features
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 13.1 Scheduling Model | 🟡 | `TourAppointment` exists, may need generalization |
-| 13.2 Context-Aware CTAs & Language | ⬜ | Currently hardcoded to "tour" language |
-| 13.3 Propose Appointment | 🟡 | API exists |
-| 13.4 Accept / Decline Flow | 🟡 | Status field exists |
-| 13.5 Reschedule Flow | ⬜ | Not implemented |
-| 13.6 Cancellation Flow | 🟡 | Status exists, UI unclear |
-| 13.7 Appointment Reminders | ⬜ | Not implemented |
-| 13.8 Calendar Integration (external) | ⬜ | Google, Apple, Outlook |
-| 13.9 Video Call Scheduling | 🟡 | `/api/requests/[id]/video-call` exists |
+| 13.1 Scheduling Model | ✅ | Integrated into `Engagement` / `HiringEngagement` models |
+| 13.2 Context-Aware CTAs & Language | ⬜ | CTA text varies by provider type |
+| 13.3 Propose Appointment | 🟡 | Via engagement creation with `scheduledAt` |
+| 13.4 Accept / Decline Flow | 🟡 | Part of engagement status workflow |
+| 13.5 Reschedule Flow | ⬜ | Update `scheduledAt`, notify other party |
+| 13.6 Cancellation Flow | 🟡 | Set status to CANCELLED |
+| 13.7 Email Reminders | ⬜ | **Demo-critical**: 24h + 1h before |
+| 13.8 SMS Reminders | ⬜ | **Demo-critical**: 24h + 1h before via Twilio |
+| 13.9 Calendar Integration | ⬜ | Opt-out default, both parties receive invites |
+| 13.10 Video Call vs In-Person | ⬜ | `meetingType` field, clear UX distinction |
 
-### Key Questions
-- [ ] Should all scheduling contexts use the same model, or separate models?
-- [ ] Context-specific field requirements?
-- [ ] Video call integration requirements?
+### Key Questions — RESOLVED
+
+- [x] **Should all scheduling contexts use the same model, or separate models?**
+  - **DECIDED**: Scheduling is integrated into engagement models. No separate `TourAppointment` model.
+  - `Engagement` model handles Family ↔ Provider scheduling
+  - `HiringEngagement` model handles Org ↔ Caregiver scheduling
+  - Both have `scheduledAt` DateTime field
+
+- [x] **Context-specific field requirements?**
+  - **DECIDED**: `meetingType` (VIDEO_CALL | IN_PERSON), `videoCallUrl`, `location` fields
+
+- [x] **Video call integration requirements?**
+  - **DECIDED**: External link for demo (Zoom/Google Meet URL), clear UX indicators
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 13.1 Scheduling Model — INTEGRATED (DECIDED)
+
+Scheduling is **not a separate system** — it's embedded in engagement workflow:
+
+- `scheduledAt`: DateTime field on both `Engagement` and `HiringEngagement`
+- `meetingType`: 'VIDEO_CALL' | 'IN_PERSON'
+- `videoCallUrl`: string (required if VIDEO_CALL)
+- `location`: string (required if IN_PERSON — address or "Provider's facility")
+
+Status workflow handles scheduling state:
+- `PENDING` = proposed, awaiting response
+- `ACCEPTED` = date/time confirmed
+- `ACTIVE` = engagement in progress
+- `COMPLETED` / `CANCELLED` = terminal states
+
+#### 13.2 Context-Aware CTAs & Language (DECIDED)
+
+CTA text varies by provider type:
+
+| Provider Type | CTA Text | Creates Engagement Type |
+|--------------|----------|------------------------|
+| Facility (assisted living, memory care, nursing home, rehab) | "Schedule Tour" | TOUR |
+| Home Care Agency | "Request Consultation" | CONSULTATION |
+| Individual Caregiver | "Request Interview" | INTERVIEW |
+| Organization → Caregiver (hiring) | "Request Interview" | HIRING_INTERVIEW |
+
+#### 13.7 Email Reminders (DECIDED — Demo-Critical)
+
+**Both parties** receive email reminders for all engagement types.
+
+| Timing | Content |
+|--------|---------|
+| 24 hours before | Engagement type, date/time, video link OR location, "View Details" link |
+| 1 hour before | Same, with "Starting soon" emphasis |
+
+**Implementation:**
+- Scheduled job (Vercel Cron or node-cron) runs every 15 minutes
+- Checks for engagements in reminder windows
+- Sends to both parties using email on file
+- Google Calendar reminders serve as additional layer (if integrated)
+
+#### 13.8 SMS Reminders (DECIDED — Demo-Critical)
+
+**Both parties** receive SMS reminders for all engagement types.
+
+| Timing | Content |
+|--------|---------|
+| 24 hours before | Brief: type, time, link to details |
+| 1 hour before | Same, with "Starting soon" |
+
+**Implementation:**
+- Twilio for SMS delivery
+- Same scheduled job as email reminders
+- Requires phone number (see Onboarding Impact below)
+
+**Onboarding Impact — Phone Number Collection:**
+- **Option B (DECIDED)**: Phone number required during onboarding wizard
+- Context message: "We'll send you reminders about upcoming appointments"
+- If user skips onboarding, prompt when scheduling first engagement
+- Fallback to Option C (optional with clear trade-off) if Option B proves insufficient
+
+#### 13.9 Calendar Integration (DECIDED)
+
+**Opt-out by default** — calendar invites sent automatically using email on file.
+
+| Behavior | Details |
+|----------|---------|
+| Default | Auto-send calendar invite to both parties when engagement is accepted |
+| Opt-out | User can disable in settings (but reminders still sent via email/SMS) |
+| Fallback | ICS file download for non-Google calendars |
+
+**Both parties always receive:**
+1. Calendar invite (opt-out)
+2. Email reminders (24h + 1h)
+3. SMS reminders (24h + 1h)
+
+This applies to **all engagement types**: Family ↔ Provider, Org ↔ Caregiver, etc.
+
+**Add to Calendar UI:**
+- Clearly shows event will be added automatically
+- Works for both in-person and video engagements
+- Consistent UX across all scheduling contexts
+
+#### 13.10 Video Call vs In-Person UX (DECIDED)
+
+**Core Principle**: Users must always be able to orient themselves. At any point, they should clearly see:
+1. **What** — Is this video or in-person?
+2. **When** — Date and time (with timezone)
+3. **How** — Join link (video) or address (in-person)
+
+**UI Requirements by Surface:**
+
+| Surface | Requirements |
+|---------|--------------|
+| **Dashboard** | Upcoming engagements with visual badge (video icon vs map pin), time, prominent "Join Call" button for video |
+| **Engagement Detail** | Large meeting type indicator, countdown/time, "Join Call" button OR address with map link |
+| **Calendar Event** | Meeting type in title, video link in description/location field, clear time with timezone |
+| **Reminder Emails/SMS** | Meeting type, time, join link OR address |
+
+**Demo Scope:**
+- User selects meeting type when proposing (or provider sets when accepting)
+- Clear visual distinction everywhere (icons, colors, labels)
+- "Join Call" button always visible for video engagements
+- Manual video URL entry by provider
+
+**Production Scope:**
+- Automatic Zoom/Meet link generation via API
+- "Add to Calendar" button on engagement detail (in addition to auto-invite)
+- Join link copied to clipboard on click
+- Pre-meeting lobby/waiting room
+
+### Demo vs Production Summary
+
+| Feature | Demo Scope | Production Scope |
+|---------|------------|------------------|
+| Email Reminders | 24h + 1h via scheduled job | Same + delivery tracking, retry logic |
+| SMS Reminders | 24h + 1h via Twilio | Same + opt-out preferences per engagement |
+| Phone Collection | Required during onboarding | Same |
+| Calendar Invites | Auto-send (opt-out), Google focus | Multi-provider (Google, Apple, Outlook) |
+| Video Links | Manual URL entry | Auto-generated via Zoom/Meet API |
+| Video UX | Clear indicators, "Join Call" button | Same + waiting room, one-click join |
 
 ---
 
