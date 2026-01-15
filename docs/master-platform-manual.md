@@ -1894,23 +1894,173 @@ Deferred — no automatic expiration.
 
 ## Chapter 12: Messaging System
 
-**Purpose**: Enable communication between families and providers within request contexts.
+**Purpose**: Enable communication within engagements between families, providers, and caregivers.
+
+**Cross-reference**:
+- Chapter 11 (Engagements) for engagement context
+- Chapter 16 (Notifications) for message notification integration
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 12.1 Messages Within Requests | ✅ | `Message` model, API exists |
-| 12.2 Read/Unread Status | ✅ | `read`, `readAt` fields |
-| 12.3 Typing Indicators | 🟡 | Fields exist, unclear if working |
-| 12.4 File Attachments | 🟡 | `attachments` JSON field exists |
-| 12.5 Real-time Updates | 🟡 | Polling-based, not WebSocket |
-| 12.6 Message Notifications | 🟡 | Linked to notification system |
+| 12.1 Messages Within Engagements | ✅ | `Message` model, API exists |
+| 12.2 Read/Unread Status | ✅ | `status` field (SENT/DELIVERED/READ), timestamps |
+| 12.3 Typing Indicators | ❌ | Deferred — requires real-time to be useful |
+| 12.4 File Attachments | ✅ | `attachments` JSON field, basic support for demo |
+| 12.5 Real-time Updates | 🟡 | Polling for demo, WebSocket for production |
+| 12.6 Message Notifications | 🟡 | In-app for demo, email digest optional |
 
 ### Key Questions
-- [ ] Is polling acceptable for demo, or do we need real-time?
-- [ ] File attachments needed for demo?
+- [x] Is polling acceptable for demo, or do we need real-time? → **Polling acceptable for demo**
+- [x] File attachments needed for demo? → **Yes, basic file sharing included**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 12.1 Messages Within Engagements (DECIDED)
+
+**Model Approach**: Single `Message` model with nullable foreign keys to both engagement systems.
+
+| Field | Purpose |
+|-------|---------|
+| `engagementId` | FK to Care-Seeking engagement (nullable) |
+| `hiringEngagementId` | FK to Hiring engagement (nullable) |
+| `senderId` | User who sent the message |
+| `content` | Message text |
+| `attachments` | JSON array of file attachments |
+| `status` | SENT / DELIVERED / READ |
+| `createdAt`, `readAt`, `deliveredAt` | Timestamps |
+
+**Rationale**: Message logic is identical across both systems. Single model avoids duplication while maintaining clear relationships.
+
+#### 12.2 Read/Unread Status (DECIDED)
+
+**Current implementation accepted.**
+
+| Status | Meaning | Trigger |
+|--------|---------|---------|
+| `SENT` | Message created | On send |
+| `DELIVERED` | Recipient's client received | On fetch (polling) |
+| `READ` | Recipient viewed message | On view in UI |
+
+**Visual indicators**:
+- Unread messages highlighted in thread
+- Read receipts shown to sender (simple indicator for demo, checkmarks for production)
+
+#### 12.3 Typing Indicators (DECIDED)
+
+**Status**: ❌ Deferred for demo.
+
+**What they are**: Visual feedback ("John is typing...") when the other person is composing a message.
+
+**Why deferred**: Requires real-time communication (WebSocket) to feel natural. With polling, typing indicators become stale and create poor UX (persistent "typing..." after person stopped).
+
+**Production**: Implement alongside WebSocket messaging.
+
+#### 12.4 File Attachments (DECIDED)
+
+##### Demo Scope
+
+| Feature | Included |
+|---------|----------|
+| Image attachments (JPG, PNG, GIF) | ✅ |
+| Document attachments (PDF, DOC, etc.) | ✅ |
+| File size limit | 10MB |
+| Upload progress indicator | ✅ |
+| Image preview in thread | ✅ Basic |
+| Click to download/view | ✅ |
+
+##### Production Scope
+
+| Feature | Included |
+|---------|----------|
+| All demo features | ✅ |
+| Increased file size limit | 25MB |
+| Virus/malware scanning | ✅ |
+| Image thumbnails/optimization | ✅ |
+| File type restrictions | ✅ |
+
+**Use cases**:
+- Family shares care recipient photo
+- Provider shares brochure/pricing PDF
+- Caregiver shares certification documents
+
+**Security Note** (Post-Demo Requirement):
+- HIPAA compliance considerations for health-related documents
+- Secure file storage and access controls
+- Data retention and deletion policies
+- Encryption at rest and in transit
+
+#### 12.5 Real-time Updates (DECIDED)
+
+##### Demo Scope
+**Polling-based** — client fetches new messages every 5-10 seconds.
+
+| Aspect | Detail |
+|--------|--------|
+| Mechanism | HTTP polling on interval |
+| Latency | 0-10 seconds |
+| Complexity | Low |
+| Infrastructure | Standard HTTP |
+
+##### Production Scope
+**WebSocket/SSE primary** with polling fallback.
+
+| Aspect | Detail |
+|--------|--------|
+| Mechanism | WebSocket or Server-Sent Events |
+| Latency | <1 second |
+| Fallback | Polling if connection fails |
+
+**Rationale for demo**: Demo conversations are low-volume. 5-10 second delay is acceptable. Real-time adds significant complexity for marginal demo benefit.
+
+#### 12.6 Message Notifications (DECIDED)
+
+**Cross-reference**: Chapter 16 (Notifications) for full notification system.
+
+##### Demo Scope
+
+| Channel | Behavior |
+|---------|----------|
+| In-app | ✅ Unread badge, activity feed entry |
+| Email | 🟡 Daily digest of unread messages (optional) |
+| SMS | ❌ Defer |
+| Push | ❌ Defer |
+
+##### Production Scope
+
+| Channel | Behavior |
+|---------|----------|
+| In-app | ✅ Real-time badge updates |
+| Email | ✅ Configurable: immediate, digest, or off |
+| SMS | ✅ Optional for urgent messages |
+| Push | ✅ Mobile app notifications |
+
+**Ideal for demo**: Basic transactional email (new message notification) would improve experience. Can be deferred if it materially slows delivery.
+
+#### 12.7 Message UI/UX (DECIDED)
+
+##### Demo Scope
+
+| Feature | Included |
+|---------|----------|
+| Chronological message list | ✅ |
+| Sender name/avatar | ✅ |
+| Timestamps | ✅ |
+| Read receipts (simple) | ✅ |
+| Message input + send button | ✅ |
+| Attach file button | ✅ |
+| Emoji picker | ❌ Defer |
+| Message editing | ❌ Not planned |
+| Message deletion | ❌ Defer |
+
+##### Production Scope
+
+| Feature | Included |
+|---------|----------|
+| All demo features | ✅ |
+| Rich read receipts (checkmarks) | ✅ |
+| Emoji picker | 🟡 Consider |
+| Message deletion | 🟡 Consider |
+| Message search | ✅ |
 
 ---
 
