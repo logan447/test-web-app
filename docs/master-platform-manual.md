@@ -256,6 +256,179 @@ Consistent filters across `/providers` and future SEO pages:
 
 **Note**: Current homepage functions as a de facto directory. This is acceptable during development but will be refactored to match this architecture.
 
+### Provider Type Taxonomy (DECIDED)
+
+> This taxonomy determines CTAs, engagement types, and profile rendering across all contexts.
+
+#### Classification by Service Delivery
+
+| Category | Provider Types | Service Location | Primary CTA (from Family) |
+|----------|---------------|------------------|---------------------------|
+| **Facility-Based** | Assisted Living, Memory Care, Nursing Home, Rehab Center, Independent Living, CCRC, Adult Day Care | At facility | "Schedule Tour" |
+| **Service-Based** | Home Care Agency, Home Health Agency, Hospice Agency | At family's location | "Schedule Consultation" |
+| **Individual** | Independent Caregiver | At family's location | "Request Interview" |
+
+#### Service-Based Provider Distinctions
+
+These three provider types all deliver care at the family's location, but serve different needs:
+
+| Provider Type | Care Type | Typical Services | Licensing |
+|---------------|-----------|------------------|-----------|
+| **Home Care Agency** | Non-medical, custodial | Personal care, companionship, homemaking, meal prep, transportation | State-licensed (varies) |
+| **Home Health Agency** | Skilled medical | Nursing care, physical therapy, wound care, medication management | Medicare/Medicaid certified |
+| **Hospice Agency** | End-of-life | Pain management, symptom control, emotional/spiritual support | Medicare certified |
+
+All three use "Schedule Consultation" as their primary CTA since they don't have facilities to tour.
+
+### CTA Reference (DECIDED)
+
+> This section serves as the single source of truth for all CTAs across the platform. All chapters should reference this section.
+
+#### Care Marketplace CTAs (Family ↔ Provider)
+
+**Family viewing Providers:**
+
+| Provider Category | CTA Text | Creates Engagement Type |
+|-------------------|----------|------------------------|
+| Facility-Based | "Schedule Tour" | TOUR |
+| Service-Based (Home Care, Home Health, Hospice) | "Schedule Consultation" | CONSULTATION |
+| Individual Caregiver | "Request Interview" | INTERVIEW |
+
+**Provider viewing Families:**
+
+| Provider Category | CTA Text | Creates Engagement Type |
+|-------------------|----------|------------------------|
+| All Provider Types | "Offer Services" | OUTREACH |
+
+> **Note**: "Offer Services" replaced "Send Outreach" for clearer, service-oriented language.
+
+#### Hiring Marketplace CTAs (Organization ↔ Individual Caregiver)
+
+| Viewer | Subject | CTA Text | Creates Engagement Type |
+|--------|---------|----------|------------------------|
+| Organization | Caregiver | "Invite to Interview" | HIRING_INTERVIEW |
+| Caregiver | Organization | "Apply" | APPLICATION |
+
+#### Secondary CTAs (All Contexts)
+
+| Action | CTA Text | Notes |
+|--------|----------|-------|
+| Save for later | "Save" / "Saved" (toggle) | Heart icon, works across all contexts |
+| Send message | "Message" | Opens messaging, requires engagement |
+| View details | "View Profile" | Links to full profile page |
+
+### One Profile, Multiple Views (DECIDED)
+
+> **Core Principle**: Each user has ONE master profile. The same profile is rendered differently depending on who is viewing it and in what context.
+
+This applies to all profile types:
+- **Families**: One profile viewed by all provider types
+- **Provider Organizations**: One profile viewed by families (care-seeking) and caregivers (job-seeking)
+- **Individual Caregivers**: One profile viewed by families (care-seeking) and organizations (hiring)
+
+#### Visibility Toggles
+
+| Toggle | Controls | Located On |
+|--------|----------|------------|
+| `availableForFamilies` | Whether profile appears in Family → Provider search | Provider Dashboard settings |
+| `availableForOrganizations` | Whether caregiver profile appears in Org → Caregiver search | Provider Dashboard settings |
+| `activelyHiring` | Whether org appears in Caregiver → Org search | Provider Dashboard settings |
+
+### Contextual Rendering Matrices (DECIDED)
+
+> These matrices define exactly what fields are shown and what CTAs appear based on viewer type and marketplace context.
+
+#### Matrix 1: Care Marketplace — Family Viewing Providers
+
+| Field Category | Facility-Based | Service-Based | Individual Caregiver |
+|----------------|----------------|---------------|---------------------|
+| **Basic Info** | Name, photos, location | Name, photos, service area | Name, photo, location |
+| **Description** | Facility description, amenities | Services offered, approach | Bio, experience |
+| **Olera Score** | Always shown | Always shown | Shown after first review* |
+| **Pricing** | Room rates, care levels | Hourly/visit rates | Hourly rates |
+| **Availability** | Bed availability | Service availability | Schedule availability |
+| **Primary CTA** | "Schedule Tour" | "Schedule Consultation" | "Request Interview" |
+| **Secondary CTAs** | Save, Message | Save, Message | Save, Message |
+
+*Individual caregivers display a placeholder (e.g., "New to Olera") until they receive their first review.
+
+#### Matrix 2: Care Marketplace — Provider Viewing Families
+
+| Field | Visibility | Notes |
+|-------|------------|-------|
+| Family name | ✅ Shown | Primary identifier |
+| Location (city/area) | ✅ Shown | For service area matching |
+| Care recipient info | ✅ Shown | Age, conditions, care needs |
+| Care type needed | ✅ Shown | Primary matching criteria |
+| Budget range | ✅ Shown | If family has specified |
+| Preferred schedule | ✅ Shown | If family has specified |
+| Contact info | ❌ Hidden | Revealed after engagement |
+| **Primary CTA** | "Offer Services" | Creates OUTREACH engagement |
+| **Secondary CTAs** | Save | Heart icon |
+
+#### Matrix 3: Hiring Marketplace — Organization Viewing Caregivers
+
+| Field | Visibility | Notes |
+|-------|------------|-------|
+| Caregiver name | ✅ Shown | Primary identifier |
+| Photo | ✅ Shown | Professional headshot |
+| Location | ✅ Shown | City/area |
+| Olera Score | ✅ Shown* | *Placeholder if no reviews yet |
+| Experience | ✅ Shown | Years, settings worked |
+| Certifications | ✅ Shown | CNA, HHA, etc. |
+| Skills/specialties | ✅ Shown | Memory care, hospice, etc. |
+| **Availability fields** | ✅ Shown | Critical for hiring decisions |
+| - Available for full-time | ✅ | Boolean |
+| - Available for part-time | ✅ | Boolean |
+| - Earliest start date | ✅ | Date |
+| - Willing to relocate | ✅ | Boolean |
+| Desired hourly rate | ✅ Shown | If specified |
+| Contact info | ❌ Hidden | Revealed after engagement |
+| **Primary CTA** | "Invite to Interview" | Creates HIRING_INTERVIEW |
+| **Secondary CTAs** | Save | Heart icon |
+
+#### Matrix 4: Hiring Marketplace — Caregiver Viewing Organizations
+
+| Field | Visibility | Notes |
+|-------|------------|-------|
+| Organization name | ✅ Shown | Primary identifier |
+| Photos | ✅ Shown | Facility/team photos |
+| Location | ✅ Shown | Address/area |
+| Provider type | ✅ Shown | Facility type or service type |
+| Olera Score | ✅ Shown | Organization's care quality score |
+| **Hiring fields** | ✅ Shown | |
+| - Positions available | ✅ | Job titles/roles |
+| - Employment types | ✅ | Full-time, part-time, PRN |
+| - Pay range | ✅ | If specified |
+| - Benefits offered | ✅ | If specified |
+| About/culture | ✅ Shown | Organization description |
+| Contact info | ❌ Hidden | Revealed after engagement |
+| **Primary CTA** | "Apply" | Creates APPLICATION |
+| **Secondary CTAs** | Save | Heart icon |
+
+#### Olera Score Display Rules
+
+| Profile Type | Score Display | Condition |
+|--------------|---------------|-----------|
+| Provider Organization | Always shown | Score calculated from all review sources |
+| Individual Caregiver | Conditional | Shown only after first review received |
+| Individual Caregiver (no reviews) | Placeholder | "New to Olera" or similar indicator |
+| Family | Not applicable | Families don't have public scores |
+
+### Hiring Eligibility (DECIDED)
+
+Individual caregivers may be hired by any organization type:
+
+| Organization Type | Can Hire Caregivers | Notes |
+|-------------------|--------------------|----|
+| Home Care Agency | ✅ Yes | Primary hiring channel |
+| Home Health Agency | ✅ Yes | For certified staff |
+| Hospice Agency | ✅ Yes | For hospice aides |
+| Assisted Living | ✅ Yes | For facility staff |
+| Memory Care | ✅ Yes | For specialized staff |
+| Nursing Home | ✅ Yes | For CNAs, aides |
+| All other facility types | ✅ Yes | Universal hiring support |
+
 ---
 
 ## Chapter 1: Authentication & Account Management
@@ -2114,10 +2287,14 @@ Deferred — no automatic expiration.
 
 | Context | Relationship | Engagement Type |
 |---------|--------------|-----------------|
-| **Tours** | Family → Facility (assisted living, memory care, nursing home, rehab) | TOUR |
-| **Consultations** | Family → Home Care Agency | CONSULTATION |
+| **Tours** | Family → Facility-Based Provider | TOUR |
+| **Consultations** | Family → Service-Based Provider (Home Care, Home Health, Hospice) | CONSULTATION |
 | **Interviews** | Family → Individual Caregiver | INTERVIEW |
-| **Hiring Interviews** | Organization ↔ Individual Caregiver | HIRING_INTERVIEW |
+| **Outreach** | Provider → Family | OUTREACH |
+| **Hiring Interviews** | Organization → Caregiver | HIRING_INTERVIEW |
+| **Applications** | Caregiver → Organization | APPLICATION |
+
+> **Note**: See [Provider Type Taxonomy](#provider-type-taxonomy-decided) for full list of facility-based vs service-based providers.
 
 ### Features
 
@@ -2167,14 +2344,30 @@ Status workflow handles scheduling state:
 
 #### 13.2 Context-Aware CTAs & Language (DECIDED)
 
-CTA text varies by provider type:
+> **Reference**: See [CTA Reference](#cta-reference-decided) in Foundational Decisions for the complete CTA matrix.
 
-| Provider Type | CTA Text | Creates Engagement Type |
-|--------------|----------|------------------------|
-| Facility (assisted living, memory care, nursing home, rehab) | "Schedule Tour" | TOUR |
-| Home Care Agency | "Request Consultation" | CONSULTATION |
-| Individual Caregiver | "Request Interview" | INTERVIEW |
-| Organization → Caregiver (hiring) | "Request Interview" | HIRING_INTERVIEW |
+CTA text varies by provider type and marketplace context:
+
+**Care Marketplace — Family initiating:**
+
+| Provider Category | Provider Types | CTA Text | Creates Engagement Type |
+|-------------------|----------------|----------|------------------------|
+| Facility-Based | Assisted Living, Memory Care, Nursing Home, Rehab, Independent Living, CCRC, Adult Day Care | "Schedule Tour" | TOUR |
+| Service-Based | Home Care Agency, Home Health Agency, Hospice Agency | "Schedule Consultation" | CONSULTATION |
+| Individual | Independent Caregiver | "Request Interview" | INTERVIEW |
+
+**Care Marketplace — Provider initiating:**
+
+| Provider Category | CTA Text | Creates Engagement Type |
+|-------------------|----------|------------------------|
+| All Provider Types | "Offer Services" | OUTREACH |
+
+**Hiring Marketplace:**
+
+| Direction | CTA Text | Creates Engagement Type |
+|-----------|----------|------------------------|
+| Organization → Caregiver | "Invite to Interview" | HIRING_INTERVIEW |
+| Caregiver → Organization | "Apply" | APPLICATION |
 
 #### 13.7 Email Reminders (DECIDED — Demo-Critical)
 
