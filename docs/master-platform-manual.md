@@ -1,12 +1,21 @@
 # Olera Platform — Master Systems Manual
 
+> **Version**: 1.0 — Structure Approved
+> **Last Reviewed**: January 15, 2026
+
 > **Purpose**: This document serves as the source of truth for all platform systems. It will be iteratively refined as we work through each chapter, answer key questions, and make architectural decisions.
 >
-> **Status Indicators**:
+> **Implementation Status Indicators**:
 > - ✅ **Built** — Core functionality exists and works
 > - 🟡 **Partial** — Some features exist, gaps or fragility present
 > - ⬜ **Not Built** — Planned but not yet implemented
 > - ❌ **Deferred** — Out of scope for demo
+>
+> **Review Status Indicators**:
+> - ✅ **Reviewed** — Chapter has been jointly reviewed and approved
+> - ⏳ **Pending** — Chapter content exists but has not yet been reviewed
+> - 🆕 **New Placeholder** — Chapter to be written; structure approved
+> - ⭐ **Future Direction** — Strategic concept for future phases; not in current scope
 >
 > **Demo vs. Production Scope**:
 > This manual documents both the demo implementation and the full production system design. The distinction is made clear throughout:
@@ -19,60 +28,156 @@
 
 ## Table of Contents
 
-### Core Platform Systems
-1. [Authentication & Account Management](#chapter-1-authentication--account-management)
-2. [Mode System (Family vs Provider)](#chapter-2-mode-system-family-vs-provider)
-3. [Onboarding Wizard (Shared System)](#chapter-3-onboarding-wizard-shared-system)
-4. [Family Care Profiles](#chapter-4-family-care-profiles)
-5. [Provider Profiles](#chapter-5-provider-profiles)
-6. [Provider Identity & Gating](#chapter-6-provider-identity--gating)
-7. [Provider Directory & Search](#chapter-7-provider-directory--search)
-8. [Provider Claiming (Organizations Only)](#chapter-8-provider-claiming-organizations-only)
+### Part I: Platform Foundation
+*How users enter the platform, navigate the system, and experience our design quality*
 
-### User Dashboards
-9. [Family Dashboard](#chapter-9-family-dashboard)
-10. [Provider Dashboard](#chapter-10-provider-dashboard)
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 1 | [Authentication & Account Management](#chapter-1-authentication--account-management) | ✅ Reviewed |
+| 2 | [Mode System (Family vs Provider)](#chapter-2-mode-system-family-vs-provider) | ✅ Reviewed |
+| 3 | [Onboarding Wizard (Shared System)](#chapter-3-onboarding-wizard-shared-system) | ✅ Reviewed |
+| 4 | [UI & Design Language](#chapter-4-ui--design-language) | 🆕 Placeholder |
+| 5 | [Navigation & Routing](#chapter-5-navigation--routing) | ⏳ Pending |
 
-### Engagement Systems
-11. [Engagements](#chapter-11-engagements)
-12. [Messaging System](#chapter-12-messaging-system)
-13. [Multi-Context Scheduling](#chapter-13-multi-context-scheduling)
-14. [Saved / Favorites](#chapter-14-saved--favorites)
-15. [Reviews & Ratings](#chapter-15-reviews--ratings)
-16. [Notifications](#chapter-16-notifications)
+### Part II: User Identity & Profiles
+*Establishing who users are and how they present themselves*
 
-### Matching & Growth
-17. [Profile Completion & Matching](#chapter-17-profile-completion--matching)
-18. [Subscriptions & Paywalls](#chapter-18-subscriptions--paywalls)
-19. [Caregiver Hiring Marketplace](#chapter-19-caregiver-hiring-marketplace)
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 6 | [Family Care Profiles](#chapter-6-family-care-profiles) | ✅ Reviewed |
+| 7 | [Provider Profiles](#chapter-7-provider-profiles) | ✅ Reviewed |
+| 8 | [Provider Identity & Gating](#chapter-8-provider-identity--gating) | ✅ Reviewed |
 
-### Administration
-20. [Admin System](#chapter-20-admin-system)
-21. [Provider Data Management](#chapter-21-provider-data-management)
+### Part III: Discovery, Directory & Matching
+*How users find, evaluate, and get matched with each other*
 
-### Navigation & Settings
-22. [Navigation & Routing](#chapter-22-navigation--routing)
-23. [Settings & Preferences](#chapter-23-settings--preferences)
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 9 | [Provider Directory & Search](#chapter-9-provider-directory--search) | ✅ Reviewed |
+| 10 | [Provider Claiming (Organizations Only)](#chapter-10-provider-claiming-organizations-only) | ✅ Reviewed |
+| 11 | [Profile Completion & Matching](#chapter-11-profile-completion--matching) | ✅ Reviewed |
 
-### Marketing & Content
-24. [Marketing & SEO Pages](#chapter-24-marketing--seo-pages)
-25. [File Uploads & Media](#chapter-25-file-uploads--media)
+### Part IV: User Experience
+*Daily platform interactions through dashboards and settings*
 
-### Trust & Operations
-26. [Trust & Safety](#chapter-26-trust--safety)
-27. [Help & Support](#chapter-27-help--support)
-28. [Error Handling & Monitoring](#chapter-28-error-handling--monitoring)
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 12 | [Family Dashboard](#chapter-12-family-dashboard) | ✅ Reviewed |
+| 13 | [Provider Dashboard](#chapter-13-provider-dashboard) | ✅ Reviewed |
+| 14 | [Settings & Preferences](#chapter-14-settings--preferences) | ⏳ Pending |
 
-### Future Considerations
-29. [Audit & Activity Logging](#chapter-29-audit--activity-logging)
-30. [Localization & Accessibility](#chapter-30-localization--accessibility)
-31. [Referral & Attribution](#chapter-31-referral--attribution)
-32. [Data Export & Portability](#chapter-32-data-export--portability)
-33. [Performance & Caching](#chapter-33-performance--caching)
+### Part V: Engagement
+*Core interaction systems between families and providers*
 
-### Core Systems (Planned)
-34. [Communications & Automation](#chapter-34-communications--automation) ⭐ *Core system — to be developed*
-35. [Data Acquisition & Enrichment](#chapter-35-data-acquisition--enrichment) ⭐ *Referenced from Ch 21*
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 15 | [Engagements](#chapter-15-engagements) | ✅ Reviewed |
+| 16 | [Messaging System](#chapter-16-messaging-system) | ✅ Reviewed |
+| 17 | [Multi-Context Scheduling](#chapter-17-multi-context-scheduling) | ✅ Reviewed |
+| 18 | [Saved / Favorites](#chapter-18-saved--favorites) | ✅ Reviewed |
+| 19 | [Notifications](#chapter-19-notifications) | ✅ Reviewed |
+
+### Part VI: Hiring Marketplace
+*B2B marketplace for organizations hiring caregivers*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 20 | [Caregiver Hiring Marketplace](#chapter-20-caregiver-hiring-marketplace) | ✅ Reviewed |
+
+### Part VII: Communications
+*Platform-wide communication and automation systems*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 21 | [Communications & Automation](#chapter-21-communications--automation) | ⏳ Pending |
+
+### Part VIII: Monetization
+*Subscription tiers, paywalls, and revenue model*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 22 | [Subscriptions & Paywalls](#chapter-22-subscriptions--paywalls) | ✅ Reviewed |
+
+### Part IX: Trust & Quality
+*Building confidence through reviews, ratings, and safety systems*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 23 | [Reviews & Ratings](#chapter-23-reviews--ratings) | ✅ Reviewed |
+| 24 | [Trust & Safety](#chapter-24-trust--safety) | ⏳ Pending |
+
+### Part X: Data Acquisition & Directory Scale
+*Seeding, scaling, and managing the national provider directory*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 25 | [Provider Data Management](#chapter-25-provider-data-management) | ✅ Reviewed |
+| 26 | [Data Acquisition & Enrichment](#chapter-26-data-acquisition--enrichment) | ⏳ Pending |
+
+### Part XI: Platform Administration & Operations
+*Internal tools, workflows, and standard operating procedures*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 27 | [Admin System](#chapter-27-admin-system) | ✅ Reviewed |
+| 28 | [Human Workflows & Standard Operating Procedures](#chapter-28-human-workflows--standard-operating-procedures) | 🆕 Placeholder |
+
+### Part XII: Marketing & Growth
+*User acquisition, SEO, and referral programs*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 29 | [Marketing & SEO Pages](#chapter-29-marketing--seo-pages) | ⏳ Pending |
+| 30 | [Referral Programs & Partner Attribution](#chapter-30-referral-programs--partner-attribution) | ⏳ Pending |
+
+### Part XIII: Technical Infrastructure
+*Platform technical foundations and operational reliability*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 31 | [File Uploads & Media](#chapter-31-file-uploads--media) | ⏳ Pending |
+| 32 | [Error Handling & Monitoring](#chapter-32-error-handling--monitoring) | ⏳ Pending |
+| 33 | [Performance & Caching](#chapter-33-performance--caching) | ⏳ Pending |
+
+### Part XIV: Compliance, Legal & Support
+*Regulatory compliance, legal requirements, and user support*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 34 | [Help & Support](#chapter-34-help--support) | ⏳ Pending |
+| 35 | [Audit & Activity Logging](#chapter-35-audit--activity-logging) | ⏳ Pending |
+| 36 | [Data Export & Portability](#chapter-36-data-export--portability) | ⏳ Pending |
+| 37 | [Accessibility Standards](#chapter-37-accessibility-standards) | ⏳ Pending |
+| 38 | [Legal & Regulatory Compliance](#chapter-38-legal--regulatory-compliance) | 🆕 Placeholder |
+
+### Future Directions
+*Strategic concepts for future phases — not in current scope*
+
+| ID | Title | Status |
+|----|-------|--------|
+| F1 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
+| F2 | [Caregiver Workforce & Direct Staffing Model](#future-caregiver-workforce--direct-staffing-model) | ⭐ Future |
+
+### Appendices
+
+- [Appendix A: Architectural Decisions Log](#appendix-a-architectural-decisions-log)
+- [Appendix B: Demo Scenarios](#appendix-b-demo-scenarios)
+- [Appendix C: Known Issues & Tech Debt](#appendix-c-known-issues--tech-debt)
+- [Appendix D: Glossary](#appendix-d-glossary)
+
+---
+
+## Review Progress Summary
+
+| Metric | Count |
+|--------|-------|
+| **Total Main Chapters** | 38 |
+| **Reviewed (✅)** | 21 |
+| **Pending (⏳)** | 14 |
+| **New Placeholders (🆕)** | 3 |
+| **Future Directions (⭐)** | 2 |
+
+**Next Chapter to Review**: Chapter 4 (UI & Design Language) or Chapter 5 (Navigation & Routing)
 
 ---
 
@@ -725,11 +830,54 @@ Visibility is a prominent wizard step. Controls who can discover the profile.
 
 - Wizard progress contributes to visible profile completion %
 - Incomplete profiles show nudge in dashboard/nav: "Complete your profile"
-- Completion % stored in DB (not calculated on-the-fly) — details in Chapter 17
+- Completion % stored in DB (not calculated on-the-fly) — details in Chapter 11
 
 ---
 
-## Chapter 4: Family Care Profiles
+## Chapter 4: UI & Design Language
+
+> 🆕 **New Placeholder** — Structure approved, content to be developed.
+
+**Purpose**: Establish platform-wide UI/UX principles and design quality standards that ensure Olera delivers a top-tier, consumer-grade experience across all systems.
+
+### Scope
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 4.1 Design Philosophy & Principles | 🆕 | Core guiding principles |
+| 4.2 Visual Language | 🆕 | Typography, color, spacing, iconography |
+| 4.3 Component Library Standards | 🆕 | Consistent UI patterns |
+| 4.4 Interaction Patterns | 🆕 | Animations, transitions, feedback |
+| 4.5 Quality Bar & Inspiration | 🆕 | Reference examples, benchmarks |
+| 4.6 Accessibility in Design | 🆕 | WCAG integration in design process |
+| 4.7 Responsive Design Guidelines | 🆕 | Mobile, tablet, desktop breakpoints |
+
+### Key Questions
+
+- [ ] What design systems or frameworks should we reference?
+- [ ] What is the quality bar for visual polish?
+- [ ] How do we balance speed with design quality?
+- [ ] What external inspiration (apps, sites) represents our target?
+
+### Architectural Notes
+
+_To be developed. This chapter will establish the design language that informs all user-facing components across the platform._
+
+### Design Principles (Draft)
+
+1. **Clarity over cleverness** — Users should understand immediately what to do
+2. **Warmth with professionalism** — Care is personal; our design should feel human
+3. **Progressive disclosure** — Show only what's needed at each step
+4. **Consistent patterns** — Same actions should look and feel the same everywhere
+5. **Mobile-first** — Most users will access via mobile; design for that reality
+
+### Quality Commitment
+
+> Olera is not a "good enough" platform. Every screen, every interaction, every detail should meet a consumer-grade quality bar comparable to the best modern applications.
+
+---
+
+## Chapter 6: Family Care Profiles
 
 **Purpose**: Allow families to describe their care needs and preferences to help match with providers.
 
@@ -831,7 +979,7 @@ Current field structure accepted as-is for demo:
 
 ---
 
-## Chapter 5: Provider Profiles
+## Chapter 7: Provider Profiles
 
 **Purpose**: Allow care providers to describe their services, qualifications, and offerings.
 
@@ -1003,7 +1151,7 @@ Current field structure accepted as-is for demo:
 
 ---
 
-## Chapter 6: Provider Identity & Gating
+## Chapter 8: Provider Identity & Gating
 
 **Purpose**: Control access to provider features based on profile existence and subscription status.
 
@@ -1112,7 +1260,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 ---
 
-## Chapter 7: Provider Directory & Search
+## Chapter 9: Provider Directory & Search
 
 **Purpose**: Public-facing directory for families to discover and search for care providers.
 
@@ -1218,7 +1366,7 @@ Leaflet map integration exists with list/map toggle.
 
 ---
 
-## Chapter 8: Provider Claiming (Organizations Only)
+## Chapter 10: Provider Claiming (Organizations Only)
 
 **Purpose**: Allow organizations to claim their pre-seeded directory profiles and gain edit access.
 
@@ -1427,7 +1575,7 @@ Not implemented (no rejections since auto-approve).
 
 ---
 
-## Chapter 9: Family Dashboard
+## Chapter 12: Family Dashboard
 
 **Purpose**: Central hub for families to manage their care search activities.
 
@@ -1604,7 +1752,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 ---
 
-## Chapter 10: Provider Dashboard
+## Chapter 13: Provider Dashboard
 
 **Purpose**: Central hub for providers to manage inquiries, engagements, and their profile.
 
@@ -1868,7 +2016,7 @@ Same pattern as Family Dashboard:
 
 ---
 
-## Chapter 11: Engagements
+## Chapter 15: Engagements
 
 **Purpose**: The unified system for all interactions between parties — covering care-seeking (Family ↔ Provider) and hiring (Org ↔ Caregiver).
 
@@ -2111,7 +2259,7 @@ Deferred — no automatic expiration.
 
 ---
 
-## Chapter 12: Messaging System
+## Chapter 16: Messaging System
 
 **Purpose**: Enable communication within engagements between families, providers, and caregivers.
 
@@ -2283,7 +2431,7 @@ Deferred — no automatic expiration.
 
 ---
 
-## Chapter 13: Multi-Context Scheduling
+## Chapter 17: Multi-Context Scheduling
 
 **Purpose**: Support scheduling for various engagement types across different user relationships.
 
@@ -2471,7 +2619,7 @@ This applies to **all engagement types**: Family ↔ Provider, Org ↔ Caregiver
 
 ---
 
-## Chapter 14: Saved / Favorites
+## Chapter 18: Saved / Favorites
 
 **Purpose**: Allow users to save and organize items of interest for later reference.
 
@@ -2569,7 +2717,7 @@ Routes must match dropdown navigation labels exactly:
 
 ---
 
-## Chapter 15: Reviews & Ratings
+## Chapter 23: Reviews & Ratings
 
 **Purpose**: Build a two-sided accountability system that creates trust, improves quality, and helps families make informed decisions across all care interactions.
 
@@ -3137,7 +3285,7 @@ model ReviewRequest {
 
 ---
 
-## Chapter 16: Notifications
+## Chapter 19: Notifications
 
 **Purpose**: Keep users informed of all relevant activity and updates through a unified, multi-channel notification system.
 
@@ -3476,7 +3624,7 @@ This notification system supports all previously decided flows:
 
 ---
 
-## Chapter 17: Profile Completion & Matching
+## Chapter 11: Profile Completion & Matching
 
 **Purpose**: Track profile completeness and provide intelligent matching across all user relationships — families finding providers, and organizations finding caregivers.
 
@@ -3886,7 +4034,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-## Chapter 18: Subscriptions & Paywalls
+## Chapter 22: Subscriptions & Paywalls
 
 **Purpose**: Simple, action-gated monetization where providers pay to engage, not to browse.
 
@@ -4163,7 +4311,7 @@ model ProviderMembership {
 
 ---
 
-## Chapter 19: Caregiver Hiring Marketplace
+## Chapter 20: Caregiver Hiring Marketplace
 
 **Purpose**: Enable organizations to find and hire individual caregivers, and caregivers to find employment opportunities — a two-sided staffing marketplace within Olera.
 
@@ -4426,7 +4574,7 @@ Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 
 ---
 
-## Chapter 20: Admin System
+## Chapter 27: Admin System
 
 **Purpose**: The central operational hub for the entire Olera platform. This is the single internal interface where all platform operations, monitoring, and management occur.
 
@@ -5224,19 +5372,19 @@ The Admin System integrates with every other chapter:
 | Chapter | Admin Integration |
 |---------|-------------------|
 | **Ch 1: Auth** | User management, account recovery |
-| **Ch 5-7: Providers** | Provider data management |
-| **Ch 8: Claiming** | Claims queue |
-| **Ch 11: Engagements** | Engagement data view, dispute handling |
-| **Ch 12: Messaging** | Message reports queue |
-| **Ch 15: Reviews** | Reviews queue, moderation |
-| **Ch 16: Notifications** | Delivery monitoring, template management |
-| **Ch 18: Subscriptions** | Billing support (via Stripe link) |
-| **Ch 19: Hiring** | Hiring engagement management |
-| **Ch 21: Seeding** | Seeding tools |
-| **Ch 24: SEO** | SEO content management |
-| **Ch 26: Trust** | Reports queue, fraud investigation |
-| **Ch 27: Help** | Help article management |
-| **Ch 28: Errors** | System health, logs |
+| **Ch 7-8: Providers** | Provider data management |
+| **Ch 10: Claiming** | Claims queue |
+| **Ch 15: Engagements** | Engagement data view, dispute handling |
+| **Ch 16: Messaging** | Message reports queue |
+| **Ch 23: Reviews** | Reviews queue, moderation |
+| **Ch 19: Notifications** | Delivery monitoring, template management |
+| **Ch 22: Subscriptions** | Billing support (via Stripe link) |
+| **Ch 20: Hiring** | Hiring engagement management |
+| **Ch 25: Provider Data** | Seeding tools, bulk import |
+| **Ch 29: Marketing & SEO** | SEO content management |
+| **Ch 24: Trust** | Reports queue, fraud investigation |
+| **Ch 34: Help** | Help article management |
+| **Ch 32: Errors** | System health, logs |
 
 ---
 
@@ -5269,11 +5417,79 @@ The Admin System integrates with every other chapter:
 >
 > This system is critical because it can offload significant manual work while ensuring consistent, timely communication across all user touchpoints.
 >
-> **Proposed**: Chapter 34 (Communications & Automation) — to be developed after completing current chapter sequence.
+> **Proposed**: Chapter 21 (Communications & Automation) — to be developed after completing current chapter sequence.
 
 ---
 
-## Chapter 21: Provider Data Management
+## Chapter 28: Human Workflows & Standard Operating Procedures
+
+> 🆕 **New Placeholder** — Structure approved, content to be developed.
+
+**Purpose**: Document how internal teams interact with the platform, including standard operating procedures, escalation paths, and operational workflows.
+
+### Scope
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 28.1 Claim Verification Workflows | 🆕 | Step-by-step claim review process |
+| 28.2 Content Moderation Procedures | 🆕 | Review moderation guidelines |
+| 28.3 Customer Support Escalation | 🆕 | Tiered support routing |
+| 28.4 Data Quality Review | 🆕 | Provider data audit procedures |
+| 28.5 Provider Onboarding Support | 🆕 | High-touch onboarding workflows |
+| 28.6 Incident Response Procedures | 🆕 | Emergency response protocols |
+| 28.7 Legal Request Handling | 🆕 | C&D, DMCA, regulatory inquiries |
+| 28.8 Team Onboarding Checklist | 🆕 | New team member orientation |
+
+### Key Questions
+
+- [ ] What workflows require human intervention vs. automation?
+- [ ] What SLAs should apply to different queue types?
+- [ ] How do we measure operational efficiency?
+- [ ] What tooling do ops teams need beyond the Admin UI?
+
+### Architectural Notes
+
+_To be developed. This chapter will serve as the operational handbook for internal teams, complementing the Admin System (Chapter 27) with detailed human procedures._
+
+### Relationship to Admin System
+
+Chapter 27 (Admin System) defines the **tools** — the queues, dashboards, and interfaces that admins use.
+
+Chapter 28 (this chapter) defines the **procedures** — how humans use those tools, when to escalate, what decisions to make, and how to maintain quality.
+
+### Sample SOP Structure
+
+Each SOP should follow this template:
+
+```
+# SOP: [Procedure Name]
+
+**Version**: X.X
+**Last Updated**: YYYY-MM-DD
+**SLA**: [Response time commitment]
+
+## Purpose
+[Why this procedure exists]
+
+## When to Use
+[Triggering conditions]
+
+## Procedure
+[Step-by-step instructions]
+
+## Escalation
+[When and how to escalate]
+
+## Common Issues
+[FAQ and troubleshooting]
+
+## Related SOPs
+[Cross-references]
+```
+
+---
+
+## Chapter 25: Provider Data Management
 
 **Purpose**: Define the architecture, migration strategy, and operational workflows for managing provider data at nationwide scale — from the initial 40,000 providers to 500,000+ organizations.
 
@@ -5956,7 +6172,7 @@ Admin navigates to /admin/tools/bulk-import
 
 **Future: Data Acquisition**
 
-Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads. See **Chapter 35: Data Acquisition & Enrichment** for:
+Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads. See **Chapter 26: Data Acquisition & Enrichment** for:
 - Public data sourcing
 - API-based enrichment
 - Compliance framework
@@ -6030,9 +6246,9 @@ Before demo presentation:
 
 ---
 
-### Future Reference: Chapter 35
+### Cross-Reference: Chapter 26
 
-**Chapter 35: Data Acquisition & Enrichment** will cover:
+**Chapter 26: Data Acquisition & Enrichment** will cover:
 
 | Topic | Description |
 |-------|-------------|
@@ -6048,15 +6264,15 @@ This chapter is intentionally separate to allow proper legal/compliance review b
 
 ### Cross-Chapter Integration
 
-| Chapter | Integration with Ch 21 |
+| Chapter | Integration with Ch 25 |
 |---------|------------------------|
-| **Ch 5: Provider Profiles** | Field definitions, display rules |
-| **Ch 6: Provider Identity** | Claiming links account to org data |
-| **Ch 7: Provider Directory** | Search uses Provider table |
-| **Ch 8: Provider Claiming** | Transitions unclaimed → claimed |
-| **Ch 17: Profile Completion** | Completion % calculation |
-| **Ch 18: Subscriptions** | Claimed → Active transition |
-| **Ch 20: Admin System** | Bulk import UI, data management |
+| **Ch 7: Provider Profiles** | Field definitions, display rules |
+| **Ch 8: Provider Identity** | Claiming links account to org data |
+| **Ch 9: Provider Directory** | Search uses Provider table |
+| **Ch 10: Provider Claiming** | Transitions unclaimed → claimed |
+| **Ch 11: Profile Completion** | Completion % calculation |
+| **Ch 22: Subscriptions** | Claimed → Active transition |
+| **Ch 27: Admin System** | Bulk import UI, data management |
 
 ---
 
@@ -6123,7 +6339,7 @@ These tables are **not required for initial migration** but provide a clean home
 
 ---
 
-## Chapter 22: Navigation & Routing
+## Chapter 5: Navigation & Routing
 
 **Purpose**: Application navigation structure and route protection.
 
@@ -6147,7 +6363,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 23: Settings & Preferences
+## Chapter 14: Settings & Preferences
 
 **Purpose**: User account settings and preference management.
 
@@ -6167,7 +6383,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 24: Marketing & SEO Pages
+## Chapter 29: Marketing & SEO Pages
 
 **Purpose**: Public-facing pages for marketing, SEO, and legal compliance.
 
@@ -6191,7 +6407,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 25: File Uploads & Media
+## Chapter 31: File Uploads & Media
 
 **Purpose**: Handle image and document uploads throughout the platform.
 
@@ -6213,7 +6429,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 26: Trust & Safety
+## Chapter 24: Trust & Safety
 
 **Purpose**: Build user trust through verification, moderation, and safety features.
 
@@ -6235,7 +6451,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 27: Help & Support
+## Chapter 34: Help & Support
 
 **Purpose**: Provide users with help resources and support channels.
 
@@ -6254,7 +6470,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 28: Error Handling & Monitoring
+## Chapter 32: Error Handling & Monitoring
 
 **Purpose**: Ensure application stability and enable debugging.
 
@@ -6275,7 +6491,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 29: Audit & Activity Logging
+## Chapter 35: Audit & Activity Logging
 
 **Purpose**: Track key actions for debugging, compliance, and admin visibility.
 
@@ -6293,9 +6509,9 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 30: Localization & Accessibility
+## Chapter 37: Accessibility Standards
 
-**Purpose**: Support diverse users through language options and accessibility compliance.
+**Purpose**: Ensure the platform is accessible to all users through WCAG compliance and inclusive design.
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -6313,9 +6529,9 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 31: Referral & Attribution
+## Chapter 30: Referral Programs & Partner Attribution
 
-**Purpose**: Track user acquisition sources and enable referral programs.
+**Purpose**: Track user acquisition sources, enable referral programs, and manage partner relationships.
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -6331,7 +6547,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 32: Data Export & Portability
+## Chapter 36: Data Export & Portability
 
 **Purpose**: Enable users to access and export their data.
 
@@ -6369,7 +6585,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 34: Communications & Automation
+## Chapter 21: Communications & Automation
 
 **Purpose**: Define transactional communications, lifecycle automation, and operational outreach systems.
 
@@ -6398,7 +6614,7 @@ _To be developed. See Chapter 20 Future Chapter Reference for initial scope._
 
 ---
 
-## Chapter 35: Data Acquisition & Enrichment
+## Chapter 26: Data Acquisition & Enrichment
 
 **Purpose**: Define strategies for scaling the provider directory from 40K to 500K+ through data sourcing, enrichment, and quality assurance.
 
@@ -6432,6 +6648,122 @@ _To be developed. See Chapter 20 Future Chapter Reference for initial scope._
 
 ### Architectural Notes
 _To be developed with legal/compliance review._
+
+---
+
+## Chapter 38: Legal & Regulatory Compliance
+
+> 🆕 **New Placeholder** — Structure approved, content to be developed.
+
+**Purpose**: Document legal requirements, regulatory compliance frameworks, and platform policies that govern Olera's operations.
+
+### Scope
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 38.1 Terms of Service | 🆕 | User agreement structure |
+| 38.2 Privacy Policy | 🆕 | Data handling disclosures |
+| 38.3 HIPAA Considerations | 🆕 | Healthcare data if applicable |
+| 38.4 State Licensing Implications | 🆕 | By-state regulatory landscape |
+| 38.5 Data Retention Policies | 🆕 | How long we keep what |
+| 38.6 Data Deletion Procedures | 🆕 | GDPR/CCPA compliance |
+| 38.7 Third-Party Data Usage | 🆕 | Provider data sourcing rules |
+| 38.8 Liability Framework | 🆕 | Platform vs. provider liability |
+| 38.9 Indemnification Structure | 🆕 | Risk allocation |
+| 38.10 Insurance Requirements | 🆕 | Platform insurance needs |
+
+### Key Questions
+
+- [ ] Do we need HIPAA compliance for any data we collect?
+- [ ] What state-specific regulations apply to care marketplaces?
+- [ ] How do we handle provider data from public sources legally?
+- [ ] What disclaimers are needed for provider information?
+
+### Architectural Notes
+
+_To be developed with legal counsel. This chapter will serve as the compliance reference for all platform operations._
+
+### Regulatory Landscape Overview
+
+| Regulation | Applicability | Notes |
+|------------|---------------|-------|
+| GDPR | EU users (if any) | Data subject rights |
+| CCPA | California users | Consumer privacy rights |
+| HIPAA | TBD | May not apply if no PHI |
+| State Licensing | Various | Care provider licensing varies by state |
+| FTC Act | All users | Truth in advertising, unfair practices |
+
+### Legal Document Requirements
+
+1. **Terms of Service** — User agreement for platform use
+2. **Privacy Policy** — Data collection and usage disclosures
+3. **Provider Terms** — Additional terms for provider accounts
+4. **Review Guidelines** — What's allowed in reviews (linked from Ch 23)
+5. **Content Policy** — Acceptable use standards
+
+---
+
+## Future Directions
+
+> ⭐ **Strategic Concepts for Future Phases** — These sections outline long-term possibilities that are explicitly **not** part of the current demo or build scope. They are included to demonstrate forward thinking and establish placeholders for future strategic decisions.
+
+---
+
+### Future: Transaction Hosting Platform
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: Enable payments and financial transactions between families and providers after they connect through Olera.
+
+**Potential Scope**:
+- Payment processing integration (Stripe Connect, etc.)
+- Escrow and transaction guarantees
+- Invoicing and receipt generation
+- Refund and dispute handling
+- Tax documentation (1099s for providers)
+- Care cost tracking and reporting
+
+**Why Deferred**:
+- Requires significant regulatory review (money transmission laws)
+- Adds liability and compliance complexity
+- Market validation needed to confirm demand
+- Current focus is marketplace/discovery, not transactions
+
+**Prerequisites Before Consideration**:
+- Demonstrated user demand for in-platform payments
+- Legal review of money transmission requirements by state
+- Insurance and liability framework established
+- Operational capacity to handle payment disputes
+
+---
+
+### Future: Caregiver Workforce & Direct Staffing Model
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: Potential future pivot where Olera directly employs, manages, schedules, and dispatches caregivers rather than operating purely as a marketplace.
+
+**Potential Scope**:
+- Direct caregiver employment model
+- Scheduling and dispatch systems
+- Payroll and benefits administration
+- Training and certification programs
+- Quality assurance and supervision
+- Background check management
+- Performance tracking and reviews
+
+**Why Deferred**:
+- Fundamentally different business model than marketplace
+- Significant operational complexity and overhead
+- Employment law and liability considerations
+- Capital intensive (payroll, benefits, insurance)
+- Different unit economics than marketplace model
+
+**Strategic Rationale for Inclusion**:
+- Demonstrates awareness of vertical integration option
+- Shows long-term strategic thinking beyond current scope
+- Acknowledges market where competitors have taken this approach
+- Preserves optionality for future strategic decisions
 
 ---
 
