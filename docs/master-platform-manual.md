@@ -2236,19 +2236,95 @@ This applies to **all engagement types**: Family ↔ Provider, Org ↔ Caregiver
 
 **Purpose**: Allow users to save and organize items of interest for later reference.
 
+### Features
+
 | Item | Status | Notes |
 |------|--------|-------|
 | 14.1 Families Save Providers | ✅ | `SavedProvider` model, API |
 | 14.2 Providers Save Families | ✅ | `SavedFamilyProfile` model, API |
 | 14.3 Notes on Saved Items | ✅ | `notes` field exists |
 | 14.4 Saved Lists UI | ✅ | Both dashboards have `/saved` |
-| 14.5 Unsave Functionality | ✅ | Should exist |
+| 14.5 Unsave Functionality | ✅ | Exists |
+| 14.6 Orgs Save Caregivers (Hiring) | ⬜ | `SavedCandidate` model needed |
+| 14.7 Caregivers Save Orgs (Hiring) | ⬜ | `SavedOpportunity` model needed |
 
-### Key Questions
-- [ ] Any issues with current implementation?
+### Key Questions — RESOLVED
+
+- [x] **Any issues with current implementation?**
+  - **DECIDED**: Care-seeking saves are complete. Hiring system saves need new models.
+
+- [x] **Should hiring saves reuse existing models or use separate models?**
+  - **DECIDED**: Option A — Separate, purpose-built models (see rationale below)
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### Two Save Systems (Parallel to Engagement Architecture)
+
+Following the same pattern as `Engagement` / `HiringEngagement`, saves are split by context:
+
+| Context | Saver | Saved | Model |
+|---------|-------|-------|-------|
+| **Care-Seeking** | Family | Provider | `SavedProvider` ✅ |
+| **Care-Seeking** | Provider | Family | `SavedFamilyProfile` ✅ |
+| **Hiring** | Organization | Individual Caregiver | `SavedCandidate` ⬜ |
+| **Hiring** | Individual Caregiver | Organization | `SavedOpportunity` ⬜ |
+
+#### Option A Rationale (DECIDED)
+
+We chose **separate models over context fields** because:
+
+1. **Consistency**: Matches our Engagement/HiringEngagement split
+2. **Explicit over implicit**: No context filtering needed in queries
+3. **Type safety**: Compiler enforces correct relationships
+4. **Error resistance**: Hard to misuse; no forgotten context filters
+5. **Independent evolution**: Models can diverge if needs differ
+
+#### New Models Required
+
+```prisma
+model SavedCandidate {
+  id             String   @id @default(cuid())
+  organizationId String
+  caregiverId    String
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  organization   Provider @relation("OrgSavedCandidates", fields: [organizationId], references: [id])
+  caregiver      Provider @relation("CaregiverSavedBy", fields: [caregiverId], references: [id])
+
+  @@unique([organizationId, caregiverId])
+}
+
+model SavedOpportunity {
+  id             String   @id @default(cuid())
+  caregiverId    String
+  organizationId String
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  caregiver      Provider @relation("CaregiverSavedOpportunities", fields: [caregiverId], references: [id])
+  organization   Provider @relation("OrgSavedByCaregiver", fields: [organizationId], references: [id])
+
+  @@unique([caregiverId, organizationId])
+}
+```
+
+#### UI Placement
+
+| User Type | Dashboard Location | Content |
+|-----------|-------------------|---------|
+| Family | `/family/saved` | Saved providers (for care) |
+| Provider (Org) | `/provider/saved` | Saved families (leads) |
+| Provider (Org) | `/provider/candidates/saved` | Saved caregivers (hiring) |
+| Provider (Caregiver) | `/provider/opportunities/saved` | Saved organizations (jobs) |
+
+#### Demo vs Production
+
+| Feature | Demo Scope | Production Scope |
+|---------|------------|------------------|
+| Care-seeking saves | ✅ Complete | Same |
+| Hiring saves | New models + basic UI | Same + bulk actions, tags |
+| Notes on saves | ✅ Text field | Rich text, templates |
 
 ---
 
