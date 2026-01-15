@@ -48,7 +48,7 @@
 
 ### Administration
 20. [Admin System](#chapter-20-admin-system)
-21. [Data Seeding & Demo Data](#chapter-21-data-seeding--demo-data)
+21. [Provider Data Management](#chapter-21-provider-data-management)
 
 ### Navigation & Settings
 22. [Navigation & Routing](#chapter-22-navigation--routing)
@@ -72,6 +72,7 @@
 
 ### Core Systems (Planned)
 34. [Communications & Automation](#chapter-34-communications--automation) ⭐ *Core system — to be developed*
+35. [Data Acquisition & Enrichment](#chapter-35-data-acquisition--enrichment) ⭐ *Referenced from Ch 21*
 
 ---
 
@@ -5272,28 +5273,853 @@ The Admin System integrates with every other chapter:
 
 ---
 
-## Chapter 21: Data Seeding & Demo Data
+## Chapter 21: Provider Data Management
 
-**Purpose**: Populate the platform with realistic data for development and demonstrations.
+**Purpose**: Define the architecture, migration strategy, and operational workflows for managing provider data at nationwide scale — from the initial 40,000 providers to 500,000+ organizations.
+
+### Core Principles
+
+> **Single Source of Truth**: Postgres (Neon) is the authoritative source for all production data. Legacy systems feed into it, not alongside it.
+>
+> **Organization Data ≠ Account Data**: Public directory information about a provider organization is distinct from the private account information of the person who claims/manages it.
+>
+> **Unclaimed by Default**: Seeded providers start unclaimed. Claiming links an organization record to a user account without losing data.
+
+### Features Overview
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 21.1 Seed Script | ✅ | `prisma/seed.ts` |
-| 21.2 Comprehensive Seed | ✅ | `prisma/seed-comprehensive.ts` |
-| 21.3 Demo User Accounts | 🟡 | Exists, may need review |
-| 21.4 Sample Providers (organizations) | 🟡 | Seeded, need to verify quality |
-| 21.5 Sample Caregivers | 🟡 | May need addition |
-| 21.6 Sample Requests/Conversations | 🟡 | May be seeded |
-| 21.7 Sample Reviews | 🟡 | May need addition |
-| 21.8 Demo Script/Walkthrough Doc | ⬜ | Not written |
-| 21.9 Data Reset Capability | 🟡 | Clear requests exists |
+| **Data Architecture** | | |
+| 21.1 Organization vs Account Data Model | ✅ Decided | See 21.1 below |
+| 21.2 Unclaimed Provider Lifecycle | ✅ Decided | See 21.2 below |
+| 21.3 Field Classification Framework | ✅ Decided | Core, Extended, Audit, Deprecated |
+| **Source of Truth** | | |
+| 21.4 Current State (Airtable) | ✅ Documented | CSV export, manual upload |
+| 21.5 Target State (Postgres) | ✅ Decided | Full migration, Airtable deprecated |
+| 21.6 Transition Plan | 🟡 In Progress | See 21.6 below |
+| **Data Migration** | | |
+| 21.7 Field Mapping Matrix | ✅ Decided | Airtable → Provider model |
+| 21.8 Migration Execution Plan | ⬜ | Sequenced rollout |
+| 21.9 Validation & Rollback | ⬜ | Pre/post checks |
+| **Admin Upload System** | | |
+| 21.10 Upload File Format | ✅ Decided | Standardized CSV |
+| 21.11 Validation Rules | ✅ Decided | See 21.11 below |
+| 21.12 Deduplication Strategy | ✅ Decided | See 21.12 below |
+| 21.13 Update Behavior | ✅ Decided | Merge vs. overwrite rules |
+| 21.14 Admin UI Integration | 🟡 | Cross-ref Chapter 20 |
+| **Scale & Performance** | | |
+| 21.15 Current Scale (~40K) | ✅ | Existing dataset |
+| 21.16 Target Scale (500K+) | ⬜ | Performance considerations |
+| **Demo & Development** | | |
+| 21.17 Demo User Accounts | ✅ | `prisma/seed.ts` |
+| 21.18 Demo Walkthrough | ⬜ | Documentation needed |
+| 21.19 Data Reset Tools | 🟡 | Partial implementation |
 
-### Key Questions
-- [ ] What demo scenarios need to be pre-seeded?
-- [ ] Demo account credentials documentation?
+---
 
-### Architectural Notes
-_To be filled in during chapter review._
+### 21.1 Organization Data vs Account Data (DECIDED)
+
+**The Core Distinction**
+
+Every provider record contains two conceptually separate data sets:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ORGANIZATION DATA (Public / Directory)                                     │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  Source: Seeded from public data, CSV uploads, enrichment                   │
+│  Visibility: Public (shown in directory to all users)                       │
+│  Ownership: Platform-owned until claimed                                    │
+│                                                                             │
+│  Fields:                                                                    │
+│  • name, providerType, description                                          │
+│  • address, city, state, zipCode, latitude, longitude                       │
+│  • phone (public/listed), website                                           │
+│  • email (public/contact — NOT for notifications)                           │
+│  • photos, coverPhoto                                                       │
+│  • services, amenities, pricing, capacity                                   │
+│  • averageRating, reviewCount, oleraScore                                   │
+│  • claimed (boolean), verified (boolean)                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    │  CLAIMING CREATES LINK
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ACCOUNT DATA (Private / Operational)                                       │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  Source: User-provided during claiming/signup                               │
+│  Visibility: Private (only visible to account holder)                       │
+│  Ownership: User-owned                                                      │
+│                                                                             │
+│  Stored On: User model (linked via Provider.userId)                         │
+│                                                                             │
+│  Fields:                                                                    │
+│  • User.email (for login, notifications, billing)                           │
+│  • User.phone (for SMS notifications)                                       │
+│  • User.name (account holder name)                                          │
+│  • Subscription status, Stripe IDs                                          │
+│  • Notification preferences                                                 │
+│  • Team members / authorized users (future)                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Implications**
+
+| Aspect | Organization Data | Account Data |
+|--------|-------------------|--------------|
+| **Created when** | Provider record seeded/imported | User claims provider |
+| **Editable by** | Admin (unclaimed) or Owner (claimed) | Account owner only |
+| **Used for** | Directory display, search, matching | Login, notifications, billing |
+| **Email purpose** | Public contact (may go unanswered) | Platform communications |
+| **Phone purpose** | Public listing | SMS notifications |
+
+**Example Scenario**
+
+```
+Sunrise Senior Living (seeded):
+├── Organization Email: info@sunrisesenior.com (public, on website)
+├── Organization Phone: (512) 555-1234 (public, on signage)
+└── claimed: false
+
+Jane Smith claims Sunrise Senior Living:
+├── Account Email: jane.smith@sunrisesenior.com (private, for Olera login)
+├── Account Phone: (512) 555-9999 (private, for SMS reminders)
+├── User.name: Jane Smith (Administrator)
+└── Provider.userId: links to Jane's User record
+└── Provider.claimed: true
+```
+
+**Schema Representation**
+
+The current schema already supports this separation:
+
+```prisma
+model Provider {
+  // Organization data (public)
+  name            String
+  email           String      // Public contact email
+  phone           String      // Public listed phone
+  // ... other organization fields
+
+  // Link to account data (private)
+  userId          String?     @unique
+  user            User?       // When claimed, links to owner's account
+  claimed         Boolean     @default(false)
+}
+
+model User {
+  // Account data (private)
+  email           String      @unique  // Login/notification email
+  phone           String?              // SMS notification phone
+  name            String               // Account holder name
+
+  provider        Provider?   // If they own a provider
+}
+```
+
+**No Schema Changes Required** — The distinction is conceptual and enforced through:
+1. Admin UI labeling (clearly separate "Public Contact" from "Account Settings")
+2. Notification logic (use User.email/phone, not Provider.email/phone)
+3. Import logic (only populate Provider fields, never create User records)
+
+---
+
+### 21.2 Unclaimed Provider Lifecycle (DECIDED)
+
+**States and Transitions**
+
+```
+┌──────────────────┐
+│    SEEDED        │  Provider record created via bulk import
+│    (Unclaimed)   │  • userId = null
+│                  │  • claimed = false
+└────────┬─────────┘
+         │
+         │  User clicks "Claim this listing"
+         │  Completes verification (see Chapter 8)
+         ▼
+┌──────────────────┐
+│    CLAIMED       │  User account linked to provider
+│    (Free Tier)   │  • userId = claimant's user ID
+│                  │  • claimed = true
+│                  │  • Can edit profile, view leads (read-only)
+└────────┬─────────┘
+         │
+         │  User subscribes (see Chapter 18)
+         ▼
+┌──────────────────┐
+│    ACTIVE        │  Full platform access
+│    (Subscribed)  │  • Can respond to leads
+│                  │  • Can initiate outreach
+│                  │  • Review tools unlocked
+└──────────────────┘
+```
+
+**Data Preservation on Claiming**
+
+When a provider is claimed, **all organization data is preserved**:
+
+| Field | Behavior on Claim |
+|-------|-------------------|
+| name, address, phone, website | Preserved (user can edit after) |
+| description, photos | Preserved (user can edit after) |
+| averageRating, reviewCount | Preserved (owned by platform) |
+| oleraScore | Preserved (calculated by platform) |
+| createdAt | Preserved (original seed date) |
+| **userId** | Set to claimant's user ID |
+| **claimed** | Set to `true` |
+| **updatedAt** | Updated to claim timestamp |
+
+**No data loss occurs** — claiming is purely additive (links account to existing record).
+
+---
+
+### 21.3 Field Classification Framework (DECIDED)
+
+All provider fields fall into four categories:
+
+| Category | Definition | Storage | Example Fields |
+|----------|------------|---------|----------------|
+| **Core** | Essential for directory listing and search | `Provider` table | name, address, providerType, phone |
+| **Extended** | Enriches profile but not required | `Provider` table (nullable) | photos, amenities, pricing, description |
+| **Audit/Meta** | Internal tracking, verification, quality | `ProviderAudit` table (new) | dataSource, lastVerified, auditStatus |
+| **Deprecated** | Legacy fields no longer used | Archive or drop | Custom markers, workflow fields |
+
+**Field Storage Decision**
+
+For the initial migration, we will:
+1. **Migrate Core + Extended fields** into the existing `Provider` table
+2. **Defer Audit/Meta fields** — create `ProviderAudit` table when needed
+3. **Ignore Deprecated fields** — do not migrate
+
+---
+
+### 21.4 Current State: Airtable as Data Source (DOCUMENTED)
+
+**Current Workflow**
+
+```
+┌─────────────┐      CSV Export      ┌─────────────┐      Upload      ┌─────────────┐
+│  Airtable   │  ─────────────────▶  │  CSV File   │  ─────────────▶  │  Postgres   │
+│  (40K rows) │                      │  (mapped)   │                  │  (Neon)     │
+└─────────────┘                      └─────────────┘                  └─────────────┘
+```
+
+**Current Characteristics**
+
+| Aspect | Current State |
+|--------|---------------|
+| Record count | ~40,000 organization providers |
+| Data entry | Manual + enrichment scripts |
+| Export format | CSV |
+| Import method | Script-based upload |
+| Sync frequency | Manual/periodic |
+| Airtable connection | No direct API integration |
+
+**Airtable Field Inventory**
+
+The legacy Airtable contains 130+ fields. Most are operational/workflow fields not needed in production:
+
+| Category | Field Count | Examples |
+|----------|-------------|----------|
+| Core Identity | ~10 | provider_id, provider_name, provider_category |
+| Location | ~8 | address, city, state, zipcode, lat, lon |
+| Contact | ~15 | phone, website, email_*, contact_* |
+| Ratings/Scores | ~12 | google_rating, medicare_rating, olera_score |
+| Content | ~5 | provider_description, provider_images |
+| Audit/Verification | ~25 | Audit Status, Verification Summary, Business Status |
+| Workflow/Operational | ~55 | Custom Marker*, Group*, *_Evaluator, LLM Prompt* |
+
+---
+
+### 21.5 Target State: Postgres as Source of Truth (DECIDED)
+
+**Decision: Full Migration (Option A)**
+
+Postgres (Neon) becomes the **sole source of truth** for all production data.
+
+**Target Architecture**
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           POSTGRES (NEON)                                   │
+│                         Source of Truth                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐         │
+│  │    Provider     │    │ ProviderAudit   │    │ ProviderScoring │         │
+│  │   (Core +       │    │   (Meta/        │    │   (Olera Score  │         │
+│  │    Extended)    │    │    Tracking)    │    │    Inputs)      │         │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ▲
+                                    │
+                    ┌───────────────┼───────────────┐
+                    │               │               │
+            ┌───────┴───────┐ ┌─────┴─────┐ ┌──────┴──────┐
+            │ Admin Upload  │ │ API       │ │ Enrichment  │
+            │ (CSV Import)  │ │ Ingestion │ │ Pipelines   │
+            └───────────────┘ └───────────┘ └─────────────┘
+                    ▲
+                    │
+            ┌───────┴───────┐
+            │   Airtable    │  (Staging/prep only during transition)
+            │   CSV Export  │
+            └───────────────┘
+```
+
+**Airtable's Future Role**
+
+| Option | Role | Recommended |
+|--------|------|-------------|
+| **A: Deprecated** | No longer used; all ops in Admin UI | ✅ Target |
+| **B: Staging Only** | Prep data before upload; not authoritative | Transition phase |
+| **C: Parallel** | Remains for some workflows | ❌ Avoid |
+
+**Transition Period**: Airtable may serve as a staging/prep tool until the Admin UI (Chapter 20) is fully functional for bulk operations.
+
+---
+
+### 21.6 Transition Plan (IN PROGRESS)
+
+**Phase 1: Initial Migration**
+
+| Step | Action | Status |
+|------|--------|--------|
+| 1.1 | Define upload file format (21.10) | ✅ Done |
+| 1.2 | Create field mapping matrix (21.7) | ✅ Done |
+| 1.3 | Export clean CSV from Airtable | ⬜ Pending |
+| 1.4 | Implement upload validation | ⬜ Pending |
+| 1.5 | Run initial import (~40K records) | ⬜ Pending |
+| 1.6 | Verify data integrity | ⬜ Pending |
+
+**Phase 2: Admin UI Enablement**
+
+| Step | Action | Status |
+|------|--------|--------|
+| 2.1 | Build Provider Data Management UI (Ch 20.9) | 🟡 Partial |
+| 2.2 | Build bulk import UI | ⬜ Pending |
+| 2.3 | Test operational workflows in Admin | ⬜ Pending |
+| 2.4 | Train team on Admin UI | ⬜ Pending |
+
+**Phase 3: Airtable Deprecation**
+
+| Step | Action | Status |
+|------|--------|--------|
+| 3.1 | All new data entered via Admin UI | ⬜ Pending |
+| 3.2 | No new Airtable updates | ⬜ Pending |
+| 3.3 | Archive Airtable (read-only backup) | ⬜ Pending |
+| 3.4 | Decommission Airtable access | ⬜ Future |
+
+---
+
+### 21.7 Field Mapping Matrix (DECIDED)
+
+**Mapping: Airtable → Provider Model**
+
+This matrix defines which Airtable fields map to which Provider model fields.
+
+#### Core Fields (Required for Migration)
+
+| Airtable Field | Provider Field | Transform | Notes |
+|----------------|----------------|-----------|-------|
+| `provider_id` | External reference | Store in audit | Original ID for dedup |
+| `provider_name` | `name` | Direct | Required |
+| `provider_category` | `providerType` | Normalize | Map to ProviderType enum |
+| `address` | `address` | Direct | Required |
+| `city` | `city` | Direct | Required |
+| `state` | `state` | Normalize | 2-letter code |
+| `zipcode` | `zipCode` | Normalize | 5-digit, leading zeros |
+| `phone` | `phone` | Normalize | Format: (XXX) XXX-XXXX |
+| `lat` | `latitude` | Direct | Float |
+| `lon` | `longitude` | Direct | Float |
+
+#### Extended Fields (Migrate if Available)
+
+| Airtable Field | Provider Field | Transform | Notes |
+|----------------|----------------|-----------|-------|
+| `website` | `website` | Validate URL | Optional |
+| `email_general` | `email` | Validate email | Public contact email |
+| `provider_description` | `description` | Direct | Or use `provider_description enhanced` |
+| `provider_images` | `photos` | Parse array | JSON array of URLs |
+| `provider_logo` | `coverPhoto` | Direct | URL |
+| `lower_price` | `priceMin` | Direct | Integer (dollars) |
+| `upper_price` | `priceMax` | Direct | Integer (dollars) |
+| `google_rating` | (scoring input) | — | See ProviderScoring |
+| `medicare_rating` | (scoring input) | — | See ProviderScoring |
+| `olera_score` | (calculated) | — | Recalculate in new system |
+
+#### Provider Type Mapping
+
+| Airtable `provider_category` | Provider `providerType` |
+|------------------------------|-------------------------|
+| "Assisted Living" | `ASSISTED_LIVING` |
+| "Memory Care" | `MEMORY_CARE` |
+| "Nursing Home" / "Skilled Nursing" | `NURSING_HOME` |
+| "Home Care" / "Home Care Agency" | `HOME_CARE` |
+| "Home Health" / "Home Health Agency" | `HOME_HEALTH` |
+| "Hospice" | `HOSPICE` |
+| "Independent Living" | `INDEPENDENT_LIVING` |
+| "Rehabilitation" / "Rehab" | `REHABILITATION` |
+| (Individual caregiver - not in Airtable) | `INDEPENDENT_CAREGIVER` |
+
+#### Fields NOT Migrated (Deprecated)
+
+These fields are operational/workflow artifacts and should not be migrated:
+
+| Field Pattern | Reason |
+|---------------|--------|
+| `Custom Marker*` | Internal workflow flags |
+| `*Group*` | Batch processing markers |
+| `*Evaluator*` | One-time audit outputs |
+| `LLM Prompt*` | Prompt engineering artifacts |
+| `Linked In Message*` | Outreach campaign data |
+| `Connection Request Sent` | CRM activity |
+| `Uploaded to Loops` | Marketing sync flag |
+| `API Selector` | Enrichment config |
+| `*Finder*` | Enrichment attempt fields |
+| `call status` | Outreach campaign data |
+| `status (contact info)` | Workflow status |
+
+#### Fields Deferred to Audit Table (Future)
+
+| Airtable Field | Future Location | Purpose |
+|----------------|-----------------|---------|
+| `Audit Status` | `ProviderAudit.status` | Verification state |
+| `Audit Confidence` | `ProviderAudit.confidence` | Quality score |
+| `Verification Summary` | `ProviderAudit.summary` | Human-readable status |
+| `Business Status` | `ProviderAudit.businessStatus` | Open/closed/unknown |
+| `Data Quality Issues` | `ProviderAudit.issues` | Known problems |
+| `Verification Sources` | `ProviderAudit.sources` | Where data came from |
+| `Last modified time` | `ProviderAudit.lastModified` | Airtable timestamp |
+| `Created` | `ProviderAudit.originalCreated` | Original creation date |
+
+---
+
+### 21.10 Upload File Format (DECIDED)
+
+**Standardized CSV Format**
+
+All bulk imports use a standardized CSV format with these columns:
+
+```csv
+external_id,name,provider_type,address,city,state,zip_code,phone,website,email,description,latitude,longitude,price_min,price_max,photos
+```
+
+**Column Specifications**
+
+| Column | Required | Format | Example |
+|--------|----------|--------|---------|
+| `external_id` | ✅ | String | `airtable_abc123` |
+| `name` | ✅ | String (max 255) | `Sunrise Senior Living` |
+| `provider_type` | ✅ | Enum value | `ASSISTED_LIVING` |
+| `address` | ✅ | String | `123 Care Lane` |
+| `city` | ✅ | String | `Austin` |
+| `state` | ✅ | 2-letter code | `TX` |
+| `zip_code` | ✅ | 5 digits | `78701` |
+| `phone` | ✅ | (XXX) XXX-XXXX | `(512) 555-1234` |
+| `website` | | Valid URL or empty | `https://example.com` |
+| `email` | | Valid email or empty | `info@example.com` |
+| `description` | | Text | `A caring community...` |
+| `latitude` | | Decimal | `30.2672` |
+| `longitude` | | Decimal | `-97.7431` |
+| `price_min` | | Integer (dollars) | `4000` |
+| `price_max` | | Integer (dollars) | `8000` |
+| `photos` | | JSON array or pipe-delimited | `url1|url2|url3` |
+
+**File Requirements**
+
+| Requirement | Specification |
+|-------------|---------------|
+| Encoding | UTF-8 |
+| Delimiter | Comma |
+| Quote character | Double quote (`"`) |
+| Header row | Required |
+| Max file size | 50MB |
+| Max rows per file | 50,000 |
+
+---
+
+### 21.11 Validation Rules (DECIDED)
+
+**Pre-Import Validation**
+
+Each row is validated before import. Invalid rows are rejected with error details.
+
+| Field | Validation Rule | Error Message |
+|-------|-----------------|---------------|
+| `external_id` | Required, unique in file | "Missing external_id" / "Duplicate external_id" |
+| `name` | Required, 1-255 chars | "Name is required" / "Name too long" |
+| `provider_type` | Must be valid enum | "Invalid provider_type: {value}" |
+| `address` | Required, non-empty | "Address is required" |
+| `city` | Required, non-empty | "City is required" |
+| `state` | Required, 2-letter code | "Invalid state code" |
+| `zip_code` | Required, 5 digits | "Invalid zip code format" |
+| `phone` | Required, valid format | "Invalid phone format" |
+| `website` | If present, valid URL | "Invalid website URL" |
+| `email` | If present, valid email | "Invalid email format" |
+| `latitude` | If present, -90 to 90 | "Invalid latitude" |
+| `longitude` | If present, -180 to 180 | "Invalid longitude" |
+| `price_min` | If present, positive integer | "Invalid price_min" |
+| `price_max` | If present, ≥ price_min | "price_max must be ≥ price_min" |
+
+**Validation Response**
+
+```json
+{
+  "valid": false,
+  "totalRows": 1000,
+  "validRows": 985,
+  "invalidRows": 15,
+  "errors": [
+    {"row": 42, "field": "phone", "message": "Invalid phone format", "value": "555-1234"},
+    {"row": 156, "field": "provider_type", "message": "Invalid provider_type: Senior Care", "value": "Senior Care"}
+  ]
+}
+```
+
+---
+
+### 21.12 Deduplication Strategy (DECIDED)
+
+**Deduplication Key**
+
+Primary deduplication uses `external_id`. Secondary matching uses name + address.
+
+```
+Dedup Priority:
+1. Exact match on external_id → Update existing record
+2. Fuzzy match on (name + address + city + state) → Flag for review
+3. No match → Create new record
+```
+
+**Match Scoring**
+
+| Match Type | Score | Action |
+|------------|-------|--------|
+| Exact `external_id` match | 100 | Update |
+| Exact name + address | 90 | Flag as likely duplicate |
+| Fuzzy name (>90% similar) + exact address | 80 | Flag for review |
+| Exact address only | 50 | Flag for review |
+| No match | 0 | Create new |
+
+**Flagged Records**
+
+Records flagged as potential duplicates appear in Admin queue for manual resolution:
+- Merge (combine records)
+- Keep Both (mark as distinct)
+- Skip (don't import)
+
+---
+
+### 21.13 Update Behavior (DECIDED)
+
+**Merge vs. Overwrite Rules**
+
+When updating an existing record:
+
+| Field Category | Update Behavior | Rationale |
+|----------------|-----------------|-----------|
+| **Identity** (name, type) | Overwrite | Source of truth for directory |
+| **Location** (address, city, state, zip) | Overwrite | May have corrections |
+| **Contact** (phone, email, website) | Overwrite if non-empty | Don't blank out existing data |
+| **Content** (description, photos) | Merge (append new) | Preserve existing enrichment |
+| **Ratings** (averageRating, reviewCount) | Never overwrite | Platform-calculated |
+| **Status** (claimed, verified) | Never overwrite | User/admin controlled |
+| **Timestamps** (createdAt) | Never overwrite | Preserve history |
+
+**Merge Logic for Arrays**
+
+```
+photos: existing_photos ∪ new_photos (deduplicated by URL)
+certifications: existing ∪ new (deduplicated)
+```
+
+**Audit Trail**
+
+Every import creates an audit record:
+- Who uploaded
+- When
+- How many created/updated/skipped
+- Original file reference
+
+---
+
+### 21.14 Admin UI Integration (CROSS-REFERENCE)
+
+**Cross-reference**: See Chapter 20 → Admin Tools → Bulk Import.
+
+**Admin Import Workflow**
+
+```
+Admin navigates to /admin/tools/bulk-import
+        │
+        ▼
+┌─────────────────────────────────────────┐
+│  1. UPLOAD FILE                         │
+│  [Choose CSV file]                      │
+│  Max 50MB, UTF-8 encoded                │
+└─────────────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────┐
+│  2. VALIDATION PREVIEW                  │
+│  ✅ 985 valid rows                      │
+│  ❌ 15 invalid rows [View Errors]       │
+│  ⚠️ 23 potential duplicates [Review]    │
+│                                         │
+│  [Cancel] [Continue with valid rows]    │
+└─────────────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────┐
+│  3. DUPLICATE RESOLUTION                │
+│  23 potential duplicates found          │
+│                                         │
+│  Row 42: "Sunrise Senior Living"        │
+│  Matches existing: "Sunrise Senior..."  │
+│  [Merge] [Keep Both] [Skip]             │
+│                                         │
+│  [Skip All Duplicates] [Resolve All]    │
+└─────────────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────┐
+│  4. IMPORT CONFIRMATION                 │
+│  Ready to import:                       │
+│  • 962 new providers                    │
+│  • 23 updates to existing               │
+│  • 15 skipped (invalid)                 │
+│                                         │
+│  [Cancel] [Run Import]                  │
+└─────────────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────┐
+│  5. IMPORT COMPLETE                     │
+│  ✅ 985 providers processed             │
+│  • 962 created                          │
+│  • 23 updated                           │
+│                                         │
+│  [Download Report] [View Providers]     │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### 21.15 Current Scale: ~40,000 Providers
+
+**Dataset Characteristics**
+
+| Attribute | Value |
+|-----------|-------|
+| Total records | ~40,000 |
+| Provider types | Mix of all organization types |
+| Geographic coverage | Nationwide (US) |
+| Data quality | Variable (some enriched, some sparse) |
+| Claimed status | All unclaimed (pre-seeded directory) |
+
+**State Distribution** (approximate)
+
+| State | % of Records |
+|-------|--------------|
+| California | 12% |
+| Texas | 10% |
+| Florida | 8% |
+| New York | 6% |
+| Other states | 64% |
+
+---
+
+### 21.16 Target Scale: 500,000+ Providers
+
+**Scaling Considerations**
+
+| Concern | Current (40K) | Target (500K) | Mitigation |
+|---------|---------------|---------------|------------|
+| Database size | ~100MB | ~1.5GB | Standard Postgres capacity |
+| Query performance | <100ms | Potential slowdown | Indexes, query optimization |
+| Search latency | Fast | May degrade | Full-text search, caching |
+| Import time | Minutes | Hours | Background jobs, chunking |
+| Admin UI pagination | Fine | Critical | Virtual scrolling, server-side |
+
+**Required Optimizations**
+
+| Optimization | When Needed | Implementation |
+|--------------|-------------|----------------|
+| Database indexes | Now | `@@index` on search fields |
+| Full-text search | 100K+ | PostgreSQL FTS or external |
+| Search caching | 200K+ | Redis or in-memory |
+| CDN for images | 100K+ | Vercel Blob CDN |
+| Background imports | 50K+ per file | Job queue (BullMQ) |
+
+**Future: Data Acquisition**
+
+Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads. See **Chapter 35: Data Acquisition & Enrichment** for:
+- Public data sourcing
+- API-based enrichment
+- Compliance framework
+- AI-assisted verification
+
+---
+
+### 21.17 Demo & Development Data
+
+**Demo User Accounts**
+
+| Account | Email | Password | Purpose |
+|---------|-------|----------|---------|
+| Family (Active) | `family.assisted.active@demo.com` | `demo123` | Family searching for AL |
+| Family (Memory) | `family.memory.early@demo.com` | `demo123` | Memory care search |
+| Provider (Claimed) | `provider.al.flagship@demo.com` | `demo123` | Claimed org provider |
+| Provider (Individual) | `caregiver.fulltime@demo.com` | `demo123` | Individual caregiver |
+| Admin | `admin@demo.com` | `demo123` | Admin mode access |
+
+**Demo Data Scope**
+
+| Data Type | Count | Purpose |
+|-----------|-------|---------|
+| Family accounts | 12 | Various care needs, completion levels |
+| Provider accounts (org) | 8 | Various types, claimed status |
+| Provider accounts (individual) | 4 | Caregivers for hiring demo |
+| Engagements | 15-20 | Various statuses, types |
+| Messages | 50+ | Conversation threads |
+| Reviews | 20+ | Ratings distribution |
+
+**Seed Scripts**
+
+| Script | Purpose | Command |
+|--------|---------|---------|
+| `prisma/seed.ts` | Demo accounts + sample data | `npx prisma db seed` |
+| `prisma/seed-comprehensive.ts` | Extended demo scenarios | Manual run |
+
+---
+
+### 21.18 Demo Walkthrough Documentation
+
+**To Be Documented**
+
+| Scenario | Description | Accounts Used |
+|----------|-------------|---------------|
+| Family care search | Find and contact providers | family.assisted.active |
+| Provider response | Respond to family inquiry | provider.al.flagship |
+| Caregiver hiring | Org finds caregiver | provider.al.flagship + caregiver.fulltime |
+| Admin operations | Manage providers, claims | admin |
+
+---
+
+### 21.19 Data Reset Capabilities
+
+**Reset Options**
+
+| Action | Route | Effect |
+|--------|-------|--------|
+| Clear engagements | `/admin/tools/clear-requests` | Removes all ConsultRequest + Messages |
+| Full reset | `npx prisma db seed` | Drops all data, reseeds |
+| Selective clear | Manual script | Clears specific data types |
+
+**Demo Reset Flow**
+
+```
+Before demo presentation:
+1. Run: npx prisma db seed
+2. Verify: Test accounts accessible
+3. Verify: Sample data present
+```
+
+---
+
+### Future Reference: Chapter 35
+
+**Chapter 35: Data Acquisition & Enrichment** will cover:
+
+| Topic | Description |
+|-------|-------------|
+| **Data Sourcing** | Public registries, licensing databases, scraping |
+| **API Enrichment** | Google Places, CMS Medicare data, state APIs |
+| **Legal Compliance** | DMCA, public data rules, ToS compliance |
+| **AI Verification** | Automated quality checks, closure detection |
+| **Enrichment Pipelines** | Ongoing data freshness, scoring updates |
+
+This chapter is intentionally separate to allow proper legal/compliance review before implementation.
+
+---
+
+### Cross-Chapter Integration
+
+| Chapter | Integration with Ch 21 |
+|---------|------------------------|
+| **Ch 5: Provider Profiles** | Field definitions, display rules |
+| **Ch 6: Provider Identity** | Claiming links account to org data |
+| **Ch 7: Provider Directory** | Search uses Provider table |
+| **Ch 8: Provider Claiming** | Transitions unclaimed → claimed |
+| **Ch 17: Profile Completion** | Completion % calculation |
+| **Ch 18: Subscriptions** | Claimed → Active transition |
+| **Ch 20: Admin System** | Bulk import UI, data management |
+
+---
+
+### Appendix: Future Schema Additions
+
+**ProviderAudit Table** (for tracking data quality)
+
+```prisma
+model ProviderAudit {
+  id              String    @id @default(cuid())
+  providerId      String    @unique
+  provider        Provider  @relation(fields: [providerId], references: [id])
+
+  // Source tracking
+  dataSource      String?   // "airtable", "cms", "google", "manual"
+  externalId      String?   // Original ID from source system
+  importBatchId   String?   // Which import created/updated this
+
+  // Verification
+  auditStatus     String?   // "verified", "needs_review", "flagged"
+  auditConfidence Int?      // 0-100 confidence score
+  businessStatus  String?   // "open", "closed", "unknown"
+  lastVerified    DateTime?
+  verificationSources String[] @default([])
+
+  // Quality
+  dataQualityIssues String[] @default([])
+  missingFields     String[] @default([])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+```
+
+**ProviderScoring Table** (for Olera Score calculation)
+
+```prisma
+model ProviderScoring {
+  id              String    @id @default(cuid())
+  providerId      String    @unique
+  provider        Provider  @relation(fields: [providerId], references: [id])
+
+  // External ratings
+  googleRating    Float?
+  googleReviewCount Int?
+  medicareRating  Float?
+  yelpRating      Float?
+
+  // Calculated scores
+  sentimentScore  Float?    // AI-derived sentiment
+  valueScore      Float?    // Value for money indicator
+  infoAvailability Float?   // How complete is public info
+
+  // Final score
+  oleraScore      Float?    // Calculated composite score
+  scoreCalculatedAt DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+```
+
+These tables are **not required for initial migration** but provide a clean home for audit and scoring data when needed.
 
 ---
 
@@ -5543,6 +6369,72 @@ _To be filled in during chapter review._
 
 ---
 
+## Chapter 34: Communications & Automation
+
+**Purpose**: Define transactional communications, lifecycle automation, and operational outreach systems.
+
+> ⭐ **Core System**: This chapter is required as a foundational platform capability. Referenced in Chapter 20 (Admin System) as a future development priority.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| **Transactional Communications** | | |
+| 34.1 Email Notifications | ⬜ | Engagement updates, reminders, reviews |
+| 34.2 SMS Notifications | ⬜ | Reminders, verification, alerts |
+| 34.3 Template Management | ⬜ | Personalization, versioning |
+| **Lifecycle Automation** | | |
+| 34.4 Welcome Sequences | ⬜ | Onboarding emails |
+| 34.5 Re-engagement Campaigns | ⬜ | Inactive user outreach |
+| 34.6 Profile Completion Reminders | ⬜ | Nudges to complete profile |
+| **Operational Communications** | | |
+| 34.7 Admin-Initiated Outreach | ⬜ | Manual campaigns |
+| 34.8 Call Center Workflow | ⬜ | Trigger-based task creation |
+| **Automation Engine** | | |
+| 34.9 Trigger Definitions | ⬜ | Events, conditions, timing |
+| 34.10 Action Definitions | ⬜ | Send email, SMS, create task |
+| 34.11 Delivery Tracking | ⬜ | Analytics and monitoring |
+
+### Architectural Notes
+_To be developed. See Chapter 20 Future Chapter Reference for initial scope._
+
+---
+
+## Chapter 35: Data Acquisition & Enrichment
+
+**Purpose**: Define strategies for scaling the provider directory from 40K to 500K+ through data sourcing, enrichment, and quality assurance.
+
+> ⭐ **Core System**: Referenced from Chapter 21 (Provider Data Management). Intentionally separated to allow proper legal/compliance review before implementation.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| **Data Sourcing** | | |
+| 35.1 Public Data Sources | ⬜ | State licensing databases, registries |
+| 35.2 API-Based Enrichment | ⬜ | Google Places, CMS Medicare, state APIs |
+| 35.3 Web Scraping Strategy | ⬜ | When, what, how |
+| 35.4 Third-Party Data Providers | ⬜ | Paid data sources |
+| **Legal & Compliance** | | |
+| 35.5 Public Data Rules | ⬜ | By state/jurisdiction |
+| 35.6 DMCA Considerations | ⬜ | Content usage rights |
+| 35.7 Terms of Service Compliance | ⬜ | Respecting source ToS |
+| 35.8 Data Licensing | ⬜ | Attribution requirements |
+| **AI-Assisted Verification** | | |
+| 35.9 Automated Quality Checks | ⬜ | Data validation pipelines |
+| 35.10 Closure Detection | ⬜ | Identifying closed providers |
+| 35.11 Human-in-the-Loop Escalation | ⬜ | When AI flags for review |
+| **Enrichment Pipelines** | | |
+| 35.12 Olera Score Inputs | ⬜ | External ratings, sentiment |
+| 35.13 Data Freshness Monitoring | ⬜ | Stale data detection |
+| 35.14 Contact Information Updates | ⬜ | Phone/email verification |
+
+### Key Questions
+- [ ] What public data sources are available per state?
+- [ ] Legal review of scraping vs. API usage?
+- [ ] Compliance framework for data usage?
+
+### Architectural Notes
+_To be developed with legal/compliance review._
+
+---
+
 ## Appendix A: Architectural Decisions Log
 
 _Decisions made during chapter reviews will be logged here._
@@ -5589,4 +6481,4 @@ _Issues identified during review will be logged here for tracking._
 
 ---
 
-_Last Updated: 2025-01-14_
+_Last Updated: 2026-01-15_
