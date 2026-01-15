@@ -2817,24 +2817,328 @@ model ReviewRequest {
 
 ## Chapter 16: Notifications
 
-**Purpose**: Keep users informed of relevant activity and updates.
+**Purpose**: Keep users informed of all relevant activity and updates through a unified, multi-channel notification system.
+
+### Core Principles (DECIDED)
+
+| Principle | Decision |
+|-----------|----------|
+| **Activity Feed = Canonical Log** | All notifications appear in the Activity feed on the dashboard. Single source of truth. |
+| **All Notifications Are Critical** | No priority tiers. Every notification is actionable or important. |
+| **SMS First-Class Channel** | SMS enabled for ALL notification types by default, not just reminders. |
+| **Individual Delivery** | Notifications sent individually, not batched into digests. |
+| **Centralized Preferences** | Settings page controls all notification preferences. Not inline or in modals. |
+
+### Features
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 16.1 In-App Notification Count | ✅ | `/api/notifications/unread-count` |
-| 16.2 Mark Notifications Viewed | ✅ | `/api/notifications/mark-viewed` |
-| 16.3 Notification List UI | 🟡 | Unclear if complete |
-| 16.4 Notification Types | 🟡 | New message, request status change, etc. |
-| 16.5 Per-Request Notification Settings | 🟡 | `notificationSettings` JSON field |
-| 16.6 Email Notifications | ⬜ | Not implemented |
-| 16.7 SMS Notifications | ⬜ | Not implemented |
+| 16.1 Activity Feed (Unified) | 🟡 | Canonical notification log on dashboard |
+| 16.2 In-App Notification Count | ✅ | `/api/notifications/unread-count` |
+| 16.3 Mark Notifications Viewed | ✅ | `/api/notifications/mark-viewed` |
+| 16.4 Notification List UI | 🟡 | Needs verification |
+| 16.5 Notification Types | ⬜ | Comprehensive list below |
+| 16.6 Email Notifications | ⬜ | All types, individual delivery |
+| 16.7 SMS Notifications | ⬜ | All types, first-class channel |
+| 16.8 Notification Preferences | ⬜ | Centralized in Settings |
+| 16.9 Quiet Hours | ⬜ | Default business hours M-F |
+| 16.10 Push Notifications | ⬜ | Planned for production |
 
-### Key Questions
-- [ ] What notification types are needed for demo?
-- [ ] In-app only for demo, or email required?
+### Key Questions — RESOLVED
+
+- [x] **What notification types are needed for demo?**
+  - **DECIDED**: All types listed below. Every notification is critical.
+
+- [x] **In-app only for demo, or email/SMS required?**
+  - **DECIDED**: All three channels for demo. SMS is first-class, not optional.
+
+- [x] **Should notifications be digested?**
+  - **DECIDED**: No. Individual delivery by default. Digest only if users report fatigue later.
+
+- [x] **Where do notification preferences live?**
+  - **DECIDED**: Dedicated Settings page. Not inline or in engagement detail.
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+---
+
+#### 16.1 Activity Feed — Unified Notification Log (DECIDED)
+
+The Activity feed on the dashboard is the **single source of truth** for all system activity.
+
+**Properties:**
+- Every notification appears in the Activity feed
+- Chronologically ordered (newest first)
+- Click-through to relevant page (engagement, message, review, etc.)
+- Unread indicator for unseen items
+- "Mark all as read" action
+
+**Activity Feed Location:**
+- Family Dashboard: Activity tab/section
+- Provider Dashboard: Activity tab/section
+- Both modes share the same notification data for the user
+
+**Feed Entry Structure:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ [Icon] [Title]                              [Timestamp] │
+│        [Description/Preview]                            │
+│        [Action Button if applicable]                    │
+└─────────────────────────────────────────────────────────┘
+
+Example:
+┌─────────────────────────────────────────────────────────┐
+│ 📅 Tour Scheduled                              2h ago   │
+│    Sunrise Senior Living accepted your tour request    │
+│    for Jan 20 at 2:00 PM                               │
+│    [View Details]                                       │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 16.5 Notification Types — Comprehensive List (DECIDED)
+
+All types below are delivered via **all three channels** (In-App + Email + SMS) by default.
+
+**Engagement Notifications (Care-Seeking):**
+
+| Event | Recipient | Message Example |
+|-------|-----------|-----------------|
+| New engagement received | Provider | "New tour request from Jane D." |
+| Engagement accepted | Family | "Sunrise Senior Living accepted your tour" |
+| Engagement declined | Family | "Your consultation request was declined" |
+| Engagement rescheduled | Both | "Your tour has been rescheduled to Jan 22" |
+| Engagement cancelled | Both | "Tour with Sunrise Senior Living was cancelled" |
+| Engagement status change | Both | "Your consultation is now active" |
+
+**Hiring Engagement Notifications (Org ↔ Caregiver):**
+
+| Event | Recipient | Message Example |
+|-------|-----------|-----------------|
+| New hiring interest | Caregiver | "Sunrise Home Care is interested in you" |
+| Interview scheduled | Both | "Interview scheduled for Jan 21 at 10 AM" |
+| Hiring status change | Both | "Your interview has been confirmed" |
+
+**Scheduling Notifications:**
+
+| Event | Recipient | Message Example |
+|-------|-----------|-----------------|
+| Appointment reminder (24h) | Both | "Reminder: Tour tomorrow at 2:00 PM" |
+| Appointment reminder (1h) | Both | "Starting soon: Tour in 1 hour" |
+| Calendar invite sent | Both | "Calendar invite sent for your consultation" |
+
+**Messaging Notifications:**
+
+| Event | Recipient | Message Example |
+|-------|-----------|-----------------|
+| New message | Recipient | "New message from Sunrise Senior Living" |
+
+**Review Notifications:**
+
+| Event | Recipient | Message Example |
+|-------|-----------|-----------------|
+| "Did this happen?" prompt | Both | "Did your tour with Sunrise happen?" |
+| Review reminder | Both | "Don't forget to leave a review" |
+| New review received | Provider | "You received a new 5-star review" |
+| Review response received | Family | "Sunrise responded to your review" |
+
+**System Notifications:**
+
+| Event | Recipient | Message Example |
+|-------|-----------|-----------------|
+| Profile incomplete prompt | User | "Complete your profile to get matched" |
+| Subscription status | Provider | "Your subscription renews in 7 days" |
+| Account security | User | "New login from a new device" |
+
+---
+
+#### 16.6-16.7 Email & SMS — All Types, Individual Delivery (DECIDED)
+
+**Delivery Strategy:**
+- **Individual sends** for all notifications (no batching/digest)
+- SMS is a **first-class channel**, not a fallback
+- All three channels fire for each notification (unless user opts out)
+
+**Email Content:**
+- Clear subject line matching notification type
+- Brief body with context and CTA
+- "View in Olera" button linking to relevant page
+- Unsubscribe link in footer
+
+**SMS Content:**
+- Concise (160 char limit awareness)
+- Key info + short link to Olera
+- Example: "Olera: Your tour with Sunrise is tomorrow at 2 PM. View details: olera.co/e/abc123"
+
+**Delivery Infrastructure:**
+- Email: Existing email provider (SendGrid, Resend, etc.)
+- SMS: Twilio (decided in Chapter 13)
+- Both triggered by same notification event
+
+---
+
+#### 16.8 Notification Preferences — Centralized in Settings (DECIDED)
+
+**Location:** `/settings/notifications` (or Settings page with Notifications section)
+
+**NOT in:**
+- Engagement detail pages
+- Modals
+- Inline flows
+
+**Settings Available:**
+
+| Setting | Options | Default |
+|---------|---------|---------|
+| Email notifications | On / Off | On |
+| SMS notifications | On / Off | On |
+| In-app notifications | Always on | On (not toggleable) |
+| Quiet hours | Enable / Disable | Enabled |
+| Quiet hours range | Time picker | 6 PM - 8 AM weekdays |
+
+**Demo Scope:**
+- Basic on/off toggles for email and SMS
+- Quiet hours with default business hours
+
+**Production Scope:**
+- Per-type granular controls (e.g., disable SMS for review reminders only)
+- Custom quiet hours schedule
+- Vacation/pause mode
+
+---
+
+#### 16.9 Quiet Hours (DECIDED)
+
+**Default Behavior:**
+- Quiet hours: **Outside business hours, Monday-Friday**
+- Suggested default: 6 PM - 8 AM local time on weekdays
+- Weekends: User preference (could be all day or business hours only)
+
+**During Quiet Hours:**
+- In-app notifications: Still logged to Activity feed (always)
+- Email: Held and delivered at next business hour window
+- SMS: Held and delivered at next business hour window
+
+**Exceptions (bypass quiet hours):**
+- Appointment reminders within 2 hours of scheduled time
+- Urgent system/security alerts
+
+**Demo Scope:**
+- Default quiet hours enabled
+- No customization UI (hardcoded defaults)
+
+**Production Scope:**
+- Full customization in Settings
+- Per-day schedule
+- Timezone-aware
+
+---
+
+#### 16.10 Push Notifications — Planned for Production (DECIDED)
+
+**Clarification:**
+- **Browser push** (service workers): Deferred for production
+- **Native mobile push** (iOS/Android): Out of scope, but architect for future extension
+
+**Demo Scope:**
+- In-app + Email + SMS are sufficient
+- No browser push implementation
+
+**Production Scope:**
+- Browser push opt-in
+- Architecture supports future mobile app push
+- Same notification events trigger push channel
+
+**Architectural Consideration:**
+- Notification service should be channel-agnostic
+- Adding push later = adding another delivery adapter
+- Notification preferences model should include `pushEnabled` field now (defaulted off)
+
+---
+
+### Notification Model
+
+```prisma
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+
+  // Type and content
+  type        String    // ENGAGEMENT_NEW, MESSAGE_NEW, REMINDER_24H, REVIEW_PROMPT, etc.
+  title       String
+  body        String
+  data        Json      @default("{}") // Structured payload (engagementId, providerId, etc.)
+
+  // Linking
+  actionUrl   String?   // Deep link to relevant page
+
+  // Status
+  read        Boolean   @default(false)
+  readAt      DateTime?
+
+  // Delivery tracking
+  emailSent   Boolean   @default(false)
+  emailSentAt DateTime?
+  smsSent     Boolean   @default(false)
+  smsSentAt   DateTime?
+
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
+
+model NotificationPreferences {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  emailEnabled    Boolean  @default(true)
+  smsEnabled      Boolean  @default(true)
+  pushEnabled     Boolean  @default(false) // For future
+
+  quietHoursEnabled Boolean @default(true)
+  quietHoursStart   String  @default("18:00") // 6 PM
+  quietHoursEnd     String  @default("08:00") // 8 AM
+  quietHoursTimezone String @default("America/New_York")
+
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id])
+}
+```
+
+---
+
+### Cross-Chapter Consistency
+
+This notification system supports all previously decided flows:
+
+| Chapter | Notification Integration |
+|---------|-------------------------|
+| **Ch. 11: Engagements** | New engagement, status changes → all channels |
+| **Ch. 12: Messaging** | New message → all channels |
+| **Ch. 13: Scheduling** | Reminders (24h, 1h), reschedule, cancel → all channels |
+| **Ch. 15: Reviews** | "Did this happen?", reminders, new review → all channels |
+| **Ch. 10: Hiring** | Hiring engagement events → all channels |
+
+---
+
+### Demo vs Production Summary
+
+| Feature | Demo Scope | Production Scope |
+|---------|------------|------------------|
+| Activity Feed | Unified log on dashboard | Same + filtering/search |
+| In-App | Bell icon + dropdown + Activity feed | Same |
+| Email | All notification types, individual sends | Same + templates |
+| SMS | All notification types via Twilio | Same + delivery optimization |
+| Preferences | Basic on/off in Settings | Granular per-type controls |
+| Quiet Hours | Default business hours (hardcoded) | Fully customizable |
+| Push (Browser) | ❌ Defer | Service worker implementation |
+| Push (Mobile) | ❌ Out of scope | Native app integration |
+| Digests | ❌ Not used | Optional if user fatigue reported |
 
 ---
 
