@@ -125,19 +125,27 @@
 | **My Families** | `/provider/my-families` | All engagements with families |
 | **Provider Dashboard** | `/provider/dashboard` | Summary, stats, calendar, **Provider Profile editing** |
 
-### Org Provider — Additional Navigation (Conditional)
+### Organization Provider — Additional Navigation (Conditional)
 
-| Nav Item | Route | Purpose |
-|----------|-------|---------|
-| **Find Care Staff** | `/provider/find-caregivers` | Browse caregivers seeking jobs |
-| **My Candidates** | `/provider/my-candidates` | Engagements with caregivers |
+Shown only for organization-type providers:
+
+| Dropdown Label | Route | Purpose |
+|----------------|-------|---------|
+| "Find Caregivers" | `/provider/find-caregivers` | Browse caregivers available for hire |
+| "Saved Candidates" | `/provider/saved-candidates` | Bookmarked caregivers |
+| "My Candidates" | `/provider/my-candidates` | Hiring engagements with caregivers |
 
 ### Individual Caregiver — Additional Navigation (Conditional)
 
-| Nav Item | Route | Purpose |
-|----------|-------|---------|
-| **Find Hiring Orgs** | `/caregiver/find-organizations` | Browse orgs with hiring enabled |
-| **My Job Opportunities** | `/caregiver/my-opportunities` | Job engagements with orgs |
+Shown only for individual caregiver providers:
+
+| Dropdown Label | Route | Purpose |
+|----------------|-------|---------|
+| "Find Organizations" | `/provider/find-organizations` | Browse orgs actively hiring |
+| "Saved Opportunities" | `/provider/saved-opportunities` | Bookmarked potential employers |
+| "My Opportunities" | `/provider/my-opportunities` | Hiring engagements with orgs |
+
+**Note**: Individual caregivers use the `/provider/` prefix (not `/caregiver/`) because they ARE providers in the system.
 
 ### Route Migration Summary
 
@@ -151,9 +159,11 @@
 | `/provider/saved` | `/provider/saved-families` | Rename |
 | `/provider/hire-staff` | `/provider/find-caregivers` | Rename |
 | `/provider/hiring-requests` | `/provider/my-candidates` | Rename |
-| `/caregiver/browse-organizations` | `/caregiver/find-organizations` | Rename |
 | (new) | `/provider/my-families` | Create |
-| (new) | `/caregiver/my-opportunities` | Create |
+| (new) | `/provider/find-organizations` | Create |
+| (new) | `/provider/saved-candidates` | Create |
+| (new) | `/provider/saved-opportunities` | Create |
+| (new) | `/provider/my-opportunities` | Create |
 
 ### Homepage vs Directory Architecture (DECIDED)
 
@@ -1584,21 +1594,23 @@ Engagement {
 - ✅ Messaging within engagement
 - ✅ Interview scheduling
 
-**Organization Provider Pages**:
+**Organization Provider Pages (Hiring Caregivers)**:
 
-| Page | Route | Purpose |
-|------|-------|---------|
-| **Find Caregivers** | `/provider/find-caregivers` | Browse caregivers with `availableForHiring = true` |
-| **Saved Caregivers** | `/provider/saved-caregivers` | Bookmarked candidates |
-| **My Candidates** | `/provider/my-candidates` | All hiring engagements |
+| Dropdown Label | Route | Purpose |
+|----------------|-------|---------|
+| "Find Caregivers" | `/provider/find-caregivers` | Browse caregivers available for hire |
+| "Saved Candidates" | `/provider/saved-candidates` | Bookmarked caregivers |
+| "My Candidates" | `/provider/my-candidates` | All hiring engagements with caregivers |
 
-**Individual Caregiver Pages** (for completeness):
+**Individual Caregiver Pages (Finding Jobs)**:
 
-| Page | Route | Purpose |
-|------|-------|---------|
-| **Find Organizations** | `/caregiver/find-organizations` | Browse orgs with `hiringEnabled = true` |
-| **Saved Organizations** | `/caregiver/saved-organizations` | Bookmarked potential employers |
-| **My Opportunities** | `/caregiver/my-opportunities` | All hiring engagements |
+| Dropdown Label | Route | Purpose |
+|----------------|-------|---------|
+| "Find Organizations" | `/provider/find-organizations` | Browse orgs actively hiring |
+| "Saved Opportunities" | `/provider/saved-opportunities` | Bookmarked potential employers |
+| "My Opportunities" | `/provider/my-opportunities` | All hiring engagements with orgs |
+
+**Route Naming Principle**: All provider-mode routes use `/provider/` prefix. Dropdown labels must match route names exactly (e.g., "My Opportunities" → `/provider/my-opportunities`).
 
 **Hiring Engagement Model**:
 
@@ -1623,8 +1635,8 @@ HiringEngagement {
 | Caregiver → Org | Caregiver | Caregiver's "My Opportunities" + Org's "My Candidates" |
 
 **Navigation Display**: Hiring pages appear in account dropdown only for relevant user types:
-- Org providers see: Find Caregivers, My Candidates
-- Individual caregivers see: Find Organizations, My Opportunities
+- Organization providers see: "Find Caregivers", "Saved Candidates", "My Candidates"
+- Individual caregivers see: "Find Organizations", "Saved Opportunities", "My Opportunities"
 
 #### 10.7 Profile Completion Tracking (DECIDED)
 
@@ -2341,12 +2353,14 @@ model SavedOpportunity {
 
 #### UI Placement
 
-| User Type | Dashboard Location | Content |
-|-----------|-------------------|---------|
-| Family | `/family/saved` | Saved providers (for care) |
-| Provider (Org) | `/provider/saved` | Saved families (leads) |
-| Provider (Org) | `/provider/candidates/saved` | Saved caregivers (hiring) |
-| Provider (Caregiver) | `/provider/opportunities/saved` | Saved organizations (jobs) |
+Routes must match dropdown navigation labels exactly:
+
+| User Type | Dropdown Label | Route | Content |
+|-----------|---------------|-------|---------|
+| Family | "Saved Providers" | `/family/saved-providers` | Saved providers (for care) |
+| Provider (Org) | "Saved Families" | `/provider/saved-families` | Saved families (leads) |
+| Provider (Org) | "Saved Candidates" | `/provider/saved-candidates` | Saved caregivers (hiring) |
+| Provider (Caregiver) | "Saved Opportunities" | `/provider/saved-opportunities` | Saved organizations (jobs) |
 
 #### Demo vs Production
 
@@ -3954,23 +3968,264 @@ model ProviderMembership {
 
 ## Chapter 19: Caregiver Hiring Marketplace
 
-**Purpose**: Enable organizations to find and hire individual caregivers, and caregivers to find employment.
+**Purpose**: Enable organizations to find and hire individual caregivers, and caregivers to find employment opportunities — a two-sided staffing marketplace within Olera.
+
+### Core Principle
+
+> **One membership unlocks both marketplaces.**
+>
+> Organizations can find families (demand) AND find caregivers (supply). Individual caregivers can serve families AND find employment with organizations.
+
+### Features
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 19.1 Caregiver Browse (for organizations) | 🟡 | `/provider/hire-staff` exists |
-| 19.2 Organization Browse (for caregivers) | 🟡 | `/caregiver/browse-organizations` exists |
-| 19.3 Hiring Request (org → caregiver) | 🟡 | RequestType=HIRING exists |
-| 19.4 Caregiver Profile Creation | 🟡 | Uses Provider model with type=INDEPENDENT_CAREGIVER |
-| 19.5 Availability Flags | ✅ | `availableForFamilies`, `availableForOrganizations` |
-| 19.6 Hiring Request Status Workflow | 🟡 | Reuses ConsultRequest statuses |
+| 19.1 Find Caregivers (for orgs) | 🟡 | `/provider/find-caregivers` |
+| 19.2 Find Organizations (for caregivers) | ⬜ | `/provider/find-organizations` |
+| 19.3 Caregiver Availability Display | ⬜ | Critical for hiring decisions |
+| 19.4 Bidirectional Hiring Engagements | 🟡 | `HiringEngagement` model |
+| 19.5 Context-Specific CTAs | ⬜ | Different by direction |
+| 19.6 Hiring Engagement Workflow | 🟡 | Interview → Hired flow |
+| 19.7 Saved Candidates / Opportunities | ⬜ | Models defined in Ch. 14 |
+| 19.8 Org Hiring Profile Fields | ⬜ | Within unified provider profile |
+| 19.9 Caregiver Job-Seeking Profile | ⬜ | Extended fields on Provider |
 
-### Key Questions
-- [ ] Is the hiring marketplace in scope for demo?
-- [ ] Should caregivers have a separate model from Provider?
+### Key Questions — RESOLVED
+
+- [x] **Is the hiring marketplace in scope for demo?**
+  - **DECIDED**: Yes. Full bidirectional hiring must be demonstrated.
+
+- [x] **Should caregivers have a separate model from Provider?**
+  - **DECIDED**: No. Caregivers stay in Provider model with `type=INDIVIDUAL_CAREGIVER`. They ARE providers.
+
+- [x] **Route prefix for caregivers?**
+  - **DECIDED**: Use `/provider/` prefix (not `/caregiver/`). All provider-mode routes share the prefix.
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+---
+
+#### 19.1-19.2 Browse Experiences (DECIDED)
+
+**Organizations Finding Caregivers:**
+
+| Dropdown Label | Route | Purpose |
+|----------------|-------|---------|
+| "Find Caregivers" | `/provider/find-caregivers` | Browse caregivers available for hire |
+| "Saved Candidates" | `/provider/saved-candidates` | Bookmarked caregivers |
+| "My Candidates" | `/provider/my-candidates` | All hiring engagements |
+
+**Individual Caregivers Finding Organizations:**
+
+| Dropdown Label | Route | Purpose |
+|----------------|-------|---------|
+| "Find Organizations" | `/provider/find-organizations` | Browse orgs actively hiring |
+| "Saved Opportunities" | `/provider/saved-opportunities` | Bookmarked potential employers |
+| "My Opportunities" | `/provider/my-opportunities` | All hiring engagements |
+
+**Cross-reference:** See Chapter 10 for full route definitions.
+
+---
+
+#### 19.3 Caregiver Availability Display (DECIDED — Critical)
+
+**This is a critical hiring blocker.** Organizations need to quickly assess whether a caregiver is available for the specific shifts they are trying to staff.
+
+**Availability Fields on Caregiver Profile:**
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `availableForOrganizations` | Boolean | Visible in hiring marketplace |
+| `availableSchedule` | Enum[] | FULL_TIME, PART_TIME, PER_DIEM, LIVE_IN |
+| `availableDays` | Enum[] | MON, TUE, WED, THU, FRI, SAT, SUN |
+| `availableShifts` | Enum[] | MORNING, AFTERNOON, EVENING, OVERNIGHT |
+| `availableStartDate` | Date | When can they start? |
+| `willingToRelocate` | Boolean | Open to relocation |
+| `preferredLocations` | String[] | Zip codes or cities |
+
+**Display on Caregiver Card:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Maria G. — CNA, 5 years experience                     │
+│  ★ 4.3 Olera Score │ 85% Match ✓ Excellent             │
+│                                                         │
+│  📍 Boston, MA (willing to travel 15 mi)               │
+│  ⏰ Available: Full-time, Part-time                    │
+│  📅 Days: Mon-Fri │ Shifts: Morning, Afternoon         │
+│  🟢 Can start: Immediately                              │
+│                                                         │
+│  [View Profile]  [Invite to Interview]                  │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Filtering:**
+
+Organizations can filter caregiver search by:
+- Availability type (full-time, part-time, etc.)
+- Days available
+- Shifts available
+- Start date urgency
+- Location / willing to travel
+
+---
+
+#### 19.4-19.5 Bidirectional Hiring Engagements & CTAs (DECIDED)
+
+**Context-Specific CTAs (Not Generic):**
+
+| Direction | User Sees | CTA | Creates |
+|-----------|-----------|-----|---------|
+| Org → Caregiver | Caregiver profile | "Invite to Interview" | HiringEngagement (INTERVIEW_INVITE) |
+| Caregiver → Org | Organization profile | "Apply" | HiringEngagement (APPLICATION) |
+
+**Secondary Actions:**
+- "Save to Candidates" / "Save to Opportunities" — saves without engagement
+- "Send Message" — only after engagement exists (requires Active membership)
+
+**Engagement Appears In:**
+- Org's "My Candidates" + Caregiver's "My Opportunities" (same record, two views)
+
+---
+
+#### 19.6 Hiring Engagement Workflow (DECIDED)
+
+**Simplified Model** (no job postings, no formal applications):
+
+```
+ENGAGEMENT CREATED
+(Invite to Interview or Application)
+        │
+        ▼
+┌───────────────────┐
+│     PENDING       │  Awaiting response from other party
+└─────────┬─────────┘
+          │
+    ┌─────┴─────┐
+    ▼           ▼
+┌────────┐  ┌────────┐
+│DECLINED│  │ACCEPTED│
+└────────┘  └────┬───┘
+                 │
+                 ▼
+        ┌───────────────────┐
+        │   INTERVIEWING    │  Interview scheduled/in progress
+        └─────────┬─────────┘
+                  │
+          ┌───────┴───────┐
+          ▼               ▼
+    ┌──────────┐    ┌──────────┐
+    │ WITHDRAWN│    │   HIRED  │  Employment confirmed
+    └──────────┘    └──────────┘
+```
+
+**Status Definitions:**
+
+| Status | Meaning |
+|--------|---------|
+| PENDING | Awaiting response |
+| ACCEPTED | Interest confirmed, ready to schedule |
+| INTERVIEWING | Interview scheduled or completed |
+| HIRED | Employment relationship established |
+| DECLINED | Other party declined |
+| WITHDRAWN | Initiator withdrew |
+
+---
+
+#### 19.7 Saved Candidates / Opportunities (DECIDED)
+
+**Cross-reference:** See Chapter 14 for models.
+
+| Model | Purpose |
+|-------|---------|
+| `SavedCandidate` | Org saves caregiver for later |
+| `SavedOpportunity` | Caregiver saves org for later |
+
+Both include optional `notes` field for tracking.
+
+---
+
+#### 19.8 Organization Hiring Profile (DECIDED)
+
+**One unified provider profile** — no separate "hiring profile."
+
+Organizations actively hiring add these fields to their existing profile:
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `activelyHiring` | Boolean | Shows "Hiring" badge in directory |
+| `rolesNeeded` | String[] | CNA, HHA, LPN, RN, etc. |
+| `experienceRequired` | String | "2+ years", "Entry-level welcome" |
+| `certificationsRequired` | String[] | Required certs for roles |
+| `payRangeMin` | Int | Minimum hourly/salary |
+| `payRangeMax` | Int | Maximum hourly/salary |
+| `payType` | Enum | HOURLY, SALARY, PER_DIEM |
+| `benefitsOffered` | String[] | Health, PTO, 401k, etc. |
+| `scheduleTypes` | Enum[] | FULL_TIME, PART_TIME, PER_DIEM |
+
+**Display on Organization Card (to Caregivers):**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Sunrise Home Care                                      │
+│  ★ 4.5 Olera Score │ 82% Match — Strong                │
+│  🏢 Home Care Agency • Boston, MA                      │
+│                                                         │
+│  🟢 HIRING: CNA, HHA                                   │
+│  💰 $22-28/hr │ Full-time, Part-time                   │
+│  🎁 Benefits: Health, PTO, 401k                        │
+│                                                         │
+│  [View Profile]  [Apply]                                │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 19.9 Caregiver Job-Seeking Profile (DECIDED)
+
+Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `experienceYears` | Int | Years of caregiving experience |
+| `certifications` | String[] | CNA, HHA, LPN, RN, CPR, etc. |
+| `specializations` | String[] | Memory care, mobility, wound care, etc. |
+| `hourlyRateMin` | Int | Pay expectation minimum |
+| `hourlyRateMax` | Int | Pay expectation maximum |
+| `languages` | String[] | Languages spoken |
+| `hasReliableTransport` | Boolean | Can travel to clients |
+| `willingToTravel` | Int | Miles willing to travel |
+| `backgroundCheckDate` | Date | Last background check |
+| `references` | Json | Reference contacts (gated) |
+
+---
+
+### Membership Gating (Cross-reference: Ch. 18)
+
+| Action | Non-Active | Active |
+|--------|------------|--------|
+| Browse caregivers/orgs | ✅ | ✅ |
+| View full profiles | ✅ | ✅ |
+| Save candidates/opportunities | ✅ | ✅ |
+| "Invite to Interview" | ❌ Paywall | ✅ |
+| "Apply" | ❌ Paywall | ✅ |
+| Message within engagement | ❌ Paywall | ✅ |
+| Accept/decline engagements | ❌ Paywall | ✅ |
+
+---
+
+### Demo vs Production Summary
+
+| Feature | Demo Scope | Production Scope |
+|---------|------------|------------------|
+| Find Caregivers | Full browse + filters | Same + advanced filters |
+| Find Organizations | Full browse + filters | Same + job alerts |
+| Availability Display | Core fields | Same + calendar integration |
+| Bidirectional Engagements | Full workflow | Same |
+| CTAs | Context-specific | Same |
+| Hiring Status Workflow | Full PENDING → HIRED | Same + offer letters |
+| Org Hiring Profile | Within unified profile | Same |
+| Caregiver Job Profile | Extended fields | Same + verified badges |
 
 ---
 
