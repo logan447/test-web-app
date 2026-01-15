@@ -1244,24 +1244,176 @@ Not implemented (no rejections since auto-approve).
 
 **Purpose**: Central hub for families to manage their care search activities.
 
+**Cross-reference**: See Foundational Decisions → Route Architecture for navigation structure.
+
 | Item | Status | Notes |
 |------|--------|-------|
-| 9.1 Dashboard Home | ✅ | `/dashboard` |
-| 9.2 My Requests (outbound consultations) | ✅ | `/dashboard/requests` |
-| 9.3 Request Detail + Messaging | ✅ | `/dashboard/requests/[id]` |
-| 9.4 Saved Providers | ✅ | `/dashboard/saved` |
-| 9.5 Care Profile Management | ✅ | `/dashboard/care-profiles` |
-| 9.6 Activity Feed | 🟡 | `/api/dashboard/activity` exists |
-| 9.7 Dashboard Stats/Summary | 🟡 | `/api/dashboard/stats` exists |
-| 9.8 Profile Completion Prompts | 🟡 | Unclear if shown |
-| 9.9 Quick Actions | 🟡 | Search providers, create request, etc. |
+| 9.1 Dashboard Home | ✅ | `/family/dashboard` (renamed from `/dashboard`) |
+| 9.2 My Providers (engagements) | ✅ | `/family/my-providers` (renamed from `/dashboard/requests`) |
+| 9.3 Engagement Detail + Messaging | ✅ | `/family/my-providers/[id]` |
+| 9.4 Saved Providers | ✅ | `/family/saved-providers` (renamed from `/dashboard/saved`) |
+| 9.5 Care Profile Management | ✅ | Tab within `/family/dashboard` (consolidated) |
+| 9.6 Activity Feed | 🟡 | API exists, needs all engagement types |
+| 9.7 Dashboard Stats/Summary | 🟡 | API exists |
+| 9.8 Profile Completion Prompts | 🟡 | Needs implementation |
+| 9.9 Calendar & Quick Actions | 🟡 | Calendar should be primary element |
 
 ### Key Questions
-- [ ] What should the dashboard home prioritize?
-- [ ] Activity feed requirements?
+- [x] What should the dashboard home prioritize? → **Calendar first, then profile completion, activity feed, quick actions**
+- [x] Activity feed requirements? → **All engagement types: interviews, consultations, tours, requests**
 
 ### Architectural Notes
-_To be filled in during chapter review._
+
+#### 9.1 Dashboard Home Structure (DECIDED)
+
+Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first design.
+
+**Tab Structure**:
+
+| Tab | Content |
+|-----|---------|
+| **Overview** | Calendar, stats, activity feed, quick actions |
+| **Care Profile** | Edit care profile fields (consolidated from separate page) |
+
+**Overview Layout Priority** (top to bottom):
+
+| Priority | Component | Purpose |
+|----------|-----------|---------|
+| 1 | **Calendar** | Primary element — all booked interviews, consultations, tours |
+| 2 | **Profile Completion** | Progress bar with CTA if below threshold |
+| 3 | **Activity Feed** | Recent engagement activity |
+| 4 | **Quick Actions & Stats** | Navigation shortcuts, summary counts |
+
+**Calendar Requirements**:
+- Shows all scheduled engagements (tours, consultations, interviews)
+- Entries are clickable → navigates to engagement detail
+- Week/month view toggle
+- Visual distinction by engagement type
+
+#### 9.2–9.3 My Providers — Unified Engagement System (DECIDED)
+
+**Route**: `/family/my-providers` (renamed from `/dashboard/requests`)
+
+**Purpose**: All engagements with providers (both organizations AND individual caregivers) in a single, unified view.
+
+**Supported Provider Types**:
+
+| Provider Type | Engagement Types |
+|---------------|------------------|
+| **Organizations** (facilities, agencies) | Tours, consultations, general inquiries |
+| **Individual Caregivers** | Interviews, hiring inquiries |
+
+**Features**:
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Unified engagement list | ✅ | All provider types in one view |
+| Filter by status | ✅ | Pending, Active, Completed, etc. |
+| Filter by engagement type | ✅ | Tour, Consultation, Interview |
+| Filter by provider type | ✅ | Organization vs Individual |
+| Engagement detail view | ✅ | `/family/my-providers/[id]` |
+| In-context messaging | ✅ | Messages within engagement |
+| Status indicators | ✅ | Visual badges for state |
+
+**Terminology Note**: "Requests" may be revisited in favor of a clearer umbrella term (e.g., "Engagements" or "Conversations"). For now, keeping "requests" in code but using "My Providers" in UI navigation.
+
+#### 9.4 Saved Providers (DECIDED)
+
+**Route**: `/family/saved-providers` (renamed from `/dashboard/saved`)
+
+**Features**:
+- Grid/list view of saved providers
+- Remove from saved action
+- Click through to provider detail
+- Supports both organizations and individual caregivers
+
+#### 9.5 Care Profile Management (DECIDED)
+
+**Location**: Tab within `/family/dashboard` (not separate page)
+
+**Implementation**: Consolidate `/dashboard/care-profiles` into dashboard tab.
+
+**Cross-reference**: See Chapter 4 for care profile fields and completion tracking.
+
+#### 9.6 Activity Feed (DECIDED)
+
+**Purpose**: Chronological log of all meaningful engagements.
+
+**Included Activity Types**:
+
+| Activity Type | Description |
+|---------------|-------------|
+| Request/inquiry sent | Family initiated contact |
+| Request status changed | Provider responded, accepted, declined |
+| New message received | Unread message notification |
+| Tour scheduled | Tour booking confirmed |
+| Consultation scheduled | Consultation booking confirmed |
+| Interview scheduled | Caregiver interview confirmed |
+| Provider saved | Added to saved list |
+| Profile updated | Care profile changes |
+
+**Demo Scope**:
+- Last 20 activities
+- Chronological order (newest first)
+- Read/unread visual distinction
+- Click to navigate to related item
+
+**Production Scope**:
+- Paginated list
+- Filter by activity type
+- Mark all as read
+- Activity grouping by day
+
+#### 9.7 Dashboard Stats (DECIDED)
+
+**Stats to Display**:
+
+| Stat | Description |
+|------|-------------|
+| Active Engagements | Ongoing conversations/requests |
+| Scheduled | Upcoming tours, consultations, interviews |
+| Saved Providers | Count of bookmarked providers |
+| Messages | Unread message count |
+
+**Terminology**: Using "Engagements" rather than "Requests" in stats where appropriate. May revisit overall terminology post-demo.
+
+#### 9.8 Profile Completion Prompts (DECIDED)
+
+| Profile State | Display |
+|---------------|---------|
+| Below visibility threshold | Prominent banner: "Complete your profile to be discovered by providers" |
+| Above threshold, incomplete | Subtle progress indicator: "Your profile is X% complete" |
+| Complete (100%) | No prompt, or celebratory badge |
+
+**Cross-reference**: See Foundational Decisions → Two-Threshold Model.
+
+#### 9.9 Calendar as Primary Element (DECIDED)
+
+**Calendar Requirements**:
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Week view | ✅ | ✅ |
+| Month view | 🟡 Optional | ✅ |
+| Engagement type colors | ✅ | ✅ |
+| Click to detail | ✅ | ✅ |
+| Add to external calendar | ❌ Defer | ✅ |
+
+**Engagement Type Visual Distinction**:
+
+| Type | Color/Badge |
+|------|-------------|
+| Tour | Blue |
+| Consultation | Green |
+| Interview | Purple |
+
+**Quick Actions** (below calendar):
+
+| Action | Destination |
+|--------|-------------|
+| "Find Providers" | `/providers` |
+| "View All Engagements" | `/family/my-providers` |
+| "Edit Care Profile" | Dashboard Care Profile tab |
 
 ---
 
