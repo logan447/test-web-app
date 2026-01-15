@@ -26,7 +26,7 @@
 4. [Family Care Profiles](#chapter-4-family-care-profiles)
 5. [Provider Profiles](#chapter-5-provider-profiles)
 6. [Provider Identity & Gating](#chapter-6-provider-identity--gating)
-7. [Provider Directory (Public)](#chapter-7-provider-directory--search)
+7. [Provider Directory & Search](#chapter-7-provider-directory--search)
 8. [Provider Claiming (Organizations Only)](#chapter-8-provider-claiming-organizations-only)
 
 ### User Dashboards
@@ -34,7 +34,7 @@
 10. [Provider Dashboard](#chapter-10-provider-dashboard)
 
 ### Engagement Systems
-11. [Consultation Requests](#chapter-11-consultation-requests)
+11. [Engagements](#chapter-11-engagements)
 12. [Messaging System](#chapter-12-messaging-system)
 13. [Multi-Context Scheduling](#chapter-13-multi-context-scheduling)
 14. [Saved / Favorites](#chapter-14-saved--favorites)
