@@ -64,7 +64,7 @@
 |----|-------|---------------|
 | 12 | [Family Dashboard](#chapter-12-family-dashboard) | ✅ Reviewed |
 | 13 | [Provider Dashboard](#chapter-13-provider-dashboard) | ✅ Reviewed |
-| 14 | [Settings & Preferences](#chapter-14-settings--preferences) | ⏳ Pending |
+| 14 | [Settings & Preferences](#chapter-14-settings--preferences) | ✅ Reviewed |
 
 ### Part V: Engagement
 *Core interaction systems between families and providers*
@@ -173,12 +173,12 @@
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 38 |
-| **Reviewed (✅)** | 22 |
-| **Pending (⏳)** | 13 |
+| **Reviewed (✅)** | 23 |
+| **Pending (⏳)** | 12 |
 | **New Placeholders (🆕)** | 3 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 14 (Settings & Preferences) or Chapter 21 (Communications & Automation)
+**Next Chapter to Review**: Chapter 21 (Communications & Automation) or Chapter 24 (Trust & Safety)
 
 ---
 
@@ -6685,21 +6685,197 @@ IF logged in:
 
 ## Chapter 14: Settings & Preferences
 
-**Purpose**: User account settings and preference management.
+**Purpose**: Centralized account-level settings that apply regardless of current mode. Profile-specific settings (visibility, care needs, services) remain in their respective dashboards.
+
+### 14.1 Settings Architecture (DECIDED)
+
+**Settings vs Dashboard Split**:
+
+| Location | Contains | Examples |
+|----------|----------|----------|
+| **Settings** (`/settings`) | Account-level preferences | Name, password, notifications, privacy |
+| **Family Dashboard** | Family profile settings | Care needs, visibility, preferences |
+| **Provider Dashboard** | Provider profile settings | Services, availability, visibility |
+
+**Rationale**: Users operate in multiple modes. Account settings apply universally; profile settings are mode-specific and belong in their respective dashboards.
+
+---
+
+### 14.2 Account Information (DECIDED)
+
+| Field | Editable | Validation | Notes |
+|-------|----------|------------|-------|
+| **Name** | ✅ Yes | Required, 2-100 chars | Displayed in nav dropdown, messages, engagements |
+| **Email** | ❌ No | — | Primary identifier, used for auth. Cannot be changed. |
+| **Phone** | ✅ Yes | Optional, E.164 format | Used for SMS notifications if enabled (future) |
+
+**Implementation**:
+- Read: `GET /api/user/profile`
+- Update: `PATCH /api/user/settings`
+
+**UI Note**: Remove the "Account Type" badge from settings. Users can operate in both modes, so showing "Family Account" or "Provider Account" is misleading.
+
+---
+
+### 14.3 Notification Preferences (DECIDED)
+
+**Scope**: Account-wide. Single set of preferences applies to all activity across modes.
+
+| Preference | Key | Default | Description |
+|------------|-----|---------|-------------|
+| **Messages** | `emailMessages` | ✅ On | New messages from families/providers |
+| **Engagement Updates** | `emailRequests` | ✅ On | Status changes, scheduling confirmations |
+| **Reminders** | `emailReminders` | ✅ On | Upcoming appointments, deadlines |
+| **Platform Updates** | `emailUpdates` | ⬜ Off | New features, improvements |
+| **Marketing** | `emailMarketing` | ⬜ Off | Tips, resources, promotional content |
+
+**Channel Support**:
+
+| Channel | Demo | Production |
+|---------|------|------------|
+| Email | ✅ Full | Full |
+| SMS | ⬜ Deferred | Per-preference toggle |
+| Push (web) | ⬜ Deferred | Per-preference toggle |
+| Push (mobile) | ⬜ Deferred | Future mobile app |
+
+**Storage**: Preferences stored on `User` model (or related `UserPreferences` table).
+
+**Cross-reference**: See Chapter 19 (Notifications) for delivery logic and Chapter 21 (Communications) for email templates.
+
+---
+
+### 14.4 Password Management (DECIDED)
+
+**Change Password Flow**:
+
+1. User enters current password (required for verification)
+2. User enters new password + confirmation
+3. Validation:
+   - Current password must be correct
+   - New password: minimum 8 characters
+   - New password must match confirmation
+4. On success: Password updated, user remains logged in
+5. On failure: Error message, no change
+
+**Password Requirements**:
+
+| Rule | Requirement |
+|------|-------------|
+| Minimum length | 8 characters |
+| Complexity | None for demo (letters, numbers, symbols all valid) |
+| History | None for demo (can reuse old passwords) |
+
+**Production Enhancements** (deferred):
+- Password strength meter
+- Complexity requirements (mixed case, numbers, symbols)
+- Password history (prevent reuse of last N passwords)
+- Two-factor authentication (2FA) setup
+
+**Implementation**: `PATCH /api/user/settings` with `currentPassword` and `newPassword` fields.
+
+---
+
+### 14.5 Privacy & Data (DECIDED)
+
+| Feature | Demo Scope | Production Scope |
+|---------|------------|------------------|
+| **Data Export** | ⬜ Placeholder button | Full GDPR-compliant export (JSON/CSV) |
+| **Account Deletion** | ⬜ Placeholder button | Soft-delete with 30-day recovery window |
+| **Connected Accounts** | ⬜ Not shown | Google, Apple account linking |
+| **Session Management** | ⬜ Not shown | View active sessions, revoke access |
+
+**Data Export (Production)**:
+- User requests export → queued job generates archive
+- Archive includes: profile data, messages, engagements, saved items
+- Delivered via secure download link (email notification)
+- Retention: Download available for 7 days
+
+**Account Deletion (Production)**:
+- User confirms deletion → account enters "pending deletion" state
+- 30-day recovery window (user can log in to cancel)
+- After 30 days: permanent deletion of all user data
+- Related data handling:
+  - Engagements: Anonymized (preserved for other party's records)
+  - Messages: Deleted
+  - Reviews: Anonymized (content preserved, author shown as "Deleted User")
+
+---
+
+### 14.6 Settings Page Sections
+
+**UI Structure**:
+
+```
+/settings
+├── Account Information
+│   ├── Name (editable)
+│   ├── Email (read-only)
+│   └── Phone (editable)
+├── Email Notifications
+│   ├── Messages toggle
+│   ├── Engagement Updates toggle
+│   ├── Reminders toggle
+│   ├── Platform Updates toggle
+│   └── Marketing toggle
+├── Change Password
+│   ├── Current Password
+│   ├── New Password
+│   └── Confirm New Password
+├── Privacy & Data
+│   └── Download Your Data (button)
+└── Danger Zone
+    └── Delete Account (button)
+```
+
+---
+
+### 14.7 Key Decisions Log
+
+| Decision | Status | Rationale |
+|----------|--------|-----------|
+| Settings vs Dashboard split | ✅ Decided | Account settings universal; profile settings mode-specific |
+| Notification scope: account-wide | ✅ Decided | Simpler than per-mode; no clear user benefit to splitting |
+| Remove Account Type badge | ✅ Decided | Misleading now that users can have both modes |
+| Data export/deletion deferred | ✅ Decided | Not needed for demo; production requires legal review |
+| SMS/push notifications deferred | ✅ Decided | Email-only for demo simplicity |
+
+---
+
+### 14.8 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 23.1 Settings Page | ✅ | `/settings` |
-| 23.2 User Profile Settings | 🟡 | `/api/user/profile` exists |
-| 23.3 Notification Preferences | 🟡 | Unclear scope |
-| 23.4 Privacy Settings | 🟡 | In FamilyProfile, not standalone |
-| 23.5 Account Security | ⬜ | Change password, etc. |
+| Settings page | ✅ Built | `/settings` exists |
+| Account info editing | ✅ Built | Name, phone editable |
+| Password change | ✅ Built | Full validation |
+| Notification preferences UI | ✅ Built | Toggles exist |
+| Notification preferences persistence | 🟡 Verify | May not save to DB |
+| Data export | ⬜ Placeholder | Button only |
+| Account deletion | ⬜ Placeholder | Button only |
+| Remove Account Type badge | 🟡 Needed | Currently shows misleading role |
 
-### Key Questions
-- [ ] What settings are needed for demo?
+### Demo vs Production
 
-### Architectural Notes
-_To be filled in during chapter review._
+| Feature | Demo | Production |
+|---------|------|------------|
+| Account info | ✅ Full | Same |
+| Password change | ✅ Full | + strength meter, 2FA |
+| Notifications | ✅ Email toggles | + SMS, push, per-channel |
+| Data export | ⬜ Deferred | GDPR-compliant |
+| Account deletion | ⬜ Deferred | Soft-delete + recovery |
+| Session management | ⬜ Deferred | View/revoke sessions |
+
+---
+
+### 14.9 Cross-Chapter Integration
+
+| Chapter | Integration Point |
+|---------|-------------------|
+| Ch 1: Authentication | Password change uses same auth system |
+| Ch 5: Navigation | Settings accessible from account dropdown in both modes |
+| Ch 19: Notifications | Preferences control notification delivery |
+| Ch 21: Communications | Email templates for notification types |
+| Ch 36: Data Export | Production data export implementation |
 
 ---
 
