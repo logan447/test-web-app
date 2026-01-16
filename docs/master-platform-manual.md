@@ -104,7 +104,7 @@
 | Ch | Title | Review Status |
 |----|-------|---------------|
 | 23 | [Reviews & Ratings](#chapter-23-reviews--ratings) | ✅ Reviewed |
-| 24 | [Trust & Safety](#chapter-24-trust--safety) | ⏳ Pending |
+| 24 | [Trust & Safety](#chapter-24-trust--safety) | ✅ Reviewed |
 
 ### Part X: Data Acquisition & Directory Scale
 *Seeding, scaling, and managing the national provider directory*
@@ -173,12 +173,12 @@
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 38 |
-| **Reviewed (✅)** | 24 |
-| **Pending (⏳)** | 11 |
+| **Reviewed (✅)** | 25 |
+| **Pending (⏳)** | 10 |
 | **New Placeholders (🆕)** | 3 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 24 (Trust & Safety) or Chapter 26 (Data Acquisition & Enrichment)
+**Next Chapter to Review**: Chapter 26 (Data Acquisition & Enrichment) or Chapter 29 (Marketing & SEO Pages)
 
 ---
 
@@ -6927,23 +6927,430 @@ _To be filled in during chapter review._
 
 ## Chapter 24: Trust & Safety
 
-**Purpose**: Build user trust through verification, moderation, and safety features.
+**Purpose**: Build user trust through provider verification, content moderation, and user safety features. Critical for demonstrating operational readiness.
+
+### 24.1 Provider Verification Badges (DECIDED — Required for Demo)
+
+**Purpose**: Visual indicators that communicate provider status and trustworthiness at a glance.
+
+#### Badge Tiers
+
+| Badge | Field | Visual | Meaning |
+|-------|-------|--------|---------|
+| **Unclaimed** | `claimed = false` | Gray outline, no icon | Data sourced from public records; not managed by provider |
+| **Claimed** | `claimed = true` | Blue checkmark | Provider has verified ownership of this listing |
+| **Verified** | `verified = true` | Green shield | Olera has verified identity and/or credentials |
+| **Background Checked** | `backgroundCheckPassed = true` | Gold badge | Third-party background check passed (production) |
+
+**Demo Scope**: Unclaimed, Claimed, Verified badges
+**Production Scope**: + Background Checked badge
+
+#### Badge Display Locations
+
+| Location | Display |
+|----------|---------|
+| Provider card (search results) | Badge icon next to name |
+| Provider profile header | Badge with label ("Claimed", "Verified") |
+| Provider profile sidebar | Full badge explanation |
+| Engagement detail | Small badge indicator |
+
+#### Badge Visual Specifications
+
+```
+Unclaimed:        Claimed:          Verified:
+┌─────────┐      ┌─────────┐       ┌─────────┐
+│ ○       │      │ ✓ Blue  │       │ 🛡 Green│
+│ Gray    │      │         │       │         │
+└─────────┘      └─────────┘       └─────────┘
+"Unclaimed"      "Claimed"         "Verified"
+```
+
+#### Badge Tooltip/Explanation
+
+| Badge | Tooltip Text |
+|-------|--------------|
+| Unclaimed | "This listing was created from public records. The provider has not yet claimed it." |
+| Claimed | "This provider has verified ownership of this listing." |
+| Verified | "Olera has verified this provider's identity and credentials." |
+
+---
+
+### 24.2 Verification Process (DECIDED)
+
+**Three-Tier Progression**:
+
+```
+Unclaimed → Claimed → Verified
+    │           │          │
+    │           │          └── Admin verification (credentials, site visit)
+    │           └── Provider claims + Admin approves
+    └── Default state (from data import)
+```
+
+#### Claiming Flow
+
+| Step | Actor | Action | System Result |
+|------|-------|--------|---------------|
+| 1 | Provider | Finds unclaimed listing, clicks "Claim This Listing" | Claim request created |
+| 2 | Provider | Fills claim form (name, role, contact) | Request enters Claims Queue |
+| 3 | Admin | Reviews claim, calls/emails provider | Verification in progress |
+| 4 | Admin | Approves claim | `claimed = true`, provider gets account access |
+
+**Cross-reference**: See Chapter 10 (Provider Claiming) for full claim flow.
+
+#### Verification Flow (Post-Claim)
+
+| Step | Actor | Action | System Result |
+|------|-------|--------|---------------|
+| 1 | Admin | Initiates verification for claimed provider | Verification task created |
+| 2 | Admin | Requests documentation (license, insurance, etc.) | Email sent to provider |
+| 3 | Provider | Uploads documents | Documents in review |
+| 4 | Admin | Reviews and approves | `verified = true`, badge updated |
+
+**Demo Scope**: Manual verification via admin toggle
+**Production Scope**: Document upload portal, automated license verification
+
+---
+
+### 24.3 Report/Flag System (DECIDED — Required for Demo)
+
+**Purpose**: Allow users to report inappropriate content, policy violations, or safety concerns.
+
+#### Reportable Content Types
+
+| Content Type | Who Can Report | Report Location |
+|--------------|----------------|-----------------|
+| Provider profile | Families, other providers | Provider profile page → "Report" |
+| Family profile | Providers (when visible) | Family profile → "Report" |
+| Review | Any logged-in user | Review → "⋮" menu → "Report" |
+| Message | Message recipient | Message → "⋮" menu → "Report" |
+| User (general) | Any user in engagement | Engagement detail → "Report User" |
+
+#### Report Reasons (Standard Dropdown)
+
+| Reason | Description |
+|--------|-------------|
+| **Inappropriate content** | Offensive, explicit, or harmful content |
+| **Spam or scam** | Unsolicited commercial content or fraudulent behavior |
+| **Incorrect information** | Factually wrong details (address, services, etc.) |
+| **Harassment** | Abusive, threatening, or bullying behavior |
+| **Impersonation** | Pretending to be someone else |
+| **Safety concern** | Potential danger to users |
+| **Other** | Free text field for unlisted reasons |
+
+#### Report Model
+
+```typescript
+Report {
+  id: string
+  status: PENDING | REVIEWING | RESOLVED | DISMISSED
+
+  // Reporter
+  reporterId: string
+  reporterType: FAMILY | PROVIDER | ADMIN
+
+  // Target
+  targetType: PROVIDER_PROFILE | FAMILY_PROFILE | REVIEW | MESSAGE | USER
+  targetId: string
+
+  // Details
+  reason: ReportReason (enum)
+  description?: string  // Optional details
+
+  // Resolution
+  assignedTo?: string  // Admin user ID
+  resolution?: CONTENT_REMOVED | USER_WARNED | USER_SUSPENDED | NO_ACTION
+  resolutionNotes?: string
+  resolvedAt?: DateTime
+  resolvedBy?: string
+
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+```
+
+#### Report UI Flow
+
+**User Side**:
+```
+1. User clicks "Report" on content
+2. Modal appears:
+   ┌─────────────────────────────────────────┐
+   │ Report this [content type]              │
+   ├─────────────────────────────────────────┤
+   │ Why are you reporting this?             │
+   │ [Dropdown: Select reason]               │
+   │                                         │
+   │ Additional details (optional):          │
+   │ [Text area]                             │
+   │                                         │
+   │ [Cancel]              [Submit Report]   │
+   └─────────────────────────────────────────┘
+3. Confirmation: "Thank you. We'll review this report."
+```
+
+**Admin Side**: See Section 24.5 (Moderation Queue)
+
+---
+
+### 24.4 Block User (DECIDED — Required for Demo)
+
+**Purpose**: Allow users to prevent contact from specific users who are abusive or violating policies.
+
+#### Block Mechanics
+
+| Blocker | Can Block | Effect |
+|---------|-----------|--------|
+| Family | Provider | Provider cannot: message, send requests, appear in family's search |
+| Provider | Family | Family cannot: message, send requests; provider hidden from their search |
+| Any user | Any user | Bidirectional communication blocked |
+
+#### Block Model
+
+```typescript
+UserBlock {
+  id: string
+  blockerId: string  // User who initiated block
+  blockedId: string  // User who is blocked
+  reason?: string    // Optional internal note
+  createdAt: DateTime
+}
+```
+
+#### Block UI
+
+**Initiating a Block**:
+- Location: User profile → "⋮" menu → "Block User"
+- Location: Engagement detail → "⋮" menu → "Block User"
+- Location: Message thread → "⋮" menu → "Block User"
+
+**Block Confirmation Modal**:
+```
+┌─────────────────────────────────────────┐
+│ Block [User Name]?                      │
+├─────────────────────────────────────────┤
+│ They won't be able to:                  │
+│ • Send you messages                     │
+│ • Send you requests                     │
+│ • See your profile in search            │
+│                                         │
+│ They won't be notified that you         │
+│ blocked them.                           │
+│                                         │
+│ [Cancel]                [Block User]    │
+└─────────────────────────────────────────┘
+```
+
+#### Managing Blocks
+
+**Location**: Settings → Privacy → Blocked Users
+
+**Block List UI**:
+```
+┌─────────────────────────────────────────┐
+│ Blocked Users                           │
+├─────────────────────────────────────────┤
+│ Sunrise Senior Living    [Unblock]      │
+│ Blocked on Jan 15, 2026                 │
+├─────────────────────────────────────────┤
+│ John D.                  [Unblock]      │
+│ Blocked on Jan 10, 2026                 │
+└─────────────────────────────────────────┘
+```
+
+#### Block Enforcement
+
+| Action | Enforcement |
+|--------|-------------|
+| Search | Blocked users excluded from results |
+| Messaging | "You cannot message this user" error |
+| Requests | "You cannot send requests to this user" error |
+| Existing engagements | Remain visible but messaging disabled |
+
+---
+
+### 24.5 Content Moderation Queue (DECIDED — Required for Demo)
+
+**Purpose**: Centralized admin interface for reviewing user-generated content that requires human moderation.
+
+**Location**: `/admin/moderation`
+
+#### Queue Scope (Key UGC Only)
+
+| Content Type | Auto-Queued | User-Reported | Priority |
+|--------------|-------------|---------------|----------|
+| Reviews | If contains flagged keywords | ✅ Yes | Normal |
+| Provider profiles (new/edited) | If significant changes | ✅ Yes | Normal |
+| Messages | No (privacy) | ✅ Yes (reported only) | High |
+| Family profiles | No | ✅ Yes | Normal |
+| User accounts | No | ✅ Yes | High |
+
+#### Moderation Queue UI
+
+**Queue Table**:
+```
+/admin/moderation
+┌────────────────────────────────────────────────────────────────────┐
+│ Moderation Queue                            [Filter ▼] [Search]   │
+├────────────────────────────────────────────────────────────────────┤
+│ Status │ Type    │ Content         │ Reported By │ Reason   │ Age │
+├────────────────────────────────────────────────────────────────────┤
+│ 🟡 New │ Review  │ "Terrible pl... │ Jane D.     │ Spam     │ 2h  │
+│ 🟡 New │ Message │ [Conversation]  │ Provider X  │ Harass.. │ 4h  │
+│ 🔵 Rev │ Profile │ Sunrise Senior  │ Auto-flag   │ Keywords │ 1d  │
+│ ✅ Done│ Review  │ "Great exper... │ John S.     │ Spam     │ 2d  │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+**Queue Filters**:
+- Status: All, Pending, Reviewing, Resolved
+- Type: All, Reviews, Profiles, Messages, Users
+- Priority: All, High, Normal, Low
+
+**Moderation Detail View**:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Review Report #RPT-12345                              [← Back]  │
+├─────────────────────────────────────────────────────────────────┤
+│ REPORTED CONTENT                                                │
+│ ┌─────────────────────────────────────────────────────────────┐ │
+│ │ ★★★★★ "This place is terrible! They stole my money..."     │ │
+│ │ — Anonymous, Jan 14, 2026                                   │ │
+│ │ On: Sunrise Senior Living                                   │ │
+│ └─────────────────────────────────────────────────────────────┘ │
+│                                                                 │
+│ REPORT DETAILS                                                  │
+│ Reported by: Jane D. (family)                                   │
+│ Reason: Spam or scam                                            │
+│ Details: "This review seems fake, I toured this facility..."    │
+│ Submitted: Jan 15, 2026 at 2:34 PM                              │
+│                                                                 │
+│ CONTEXT                                                         │
+│ • Reviewer has 0 verified engagements                           │
+│ • Review posted via direct link (not engagement-gated)          │
+│ • Similar text found in 2 other reviews (possible spam)         │
+├─────────────────────────────────────────────────────────────────┤
+│ ACTION                                                          │
+│ [Remove Content] [Warn User] [Suspend User] [Dismiss Report]    │
+│                                                                 │
+│ Notes: [Text area for admin notes]                              │
+│                                                                 │
+│                                        [Save Notes] [Resolve]   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Moderation Actions
+
+| Action | Effect | Notification |
+|--------|--------|--------------|
+| **Dismiss** | Report closed, no action | Reporter: "We reviewed your report" |
+| **Remove Content** | Content hidden/deleted | Content owner: "Your [content] was removed" |
+| **Warn User** | Warning logged, content may remain | User: "You've received a warning" |
+| **Suspend User** | Account suspended, cannot log in | User: "Your account has been suspended" |
+
+#### Moderation Workflow
+
+```
+Report Submitted
+      ↓
+  [PENDING] ──────────────────────────────┐
+      ↓                                   │
+  Admin claims report                     │
+      ↓                                   │
+  [REVIEWING] ────────────────────────────┤
+      ↓                                   │
+  Admin takes action                      │
+      ↓                                   │
+  [RESOLVED] ─────────────────────────────┘
+      │
+      ├── Dismissed (false positive)
+      ├── Content removed
+      ├── User warned
+      └── User suspended
+```
+
+---
+
+### 24.6 Background Check Integration (Production Only)
+
+| Attribute | Value |
+|-----------|-------|
+| **Provider** | Checkr (recommended) |
+| **Scope** | Individual caregivers; optional for facility staff |
+| **Consent** | Required before initiation |
+| **Badge** | Gold "Background Checked" badge |
+
+**Demo Scope**: ⬜ Deferred
+**Production Scope**: Full integration with consent flow, status tracking, badge display
+
+---
+
+### 24.7 Fraud Detection (Production Only)
+
+| Signal | Detection Method | Action |
+|--------|------------------|--------|
+| Duplicate accounts | Same email/phone/name patterns | Auto-flag for review |
+| Spam profiles | Rapid creation, low quality | Auto-flag for review |
+| Fake reviews | Pattern analysis, sentiment anomalies | Hold for moderation |
+| Suspicious behavior | Unusual messaging patterns | Alert admin |
+
+**Demo Scope**: ⬜ Deferred
+**Production Scope**: Rule-based detection with admin alerts
+
+---
+
+### 24.8 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 26.1 Provider Verification Badges | ⬜ | Visual indicator of verified/claimed status |
-| 26.2 Background Check Integration | ⬜ | Third-party integration (Checkr, etc.) — deferred |
-| 26.3 Report/Flag Content or User | ⬜ | Abuse reporting mechanism |
-| 26.4 Block User | ⬜ | Prevent contact from specific users |
-| 26.5 Content Moderation Queue | ⬜ | Admin review of flagged content |
-| 26.6 Fraud Detection | ⬜ | Duplicate accounts, spam |
+| Provider badges (Unclaimed/Claimed/Verified) | ⬜ Not Built | Required for demo |
+| Badge display on cards | ⬜ Not Built | Required for demo |
+| Badge display on profiles | ⬜ Not Built | Required for demo |
+| Report/flag UI | ⬜ Not Built | Required for demo |
+| Report model | ⬜ Not Built | Required for demo |
+| Block user functionality | ⬜ Not Built | Required for demo |
+| Block management UI | ⬜ Not Built | Required for demo |
+| Moderation queue | ⬜ Not Built | Required for demo |
+| Moderation actions | ⬜ Not Built | Required for demo |
+| Background check integration | ⬜ Not Built | Production only |
+| Fraud detection | ⬜ Not Built | Production only |
 
-### Key Questions
-- [ ] Verification badges for demo?
-- [ ] Report button for demo?
+### 24.9 Key Decisions Log
 
-### Architectural Notes
-_To be filled in during chapter review._
+| Decision | Status | Rationale |
+|----------|--------|-----------|
+| Verification badges for demo | ✅ Decided | Critical for trust signals |
+| Three badge tiers (Unclaimed/Claimed/Verified) | ✅ Decided | Clear progression, easy to understand |
+| Report/flag for demo | ✅ Decided | Required for safety demonstration |
+| Block user for demo | ✅ Decided | Required for handling policy violations |
+| Centralized moderation queue | ✅ Decided | Simple, actionable, admin-accessible |
+| Background checks: defer | ✅ Decided | Requires third-party integration |
+| Fraud detection: defer | ✅ Decided | Requires pattern analysis infrastructure |
+
+---
+
+### 24.10 Cross-Chapter Integration
+
+| Chapter | Integration Point |
+|---------|-------------------|
+| Ch 10: Provider Claiming | Claim approval sets `claimed = true` |
+| Ch 23: Reviews & Ratings | Review moderation flows to moderation queue |
+| Ch 25: Provider Data Management | Badge fields on Provider model |
+| Ch 27: Admin System | Moderation queue integrated into admin panel |
+| Ch 14: Settings | Blocked users list in Settings → Privacy |
+
+### Demo vs Production Summary
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Provider badges | ✅ Unclaimed/Claimed/Verified | + Background Checked |
+| Badge display | ✅ Cards + profiles | Same |
+| Report/flag | ✅ All content types | Same + auto-detection |
+| Block user | ✅ Full functionality | Same |
+| Block management | ✅ Settings UI | Same |
+| Moderation queue | ✅ Full UI | Same + analytics |
+| Background checks | ⬜ Defer | Checkr integration |
+| Fraud detection | ⬜ Defer | Rule-based system |
 
 ---
 
