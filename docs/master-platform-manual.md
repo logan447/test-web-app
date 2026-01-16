@@ -28,6 +28,11 @@
 
 ## Table of Contents
 
+### Foundational Architectural Decisions
+*Core decisions that apply across multiple chapters*
+
+- [Foundational Architectural Decisions](#foundational-architectural-decisions) | ✅ Reviewed
+
 ### Part I: Platform Foundation
 *How users enter the platform, navigate the system, and experience our design quality*
 
@@ -127,7 +132,7 @@
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 29 | [Marketing & SEO Pages](#chapter-29-marketing--seo-pages) | ⏳ Pending |
+| 29 | [Marketing & SEO Pages](#chapter-29-marketing--seo-pages) | ✅ Reviewed |
 | 30 | [Referral Programs & Partner Attribution](#chapter-30-referral-programs--partner-attribution) | ⏳ Pending |
 
 ### Part XIII: Technical Infrastructure
@@ -173,12 +178,12 @@
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 38 |
-| **Reviewed (✅)** | 26 |
-| **Pending (⏳)** | 9 |
+| **Reviewed (✅)** | 27 |
+| **Pending (⏳)** | 8 |
 | **New Placeholders (🆕)** | 3 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 29 (Marketing & SEO Pages)
+**Next Chapter to Review**: Chapter 30 (Referral Programs & Partner Attribution)
 
 ---
 
