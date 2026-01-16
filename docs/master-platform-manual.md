@@ -6939,39 +6939,75 @@ _To be filled in during chapter review._
 |-------|-------|--------|---------|
 | **Unclaimed** | `claimed = false` | Gray outline, no icon | Data sourced from public records; not managed by provider |
 | **Claimed** | `claimed = true` | Blue checkmark | Provider has verified ownership of this listing |
-| **Verified** | `verified = true` | Green shield | Olera has verified identity and/or credentials |
-| **Background Checked** | `backgroundCheckPassed = true` | Gold badge | Third-party background check passed (production) |
+| **Verified** | `verified = true` | Green shield | Olera has verified credentials (see details below) |
+| **Background Checked** | `backgroundCheckVerified = true` | Gold badge | Caregiver has provided proof of background check |
 
 **Demo Scope**: Unclaimed, Claimed, Verified badges
-**Production Scope**: + Background Checked badge
+**Production Scope**: + Background Checked badge (for individual caregivers)
+
+#### Verified Badge — What It Means by Provider Type
+
+The "Verified" badge (green shield) represents different verification criteria depending on provider type:
+
+**Organizations (Facilities, Agencies)**:
+
+| Verification | Description |
+|--------------|-------------|
+| Business license | Confirmed as registered business entity |
+| State licensing | Licensed to operate as care provider in their state |
+| Insurance | Liability insurance documentation on file |
+| Physical location | Address confirmed (for facilities) |
+
+**Individual Caregivers**:
+
+| Verification | Description |
+|--------------|-------------|
+| Identity | Government ID verified |
+| Credentials | Certifications confirmed (CNA, HHA, etc.) |
+| Work authorization | Eligible to work in the US |
+
+**Note**: The "Verified" badge does NOT include background checks. Background checks are a separate, optional trust signal (see 24.6).
+
+#### Background Checked Badge — Individual Caregivers Only
+
+| Attribute | Value |
+|-----------|-------|
+| **Applies to** | Individual caregivers only |
+| **Does NOT apply to** | Organizations, families |
+| **How obtained** | Caregiver uploads proof of completed background check |
+| **Olera's role** | Trust signal display, not administration |
+
+**Rationale**: Background checks are a trust signal, not a platform requirement. Olera does not perform or administer background checks. Caregivers who have completed a background check through a third party can upload proof to display this badge.
 
 #### Badge Display Locations
 
 | Location | Display |
 |----------|---------|
 | Provider card (search results) | Badge icon next to name |
-| Provider profile header | Badge with label ("Claimed", "Verified") |
+| Provider profile header | Badge with label ("Claimed", "Verified", "Background Checked") |
 | Provider profile sidebar | Full badge explanation |
 | Engagement detail | Small badge indicator |
 
 #### Badge Visual Specifications
 
 ```
-Unclaimed:        Claimed:          Verified:
-┌─────────┐      ┌─────────┐       ┌─────────┐
-│ ○       │      │ ✓ Blue  │       │ 🛡 Green│
-│ Gray    │      │         │       │         │
-└─────────┘      └─────────┘       └─────────┘
-"Unclaimed"      "Claimed"         "Verified"
+Unclaimed:        Claimed:          Verified:         Background Checked:
+┌─────────┐      ┌─────────┐       ┌─────────┐       ┌─────────┐
+│ ○       │      │ ✓ Blue  │       │ 🛡 Green│       │ ✓ Gold  │
+│ Gray    │      │         │       │         │       │         │
+└─────────┘      └─────────┘       └─────────┘       └─────────┘
+"Unclaimed"      "Claimed"         "Verified"        "Background Checked"
 ```
 
 #### Badge Tooltip/Explanation
 
-| Badge | Tooltip Text |
-|-------|--------------|
-| Unclaimed | "This listing was created from public records. The provider has not yet claimed it." |
-| Claimed | "This provider has verified ownership of this listing." |
-| Verified | "Olera has verified this provider's identity and credentials." |
+| Badge | Provider Type | Tooltip Text |
+|-------|---------------|--------------|
+| Unclaimed | All | "This listing was created from public records. The provider has not yet claimed it." |
+| Claimed | All | "This provider has verified ownership of this listing." |
+| Verified | Organization | "Olera has verified this organization's business license, state licensing, and insurance." |
+| Verified | Caregiver | "Olera has verified this caregiver's identity and credentials." |
+| Background Checked | Caregiver only | "This caregiver has provided proof of a completed background check." |
 
 ---
 
@@ -7271,17 +7307,86 @@ Report Submitted
 
 ---
 
-### 24.6 Background Check Integration (Production Only)
+### 24.6 Background Check Trust Signal (Production Only)
 
-| Attribute | Value |
-|-----------|-------|
-| **Provider** | Checkr (recommended) |
-| **Scope** | Individual caregivers; optional for facility staff |
-| **Consent** | Required before initiation |
-| **Badge** | Gold "Background Checked" badge |
+**Important Distinction**: Olera does NOT perform or administer background checks. The platform allows individual caregivers to upload proof of completed background checks as a trust signal.
 
-**Demo Scope**: ⬜ Deferred
-**Production Scope**: Full integration with consent flow, status tracking, badge display
+#### How It Works
+
+| Step | Description |
+|------|-------------|
+| 1 | Caregiver obtains background check from third-party provider |
+| 2 | Caregiver uploads proof (PDF document or verification link) |
+| 3 | Admin reviews and approves the submission |
+| 4 | "Background Checked" badge displayed on profile |
+
+#### Accepted Proof
+
+| Format | Description |
+|--------|-------------|
+| **PDF document** | Official background check report from recognized provider |
+| **Verification link** | URL to provider's verification portal (e.g., Checkr, GoodHire) |
+| **Certificate image** | Clear photo/scan of completion certificate |
+
+#### Recommended Third-Party Providers
+
+| Provider | Cost Range | Notes |
+|----------|------------|-------|
+| **Checkr** | $30-80 | Industry standard, widely recognized |
+| **GoodHire** | $30-100 | User-friendly interface |
+| **Sterling** | $40-150 | Comprehensive packages |
+| **First Advantage** | Varies | Enterprise-focused |
+
+**Note**: Olera may display a "Recommended provider" link on the caregiver profile upload page pointing to an affordable, user-friendly option. This is informational only—Olera receives no commission or referral benefit.
+
+#### Upload Flow
+
+**Caregiver Side** (Provider Dashboard → Profile → Background Check):
+```
+┌─────────────────────────────────────────────┐
+│ Background Check Verification               │
+├─────────────────────────────────────────────┤
+│ Upload proof of your background check to    │
+│ display the "Background Checked" badge.     │
+│                                             │
+│ ┌─────────────────────────────────────────┐ │
+│ │ [📎 Drop file or click to upload]       │ │
+│ │ Accepted: PDF, PNG, JPG (max 10MB)      │ │
+│ └─────────────────────────────────────────┘ │
+│                                             │
+│ OR paste verification link:                 │
+│ [Enter verification URL________________]    │
+│                                             │
+│ Don't have a background check?              │
+│ [View recommended providers]                │
+│                                             │
+│                              [Submit]       │
+└─────────────────────────────────────────────┘
+```
+
+#### Verification Status
+
+| Status | Badge | Meaning |
+|--------|-------|---------|
+| **Not submitted** | None | No background check uploaded |
+| **Pending review** | None | Awaiting admin verification |
+| **Verified** | Gold badge | Admin confirmed valid proof |
+| **Rejected** | None | Invalid or unreadable proof; caregiver notified |
+
+#### Admin Review
+
+**Location**: `/admin/moderation` → Background Check Submissions
+
+| Field | Description |
+|-------|-------------|
+| Caregiver | Name, profile link |
+| Submitted | Date and time |
+| Proof type | Document or link |
+| Preview | View document / follow link |
+| Actions | Approve, Reject (with reason) |
+
+**Demo Scope**: ⬜ Deferred (not required for demo)
+**Production Scope**: Full upload flow, admin review, badge display
 
 ---
 
@@ -7312,7 +7417,7 @@ Report Submitted
 | Block management UI | ⬜ Not Built | Required for demo |
 | Moderation queue | ⬜ Not Built | Required for demo |
 | Moderation actions | ⬜ Not Built | Required for demo |
-| Background check integration | ⬜ Not Built | Production only |
+| Background check upload flow | ⬜ Not Built | Production only (self-reported trust signal) |
 | Fraud detection | ⬜ Not Built | Production only |
 
 ### 24.9 Key Decisions Log
@@ -7324,7 +7429,7 @@ Report Submitted
 | Report/flag for demo | ✅ Decided | Required for safety demonstration |
 | Block user for demo | ✅ Decided | Required for handling policy violations |
 | Centralized moderation queue | ✅ Decided | Simple, actionable, admin-accessible |
-| Background checks: defer | ✅ Decided | Requires third-party integration |
+| Background checks: self-reported model | ✅ Decided | Olera does not administer; caregivers upload proof; trust signal only |
 | Fraud detection: defer | ✅ Decided | Requires pattern analysis infrastructure |
 
 ---
@@ -7349,7 +7454,7 @@ Report Submitted
 | Block user | ✅ Full functionality | Same |
 | Block management | ✅ Settings UI | Same |
 | Moderation queue | ✅ Full UI | Same + analytics |
-| Background checks | ⬜ Defer | Checkr integration |
+| Background checks | ⬜ Defer | Self-reported upload, admin review |
 | Fraud detection | ⬜ Defer | Rule-based system |
 
 ---
