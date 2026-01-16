@@ -157,6 +157,7 @@
 |----|-------|--------|
 | F1 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
 | F2 | [Caregiver Workforce & Direct Staffing Model](#future-caregiver-workforce--direct-staffing-model) | ⭐ Future |
+| F3 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
 
 ### Appendices
 
@@ -175,7 +176,7 @@
 | **Reviewed (✅)** | 21 |
 | **Pending (⏳)** | 14 |
 | **New Placeholders (🆕)** | 3 |
-| **Future Directions (⭐)** | 2 |
+| **Future Directions (⭐)** | 3 |
 
 **Next Chapter to Review**: Chapter 4 (UI & Design Language) or Chapter 5 (Navigation & Routing)
 
@@ -6764,6 +6765,65 @@ _To be developed with legal counsel. This chapter will serve as the compliance r
 - Shows long-term strategic thinking beyond current scope
 - Acknowledges market where competitors have taken this approach
 - Preserves optionality for future strategic decisions
+
+---
+
+### Future: AI Benefits Finder
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: An AI-driven benefits discovery tool that helps families identify financial aid, public programs, and senior care resources through voice-first interactions rather than complex form navigation.
+
+**Voice-First Interaction Model**:
+- Conversational AI interface for care profile data collection
+- Natural language processing to extract structured information from family conversations
+- Progressive disclosure—gather information organically through dialogue
+- Support for phone-based interaction for less tech-savvy users
+- Fallback to text-based chat for users who prefer typing
+
+**Care Profile Integration**:
+- Voice-collected data populates and strengthens existing care profiles
+- Bidirectional sync: profile data informs AI context, AI discoveries enrich profiles
+- Unified data model ensures no duplicate or conflicting information
+- Consent-based data sharing between Benefits Finder and core platform
+
+**Benefits Data Strategy**:
+- Comprehensive indexing of senior care benefits (federal, state, local)
+- Financial aid programs (Medicaid, Medicare, VA benefits, etc.)
+- Public assistance programs relevant to senior care
+- Private foundation grants and charitable resources
+- Eligibility criteria mapping for automated qualification checks
+- Regular scraping and validation to maintain currency
+- Legal compliance review for data sourcing and use
+- Geographic targeting to surface location-relevant benefits
+
+**Key Capabilities**:
+- Eligibility screening based on care profile data
+- Personalized benefit recommendations ranked by fit and value
+- Application assistance and documentation guidance
+- Deadline tracking and renewal reminders
+- Benefits comparison and optimization suggestions
+
+**Why Deferred**:
+- Requires significant AI/ML infrastructure investment
+- Benefits data aggregation is operationally complex
+- Regulatory review needed for advice vs. information distinction
+- Voice AI technology maturity considerations
+- Core marketplace functionality takes priority
+
+**Positioning**:
+- Opt-in enhancement that builds on core platform
+- Does not block current demo or launch scope
+- Potential differentiator for family engagement and retention
+- Aligns with mission to reduce family burden in care navigation
+
+**Prerequisites Before Consideration**:
+- Core care profile system fully operational
+- User research validating demand for benefits discovery
+- Legal review of benefits advice vs. information boundaries
+- Partnership evaluation with benefits data providers
+- Voice AI vendor assessment and selection
+- Data licensing and compliance framework established
 
 ---
 
