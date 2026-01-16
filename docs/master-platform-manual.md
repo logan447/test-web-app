@@ -89,80 +89,138 @@
 |----|-------|---------------|
 | 20 | [Caregiver Hiring Marketplace](#chapter-20-caregiver-hiring-marketplace) | ✅ Reviewed |
 
-### Part VII: Communications
-*Platform-wide communication and automation systems*
-
-| Ch | Title | Review Status |
-|----|-------|---------------|
-| 21 | [Communications & Automation](#chapter-21-communications--automation) | ✅ Reviewed |
-
-### Part VIII: Monetization
+### Part VII: Monetization
 *Subscription tiers, paywalls, and revenue model*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 22 | [Subscriptions & Paywalls](#chapter-22-subscriptions--paywalls) | ✅ Reviewed |
+| 21 | [Subscriptions & Paywalls](#chapter-21-subscriptions--paywalls) | ✅ Reviewed |
 
-### Part IX: Trust & Quality
+### Part VIII: Trust & Quality
 *Building confidence through reviews, ratings, and safety systems*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 23 | [Reviews & Ratings](#chapter-23-reviews--ratings) | ✅ Reviewed |
-| 24 | [Trust & Safety](#chapter-24-trust--safety) | ✅ Reviewed |
+| 22 | [Reviews & Ratings](#chapter-22-reviews--ratings) | ✅ Reviewed |
+| 23 | [Trust & Safety](#chapter-23-trust--safety) | ✅ Reviewed |
 
-### Part X: Data Acquisition & Directory Scale
+### Part IX: Data Acquisition & Directory Scale
 *Seeding, scaling, and managing the national provider directory*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 25 | [Provider Data Management](#chapter-25-provider-data-management) | ✅ Reviewed |
-| 26 | [Data Acquisition & Enrichment](#chapter-26-data-acquisition--enrichment) | ✅ Reviewed |
+| 24 | [Provider Data Management](#chapter-24-provider-data-management) | ✅ Reviewed |
+| 25 | [Data Acquisition & Enrichment](#chapter-25-data-acquisition--enrichment) | ✅ Reviewed |
 
-### Part XI: Platform Administration & Operations
+### Part X: Platform Administration & Operations
 *Internal tools, workflows, and standard operating procedures*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 27 | [Admin System](#chapter-27-admin-system) | ✅ Reviewed |
-| 28 | [Human Workflows & Standard Operating Procedures](#chapter-28-human-workflows--standard-operating-procedures) | 🆕 Placeholder |
+| 26 | [Admin System](#chapter-26-admin-system) | ✅ Reviewed |
+| 27 | [Human Workflows & Standard Operating Procedures](#chapter-27-human-workflows--standard-operating-procedures) | 🆕 Placeholder |
 
-### Part XII: Marketing & Growth
+### Part XI: Marketing & Growth
 *User acquisition, SEO, and referral programs*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 29 | [Marketing & SEO Pages](#chapter-29-marketing--seo-pages) | ✅ Reviewed |
-| 30 | [Referral Programs & Partner Attribution](#chapter-30-referral-programs--partner-attribution) | ⏳ Pending |
+| 28 | [Marketing & SEO Pages](#chapter-28-marketing--seo-pages) | ✅ Reviewed |
+| 29 | [Referral Programs & Partner Attribution](#chapter-29-referral-programs--partner-attribution) | ⏳ Pending |
 
-### Part XIII: Technical Infrastructure
-*Platform technical foundations and operational reliability*
-
-| Ch | Title | Review Status |
-|----|-------|---------------|
-| 31 | [File Uploads & Media](#chapter-31-file-uploads--media) | ⏳ Pending |
-| 32 | [Error Handling & Monitoring](#chapter-32-error-handling--monitoring) | ⏳ Pending |
-| 33 | [Performance & Caching](#chapter-33-performance--caching) | ⏳ Pending |
-
-### Part XIV: Compliance, Legal & Support
-*Regulatory compliance, legal requirements, and user support*
+### Part XII: Help & Support
+*User assistance and support channels*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 34 | [Help & Support](#chapter-34-help--support) | ⏳ Pending |
-| 35 | [Audit & Activity Logging](#chapter-35-audit--activity-logging) | ⏳ Pending |
-| 36 | [Data Export & Portability](#chapter-36-data-export--portability) | ⏳ Pending |
-| 37 | [Accessibility Standards](#chapter-37-accessibility-standards) | ⏳ Pending |
-| 38 | [Legal & Regulatory Compliance](#chapter-38-legal--regulatory-compliance) | 🆕 Placeholder |
+| 30 | [Help Center & Support](#chapter-30-help-center--support) | ⏳ Pending |
+
+### Part XIII: Tech Stack & Infrastructure
+*Complete technical foundation enabling the platform end-to-end — single source of truth for all technology*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 31 | [Application Architecture & Tech Stack](#chapter-31-application-architecture--tech-stack) | 🆕 New |
+| | 31.1 Frontend Architecture (Next.js, React) | |
+| | 31.2 Backend Architecture (API Routes, Services) | |
+| | 31.3 Database Layer (PostgreSQL, Prisma) | |
+| | 31.4 Authentication Infrastructure | |
+| 32 | [Hosting, Deployment & CI/CD](#chapter-32-hosting-deployment--cicd) | 🆕 New |
+| | 32.1 Hosting Environment (Vercel) | |
+| | 32.2 Deployment Pipeline | |
+| | 32.3 Environment Management | |
+| | 32.4 Release Process | |
+| 33 | [File Uploads & Media](#chapter-33-file-uploads--media) | ⏳ Pending |
+| | 33.1 Upload Infrastructure | |
+| | 33.2 Storage (Vercel Blob) | |
+| | 33.3 Image Optimization | |
+| 34 | [Communications Infrastructure](#chapter-34-communications-infrastructure) | 🆕 New |
+| | 34.1 Email System (Resend) | |
+| | 34.2 SMS System (Future) | |
+| | 34.3 Push Notifications (Future) | |
+| | 34.4 Template Management | |
+| 35 | [Error Handling & Monitoring](#chapter-35-error-handling--monitoring) | ⏳ Pending |
+| | 35.1 Error Boundaries & Handling | |
+| | 35.2 Logging Infrastructure | |
+| | 35.3 Monitoring & Alerting | |
+| | 35.4 Incident Response | |
+| 36 | [Performance & Caching](#chapter-36-performance--caching) | ⏳ Pending |
+| | 36.1 Caching Strategy | |
+| | 36.2 Database Optimization | |
+| | 36.3 Frontend Performance | |
+| | 36.4 Core Web Vitals | |
+| 37 | [Analytics & Audit Logging](#chapter-37-analytics--audit-logging) | ⏳ Pending |
+| | 37.1 User Analytics | |
+| | 37.2 Admin Activity Logging | |
+| | 37.3 Audit Trail | |
+| 38 | [Third-Party Services & Integrations](#chapter-38-third-party-services--integrations) | 🆕 New |
+| | 38.1 Service Inventory | |
+| | 38.2 API Integrations | |
+| | 38.3 Vendor Management | |
+
+### Part XIV: Legal & Regulatory Compliance
+*Comprehensive legal framework, policies, and compliance procedures*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 39 | [Legal Framework Overview](#chapter-39-legal-framework-overview) | 🆕 New |
+| | **39.1 Core Legal & Policy Documents** | |
+| | 39.1.1 Terms of Use (Care Seekers) | |
+| | 39.1.2 Terms of Use (Providers) | |
+| | 39.1.3 Privacy Notice | |
+| | 39.1.4 Cookie & Tracking Policy | |
+| | 39.1.5 Review Policy | |
+| | 39.1.6 Advertising & Endorsement Disclosure Policy | |
+| | 39.1.7 Accessibility & Anti-Discrimination Statement | |
+| | 39.1.8 Medical & Emergency Disclaimer | |
+| | 39.1.9 AI Disclosure Statement | |
+| | 39.1.10 No-PHI Warning Prompt | |
+| | 39.1.11 Featured Badge Tooltip | |
+| | 39.1.12 How Listings & Rankings Work | |
+| | 39.1.13 Olera Score Methodology | |
+| | **39.2 Compliance, Moderation & Enforcement** | |
+| | 39.2.1 DMCA & Trademark Policy | |
+| | 39.2.2 Takedown Request Process | |
+| | 39.2.3 Provider Verification SOP | |
+| | 39.2.4 User Content Moderation SOP | |
+| | 39.2.5 Defamation / Legal Escalation SOP | |
+| | 39.2.6 Incident Response Plan (IRP) | |
+| | 39.2.7 Accessibility Audit & Response SOP | |
+| | 39.2.8 Privacy Impact Assessment Template | |
+| | **39.3 Data Governance & User Rights** | |
+| | 39.3.1 Data Retention & Deletion Policy | |
+| | 39.3.2 Data Export & Portability | |
+| | 39.3.3 Inquiry Form Consent Text | |
+| | 39.3.4 Premium Subscription Terms (Auto-Renewal) | |
 
 ### Future Directions
 *Strategic concepts for future phases — not in current scope*
 
 | ID | Title | Status |
 |----|-------|--------|
-| F1 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
+| F1 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
 | F2 | [Caregiver Workforce & Direct Staffing Model](#future-caregiver-workforce--direct-staffing-model) | ⭐ Future |
-| F3 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
+| F3 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
 
 ### Appendices
 
@@ -177,13 +235,14 @@
 
 | Metric | Count |
 |--------|-------|
-| **Total Main Chapters** | 38 |
-| **Reviewed (✅)** | 27 |
+| **Total Main Chapters** | 39 |
+| **Reviewed (✅)** | 20 |
 | **Pending (⏳)** | 8 |
-| **New Placeholders (🆕)** | 3 |
+| **New Chapters (🆕)** | 10 |
+| **Placeholders (🆕)** | 1 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 30 (Referral Programs & Partner Attribution)
+**Next Chapter to Review**: Chapter 29 (Referral Programs & Partner Attribution)
 
 ---
 
@@ -613,7 +672,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 | **Content Needs** | Comprehensive guides, cost information, local directory pages |
 | **Platform Entry** | SEO content, topic hubs, directory browsing |
 
-**Cross-Reference**: See Chapter 29: Marketing & SEO Pages for content strategy aligned to these pathways.
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for content strategy aligned to these pathways.
 
 ---
 
@@ -953,7 +1012,7 @@ Visibility is a prominent wizard step. Controls who can discover the profile.
 - Analytics on user needs
 - Future advisor matching
 
-**Cross-Reference**: See Chapter 29: Marketing & SEO Pages for care pathways that inform assessment design.
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for care pathways that inform assessment design.
 
 #### 3.10 Caregiver Job Seeker Onboarding (DECIDED)
 
@@ -985,7 +1044,7 @@ Visibility is a prominent wizard step. Controls who can discover the profile.
 - Can browse providers with "Looking for caregivers" enabled
 - Receives notifications when matched with opportunities
 
-**Cross-Reference**: See Chapter 29: Marketing & SEO Pages for job seeker landing page content.
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for job seeker landing page content.
 
 ---
 
@@ -1340,7 +1399,7 @@ Current field structure accepted as-is for demo:
   - `/assisted-living/texas/austin/` (canonical URL)
   - `/memory-care/texas/austin/` (also appears, links to canonical)
 
-**Cross-Reference**: See Chapter 29: Marketing & SEO Pages for URL architecture details.
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for URL architecture details.
 
 #### 5.15 "Looking for Work?" Section — Job Seeker Entry (DECIDED)
 
@@ -1370,7 +1429,7 @@ Current field structure accepted as-is for demo:
 
 **Cross-Reference**:
 - See Chapter 3: Onboarding for caregiver job seeker flow
-- See Chapter 29: Marketing & SEO Pages for `/caregiver-jobs/` landing page
+- See Chapter 28: Marketing & SEO Pages for `/caregiver-jobs/` landing page
 
 ---
 
@@ -2946,7 +3005,7 @@ Routes must match dropdown navigation labels exactly:
 
 ---
 
-## Chapter 23: Reviews & Ratings
+## Chapter 22: Reviews & Ratings
 
 **Purpose**: Build a two-sided accountability system that creates trust, improves quality, and helps families make informed decisions across all care interactions.
 
@@ -4263,7 +4322,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-## Chapter 22: Subscriptions & Paywalls
+## Chapter 21: Subscriptions & Paywalls
 
 **Purpose**: Simple, action-gated monetization where providers pay to engage, not to browse.
 
@@ -4801,7 +4860,7 @@ Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 
 ---
 
-## Chapter 27: Admin System
+## Chapter 26: Admin System
 
 **Purpose**: The central operational hub for the entire Olera platform. This is the single internal interface where all platform operations, monitoring, and management occur.
 
@@ -5762,7 +5821,7 @@ The Admin System integrates with every other chapter:
 
 ---
 
-## Chapter 28: Human Workflows & Standard Operating Procedures
+## Chapter 27: Human Workflows & Standard Operating Procedures
 
 > 🆕 **New Placeholder** — Structure approved, content to be developed.
 
@@ -5830,7 +5889,7 @@ Each SOP should follow this template:
 
 ---
 
-## Chapter 25: Provider Data Management
+## Chapter 24: Provider Data Management
 
 **Purpose**: Define the architecture, migration strategy, and operational workflows for managing provider data at nationwide scale — from the initial 40,000 providers to 500,000+ organizations.
 
@@ -7098,7 +7157,7 @@ Hospice                 List Your Business
 - Consistent across logged-in and logged-out states
 - Mobile: Columns stack vertically with accordion expand
 
-**Cross-Reference**: See Chapter 29: Marketing & SEO Pages for transparency hub content.
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for transparency hub content.
 
 ---
 
@@ -7340,7 +7399,7 @@ Hospice                 List Your Business
 
 ---
 
-## Chapter 29: Marketing & SEO Pages
+## Chapter 28: Marketing & SEO Pages
 
 **Purpose**: Comprehensive SEO strategy and public-facing content architecture designed to dominate organic search, reduce paid traffic dependency, and build topical authority across the senior care ecosystem.
 
@@ -7914,7 +7973,116 @@ Hospice                 List Your Business
 
 ---
 
-## Chapter 31: File Uploads & Media
+## Chapter 31: Application Architecture & Tech Stack
+
+> 🆕 **New Chapter** — Structure approved, content to be developed.
+
+**Purpose**: Document the complete technical architecture enabling the Olera platform, serving as the single source of truth for all technology decisions.
+
+### Scope
+
+| Section | Status | Notes |
+|---------|--------|-------|
+| 31.1 Frontend Architecture | 🆕 | Next.js, React, TypeScript |
+| 31.2 Backend Architecture | 🆕 | API Routes, Services Layer |
+| 31.3 Database Layer | 🆕 | PostgreSQL, Prisma ORM |
+| 31.4 Authentication Infrastructure | 🆕 | NextAuth.js, session management |
+
+### 31.1 Frontend Architecture
+
+**Technology Stack**:
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Components**: Custom component library
+- **State Management**: React hooks, server components
+
+_Detailed architecture to be documented._
+
+### 31.2 Backend Architecture
+
+**Technology Stack**:
+- **API**: Next.js API Routes
+- **Validation**: Zod schemas
+- **Authentication**: NextAuth.js
+- **Services**: Business logic layer
+
+_Detailed architecture to be documented._
+
+### 31.3 Database Layer
+
+**Technology Stack**:
+- **Database**: PostgreSQL (Neon)
+- **ORM**: Prisma
+- **Migrations**: Prisma Migrate
+
+_Schema documentation and data models to be documented._
+
+### 31.4 Authentication Infrastructure
+
+**Technology Stack**:
+- **Provider**: NextAuth.js
+- **Strategies**: Credentials, OAuth (future)
+- **Sessions**: JWT-based
+
+_Authentication flows to be documented._
+
+---
+
+## Chapter 32: Hosting, Deployment & CI/CD
+
+> 🆕 **New Chapter** — Structure approved, content to be developed.
+
+**Purpose**: Document hosting environment, deployment processes, and release management.
+
+### Scope
+
+| Section | Status | Notes |
+|---------|--------|-------|
+| 32.1 Hosting Environment | 🆕 | Vercel deployment |
+| 32.2 Deployment Pipeline | 🆕 | Git-based deploys |
+| 32.3 Environment Management | 🆕 | Dev, staging, production |
+| 32.4 Release Process | 🆕 | Version control, rollbacks |
+
+### 32.1 Hosting Environment
+
+**Platform**: Vercel
+- Automatic deployments from Git
+- Edge network distribution
+- Serverless functions
+
+_Configuration details to be documented._
+
+### 32.2 Deployment Pipeline
+
+**Process**:
+- Push to main → automatic production deploy
+- Pull requests → preview deployments
+- Branch deploys for staging
+
+_Pipeline configuration to be documented._
+
+### 32.3 Environment Management
+
+**Environments**:
+- Development (local)
+- Preview (PR branches)
+- Production (main branch)
+
+**Environment Variables**: Managed via Vercel dashboard
+
+_Environment configuration to be documented._
+
+### 32.4 Release Process
+
+**Versioning**: Semantic versioning
+**Rollbacks**: Vercel instant rollback capability
+
+_Release procedures to be documented._
+
+---
+
+## Chapter 33: File Uploads & Media
 
 **Purpose**: Handle image and document uploads throughout the platform.
 
@@ -7936,7 +8104,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 24: Trust & Safety
+## Chapter 23: Trust & Safety
 
 **Purpose**: Build user trust through provider verification, content moderation, and user safety features. Critical for demonstrating operational readiness.
 
@@ -8453,7 +8621,7 @@ Report Submitted
 
 ### 24.8 Questions & Community Content Moderation (DECIDED)
 
-**Purpose**: Define moderation rules for the community Questions system (see Chapter 29: Marketing & SEO Pages).
+**Purpose**: Define moderation rules for the community Questions system (see Chapter 28: Marketing & SEO Pages).
 
 #### Questions System Specifications
 
@@ -8580,7 +8748,7 @@ Users submitting questions and answers must adhere to:
 
 ---
 
-## Chapter 34: Help & Support
+## Chapter 30: Help Center & Support
 
 **Purpose**: Provide users with help resources and support channels.
 
@@ -8599,7 +8767,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 32: Error Handling & Monitoring
+## Chapter 35: Error Handling & Monitoring
 
 **Purpose**: Ensure application stability and enable debugging.
 
@@ -8620,7 +8788,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 35: Audit & Activity Logging
+## Chapter 37: Analytics & Audit Logging
 
 **Purpose**: Track key actions for debugging, compliance, and admin visibility.
 
@@ -8658,7 +8826,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 30: Referral Programs & Partner Attribution
+## Chapter 29: Referral Programs & Partner Attribution
 
 **Purpose**: Track user acquisition sources, enable referral programs, and manage partner relationships.
 
@@ -8694,7 +8862,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 33: Performance & Caching
+## Chapter 36: Performance & Caching
 
 **Purpose**: Ensure the application performs well under load.
 
@@ -8714,7 +8882,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 21: Communications & Automation
+## Chapter 34: Communications Infrastructure
 
 **Purpose**: Define the delivery infrastructure for transactional communications, lifecycle automation workflows, and operational outreach systems including call center integration.
 
@@ -9094,7 +9262,7 @@ CallCenterTask {
 
 ---
 
-## Chapter 26: Data Acquisition & Enrichment
+## Chapter 25: Data Acquisition & Enrichment
 
 **Purpose**: Define the four-phase strategy for building and scaling the provider directory, from demo through 500K+ providers.
 
@@ -9407,60 +9575,152 @@ Provider State Model:
 
 ---
 
-## Chapter 38: Legal & Regulatory Compliance
+## Chapter 38: Third-Party Services & Integrations
 
-> 🆕 **New Placeholder** — Structure approved, content to be developed.
+> 🆕 **New Chapter** — Structure approved, content to be developed.
 
-**Purpose**: Document legal requirements, regulatory compliance frameworks, and platform policies that govern Olera's operations.
+**Purpose**: Document all third-party services, external APIs, and vendor integrations used across the platform.
 
 ### Scope
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 38.1 Terms of Service | 🆕 | User agreement structure |
-| 38.2 Privacy Policy | 🆕 | Data handling disclosures |
-| 38.3 HIPAA Considerations | 🆕 | Healthcare data if applicable |
-| 38.4 State Licensing Implications | 🆕 | By-state regulatory landscape |
-| 38.5 Data Retention Policies | 🆕 | How long we keep what |
-| 38.6 Data Deletion Procedures | 🆕 | GDPR/CCPA compliance |
-| 38.7 Third-Party Data Usage | 🆕 | Provider data sourcing rules |
-| 38.8 Liability Framework | 🆕 | Platform vs. provider liability |
-| 38.9 Indemnification Structure | 🆕 | Risk allocation |
-| 38.10 Insurance Requirements | 🆕 | Platform insurance needs |
-| 38.11 Transparency Hub Pages | ⬜ | "How Olera Works" public pages |
+| Section | Status | Notes |
+|---------|--------|-------|
+| 38.1 Service Inventory | 🆕 | Complete list of all external services |
+| 38.2 API Integrations | 🆕 | External API connections |
+| 38.3 Vendor Management | 🆕 | Vendor relationships, contracts, SLAs |
 
-### Key Questions
+### 38.1 Service Inventory
 
-- [ ] Do we need HIPAA compliance for any data we collect?
-- [ ] What state-specific regulations apply to care marketplaces?
-- [ ] How do we handle provider data from public sources legally?
-- [ ] What disclaimers are needed for provider information?
+| Service | Purpose | Status |
+|---------|---------|--------|
+| **Vercel** | Hosting, deployment | ✅ Active |
+| **Neon** | PostgreSQL database | ✅ Active |
+| **Resend** | Email delivery | ✅ Active |
+| **Vercel Blob** | File storage | ✅ Active |
+| **Stripe** | Payment processing | ⬜ Future |
+| **Twilio** | SMS delivery | ⬜ Future |
 
-### Architectural Notes
+_Complete service inventory to be documented._
 
-_To be developed with legal counsel. This chapter will serve as the compliance reference for all platform operations._
+### 38.2 API Integrations
+
+**Current Integrations**:
+- Resend API (email delivery)
+- Vercel Blob API (file storage)
+
+**Planned Integrations**:
+- Stripe API (payments)
+- Twilio API (SMS)
+- Analytics providers
+
+_Integration details to be documented._
+
+### 38.3 Vendor Management
+
+**Vendor Evaluation Criteria**:
+- Reliability and uptime SLAs
+- Data handling and privacy compliance
+- Cost and scalability
+- Developer experience
+
+_Vendor management procedures to be documented._
+
+---
+
+## Chapter 39: Legal Framework Overview
+
+> 🆕 **Comprehensive Legal Framework** — Structure approved, content to be developed with legal counsel.
+
+**Purpose**: Serve as the legal backbone of the platform, documenting all legal requirements, regulatory compliance frameworks, policies, and procedures that govern Olera's operations.
+
+### Chapter Structure
+
+| Section | Description | Status |
+|---------|-------------|--------|
+| **39.1 Core Legal & Policy Documents** | User-facing legal documents | 🆕 |
+| **39.2 Compliance, Moderation & Enforcement** | Internal policies and SOPs | 🆕 |
+| **39.3 Data Governance & User Rights** | Data handling policies | 🆕 |
+
+---
+
+### 39.1 Core Legal & Policy Documents
+
+> These are user-facing legal documents that govern the relationship between Olera and its users.
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| **39.1.1 Terms of Use (Care Seekers)** | User agreement for families | 🆕 |
+| **39.1.2 Terms of Use (Providers)** | User agreement for providers | 🆕 |
+| **39.1.3 Privacy Notice** | Data collection and usage disclosures | 🆕 |
+| **39.1.4 Cookie & Tracking Policy** | Cookie usage and tracking disclosure | 🆕 |
+| **39.1.5 Review Policy** | Guidelines for reviews and ratings | 🆕 |
+| **39.1.6 Advertising & Endorsement Disclosure Policy** | FTC compliance for paid content | 🆕 |
+| **39.1.7 Accessibility & Anti-Discrimination Statement** | ADA compliance, fair housing | 🆕 |
+| **39.1.8 Medical & Emergency Disclaimer** | Liability limitations for medical advice | 🆕 |
+| **39.1.9 AI Disclosure Statement** | Transparency about AI usage | 🆕 |
+| **39.1.10 No-PHI Warning Prompt** | HIPAA compliance messaging | 🆕 |
+| **39.1.11 Featured Badge Tooltip** | Explanation of paid/featured badges | 🆕 |
+| **39.1.12 How Listings & Rankings Work** | Transparency about search ranking | 🆕 |
+| **39.1.13 Olera Score Methodology** | How trust scores are calculated | 🆕 |
+
+---
+
+### 39.2 Compliance, Moderation & Enforcement
+
+> Internal policies and standard operating procedures for maintaining platform integrity.
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| **39.2.1 DMCA & Trademark Policy** | Copyright and trademark compliance | 🆕 |
+| **39.2.2 Takedown Request Process** | Procedure for content removal requests | 🆕 |
+| **39.2.3 Provider Verification SOP** | How providers are verified | 🆕 |
+| **39.2.4 User Content Moderation SOP** | How UGC is moderated | 🆕 |
+| **39.2.5 Defamation / Legal Escalation SOP** | Handling legal threats and claims | 🆕 |
+| **39.2.6 Incident Response Plan (IRP)** | Security and data breach procedures | 🆕 |
+| **39.2.7 Accessibility Audit & Response SOP** | ADA compliance procedures | 🆕 |
+| **39.2.8 Privacy Impact Assessment Template** | PIA for new features | 🆕 |
+
+---
+
+### 39.3 Data Governance & User Rights
+
+> Policies governing data retention, deletion, and user rights.
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| **39.3.1 Data Retention & Deletion Policy** | How long data is kept | 🆕 |
+| **39.3.2 Data Export & Portability** | User data export procedures | 🆕 |
+| **39.3.3 Inquiry Form Consent Text** | Consent language for contact forms | 🆕 |
+| **39.3.4 Premium Subscription Terms** | Auto-renewal agreement | 🆕 |
+
+---
 
 ### Regulatory Landscape Overview
 
 | Regulation | Applicability | Notes |
 |------------|---------------|-------|
-| GDPR | EU users (if any) | Data subject rights |
-| CCPA | California users | Consumer privacy rights |
-| HIPAA | TBD | May not apply if no PHI |
-| State Licensing | Various | Care provider licensing varies by state |
-| FTC Act | All users | Truth in advertising, unfair practices |
+| **Section 230** | Platform liability protection | Core to marketplace model |
+| **DMCA** | Copyright safe harbor | Requires proper procedures |
+| **GDPR** | EU users (if any) | Data subject rights |
+| **CCPA/CPRA** | California users | Consumer privacy rights |
+| **HIPAA** | TBD | May not apply if no PHI collected |
+| **ADA/WCAG** | All users | Accessibility requirements |
+| **State Licensing** | Various | Care provider licensing varies by state |
+| **FTC Act** | All users | Truth in advertising, unfair practices |
 
-### Legal Document Requirements
+### Key Legal Principles
 
-1. **Terms of Service** — User agreement for platform use
-2. **Privacy Policy** — Data collection and usage disclosures
-3. **Provider Terms** — Additional terms for provider accounts
-4. **Review Guidelines** — What's allowed in reviews (linked from Ch 23)
-5. **Content Policy** — Acceptable use standards
+| Principle | Implementation |
+|-----------|----------------|
+| **User Rights** | Clear disclosure of rights and obligations |
+| **Liability Limitations** | Appropriate disclaimers throughout platform |
+| **Moderation Authority** | Clear policies on content removal and appeals |
+| **Transparency** | Open explanation of rankings, AI use, paid features |
+| **Compliance** | Adherence to Section 230, DMCA, accessibility laws, privacy regulations |
 
 ---
 
-### 38.11 Transparency Hub Pages (DECIDED)
+### 39.4 Transparency Hub Pages (DECIDED)
 
 **Purpose**: Public-facing pages explaining how Olera works, building trust through transparency about platform mechanics.
 
@@ -9529,71 +9789,13 @@ _To be developed with legal counsel. This chapter will serve as the compliance r
 
 **SEO Value**: Trust and transparency signals for users researching platform credibility.
 
-**Cross-Reference**: See Chapter 29: Marketing & SEO Pages for navigation integration.
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for navigation integration.
 
 ---
 
 ## Future Directions
 
 > ⭐ **Strategic Concepts for Future Phases** — These sections outline long-term possibilities that are explicitly **not** part of the current demo or build scope. They are included to demonstrate forward thinking and establish placeholders for future strategic decisions.
-
----
-
-### Future: Transaction Hosting Platform
-
-> ⭐ **Future Direction** — Not in current scope
-
-**Concept**: Enable payments and financial transactions between families and providers after they connect through Olera.
-
-**Potential Scope**:
-- Payment processing integration (Stripe Connect, etc.)
-- Escrow and transaction guarantees
-- Invoicing and receipt generation
-- Refund and dispute handling
-- Tax documentation (1099s for providers)
-- Care cost tracking and reporting
-
-**Why Deferred**:
-- Requires significant regulatory review (money transmission laws)
-- Adds liability and compliance complexity
-- Market validation needed to confirm demand
-- Current focus is marketplace/discovery, not transactions
-
-**Prerequisites Before Consideration**:
-- Demonstrated user demand for in-platform payments
-- Legal review of money transmission requirements by state
-- Insurance and liability framework established
-- Operational capacity to handle payment disputes
-
----
-
-### Future: Caregiver Workforce & Direct Staffing Model
-
-> ⭐ **Future Direction** — Not in current scope
-
-**Concept**: Potential future pivot where Olera directly employs, manages, schedules, and dispatches caregivers rather than operating purely as a marketplace.
-
-**Potential Scope**:
-- Direct caregiver employment model
-- Scheduling and dispatch systems
-- Payroll and benefits administration
-- Training and certification programs
-- Quality assurance and supervision
-- Background check management
-- Performance tracking and reviews
-
-**Why Deferred**:
-- Fundamentally different business model than marketplace
-- Significant operational complexity and overhead
-- Employment law and liability considerations
-- Capital intensive (payroll, benefits, insurance)
-- Different unit economics than marketplace model
-
-**Strategic Rationale for Inclusion**:
-- Demonstrates awareness of vertical integration option
-- Shows long-term strategic thinking beyond current scope
-- Acknowledges market where competitors have taken this approach
-- Preserves optionality for future strategic decisions
 
 ---
 
@@ -9653,6 +9855,64 @@ _To be developed with legal counsel. This chapter will serve as the compliance r
 - Partnership evaluation with benefits data providers
 - Voice AI vendor assessment and selection
 - Data licensing and compliance framework established
+
+---
+
+### Future: Caregiver Workforce & Direct Staffing Model
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: Potential future pivot where Olera directly employs, manages, schedules, and dispatches caregivers rather than operating purely as a marketplace.
+
+**Potential Scope**:
+- Direct caregiver employment model
+- Scheduling and dispatch systems
+- Payroll and benefits administration
+- Training and certification programs
+- Quality assurance and supervision
+- Background check management
+- Performance tracking and reviews
+
+**Why Deferred**:
+- Fundamentally different business model than marketplace
+- Significant operational complexity and overhead
+- Employment law and liability considerations
+- Capital intensive (payroll, benefits, insurance)
+- Different unit economics than marketplace model
+
+**Strategic Rationale for Inclusion**:
+- Demonstrates awareness of vertical integration option
+- Shows long-term strategic thinking beyond current scope
+- Acknowledges market where competitors have taken this approach
+- Preserves optionality for future strategic decisions
+
+---
+
+### Future: Transaction Hosting Platform
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: Enable payments and financial transactions between families and providers after they connect through Olera.
+
+**Potential Scope**:
+- Payment processing integration (Stripe Connect, etc.)
+- Escrow and transaction guarantees
+- Invoicing and receipt generation
+- Refund and dispute handling
+- Tax documentation (1099s for providers)
+- Care cost tracking and reporting
+
+**Why Deferred**:
+- Requires significant regulatory review (money transmission laws)
+- Adds liability and compliance complexity
+- Market validation needed to confirm demand
+- Current focus is marketplace/discovery, not transactions
+
+**Prerequisites Before Consideration**:
+- Demonstrated user demand for in-platform payments
+- Legal review of money transmission requirements by state
+- Insurance and liability framework established
+- Operational capacity to handle payment disputes
 
 ---
 
