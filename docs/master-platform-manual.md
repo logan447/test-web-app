@@ -112,7 +112,7 @@
 | Ch | Title | Review Status |
 |----|-------|---------------|
 | 25 | [Provider Data Management](#chapter-25-provider-data-management) | ✅ Reviewed |
-| 26 | [Data Acquisition & Enrichment](#chapter-26-data-acquisition--enrichment) | ⏳ Pending |
+| 26 | [Data Acquisition & Enrichment](#chapter-26-data-acquisition--enrichment) | ✅ Reviewed |
 
 ### Part XI: Platform Administration & Operations
 *Internal tools, workflows, and standard operating procedures*
@@ -173,12 +173,12 @@
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 38 |
-| **Reviewed (✅)** | 25 |
-| **Pending (⏳)** | 10 |
+| **Reviewed (✅)** | 26 |
+| **Pending (⏳)** | 9 |
 | **New Placeholders (🆕)** | 3 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 26 (Data Acquisition & Enrichment) or Chapter 29 (Marketing & SEO Pages)
+**Next Chapter to Review**: Chapter 29 (Marketing & SEO Pages)
 
 ---
 
@@ -6929,20 +6929,36 @@ _To be filled in during chapter review._
 
 **Purpose**: Build user trust through provider verification, content moderation, and user safety features. Critical for demonstrating operational readiness.
 
-### 24.1 Provider Verification Badges (DECIDED — Required for Demo)
+### 24.1 Provider Status & Trust Badges (DECIDED — Required for Demo)
 
 **Purpose**: Visual indicators that communicate provider status and trustworthiness at a glance.
 
-#### Badge Tiers
+#### Two-State Model
 
-| Badge | Field | Visual | Meaning |
+Provider records exist in one of two states:
+
+| State | Field | Visual | Meaning |
 |-------|-------|--------|---------|
 | **Unclaimed** | `claimed = false` | Gray outline, no icon | Data sourced from public records; not managed by provider |
 | **Claimed** | `claimed = true` | Blue checkmark | Provider has verified ownership of this listing |
-| **Verified** | `verified = true` | Green shield | Olera has verified credentials (see details below) |
+
+**Key Rules**:
+- Providers who create their own profiles are **automatically marked as claimed**
+- Only organizations have unclaimed profiles (from imports/scaling)
+- Individual caregivers and families never have unclaimed profiles
+
+#### Trust Signal Badges (Within Claimed State)
+
+Claimed providers may display additional trust signal badges based on verification:
+
+| Badge | Condition | Visual | Meaning |
+|-------|-----------|--------|---------|
+| **Verified** | Trust signals meet confidence threshold | Green shield | Olera has verified credentials (see details below) |
 | **Background Checked** | `backgroundCheckVerified = true` | Gold badge | Caregiver has provided proof of background check |
 
-**Demo Scope**: Unclaimed, Claimed, Verified badges
+**Note**: "Verified" is a trust signal badge, not a separate state. Claimed providers are auto-verified by default using available trust signals. Human verification occurs only when auto-verification confidence is insufficient.
+
+**Demo Scope**: Unclaimed, Claimed states; Verified badge
 **Production Scope**: + Background Checked badge (for individual caregivers)
 
 #### Verified Badge — What It Means by Provider Type
@@ -7013,14 +7029,23 @@ Unclaimed:        Claimed:          Verified:         Background Checked:
 
 ### 24.2 Verification Process (DECIDED)
 
-**Three-Tier Progression**:
+**Two-State Model with Auto-Verification**:
 
 ```
-Unclaimed → Claimed → Verified
-    │           │          │
-    │           │          └── Admin verification (credentials, site visit)
-    │           └── Provider claims + Admin approves
-    └── Default state (from data import)
+  UNCLAIMED                              CLAIMED
+  ┌────────────────────┐                ┌──────────────────────────────────┐
+  │ • From import      │                │ • Provider controls profile      │
+  │ • From scaling     │  ───────────►  │ • Auto-verified via trust signals│
+  │ • Basic info only  │    (claim)     │ • "Verified" badge if confident  │
+  │ • "Claim" CTA      │                │                                  │
+  └────────────────────┘                └──────────────────────────────────┘
+                                                       │
+                                                       ▼ (if low confidence)
+                                        ┌──────────────────────────────────┐
+                                        │ Flag for human review            │
+                                        │ • Admin notified via transaction │
+                                        │ • Review in admin panel          │
+                                        └──────────────────────────────────┘
 ```
 
 #### Claiming Flow
@@ -7032,19 +7057,30 @@ Unclaimed → Claimed → Verified
 | 3 | Admin | Reviews claim, calls/emails provider | Verification in progress |
 | 4 | Admin | Approves claim | `claimed = true`, provider gets account access |
 
+**Direct Profile Creation**: Providers who create their own profiles are automatically marked as claimed (no claim flow needed).
+
 **Cross-reference**: See Chapter 10 (Provider Claiming) for full claim flow.
 
-#### Verification Flow (Post-Claim)
+#### Auto-Verification Flow (Default)
 
 | Step | Actor | Action | System Result |
 |------|-------|--------|---------------|
-| 1 | Admin | Initiates verification for claimed provider | Verification task created |
-| 2 | Admin | Requests documentation (license, insurance, etc.) | Email sent to provider |
-| 3 | Provider | Uploads documents | Documents in review |
-| 4 | Admin | Reviews and approves | `verified = true`, badge updated |
+| 1 | System | Provider becomes claimed | Auto-verification triggered |
+| 2 | System | Evaluates available trust signals | Confidence score calculated |
+| 3a | System | Confidence sufficient | "Verified" badge displayed |
+| 3b | System | Confidence insufficient | Flagged for human review; admin notified |
 
-**Demo Scope**: Manual verification via admin toggle
-**Production Scope**: Document upload portal, automated license verification
+#### Human Verification Flow (Exception)
+
+| Step | Actor | Action | System Result |
+|------|-------|--------|---------------|
+| 1 | System | Flags provider with low confidence | Review task created in admin panel |
+| 2 | System | Sends transactional notification | Admin team alerted |
+| 3 | Admin | Reviews provider in admin panel | Manual verification |
+| 4 | Admin | Approves or requests documentation | Badge updated or provider contacted |
+
+**Demo Scope**: Manual verification via admin toggle (auto-verification logic deferred)
+**Production Scope**: Full auto-verification with trust signal evaluation
 
 ---
 
@@ -7408,7 +7444,7 @@ Report Submitted
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Provider badges (Unclaimed/Claimed/Verified) | ⬜ Not Built | Required for demo |
+| Provider states (Unclaimed/Claimed) + Verified badge | ⬜ Not Built | Required for demo |
 | Badge display on cards | ⬜ Not Built | Required for demo |
 | Badge display on profiles | ⬜ Not Built | Required for demo |
 | Report/flag UI | ⬜ Not Built | Required for demo |
@@ -7425,7 +7461,8 @@ Report Submitted
 | Decision | Status | Rationale |
 |----------|--------|-----------|
 | Verification badges for demo | ✅ Decided | Critical for trust signals |
-| Three badge tiers (Unclaimed/Claimed/Verified) | ✅ Decided | Clear progression, easy to understand |
+| Two-state model (Unclaimed/Claimed) | ✅ Decided | Simpler model; Verified is trust badge within Claimed, not separate state |
+| Auto-verification by default | ✅ Decided | Human review only when confidence insufficient; admin notified via transaction |
 | Report/flag for demo | ✅ Decided | Required for safety demonstration |
 | Block user for demo | ✅ Decided | Required for handling policy violations |
 | Centralized moderation queue | ✅ Decided | Simple, actionable, admin-accessible |
@@ -7441,14 +7478,15 @@ Report Submitted
 | Ch 10: Provider Claiming | Claim approval sets `claimed = true` |
 | Ch 23: Reviews & Ratings | Review moderation flows to moderation queue |
 | Ch 25: Provider Data Management | Badge fields on Provider model |
-| Ch 27: Admin System | Moderation queue integrated into admin panel |
+| Ch 26: Data Acquisition | Two-state model (Unclaimed/Claimed) defined |
+| Ch 27: Admin System | Moderation queue + verification review in admin panel |
 | Ch 14: Settings | Blocked users list in Settings → Privacy |
 
 ### Demo vs Production Summary
 
 | Feature | Demo | Production |
 |---------|------|------------|
-| Provider badges | ✅ Unclaimed/Claimed/Verified | + Background Checked |
+| Provider states + badges | ✅ Unclaimed/Claimed states + Verified badge | + Background Checked badge |
 | Badge display | ✅ Cards + profiles | Same |
 | Report/flag | ✅ All content types | Same + auto-detection |
 | Block user | ✅ Full functionality | Same |
@@ -7975,38 +8013,314 @@ CallCenterTask {
 
 ## Chapter 26: Data Acquisition & Enrichment
 
-**Purpose**: Define strategies for scaling the provider directory from 40K to 500K+ through data sourcing, enrichment, and quality assurance.
+**Purpose**: Define the four-phase strategy for building and scaling the provider directory, from demo through 500K+ providers.
 
-> ⭐ **Core System**: Referenced from Chapter 21 (Provider Data Management). Intentionally separated to allow proper legal/compliance review before implementation.
+> **Scope Note**: This chapter covers *how we get* provider data into the platform. For *how we manage* provider data once ingested, see Chapter 25 (Provider Data Management).
+
+---
+
+### 26.1 Definitions (DECIDED)
+
+**Data Acquisition**: The process of obtaining provider records and ingesting them into the Olera platform. Includes migration from legacy systems and scaling via external sources.
+
+**Enrichment**: Mechanisms that encourage providers, families, and individuals to contribute additional structured data over time. Enrichment is **user-driven** and includes:
+
+| Enrichment Type | Description |
+|-----------------|-------------|
+| Onboarding flows | Initial profile creation data capture |
+| Follow-up prompts | Post-signup nudges for additional info |
+| Profile completion nudges | Progress indicators, reminders |
+| Engagement-driven capture | Data collected through platform interactions |
+
+**Important Distinction**: External data sources (APIs, public records) are part of *data acquisition*, not enrichment. Enrichment refers specifically to user-contributed data that improves profile quality over time.
+
+---
+
+### 26.2 Provider State Model (DECIDED)
+
+**Two-State Model**:
+
+| State | Definition |
+|-------|------------|
+| **Unclaimed** | Provider record exists but has not been claimed by the provider |
+| **Claimed** | Provider has claimed ownership of their listing |
+
+**Key Rules**:
+- Providers who create their own profiles are **automatically marked as claimed**
+- Only organizations have unclaimed profiles (from imports/scaling)
+- Individual caregivers and families never have unclaimed profiles — they create profiles directly
+
+**Verification Within Claimed State**:
+- Claimed providers are **auto-verified by default** using available trust signals
+- Human verification required **only** when auto-verification confidence is insufficient
+- Trust signals determine badge display but do not constitute a separate state
+
+```
+Provider State Model:
+
+  UNCLAIMED                              CLAIMED
+  ┌────────────────────┐                ┌──────────────────────────────────┐
+  │ • From import      │                │ • Provider controls profile      │
+  │ • From scaling     │  ───────────►  │ • Auto-verified via trust signals│
+  │ • Basic info only  │    (claim)     │ • Badges based on trust signals  │
+  │ • "Claim" CTA      │                │ • Enrichment via user actions    │
+  └────────────────────┘                └──────────────────────────────────┘
+                                                       │
+                                                       ▼
+                                        ┌──────────────────────────────────┐
+                                        │ Low confidence? Flag for review  │
+                                        │ • Admin notified via transaction │
+                                        │ • Human review in admin panel    │
+                                        └──────────────────────────────────┘
+```
+
+**Auto-Verification Flow**:
+
+| Step | Action |
+|------|--------|
+| 1 | Provider claims listing (or creates profile directly) |
+| 2 | System evaluates available trust signals |
+| 3a | Confidence sufficient → auto-verified; trust badges displayed |
+| 3b | Confidence insufficient → flag for review; admin notified |
+| 4 | Human review completed via admin panel |
+
+**Cross-reference**: See Chapter 24 (Trust & Safety) for trust signal details and badge display.
+
+---
+
+### 26.3 Phase 1: Demo (DECIDED)
+
+**Purpose**: Illustrate platform functionality using seeded demo data.
+
+**Assumptions**:
+
+| Attribute | Value |
+|-----------|-------|
+| Provider count | ~100-500 (sufficient for demo) |
+| Data type | Synthetic or anonymized |
+| State mix | Mostly unclaimed, some claimed |
+| Geographic spread | Representative sample |
+| Provider types | All types represented |
+
+**Demo vs Production**:
+
+| Attribute | Demo | Production |
+|-----------|------|------------|
+| Data source | Seeded fixtures | Legacy DB + scaling sources |
+| Contact info | Placeholder | Real |
+| Enrichment | Simulated | User-driven |
+| Persistence | Wipeable | Permanent |
+
+**Demo Exit**: Demo data wiped entirely before Phase 2 migration.
+
+---
+
+### 26.4 Phase 2: Migration & Reconciliation (DECIDED)
+
+**Purpose**: Migrate existing 40K-provider legacy database into the new platform as the single source of truth.
+
+**Migration Starting State**:
+
+| State | Count | Notes |
+|-------|-------|-------|
+| **Claimed** | ~200 | Already claimed in legacy system; preserve claimed status |
+| **Unclaimed** | ~39,800 | Not yet claimed; import as unclaimed |
+| **Total** | ~40,000 | Full legacy dataset |
+
+**Single Source of Truth**:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  Olera Provider Database                │
+│                  (Single Source of Truth)               │
+├─────────────────────────────────────────────────────────┤
+│                          │                              │
+│     ┌────────────────────┼────────────────────┐        │
+│     ▼                    ▼                    ▼        │
+│  Web App            Mobile Apps         Admin Tooling   │
+│                     (Future)                            │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Field Mapping Strategy**:
+
+| Category | Approach |
+|----------|----------|
+| **Direct mappings** | Legacy field → new field (1:1) |
+| **Transformations** | Normalize formats (phone, address, etc.) |
+| **Deprecated fields** | Document and exclude |
+| **New fields** | Initialize with defaults or null |
+
+**Enrichment at Migration**:
+
+| Provider State | Enrichment Status |
+|----------------|-------------------|
+| Claimed (~200) | Incomplete; limited to legacy data |
+| Unclaimed (~39,800) | Incomplete; limited to legacy data |
+
+**Note**: Migration enrichment is constrained to what exists in the legacy database. No new enrichment occurs during migration itself.
+
+**Duplicate Handling** (Edge Case):
+
+| Aspect | Approach |
+|--------|----------|
+| Expected frequency | Rare |
+| Detection | Match on NPI, address, or name similarity |
+| Resolution | Flag for manual review; do not auto-merge |
+| Scope | High-level acknowledgment; do not over-engineer |
+
+**Migration Artifacts**:
+- Field mapping document
+- Deprecation log
+- Quality report (issues flagged)
+- Claimed provider list (preserved from legacy)
+
+---
+
+### 26.5 Phase 3: Post-Migration Baseline (DECIDED)
+
+**Purpose**: Define steady-state after legacy reconciliation is complete.
+
+**Baseline Population**:
+
+| State | Count | Description |
+|-------|-------|-------------|
+| **Unclaimed** | ~39,800 | Searchable; "Claim this listing" CTA |
+| **Claimed** | ~200 | Provider-controlled; auto-verified via trust signals |
+
+**Provider Lifecycle at Baseline**:
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  UNCLAIMED (~39,800)                                     │
+│  • Imported from legacy                                  │
+│  • Visible in directory                                  │
+│  • Basic info displayed                                  │
+│  • "Claim this listing" CTA prominent                    │
+│  • Enrichment: Legacy data only                          │
+│                                                          │
+│     ↓ Provider claims listing                            │
+│                                                          │
+│  CLAIMED (~200 initially, grows over time)               │
+│  • Provider controls profile                             │
+│  • Auto-verification via trust signals (DEFAULT)         │
+│  • Human verification ONLY if auto-confidence low        │
+│  • Low confidence → flag + admin notification            │
+│  • Human review handled in admin panel                   │
+│  • Enrichment: User-driven (prompts, nudges, engagement) │
+│  • Trust signal badges displayed based on verification   │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Baseline Assumptions**:
+
+| Assumption | Implication |
+|------------|-------------|
+| Unclaimed providers are searchable | Families discover providers before claiming |
+| Claim rate low initially | Outreach needed to drive claims |
+| Enrichment is user-driven | No external enrichment pipelines at baseline |
+| Auto-verification is default | Human review is exception, not rule |
+| Providers creating profiles = claimed | No unclaimed state for self-created profiles |
+
+**Success Criteria**:
+- All 40K providers accessible in new platform
+- Search and filtering functional
+- Two-state model (Unclaimed/Claimed) operational
+- Auto-verification working with trust signals
+- Admin panel handles human review escalations
+- No dependency on legacy system
+
+---
+
+### 26.6 Phase 4: Scaling (DECIDED)
+
+**Purpose**: Grow beyond 40K providers through systematic, compliant, auditable data acquisition.
+
+**Scaling Target**: 40K → 500K+ providers
+
+**New Provider Characteristics**:
+
+| Attribute | Value |
+|-----------|-------|
+| Initial state | Unclaimed |
+| Initial enrichment | **None** |
+| Enrichment pathway | Post-ingestion workflows (prompts, nudges when claimed) |
+
+**Four Pillars of Data Acquisition**:
+
+| Pillar | Description | Legal Consideration |
+|--------|-------------|---------------------|
+| **1. Public Data Sources** | State licensing DBs, CMS Medicare, registries | Generally permissible; attribution may apply |
+| **2. API-Based Acquisition** | Google Places, state APIs | ToS compliance; rate limits; costs |
+| **3. Web Scraping** | Structured extraction from public sites | Legal review required; robots.txt compliance |
+| **4. Third-Party Data Providers** | Commercial data vendors | Licensing agreements; usage restrictions |
+
+**Scaling Principles**:
+
+| Principle | Description |
+|-----------|-------------|
+| **Repeatable** | Documented import process per source |
+| **Compliant** | Legal review before any new source |
+| **Auditable** | Every record traceable to source |
+| **Incremental** | One source at a time; validate before expanding |
+
+**Enrichment for Scaled Providers**:
+
+| Stage | Enrichment Status |
+|-------|-------------------|
+| At ingestion | None (basic record only) |
+| Post-ingestion (unclaimed) | Minimal; awaiting claim |
+| Post-claim | User-driven (onboarding, prompts, nudges, engagement) |
+
+---
+
+### 26.7 Phase Summary
+
+| Phase | Trigger | Exit Criteria |
+|-------|---------|---------------|
+| **1. Demo** | Project kickoff | Demo complete; data wiped |
+| **2. Migration** | Demo complete | 40K providers in new system (200 claimed, 39.8K unclaimed) |
+| **3. Baseline** | Migration complete | System stable; two-state model operational; auto-verification working |
+| **4. Scaling** | Baseline stable + legal framework | Ongoing; measured by provider growth |
+
+---
+
+### 26.8 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
-| **Data Sourcing** | | |
-| 35.1 Public Data Sources | ⬜ | State licensing databases, registries |
-| 35.2 API-Based Enrichment | ⬜ | Google Places, CMS Medicare, state APIs |
-| 35.3 Web Scraping Strategy | ⬜ | When, what, how |
-| 35.4 Third-Party Data Providers | ⬜ | Paid data sources |
-| **Legal & Compliance** | | |
-| 35.5 Public Data Rules | ⬜ | By state/jurisdiction |
-| 35.6 DMCA Considerations | ⬜ | Content usage rights |
-| 35.7 Terms of Service Compliance | ⬜ | Respecting source ToS |
-| 35.8 Data Licensing | ⬜ | Attribution requirements |
-| **AI-Assisted Verification** | | |
-| 35.9 Automated Quality Checks | ⬜ | Data validation pipelines |
-| 35.10 Closure Detection | ⬜ | Identifying closed providers |
-| 35.11 Human-in-the-Loop Escalation | ⬜ | When AI flags for review |
-| **Enrichment Pipelines** | | |
-| 35.12 Olera Score Inputs | ⬜ | External ratings, sentiment |
-| 35.13 Data Freshness Monitoring | ⬜ | Stale data detection |
-| 35.14 Contact Information Updates | ⬜ | Phone/email verification |
+| Demo data seeding | ⬜ Not Built | Required for demo |
+| Legacy migration scripts | ⬜ Not Built | Post-demo |
+| Field mapping document | ⬜ Not Built | Post-demo |
+| Auto-verification logic | ⬜ Not Built | Post-demo |
+| Admin review queue | ⬜ Not Built | Post-demo |
+| Scaling pipelines | ⬜ Not Built | Post-baseline |
+| Legal compliance framework | ⬜ Not Built | Required before scaling |
 
-### Key Questions
-- [ ] What public data sources are available per state?
-- [ ] Legal review of scraping vs. API usage?
-- [ ] Compliance framework for data usage?
+### 26.9 Key Decisions Log
 
-### Architectural Notes
-_To be developed with legal/compliance review._
+| Decision | Status | Rationale |
+|----------|--------|-----------|
+| Four-phase approach | ✅ Decided | Clear progression from demo to scale |
+| Two-state model (Unclaimed/Claimed) | ✅ Decided | Simpler than three-tier; verification implicit via trust signals |
+| Auto-verification by default | ✅ Decided | Human review only when confidence insufficient |
+| User-driven enrichment definition | ✅ Decided | Distinguishes from external data acquisition |
+| Demo data wipeable | ✅ Decided | Clean separation between demo and production |
+| ~200 claimed at migration | ✅ Decided | Reflects actual legacy state |
+
+---
+
+### 26.10 Cross-References
+
+| Topic | Chapter |
+|-------|---------|
+| Provider profiles | Ch 7: Provider Profiles |
+| Claiming flow | Ch 10: Provider Claiming |
+| Trust signals & badges | Ch 24: Trust & Safety |
+| Provider data management | Ch 25: Provider Data Management |
+| Profile completion nudges | Ch 11: Profile Completion & Matching |
+| Onboarding flows | Ch 3: Onboarding Wizard |
+| Admin panel | Ch 27: Admin System |
 
 ---
 
