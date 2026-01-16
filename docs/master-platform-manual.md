@@ -89,7 +89,7 @@
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 21 | [Communications & Automation](#chapter-21-communications--automation) | ⏳ Pending |
+| 21 | [Communications & Automation](#chapter-21-communications--automation) | ✅ Reviewed |
 
 ### Part VIII: Monetization
 *Subscription tiers, paywalls, and revenue model*
@@ -173,12 +173,12 @@
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 38 |
-| **Reviewed (✅)** | 23 |
-| **Pending (⏳)** | 12 |
+| **Reviewed (✅)** | 24 |
+| **Pending (⏳)** | 11 |
 | **New Placeholders (🆕)** | 3 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 21 (Communications & Automation) or Chapter 24 (Trust & Safety)
+**Next Chapter to Review**: Chapter 24 (Trust & Safety) or Chapter 26 (Data Acquisition & Enrichment)
 
 ---
 
@@ -7083,30 +7083,381 @@ _To be filled in during chapter review._
 
 ## Chapter 21: Communications & Automation
 
-**Purpose**: Define transactional communications, lifecycle automation, and operational outreach systems.
+**Purpose**: Define the delivery infrastructure for transactional communications, lifecycle automation workflows, and operational outreach systems including call center integration.
 
-> ⭐ **Core System**: This chapter is required as a foundational platform capability. Referenced in Chapter 20 (Admin System) as a future development priority.
+> **Scope Distinction**: Chapter 19 (Notifications) defines *what* to send and *when*. This chapter defines *how* to send it — infrastructure, templates, automation rules, and delivery tracking.
+
+### 21.1 Delivery Infrastructure (DECIDED)
+
+#### Email Provider: Resend
+
+| Attribute | Value |
+|-----------|-------|
+| **Provider** | Resend |
+| **Why** | Modern API, React Email support, minimal setup, excellent DX |
+| **Free tier** | 100 emails/day (sufficient for demo) |
+| **Integration** | Single API key, TypeScript SDK |
+| **Templates** | React Email components → HTML |
+
+**Setup Requirements**:
+1. Create Resend account
+2. Add API key to environment (`RESEND_API_KEY`)
+3. Configure sender domain (or use Resend's default for testing)
+4. Install packages: `resend`, `@react-email/components`
+
+**Email Service Architecture**:
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────┐
+│ Notification    │ ──▶ │ Email Service    │ ──▶ │ Resend API  │
+│ Trigger         │     │ (lib/email.ts)   │     │             │
+└─────────────────┘     └──────────────────┘     └─────────────┘
+                               │
+                               ▼
+                        ┌──────────────────┐
+                        │ React Email      │
+                        │ Templates        │
+                        └──────────────────┘
+```
+
+#### SMS Provider: Twilio (If Time Permits)
+
+| Attribute | Value |
+|-----------|-------|
+| **Provider** | Twilio |
+| **Demo scope** | Include if low-risk; defer if adds complexity |
+| **Setup** | Account SID, Auth Token, Phone Number |
+| **Integration** | `twilio` npm package |
+
+**SMS Decision**:
+- **Include for demo** if setup is straightforward and time permits
+- **Defer** if phone number provisioning or webhook handling creates risk
+- Chapter 19 specifies SMS as "first-class channel" — production must include
+
+---
+
+### 21.2 Template Architecture (DECIDED)
+
+**Approach**: React Email components compiled to HTML at send time.
+
+**Template Directory Structure**:
+```
+/emails
+├── components/
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   ├── Button.tsx
+│   └── Layout.tsx
+├── templates/
+│   ├── WelcomeEmail.tsx
+│   ├── EngagementReceived.tsx
+│   ├── EngagementAccepted.tsx
+│   ├── AppointmentReminder.tsx
+│   ├── NewMessage.tsx
+│   ├── ReviewRequest.tsx
+│   ├── ProfileNudge.tsx
+│   └── CallCenterTask.tsx
+└── index.ts
+```
+
+**Template Variables (Personalization)**:
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `{{name}}` | string | Recipient's display name |
+| `{{recipientEmail}}` | string | Recipient's email |
+| `{{providerName}}` | string | Provider business name |
+| `{{familyName}}` | string | Family contact name |
+| `{{engagementType}}` | string | Tour, Consultation, Interview |
+| `{{date}}` | string | Formatted date |
+| `{{time}}` | string | Formatted time |
+| `{{actionUrl}}` | string | CTA link to Olera |
+| `{{previewText}}` | string | Message preview (for messages) |
+
+**Template Requirements**:
+- Mobile-responsive (single column, large tap targets)
+- Brand-consistent (Olera colors, logo)
+- Clear CTA button ("View in Olera")
+- Unsubscribe link in footer
+- Plain text fallback generated automatically
+
+---
+
+### 21.3 Transactional Email Templates (DECIDED)
+
+| Template | Trigger | Subject Line | Key Content |
+|----------|---------|--------------|-------------|
+| **Welcome** | Account created | "Welcome to Olera" | Getting started guide, profile CTA |
+| **Engagement Received** | New request (provider) | "New {{type}} request from {{name}}" | Request details, accept/decline CTA |
+| **Engagement Accepted** | Status → ACCEPTED | "{{provider}} accepted your {{type}}" | Date/time, calendar add, directions |
+| **Engagement Declined** | Status → DECLINED | "Update on your {{type}} request" | Alternative options CTA |
+| **Appointment Reminder (24h)** | 24h before | "Reminder: {{type}} tomorrow" | Date, time, location, prep tips |
+| **Appointment Reminder (1h)** | 1h before | "Starting soon: {{type}} in 1 hour" | Quick details, contact info |
+| **New Message** | Message received | "New message from {{from}}" | Preview, reply CTA |
+| **Review Request** | Engagement completed + 24h | "How was your {{type}} with {{provider}}?" | Star rating CTA |
+| **Profile Nudge** | Profile < 50%, 3 days old | "Complete your profile to get matched" | Missing fields, completion CTA |
+
+---
+
+### 21.4 Lifecycle Automation (DECIDED)
+
+#### Welcome Sequence
+
+| Step | Timing | Channel | Content |
+|------|--------|---------|---------|
+| 1 | Immediate | Email | Welcome + getting started |
+| 2 | Day 3 (if no activity) | Email | "Here's what you can do on Olera" |
+
+**Demo Scope**: Step 1 only (single welcome email)
+**Production Scope**: Full sequence with conditional logic
+
+#### Profile Completion Nudge
+
+| Trigger | Condition | Action |
+|---------|-----------|--------|
+| Account age = 3 days | Profile < 50% complete | Send profile nudge email |
+| Account age = 7 days | Profile < 50% complete | Send second nudge (escalated) |
+
+**Demo Scope**: Single nudge at day 3
+**Production Scope**: Escalating sequence, admin visibility
+
+#### Re-engagement (Production Only)
+
+| Trigger | Condition | Action |
+|---------|-----------|--------|
+| Last login > 14 days | Has incomplete engagements | "We miss you" email |
+| Last login > 30 days | Any user | Re-engagement campaign |
+
+**Demo Scope**: ⬜ Deferred
+**Production Scope**: Full re-engagement flows
+
+---
+
+### 21.5 Call Center Workflow (DECIDED — Required for Demo)
+
+**Purpose**: Enable admin/support staff to manage outbound calls, track outcomes, and trigger follow-up actions.
+
+#### Call Center Task Model
+
+```typescript
+CallCenterTask {
+  id: string
+  type: OUTBOUND_CALL | FOLLOW_UP | VERIFICATION
+  status: PENDING | IN_PROGRESS | COMPLETED | FAILED | CANCELLED
+  priority: LOW | NORMAL | HIGH | URGENT
+
+  // Target
+  targetType: USER | PROVIDER | FAMILY
+  targetId: string
+  targetName: string
+  targetPhone: string
+
+  // Assignment
+  assignedTo?: string  // Admin user ID
+  assignedAt?: DateTime
+
+  // Scheduling
+  scheduledFor?: DateTime
+  dueBy?: DateTime
+
+  // Context
+  reason: string  // Why this call is needed
+  script?: string  // Suggested talking points
+  relatedEngagementId?: string
+  relatedClaimId?: string
+
+  // Outcome
+  outcome?: ANSWERED | NO_ANSWER | VOICEMAIL | WRONG_NUMBER | COMPLETED | RESCHEDULE
+  notes?: string
+  completedAt?: DateTime
+
+  // Follow-up
+  requiresFollowUp: boolean
+  followUpDate?: DateTime
+  followUpTaskId?: string
+
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+```
+
+#### Call Center Triggers (Automation)
+
+| Trigger Event | Creates Task | Priority | Script/Notes |
+|---------------|--------------|----------|--------------|
+| Provider claim submitted | Verification call | HIGH | Verify identity, confirm details |
+| Engagement stuck PENDING 48h | Follow-up call (provider) | NORMAL | Prompt response |
+| Family no activity 7 days | Outreach call | LOW | Assistance offer |
+| High-value provider unclaimed | Outreach call | HIGH | Claim invitation |
+| Review dispute filed | Mediation call | URGENT | Resolve dispute |
+
+#### Call Center Admin UI
+
+**Location**: `/admin/call-center`
+
+**Views**:
+```
+/admin/call-center
+├── Queue (default) — Tasks by priority, filtered by status
+├── My Tasks — Assigned to current admin
+├── Completed — Outcome history
+└── Reports — Call volume, outcomes, conversion
+```
+
+**Queue Table Columns**:
+| Column | Content |
+|--------|---------|
+| Priority | Color-coded badge |
+| Type | Call type |
+| Target | Name, phone (click to call) |
+| Reason | Brief context |
+| Due | Deadline |
+| Assigned | Admin name or "Unassigned" |
+| Actions | Claim, Start, Complete |
+
+**Task Detail Modal**:
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Verification Call — High Priority                           │
+├─────────────────────────────────────────────────────────────┤
+│ Target: Sunrise Senior Living                               │
+│ Phone: (555) 123-4567  [📞 Click to Call]                  │
+│ Reason: New claim submitted, verify ownership               │
+│                                                             │
+│ Script:                                                     │
+│ "Hi, this is [Name] from Olera. We received your claim     │
+│ for [Business Name]. Can you verify..."                     │
+│                                                             │
+│ Related: Claim #CLM-12345 [View]                           │
+├─────────────────────────────────────────────────────────────┤
+│ Outcome: [Dropdown: Select outcome]                         │
+│ Notes: [Text area]                                          │
+│                                                             │
+│ □ Requires follow-up                                        │
+│   Follow-up date: [Date picker]                             │
+├─────────────────────────────────────────────────────────────┤
+│ [Cancel]                              [Save] [Complete Call]│
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Call Center Demo Scope
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Task queue UI | ✅ Full | Same |
+| Manual task creation | ✅ | Same |
+| Automated task triggers | ✅ Key triggers | Full automation |
+| Click-to-call | 🟡 Link only | VoIP integration |
+| Outcome tracking | ✅ | Same + analytics |
+| Follow-up scheduling | ✅ | Same |
+| Reports/analytics | ⬜ Defer | Full dashboard |
+
+---
+
+### 21.6 Admin-Initiated Outreach (DECIDED)
+
+**Purpose**: Allow admins to send one-off or batch communications to users.
+
+#### Single User Outreach
+
+**Location**: User detail page in admin → "Send Message" action
+
+**Options**:
+- Email (custom or template)
+- SMS (if phone available)
+- Create call center task
+
+#### Batch Outreach (Production)
+
+**Demo Scope**: ⬜ Deferred — single user only
+**Production Scope**: Segment builder, batch send, A/B testing
+
+---
+
+### 21.7 Delivery Tracking (DECIDED)
+
+#### Email Events (via Resend webhooks)
+
+| Event | Tracked | Action |
+|-------|---------|--------|
+| `sent` | ✅ | Mark notification as delivered |
+| `delivered` | ✅ | Confirm delivery |
+| `opened` | 🟡 Demo: skip | Track engagement |
+| `clicked` | 🟡 Demo: skip | Track CTA conversion |
+| `bounced` | ✅ | Mark email invalid, alert admin |
+| `complained` | ✅ | Auto-unsubscribe, flag account |
+
+#### SMS Events (via Twilio webhooks, if implemented)
+
+| Event | Tracked | Action |
+|-------|---------|--------|
+| `sent` | ✅ | Mark as sent |
+| `delivered` | ✅ | Confirm delivery |
+| `failed` | ✅ | Mark phone invalid, alert admin |
+
+#### Demo Scope
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Send/fail tracking | ✅ | Same |
+| Bounce handling | ✅ | Same + auto-disable |
+| Open/click tracking | ⬜ Defer | Full analytics |
+| Delivery dashboard | ⬜ Defer | Admin analytics page |
+
+---
+
+### 21.8 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
-| **Transactional Communications** | | |
-| 34.1 Email Notifications | ⬜ | Engagement updates, reminders, reviews |
-| 34.2 SMS Notifications | ⬜ | Reminders, verification, alerts |
-| 34.3 Template Management | ⬜ | Personalization, versioning |
-| **Lifecycle Automation** | | |
-| 34.4 Welcome Sequences | ⬜ | Onboarding emails |
-| 34.5 Re-engagement Campaigns | ⬜ | Inactive user outreach |
-| 34.6 Profile Completion Reminders | ⬜ | Nudges to complete profile |
-| **Operational Communications** | | |
-| 34.7 Admin-Initiated Outreach | ⬜ | Manual campaigns |
-| 34.8 Call Center Workflow | ⬜ | Trigger-based task creation |
-| **Automation Engine** | | |
-| 34.9 Trigger Definitions | ⬜ | Events, conditions, timing |
-| 34.10 Action Definitions | ⬜ | Send email, SMS, create task |
-| 34.11 Delivery Tracking | ⬜ | Analytics and monitoring |
+| Email service (Resend) | ⬜ Not Built | Setup required |
+| React Email templates | ⬜ Not Built | Create template library |
+| SMS service (Twilio) | ⬜ Not Built | Include if time permits |
+| Welcome email automation | ⬜ Not Built | Required for demo |
+| Profile nudge automation | ⬜ Not Built | Required for demo |
+| Call center queue UI | ⬜ Not Built | Required for demo |
+| Call center task model | ⬜ Not Built | Required for demo |
+| Automated task triggers | ⬜ Not Built | Required for demo |
+| Delivery tracking | ⬜ Not Built | Basic send/fail for demo |
 
-### Architectural Notes
-_To be developed. See Chapter 20 Future Chapter Reference for initial scope._
+### 21.9 Key Decisions Log
+
+| Decision | Status | Rationale |
+|----------|--------|-----------|
+| Email provider: Resend | ✅ Decided | Simplest setup, modern API, React Email support |
+| SMS provider: Twilio | ✅ Decided | Industry standard; include if low-risk for demo |
+| Template system: React Email | ✅ Decided | Component-based, type-safe, easy to maintain |
+| Welcome email for demo | ✅ Decided | Required for complete user journey |
+| Profile nudge for demo | ✅ Decided | Required for complete user journey |
+| Call center for demo | ✅ Decided | Critical for demonstrating full UX to colleagues |
+| Re-engagement: defer | ✅ Decided | Not needed for demo; production feature |
+| Batch outreach: defer | ✅ Decided | Single-user sufficient for demo |
+
+---
+
+### 21.10 Cross-Chapter Integration
+
+| Chapter | Integration Point |
+|---------|-------------------|
+| Ch 14: Settings | Notification preferences control delivery |
+| Ch 19: Notifications | Defines notification types; this chapter delivers them |
+| Ch 27: Admin System | Call center queue in admin interface |
+| Ch 10: Provider Claiming | Claim triggers verification call task |
+| Ch 15: Engagements | Engagement events trigger transactional emails |
+
+### Demo vs Production Summary
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Email (Resend) | ✅ Full | Same |
+| SMS (Twilio) | 🟡 If time permits | Full |
+| Transactional templates | ✅ Core set | Full library |
+| Welcome email | ✅ Single email | Multi-step sequence |
+| Profile nudge | ✅ Single nudge | Escalating sequence |
+| Re-engagement | ⬜ Defer | Full campaigns |
+| Call center queue | ✅ Full UI | Same |
+| Call center triggers | ✅ Key triggers | Full automation |
+| Admin batch outreach | ⬜ Defer | Segment builder |
+| Delivery analytics | 🟡 Basic | Full dashboard |
 
 ---
 
