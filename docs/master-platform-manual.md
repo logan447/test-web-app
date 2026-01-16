@@ -37,7 +37,7 @@
 | 2 | [Mode System (Family vs Provider)](#chapter-2-mode-system-family-vs-provider) | ✅ Reviewed |
 | 3 | [Onboarding Wizard (Shared System)](#chapter-3-onboarding-wizard-shared-system) | ✅ Reviewed |
 | 4 | [UI & Design Language](#chapter-4-ui--design-language) | 🆕 Placeholder |
-| 5 | [Navigation & Routing](#chapter-5-navigation--routing) | ⏳ Pending |
+| 5 | [Navigation & Routing](#chapter-5-navigation--routing) | ✅ Reviewed |
 
 ### Part II: User Identity & Profiles
 *Establishing who users are and how they present themselves*
@@ -173,12 +173,12 @@
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 38 |
-| **Reviewed (✅)** | 21 |
-| **Pending (⏳)** | 14 |
+| **Reviewed (✅)** | 22 |
+| **Pending (⏳)** | 13 |
 | **New Placeholders (🆕)** | 3 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 4 (UI & Design Language) or Chapter 5 (Navigation & Routing)
+**Next Chapter to Review**: Chapter 14 (Settings & Preferences) or Chapter 21 (Communications & Automation)
 
 ---
 
@@ -214,46 +214,67 @@
 | **No mode-dependent routes** | URL determines content, not mode |
 | **One page, one purpose** | No overloaded pages that change based on context |
 | **Dropdown = Route map** | Each account dropdown item → one static route |
-| **Mode controls visibility only** | Mode affects nav items shown, not page behavior |
+| **Mode determines dropdown** | Mode selects which dropdown menu appears (Family or Provider) |
 | **Profiles inside dashboards** | Care Profile and Provider Profile are sections within dashboards, not separate nav items |
 
+> **Cross-Reference**: See **Chapter 5: Navigation & Routing** for the complete account dropdown rendering model, including the navigation rendering principle (maximize visibility, gate by action).
+
+### Navigation Rendering Principle (DECIDED)
+
+> **Core Rule**: Tabs are visible by default. Do not hide navigation based on profile completion or existence. Gate by action (empty states, prompts) rather than visibility.
+
+| Principle | Application |
+|-----------|-------------|
+| **Core tabs always visible** | All 4 core tabs in each mode appear regardless of profile state |
+| **Pages handle empty states** | If user lacks profile, page shows CTA — tab is still visible |
+| **Only hiring varies** | Hiring section tabs depend on provider type (the one exception) |
+
 ### Family Mode Navigation (DECIDED)
+
+**Always shown** (regardless of family profile existence):
 
 | Nav Item | Route | Contains |
 |----------|-------|----------|
 | **Find Providers** | `/` (homepage) | Provider directory with filters |
 | **Saved Providers** | `/family/saved-providers` | Saved provider list |
 | **My Providers** | `/family/my-providers` | All engagements (requests, messages, conversations) |
-| **Family Dashboard** | `/family/dashboard` | Summary, schedule, activity, **Care Profile editing** |
+| **Dashboard** | `/family/dashboard` | Summary, schedule, activity, **Care Profile editing** |
 
 ### Provider Mode Navigation (DECIDED)
+
+**Core tabs — always shown** (regardless of provider profile existence):
 
 | Nav Item | Route | Contains |
 |----------|-------|----------|
 | **Find Families** | `/provider/find-families` | Browse families with visibility enabled |
 | **Saved Families** | `/provider/saved-families` | Saved family list |
 | **My Families** | `/provider/my-families` | All engagements with families |
-| **Provider Dashboard** | `/provider/dashboard` | Summary, stats, calendar, **Provider Profile editing** |
+| **My Provider Profile** | `/provider/dashboard` | Summary, stats, calendar, **Provider Profile editing** |
 
-### Organization Provider — Additional Navigation (Conditional)
+### Hiring Section — Provider Type Conditional (DECIDED)
 
-Shown only for organization-type providers:
+The hiring section is the **only** part of navigation that varies based on user state. This is because organizations and caregivers have fundamentally different hiring journeys.
+
+#### Unknown Provider Type (No Profile Yet)
 
 | Dropdown Label | Route | Purpose |
 |----------------|-------|---------|
-| "Find Caregivers" | `/provider/find-caregivers` | Browse caregivers available for hire |
-| "Saved Candidates" | `/provider/saved-candidates` | Bookmarked caregivers |
+| "Hire Care Staff" | `/provider/hire-staff/onboarding` | Routes to organization onboarding |
+| "Become a Caregiver" | `/provider/caregiver/onboarding` | Routes to caregiver onboarding |
+
+#### Organization Provider
+
+| Dropdown Label | Route | Purpose |
+|----------------|-------|---------|
+| "Hire Care Staff" | `/provider/hire-staff` | Browse caregivers available for hire |
 | "My Candidates" | `/provider/my-candidates` | Hiring engagements with caregivers |
 
-### Individual Caregiver — Additional Navigation (Conditional)
-
-Shown only for individual caregiver providers:
+#### Individual Caregiver
 
 | Dropdown Label | Route | Purpose |
 |----------------|-------|---------|
-| "Find Organizations" | `/provider/find-organizations` | Browse orgs actively hiring |
-| "Saved Opportunities" | `/provider/saved-opportunities` | Bookmarked potential employers |
-| "My Opportunities" | `/provider/my-opportunities` | Hiring engagements with orgs |
+| "Hiring Organizations" | `/provider/hiring-organizations` | Browse orgs actively hiring |
+| "My Job Opportunities" | `/provider/my-opportunities` | Hiring engagements with orgs |
 
 **Note**: Individual caregivers use the `/provider/` prefix (not `/caregiver/`) because they ARE providers in the system.
 
@@ -1960,9 +1981,15 @@ HiringEngagement {
 | Org → Caregiver | Organization | Org's "My Candidates" + Caregiver's "My Opportunities" |
 | Caregiver → Org | Caregiver | Caregiver's "My Opportunities" + Org's "My Candidates" |
 
-**Navigation Display**: Hiring pages appear in account dropdown only for relevant user types:
-- Organization providers see: "Find Caregivers", "Saved Candidates", "My Candidates"
-- Individual caregivers see: "Find Organizations", "Saved Opportunities", "My Opportunities"
+**Navigation Display**: Hiring tabs in the account dropdown vary by provider type (per Chapter 5 rendering model):
+
+| Provider Type | Hiring Tabs |
+|---------------|-------------|
+| Unknown (no profile) | "Hire Care Staff", "Become a Caregiver" (onboarding paths) |
+| Organization | "Hire Care Staff", "My Candidates" |
+| Individual Caregiver | "Hiring Organizations", "My Job Opportunities" |
+
+> **Cross-Reference**: See Chapter 5.4 for complete dropdown specifications. The hiring section is the only part of navigation that varies by user state.
 
 #### 10.7 Profile Completion Tracking (DECIDED)
 
@@ -4357,19 +4384,17 @@ model ProviderMembership {
 
 | Dropdown Label | Route | Purpose |
 |----------------|-------|---------|
-| "Find Caregivers" | `/provider/find-caregivers` | Browse caregivers available for hire |
-| "Saved Candidates" | `/provider/saved-candidates` | Bookmarked caregivers |
+| "Hire Care Staff" | `/provider/hire-staff` | Browse caregivers available for hire |
 | "My Candidates" | `/provider/my-candidates` | All hiring engagements |
 
 **Individual Caregivers Finding Organizations:**
 
 | Dropdown Label | Route | Purpose |
 |----------------|-------|---------|
-| "Find Organizations" | `/provider/find-organizations` | Browse orgs actively hiring |
-| "Saved Opportunities" | `/provider/saved-opportunities` | Bookmarked potential employers |
-| "My Opportunities" | `/provider/my-opportunities` | All hiring engagements |
+| "Hiring Organizations" | `/provider/hiring-organizations` | Browse orgs actively hiring |
+| "My Job Opportunities" | `/provider/my-opportunities` | All hiring engagements |
 
-**Cross-reference:** See Chapter 10 for full route definitions.
+> **Cross-reference:** See Chapter 5.4 for complete dropdown specifications and the navigation rendering principle.
 
 ---
 
@@ -6342,25 +6367,319 @@ These tables are **not required for initial migration** but provide a clean home
 
 ## Chapter 5: Navigation & Routing
 
-**Purpose**: Application navigation structure and route protection.
+**Purpose**: Define the platform's navigation architecture, account dropdown rendering model, route structure, and URL protection.
+
+### 5.1 Navigation Rendering Principle (DECIDED)
+
+> **Core Principle**: Maximize tab visibility; gate by action, not visibility.
+
+| Principle | Meaning |
+|-----------|---------|
+| **Tabs visible by default** | Navigation items appear regardless of profile completion state |
+| **No hiding based on profile** | A user without a profile still sees all relevant tabs for their current mode |
+| **Gate by action** | Clicking a tab may prompt profile creation or show empty state — but the tab is visible |
+| **Empty states educate** | Pages explain why content is unavailable and guide next steps |
+| **Consistent rendering** | Same tabs appear for all users in a given mode (except hiring section) |
+
+**Benefits**:
+- Users discover full platform capabilities immediately
+- Navigation is predictable across all states
+- Rendering logic is simpler (minimal conditionals)
+- Empty states educate rather than hide functionality
+
+**The One Exception**: The hiring section in Provider mode varies by provider type because organizations and caregivers have fundamentally different hiring journeys.
+
+---
+
+### 5.2 Main Navigation Bar (DECIDED)
+
+**Structure**: Single primary navigation bar, always visible.
+
+| Element | Behavior |
+|---------|----------|
+| **Logo** | Routes to `/` (homepage) |
+| **Care Type Dropdowns** | Home Care, Assisted Living, Memory Care, Nursing Homes, Other |
+| **Mode Toggle** | Shows opposite mode (see below) |
+| **Auth / Account** | Logged out: Sign In + Get Started / Logged in: Account Dropdown |
+
+**Mode Toggle Behavior**:
+
+| Current State | Button Label | Action |
+|---------------|--------------|--------|
+| Logged out | Provider Mode | Routes to `/for-providers` landing |
+| Logged in, Family mode | Provider Mode | Switches to Provider mode |
+| Logged in, Provider mode | Family Mode | Switches to Family mode |
+
+**Mode Source of Truth**: Database `User.currentMode` field. URL `?mode=` parameter has been removed per prior decision.
+
+**Implementation**: `components/Navigation/MainNav.tsx`
+
+---
+
+### 5.3 Account Dropdown — Family Mode (DECIDED)
+
+**Applies to**: All logged-in users currently in Family mode, regardless of profile existence.
+
+```
+┌─────────────────────────────┐
+│ [Name]                      │
+│ [Email]                     │
+│ [Family Mode badge]         │
+├─────────────────────────────┤
+│ Find Providers              │
+│ Saved Providers             │
+│ My Providers                │
+│ Dashboard                   │
+├─────────────────────────────┤
+│ Provider Mode               │
+│ Settings                    │
+├─────────────────────────────┤
+│ Log Out                     │
+└─────────────────────────────┘
+```
+
+| Tab | Route | Behavior (No Family Profile) |
+|-----|-------|------------------------------|
+| Find Providers | `/` | Works (public search) |
+| Saved Providers | `/family/saved-providers` | Empty state: "Create a care profile to save providers" |
+| My Providers | `/family/my-providers` | Empty state: "No provider connections yet" |
+| Dashboard | `/family/dashboard` | Shows profile completion CTA if incomplete |
+
+**Tab count**: Always 7 items (4 core + 2 utility + 1 auth)
+
+---
+
+### 5.4 Account Dropdown — Provider Mode (DECIDED)
+
+**Applies to**: All logged-in users currently in Provider mode.
+
+**Core tabs** (always visible):
+
+| Tab | Route | Behavior (No Provider Profile) |
+|-----|-------|--------------------------------|
+| Find Families | `/provider/find-families` | Works (public search) |
+| Saved Families | `/provider/saved-families` | Empty state with profile creation CTA |
+| My Families | `/provider/my-families` | Empty state with profile creation CTA |
+| My Provider Profile | `/provider/dashboard` | Shows profile creation flow |
+
+**Hiring section** (varies by provider type):
+
+| Provider Type | Hiring Tabs Shown |
+|---------------|-------------------|
+| **Unknown** (no profile) | Hire Care Staff, Become a Caregiver |
+| **Organization** | Hire Care Staff, My Candidates |
+| **Caregiver** | Hiring Organizations, My Job Opportunities |
+
+#### Provider Mode — Unknown Type (No Profile)
+
+```
+┌─────────────────────────────┐
+│ [Name]                      │
+│ [Email]                     │
+│ [Provider Mode badge]       │
+├─────────────────────────────┤
+│ Find Families               │
+│ Saved Families              │
+│ My Families                 │
+│ My Provider Profile         │
+├─────────────────────────────┤
+│ Hire Care Staff             │  ← Routes to org onboarding
+│ Become a Caregiver          │  ← Routes to caregiver onboarding
+├─────────────────────────────┤
+│ Family Mode                 │
+│ Settings                    │
+├─────────────────────────────┤
+│ Log Out                     │
+└─────────────────────────────┘
+```
+
+#### Provider Mode — Organization
+
+```
+┌─────────────────────────────┐
+│ [Name]                      │
+│ [Email]                     │
+│ [Provider Mode badge]       │
+├─────────────────────────────┤
+│ Find Families               │
+│ Saved Families              │
+│ My Families                 │
+│ My Provider Profile         │
+├─────────────────────────────┤
+│ Hire Care Staff             │
+│ My Candidates               │
+├─────────────────────────────┤
+│ Family Mode                 │
+│ Settings                    │
+├─────────────────────────────┤
+│ Log Out                     │
+└─────────────────────────────┘
+```
+
+#### Provider Mode — Caregiver
+
+```
+┌─────────────────────────────┐
+│ [Name]                      │
+│ [Email]                     │
+│ [Provider Mode badge]       │
+├─────────────────────────────┤
+│ Find Families               │
+│ Saved Families              │
+│ My Families                 │
+│ My Provider Profile         │
+├─────────────────────────────┤
+│ Hiring Organizations        │
+│ My Job Opportunities        │
+├─────────────────────────────┤
+│ Family Mode                 │
+│ Settings                    │
+├─────────────────────────────┤
+│ Log Out                     │
+└─────────────────────────────┘
+```
+
+**Tab count**: Always 9 items (4 core + 2 hiring + 2 utility + 1 auth)
+
+---
+
+### 5.5 Logged Out State (DECIDED)
+
+**Main Nav (Right Side)**:
+
+| Element | Label | Action |
+|---------|-------|--------|
+| Mode Toggle | Provider Mode | Routes to `/for-providers` landing |
+| Auth Button 1 | Sign In | Opens auth modal (login view) |
+| Auth Button 2 | Get Started | Opens auth modal (signup view) |
+
+**Account Dropdown**: Does not exist (no session)
+
+---
+
+### 5.6 Rendering Logic Summary (DECIDED)
+
+```
+IF logged out:
+  → No dropdown
+  → Show "Sign In" + "Get Started"
+  → Mode toggle routes to /for-providers
+
+IF logged in:
+  → Show dropdown with header (name, email, mode badge)
+
+  IF current mode == Family:
+    → Always show: Find Providers, Saved Providers, My Providers, Dashboard
+    → Pages handle empty states based on profile existence
+
+  IF current mode == Provider:
+    → Always show: Find Families, Saved Families, My Families, My Provider Profile
+    → Hiring section varies by provider type:
+        - Unknown → "Hire Care Staff" + "Become a Caregiver"
+        - Organization → "Hire Care Staff" + "My Candidates"
+        - Caregiver → "Hiring Organizations" + "My Job Opportunities"
+
+  → Always show: Mode switch, Settings, Log Out
+```
+
+**Total conditionals in rendering**: 1 (provider type for hiring section)
+**Tabs hidden based on profile existence**: 0
+
+---
+
+### 5.7 Route Structure (DECIDED)
+
+| Route Pattern | Access | Purpose |
+|---------------|--------|---------|
+| `/` | Public | Homepage / Family search |
+| `/family/*` | Authenticated | Family mode pages |
+| `/provider/*` | Authenticated | Provider mode pages |
+| `/admin/*` | Admin role | Admin mode (not user-facing) |
+| `/settings` | Authenticated | Both modes |
+| `/for-providers` | Public | Provider landing page |
+
+---
+
+### 5.8 Route Protection (DECIDED)
+
+**Middleware** (`middleware.ts`):
+- Protects `/family/*` and `/provider/*` routes
+- Unauthenticated users → redirect to `/login?returnUrl=<original_path>`
+- Authenticated users pass through
+- Mode enforcement handled at page level, not middleware
+
+**Login Redirect Flow**:
+1. User visits protected route while unauthenticated
+2. Redirect to `/login?returnUrl=/original/path`
+3. After successful login, redirect to `returnUrl`
+4. If no `returnUrl`, redirect to user's last mode landing page
+
+---
+
+### 5.9 Breadcrumbs (DECIDED)
+
+| Status | Notes |
+|--------|-------|
+| ⬜ Not Built | Required for demo |
+
+**Specification**:
+- Display below MainNav on all authenticated pages
+- Auto-generate from route segments with readable labels
+- Support custom overrides for complex paths
+- Examples:
+  - Home > Dashboard > Saved Providers
+  - Home > Provider Dashboard > My Families > [Family Name]
+
+**Implementation Approach**:
+- Breadcrumb component reads current route
+- Mapping file defines segment → label transformations
+- Pages can override via props for dynamic segments
+
+---
+
+### 5.10 Key Decisions Log
+
+| Decision | Status | Rationale |
+|----------|--------|-----------|
+| URL `?mode=` parameter removed | ✅ Decided | DB state is source of truth; URL param was fragile |
+| 404/error pages consolidated | ✅ Decided | Moved to Chapter 32: Error Handling |
+| Breadcrumbs required for demo | ✅ Decided | Improves navigation clarity |
+| Maximize tab visibility | ✅ Decided | Gate by action, not visibility |
+| Hiring section varies by type | ✅ Decided | Only exception to consistent rendering |
+
+---
+
+### 5.11 Cross-Chapter Integration
+
+| Chapter | Integration Point |
+|---------|-------------------|
+| Ch 2: Mode System | Mode toggle triggers DB update via `/api/user/mode` |
+| Ch 1: Authentication | Login redirect uses `returnUrl` parameter |
+| Ch 12: Family Dashboard | Dashboard tab routes to `/family/dashboard` |
+| Ch 13: Provider Dashboard | My Provider Profile routes to `/provider/dashboard` |
+| Ch 20: Hiring Marketplace | Hiring tabs route to `/provider/hire-staff`, etc. |
+| Ch 32: Error Handling | 404 and error pages consolidated there |
+
+---
+
+### 5.12 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 22.1 Main Navigation | ✅ | `MainNav.tsx` |
-| 22.2 Mode-Aware Nav Items | 🟡 | Switches based on mode |
-| 22.3 Protected Routes (middleware) | ✅ | Auth check in middleware |
-| 22.4 Login Redirect (returnUrl) | 🟡 | Recent fixes applied |
-| 22.5 Mode URL Parameter Preservation | 🟡 | Fragile, causes bleeding |
-| 22.6 Route Structure | ✅ | `/dashboard/*` (family) vs `/provider/*` (provider) |
-| 22.7 404 / Error Pages | 🟡 | May need verification |
-| 22.8 Breadcrumbs | ⬜ | Not implemented |
+| Main Navigation | ✅ Built | `MainNav.tsx` — needs mode parameter removal |
+| Account Dropdown | 🟡 Partial | Exists but uses URL mode param |
+| Route Protection | ✅ Built | Middleware working correctly |
+| Login Redirect | ✅ Built | `returnUrl` parameter preserved |
+| Breadcrumbs | ⬜ Not Built | Required for demo |
+| Mode from DB | 🟡 Partial | API exists, MainNav needs update |
 
-### Key Questions
-- [ ] Is the `?mode=` URL parameter causing more problems than it solves?
-- [ ] Should we remove it and rely solely on DB state?
+### Demo vs Production
 
-### Architectural Notes
-_To be filled in during chapter review._
+| Feature | Demo | Production |
+|---------|------|------------|
+| Account dropdown | Full implementation | Same |
+| Breadcrumbs | Basic auto-generation | Custom labels, analytics |
+| Route protection | Current middleware | Same + role-based guards |
 
 ---
 
