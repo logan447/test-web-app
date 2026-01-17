@@ -170,13 +170,22 @@
 | | 36.3 Frontend Performance | |
 | | 36.4 Core Web Vitals | |
 | 37 | [Analytics & Audit Logging](#chapter-37-analytics--audit-logging) | ✅ Reviewed |
-| | 37.1 User Analytics | |
-| | 37.2 Admin Activity Logging | |
-| | 37.3 Audit Trail | |
-| 38 | [Third-Party Services & Integrations](#chapter-38-third-party-services--integrations) | 🆕 New |
+| | 37.1 Demo Scope | |
+| | 37.2 Audit Log Schema | |
+| | 37.3 Action Categories & Priorities | |
+| | 37.4 Admin Audit Dashboard | |
+| | 37.5 Retention & Compliance | |
+| | 37.6 Implementation Notes | |
+| | 37.7 Admin Legal & Compliance Section | |
+| 38 | [Third-Party Services & Integrations](#chapter-38-third-party-services--integrations) | ✅ Reviewed |
 | | 38.1 Service Inventory | |
-| | 38.2 API Integrations | |
-| | 38.3 Vendor Management | |
+| | 38.2 Environment Variable Registry | |
+| | 38.3 API Integration Patterns | |
+| | 38.4 Service Dependencies by Feature | |
+| | 38.5 Vendor Evaluation & Management | |
+| | 38.6 Admin Integration Visibility | |
+| | 38.7 Demo vs Production Scope | |
+| | 38.8 Cross-Reference Index | |
 
 ### Part XIV: Legal & Regulatory Compliance
 *Comprehensive legal framework, policies, and compliance procedures*
@@ -236,15 +245,24 @@
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 39 |
-| **Reviewed (✅)** | 22 |
-| **Pending (⏳)** | 8 |
-| **New Chapters (🆕)** | 9 |
-| **Placeholders (🆕)** | 0 |
+| **Reviewed (✅)** | 30 |
+| **Pending (⏳)** | 5 |
+| **New Chapters (🆕)** | 3 |
+| **Placeholders (🆕)** | 1 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 38 (Third-Party Services & Integrations)
+**Remaining to Review**:
+- Ch 27: Human Workflows & SOPs (Placeholder)
+- Ch 29: Referral Programs & Partner Attribution (Pending)
+- Ch 30: Help Center & Support (Pending)
+- Ch 31: Application Architecture & Tech Stack (New)
+- Ch 32: Hosting, Deployment & CI/CD (New)
+- Ch 33: File Uploads & Media (Pending)
+- Ch 34: Communications Infrastructure (New)
+- Ch 35: Error Handling & Monitoring (Pending)
+- Ch 36: Performance & Caching (Pending)
 
-**Recently Completed**: Chapter 37 (Analytics & Audit Logging) - Reviewed ✅
+**Recently Completed**: Chapter 38 (Third-Party Services & Integrations) - Reviewed ✅
 
 ---
 
@@ -4749,6 +4767,8 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 > **Cross-Reference**: See Chapter 39 (Legal Framework) Section 39.3.4 for subscription terms including auto-renewal disclosures, cancellation rights, and refund policies. Subscription checkout must include prominent terms acceptance.
 
+> **Cross-Reference**: See Chapter 38 (Third-Party Services & Integrations) Section 38.1.4 for Stripe service configuration and environment variable requirements.
+
 ### Provider States
 
 | State | Who | Can Become Active? |
@@ -5492,7 +5512,7 @@ All queues follow a consistent UI pattern:
 
 ---
 
-#### 20.3 Claims Queue (DECIDED — Demo-Critical)
+#### 26.3 Claims Queue (DECIDED — Demo-Critical)
 
 **Purpose**: Review and process provider ownership claims.
 
@@ -5520,7 +5540,7 @@ All queues follow a consistent UI pattern:
 
 ---
 
-#### 20.5 Provider Requests Queue (DECIDED — Demo-Critical)
+#### 26.5 Provider Requests Queue (DECIDED — Demo-Critical)
 
 **Purpose**: Handle provider-initiated requests that are not claims.
 
@@ -5545,7 +5565,7 @@ All queues follow a consistent UI pattern:
 
 ---
 
-#### 20.9 Questions Moderation Queue (DECIDED)
+#### 26.9 Questions Moderation Queue (DECIDED)
 
 **Purpose**: Moderate community-generated questions and answers flagged by auto-moderation triggers.
 
@@ -5655,7 +5675,7 @@ All queues follow a consistent UI pattern:
 
 ---
 
-#### 20.10 Legal & Compliance Queue (DECIDED)
+#### 26.10 Legal & Compliance Queue (DECIDED)
 
 **Purpose**: Handle requests with legal implications requiring careful handling.
 
@@ -5679,7 +5699,7 @@ All queues follow a consistent UI pattern:
 
 ### Data Management Design
 
-#### 20.9 Provider Data Management (DECIDED — Demo-Critical)
+#### 26.11 Provider Data Management (DECIDED — Demo-Critical)
 
 **Purpose**: Full CRUD operations on provider records.
 
@@ -5756,7 +5776,7 @@ All queues follow a consistent UI pattern:
 
 ### System Operations Design
 
-#### 20.13 System Health Dashboard (DECIDED)
+#### 26.13 System Health Dashboard (DECIDED)
 
 **Purpose**: At-a-glance view of platform operational status.
 
@@ -5786,9 +5806,11 @@ All queues follow a consistent UI pattern:
 
 ---
 
-#### 20.16 External Tools Map (DECIDED — Demo-Critical)
+#### 26.16 External Tools Map (DECIDED — Demo-Critical)
 
 **Purpose**: Central reference for all external systems Olera relies on.
+
+> **Cross-Reference**: See Chapter 38 (Third-Party Services & Integrations) for the authoritative service registry, environment variable documentation, and vendor management policies. This section focuses on the Admin UI presentation of that information.
 
 **Comprehensive Tool List:**
 
@@ -8545,13 +8567,13 @@ _Release procedures to be documented._
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 25.1 Image Upload API | ✅ | `/api/upload/images` |
-| 25.2 Vercel Blob Storage | ✅ | Configured |
-| 25.3 Profile Photo Upload | ✅ | Integrated |
-| 25.4 Provider Photo Gallery | ✅ | Components exist |
-| 25.5 Document Uploads (certificates) | 🟡 | `certificateUrls` field exists |
-| 25.6 File Size Limits | 🟡 | May need verification |
-| 25.7 Image Optimization | 🟡 | Next/Image usage |
+| 33.1 Image Upload API | ✅ | `/api/upload/images` |
+| 33.2 Vercel Blob Storage | ✅ | Configured |
+| 33.3 Profile Photo Upload | ✅ | Integrated |
+| 33.4 Provider Photo Gallery | ✅ | Components exist |
+| 33.5 Document Uploads (certificates) | 🟡 | `certificateUrls` field exists |
+| 33.6 File Size Limits | 🟡 | May need verification |
+| 33.7 Image Optimization | 🟡 | Next/Image usage |
 
 ### Key Questions
 - [ ] Any upload issues to address?
@@ -8567,7 +8589,7 @@ _To be filled in during chapter review._
 
 > **Cross-Reference**: See Chapter 39 (Legal Framework) for Section 230 protections (39.2.2), content moderation policies (39.2.3), and platform liability limitations (39.2.1). Olera operates as an information marketplace and does not guarantee provider quality or care outcomes.
 
-### 23.1Provider Status & Trust Badges (DECIDED — Required for Demo)
+### 23.1 Provider Status & Trust Badges (DECIDED — Required for Demo)
 
 **Purpose**: Visual indicators that communicate provider status and trustworthiness at a glance.
 
@@ -8665,7 +8687,7 @@ Unclaimed:        Claimed:          Verified:         Background Checked:
 
 ---
 
-### 23.2Verification Process (DECIDED)
+### 23.2 Verification Process (DECIDED)
 
 **Two-State Model with Auto-Verification**:
 
@@ -8722,7 +8744,7 @@ Unclaimed:        Claimed:          Verified:         Background Checked:
 
 ---
 
-### 23.3Report/Flag System (DECIDED — Required for Demo)
+### 23.3 Report/Flag System (DECIDED — Required for Demo)
 
 **Purpose**: Allow users to report inappropriate content, policy violations, or safety concerns.
 
@@ -8803,7 +8825,7 @@ Report {
 
 ---
 
-### 23.4Block User (DECIDED — Required for Demo)
+### 23.4 Block User (DECIDED — Required for Demo)
 
 **Purpose**: Allow users to prevent contact from specific users who are abusive or violating policies.
 
@@ -8879,7 +8901,7 @@ UserBlock {
 
 ---
 
-### 23.5Content Moderation Queue (DECIDED — Required for Demo)
+### 23.5 Content Moderation Queue (DECIDED — Required for Demo)
 
 **Purpose**: Centralized admin interface for reviewing user-generated content that requires human moderation.
 
@@ -8981,7 +9003,7 @@ Report Submitted
 
 ---
 
-### 23.6Background Check Trust Signal (Production Only)
+### 23.6 Background Check Trust Signal (Production Only)
 
 **Important Distinction**: Olera does NOT perform or administer background checks. The platform allows individual caregivers to upload proof of completed background checks as a trust signal.
 
@@ -9064,7 +9086,7 @@ Report Submitted
 
 ---
 
-### 23.7Fraud Detection (Production Only)
+### 23.7 Fraud Detection (Production Only)
 
 | Signal | Detection Method | Action |
 |--------|------------------|--------|
@@ -9078,7 +9100,7 @@ Report Submitted
 
 ---
 
-### 23.8Questions & Community Content Moderation (DECIDED)
+### 23.8 Questions & Community Content Moderation (DECIDED)
 
 **Purpose**: Define moderation rules for the community Questions system (see Chapter 28: Marketing & SEO Pages).
 
@@ -9147,7 +9169,7 @@ Users submitting questions and answers must adhere to:
 
 ---
 
-### 23.9Implementation Status
+### 23.9 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -9165,7 +9187,7 @@ Users submitting questions and answers must adhere to:
 | Background check upload flow | ⬜ Not Built | Production only (self-reported trust signal) |
 | Fraud detection | ⬜ Not Built | Production only |
 
-### 23.10Key Decisions Log
+### 23.10 Key Decisions Log
 
 | Decision | Status | Rationale |
 |----------|--------|-----------|
@@ -9180,7 +9202,7 @@ Users submitting questions and answers must adhere to:
 
 ---
 
-### 23.11Cross-Chapter Integration
+### 23.11 Cross-Chapter Integration
 
 | Chapter | Integration Point |
 |---------|-------------------|
@@ -9213,10 +9235,10 @@ Users submitting questions and answers must adhere to:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 27.1 FAQ / Help Center | ⬜ | Static content pages |
-| 27.2 Contact Support Form | ⬜ | Email or in-app |
-| 27.3 Live Chat | ⬜ | Intercom, Crisp — deferred |
-| 27.4 Feedback Collection | ⬜ | Simple form or widget |
+| 30.1 FAQ / Help Center | ⬜ | Static content pages |
+| 30.2 Contact Support Form | ⬜ | Email or in-app |
+| 30.3 Live Chat | ⬜ | Intercom, Crisp — deferred |
+| 30.4 Feedback Collection | ⬜ | Simple form or widget |
 
 ### Key Questions
 - [ ] Minimal FAQ page for demo?
@@ -9232,12 +9254,12 @@ _To be filled in during chapter review._
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 28.1 Global Error Boundaries (React) | 🟡 | May need verification |
-| 28.2 API Error Responses (consistent format) | 🟡 | Standardization needed |
-| 28.3 Error Logging (Sentry, etc.) | ⬜ | Third-party integration |
-| 28.4 Uptime Monitoring | ⬜ | External service |
-| 28.5 Loading States | 🟡 | Components exist |
-| 28.6 Empty States | 🟡 | May need improvement |
+| 35.1 Global Error Boundaries (React) | 🟡 | May need verification |
+| 35.2 API Error Responses (consistent format) | 🟡 | Standardization needed |
+| 35.3 Error Logging (Sentry, etc.) | ⬜ | Third-party integration |
+| 35.4 Uptime Monitoring | ⬜ | External service |
+| 35.5 Loading States | 🟡 | Components exist |
+| 35.6 Empty States | 🟡 | May need improvement |
 
 ### Key Questions
 - [ ] Error handling audit for demo stability?
@@ -9444,9 +9466,9 @@ Admin Panel
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 31.1 UTM Parameter Tracking | ⬜ | Marketing attribution |
-| 31.2 Referral Codes | ⬜ | User-to-user referrals |
-| 31.3 Partner/Affiliate Tracking | ⬜ | B2B partnerships |
+| 29.1 UTM Parameter Tracking | ⬜ | Marketing attribution |
+| 29.2 Referral Codes | ⬜ | User-to-user referrals |
+| 29.3 Partner/Affiliate Tracking | ⬜ | B2B partnerships |
 
 ### Key Questions
 - [ ] Deferred for demo?
@@ -9464,11 +9486,11 @@ _To be filled in during chapter review._
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 33.1 Database Query Optimization | 🟡 | Index verification needed |
-| 33.2 API Response Caching | ⬜ | Redis or in-memory |
-| 33.3 Static Page Generation (ISR) | ⬜ | Next.js incremental static regen |
-| 33.4 Image Optimization | 🟡 | Next/Image, CDN |
-| 33.5 Bundle Size Analysis | ⬜ | Webpack analyzer |
+| 36.1 Database Query Optimization | 🟡 | Index verification needed |
+| 36.2 API Response Caching | ⬜ | Redis or in-memory |
+| 36.3 Static Page Generation (ISR) | ⬜ | Next.js incremental static regen |
+| 36.4 Image Optimization | 🟡 | Next/Image, CDN |
+| 36.5 Bundle Size Analysis | ⬜ | Webpack analyzer |
 
 ### Key Questions
 - [ ] Performance issues observed?
@@ -9483,6 +9505,8 @@ _To be filled in during chapter review._
 **Purpose**: Define the delivery infrastructure for transactional communications, lifecycle automation workflows, and operational outreach systems including call center integration.
 
 > **Scope Distinction**: Chapter 19 (Notifications) defines *what* to send and *when*. This chapter defines *how* to send it — infrastructure, templates, automation rules, and delivery tracking.
+
+> **Cross-Reference**: See Chapter 38 (Third-Party Services & Integrations) for the master service registry, environment variable requirements, and vendor management details.
 
 ### 34.1 Delivery Infrastructure (DECIDED)
 
@@ -10173,53 +10197,331 @@ Provider State Model:
 
 ## Chapter 38: Third-Party Services & Integrations
 
-> 🆕 **New Chapter** — Structure approved, content to be developed.
+**Review Status**: ✅ Reviewed
 
-**Purpose**: Document all third-party services, external APIs, and vendor integrations used across the platform.
+**Purpose**: Serve as the central, authoritative registry for all third-party services, external APIs, and vendor integrations used across the platform. This chapter provides a single reference point for understanding what external dependencies exist, how they are configured, and where they are used.
 
-### Scope
+> **Cross-Reference**: Individual services are documented in detail within their functional chapters (e.g., Resend in Chapter 34, Vercel in Chapter 32). This chapter provides the master inventory and cross-references.
 
-| Section | Status | Notes |
-|---------|--------|-------|
-| 38.1 Service Inventory | 🆕 | Complete list of all external services |
-| 38.2 API Integrations | 🆕 | External API connections |
-| 38.3 Vendor Management | 🆕 | Vendor relationships, contracts, SLAs |
+---
 
-### 38.1 Service Inventory
+### 38.1 Service Inventory (DECIDED)
 
-| Service | Purpose | Status |
-|---------|---------|--------|
-| **Vercel** | Hosting, deployment | ✅ Active |
-| **Neon** | PostgreSQL database | ✅ Active |
-| **Resend** | Email delivery | ✅ Active |
-| **Vercel Blob** | File storage | ✅ Active |
-| **Stripe** | Payment processing | ⬜ Future |
-| **Twilio** | SMS delivery | ⬜ Future |
+> **Complete registry of all external services the platform depends on.**
 
-_Complete service inventory to be documented._
+#### 38.1.1 Infrastructure Services
 
-### 38.2 API Integrations
+| Service | Purpose | Status | Chapter Reference |
+|---------|---------|--------|-------------------|
+| **Vercel** | Hosting, deployment, edge functions | ✅ Active | Ch 32: Hosting & Deployment |
+| **Neon** | PostgreSQL database (serverless) | ✅ Active | Ch 31: Application Architecture |
+| **Vercel Blob** | File/image storage | ✅ Active | Ch 33: File Uploads & Media |
 
-**Current Integrations**:
-- Resend API (email delivery)
-- Vercel Blob API (file storage)
+#### 38.1.2 Communication Services
 
-**Planned Integrations**:
-- Stripe API (payments)
-- Twilio API (SMS)
-- Analytics providers
+| Service | Purpose | Status | Chapter Reference |
+|---------|---------|--------|-------------------|
+| **Resend** | Transactional email delivery | ✅ Active | Ch 34: Communications Infrastructure |
+| **Twilio** | SMS delivery | ⬜ Future | Ch 34: Communications Infrastructure |
 
-_Integration details to be documented._
+#### 38.1.3 Authentication & Security
 
-### 38.3 Vendor Management
+| Service | Purpose | Status | Chapter Reference |
+|---------|---------|--------|-------------------|
+| **NextAuth.js** | Authentication framework | ✅ Active | Ch 1: Authentication |
+| **bcrypt** | Password hashing | ✅ Active | Ch 1: Authentication |
 
-**Vendor Evaluation Criteria**:
-- Reliability and uptime SLAs
-- Data handling and privacy compliance
-- Cost and scalability
-- Developer experience
+#### 38.1.4 Payment & Billing
 
-_Vendor management procedures to be documented._
+| Service | Purpose | Status | Chapter Reference |
+|---------|---------|--------|-------------------|
+| **Stripe** | Subscription billing, payment processing | ✅ Demo | Ch 21: Subscriptions & Paywalls |
+
+#### 38.1.5 Analytics & Monitoring
+
+| Service | Purpose | Status | Chapter Reference |
+|---------|---------|--------|-------------------|
+| **Google Analytics** | User analytics, traffic analysis | 🟡 Optional | Ch 37: Analytics & Audit Logging |
+| **Sentry** | Error tracking, monitoring | 🟡 Optional | Ch 35: Error Handling & Monitoring |
+
+#### 38.1.6 Video & Scheduling (Future)
+
+| Service | Purpose | Status | Chapter Reference |
+|---------|---------|--------|-------------------|
+| **Zoom API** | Video meeting integration | ⬜ Future | Ch 17: Multi-Context Scheduling |
+| **Google Meet API** | Video meeting integration | ⬜ Future | Ch 17: Multi-Context Scheduling |
+
+---
+
+### 38.2 Environment Variable Registry (DECIDED)
+
+> **Single source of truth for all environment variables required by third-party integrations.**
+
+#### 38.2.1 Required Variables (Demo)
+
+| Variable | Service | Purpose | Secret? |
+|----------|---------|---------|---------|
+| `DATABASE_URL` | Neon | PostgreSQL connection string | Yes |
+| `NEXTAUTH_SECRET` | NextAuth.js | Session encryption key | Yes |
+| `NEXTAUTH_URL` | NextAuth.js | Application base URL | No |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob | File storage authentication | Yes |
+
+#### 38.2.2 Optional Variables (Demo)
+
+| Variable | Service | Purpose | Secret? |
+|----------|---------|---------|---------|
+| `RESEND_API_KEY` | Resend | Email delivery authentication | Yes |
+| `STRIPE_SECRET_KEY` | Stripe | Payment processing (server) | Yes |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe | Payment processing (client) | No |
+| `STRIPE_WEBHOOK_SECRET` | Stripe | Webhook signature verification | Yes |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics | Analytics tracking ID | No |
+| `SENTRY_DSN` | Sentry | Error reporting endpoint | No |
+
+#### 38.2.3 Future Variables (Production)
+
+| Variable | Service | Purpose | Secret? |
+|----------|---------|---------|---------|
+| `TWILIO_ACCOUNT_SID` | Twilio | SMS authentication | Yes |
+| `TWILIO_AUTH_TOKEN` | Twilio | SMS authentication | Yes |
+| `TWILIO_PHONE_NUMBER` | Twilio | SMS sender number | No |
+| `ZOOM_CLIENT_ID` | Zoom | Video meeting OAuth | Yes |
+| `ZOOM_CLIENT_SECRET` | Zoom | Video meeting OAuth | Yes |
+| `GOOGLE_CLIENT_ID` | Google | OAuth / Meet integration | Yes |
+| `GOOGLE_CLIENT_SECRET` | Google | OAuth / Meet integration | Yes |
+
+#### 38.2.4 Environment Configuration Pattern
+
+```
+# .env.example serves as the authoritative template
+# All new environment variables MUST be added to .env.example with:
+# 1. Clear comment explaining purpose
+# 2. Example value format
+# 3. Link to where the value is obtained
+```
+
+---
+
+### 38.3 API Integration Patterns (DECIDED)
+
+> **Standardized patterns for integrating with external APIs.**
+
+#### 38.3.1 Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Application Layer                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐               │
+│  │ API Routes  │   │ Server      │   │ Background  │               │
+│  │             │   │ Actions     │   │ Jobs        │               │
+│  └──────┬──────┘   └──────┬──────┘   └──────┬──────┘               │
+│         │                 │                 │                       │
+│         └─────────────────┼─────────────────┘                       │
+│                           │                                         │
+│                           ▼                                         │
+│              ┌────────────────────────┐                             │
+│              │   Service Layer        │                             │
+│              │   /lib or /services    │                             │
+│              └───────────┬────────────┘                             │
+│                          │                                          │
+├──────────────────────────┼──────────────────────────────────────────┤
+│                          ▼                                          │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │
+│  │ Prisma  │  │ Resend  │  │ Stripe  │  │ Vercel  │  │ Twilio  │   │
+│  │ (Neon)  │  │ API     │  │ API     │  │ Blob    │  │ API     │   │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘   │
+│                                                                     │
+│                       External Services                             │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### 38.3.2 Service Wrapper Pattern
+
+All third-party integrations should use a service wrapper:
+
+```typescript
+// lib/email.ts - Example service wrapper pattern
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function sendEmail({
+  to,
+  subject,
+  template,
+  data,
+}: SendEmailParams) {
+  // Validation
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('Email not sent: RESEND_API_KEY not configured');
+    return { success: false, reason: 'not_configured' };
+  }
+
+  // Send via external API
+  const result = await resend.emails.send({
+    from: 'Olera <notifications@olera.com>',
+    to,
+    subject,
+    react: renderTemplate(template, data),
+  });
+
+  return { success: true, id: result.id };
+}
+```
+
+**Pattern Benefits**:
+- Centralized configuration
+- Graceful degradation when not configured
+- Consistent error handling
+- Easy mocking for tests
+
+#### 38.3.3 Rate-Limited API Handling
+
+| Service | Rate Limit | Handling Strategy |
+|---------|------------|-------------------|
+| Resend | 100/day (free) | Queue + batch for production |
+| Stripe | 100/sec | Webhook-based, no polling |
+| Twilio | Varies by plan | Queue for bulk SMS |
+| Vercel Blob | 1000/min | Client-side retry with backoff |
+
+---
+
+### 38.4 Service Dependencies by Feature (DECIDED)
+
+> **Which services are required for each platform feature.**
+
+| Feature | Required Services | Optional Services |
+|---------|-------------------|-------------------|
+| **Core Platform** | Vercel, Neon, NextAuth | - |
+| **User Authentication** | NextAuth, bcrypt | Google OAuth (future) |
+| **Email Notifications** | Resend | - |
+| **Profile Images** | Vercel Blob | - |
+| **Subscriptions** | Stripe | - |
+| **Analytics** | - | Google Analytics |
+| **Error Tracking** | - | Sentry |
+| **SMS Notifications** | - | Twilio (future) |
+| **Video Scheduling** | - | Zoom, Google Meet (future) |
+
+---
+
+### 38.5 Vendor Evaluation & Management (DECIDED)
+
+> **Criteria and process for evaluating and managing third-party vendors.**
+
+#### 38.5.1 Vendor Selection Criteria
+
+| Criterion | Weight | Evaluation |
+|-----------|--------|------------|
+| **Reliability** | High | Uptime SLAs, incident history |
+| **Developer Experience** | High | Documentation, SDK quality, support |
+| **Data Privacy** | High | GDPR compliance, data handling |
+| **Cost** | Medium | Free tier, scaling costs |
+| **Scalability** | Medium | Growth capacity, rate limits |
+| **Lock-in Risk** | Low | Migration path, data portability |
+
+#### 38.5.2 Current Vendor Decisions
+
+| Service | Vendor | Why Chosen | Alternatives Considered |
+|---------|--------|------------|-------------------------|
+| Hosting | Vercel | Next.js native, edge functions, easy deployment | AWS, Netlify, Railway |
+| Database | Neon | Serverless PostgreSQL, Prisma support, free tier | Supabase, PlanetScale |
+| Email | Resend | Modern API, React Email, excellent DX | SendGrid, Postmark |
+| Storage | Vercel Blob | Native Vercel integration, simple API | AWS S3, Cloudflare R2 |
+| Payments | Stripe | Industry standard, comprehensive API | Paddle, LemonSqueezy |
+
+#### 38.5.3 Vendor Change Process
+
+1. **Proposal**: Document reason for change, alternatives evaluated
+2. **Impact Assessment**: Identify affected chapters and code
+3. **Migration Plan**: Step-by-step transition approach
+4. **Implementation**: Execute with rollback capability
+5. **Documentation**: Update this chapter and all cross-references
+
+---
+
+### 38.6 Admin Integration Visibility (DECIDED)
+
+> **How third-party integrations appear in the Admin panel.**
+
+**Location**: Admin > System > External Tools Map
+
+#### Admin External Tools Dashboard
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ Admin > System > External Tools                                      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ INFRASTRUCTURE                                                      │
+│ ┌─────────────────────┐ ┌─────────────────────┐                     │
+│ │ Vercel              │ │ Neon                │                     │
+│ │ ✅ Connected        │ │ ✅ Connected        │                     │
+│ │ [Dashboard →]       │ │ [Dashboard →]       │                     │
+│ └─────────────────────┘ └─────────────────────┘                     │
+│                                                                     │
+│ COMMUNICATIONS                                                      │
+│ ┌─────────────────────┐ ┌─────────────────────┐                     │
+│ │ Resend              │ │ Twilio              │                     │
+│ │ ✅ Configured       │ │ ⬜ Not Configured   │                     │
+│ │ [Dashboard →]       │ │ [Setup Guide →]     │                     │
+│ └─────────────────────┘ └─────────────────────┘                     │
+│                                                                     │
+│ PAYMENTS                                                            │
+│ ┌─────────────────────┐                                             │
+│ │ Stripe              │                                             │
+│ │ ✅ Connected        │                                             │
+│ │ [Dashboard →]       │                                             │
+│ └─────────────────────┘                                             │
+│                                                                     │
+│ ANALYTICS & MONITORING                                              │
+│ ┌─────────────────────┐ ┌─────────────────────┐                     │
+│ │ Google Analytics    │ │ Sentry              │                     │
+│ │ 🟡 Optional         │ │ 🟡 Optional         │                     │
+│ │ [Setup Guide →]     │ │ [Setup Guide →]     │                     │
+│ └─────────────────────┘ └─────────────────────┘                     │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Service status indicators | ✅ | ✅ |
+| External dashboard links | ✅ | ✅ |
+| Configuration status | ✅ | ✅ |
+| Usage metrics | ⬜ Defer | ✅ |
+| Cost tracking | ⬜ Defer | ✅ |
+
+> **Cross-Reference**: See Chapter 26 (Admin System) Section 26.17 for full External Tools Map specification.
+
+---
+
+### 38.7 Demo vs Production Scope
+
+| Aspect | Demo | Production |
+|--------|------|------------|
+| **Required Services** | Vercel, Neon, NextAuth, Vercel Blob, Stripe | All listed |
+| **Optional Services** | Resend (email), Analytics | All configured |
+| **Service Monitoring** | Basic status checks | Full health monitoring |
+| **Cost Tracking** | Not included | Dashboard integration |
+| **SLA Monitoring** | Not included | Automated alerts |
+
+---
+
+### 38.8 Cross-Reference Index
+
+This chapter serves as the central registry. Detailed implementation for each service is documented in the referenced chapters:
+
+| Service Category | Primary Chapter | Related Chapters |
+|------------------|-----------------|------------------|
+| Hosting & Deployment | Ch 32 | Ch 31, Ch 35 |
+| Database | Ch 31 | Ch 36 |
+| Email | Ch 34 | Ch 19 |
+| File Storage | Ch 33 | Ch 7, Ch 6 |
+| Payments | Ch 21 | Ch 26 |
+| Authentication | Ch 1 | Ch 8 |
+| Analytics | Ch 37 | Ch 26, Ch 28 |
+| Error Monitoring | Ch 35 | Ch 26 |
 
 ---
 
