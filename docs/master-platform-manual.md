@@ -169,7 +169,7 @@
 | | 36.2 Database Optimization | |
 | | 36.3 Frontend Performance | |
 | | 36.4 Core Web Vitals | |
-| 37 | [Analytics & Audit Logging](#chapter-37-analytics--audit-logging) | ⏳ Pending |
+| 37 | [Analytics & Audit Logging](#chapter-37-analytics--audit-logging) | ✅ Reviewed |
 | | 37.1 User Analytics | |
 | | 37.2 Admin Activity Logging | |
 | | 37.3 Audit Trail | |
@@ -242,7 +242,9 @@
 | **Placeholders (🆕)** | 0 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 37 (Analytics & Audit Logging)
+**Next Chapter to Review**: Chapter 38 (Third-Party Services & Integrations)
+
+**Recently Completed**: Chapter 37 (Analytics & Audit Logging) - Reviewed ✅
 
 ---
 
@@ -5293,30 +5295,30 @@ Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 20.1 Admin Mode (3rd mode) | ⬜ | Accessible via account dropdown for ADMIN users |
-| 20.2 Admin Dashboard Home | ⬜ | Queue counts, system health, recent activity |
-| 20.3 Claims Queue | ⬜ | Provider claim review workflow |
-| 20.4 Reviews Queue | ⬜ | Review moderation workflow |
-| 20.5 Provider Requests Queue | ⬜ | Provider-initiated requests (edits, removals, complaints) |
-| 20.6 User Reports Queue | ⬜ | Content/user reports from platform users |
-| 20.7 Support Queue | ⬜ | General support requests |
-| 20.8 Legal & Compliance Queue | ⬜ | Legal requests (C&D, DMCA, GDPR, CCPA) |
-| 20.9 Questions Queue | ⬜ | Community questions/answers moderation |
-| 20.10 Provider Data Management | ⬜ | Full CRUD for provider records |
-| 20.11 User Data Management | ⬜ | User account management |
-| 20.12 Family Data Management | ⬜ | Family profile management |
-| 20.13 Engagement Data View | ⬜ | View/manage engagements |
-| 20.14 System Health Dashboard | ⬜ | API, DB, delivery metrics |
-| 20.15 Background Jobs Monitor | ⬜ | Job status, failures |
-| 20.16 Activity Logs | ⬜ | Admin action history |
-| 20.17 External Tools Map | ⬜ | Links + context for external systems |
-| 20.18 Embedded Documentation | ⬜ | SOPs, policies, guides |
-| 20.19 Database Seeding Tools | ✅ | `/admin/seed` exists |
-| 20.20 Data Clear Tools | ✅ | `/admin/clear-requests` exists |
-| 20.21 SEO Content Management | ⬜ | Future: SEO page creation |
-| 20.22 Help Article Management | ⬜ | Future: Help center content |
-| 20.23 Notification Template Management | ⬜ | Future: Edit notification templates |
-| 20.24 Questions Content Management | ⬜ | Manage community Q&A content |
+| 26.1 Admin Mode (3rd mode) | ⬜ | Accessible via account dropdown for ADMIN users |
+| 26.2 Admin Dashboard Home | ⬜ | Queue counts, system health, recent activity |
+| 26.3 Claims Queue | ⬜ | Provider claim review workflow |
+| 26.4 Reviews Queue | ⬜ | Review moderation workflow |
+| 26.5 Provider Requests Queue | ⬜ | Provider-initiated requests (edits, removals, complaints) |
+| 26.6 User Reports Queue | ⬜ | Content/user reports from platform users |
+| 26.7 Support Queue | ⬜ | General support requests |
+| 26.8 Legal & Compliance Queue | ⬜ | Legal requests (C&D, DMCA, GDPR, CCPA) |
+| 26.9 Questions Queue | ⬜ | Community questions/answers moderation |
+| 26.10 Provider Data Management | ⬜ | Full CRUD for provider records |
+| 26.11 User Data Management | ⬜ | User account management |
+| 26.12 Family Data Management | ⬜ | Family profile management |
+| 26.13 Engagement Data View | ⬜ | View/manage engagements |
+| 26.14 System Health Dashboard | ⬜ | API, DB, delivery metrics |
+| 26.15 Background Jobs Monitor | ⬜ | Job status, failures |
+| 26.16 Activity Logs | ⬜ | Admin action history |
+| 26.17 External Tools Map | ⬜ | Links + context for external systems |
+| 26.18 Embedded Documentation | ⬜ | SOPs, policies, guides |
+| 26.19 Database Seeding Tools | ✅ | `/admin/seed` exists |
+| 26.20 Data Clear Tools | ✅ | `/admin/clear-requests` exists |
+| 26.21 SEO Content Management | ⬜ | Future: SEO page creation |
+| 26.22 Help Article Management | ⬜ | Future: Help center content |
+| 26.23 Notification Template Management | ⬜ | Future: Edit notification templates |
+| 26.24 Questions Content Management | ⬜ | Manage community Q&A content |
 
 ### Key Questions — RESOLVED
 
@@ -5327,7 +5329,7 @@ Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
   - **DECIDED**: Single ADMIN role for demo. Role tiers (Admin, Support, Content Manager) deferred to production.
 
 - [x] **Should audit logging be implemented?**
-  - **DECIDED**: Deferred for demo. Structure exists but logging not active.
+  - **DECIDED**: Yes, minimal for demo. Auth events, subscription events, and admin actions logged. Visible in Admin > Legal & Compliance > Audit Log. See Chapter 37 for full specification.
 
 - [x] **How do providers submit requests?**
   - **DECIDED**: Both channels — email to support@olera.com AND contact form on unclaimed listing pages.
@@ -5336,7 +5338,7 @@ Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 
 ### Architectural Notes
 
-#### 20.1 Admin Mode Access (DECIDED)
+#### 26.1 Admin Mode Access (DECIDED)
 
 Admin Mode is the **third mode** alongside Family Mode and Provider Mode.
 
@@ -5382,10 +5384,14 @@ Account Dropdown (Admin user):
 │   ├── /admin/data/engagements        → Engagement Records
 │   └── /admin/data/reviews            → Review Records
 │
+├── /admin/legal                         → Legal & Compliance (First-Class Section)
+│   ├── /admin/legal/audit-log           → Audit Log Viewer (✅ Demo)
+│   ├── /admin/legal/data-requests       → Data Deletion/Export Requests (Deferred)
+│   └── /admin/legal/compliance          → Compliance Dashboard (Deferred)
+│
 ├── /admin/system
 │   ├── /admin/system/health           → System Health Dashboard
 │   ├── /admin/system/jobs             → Background Jobs Monitor
-│   ├── /admin/system/logs             → Activity & Audit Logs
 │   └── /admin/system/external         → External Tools Map
 │
 ├── /admin/content
@@ -5409,7 +5415,7 @@ Account Dropdown (Admin user):
 
 ---
 
-#### 20.2 Admin Dashboard Home (DECIDED)
+#### 26.2 Admin Dashboard Home (DECIDED)
 
 The landing page after entering Admin Mode:
 
@@ -6200,6 +6206,40 @@ The Admin System integrates with every other chapter:
 | **Ch 24: Trust** | Reports queue, fraud investigation |
 | **Ch 34: Help** | Help article management |
 | **Ch 32: Errors** | System health, logs |
+| **Ch 37: Audit Logging** | Audit log viewer, compliance |
+
+---
+
+### Legal & Compliance Section (DECIDED — Required for Demo)
+
+The Admin panel includes a dedicated **Legal & Compliance** section as a **first-class concept**.
+
+> **Cross-Reference**: See Chapter 37 (Analytics & Audit Logging) for full audit log specification and Chapter 39 (Legal Framework) for compliance requirements.
+
+**Admin > Legal & Compliance Structure**:
+
+```
+/admin/legal
+├── Audit Log              ← ✅ Required for Demo
+│   ├── Filter by action type
+│   ├── Filter by date range
+│   └── View event details
+│
+├── Data Requests          ← Deferred to Production
+│   ├── Deletion requests (CCPA)
+│   └── Export requests
+│
+└── Compliance Dashboard   ← Deferred to Production
+    ├── Terms acceptance metrics
+    └── Cookie consent metrics
+```
+
+**Demo Scope**:
+- Audit Log viewer with basic filters (action type, date range)
+- Display of auth events, subscription events, admin actions
+- Clickable details for each log entry
+
+**Rationale**: For legal and compliance purposes, the audit log must be visible as a first-class concept in the admin panel, demonstrating that the platform has compliance infrastructure in place.
 
 ---
 
@@ -6321,34 +6361,34 @@ Each SOP should follow this template:
 | Item | Status | Notes |
 |------|--------|-------|
 | **Data Architecture** | | |
-| 21.1 Organization vs Account Data Model | ✅ Decided | See 21.1 below |
-| 21.2 Unclaimed Provider Lifecycle | ✅ Decided | See 21.2 below |
-| 21.3 Field Classification Framework | ✅ Decided | Core, Extended, Audit, Deprecated |
+| 24.1 Organization vs Account Data Model | ✅ Decided | See 24.1 below |
+| 24.2 Unclaimed Provider Lifecycle | ✅ Decided | See 24.2 below |
+| 24.3 Field Classification Framework | ✅ Decided | Core, Extended, Audit, Deprecated |
 | **Source of Truth** | | |
-| 21.4 Current State (Airtable) | ✅ Documented | CSV export, manual upload |
-| 21.5 Target State (Postgres) | ✅ Decided | Full migration, Airtable deprecated |
-| 21.6 Transition Plan | 🟡 In Progress | See 21.6 below |
+| 24.4 Current State (Airtable) | ✅ Documented | CSV export, manual upload |
+| 24.5 Target State (Postgres) | ✅ Decided | Full migration, Airtable deprecated |
+| 24.6 Transition Plan | 🟡 In Progress | See 24.6 below |
 | **Data Migration** | | |
-| 21.7 Field Mapping Matrix | ✅ Decided | Airtable → Provider model |
-| 21.8 Migration Execution Plan | ⬜ | Sequenced rollout |
-| 21.9 Validation & Rollback | ⬜ | Pre/post checks |
+| 24.7 Field Mapping Matrix | ✅ Decided | Airtable → Provider model |
+| 24.8 Migration Execution Plan | ⬜ | Sequenced rollout |
+| 24.9 Validation & Rollback | ⬜ | Pre/post checks |
 | **Admin Upload System** | | |
-| 21.10 Upload File Format | ✅ Decided | Standardized CSV |
-| 21.11 Validation Rules | ✅ Decided | See 21.11 below |
-| 21.12 Deduplication Strategy | ✅ Decided | See 21.12 below |
-| 21.13 Update Behavior | ✅ Decided | Merge vs. overwrite rules |
-| 21.14 Admin UI Integration | 🟡 | Cross-ref Chapter 20 |
+| 24.10 Upload File Format | ✅ Decided | Standardized CSV |
+| 24.11 Validation Rules | ✅ Decided | See 24.11 below |
+| 24.12 Deduplication Strategy | ✅ Decided | See 24.12 below |
+| 24.13 Update Behavior | ✅ Decided | Merge vs. overwrite rules |
+| 24.14 Admin UI Integration | 🟡 | Cross-ref Chapter 26 |
 | **Scale & Performance** | | |
-| 21.15 Current Scale (~40K) | ✅ | Existing dataset |
-| 21.16 Target Scale (500K+) | ⬜ | Performance considerations |
+| 24.15 Current Scale (~40K) | ✅ | Existing dataset |
+| 24.16 Target Scale (500K+) | ⬜ | Performance considerations |
 | **Demo & Development** | | |
-| 21.17 Demo User Accounts | ✅ | `prisma/seed.ts` |
-| 21.18 Demo Walkthrough | ⬜ | Documentation needed |
-| 21.19 Data Reset Tools | 🟡 | Partial implementation |
+| 24.17 Demo User Accounts | ✅ | `prisma/seed.ts` |
+| 24.18 Demo Walkthrough | ⬜ | Documentation needed |
+| 24.19 Data Reset Tools | 🟡 | Partial implementation |
 
 ---
 
-### 21.1 Organization Data vs Account Data (DECIDED)
+### 24.1 Organization Data vs Account Data (DECIDED)
 
 **The Core Distinction**
 
@@ -6455,7 +6495,7 @@ model User {
 
 ---
 
-### 21.2 Unclaimed Provider Lifecycle (DECIDED)
+### 24.2 Unclaimed Provider Lifecycle (DECIDED)
 
 **States and Transitions**
 
@@ -6505,7 +6545,7 @@ When a provider is claimed, **all organization data is preserved**:
 
 ---
 
-### 21.3 Field Classification Framework (DECIDED)
+### 24.3 Field Classification Framework (DECIDED)
 
 All provider fields fall into four categories:
 
@@ -6525,7 +6565,7 @@ For the initial migration, we will:
 
 ---
 
-### 21.4 Current State: Airtable as Data Source (DOCUMENTED)
+### 24.4 Current State: Airtable as Data Source (DOCUMENTED)
 
 **Current Workflow**
 
@@ -6563,7 +6603,7 @@ The legacy Airtable contains 130+ fields. Most are operational/workflow fields n
 
 ---
 
-### 21.5 Target State: Postgres as Source of Truth (DECIDED)
+### 24.5 Target State: Postgres as Source of Truth (DECIDED)
 
 **Decision: Full Migration (Option A)**
 
@@ -6612,7 +6652,7 @@ Postgres (Neon) becomes the **sole source of truth** for all production data.
 
 ---
 
-### 21.6 Transition Plan (IN PROGRESS)
+### 24.6 Transition Plan (IN PROGRESS)
 
 **Phase 1: Initial Migration**
 
@@ -6645,7 +6685,7 @@ Postgres (Neon) becomes the **sole source of truth** for all production data.
 
 ---
 
-### 21.7 Field Mapping Matrix (DECIDED)
+### 24.7 Field Mapping Matrix (DECIDED)
 
 **Mapping: Airtable → Provider Model**
 
@@ -6728,7 +6768,7 @@ These fields are operational/workflow artifacts and should not be migrated:
 
 ---
 
-### 21.10 Upload File Format (DECIDED)
+### 24.10 Upload File Format (DECIDED)
 
 **Standardized CSV Format**
 
@@ -6772,7 +6812,7 @@ external_id,name,provider_type,address,city,state,zip_code,phone,website,email,d
 
 ---
 
-### 21.11 Validation Rules (DECIDED)
+### 24.11 Validation Rules (DECIDED)
 
 **Pre-Import Validation**
 
@@ -6812,7 +6852,7 @@ Each row is validated before import. Invalid rows are rejected with error detail
 
 ---
 
-### 21.12 Deduplication Strategy (DECIDED)
+### 24.12 Deduplication Strategy (DECIDED)
 
 **Deduplication Key**
 
@@ -6844,7 +6884,7 @@ Records flagged as potential duplicates appear in Admin queue for manual resolut
 
 ---
 
-### 21.13 Update Behavior (DECIDED)
+### 24.13 Update Behavior (DECIDED)
 
 **Merge vs. Overwrite Rules**
 
@@ -6877,7 +6917,7 @@ Every import creates an audit record:
 
 ---
 
-### 21.14 Admin UI Integration (CROSS-REFERENCE)
+### 24.14 Admin UI Integration (CROSS-REFERENCE)
 
 **Cross-reference**: See Chapter 20 → Admin Tools → Bulk Import.
 
@@ -6939,7 +6979,7 @@ Admin navigates to /admin/tools/bulk-import
 
 ---
 
-### 21.15 Current Scale: ~40,000 Providers
+### 24.15 Current Scale: ~40,000 Providers
 
 **Dataset Characteristics**
 
@@ -6963,7 +7003,7 @@ Admin navigates to /admin/tools/bulk-import
 
 ---
 
-### 21.16 Target Scale: 500,000+ Providers
+### 24.16 Target Scale: 500,000+ Providers
 
 **Scaling Considerations**
 
@@ -6995,7 +7035,7 @@ Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads.
 
 ---
 
-### 21.17 Demo & Development Data
+### 24.17 Demo & Development Data
 
 **Demo User Accounts**
 
@@ -7027,7 +7067,7 @@ Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads.
 
 ---
 
-### 21.18 Demo Walkthrough Documentation
+### 24.18 Demo Walkthrough Documentation
 
 **To Be Documented**
 
@@ -7040,7 +7080,7 @@ Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads.
 
 ---
 
-### 21.19 Data Reset Capabilities
+### 24.19 Data Reset Capabilities
 
 **Reset Options**
 
@@ -7820,7 +7860,7 @@ Hospice                 List Your Business
 
 **Purpose**: Comprehensive SEO strategy and public-facing content architecture designed to dominate organic search, reduce paid traffic dependency, and build topical authority across the senior care ecosystem.
 
-### 29.1 SEO Strategy Overview
+### 28.1 SEO Strategy Overview
 
 **Competitive Landscape**: Competing against A Place for Mom, Caring.com, SeniorAdvisor, and general directories like Yelp and Google Business Profiles.
 
@@ -7838,7 +7878,7 @@ Hospice                 List Your Business
 - Domain authority improvement
 - Conversion from SEO traffic to family/provider signups
 
-### 29.2 Care Type Taxonomy
+### 28.2 Care Type Taxonomy
 
 Nine primary care types form the foundation of URL architecture and content organization:
 
@@ -7856,7 +7896,7 @@ Nine primary care types form the foundation of URL architecture and content orga
 
 **Note**: Respite Care is a service attribute, not a primary care type. Providers offering respite indicate it within their service tags.
 
-### 29.3 URL Architecture
+### 28.3 URL Architecture
 
 **Topic-First Clustering Pattern**:
 ```
@@ -7899,7 +7939,7 @@ Examples: `/compare/assisted-living-vs-memory-care/`, `/compare/home-care-vs-hom
 /how-olera-works/                       → Transparency Hub
 ```
 
-### 29.4 Care Journey Pathways
+### 28.4 Care Journey Pathways
 
 Three primary pathways families follow when seeking care:
 
@@ -7927,9 +7967,9 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 - Timeline: Variable, often extended research phase
 - Content needs: Comprehensive guides, cost information, local directory pages
 
-### 29.5 Page Type Specifications
+### 28.5 Page Type Specifications
 
-#### 29.5.1 Topic Hubs
+#### 28.5.1 Topic Hubs
 
 **Purpose**: Authority pages that serve as entry points for each care type or planning topic.
 
@@ -7952,7 +7992,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 
 **Schema Markup**: `WebPage` with `BreadcrumbList`
 
-#### 29.5.2 State Directory Pages
+#### 28.5.2 State Directory Pages
 
 **Purpose**: Aggregate all cities within a state for a specific care type.
 
@@ -7973,7 +8013,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 
 **Schema Markup**: `WebPage` with `BreadcrumbList`, `ItemList` for cities
 
-#### 29.5.3 City Directory Pages
+#### 28.5.3 City Directory Pages
 
 **Purpose**: Highest ROI programmatic pages. List all providers of a care type in a specific city.
 
@@ -8008,7 +8048,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 
 **Scalability**: ~27,000+ potential city directory pages (9 care types × 3,000+ cities)
 
-#### 29.5.4 Provider Profile Pages
+#### 28.5.4 Provider Profile Pages
 
 **Purpose**: Comprehensive provider information for conversion and SEO.
 
@@ -8027,7 +8067,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 - Primary care type determines canonical URL
 - Multi-service providers tagged with additional care types for directory visibility
 
-#### 29.5.5 Article Pages
+#### 28.5.5 Article Pages
 
 **Purpose**: Editorial content for topical authority and informational queries.
 
@@ -8058,7 +8098,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 - Annual review cycle for evergreen content
 - Clear sourcing for statistics and claims
 
-#### 29.5.6 Question Pages
+#### 28.5.6 Question Pages
 
 **Purpose**: Community-generated content capturing long-tail queries and building engagement.
 
@@ -8094,7 +8134,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 
 **Moderation Queue**: See Chapter 27: Admin System for queue specifications.
 
-#### 29.5.7 Comparison Pages
+#### 28.5.7 Comparison Pages
 
 **Purpose**: Capture "[A] vs [B]" search queries and aid decision-making.
 
@@ -8117,9 +8157,9 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 
 **Schema Markup**: `Article` with comparison table markup
 
-### 29.6 Navigation Structure
+### 28.6 Navigation Structure
 
-#### 29.6.1 Primary Navigation
+#### 28.6.1 Primary Navigation
 
 **Desktop Header**:
 ```
@@ -8134,7 +8174,7 @@ Each dropdown contains:
 - 2-3 featured articles
 - "View All [Care Type] Resources"
 
-#### 29.6.2 "More" Mega Menu
+#### 28.6.2 "More" Mega Menu
 
 Comprehensive care ecosystem navigation:
 
@@ -8155,7 +8195,7 @@ Comprehensive care ecosystem navigation:
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### 29.6.3 Footer Navigation
+#### 28.6.3 Footer Navigation
 
 ```
 CARE TYPES              PLANNING              COMPANY               LEGAL & TRUST
@@ -8173,7 +8213,7 @@ Hospice                 List Your Business
                         Claim Your Listing
 ```
 
-### 29.7 "Help Me Decide" Flow
+### 28.7 "Help Me Decide" Flow
 
 **Entry Points**:
 - Primary nav CTA button
@@ -8194,7 +8234,7 @@ Hospice                 List Your Business
 
 **Output**: Personalized care type recommendations with links to relevant directories.
 
-### 29.8 Job Seeker Capture
+### 28.8 Job Seeker Capture
 
 **Landing Page**: `/caregiver-jobs/`
 
@@ -8224,7 +8264,7 @@ Hospice                 List Your Business
 - Links to caregiver signup flow
 - See Chapter 7: Provider Profiles for placement specifications
 
-### 29.9 Transparency Hub
+### 28.9 Transparency Hub
 
 **URL**: `/how-olera-works/`
 
@@ -8240,9 +8280,9 @@ Hospice                 List Your Business
 | How Reviews Work | `/how-olera-works/reviews/` | Review collection, verification, moderation |
 | How Requests Work | `/how-olera-works/requests/` | Information request routing, provider matching |
 
-### 29.10 Brand & Authority Content
+### 28.10 Brand & Authority Content
 
-#### 29.10.1 Research Hub
+#### 28.10.1 Research Hub
 
 **URL**: `/research/`
 
@@ -8256,7 +8296,7 @@ Hospice                 List Your Business
 
 **SEO Value**: Linkable assets for earning backlinks, establishing domain authority.
 
-#### 29.10.2 Aging in America Series
+#### 28.10.2 Aging in America Series
 
 **URL**: `/aging-in-america/`
 
@@ -8266,7 +8306,7 @@ Hospice                 List Your Business
 
 **SEO Value**: Brand awareness, social sharing, media coverage potential.
 
-#### 29.10.3 Company Pages
+#### 28.10.3 Company Pages
 
 **URL Structure**:
 ```
@@ -8276,7 +8316,7 @@ Hospice                 List Your Business
 /company/contact/          → Contact Us
 ```
 
-### 29.11 Internal Linking Strategy
+### 28.11 Internal Linking Strategy
 
 **Principles**:
 1. Every page links up (to parent in hierarchy)
@@ -8296,7 +8336,7 @@ Hospice                 List Your Business
 - "Related reading" in articles
 - "You might also ask" in questions
 
-### 29.12 Scalable Page Table
+### 28.12 Scalable Page Table
 
 | Page Type | URL Pattern | Quantity | ROI | Priority |
 |-----------|-------------|----------|-----|----------|
@@ -8320,7 +8360,7 @@ Hospice                 List Your Business
 - Articles: Informational intent, brand building, backlink potential
 - Questions: Long-tail capture, community engagement, UGC scale
 
-### 29.13 Technical SEO Requirements
+### 28.13 Technical SEO Requirements
 
 | Requirement | Implementation |
 |-------------|----------------|
@@ -8335,7 +8375,7 @@ Hospice                 List Your Business
 | HTTPS | Site-wide SSL |
 | Internationalization | `hreflang` if expanding (future) |
 
-### 29.14 Implementation Status
+### 28.14 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -8358,7 +8398,7 @@ Hospice                 List Your Business
 | 29.17 XML Sitemaps | ⬜ | Dynamic generation |
 | 29.18 Care Assessment Integration | 🟡 | Wizard exists, "Help Me Decide" CTAs needed |
 
-### 29.15 Cross-Chapter Dependencies
+### 28.15 Cross-Chapter Dependencies
 
 | Chapter | Update Required |
 |---------|-----------------|
@@ -8527,7 +8567,7 @@ _To be filled in during chapter review._
 
 > **Cross-Reference**: See Chapter 39 (Legal Framework) for Section 230 protections (39.2.2), content moderation policies (39.2.3), and platform liability limitations (39.2.1). Olera operates as an information marketplace and does not guarantee provider quality or care outcomes.
 
-### 24.1 Provider Status & Trust Badges (DECIDED — Required for Demo)
+### 23.1Provider Status & Trust Badges (DECIDED — Required for Demo)
 
 **Purpose**: Visual indicators that communicate provider status and trustworthiness at a glance.
 
@@ -8625,7 +8665,7 @@ Unclaimed:        Claimed:          Verified:         Background Checked:
 
 ---
 
-### 24.2 Verification Process (DECIDED)
+### 23.2Verification Process (DECIDED)
 
 **Two-State Model with Auto-Verification**:
 
@@ -8682,7 +8722,7 @@ Unclaimed:        Claimed:          Verified:         Background Checked:
 
 ---
 
-### 24.3 Report/Flag System (DECIDED — Required for Demo)
+### 23.3Report/Flag System (DECIDED — Required for Demo)
 
 **Purpose**: Allow users to report inappropriate content, policy violations, or safety concerns.
 
@@ -8763,7 +8803,7 @@ Report {
 
 ---
 
-### 24.4 Block User (DECIDED — Required for Demo)
+### 23.4Block User (DECIDED — Required for Demo)
 
 **Purpose**: Allow users to prevent contact from specific users who are abusive or violating policies.
 
@@ -8839,7 +8879,7 @@ UserBlock {
 
 ---
 
-### 24.5 Content Moderation Queue (DECIDED — Required for Demo)
+### 23.5Content Moderation Queue (DECIDED — Required for Demo)
 
 **Purpose**: Centralized admin interface for reviewing user-generated content that requires human moderation.
 
@@ -8941,7 +8981,7 @@ Report Submitted
 
 ---
 
-### 24.6 Background Check Trust Signal (Production Only)
+### 23.6Background Check Trust Signal (Production Only)
 
 **Important Distinction**: Olera does NOT perform or administer background checks. The platform allows individual caregivers to upload proof of completed background checks as a trust signal.
 
@@ -9024,7 +9064,7 @@ Report Submitted
 
 ---
 
-### 24.7 Fraud Detection (Production Only)
+### 23.7Fraud Detection (Production Only)
 
 | Signal | Detection Method | Action |
 |--------|------------------|--------|
@@ -9038,7 +9078,7 @@ Report Submitted
 
 ---
 
-### 24.8 Questions & Community Content Moderation (DECIDED)
+### 23.8Questions & Community Content Moderation (DECIDED)
 
 **Purpose**: Define moderation rules for the community Questions system (see Chapter 28: Marketing & SEO Pages).
 
@@ -9107,7 +9147,7 @@ Users submitting questions and answers must adhere to:
 
 ---
 
-### 24.9 Implementation Status
+### 23.9Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -9125,7 +9165,7 @@ Users submitting questions and answers must adhere to:
 | Background check upload flow | ⬜ Not Built | Production only (self-reported trust signal) |
 | Fraud detection | ⬜ Not Built | Production only |
 
-### 24.10 Key Decisions Log
+### 23.10Key Decisions Log
 
 | Decision | Status | Rationale |
 |----------|--------|-----------|
@@ -9140,7 +9180,7 @@ Users submitting questions and answers must adhere to:
 
 ---
 
-### 24.11 Cross-Chapter Integration
+### 23.11Cross-Chapter Integration
 
 | Chapter | Integration Point |
 |---------|-------------------|
@@ -9209,41 +9249,192 @@ _To be filled in during chapter review._
 
 ## Chapter 37: Analytics & Audit Logging
 
-**Purpose**: Track key actions for debugging, compliance, and admin visibility.
+**Review Status**: ✅ Reviewed
+
+**Purpose**: Track key actions for debugging, compliance, and admin visibility. Audit logging is a **first-class concept** visible in the Admin panel for legal and compliance purposes.
 
 > **Cross-Reference**: See Chapter 39 (Legal Framework) Section 39.3.1 for audit log retention requirements (7-year minimum for compliance). Audit logs are exempt from user deletion requests per 39.3.1.
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 29.1 User Action Log | ⬜ | Login, mode switch, request sent |
-| 29.2 Admin Action Log | ⬜ | Track admin operations |
-| 29.3 Data Change History | ⬜ | For sensitive fields |
+### 37.1 Demo Scope (DECIDED)
 
-### Key Questions
-- [ ] Needed for demo? Likely deferred.
+| Log Type | Demo | Production |
+|----------|------|------------|
+| Auth events (login/logout) | ✅ Required | ✅ |
+| Subscription events | ✅ Required | ✅ |
+| Admin actions | ✅ Basic | ✅ Full |
+| Mode switches | ⬜ Defer | ✅ |
+| Engagement actions | ⬜ Defer | ✅ |
+| Data change history | ⬜ Defer | ✅ |
 
-### Architectural Notes
-_To be filled in during chapter review._
+**Demo Requirement**: Audit log must be **visible as first-class concept** in Admin panel under Legal & Compliance section.
 
 ---
 
-## Chapter 37: Accessibility Standards
+### 37.2 Audit Log Schema (DECIDED)
 
-**Purpose**: Ensure the platform is accessible to all users through WCAG compliance and inclusive design.
+```prisma
+model AuditLog {
+  id          String   @id @default(cuid())
+  timestamp   DateTime @default(now())
+  actorId     String?  // userId or "system"
+  actorType   String   // user, admin, system
+  action      String   // login, logout, update, delete, etc.
+  targetType  String?  // user, provider, engagement, subscription
+  targetId    String?
+  metadata    Json?    // old/new values, IP address, etc.
+  ipAddress   String?
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 30.1 Multi-Language Support (i18n) | ⬜ | Spanish priority |
-| 30.2 Accessibility Compliance (WCAG) | 🟡 | Basic check needed |
-| 30.3 Provider Language Capabilities | ✅ | `languagesSpoken` field exists |
-| 30.4 Semantic HTML | 🟡 | May need audit |
-| 30.5 Keyboard Navigation | 🟡 | May need audit |
+  @@index([timestamp])
+  @@index([actorId])
+  @@index([action])
+  @@index([targetType, targetId])
+}
+```
 
-### Key Questions
-- [ ] Accessibility audit scope for demo?
+**Schema Notes**:
+- `actorId` nullable for system-generated events
+- `metadata` stores context (old/new values for data changes, IP for auth)
+- Indexes on timestamp, actor, action, and target for query performance
 
-### Architectural Notes
-_To be filled in during chapter review._
+---
+
+### 37.3 Action Categories & Priorities (DECIDED)
+
+| Priority | Category | Actions | Demo | Production |
+|----------|----------|---------|------|------------|
+| **P0** | Authentication | login, logout, password_reset, email_verify | ✅ | ✅ |
+| **P0** | Subscription | subscribe, upgrade, downgrade, cancel | ✅ | ✅ |
+| **P1** | Admin | user_suspend, provider_verify, manual_override, role_change | ✅ Basic | ✅ Full |
+| **P2** | Data Changes | profile_update, status_change, pricing_change | ⬜ Defer | ✅ |
+| **P3** | User Activity | mode_switch, engagement_create, message_send | ⬜ Defer | ✅ |
+
+**Sensitive Fields** (for Data Changes logging):
+- Email, phone number
+- Subscription status, Stripe IDs
+- Pricing information
+- Claimed/verified status
+- Provider status changes
+
+---
+
+### 37.4 Admin Audit Dashboard (DECIDED)
+
+**Demo Scope**: Lightweight, illustrative dashboard within Admin > Legal & Compliance.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ Admin > Legal & Compliance > Audit Log                              │
+├─────────────────────────────────────────────────────────────────────┤
+│ Filters: [Action Type ▼] [Date Range] [Search Actor/Target]        │
+├─────────────────────────────────────────────────────────────────────┤
+│ Timestamp        │ Actor      │ Action     │ Target     │ Details  │
+├──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 2024-01-15 10:32 │ admin@     │ user_      │ user:abc   │ [View]   │
+│                  │ olera.com  │ suspend    │            │          │
+├──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 2024-01-15 10:15 │ user:xyz   │ login      │ -          │ [View]   │
+├──────────────────┼────────────┼────────────┼────────────┼──────────┤
+│ 2024-01-15 09:48 │ user:xyz   │ subscribe  │ sub:def    │ [View]   │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| List view with basic filters | ✅ | ✅ |
+| Filter by action type | ✅ | ✅ |
+| Filter by date range | ✅ | ✅ |
+| Search by actor/target | ⬜ Defer | ✅ |
+| Export to CSV | ⬜ Defer | ✅ |
+| Detailed metadata view | ✅ Basic | ✅ Full |
+
+---
+
+### 37.5 Retention & Compliance (DECIDED)
+
+| Log Type | Retention Period | Notes |
+|----------|------------------|-------|
+| Auth logs | 7 years | Compliance requirement per Ch 39 |
+| Subscription logs | 7 years | Financial compliance |
+| Admin action logs | 7 years | Audit trail requirement |
+| Data change logs | 7 years | Compliance requirement |
+
+**Deletion Exemption**: Audit logs are **NOT deleted** when a user requests account deletion (per Chapter 39, Section 39.3.1). User-identifying fields may be anonymized, but the log record is retained.
+
+**Anonymization Approach**:
+```
+Before: { actorId: "user_abc123", action: "login", ... }
+After:  { actorId: "DELETED_USER", action: "login", ... }
+```
+
+---
+
+### 37.6 Implementation Notes
+
+**Logging Service Pattern**:
+```typescript
+// services/auditLog.ts
+export async function logAuditEvent({
+  actorId,
+  actorType,
+  action,
+  targetType,
+  targetId,
+  metadata,
+  ipAddress,
+}: AuditLogInput) {
+  await prisma.auditLog.create({
+    data: {
+      actorId,
+      actorType,
+      action,
+      targetType,
+      targetId,
+      metadata,
+      ipAddress,
+    },
+  });
+}
+```
+
+**Integration Points**:
+
+| System | Integration |
+|--------|-------------|
+| Auth (Ch 1) | Log login/logout in auth handlers |
+| Subscriptions (Ch 21) | Log subscription events in webhook handlers |
+| Admin (Ch 26) | Log all admin actions in admin API routes |
+| Settings (Ch 14) | Future: show user their auth history |
+
+---
+
+### 37.7 Admin Legal & Compliance Section (DECIDED)
+
+The Admin panel includes a dedicated **Legal & Compliance** section housing:
+
+| Item | Description | Demo |
+|------|-------------|------|
+| Audit Log | View all logged compliance events | ✅ |
+| Data Deletion Requests | Queue of pending deletion requests | ⬜ Defer |
+| Export Requests | Queue of data export requests | ⬜ Defer |
+| Compliance Dashboard | Overview metrics | ⬜ Defer |
+
+**Admin Navigation Update** (per Chapter 26):
+```
+Admin Panel
+├── Dashboard
+├── Users
+├── Providers
+├── Engagements
+├── Subscriptions
+├── Content Moderation
+├── Legal & Compliance    ← NEW SECTION
+│   ├── Audit Log         ← First-class, required for demo
+│   ├── Data Requests     (deferred)
+│   └── Compliance        (deferred)
+└── Settings
+```
+
+> **Cross-Reference**: See Chapter 26 (Admin System) for full admin panel structure.
 
 ---
 
@@ -9265,25 +9456,9 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 36: Data Export & Portability
-
-**Purpose**: Enable users to access and export their data.
-
-| Item | Status | Notes |
-|------|--------|-------|
-| 32.1 Export My Data | ⬜ | Download personal data |
-| 32.2 Delete My Account | ⬜ | With data removal |
-| 32.3 Provider Data Export (CRM) | ⬜ | For claimed providers |
-
-### Key Questions
-- [ ] Deferred for demo?
-
-### Architectural Notes
-_To be filled in during chapter review._
-
----
-
 ## Chapter 36: Performance & Caching
+
+> **Note**: Data Export & Portability requirements are covered in Chapter 14 (Settings & Preferences) and Chapter 39 (Legal Framework, Section 39.3.2).
 
 **Purpose**: Ensure the application performs well under load.
 
@@ -9309,7 +9484,7 @@ _To be filled in during chapter review._
 
 > **Scope Distinction**: Chapter 19 (Notifications) defines *what* to send and *when*. This chapter defines *how* to send it — infrastructure, templates, automation rules, and delivery tracking.
 
-### 21.1 Delivery Infrastructure (DECIDED)
+### 34.1 Delivery Infrastructure (DECIDED)
 
 #### Email Provider: Resend
 
@@ -9357,7 +9532,7 @@ _To be filled in during chapter review._
 
 ---
 
-### 21.2 Template Architecture (DECIDED)
+### 34.2 Template Architecture (DECIDED)
 
 **Approach**: React Email components compiled to HTML at send time.
 
@@ -9404,7 +9579,7 @@ _To be filled in during chapter review._
 
 ---
 
-### 21.3 Transactional Email Templates (DECIDED)
+### 34.3 Transactional Email Templates (DECIDED)
 
 | Template | Trigger | Subject Line | Key Content |
 |----------|---------|--------------|-------------|
@@ -9420,7 +9595,7 @@ _To be filled in during chapter review._
 
 ---
 
-### 21.4 Lifecycle Automation (DECIDED)
+### 34.4 Lifecycle Automation (DECIDED)
 
 #### Welcome Sequence
 
@@ -9454,7 +9629,7 @@ _To be filled in during chapter review._
 
 ---
 
-### 21.5 Call Center Workflow (DECIDED — Required for Demo)
+### 34.5 Call Center Workflow (DECIDED — Required for Demo)
 
 **Purpose**: Enable admin/support staff to manage outbound calls, track outcomes, and trigger follow-up actions.
 
@@ -9575,7 +9750,7 @@ CallCenterTask {
 
 ---
 
-### 21.6 Admin-Initiated Outreach (DECIDED)
+### 34.6 Admin-Initiated Outreach (DECIDED)
 
 **Purpose**: Allow admins to send one-off or batch communications to users.
 
@@ -9595,7 +9770,7 @@ CallCenterTask {
 
 ---
 
-### 21.7 Delivery Tracking (DECIDED)
+### 34.7 Delivery Tracking (DECIDED)
 
 #### Email Events (via Resend webhooks)
 
@@ -9627,7 +9802,7 @@ CallCenterTask {
 
 ---
 
-### 21.8 Implementation Status
+### 34.8 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -9641,7 +9816,7 @@ CallCenterTask {
 | Automated task triggers | ⬜ Not Built | Required for demo |
 | Delivery tracking | ⬜ Not Built | Basic send/fail for demo |
 
-### 21.9 Key Decisions Log
+### 34.9 Key Decisions Log
 
 | Decision | Status | Rationale |
 |----------|--------|-----------|
@@ -9656,7 +9831,7 @@ CallCenterTask {
 
 ---
 
-### 21.10 Cross-Chapter Integration
+### 34.10 Cross-Chapter Integration
 
 | Chapter | Integration Point |
 |---------|-------------------|
@@ -9691,7 +9866,7 @@ CallCenterTask {
 
 ---
 
-### 26.1 Definitions (DECIDED)
+### 25.1 Definitions (DECIDED)
 
 **Data Acquisition**: The process of obtaining provider records and ingesting them into the Olera platform. Includes migration from legacy systems and scaling via external sources.
 
@@ -9708,7 +9883,7 @@ CallCenterTask {
 
 ---
 
-### 26.2 Provider State Model (DECIDED)
+### 25.2 Provider State Model (DECIDED)
 
 **Two-State Model**:
 
@@ -9760,7 +9935,7 @@ Provider State Model:
 
 ---
 
-### 26.3 Phase 1: Demo (DECIDED)
+### 25.3 Phase 1: Demo (DECIDED)
 
 **Purpose**: Illustrate platform functionality using seeded demo data.
 
@@ -9787,7 +9962,7 @@ Provider State Model:
 
 ---
 
-### 26.4 Phase 2: Migration & Reconciliation (DECIDED)
+### 25.4 Phase 2: Migration & Reconciliation (DECIDED)
 
 **Purpose**: Migrate existing 40K-provider legacy database into the new platform as the single source of truth.
 
@@ -9849,7 +10024,7 @@ Provider State Model:
 
 ---
 
-### 26.5 Phase 3: Post-Migration Baseline (DECIDED)
+### 25.5 Phase 3: Post-Migration Baseline (DECIDED)
 
 **Purpose**: Define steady-state after legacy reconciliation is complete.
 
@@ -9904,7 +10079,7 @@ Provider State Model:
 
 ---
 
-### 26.6 Phase 4: Scaling (DECIDED)
+### 25.6 Phase 4: Scaling (DECIDED)
 
 **Purpose**: Grow beyond 40K providers through systematic, compliant, auditable data acquisition.
 
@@ -9946,7 +10121,7 @@ Provider State Model:
 
 ---
 
-### 26.7 Phase Summary
+### 25.7 Phase Summary
 
 | Phase | Trigger | Exit Criteria |
 |-------|---------|---------------|
@@ -9957,7 +10132,7 @@ Provider State Model:
 
 ---
 
-### 26.8 Implementation Status
+### 25.8 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -9969,7 +10144,7 @@ Provider State Model:
 | Scaling pipelines | ⬜ Not Built | Post-baseline |
 | Legal compliance framework | ⬜ Not Built | Required before scaling |
 
-### 26.9 Key Decisions Log
+### 25.9 Key Decisions Log
 
 | Decision | Status | Rationale |
 |----------|--------|-----------|
@@ -9982,7 +10157,7 @@ Provider State Model:
 
 ---
 
-### 26.10 Cross-References
+### 25.10 Cross-References
 
 | Topic | Chapter |
 |-------|---------|
