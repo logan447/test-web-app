@@ -32,8 +32,8 @@
 
 | Status | Count | Chapters |
 |--------|-------|----------|
-| ✅ Reviewed | 32 | 1–26, 28, 29, 30, 37, 38, 39 |
-| ⏳ Pending | 3 | 33, 35, 36 |
+| ✅ Reviewed | 33 | 1–26, 28, 29, 30, 33, 37, 38, 39 |
+| ⏳ Pending | 2 | 35, 36 |
 | 🆕 Placeholder/New | 4 | 27, 31, 32, 34 |
 | **Total** | **39** | |
 
@@ -41,9 +41,8 @@
 
 | Priority | Ch | Title | Current Status |
 |----------|-----|-------|----------------|
-| 1 | 33 | File Uploads & Media | ⏳ Pending |
-| 2 | 35 | Error Handling & Monitoring | ⏳ Pending |
-| 3 | 36 | Performance & Caching | ⏳ Pending |
+| 1 | 35 | Error Handling & Monitoring | ⏳ Pending |
+| 2 | 36 | Performance & Caching | ⏳ Pending |
 
 ### Chapters Requiring Content Development
 
@@ -180,10 +179,16 @@
 | | 32.2 Deployment Pipeline | |
 | | 32.3 Environment Management | |
 | | 32.4 Release Process | |
-| 33 | [File Uploads & Media](#chapter-33-file-uploads--media) | ⏳ Pending |
-| | 33.1 Upload Infrastructure | |
-| | 33.2 Storage (Vercel Blob) | |
-| | 33.3 Image Optimization | |
+| 33 | [File Uploads & Media](#chapter-33-file-uploads--media) | ✅ Reviewed |
+| | 33.1 Storage Architecture | |
+| | 33.2 Image Upload API | |
+| | 33.3 Upload Use Cases | |
+| | 33.4 Image Optimization | |
+| | 33.5 File Size Limits & Quotas | |
+| | 33.6 Error Handling | |
+| | 33.7 Security Considerations | |
+| | 33.8 Database Schema | |
+| | 33.9 Admin System Integration | |
 | 34 | [Communications Infrastructure](#chapter-34-communications-infrastructure) | 🆕 New |
 | | 34.1 Email System (Resend) | |
 | | 34.2 SMS System (Future) | |
@@ -271,12 +276,11 @@
 - Ch 27: Human Workflows & SOPs (Placeholder)
 - Ch 31: Application Architecture & Tech Stack (New)
 - Ch 32: Hosting, Deployment & CI/CD (New)
-- Ch 33: File Uploads & Media (Pending)
 - Ch 34: Communications Infrastructure (New)
 - Ch 35: Error Handling & Monitoring (Pending)
 - Ch 36: Performance & Caching (Pending)
 
-**Recently Completed**: Chapter 30 (Customer Support) - Reviewed ✅
+**Recently Completed**: Chapter 33 (File Uploads & Media) - Reviewed ✅
 
 ---
 
@@ -9230,23 +9234,379 @@ _Release procedures to be documented._
 
 ## Chapter 33: File Uploads & Media
 
-**Purpose**: Handle image and document uploads throughout the platform.
+**Review Status**: ✅ Reviewed
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 33.1 Image Upload API | ✅ | `/api/upload/images` |
-| 33.2 Vercel Blob Storage | ✅ | Configured |
-| 33.3 Profile Photo Upload | ✅ | Integrated |
-| 33.4 Provider Photo Gallery | ✅ | Components exist |
-| 33.5 Document Uploads (certificates) | 🟡 | `certificateUrls` field exists |
-| 33.6 File Size Limits | 🟡 | May need verification |
-| 33.7 Image Optimization | 🟡 | Next/Image usage |
+**Purpose**: Define the file upload and media management infrastructure for the Olera platform, covering image uploads (profile photos, galleries), document uploads (certificates, licenses), storage architecture, optimization strategies, and admin oversight.
 
-### Key Questions
-- [ ] Any upload issues to address?
+> **Cross-References**:
+> - Chapter 6 (Provider Profiles): Photo gallery integration
+> - Chapter 7 (Family Profiles): Profile photo upload
+> - Chapter 23 (Trust & Safety): Certificate/license verification documents
+> - Chapter 26 (Admin System): Media Management section (Production)
+> - Chapter 35 (Error Handling): Upload error states
+> - Chapter 36 (Performance & Caching): Image optimization
+> - Chapter 37 (Analytics & Audit Logging): File upload/delete audit trail
+> - Chapter 38 (Third-Party Services): Vercel Blob storage
 
-### Architectural Notes
-_To be filled in during chapter review._
+---
+
+### 33.1 Storage Architecture
+
+**Storage Provider**: Vercel Blob
+
+| Attribute | Value |
+|-----------|-------|
+| **Provider** | Vercel Blob |
+| **Why** | Native Vercel integration, automatic CDN, simple API |
+| **Access** | Public URLs for images |
+| **Naming** | Random suffix added automatically (prevents collisions) |
+| **Regions** | Auto-distributed via Vercel Edge |
+
+**Environment Variables**:
+```
+BLOB_READ_WRITE_TOKEN=<vercel-blob-token>
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Vercel Blob storage | ✅ | ✅ |
+| Public image URLs | ✅ | ✅ |
+| CDN distribution | ✅ | ✅ |
+| Private document storage | ⬜ Defer | ✅ |
+
+---
+
+### 33.2 Image Upload API
+
+**Endpoint**: `POST /api/upload/images`
+
+**Implementation** (verified in codebase):
+```typescript
+// Request: multipart/form-data with 'file' field
+// Response: { url: string, pathname: string }
+```
+
+**Validation Rules**:
+
+| Rule | Value | Error Message |
+|------|-------|---------------|
+| Authentication | Required | "Unauthorized" (401) |
+| File presence | Required | "No file provided" (400) |
+| File type | JPEG, PNG, WebP | "Invalid file type. Only JPEG, PNG, and WebP images are allowed." (400) |
+| File size | Max 5MB | "File too large. Maximum size is 5MB." (400) |
+
+**Response Format**:
+```json
+{
+  "url": "https://xxxxx.public.blob.vercel-storage.com/image-abc123.jpg",
+  "pathname": "image-abc123.jpg"
+}
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Image upload endpoint | ✅ Built | ✅ |
+| Authentication required | ✅ Built | ✅ |
+| File type validation | ✅ Built | ✅ |
+| File size validation | ✅ Built | ✅ |
+| Virus/malware scanning | ⬜ Defer | ✅ |
+
+---
+
+### 33.3 Upload Use Cases
+
+#### 33.3.1 Profile Photos (Users & Providers)
+
+**Component**: `ProfilePhotoUpload`
+
+| Attribute | Value |
+|-----------|-------|
+| Max size | 5MB |
+| Types | JPEG, PNG, WebP |
+| Quantity | Single image |
+| Crop/resize | Client-side (optional) |
+| Storage field | `User.image` or `Provider.photoUrl` |
+
+**Status**: ✅ Built and functional
+
+#### 33.3.2 Provider Photo Gallery
+
+**Component**: `EnhancedPhotoUpload`
+
+| Attribute | Value |
+|-----------|-------|
+| Max size | 5MB per image |
+| Types | JPEG, PNG, WebP |
+| Quantity | Multiple (up to 10 recommended) |
+| Storage field | `Provider.galleryUrls` (JSON array) |
+
+**Status**: ✅ Built and functional
+
+#### 33.3.3 Document Uploads (Certificates, Licenses)
+
+**Status**: ⬜ Deferred for demo
+
+**Production Scope**:
+
+| Attribute | Value |
+|-----------|-------|
+| Max size | 10MB |
+| Types | PDF, JPEG, PNG |
+| Storage | Private (not public URL) |
+| Access | Admin verification only |
+| Storage field | `Provider.certificateUrls` |
+
+---
+
+### 33.4 Image Optimization
+
+**Strategy**: Client-side optimization via Next.js Image component
+
+| Technique | Implementation | Demo | Production |
+|-----------|----------------|------|------------|
+| Responsive sizing | `next/image` with `sizes` prop | ✅ | ✅ |
+| Lazy loading | `next/image` default behavior | ✅ | ✅ |
+| Format conversion | Automatic WebP via Vercel | ✅ | ✅ |
+| Quality reduction | `quality` prop (75-85 recommended) | ✅ | ✅ |
+| Server-side resize | Sharp processing on upload | ⬜ Defer | ✅ |
+| Thumbnail generation | Pre-generate small versions | ⬜ Defer | ✅ |
+
+**Usage Pattern**:
+```tsx
+import Image from 'next/image';
+
+<Image
+  src={provider.photoUrl}
+  alt={provider.name}
+  width={400}
+  height={300}
+  quality={80}
+  sizes="(max-width: 768px) 100vw, 400px"
+/>
+```
+
+---
+
+### 33.5 File Size Limits & Quotas
+
+| Upload Type | Max File Size | Max Files | Notes |
+|-------------|---------------|-----------|-------|
+| Profile photo | 5MB | 1 | Replaces existing |
+| Gallery image | 5MB | 10 | Per provider |
+| Certificate (Prod) | 10MB | 5 | Per provider |
+| Message attachment (Prod) | 10MB | 3 | Per message |
+
+**Quota Enforcement**:
+- Demo: No hard quotas (low usage expected)
+- Production: Enforce via database counts before accepting upload
+
+---
+
+### 33.6 Error Handling
+
+| Error | HTTP Code | User Message | Resolution |
+|-------|-----------|--------------|------------|
+| Not authenticated | 401 | "Please log in to upload" | Redirect to login |
+| No file provided | 400 | "Please select a file" | Show file picker |
+| Invalid file type | 400 | "Only JPEG, PNG, and WebP images are allowed" | Clear, try again |
+| File too large | 400 | "File too large. Maximum size is 5MB" | Compress and retry |
+| Upload failed | 500 | "Upload failed. Please try again" | Retry or contact support |
+| Storage quota exceeded | 400 | "Maximum images reached" | Delete existing first |
+
+**UI Requirements**:
+- Loading state during upload
+- Progress indicator for large files (Production)
+- Clear error messages with actionable guidance
+- Success confirmation with preview
+
+---
+
+### 33.7 Security Considerations
+
+| Concern | Mitigation | Demo | Production |
+|---------|------------|------|------------|
+| Unauthorized upload | Session authentication required | ✅ | ✅ |
+| Malicious file types | MIME type validation | ✅ | ✅ |
+| Oversized files | Size limit enforcement | ✅ | ✅ |
+| Path traversal | Vercel Blob handles naming | ✅ | ✅ |
+| Malware in files | Virus scanning | ⬜ Defer | ✅ |
+| EXIF data leakage | Strip metadata on upload | ⬜ Defer | ✅ |
+| Hotlinking abuse | Referer restrictions | ⬜ Defer | ⬜ Optional |
+
+---
+
+### 33.8 Database Schema
+
+**Existing fields** (no changes required for demo):
+
+```prisma
+model User {
+  image         String?   // Profile photo URL
+}
+
+model Provider {
+  photoUrl      String?   // Primary profile photo
+  galleryUrls   Json?     // Array of gallery image URLs
+  certificateUrls Json?   // Array of certificate document URLs (Production)
+}
+```
+
+**Production Addition** (for audit/cleanup):
+
+```prisma
+model UploadedFile {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  url         String   @unique
+  pathname    String
+  fileType    String   // image, document
+  mimeType    String
+  size        Int      // bytes
+  uploadedBy  String   // userId
+  entityType  String?  // user, provider, message
+  entityId    String?
+  deleted     Boolean  @default(false)
+  deletedAt   DateTime?
+
+  @@index([uploadedBy])
+  @@index([entityType, entityId])
+}
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| URL storage in entity fields | ✅ | ✅ |
+| Separate UploadedFile tracking | ⬜ Defer | ✅ |
+| Orphan file cleanup | ⬜ Defer | ✅ |
+
+---
+
+### 33.9 Admin System Integration
+
+#### 33.9.1 Storage Locations
+
+| Data Type | Storage Location | Access Method |
+|-----------|------------------|---------------|
+| **Image files** | Vercel Blob (public URLs) | Direct URL access |
+| **Document files** (Prod) | Vercel Blob (private URLs) | Signed URL via API |
+| **File metadata** | PostgreSQL (`Provider.galleryUrls`, etc.) | Admin Panel queries |
+| **Upload tracking** (Prod) | PostgreSQL (`UploadedFile` table) | Admin Panel |
+| **Upload errors** | Application logs (Vercel) | Vercel Dashboard → Logs |
+| **Audit trail** | PostgreSQL (`AuditLog` table) | Admin Panel → Audit Log |
+
+#### 33.9.2 Error Surfacing
+
+| Error Type | Where Surfaced | Who Sees It |
+|------------|----------------|-------------|
+| **User-facing upload error** | UI toast/alert | End user |
+| **API error (4xx/5xx)** | Console log + Vercel logs | Developers |
+| **Storage failure** | Vercel Blob dashboard + logs | Developers |
+| **Repeated failures** (Prod) | Error monitoring (Sentry) | Developers |
+| **Quota exceeded** | UI message + admin flag | User + Admin |
+
+**Demo Scope**: Errors logged to Vercel console; no dedicated error dashboard.
+
+**Production Scope**:
+- Integrate with Sentry for error aggregation
+- Alert on repeated upload failures (e.g., >5 failures/hour)
+- Admin Panel shows recent upload errors per user/provider
+
+#### 33.9.3 Admin Panel Access
+
+**Location**: Admin > Media Management (Production only)
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| View all uploaded files | ⬜ Defer | ✅ |
+| Filter by user/provider | ⬜ Defer | ✅ |
+| View file metadata (size, type, date) | ⬜ Defer | ✅ |
+| Preview images inline | ⬜ Defer | ✅ |
+| Delete/remove files | ⬜ Defer | ✅ |
+| View upload errors | ⬜ Defer | ✅ |
+| Storage usage dashboard | ⬜ Defer | ✅ |
+
+**Demo Workaround**: Admins can view uploaded images via:
+1. Provider/User detail pages in Admin Panel (existing)
+2. Direct URL inspection from database fields
+3. Vercel Blob dashboard (requires Vercel access)
+
+**Admin Panel Wireframe (Production)**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Admin > Media Management                                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Filters: [File Type ▼] [Date Range] [User/Provider Search]              │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Preview  │ File Name       │ Type   │ Size   │ Uploaded By │ Actions   │
+├──────────┼─────────────────┼────────┼────────┼─────────────┼───────────┤
+│ [thumb]  │ profile-abc.jpg │ Image  │ 1.2MB  │ user:123    │ [Delete]  │
+├──────────┼─────────────────┼────────┼────────┼─────────────┼───────────┤
+│ [thumb]  │ gallery-xyz.png │ Image  │ 3.4MB  │ provider:45 │ [Delete]  │
+├──────────┼─────────────────┼────────┼────────┼─────────────┼───────────┤
+│ [icon]   │ license.pdf     │ Doc    │ 2.1MB  │ provider:45 │ [View]    │
+└─────────────────────────────────────────────────────────────────────────┘
+│ Total Storage: 1.2 GB │ Files: 3,421 │ Errors (24h): 3              │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 33.9.4 Permissions & Access Controls
+
+| Role | Can Upload | Can View Own | Can View All | Can Delete Own | Can Delete All |
+|------|------------|--------------|--------------|----------------|----------------|
+| **Unauthenticated** | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Family User** | ✅ Profile photo | ✅ | ❌ | ✅ | ❌ |
+| **Provider User** | ✅ Profile + Gallery | ✅ | ❌ | ✅ | ❌ |
+| **Support Staff** (Prod) | ❌ | ❌ | ✅ Read-only | ❌ | ❌ |
+| **Admin** | ✅ On behalf of | ✅ | ✅ | ✅ | ✅ |
+
+**Admin Override Actions** (Production):
+- Remove inappropriate images
+- Replace profile photos on behalf of user (with audit log)
+- Access private documents for verification review
+
+#### 33.9.5 Audit Logging Integration
+
+> **Cross-Reference**: Chapter 37 (Analytics & Audit Logging)
+
+| Action | Logged | Log Fields | Demo | Production |
+|--------|--------|------------|------|------------|
+| Image uploaded | ✅ | userId, fileUrl, size, type | ⬜ | ✅ |
+| Image deleted by user | ✅ | userId, fileUrl | ⬜ | ✅ |
+| Image deleted by admin | ✅ | adminId, targetUserId, fileUrl, reason | ⬜ | ✅ |
+| Upload failed | ✅ | userId, error, fileType, size | ⬜ | ✅ |
+| Document accessed for verification | ✅ | adminId, documentUrl | ⬜ | ✅ |
+
+**Audit Log Entry Example**:
+```json
+{
+  "timestamp": "2026-01-17T10:32:00Z",
+  "actorId": "admin:456",
+  "actorType": "admin",
+  "action": "file_delete",
+  "targetType": "provider",
+  "targetId": "provider:123",
+  "metadata": {
+    "fileUrl": "https://blob.vercel-storage.com/gallery-xyz.jpg",
+    "reason": "Inappropriate content",
+    "previousValue": "[gallery array]"
+  }
+}
+```
+
+#### 33.9.6 Monitoring & Alerting (Production)
+
+| Metric | Threshold | Alert |
+|--------|-----------|-------|
+| Upload error rate | >5% of attempts | Slack notification |
+| Storage usage | >80% of quota | Email to admin |
+| Large file attempts | >10MB rejected | Log only |
+| Repeated failures (same user) | >3 in 1 hour | Flag for review |
+
+**Integration Points**:
+- Vercel Analytics: Request volume, latency
+- Sentry: Error tracking, stack traces
+- Custom dashboard (Production): Storage metrics, error rates
 
 ---
 
