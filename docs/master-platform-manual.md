@@ -32,9 +32,9 @@
 
 | Status | Count | Chapters |
 |--------|-------|----------|
-| ✅ Reviewed | 35 | 1–26, 28, 29, 30, 33, 35, 36, 37, 38, 39 |
+| ✅ Reviewed | 36 | 1–26, 28, 29, 30, 33, 34, 35, 36, 37, 38, 39 |
 | ⏳ Pending | 0 | — |
-| 🆕 Placeholder/New | 4 | 27, 31, 32, 34 |
+| 🆕 Placeholder/New | 3 | 27, 31, 32 |
 | **Total** | **39** | |
 
 ### Remaining Chapters to Review
@@ -48,7 +48,6 @@ All originally pending chapters have been reviewed. ✅
 | 27 | Human Workflows & Standard Operating Procedures | 🆕 Placeholder |
 | 31 | Application Architecture & Tech Stack | 🆕 New |
 | 32 | Hosting, Deployment & CI/CD | 🆕 New |
-| 34 | Communications Infrastructure | 🆕 New |
 
 ---
 
@@ -186,11 +185,17 @@ All originally pending chapters have been reviewed. ✅
 | | 33.7 Security Considerations | |
 | | 33.8 Database Schema | |
 | | 33.9 Admin System Integration | |
-| 34 | [Communications Infrastructure](#chapter-34-communications-infrastructure) | 🆕 New |
-| | 34.1 Email System (Resend) | |
-| | 34.2 SMS System (Future) | |
-| | 34.3 Push Notifications (Future) | |
-| | 34.4 Template Management | |
+| 34 | [Communications Infrastructure](#chapter-34-communications-infrastructure) | ✅ Reviewed |
+| | 34.1 Delivery Infrastructure (Resend, Twilio) | |
+| | 34.2 Template Architecture | |
+| | 34.3 Transactional Email Templates | |
+| | 34.4 Lifecycle Automation | |
+| | 34.5 Call Center Workflow (Production) | |
+| | 34.6 Admin-Initiated Outreach (Production) | |
+| | 34.7 Delivery Tracking | |
+| | 34.8 Implementation Status | |
+| | 34.9 Key Decisions Log | |
+| | 34.10 Cross-Chapter Integration | |
 | 35 | [Error Handling & Monitoring](#chapter-35-error-handling--monitoring) | ✅ Reviewed |
 | | 35.1 Error Handling Architecture | |
 | | 35.2 Frontend Error States | |
@@ -270,9 +275,9 @@ All originally pending chapters have been reviewed. ✅
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 39 |
-| **Reviewed (✅)** | 30 |
-| **Pending (⏳)** | 5 |
-| **New Chapters (🆕)** | 3 |
+| **Reviewed (✅)** | 36 |
+| **Pending (⏳)** | 0 |
+| **New Chapters (🆕)** | 2 |
 | **Placeholders (🆕)** | 1 |
 | **Future Directions (⭐)** | 3 |
 
@@ -280,9 +285,8 @@ All originally pending chapters have been reviewed. ✅
 - Ch 27: Human Workflows & SOPs (Placeholder)
 - Ch 31: Application Architecture & Tech Stack (New)
 - Ch 32: Hosting, Deployment & CI/CD (New)
-- Ch 34: Communications Infrastructure (New)
 
-**Recently Completed**: Chapter 36 (Performance & Caching) - Reviewed ✅
+**Recently Completed**: Chapter 34 (Communications Infrastructure) - Reviewed ✅
 
 **All Originally Pending Chapters Reviewed** ✅
 
@@ -11613,11 +11617,19 @@ Admin Panel
 
 ## Chapter 34: Communications Infrastructure
 
-**Purpose**: Define the delivery infrastructure for transactional communications, lifecycle automation workflows, and operational outreach systems including call center integration.
+**Review Status**: ✅ Reviewed
 
-> **Scope Distinction**: Chapter 19 (Notifications) defines *what* to send and *when*. This chapter defines *how* to send it — infrastructure, templates, automation rules, and delivery tracking.
+**Purpose**: Define the delivery infrastructure for transactional communications (email and SMS) that enable the end-to-end user experience.
 
-> **Cross-Reference**: See Chapter 38 (Third-Party Services & Integrations) for the master service registry, environment variable requirements, and vendor management details.
+> **Scope Distinction**: Chapter 19 (Notifications) defines *what* to send and *when*. This chapter defines *how* to send it — infrastructure, templates, and delivery tracking.
+
+> **Demo Scope Summary**: Email and SMS notifications for key user transactions. No call center tooling, live chat, or ticketing system for demo.
+
+> **Cross-References**:
+> - Chapter 14 (Settings & Preferences): Notification preferences control delivery
+> - Chapter 19 (Notifications): Defines notification types; this chapter delivers them
+> - Chapter 26 (Admin System): Admin visibility into delivery status
+> - Chapter 38 (Third-Party Services): Master service registry, environment variables
 
 ### 34.1 Delivery Infrastructure (DECIDED)
 
@@ -11651,19 +11663,27 @@ Admin Panel
                         └──────────────────┘
 ```
 
-#### SMS Provider: Twilio (If Time Permits)
+#### SMS Provider: Twilio
 
 | Attribute | Value |
 |-----------|-------|
 | **Provider** | Twilio |
-| **Demo scope** | Include if low-risk; defer if adds complexity |
+| **Demo scope** | ✅ Required — important for end-to-end experience |
 | **Setup** | Account SID, Auth Token, Phone Number |
 | **Integration** | `twilio` npm package |
 
-**SMS Decision**:
-- **Include for demo** if setup is straightforward and time permits
-- **Defer** if phone number provisioning or webhook handling creates risk
-- Chapter 19 specifies SMS as "first-class channel" — production must include
+**SMS Setup Requirements**:
+1. Create Twilio account
+2. Add credentials to environment (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`)
+3. Provision phone number (can use trial number for demo)
+4. Install package: `twilio`
+
+**Demo SMS Use Cases**:
+| Notification | Trigger | Message |
+|--------------|---------|---------|
+| Engagement confirmation | Booking confirmed | "Your {{type}} with {{provider}} is confirmed for {{date}}" |
+| Appointment reminder | 1 hour before | "Reminder: {{type}} in 1 hour at {{location}}" |
+| New message alert | Message received | "New message from {{from}} on Olera. View: {{url}}" |
 
 ---
 
@@ -11764,144 +11784,46 @@ Admin Panel
 
 ---
 
-### 34.5 Call Center Workflow (DECIDED — Required for Demo)
+### 34.5 Call Center Workflow (Production Only)
 
-**Purpose**: Enable admin/support staff to manage outbound calls, track outcomes, and trigger follow-up actions.
+**Demo Scope**: ⬜ **Deferred** — No call center tooling for demo
 
-#### Call Center Task Model
+**Production Purpose**: Enable admin/support staff to manage outbound calls, track outcomes, and trigger follow-up actions.
 
-```typescript
-CallCenterTask {
-  id: string
-  type: OUTBOUND_CALL | FOLLOW_UP | VERIFICATION
-  status: PENDING | IN_PROGRESS | COMPLETED | FAILED | CANCELLED
-  priority: LOW | NORMAL | HIGH | URGENT
+**Why Deferred**: Demo focuses on email and SMS transactional notifications. Call center operations add complexity that isn't needed to demonstrate the core user experience.
 
-  // Target
-  targetType: USER | PROVIDER | FAMILY
-  targetId: string
-  targetName: string
-  targetPhone: string
+**Production Features** (documented for future implementation):
 
-  // Assignment
-  assignedTo?: string  // Admin user ID
-  assignedAt?: DateTime
+| Feature | Description |
+|---------|-------------|
+| Task queue UI | `/admin/call-center` with priority-based queue |
+| CallCenterTask model | Tracks calls, outcomes, follow-ups |
+| Automated triggers | Claims, stuck engagements, verification calls |
+| Click-to-call | VoIP integration for browser-based calling |
+| Outcome tracking | Answer, voicemail, reschedule, etc. |
+| Reports | Call volume, conversion, staff performance |
 
-  // Scheduling
-  scheduledFor?: DateTime
-  dueBy?: DateTime
-
-  // Context
-  reason: string  // Why this call is needed
-  script?: string  // Suggested talking points
-  relatedEngagementId?: string
-  relatedClaimId?: string
-
-  // Outcome
-  outcome?: ANSWERED | NO_ANSWER | VOICEMAIL | WRONG_NUMBER | COMPLETED | RESCHEDULE
-  notes?: string
-  completedAt?: DateTime
-
-  // Follow-up
-  requiresFollowUp: boolean
-  followUpDate?: DateTime
-  followUpTaskId?: string
-
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-```
-
-#### Call Center Triggers (Automation)
-
-| Trigger Event | Creates Task | Priority | Script/Notes |
-|---------------|--------------|----------|--------------|
-| Provider claim submitted | Verification call | HIGH | Verify identity, confirm details |
-| Engagement stuck PENDING 48h | Follow-up call (provider) | NORMAL | Prompt response |
-| Family no activity 7 days | Outreach call | LOW | Assistance offer |
-| High-value provider unclaimed | Outreach call | HIGH | Claim invitation |
-| Review dispute filed | Mediation call | URGENT | Resolve dispute |
-
-#### Call Center Admin UI
-
-**Location**: `/admin/call-center`
-
-**Views**:
-```
-/admin/call-center
-├── Queue (default) — Tasks by priority, filtered by status
-├── My Tasks — Assigned to current admin
-├── Completed — Outcome history
-└── Reports — Call volume, outcomes, conversion
-```
-
-**Queue Table Columns**:
-| Column | Content |
-|--------|---------|
-| Priority | Color-coded badge |
-| Type | Call type |
-| Target | Name, phone (click to call) |
-| Reason | Brief context |
-| Due | Deadline |
-| Assigned | Admin name or "Unassigned" |
-| Actions | Claim, Start, Complete |
-
-**Task Detail Modal**:
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Verification Call — High Priority                           │
-├─────────────────────────────────────────────────────────────┤
-│ Target: Sunrise Senior Living                               │
-│ Phone: (555) 123-4567  [📞 Click to Call]                  │
-│ Reason: New claim submitted, verify ownership               │
-│                                                             │
-│ Script:                                                     │
-│ "Hi, this is [Name] from Olera. We received your claim     │
-│ for [Business Name]. Can you verify..."                     │
-│                                                             │
-│ Related: Claim #CLM-12345 [View]                           │
-├─────────────────────────────────────────────────────────────┤
-│ Outcome: [Dropdown: Select outcome]                         │
-│ Notes: [Text area]                                          │
-│                                                             │
-│ □ Requires follow-up                                        │
-│   Follow-up date: [Date picker]                             │
-├─────────────────────────────────────────────────────────────┤
-│ [Cancel]                              [Save] [Complete Call]│
-└─────────────────────────────────────────────────────────────┘
-```
-
-#### Call Center Demo Scope
-
-| Feature | Demo | Production |
-|---------|------|------------|
-| Task queue UI | ✅ Full | Same |
-| Manual task creation | ✅ | Same |
-| Automated task triggers | ✅ Key triggers | Full automation |
-| Click-to-call | 🟡 Link only | VoIP integration |
-| Outcome tracking | ✅ | Same + analytics |
-| Follow-up scheduling | ✅ | Same |
-| Reports/analytics | ⬜ Defer | Full dashboard |
+> **Note**: Full call center specification preserved in version control for production implementation.
 
 ---
 
-### 34.6 Admin-Initiated Outreach (DECIDED)
+### 34.6 Admin-Initiated Outreach (Production Only)
 
-**Purpose**: Allow admins to send one-off or batch communications to users.
+**Demo Scope**: ⬜ **Deferred** — Single-user email via standard admin actions only
 
-#### Single User Outreach
+**Production Purpose**: Allow admins to send one-off or batch communications to users.
 
-**Location**: User detail page in admin → "Send Message" action
+**Why Deferred**: Demo uses standard notification triggers. Batch outreach and segment builders add complexity.
 
-**Options**:
-- Email (custom or template)
-- SMS (if phone available)
-- Create call center task
+**Production Features**:
 
-#### Batch Outreach (Production)
-
-**Demo Scope**: ⬜ Deferred — single user only
-**Production Scope**: Segment builder, batch send, A/B testing
+| Feature | Demo | Production |
+|---------|------|------------|
+| Single-user email from admin | ⬜ Defer | ✅ |
+| Single-user SMS from admin | ⬜ Defer | ✅ |
+| Segment builder | ⬜ Defer | ✅ |
+| Batch send | ⬜ Defer | ✅ |
+| A/B testing | ⬜ Defer | ✅ |
 
 ---
 
@@ -11918,7 +11840,7 @@ CallCenterTask {
 | `bounced` | ✅ | Mark email invalid, alert admin |
 | `complained` | ✅ | Auto-unsubscribe, flag account |
 
-#### SMS Events (via Twilio webhooks, if implemented)
+#### SMS Events (via Twilio webhooks)
 
 | Event | Tracked | Action |
 |-------|---------|--------|
@@ -11939,30 +11861,31 @@ CallCenterTask {
 
 ### 34.8 Implementation Status
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Email service (Resend) | ⬜ Not Built | Setup required |
-| React Email templates | ⬜ Not Built | Create template library |
-| SMS service (Twilio) | ⬜ Not Built | Include if time permits |
-| Welcome email automation | ⬜ Not Built | Required for demo |
-| Profile nudge automation | ⬜ Not Built | Required for demo |
-| Call center queue UI | ⬜ Not Built | Required for demo |
-| Call center task model | ⬜ Not Built | Required for demo |
-| Automated task triggers | ⬜ Not Built | Required for demo |
-| Delivery tracking | ⬜ Not Built | Basic send/fail for demo |
+| Item | Status | Demo Required | Notes |
+|------|--------|---------------|-------|
+| Email service (Resend) | ⬜ Not Built | ✅ Yes | Setup required |
+| React Email templates | ⬜ Not Built | ✅ Yes | Core templates for demo |
+| SMS service (Twilio) | ⬜ Not Built | ✅ Yes | Required for end-to-end experience |
+| Welcome email | ⬜ Not Built | ✅ Yes | Single email on signup |
+| Engagement notifications | ⬜ Not Built | ✅ Yes | Email + SMS for bookings |
+| Appointment reminders | ⬜ Not Built | ✅ Yes | 1-hour SMS reminder |
+| Message alerts | ⬜ Not Built | ✅ Yes | Email + SMS for new messages |
+| Basic delivery tracking | ⬜ Not Built | ✅ Yes | Send/fail status |
+| Call center workflow | ⬜ Not Built | ⬜ No | Deferred to production |
+| Admin batch outreach | ⬜ Not Built | ⬜ No | Deferred to production |
 
 ### 34.9 Key Decisions Log
 
 | Decision | Status | Rationale |
 |----------|--------|-----------|
 | Email provider: Resend | ✅ Decided | Simplest setup, modern API, React Email support |
-| SMS provider: Twilio | ✅ Decided | Industry standard; include if low-risk for demo |
+| SMS provider: Twilio | ✅ Decided | Required for demo — important for end-to-end experience |
 | Template system: React Email | ✅ Decided | Component-based, type-safe, easy to maintain |
 | Welcome email for demo | ✅ Decided | Required for complete user journey |
-| Profile nudge for demo | ✅ Decided | Required for complete user journey |
-| Call center for demo | ✅ Decided | Critical for demonstrating full UX to colleagues |
+| Transactional notifications | ✅ Decided | Email + SMS for key actions |
+| Call center: defer | ✅ Decided | No call center tooling for demo — adds unnecessary complexity |
 | Re-engagement: defer | ✅ Decided | Not needed for demo; production feature |
-| Batch outreach: defer | ✅ Decided | Single-user sufficient for demo |
+| Batch outreach: defer | ✅ Decided | Not needed for demo; production feature |
 
 ---
 
@@ -11970,26 +11893,28 @@ CallCenterTask {
 
 | Chapter | Integration Point |
 |---------|-------------------|
-| Ch 14: Settings | Notification preferences control delivery |
+| Ch 14: Settings | Notification preferences control delivery channels |
+| Ch 15: Engagements | Engagement events trigger email + SMS notifications |
 | Ch 19: Notifications | Defines notification types; this chapter delivers them |
-| Ch 27: Admin System | Call center queue in admin interface |
-| Ch 10: Provider Claiming | Claim triggers verification call task |
-| Ch 15: Engagements | Engagement events trigger transactional emails |
+| Ch 26: Admin System | Delivery status visibility in admin |
+| Ch 38: Third-Party Services | Resend and Twilio in service registry |
 
 ### Demo vs Production Summary
 
 | Feature | Demo | Production |
 |---------|------|------------|
-| Email (Resend) | ✅ Full | Same |
-| SMS (Twilio) | 🟡 If time permits | Full |
+| Email (Resend) | ✅ Required | Same |
+| SMS (Twilio) | ✅ Required | Same |
 | Transactional templates | ✅ Core set | Full library |
 | Welcome email | ✅ Single email | Multi-step sequence |
+| Engagement notifications | ✅ Email + SMS | Same |
+| Appointment reminders | ✅ 1-hour SMS | 24h + 1h multi-channel |
+| Message alerts | ✅ Email + SMS | Same |
 | Profile nudge | ✅ Single nudge | Escalating sequence |
 | Re-engagement | ⬜ Defer | Full campaigns |
-| Call center queue | ✅ Full UI | Same |
-| Call center triggers | ✅ Key triggers | Full automation |
+| Call center workflow | ⬜ Defer | Full queue + triggers |
 | Admin batch outreach | ⬜ Defer | Segment builder |
-| Delivery analytics | 🟡 Basic | Full dashboard |
+| Delivery analytics | 🟡 Basic send/fail | Full dashboard |
 
 ---
 
