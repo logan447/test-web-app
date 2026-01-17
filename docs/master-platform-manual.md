@@ -32,9 +32,9 @@
 
 | Status | Count | Chapters |
 |--------|-------|----------|
-| ✅ Reviewed | 38 | 1–26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39 |
+| ✅ Reviewed | 39 | 1–39 (all chapters) |
 | ⏳ Pending | 0 | — |
-| 🆕 Placeholder/New | 1 | 27 |
+| 🆕 Placeholder/New | 0 | — |
 | **Total** | **39** | |
 
 ### Remaining Chapters to Review
@@ -43,9 +43,7 @@ All originally pending chapters have been reviewed. ✅
 
 ### Chapters Requiring Content Development
 
-| Ch | Title | Current Status |
-|----|-------|----------------|
-| 27 | Human Workflows & Standard Operating Procedures | 🆕 Placeholder |
+All chapters have been reviewed and developed. ✅
 
 ---
 
@@ -141,7 +139,23 @@ All originally pending chapters have been reviewed. ✅
 | Ch | Title | Review Status |
 |----|-------|---------------|
 | 26 | [Admin System](#chapter-26-admin-system) | ✅ Reviewed |
-| 27 | [Human Workflows & Standard Operating Procedures](#chapter-27-human-workflows--standard-operating-procedures) | 🆕 Placeholder |
+| 27 | [Human Workflows & Standard Operating Procedures](#chapter-27-human-workflows--standard-operating-procedures) | ✅ Reviewed |
+| | 27.1 Operating Philosophy | |
+| | 27.2 Daily Operations Checklist | |
+| | 27.3 Provider Claim Verification | |
+| | 27.4 Review Moderation | |
+| | 27.5 Takedown & Legal Requests | |
+| | 27.6 User Management | |
+| | 27.7 Provider Listing Management | |
+| | 27.8 Support Ticket Management | |
+| | 27.9 Error & Incident Response | |
+| | 27.10 Attribution & Referral Management | |
+| | 27.11 Audit Log Usage | |
+| | 27.12 SLA Summary | |
+| | 27.13 Escalation Matrix | |
+| | 27.14 Admin Onboarding Checklist | |
+| | 27.15 Demo vs Production Scope | |
+| | 27.16 Quick Reference Card | |
 
 ### Part XI: Marketing & Growth
 *User acquisition, SEO, and referral programs*
@@ -6329,68 +6343,695 @@ The Admin panel includes a dedicated **Legal & Compliance** section as a **first
 
 ## Chapter 27: Human Workflows & Standard Operating Procedures
 
-> 🆕 **New Placeholder** — Structure approved, content to be developed.
+**Review Status**: ✅ Reviewed
 
-**Purpose**: Document how internal teams interact with the platform, including standard operating procedures, escalation paths, and operational workflows.
+**Purpose**: Serve as the operational playbook for the Olera admin team, defining exactly what to do, when to do it, and where to do it in the admin panel for all human-required workflows across the platform.
 
-### Scope
+> **Audience**: This chapter is written for a small admin team (2–3 business-hours staff) who are not engineers. SOPs are designed to be prescriptive, consistent, and low-judgment.
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 28.1 Claim Verification Workflows | 🆕 | Step-by-step claim review process |
-| 28.2 Content Moderation Procedures | 🆕 | Review moderation guidelines |
-| 28.3 Customer Support Escalation | 🆕 | Tiered support routing |
-| 28.4 Data Quality Review | 🆕 | Provider data audit procedures |
-| 28.5 Provider Onboarding Support | 🆕 | High-touch onboarding workflows |
-| 28.6 Incident Response Procedures | 🆕 | Emergency response protocols |
-| 28.7 Legal Request Handling | 🆕 | C&D, DMCA, regulatory inquiries |
-| 28.8 Team Onboarding Checklist | 🆕 | New team member orientation |
+> **Cross-References**:
+> - Chapter 26 (Admin System): Admin panel structure and capabilities
+> - Chapter 30 (Customer Support): Support intake channels
+> - Chapter 23 (Trust & Safety): Safety policies and enforcement
+> - Chapter 37 (Analytics & Audit Logging): Audit trail requirements
 
-### Key Questions
+---
 
-- [ ] What workflows require human intervention vs. automation?
-- [ ] What SLAs should apply to different queue types?
-- [ ] How do we measure operational efficiency?
-- [ ] What tooling do ops teams need beyond the Admin UI?
+### 27.1 Operating Philosophy
 
-### Architectural Notes
+#### 27.1.1 Automation First, Humans Second
 
-_To be developed. This chapter will serve as the operational handbook for internal teams, complementing the Admin System (Chapter 27) with detailed human procedures._
-
-### Relationship to Admin System
-
-Chapter 27 (Admin System) defines the **tools** — the queues, dashboards, and interfaces that admins use.
-
-Chapter 28 (this chapter) defines the **procedures** — how humans use those tools, when to escalate, what decisions to make, and how to maintain quality.
-
-### Sample SOP Structure
-
-Each SOP should follow this template:
+**Principle**: The system handles routine work automatically. Humans focus on exceptions, edge cases, and high-risk decisions.
 
 ```
-# SOP: [Procedure Name]
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      AUTOMATION TIERS                                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   TIER 1: Fully Automated                                               │
+│   ├── User signup/login                                                 │
+│   ├── Profile creation and updates                                      │
+│   ├── Engagement booking flow                                           │
+│   ├── Standard notifications                                            │
+│   └── Basic data validation                                             │
+│                                                                         │
+│   TIER 2: Auto-Approved + Flagged for Review                           │
+│   ├── Reviews (published, flagged if suspicious)                        │
+│   ├── Provider profile edits (live, flagged if significant)            │
+│   ├── New provider signups (active, flagged if high-risk)              │
+│   └── Claim submissions (queued, auto-verified if signals strong)      │
+│                                                                         │
+│   TIER 3: Human Review Required                                         │
+│   ├── Flagged reviews (reported or system-flagged)                      │
+│   ├── Claim verification (low confidence)                               │
+│   ├── Takedown requests (DMCA, defamation, legal)                      │
+│   ├── User suspensions/bans                                             │
+│   ├── Escalated support tickets                                         │
+│   └── Edge cases and exceptions                                         │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
-**Version**: X.X
-**Last Updated**: YYYY-MM-DD
-**SLA**: [Response time commitment]
+#### 27.1.2 Admin Panel as Command Center
 
-## Purpose
-[Why this procedure exists]
+**All human workflows funnel into the admin panel.** Admins should never need to:
+- Access the database directly
+- Edit code or configuration files
+- Use external tools for core operations
 
-## When to Use
-[Triggering conditions]
+**Admin Panel Location**: `/admin`
 
-## Procedure
-[Step-by-step instructions]
+**Key Sections**:
 
-## Escalation
-[When and how to escalate]
+| Section | Location | Purpose |
+|---------|----------|---------|
+| Dashboard | `/admin` | Overview, alerts, key metrics |
+| Users | `/admin/users` | User management, suspensions |
+| Providers | `/admin/providers` | Provider listings, verification |
+| Claims Queue | `/admin/claims` | Pending claim verifications |
+| Reviews | `/admin/reviews` | Review moderation queue |
+| Support | `/admin/support` | Support ticket management |
+| Legal | `/admin/legal` | Takedowns, DMCA, legal requests |
+| Audit Log | `/admin/audit` | All system actions |
 
-## Common Issues
-[FAQ and troubleshooting]
+---
 
-## Related SOPs
-[Cross-references]
+### 27.2 Daily Operations Checklist
+
+**Frequency**: Every business day, first thing
+
+**Location**: `/admin` (Dashboard)
+
+| Step | Action | Where | Expected Time |
+|------|--------|-------|---------------|
+| 1 | Check overnight alerts | Dashboard → Alerts | 2 min |
+| 2 | Review claims queue | `/admin/claims` | 5–15 min |
+| 3 | Process flagged reviews | `/admin/reviews` → Flagged | 5–10 min |
+| 4 | Check support tickets | `/admin/support` | 10–20 min |
+| 5 | Review legal queue | `/admin/legal` | 5 min |
+| 6 | Spot-check recent signups | `/admin/users` → Recent | 5 min |
+
+**Total Daily Time**: 30–60 minutes (light day) to 2 hours (busy day)
+
+---
+
+### 27.3 Provider Claim Verification
+
+**Triggering Event**: Provider submits claim for an unclaimed listing
+
+**Location**: `/admin/claims`
+
+**SLA**: 24 business hours
+
+#### 27.3.1 Claim Queue Overview
+
+| Column | Content |
+|--------|---------|
+| Claim ID | Unique identifier |
+| Provider Name | Business name being claimed |
+| Claimant | User submitting claim |
+| Submitted | Date/time |
+| Verification Status | Auto-verified, Pending Review, Flagged |
+| Actions | Verify, Reject, Request Info |
+
+#### 27.3.2 Auto-Verification (No Human Action Needed)
+
+**System auto-verifies when ALL conditions met**:
+- Email domain matches business website
+- User verified their email
+- No existing claim disputes
+- Business information matches public records
+
+**Result**: Claim approved automatically, admin sees in log only
+
+#### 27.3.3 Manual Verification Procedure
+
+**When**: Auto-verification fails or flags raised
+
+**Steps**:
+
+| Step | Action | Notes |
+|------|--------|-------|
+| 1 | Open claim from queue | Click claim ID |
+| 2 | Review claimant info | Check email, phone, stated role |
+| 3 | Compare to listing | Does claimed role match business? |
+| 4 | Check for red flags | Multiple claims, suspicious email, etc. |
+| 5 | **If confident**: Click "Approve Claim" | Claimant gets control of listing |
+| 6 | **If unsure**: Click "Request Verification" | System sends verification request |
+| 7 | **If suspicious**: Click "Reject Claim" | Select rejection reason |
+
+**Verification Methods** (in order of preference):
+1. Email from business domain
+2. Phone verification (admin calls business)
+3. Documentation (license, incorporation docs)
+
+#### 27.3.4 Rejection Reasons
+
+| Reason | When to Use |
+|--------|-------------|
+| Cannot verify identity | No matching evidence |
+| Duplicate claim | Another user already claimed |
+| Fraudulent attempt | Clear bad faith |
+| Incomplete information | Need more details |
+
+**After Rejection**: User receives notification with reason. They can resubmit with additional documentation.
+
+#### 27.3.5 Escalation
+
+**Escalate to leadership when**:
+- Claimant disputes rejection
+- Legal threats made
+- High-profile business involved
+- Uncertain about decision
+
+---
+
+### 27.4 Review Moderation
+
+**Triggering Events**:
+- User reports a review
+- System flags review (profanity, spam signals)
+- Provider disputes review
+
+**Location**: `/admin/reviews`
+
+**SLA**: 48 business hours
+
+#### 27.4.1 Review Queue Tabs
+
+| Tab | Content | Priority |
+|-----|---------|----------|
+| **Reported** | User-reported reviews | High |
+| **Flagged** | System-flagged reviews | Medium |
+| **Disputed** | Provider-disputed reviews | Medium |
+| **All** | All reviews (for spot-checking) | Low |
+
+#### 27.4.2 Review Moderation Procedure
+
+**Steps**:
+
+| Step | Action |
+|------|--------|
+| 1 | Open flagged review |
+| 2 | Read full review content |
+| 3 | Check reviewer history (other reviews, account age) |
+| 4 | Check provider history (review patterns, disputes) |
+| 5 | Apply moderation decision (see below) |
+| 6 | Add internal note explaining decision |
+
+#### 27.4.3 Moderation Decisions
+
+| Decision | When to Use | Effect |
+|----------|-------------|--------|
+| **Approve** | Review is legitimate | Review remains visible |
+| **Remove** | Violates guidelines | Review hidden, reviewer notified |
+| **Edit** | Minor issues (profanity) | Redact specific content |
+| **Escalate** | Legal risk, threats | Sent to legal queue |
+
+#### 27.4.4 Review Removal Criteria
+
+**Remove if review contains**:
+- Profanity or slurs
+- Personal attacks on individuals (not business)
+- Clearly false factual claims
+- Spam or promotional content
+- Confidential information
+- Threats or harassment
+
+**Keep even if**:
+- Negative opinion (allowed)
+- Mentions specific incidents (if factual)
+- Low star rating (allowed)
+- Provider disagrees (opinion is protected)
+
+#### 27.4.5 Provider Dispute Handling
+
+**When provider disputes a review**:
+
+| Step | Action |
+|------|--------|
+| 1 | Review provider's dispute reason |
+| 2 | Compare to review content |
+| 3 | Check if review violates guidelines |
+| 4 | **If violation**: Remove review |
+| 5 | **If no violation**: Deny dispute, explain to provider |
+| 6 | If provider escalates: Send to legal queue |
+
+---
+
+### 27.5 Takedown & Legal Requests
+
+**Triggering Events**:
+- DMCA takedown notice received
+- Defamation claim received
+- Legal inquiry or subpoena
+- Trademark complaint
+
+**Location**: `/admin/legal`
+
+**SLA**: 24 hours acknowledgment, resolution varies
+
+#### 27.5.1 Legal Queue Overview
+
+| Request Type | Source | Urgency |
+|--------------|--------|---------|
+| DMCA | Copyright holder | High (legal deadline) |
+| Defamation | Subject of content | Medium |
+| Trademark | Brand owner | Medium |
+| Subpoena | Court/law enforcement | High |
+| General Legal | Attorneys, users | Varies |
+
+#### 27.5.2 DMCA Takedown Procedure
+
+**Legal Requirement**: Must act on valid DMCA notices
+
+| Step | Action | Timing |
+|------|--------|--------|
+| 1 | Verify notice completeness | See checklist below |
+| 2 | If complete: Remove content immediately | Same day |
+| 3 | Notify uploader of removal | Within 24h |
+| 4 | Log in audit trail | Immediate |
+| 5 | If counter-notice received: Restore in 10–14 days | Per DMCA |
+
+**DMCA Notice Checklist**:
+- [ ] Identifies copyrighted work
+- [ ] Identifies infringing content (URL)
+- [ ] Good faith statement
+- [ ] Accuracy statement
+- [ ] Signature (electronic OK)
+- [ ] Contact information
+
+**If notice incomplete**: Respond requesting missing information
+
+#### 27.5.3 Defamation Request Procedure
+
+| Step | Action |
+|------|--------|
+| 1 | Log request in legal queue |
+| 2 | Review content in question |
+| 3 | Is it opinion or factual claim? |
+| 4 | **Opinion**: Generally protected, deny request |
+| 5 | **Factual claim**: Is it provably false? |
+| 6 | **If unsure**: Escalate to leadership/legal counsel |
+| 7 | Respond to requester with decision |
+
+**Default Position**: Content stays unless clearly violates guidelines or legal counsel advises removal.
+
+#### 27.5.4 Law Enforcement Requests
+
+| Step | Action |
+|------|--------|
+| 1 | Verify request is legitimate (official letterhead, badge number) |
+| 2 | Determine scope of request |
+| 3 | **Subpoena**: Comply with scope, preserve data |
+| 4 | **Voluntary request**: Escalate to leadership |
+| 5 | Document everything in audit log |
+| 6 | Do not notify user if prohibited by order |
+
+**Escalate immediately**: All law enforcement requests go to leadership.
+
+---
+
+### 27.6 User Management
+
+**Location**: `/admin/users`
+
+#### 27.6.1 User Lookup
+
+**Search by**:
+- Email address
+- User ID
+- Name
+- Phone number
+
+**User Detail View Shows**:
+- Account info (email, created date, role)
+- Profile completion
+- Activity history
+- Engagements
+- Reviews written
+- Flags/warnings
+
+#### 27.6.2 User Suspension Procedure
+
+**Triggering Events**:
+- Multiple guideline violations
+- Harassment reports
+- Fraud detection
+- Safety concerns
+
+| Step | Action |
+|------|--------|
+| 1 | Open user from `/admin/users` |
+| 2 | Review violation history |
+| 3 | Document reason for suspension |
+| 4 | Click "Suspend User" |
+| 5 | Select duration (temporary/permanent) |
+| 6 | User receives notification |
+| 7 | Action logged in audit trail |
+
+**Suspension Tiers**:
+
+| Tier | Duration | Trigger |
+|------|----------|---------|
+| Warning | N/A | First minor violation |
+| Temp Suspension | 7 days | Repeated minor violations |
+| Temp Suspension | 30 days | Serious violation |
+| Permanent Ban | Indefinite | Severe violation, safety risk |
+
+#### 27.6.3 Account Deletion Requests
+
+**Triggering Event**: User requests account deletion
+
+**Location**: `/admin/users` → User detail → "Deletion Requests"
+
+| Step | Action |
+|------|--------|
+| 1 | Verify request is from account owner |
+| 2 | Check for active engagements |
+| 3 | If active engagements: Contact user, cannot delete until resolved |
+| 4 | If clear: Process deletion |
+| 5 | Anonymize data per retention policy |
+| 6 | Audit log retained (anonymized) |
+
+**Data Retained After Deletion** (per Ch 39):
+- Audit logs (anonymized)
+- Financial records (7 years)
+- Legal hold data (if applicable)
+
+---
+
+### 27.7 Provider Listing Management
+
+**Location**: `/admin/providers`
+
+#### 27.7.1 Provider Lookup
+
+**Search by**:
+- Business name
+- Provider ID
+- City/State
+- Email
+- Phone
+
+**Provider Detail View Shows**:
+- Business information
+- Claim status (claimed/unclaimed)
+- Verification badges
+- Reviews summary
+- Engagement history
+- Edit history
+
+#### 27.7.2 Listing Quality Issues
+
+**When flagged for quality**:
+
+| Issue | Action |
+|-------|--------|
+| Missing required info | Contact provider, request completion |
+| Duplicate listing | Merge or remove duplicate |
+| Incorrect information | Verify and correct |
+| Closed business | Mark as inactive |
+| Photos inappropriate | Remove photos, notify |
+
+#### 27.7.3 Provider Suspension
+
+**Triggers**:
+- Fraud confirmed
+- Safety violations
+- Legal requirement
+- Repeated policy violations
+
+| Step | Action |
+|------|--------|
+| 1 | Document evidence thoroughly |
+| 2 | Escalate to leadership for approval |
+| 3 | If approved: Suspend listing |
+| 4 | Notify provider with reason |
+| 5 | Listing hidden from directory |
+| 6 | Active engagements handled case-by-case |
+
+---
+
+### 27.8 Support Ticket Management
+
+**Location**: `/admin/support`
+
+**SLA**: First response within 24 business hours
+
+#### 27.8.1 Ticket Queue
+
+| Column | Content |
+|--------|---------|
+| Ticket ID | Unique identifier |
+| Subject | Brief description |
+| User | Submitter info |
+| Category | Support category |
+| Status | New, In Progress, Waiting, Resolved |
+| Priority | Low, Normal, High, Urgent |
+| Created | Submission time |
+
+#### 27.8.2 Ticket Processing Procedure
+
+| Step | Action |
+|------|--------|
+| 1 | Open ticket from queue |
+| 2 | Read full message and context |
+| 3 | Check user history if relevant |
+| 4 | **If simple**: Respond and resolve |
+| 5 | **If complex**: Investigate, update status to "In Progress" |
+| 6 | **If needs user input**: Respond with questions, set to "Waiting" |
+| 7 | **If escalation needed**: Tag appropriately, assign to lead |
+
+#### 27.8.3 Common Support Scenarios
+
+| Scenario | Action |
+|----------|--------|
+| "Can't log in" | Reset password link, check account status |
+| "Want to delete account" | Direct to settings, or process deletion request |
+| "Wrong info on listing" | If claimed: Direct to edit. If unclaimed: Admin edit |
+| "Review is unfair" | Explain review policy, offer dispute if criteria met |
+| "Didn't receive notification" | Check delivery status, verify contact info |
+| "Billing question" | Check Stripe, explain charges |
+| "How do I...?" | Link to relevant help content or guide through |
+
+#### 27.8.4 Escalation Triggers
+
+**Escalate to leadership when**:
+- User threatens legal action
+- Safety concern raised
+- Technical issue beyond admin scope
+- Policy exception requested
+- Media/PR involvement
+
+---
+
+### 27.9 Error & Incident Response
+
+**Triggering Events**:
+- System error alerts
+- User-reported bugs
+- Performance degradation
+- Service outages
+
+**Location**: `/admin` → Dashboard → Alerts
+
+#### 27.9.1 Error Severity Levels
+
+| Level | Description | Response |
+|-------|-------------|----------|
+| **Critical** | Platform down, data loss risk | Immediate escalation |
+| **High** | Major feature broken | Escalate within 1 hour |
+| **Medium** | Feature degraded | Log ticket, business hours |
+| **Low** | Minor issue | Log for engineering backlog |
+
+#### 27.9.2 Incident Response Procedure
+
+**For Critical/High severity**:
+
+| Step | Action | Who |
+|------|--------|-----|
+| 1 | Acknowledge alert | Admin |
+| 2 | Document symptoms | Admin |
+| 3 | Escalate to engineering | Admin → Engineering |
+| 4 | Update status page (if exists) | Engineering |
+| 5 | Monitor for resolution | Admin |
+| 6 | Notify affected users if needed | Admin |
+| 7 | Post-incident review | Team |
+
+**For Medium/Low severity**:
+
+| Step | Action |
+|------|--------|
+| 1 | Log issue details |
+| 2 | Create ticket for engineering |
+| 3 | Note workarounds if available |
+| 4 | Monitor for recurrence |
+
+---
+
+### 27.10 Attribution & Referral Management
+
+**Location**: `/admin/attribution` (if built) or `/admin/users`
+
+#### 27.10.1 Referral Tracking
+
+**What's Tracked**:
+- Referral source (partner, campaign, organic)
+- Conversion events
+- Attribution disputes
+
+#### 27.10.2 Attribution Dispute Handling
+
+| Step | Action |
+|------|--------|
+| 1 | Review dispute details |
+| 2 | Check referral tracking data |
+| 3 | Verify cookie/parameter data |
+| 4 | Make determination |
+| 5 | Communicate decision to partner |
+| 6 | Adjust attribution if needed |
+
+---
+
+### 27.11 Audit Log Usage
+
+**Location**: `/admin/audit`
+
+**Purpose**: Track all system actions for compliance, debugging, and accountability.
+
+#### 27.11.1 Audit Log Fields
+
+| Field | Description |
+|-------|-------------|
+| Timestamp | When action occurred |
+| Actor | Who performed action (user, admin, system) |
+| Action | What was done |
+| Target | What was affected |
+| Details | Additional context |
+| IP Address | Origin (for security) |
+
+#### 27.11.2 Common Audit Log Uses
+
+| Use Case | How to Search |
+|----------|---------------|
+| User activity history | Filter by actor ID |
+| Track specific action | Filter by action type |
+| Investigate incident | Filter by time range |
+| Compliance review | Export filtered results |
+
+#### 27.11.3 Audit Log Retention
+
+| Log Type | Retention |
+|----------|-----------|
+| Auth events | 7 years |
+| Admin actions | 7 years |
+| User data changes | 7 years |
+| System events | 1 year |
+
+---
+
+### 27.12 SLA Summary
+
+| Queue | First Response | Resolution Target |
+|-------|----------------|-------------------|
+| Claims | 24 business hours | 48 business hours |
+| Flagged Reviews | 24 business hours | 48 business hours |
+| Support Tickets | 24 business hours | Varies by complexity |
+| Legal Requests | 24 hours | Per legal requirements |
+| DMCA | Same day | Same day |
+| Critical Errors | Immediate | ASAP |
+
+---
+
+### 27.13 Escalation Matrix
+
+| Situation | Escalate To | Method |
+|-----------|-------------|--------|
+| Legal threats | Leadership | Immediate message |
+| Safety concerns | Leadership | Immediate message |
+| Technical issues (Critical) | Engineering | On-call alert |
+| Policy exceptions | Leadership | Email with context |
+| Media/PR inquiries | Leadership | Immediate message |
+| Fraud patterns | Leadership + Engineering | Meeting |
+| User appeals (after denial) | Leadership | Email with history |
+
+---
+
+### 27.14 Admin Onboarding Checklist
+
+**For new admin team members**:
+
+| Day | Task | Duration |
+|-----|------|----------|
+| 1 | Read this chapter (Ch 27) | 2 hours |
+| 1 | Admin panel walkthrough | 1 hour |
+| 1 | Shadow experienced admin | 2 hours |
+| 2 | Practice claim verification (supervised) | 2 hours |
+| 2 | Practice review moderation (supervised) | 2 hours |
+| 3 | Handle support tickets (supervised) | 4 hours |
+| 4 | Solo operations (with backup available) | Full day |
+| 5 | Full solo operations | Full day |
+
+**Access Levels**:
+
+| Level | Can Do |
+|-------|--------|
+| Admin (Standard) | All daily operations |
+| Admin (Senior) | + User suspensions, escalation handling |
+| Admin (Lead) | + Policy exceptions, team management |
+
+---
+
+### 27.15 Demo vs Production Scope
+
+| Workflow | Demo | Production |
+|----------|------|------------|
+| Claim verification | ✅ Manual queue | ✅ + Auto-verification |
+| Review moderation | ✅ Manual queue | ✅ + AI flagging |
+| Support tickets | ✅ Basic queue | ✅ + SLA tracking |
+| Legal handling | ✅ Manual process | ✅ + Legal tooling |
+| Incident response | 🟡 Basic alerts | ✅ + PagerDuty |
+| Audit logging | ✅ Basic | ✅ + Retention policies |
+| SLA monitoring | ⬜ Defer | ✅ Dashboard |
+
+---
+
+### 27.16 Quick Reference Card
+
+**Print this for daily use**:
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║                    ADMIN QUICK REFERENCE                               ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  DAILY CHECKLIST                                                       ║
+║  □ Check alerts (/admin → Dashboard)                                   ║
+║  □ Process claims (/admin/claims)                                      ║
+║  □ Review flagged reviews (/admin/reviews)                            ║
+║  □ Handle support tickets (/admin/support)                            ║
+║  □ Check legal queue (/admin/legal)                                   ║
+║                                                                        ║
+║  SLA REMINDERS                                                         ║
+║  • Claims: 24h first response, 48h resolution                         ║
+║  • Reviews: 48h resolution                                            ║
+║  • Support: 24h first response                                        ║
+║  • DMCA: Same day action required                                     ║
+║                                                                        ║
+║  ESCALATE IMMEDIATELY                                                  ║
+║  • Legal threats → Leadership                                         ║
+║  • Safety concerns → Leadership                                       ║
+║  • Platform down → Engineering                                        ║
+║  • Media inquiries → Leadership                                       ║
+║                                                                        ║
+║  WHEN IN DOUBT                                                         ║
+║  • Document everything                                                 ║
+║  • Don't rush decisions                                               ║
+║  • Ask for help                                                       ║
+║  • Check audit log for precedent                                      ║
+║                                                                        ║
+╚═══════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
