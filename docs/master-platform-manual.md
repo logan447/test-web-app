@@ -32,16 +32,14 @@
 
 | Status | Count | Chapters |
 |--------|-------|----------|
-| ✅ Reviewed | 34 | 1–26, 28, 29, 30, 33, 35, 37, 38, 39 |
-| ⏳ Pending | 1 | 36 |
+| ✅ Reviewed | 35 | 1–26, 28, 29, 30, 33, 35, 36, 37, 38, 39 |
+| ⏳ Pending | 0 | — |
 | 🆕 Placeholder/New | 4 | 27, 31, 32, 34 |
 | **Total** | **39** | |
 
 ### Remaining Chapters to Review
 
-| Priority | Ch | Title | Current Status |
-|----------|-----|-------|----------------|
-| 1 | 36 | Performance & Caching | ⏳ Pending |
+All originally pending chapters have been reviewed. ✅
 
 ### Chapters Requiring Content Development
 
@@ -201,11 +199,15 @@
 | | 35.5 Monitoring & Alerting | |
 | | 35.6 Admin System Integration | |
 | | 35.7 Error Recovery Patterns | |
-| 36 | [Performance & Caching](#chapter-36-performance--caching) | ⏳ Pending |
-| | 36.1 Caching Strategy | |
+| 36 | [Performance & Caching](#chapter-36-performance--caching) | ✅ Reviewed |
+| | 36.1 Performance Strategy | |
 | | 36.2 Database Optimization | |
-| | 36.3 Frontend Performance | |
-| | 36.4 Core Web Vitals | |
+| | 36.3 Image Optimization | |
+| | 36.4 Data Caching | |
+| | 36.5 Bundle Optimization | |
+| | 36.6 Core Web Vitals | |
+| | 36.7 Admin System Integration | |
+| | 36.8 Performance Checklist | |
 | 37 | [Analytics & Audit Logging](#chapter-37-analytics--audit-logging) | ✅ Reviewed |
 | | 37.1 Demo Scope | |
 | | 37.2 Audit Log Schema | |
@@ -274,14 +276,15 @@
 | **Placeholders (🆕)** | 1 |
 | **Future Directions (⭐)** | 3 |
 
-**Remaining to Review**:
+**Chapters Requiring Content Development**:
 - Ch 27: Human Workflows & SOPs (Placeholder)
 - Ch 31: Application Architecture & Tech Stack (New)
 - Ch 32: Hosting, Deployment & CI/CD (New)
 - Ch 34: Communications Infrastructure (New)
-- Ch 36: Performance & Caching (Pending)
 
-**Recently Completed**: Chapter 35 (Error Handling & Monitoring) - Reviewed ✅
+**Recently Completed**: Chapter 36 (Performance & Caching) - Reviewed ✅
+
+**All Originally Pending Chapters Reviewed** ✅
 
 ---
 
@@ -11050,6 +11053,373 @@ async function fetchWithRetry(url: string, retries = 3) {
 
 ---
 
+## Chapter 36: Performance & Caching
+
+**Review Status**: ✅ Reviewed
+
+**Purpose**: Define the performance optimization strategy, caching patterns, and monitoring approach for the Olera platform to ensure fast, responsive user experiences.
+
+> **Cross-References**:
+> - Chapter 33 (File Uploads & Media): Image storage and CDN delivery
+> - Chapter 35 (Error Handling & Monitoring): Performance monitoring overlap
+> - Chapter 37 (Analytics & Audit Logging): Web Vitals tracking
+> - Chapter 38 (Third-Party Services): Vercel Analytics, monitoring tools
+
+---
+
+### 36.1 Performance Strategy
+
+**Philosophy**: Leverage Next.js and Vercel's built-in optimizations rather than adding custom infrastructure complexity. For demo scope, rely on platform defaults; for production, layer in explicit caching and monitoring.
+
+**Performance Priorities**:
+
+| Priority | Area | Demo Approach | Production Approach |
+|----------|------|---------------|---------------------|
+| **P0** | Database queries | ✅ Indexes (built) | Indexes + query monitoring |
+| **P0** | Image delivery | ✅ Next/Image (built) | Next/Image + CDN tuning |
+| **P1** | Page load times | Vercel defaults | ISR + Edge caching |
+| **P2** | Bundle size | Implicit code splitting | Explicit analysis + optimization |
+| **P3** | API response times | No caching | Redis + response caching |
+
+**Demo Scope Decision**: No Redis, no bundle analyzer, no custom caching layer. Platform defaults are sufficient for demo traffic.
+
+---
+
+### 36.2 Database Optimization
+
+#### 36.2.1 Index Strategy
+
+**Current Indexes** (verified in Prisma schema):
+
+| Model | Indexed Fields | Purpose |
+|-------|----------------|---------|
+| **User** | `userId` | Fast user lookups |
+| **Provider** | `city`, `state`, `providerType` | Directory filtering |
+| **Engagement** | `familyProfileId`, `providerId`, `status`, `requestType` | Engagement queries |
+| **ConsultRequest** | `consultRequestId`, `requestId`, `status` | Request lookups |
+| **SavedProvider** | `userId`, `familyProfileId`, `providerId` | Saved provider queries |
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Prisma indexes defined | ✅ Built | ✅ |
+| Query performance monitoring | ⬜ Defer | ✅ |
+| Slow query logging | ⬜ Defer | ✅ |
+| Connection pooling | Vercel managed | Vercel managed |
+
+#### 36.2.2 Query Best Practices
+
+**Patterns to Follow**:
+```typescript
+// ✅ Good: Select only needed fields
+const providers = await prisma.provider.findMany({
+  where: { city: "Austin", status: "ACTIVE" },
+  select: { id: true, businessName: true, city: true }
+});
+
+// ✅ Good: Use include sparingly, only when needed
+const engagement = await prisma.engagement.findUnique({
+  where: { id },
+  include: { provider: { select: { businessName: true } } }
+});
+
+// ❌ Avoid: Fetching entire related records
+const user = await prisma.user.findUnique({
+  where: { id },
+  include: { engagements: true, savedProviders: true, messages: true }
+});
+```
+
+**N+1 Query Prevention**:
+- Use `include` for related data needed immediately
+- Use separate queries for optional/lazy-loaded data
+- Avoid loops that query database per iteration
+
+---
+
+### 36.3 Image Optimization
+
+#### 36.3.1 Next/Image Implementation
+
+**Current Usage** (verified in 8 components):
+- `ProfilePhotoUpload.tsx`
+- `CaregiverCard.tsx`
+- `EnhancedProviderCard.tsx`
+- `OrganizationCard.tsx`
+- `SavedProviderCard.tsx`
+- `EnhancedPhotoUpload.tsx`
+- `PhotoGallery.tsx`
+- `PhotoUpload.tsx`
+
+**Next/Image Benefits** (automatic):
+- Automatic WebP/AVIF conversion
+- Responsive sizing (`sizes` prop)
+- Lazy loading by default
+- Blur placeholder support
+- Vercel Image Optimization CDN
+
+#### 36.3.2 Image Configuration
+
+**Current next.config.ts**: Minimal (no image configuration needed — Vercel defaults apply)
+
+**Required Patterns**:
+```tsx
+// Provider card image
+<Image
+  src={provider.photoUrl || "/placeholder-provider.png"}
+  alt={provider.businessName}
+  width={200}
+  height={200}
+  className="object-cover"
+  priority={isAboveFold}  // Only for above-fold images
+/>
+
+// Gallery images (lazy loaded)
+<Image
+  src={photo.url}
+  alt={photo.alt}
+  fill
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  className="object-cover"
+/>
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Next/Image usage | ✅ Built | ✅ |
+| Placeholder images | ✅ Built | ✅ |
+| Responsive sizes | ✅ Built | ✅ |
+| Priority loading (above-fold) | 🟡 Partial | ✅ |
+| Image CDN (Vercel) | ✅ Automatic | ✅ |
+
+---
+
+### 36.4 Data Caching
+
+#### 36.4.1 Demo Scope
+
+**Approach**: No explicit caching. Rely on:
+- Vercel Edge Network (static assets)
+- Next.js automatic fetch deduplication
+- Browser caching (Cache-Control headers)
+
+#### 36.4.2 Production Scope
+
+**ISR (Incremental Static Regeneration)** — for semi-static pages:
+
+```typescript
+// app/providers/[city]/page.tsx
+export const revalidate = 3600; // Revalidate every hour
+
+export default async function CityProvidersPage({ params }) {
+  const providers = await getProvidersByCity(params.city);
+  return <ProviderList providers={providers} />;
+}
+```
+
+**Candidates for ISR**:
+
+| Page | Revalidate Interval | Rationale |
+|------|---------------------|-----------|
+| Provider directory (by city) | 1 hour | Provider data changes infrequently |
+| Provider profile (public) | 1 hour | Profile updates are rare |
+| Static pages (terms, privacy) | 24 hours | Rarely change |
+| Homepage | 1 hour | Featured providers may update |
+
+**API Response Caching** (Production only):
+
+```typescript
+// Cache API responses at edge
+export async function GET(request: Request) {
+  const data = await fetchData();
+
+  return NextResponse.json(data, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+    }
+  });
+}
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| ISR for directory pages | ⬜ Defer | ✅ |
+| API response caching | ⬜ Defer | ✅ |
+| Redis caching layer | ⬜ Not needed | 🟡 If scale requires |
+| Vercel Edge caching | ✅ Automatic | ✅ |
+
+---
+
+### 36.5 Bundle Optimization
+
+#### 36.5.1 Automatic Optimizations
+
+Next.js provides automatic code splitting:
+- **Route-based splitting**: Each page loads only its code
+- **Component-based splitting**: `dynamic()` for heavy components
+- **Third-party chunking**: Vendor code separated
+
+#### 36.5.2 Dynamic Imports
+
+**Pattern for Heavy Components**:
+```typescript
+import dynamic from 'next/dynamic';
+
+// Lazy load map component (heavy)
+const MapView = dynamic(() => import('@/components/MapView'), {
+  loading: () => <MapSkeleton />,
+  ssr: false  // Client-only for map libraries
+});
+
+// Lazy load rich text editor
+const RichTextEditor = dynamic(
+  () => import('@/components/RichTextEditor'),
+  { loading: () => <EditorSkeleton /> }
+);
+```
+
+**Candidates for Dynamic Import**:
+
+| Component | Reason | Demo | Production |
+|-----------|--------|------|------------|
+| Map components | Large library (Mapbox/Google) | ✅ If used | ✅ |
+| Rich text editors | Heavy dependencies | ✅ If used | ✅ |
+| Chart/graph libraries | Data visualization | ⬜ Not used | ✅ |
+| PDF generators | Large libraries | ⬜ Not used | ✅ |
+
+#### 36.5.3 Bundle Analysis (Production)
+
+**Setup** (production only):
+```bash
+npm install @next/bundle-analyzer
+```
+
+```typescript
+// next.config.ts (production analysis)
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+module.exports = withBundleAnalyzer(nextConfig);
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Automatic code splitting | ✅ Built-in | ✅ |
+| Dynamic imports (heavy components) | 🟡 As needed | ✅ |
+| Bundle analyzer | ⬜ Defer | ✅ |
+| Tree shaking | ✅ Built-in | ✅ |
+
+---
+
+### 36.6 Core Web Vitals
+
+#### 36.6.1 Target Metrics
+
+| Metric | Target | Description |
+|--------|--------|-------------|
+| **LCP** (Largest Contentful Paint) | < 2.5s | Main content visible |
+| **FID** (First Input Delay) | < 100ms | Time to interactive |
+| **CLS** (Cumulative Layout Shift) | < 0.1 | Visual stability |
+| **TTFB** (Time to First Byte) | < 600ms | Server response time |
+
+#### 36.6.2 Measurement
+
+**Demo Scope**: Vercel Analytics (automatic)
+
+```
+Vercel Dashboard → Project → Analytics → Web Vitals
+```
+
+**Production Scope**: Vercel Analytics + Sentry Performance
+
+| Tool | Purpose | Demo | Production |
+|------|---------|------|------------|
+| Vercel Analytics | Core Web Vitals, traffic | ✅ | ✅ |
+| Vercel Speed Insights | Real user monitoring | ✅ | ✅ |
+| Sentry Performance | Transaction tracing | ⬜ Defer | ✅ |
+| Lighthouse CI | Build-time audits | ⬜ Defer | ✅ |
+
+#### 36.6.3 Optimization Techniques
+
+| Metric | Optimization | Implementation |
+|--------|--------------|----------------|
+| **LCP** | Priority images above fold | `priority` prop on hero images |
+| **LCP** | Preload critical fonts | `next/font` (automatic) |
+| **FID** | Minimize JS on initial load | Code splitting, dynamic imports |
+| **FID** | Defer non-critical scripts | `next/script` with strategy |
+| **CLS** | Reserve image dimensions | Always specify `width`/`height` |
+| **CLS** | Avoid layout-shifting elements | Fixed heights for dynamic content |
+
+---
+
+### 36.7 Admin System Integration
+
+#### 36.7.1 Performance Visibility
+
+**Demo Scope**: No admin performance dashboard. Use:
+1. Vercel Dashboard (requires Vercel access)
+2. Browser DevTools for ad-hoc testing
+
+**Production Scope**: Admin > System Health (shared with Ch 35)
+
+**Admin Performance Panel** (Production):
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Admin > System Health > Performance                                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│ │ LCP         │  │ FID         │  │ CLS         │  │ TTFB        │     │
+│ │ 1.8s ✅     │  │ 45ms ✅     │  │ 0.05 ✅     │  │ 320ms ✅    │     │
+│ └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Slowest Pages (last 24h)                                    [View All] │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Page                    │ Avg LCP  │ p95 LCP  │ Traffic │ Status       │
+├─────────────────────────┼──────────┼──────────┼─────────┼──────────────┤
+│ /providers/austin       │ 2.1s    │ 3.2s    │ 1,234   │ 🟡 Warning   │
+├─────────────────────────┼──────────┼──────────┼─────────┼──────────────┤
+│ /dashboard              │ 1.5s    │ 2.0s    │ 892     │ ✅ Good      │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Performance dashboard in admin | ⬜ Defer | ✅ |
+| Web Vitals display | ⬜ Defer | ✅ |
+| Slow page identification | ⬜ Defer | ✅ |
+| Alerts for performance regression | ⬜ Defer | ✅ |
+
+> **Cross-Reference**: See Chapter 35.6 (Admin System Integration) for shared System Health panel structure.
+
+---
+
+### 36.8 Performance Checklist
+
+**Demo Launch Checklist**:
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Database indexes defined | ✅ | Verified in Prisma schema |
+| Next/Image used for all images | ✅ | 8 components verified |
+| No N+1 query patterns | 🟡 | Review during development |
+| Critical images have `priority` | 🟡 | Review above-fold images |
+| Image dimensions specified | 🟡 | Review for CLS |
+| Vercel Analytics enabled | ✅ | Automatic with deployment |
+
+**Production Checklist** (Future):
+
+| Item | Status | Notes |
+|------|--------|-------|
+| ISR for directory pages | ⬜ | Add `revalidate` exports |
+| Bundle analyzer review | ⬜ | Run before launch |
+| API response caching | ⬜ | Add Cache-Control headers |
+| Sentry Performance enabled | ⬜ | Configure tracing |
+| Lighthouse CI in pipeline | ⬜ | Add to CI/CD |
+| Performance budget defined | ⬜ | LCP < 2.5s, bundle < 200KB |
+
+---
+
 ## Chapter 37: Analytics & Audit Logging
 
 **Review Status**: ✅ Reviewed
@@ -11238,27 +11608,6 @@ Admin Panel
 ```
 
 > **Cross-Reference**: See Chapter 26 (Admin System) for full admin panel structure.
-
-
-## Chapter 36: Performance & Caching
-
-> **Note**: Data Export & Portability requirements are covered in Chapter 14 (Settings & Preferences) and Chapter 39 (Legal Framework, Section 39.3.2).
-
-**Purpose**: Ensure the application performs well under load.
-
-| Item | Status | Notes |
-|------|--------|-------|
-| 36.1 Database Query Optimization | 🟡 | Index verification needed |
-| 36.2 API Response Caching | ⬜ | Redis or in-memory |
-| 36.3 Static Page Generation (ISR) | ⬜ | Next.js incremental static regen |
-| 36.4 Image Optimization | 🟡 | Next/Image, CDN |
-| 36.5 Bundle Size Analysis | ⬜ | Webpack analyzer |
-
-### Key Questions
-- [ ] Performance issues observed?
-
-### Architectural Notes
-_To be filled in during chapter review._
 
 ---
 
