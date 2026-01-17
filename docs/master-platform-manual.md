@@ -8451,6 +8451,659 @@ Hospice                 List Your Business
 - [x] Content strategy deferred? → No, comprehensive strategy defined above
 
 ---
+---
+
+## Chapter 29: Referral Programs & Partner Attribution
+### 29.0 Purpose & Scope
+**Purpose**: Track how users discover Olera, enable word-of-mouth growth through referral programs, and manage partner relationships for B2B acquisition channels.
+
+**Why This Matters**:
+
+- **Marketing ROI**: Know which campaigns, partners, or referrers drive signups
+- **Growth**: Incentivize users to invite others (word-of-mouth is high-trust in senior care)
+- **Partnerships**: Track referrals from hospitals, social workers, senior centers, etc.
+
+#### Scope Labels Used in This Chapter
+
+| Label | Meaning |
+|-------|---------|
+| 🟢 DEMO | Build for demo. Minimal implementation, functional for investor/stakeholder presentation. |
+| 🔵 PRODUCTION | Build for production launch. Not needed for demo but required before public release. |
+| ⚪ FUTURE | Optional/aspirational. Not committed. May never be built. |
+
+Section 29.0 — Approve / Modify / Reject
+
+---
+
+### 29.1 Attribution Fundamentals (CLARIFIED)
+
+This section explains what attribution means and why we track it differently in demo vs production.
+
+#### 29.1.1 What Is Attribution?
+
+Attribution answers one question: **"How did this user find Olera?"**
+
+When someone signs up, we want to know:
+
+- Did they click a Google ad?
+- Did they come from a partner website (e.g., a hospital)?
+- Did a friend refer them?
+- Did they find us organically?
+
+This data helps us understand what's working and where to invest marketing dollars.
+
+#### 29.1.2 Demo vs Production Attribution — Plain Language
+
+| Aspect | Demo Scope 🟢 | Production Scope 🔵 |
+|--------|---------------|---------------------|
+| What we capture | UTM parameters only (from URLs) | UTM + referral codes + partner IDs |
+| Why | Proves we can track marketing campaigns | Full growth engine with incentives |
+| User experience | Invisible — no user action needed | May involve entering referral codes |
+| Complexity | Very low — just read URL params | Medium — rewards, validation, fraud prevention |
+| Marketing use | "Users came from Facebook campaign X" | "Users came from partner Y, referrer Z, campaign X" |
+
+#### 29.1.3 Why Demo Only Needs UTM
+
+For the demo, stakeholders need to see:
+
+1. We can track where users come from
+2. We have the infrastructure to attribute signups
+
+UTM parameters achieve this with zero user friction and minimal code. Referral codes and partner tracking add complexity that doesn't improve the demo but could introduce bugs.
+
+#### 29.1.4 What Happens to Attribution Data
+
+| Stage | Demo 🟢 | Production 🔵 |
+|-------|---------|---------------|
+| Capture | Store on User record at signup | Same |
+| Visibility | Admin panel (user detail page) | Admin panel + analytics dashboards |
+| Reporting | Basic counts by source/medium | Full funnel analysis, cohort tracking |
+| Action | None (informational only) | Trigger rewards, partner payouts, campaign optimization |
+
+Section 29.1 (Attribution Fundamentals) — Approve / Modify / Reject
+
+---
+
+### 29.2 UTM Parameter Tracking 🟢 DEMO
+
+**Scope**: Demo-approved. Build this.
+
+#### 29.2.1 What Are UTM Parameters?
+
+UTM parameters are tags added to URLs that tell you where traffic came from.
+
+**Example URL**:
+
+```
+https://olera.com/?utm_source=facebook&utm_medium=cpc&utm_campaign=launch2025
+```
+
+When a user clicks this link and signs up, we know:
+
+- **Source**: Facebook
+- **Medium**: CPC (cost-per-click / paid ad)
+- **Campaign**: launch2025
+
+#### 29.2.2 Standard UTM Parameters
+
+| Parameter | Purpose | Example Values |
+|-----------|---------|----------------|
+| `utm_source` | Where the traffic came from | `google`, `facebook`, `newsletter`, `partner_hospital` |
+| `utm_medium` | Marketing channel type | `cpc`, `email`, `social`, `referral` |
+| `utm_campaign` | Specific campaign name | `launch2025`, `spring_promo`, `caregiver_outreach` |
+| `utm_term` | Paid search keyword (optional) | `senior care near me` |
+| `utm_content` | Differentiates ad variations (optional) | `blue_button`, `hero_image_v2` |
+
+#### 29.2.3 Implementation
+
+**Capture Flow**:
+
+```
+User clicks link with UTM params
+       ↓
+Landing page JavaScript reads URL params
+       ↓
+Store in sessionStorage (persists across pages)
+       ↓
+On signup, send UTM data to API
+       ↓
+Save to User record in database
+```
+
+**Schema Addition (Prisma)**:
+
+```prisma
+model User {
+  // ... existing fields ...
+
+  // Attribution (Demo)
+  utmSource      String?   // e.g., "facebook"
+  utmMedium      String?   // e.g., "cpc"
+  utmCampaign    String?   // e.g., "launch2025"
+  utmTerm        String?   // e.g., "senior care"
+  utmContent     String?   // e.g., "blue_button"
+  attributedAt   DateTime? // When attribution was captured
+}
+```
+
+**Admin Visibility**:
+
+- User detail page shows attribution source
+- Basic table/list: "Users by Source" (group by utmSource)
+
+#### 29.2.4 Demo Deliverables
+
+| Item | Required |
+|------|----------|
+| UTM capture on landing page | ✅ |
+| Persist through signup flow | ✅ |
+| Save to User record | ✅ |
+| Display in admin user detail | ✅ |
+| Analytics dashboard | ⬜ Defer |
+
+Section 29.2 (UTM Parameter Tracking) — Approve / Modify / Reject
+
+---
+
+### 29.3 Referral Codes 🔵 PRODUCTION
+
+**Scope**: Production only. Defer for demo.
+
+#### 29.3.1 What Are Referral Codes?
+
+A referral code is a unique identifier that lets existing users invite new users — and optionally earn a reward when the new user signs up.
+
+**Example**:
+
+1. Sarah is an Olera user
+2. Sarah's referral code is `SARAH2025`
+3. Sarah shares: "Sign up at olera.com with code SARAH2025"
+4. New user enters `SARAH2025` at signup
+5. Both Sarah and the new user may receive a reward
+
+#### 29.3.2 Why Defer for Demo?
+
+| Concern | Risk Level |
+|---------|------------|
+| Reward fulfillment logic | Medium — needs careful design |
+| Fraud prevention | Medium — fake accounts, self-referral |
+| User experience complexity | Low-Medium — extra signup field |
+| Edge cases | Medium — expired codes, duplicate use |
+
+For demo, UTM tracking proves attribution works. Referral codes add complexity without improving the demo narrative.
+
+#### 29.3.3 Production Design (Placeholder)
+
+**Schema Addition (Production)**:
+
+```prisma
+model ReferralCode {
+  id          String   @id @default(cuid())
+  code        String   @unique  // e.g., "SARAH2025"
+  ownerId     String   // User who owns this code
+  owner       User     @relation(fields: [ownerId], references: [id])
+  usageCount  Int      @default(0)
+  maxUses     Int?     // NULL = unlimited
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model ReferralRedemption {
+  id             String   @id @default(cuid())
+  referralCodeId String
+  referralCode   ReferralCode @relation(...)
+  referredUserId String   @unique  // New user who used the code
+  referredUser   User     @relation(...)
+  rewardStatus   String   // PENDING, GRANTED, EXPIRED
+  createdAt      DateTime @default(now())
+}
+```
+
+**Reward Options** (to be decided in production):
+
+- Account credit
+- Free month of premium
+- Gift card
+- No reward (tracking only)
+
+Section 29.3 (Referral Codes) — Approve / Modify / Reject
+
+---
+
+### 29.4 Partner & Affiliate Tracking 🔵 PRODUCTION (CLARIFIED)
+
+**Scope**: Production only. Defer for demo.
+
+#### 29.4.1 What Is Partner/Affiliate Tracking?
+
+This is B2B attribution — tracking when users come from organizational partners rather than individual referrers.
+
+**Examples of Partners**:
+
+| Partner Type | Example | How They Refer |
+|--------------|---------|----------------|
+| Hospitals | Mercy Health discharge planning | Link on patient portal, social worker referral |
+| Senior centers | Local YMCA senior program | Flyers, website link |
+| Insurance companies | Medicare Advantage plans | Member portal, care navigator |
+| Social workers | Independent geriatric care managers | Direct recommendations |
+| Content affiliates | Senior care blogs | Affiliate links in articles |
+
+#### 29.4.2 Why This Matters (Production)
+
+**For Olera**:
+
+- Understand which partnerships drive volume
+- Measure partner ROI
+- Prioritize partnership development
+
+**For Partners**:
+
+- Potentially receive referral fees or revenue share
+- Track their impact
+- Co-marketing opportunities
+
+#### 29.4.3 Why Defer for Demo?
+
+| Concern | Explanation |
+|---------|-------------|
+| No partners yet | Demo is internal; no live B2B relationships |
+| Revenue share complexity | Requires legal, finance, contracts |
+| Partner portal | Partners would need a dashboard (significant scope) |
+| Demo value | UTM tracking can simulate partner attribution (use `utm_source=partner_mercy_health`) |
+
+**Demo Workaround**: Use UTM parameters to simulate partner tracking:
+
+```
+https://olera.com/?utm_source=partner_mercy_health&utm_medium=referral&utm_campaign=discharge_pilot
+```
+
+This proves the tracking works without building partner infrastructure.
+
+#### 29.4.4 Production Design (Placeholder)
+
+**Schema Addition (Production)**:
+
+```prisma
+model Partner {
+  id            String   @id @default(cuid())
+  name          String   // "Mercy Health"
+  type          String   // HOSPITAL, SENIOR_CENTER, INSURANCE, AFFILIATE
+  contactEmail  String?
+  revenueShare  Float?   // e.g., 0.10 for 10%
+  partnerCode   String   @unique  // URL-safe identifier
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  referrals     PartnerReferral[]
+}
+
+model PartnerReferral {
+  id          String   @id @default(cuid())
+  partnerId   String
+  partner     Partner  @relation(...)
+  userId      String   // User who signed up
+  user        User     @relation(...)
+  payoutStatus String  // PENDING, PAID, WAIVED
+  createdAt   DateTime @default(now())
+}
+```
+
+**Partner Portal Features** (Future):
+
+- Partner login
+- Referral dashboard
+- Payout history
+- Marketing materials
+
+Section 29.4 (Partner & Affiliate Tracking) — Approve / Modify / Reject
+
+---
+
+### 29.5 Caregiver-to-Caregiver Referral Model 🔵 PRODUCTION (NEW)
+
+**Scope**: Production only. This section addresses the user feedback about referral model clarity.
+
+#### 29.5.1 Who Refers Whom?
+
+| Referrer | Referee | Supported? | Rationale |
+|----------|---------|------------|-----------|
+| Caregiver → Caregiver | | ✅ Yes | Natural word-of-mouth; students, nursing peers |
+| Family → Family | | ✅ Yes | Families share resources when navigating care |
+| Provider → Family | | 🟡 Indirect | Providers don't "refer" families; families find providers |
+| Provider → Provider | | ❌ No | Unclear value; providers are competitors, not referrers |
+
+#### 29.5.2 Why Caregiver Referrals Make Sense
+
+The natural referral path:
+
+1. Maria is a CNA student using Olera to find her first job
+2. Maria tells her classmate Devon: "Use Olera, it's great"
+3. Devon signs up using Maria's referral link
+4. Both get a small reward
+
+**Why this works**:
+
+- **High trust**: Peer recommendations in caregiving are powerful
+- **Network effects**: Nursing programs, CNA classes, caregiver communities
+- **Low cost to serve**: Caregivers are individual users, not complex B2B
+
+#### 29.5.3 Why Provider-to-Provider Referrals Are Excluded
+
+| Reason | Explanation |
+|--------|-------------|
+| Competitive dynamics | Assisted living facilities don't refer families to competitors |
+| Unclear incentive | What would a provider gain by referring another provider? |
+| Complexity | B2B referrals require contracts, legal review, revenue share |
+| Low volume | Few providers would participate |
+
+**Exception**: A provider might refer a *caregiver* to another provider for employment. This is covered by the caregiver job marketplace, not the referral program.
+
+#### 29.5.4 Proposed Caregiver Referral Rewards
+
+| Reward Type | Referrer Gets | New User Gets | Complexity |
+|-------------|---------------|---------------|------------|
+| Account credit | $10 credit | $10 credit | Low |
+| Free premium month | 1 month free | 1 month free | Low |
+| Feature unlock | Priority placement | Priority placement | Medium |
+| Cash/gift card | $10 gift card | — | High (fulfillment) |
+
+**Recommendation**: Start with account credit or free premium month. These are:
+
+- Easy to implement (no external fulfillment)
+- Valuable to caregivers (especially students)
+- Low fraud risk (credit only usable on platform)
+
+#### 29.5.5 Anti-Fraud Measures (Production)
+
+| Measure | Purpose |
+|---------|---------|
+| Email verification required | Prevent fake account farms |
+| One referral reward per IP (soft limit) | Reduce self-referral |
+| Reward only after profile completion | Ensure real engagement |
+| Manual review for high-volume referrers | Catch abuse patterns |
+| Referral code expiration | Limit long-tail fraud |
+
+#### 29.5.6 How It Would Be Marketed
+
+**To Caregivers**:
+
+> "Love Olera? Share it with a friend and you'll both get a free month of Premium."
+
+**Channels**:
+
+- In-app prompt after positive actions (job saved, message sent)
+- Email: "Share Olera with your classmates"
+- Social share buttons with pre-filled text
+
+**Messaging Themes**:
+
+- Help a friend find work
+- Support your fellow caregivers
+- Grow together
+
+Section 29.5 (Caregiver-to-Caregiver Referral Model) — Approve / Modify / Reject
+
+---
+
+### 29.6 Prisma Schema Summary
+
+#### 29.6.1 Demo Schema (UTM Only) 🟢
+
+```prisma
+model User {
+  // ... existing fields ...
+
+  // Attribution - Demo
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  utmTerm        String?
+  utmContent     String?
+  attributedAt   DateTime?
+}
+```
+
+#### 29.6.2 Production Schema Additions 🔵
+
+```prisma
+// Referral Codes
+model ReferralCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  ownerId     String
+  owner       User      @relation("ReferralCodeOwner", fields: [ownerId], references: [id])
+  usageCount  Int       @default(0)
+  maxUses     Int?
+  expiresAt   DateTime?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  redemptions ReferralRedemption[]
+}
+
+model ReferralRedemption {
+  id             String       @id @default(cuid())
+  referralCodeId String
+  referralCode   ReferralCode @relation(fields: [referralCodeId], references: [id])
+  referredUserId String       @unique
+  referredUser   User         @relation("ReferredUser", fields: [referredUserId], references: [id])
+  rewardStatus   String       @default("PENDING") // PENDING, GRANTED, EXPIRED, REVOKED
+  rewardType     String?      // CREDIT, FREE_MONTH, etc.
+  rewardValue    Int?         // e.g., 1000 for $10.00 credit (cents)
+  grantedAt      DateTime?
+  createdAt      DateTime     @default(now())
+}
+
+// Partner/Affiliate Tracking
+model Partner {
+  id            String    @id @default(cuid())
+  name          String
+  type          String    // HOSPITAL, SENIOR_CENTER, INSURANCE, AFFILIATE, OTHER
+  partnerCode   String    @unique
+  contactName   String?
+  contactEmail  String?
+  revenueShare  Float?    // Decimal, e.g., 0.10 = 10%
+  active        Boolean   @default(true)
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  referrals     PartnerReferral[]
+}
+
+model PartnerReferral {
+  id           String   @id @default(cuid())
+  partnerId    String
+  partner      Partner  @relation(fields: [partnerId], references: [id])
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  payoutStatus String   @default("PENDING") // PENDING, PAID, WAIVED
+  payoutAmount Int?     // In cents
+  paidAt       DateTime?
+  createdAt    DateTime @default(now())
+
+  @@unique([partnerId, userId])
+}
+
+// User additions for production
+model User {
+  // ... existing fields ...
+
+  // Referral relationships
+  referralCodes     ReferralCode[]       @relation("ReferralCodeOwner")
+  referredBy        ReferralRedemption?  @relation("ReferredUser")
+  partnerReferral   PartnerReferral?
+
+  // Account credit (for referral rewards)
+  accountCreditCents Int @default(0)
+}
+```
+
+Section 29.6 (Prisma Schema Summary) — Approve / Modify / Reject
+
+---
+
+### 29.7 Admin Panel Views
+
+#### 29.7.1 Demo Admin Views 🟢
+
+**User Detail Page** — Add attribution section:
+
+```
+┌─────────────────────────────────────────────┐
+│ Attribution                                 │
+├─────────────────────────────────────────────┤
+│ Source:    facebook                         │
+│ Medium:    cpc                              │
+│ Campaign:  launch2025                       │
+│ Captured:  Jan 15, 2025 at 2:34 PM         │
+└─────────────────────────────────────────────┘
+```
+
+**Users List** — Optional column: "Source" (shows utmSource or "Direct")
+
+#### 29.7.2 Production Admin Views 🔵
+
+**Attribution Dashboard** (`/admin/attribution`):
+
+- Signups by source (pie chart)
+- Signups by campaign (bar chart)
+- Referral leaderboard (top referrers)
+- Partner performance table
+
+**Referral Management** (`/admin/referrals`):
+
+- All referral codes
+- Redemption history
+- Pending rewards
+- Fraud flags
+
+**Partner Management** (`/admin/partners`):
+
+- Partner list with referral counts
+- Payout queue
+- Partner detail/edit
+
+Section 29.7 (Admin Panel Views) — Approve / Modify / Reject
+
+---
+
+### 29.8 Platform-Wide Reconciliation
+
+#### 29.8.1 Cross-Chapter Dependencies
+
+| Chapter | Integration Point | Status |
+|---------|-------------------|--------|
+| Ch 3: User & Account | UTM fields on User model | 🟢 Demo |
+| Ch 7: Registration | Capture UTM at signup | 🟢 Demo |
+| Ch 14: Settings | Referral code display (Production) | 🔵 Production |
+| Ch 19: Notifications | "You earned a referral reward" | 🔵 Production |
+| Ch 27: Admin System | Attribution views | 🟢 Demo (basic) |
+| Ch 33: Analytics | Attribution reporting | 🔵 Production |
+| Ch 38: Third-Party | Analytics tools (Mixpanel, etc.) | 🔵 Production |
+
+#### 29.8.2 Data Flow
+
+**Demo Flow (UTM Only)**:
+
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ Landing Page │ →  │ Signup Form  │ →  │ User Record  │
+│ (read UTM)   │    │ (pass UTM)   │    │ (store UTM)  │
+└──────────────┘    └──────────────┘    └──────────────┘
+```
+
+**Production Flow (Full)**:
+
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ Landing Page │ →  │ Signup Form  │ →  │ User Record  │
+│ (read UTM)   │    │ + ref code   │    │ + referral   │
+│ (read partner│    │ field        │    │ + partner    │
+│  code)       │    │              │    │ link         │
+└──────────────┘    └──────────────┘    └──────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │ Reward       │
+                    │ Processing   │
+                    └──────────────┘
+```
+
+#### 29.8.3 Numbering & TOC Check
+
+- Chapter 29 follows Chapter 28 (to be verified)
+- No numbering gaps introduced
+- TOC entry exists at line 129
+
+Section 29.8 (Platform-Wide Reconciliation) — Approve / Modify / Reject
+
+---
+
+### 29.9 Implementation Status
+
+| Item | Demo 🟢 | Production 🔵 | Notes |
+|------|---------|---------------|-------|
+| 29.1 Attribution Fundamentals | N/A | N/A | Conceptual |
+| 29.2 UTM Parameter Tracking | ⬜ Build | ✅ Included | Demo deliverable |
+| 29.3 Referral Codes | ⬜ Defer | ⬜ Build | Production only |
+| 29.4 Partner/Affiliate Tracking | ⬜ Defer | ⬜ Build | Production only |
+| 29.5 Caregiver Referral Model | ⬜ Defer | ⬜ Build | Production only |
+| 29.6 Schema (UTM fields) | ⬜ Build | ✅ Included | Demo deliverable |
+| 29.6 Schema (Referral/Partner) | ⬜ Defer | ⬜ Build | Production only |
+| 29.7 Admin Attribution View | ⬜ Build | ✅ Included | Demo deliverable |
+| 29.7 Admin Referral/Partner | ⬜ Defer | ⬜ Build | Production only |
+
+Section 29.9 (Implementation Status) — Approve / Modify / Reject
+
+---
+
+### 29.10 Key Decisions Log
+
+| Decision | Status | Rationale |
+|----------|--------|-----------|
+| UTM tracking for demo | ✅ Approved | Low complexity, proves attribution works |
+| Defer referral codes to production | ✅ Approved | Adds complexity without demo value |
+| Defer partner tracking to production | ✅ Approved | No partners for demo; UTM can simulate |
+| Caregiver-to-caregiver referrals | ✅ Approved (concept) | Natural word-of-mouth path |
+| Exclude provider-to-provider referrals | ✅ Approved | Unclear value, competitive dynamics |
+| Reward type: account credit | 🟡 Recommended | Simple, no external fulfillment |
+| Standard 5-parameter UTM | ✅ Approved | Industry standard |
+
+Section 29.10 (Key Decisions Log) — Approve / Modify / Reject
+
+---
+
+### Summary: Demo vs Production
+
+| Feature | Demo 🟢 | Production 🔵 | Future ⚪ |
+|---------|---------|---------------|----------|
+| UTM parameter capture | ✅ | ✅ | — |
+| UTM in admin panel | ✅ | ✅ | — |
+| Referral codes | — | ✅ | — |
+| Caregiver referral rewards | — | ✅ | — |
+| Family referral rewards | — | ✅ | — |
+| Partner/affiliate tracking | — | ✅ | — |
+| Partner portal | — | — | ⚪ |
+| Revenue share payouts | — | — | ⚪ |
+| Advanced attribution analytics | — | ✅ | — |
+| A/B test attribution | — | — | ⚪ |
+
+**Full Chapter 29 — Approve / Modify / Reject**
+
+---
+
+### Update Todos
+
+- [x] Draft complete Chapter 29 with all sections
+- [x] Clarify Section 2.1 (Demo vs Production Attribution)
+- [x] Clarify Section 2.4 (Partner/Affiliate Tracking)
+- [x] Add Caregiver-to-Caregiver Referral Model section
+- [x] Present all sections for approval
+- [x] Awaiting user approval
+- [x] Commit approved changes to H9VzE branch
+
+---
 
 ## Chapter 31: Application Architecture & Tech Stack
 
@@ -9458,659 +10111,6 @@ Admin Panel
 
 > **Cross-Reference**: See Chapter 26 (Admin System) for full admin panel structure.
 
----
-
-## Chapter 29: Referral Programs & Partner Attribution (REVISED)
-### 29.0 Purpose & Scope
-**Purpose**: Track how users discover Olera, enable word-of-mouth growth through referral programs, and manage partner relationships for B2B acquisition channels.
-
-**Why This Matters**:
-
-- **Marketing ROI**: Know which campaigns, partners, or referrers drive signups
-- **Growth**: Incentivize users to invite others (word-of-mouth is high-trust in senior care)
-- **Partnerships**: Track referrals from hospitals, social workers, senior centers, etc.
-
-#### Scope Labels Used in This Chapter
-
-| Label | Meaning |
-|-------|---------|
-| 🟢 DEMO | Build for demo. Minimal implementation, functional for investor/stakeholder presentation. |
-| 🔵 PRODUCTION | Build for production launch. Not needed for demo but required before public release. |
-| ⚪ FUTURE | Optional/aspirational. Not committed. May never be built. |
-
-Section 29.0 — Approve / Modify / Reject
-
----
-
-### 29.1 Attribution Fundamentals (CLARIFIED)
-
-This section explains what attribution means and why we track it differently in demo vs production.
-
-#### 29.1.1 What Is Attribution?
-
-Attribution answers one question: **"How did this user find Olera?"**
-
-When someone signs up, we want to know:
-
-- Did they click a Google ad?
-- Did they come from a partner website (e.g., a hospital)?
-- Did a friend refer them?
-- Did they find us organically?
-
-This data helps us understand what's working and where to invest marketing dollars.
-
-#### 29.1.2 Demo vs Production Attribution — Plain Language
-
-| Aspect | Demo Scope 🟢 | Production Scope 🔵 |
-|--------|---------------|---------------------|
-| What we capture | UTM parameters only (from URLs) | UTM + referral codes + partner IDs |
-| Why | Proves we can track marketing campaigns | Full growth engine with incentives |
-| User experience | Invisible — no user action needed | May involve entering referral codes |
-| Complexity | Very low — just read URL params | Medium — rewards, validation, fraud prevention |
-| Marketing use | "Users came from Facebook campaign X" | "Users came from partner Y, referrer Z, campaign X" |
-
-#### 29.1.3 Why Demo Only Needs UTM
-
-For the demo, stakeholders need to see:
-
-1. We can track where users come from
-2. We have the infrastructure to attribute signups
-
-UTM parameters achieve this with zero user friction and minimal code. Referral codes and partner tracking add complexity that doesn't improve the demo but could introduce bugs.
-
-#### 29.1.4 What Happens to Attribution Data
-
-| Stage | Demo 🟢 | Production 🔵 |
-|-------|---------|---------------|
-| Capture | Store on User record at signup | Same |
-| Visibility | Admin panel (user detail page) | Admin panel + analytics dashboards |
-| Reporting | Basic counts by source/medium | Full funnel analysis, cohort tracking |
-| Action | None (informational only) | Trigger rewards, partner payouts, campaign optimization |
-
-Section 29.1 (Attribution Fundamentals) — Approve / Modify / Reject
-
----
-
-### 29.2 UTM Parameter Tracking 🟢 DEMO
-
-**Scope**: Demo-approved. Build this.
-
-#### 29.2.1 What Are UTM Parameters?
-
-UTM parameters are tags added to URLs that tell you where traffic came from.
-
-**Example URL**:
-
-```
-https://olera.com/?utm_source=facebook&utm_medium=cpc&utm_campaign=launch2025
-```
-
-When a user clicks this link and signs up, we know:
-
-- **Source**: Facebook
-- **Medium**: CPC (cost-per-click / paid ad)
-- **Campaign**: launch2025
-
-#### 29.2.2 Standard UTM Parameters
-
-| Parameter | Purpose | Example Values |
-|-----------|---------|----------------|
-| `utm_source` | Where the traffic came from | `google`, `facebook`, `newsletter`, `partner_hospital` |
-| `utm_medium` | Marketing channel type | `cpc`, `email`, `social`, `referral` |
-| `utm_campaign` | Specific campaign name | `launch2025`, `spring_promo`, `caregiver_outreach` |
-| `utm_term` | Paid search keyword (optional) | `senior care near me` |
-| `utm_content` | Differentiates ad variations (optional) | `blue_button`, `hero_image_v2` |
-
-#### 29.2.3 Implementation
-
-**Capture Flow**:
-
-```
-User clicks link with UTM params
-       ↓
-Landing page JavaScript reads URL params
-       ↓
-Store in sessionStorage (persists across pages)
-       ↓
-On signup, send UTM data to API
-       ↓
-Save to User record in database
-```
-
-**Schema Addition (Prisma)**:
-
-```prisma
-model User {
-  // ... existing fields ...
-
-  // Attribution (Demo)
-  utmSource      String?   // e.g., "facebook"
-  utmMedium      String?   // e.g., "cpc"
-  utmCampaign    String?   // e.g., "launch2025"
-  utmTerm        String?   // e.g., "senior care"
-  utmContent     String?   // e.g., "blue_button"
-  attributedAt   DateTime? // When attribution was captured
-}
-```
-
-**Admin Visibility**:
-
-- User detail page shows attribution source
-- Basic table/list: "Users by Source" (group by utmSource)
-
-#### 29.2.4 Demo Deliverables
-
-| Item | Required |
-|------|----------|
-| UTM capture on landing page | ✅ |
-| Persist through signup flow | ✅ |
-| Save to User record | ✅ |
-| Display in admin user detail | ✅ |
-| Analytics dashboard | ⬜ Defer |
-
-Section 29.2 (UTM Parameter Tracking) — Approve / Modify / Reject
-
----
-
-### 29.3 Referral Codes 🔵 PRODUCTION
-
-**Scope**: Production only. Defer for demo.
-
-#### 29.3.1 What Are Referral Codes?
-
-A referral code is a unique identifier that lets existing users invite new users — and optionally earn a reward when the new user signs up.
-
-**Example**:
-
-1. Sarah is an Olera user
-2. Sarah's referral code is `SARAH2025`
-3. Sarah shares: "Sign up at olera.com with code SARAH2025"
-4. New user enters `SARAH2025` at signup
-5. Both Sarah and the new user may receive a reward
-
-#### 29.3.2 Why Defer for Demo?
-
-| Concern | Risk Level |
-|---------|------------|
-| Reward fulfillment logic | Medium — needs careful design |
-| Fraud prevention | Medium — fake accounts, self-referral |
-| User experience complexity | Low-Medium — extra signup field |
-| Edge cases | Medium — expired codes, duplicate use |
-
-For demo, UTM tracking proves attribution works. Referral codes add complexity without improving the demo narrative.
-
-#### 29.3.3 Production Design (Placeholder)
-
-**Schema Addition (Production)**:
-
-```prisma
-model ReferralCode {
-  id          String   @id @default(cuid())
-  code        String   @unique  // e.g., "SARAH2025"
-  ownerId     String   // User who owns this code
-  owner       User     @relation(fields: [ownerId], references: [id])
-  usageCount  Int      @default(0)
-  maxUses     Int?     // NULL = unlimited
-  expiresAt   DateTime?
-  createdAt   DateTime @default(now())
-}
-
-model ReferralRedemption {
-  id             String   @id @default(cuid())
-  referralCodeId String
-  referralCode   ReferralCode @relation(...)
-  referredUserId String   @unique  // New user who used the code
-  referredUser   User     @relation(...)
-  rewardStatus   String   // PENDING, GRANTED, EXPIRED
-  createdAt      DateTime @default(now())
-}
-```
-
-**Reward Options** (to be decided in production):
-
-- Account credit
-- Free month of premium
-- Gift card
-- No reward (tracking only)
-
-Section 29.3 (Referral Codes) — Approve / Modify / Reject
-
----
-
-### 29.4 Partner & Affiliate Tracking 🔵 PRODUCTION (CLARIFIED)
-
-**Scope**: Production only. Defer for demo.
-
-#### 29.4.1 What Is Partner/Affiliate Tracking?
-
-This is B2B attribution — tracking when users come from organizational partners rather than individual referrers.
-
-**Examples of Partners**:
-
-| Partner Type | Example | How They Refer |
-|--------------|---------|----------------|
-| Hospitals | Mercy Health discharge planning | Link on patient portal, social worker referral |
-| Senior centers | Local YMCA senior program | Flyers, website link |
-| Insurance companies | Medicare Advantage plans | Member portal, care navigator |
-| Social workers | Independent geriatric care managers | Direct recommendations |
-| Content affiliates | Senior care blogs | Affiliate links in articles |
-
-#### 29.4.2 Why This Matters (Production)
-
-**For Olera**:
-
-- Understand which partnerships drive volume
-- Measure partner ROI
-- Prioritize partnership development
-
-**For Partners**:
-
-- Potentially receive referral fees or revenue share
-- Track their impact
-- Co-marketing opportunities
-
-#### 29.4.3 Why Defer for Demo?
-
-| Concern | Explanation |
-|---------|-------------|
-| No partners yet | Demo is internal; no live B2B relationships |
-| Revenue share complexity | Requires legal, finance, contracts |
-| Partner portal | Partners would need a dashboard (significant scope) |
-| Demo value | UTM tracking can simulate partner attribution (use `utm_source=partner_mercy_health`) |
-
-**Demo Workaround**: Use UTM parameters to simulate partner tracking:
-
-```
-https://olera.com/?utm_source=partner_mercy_health&utm_medium=referral&utm_campaign=discharge_pilot
-```
-
-This proves the tracking works without building partner infrastructure.
-
-#### 29.4.4 Production Design (Placeholder)
-
-**Schema Addition (Production)**:
-
-```prisma
-model Partner {
-  id            String   @id @default(cuid())
-  name          String   // "Mercy Health"
-  type          String   // HOSPITAL, SENIOR_CENTER, INSURANCE, AFFILIATE
-  contactEmail  String?
-  revenueShare  Float?   // e.g., 0.10 for 10%
-  partnerCode   String   @unique  // URL-safe identifier
-  active        Boolean  @default(true)
-  createdAt     DateTime @default(now())
-
-  referrals     PartnerReferral[]
-}
-
-model PartnerReferral {
-  id          String   @id @default(cuid())
-  partnerId   String
-  partner     Partner  @relation(...)
-  userId      String   // User who signed up
-  user        User     @relation(...)
-  payoutStatus String  // PENDING, PAID, WAIVED
-  createdAt   DateTime @default(now())
-}
-```
-
-**Partner Portal Features** (Future):
-
-- Partner login
-- Referral dashboard
-- Payout history
-- Marketing materials
-
-Section 29.4 (Partner & Affiliate Tracking) — Approve / Modify / Reject
-
----
-
-### 29.5 Caregiver-to-Caregiver Referral Model 🔵 PRODUCTION (NEW)
-
-**Scope**: Production only. This section addresses the user feedback about referral model clarity.
-
-#### 29.5.1 Who Refers Whom?
-
-| Referrer | Referee | Supported? | Rationale |
-|----------|---------|------------|-----------|
-| Caregiver → Caregiver | | ✅ Yes | Natural word-of-mouth; students, nursing peers |
-| Family → Family | | ✅ Yes | Families share resources when navigating care |
-| Provider → Family | | 🟡 Indirect | Providers don't "refer" families; families find providers |
-| Provider → Provider | | ❌ No | Unclear value; providers are competitors, not referrers |
-
-#### 29.5.2 Why Caregiver Referrals Make Sense
-
-The natural referral path:
-
-1. Maria is a CNA student using Olera to find her first job
-2. Maria tells her classmate Devon: "Use Olera, it's great"
-3. Devon signs up using Maria's referral link
-4. Both get a small reward
-
-**Why this works**:
-
-- **High trust**: Peer recommendations in caregiving are powerful
-- **Network effects**: Nursing programs, CNA classes, caregiver communities
-- **Low cost to serve**: Caregivers are individual users, not complex B2B
-
-#### 29.5.3 Why Provider-to-Provider Referrals Are Excluded
-
-| Reason | Explanation |
-|--------|-------------|
-| Competitive dynamics | Assisted living facilities don't refer families to competitors |
-| Unclear incentive | What would a provider gain by referring another provider? |
-| Complexity | B2B referrals require contracts, legal review, revenue share |
-| Low volume | Few providers would participate |
-
-**Exception**: A provider might refer a *caregiver* to another provider for employment. This is covered by the caregiver job marketplace, not the referral program.
-
-#### 29.5.4 Proposed Caregiver Referral Rewards
-
-| Reward Type | Referrer Gets | New User Gets | Complexity |
-|-------------|---------------|---------------|------------|
-| Account credit | $10 credit | $10 credit | Low |
-| Free premium month | 1 month free | 1 month free | Low |
-| Feature unlock | Priority placement | Priority placement | Medium |
-| Cash/gift card | $10 gift card | — | High (fulfillment) |
-
-**Recommendation**: Start with account credit or free premium month. These are:
-
-- Easy to implement (no external fulfillment)
-- Valuable to caregivers (especially students)
-- Low fraud risk (credit only usable on platform)
-
-#### 29.5.5 Anti-Fraud Measures (Production)
-
-| Measure | Purpose |
-|---------|---------|
-| Email verification required | Prevent fake account farms |
-| One referral reward per IP (soft limit) | Reduce self-referral |
-| Reward only after profile completion | Ensure real engagement |
-| Manual review for high-volume referrers | Catch abuse patterns |
-| Referral code expiration | Limit long-tail fraud |
-
-#### 29.5.6 How It Would Be Marketed
-
-**To Caregivers**:
-
-> "Love Olera? Share it with a friend and you'll both get a free month of Premium."
-
-**Channels**:
-
-- In-app prompt after positive actions (job saved, message sent)
-- Email: "Share Olera with your classmates"
-- Social share buttons with pre-filled text
-
-**Messaging Themes**:
-
-- Help a friend find work
-- Support your fellow caregivers
-- Grow together
-
-Section 29.5 (Caregiver-to-Caregiver Referral Model) — Approve / Modify / Reject
-
----
-
-### 29.6 Prisma Schema Summary
-
-#### 29.6.1 Demo Schema (UTM Only) 🟢
-
-```prisma
-model User {
-  // ... existing fields ...
-
-  // Attribution - Demo
-  utmSource      String?
-  utmMedium      String?
-  utmCampaign    String?
-  utmTerm        String?
-  utmContent     String?
-  attributedAt   DateTime?
-}
-```
-
-#### 29.6.2 Production Schema Additions 🔵
-
-```prisma
-// Referral Codes
-model ReferralCode {
-  id          String    @id @default(cuid())
-  code        String    @unique
-  ownerId     String
-  owner       User      @relation("ReferralCodeOwner", fields: [ownerId], references: [id])
-  usageCount  Int       @default(0)
-  maxUses     Int?
-  expiresAt   DateTime?
-  active      Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-
-  redemptions ReferralRedemption[]
-}
-
-model ReferralRedemption {
-  id             String       @id @default(cuid())
-  referralCodeId String
-  referralCode   ReferralCode @relation(fields: [referralCodeId], references: [id])
-  referredUserId String       @unique
-  referredUser   User         @relation("ReferredUser", fields: [referredUserId], references: [id])
-  rewardStatus   String       @default("PENDING") // PENDING, GRANTED, EXPIRED, REVOKED
-  rewardType     String?      // CREDIT, FREE_MONTH, etc.
-  rewardValue    Int?         // e.g., 1000 for $10.00 credit (cents)
-  grantedAt      DateTime?
-  createdAt      DateTime     @default(now())
-}
-
-// Partner/Affiliate Tracking
-model Partner {
-  id            String    @id @default(cuid())
-  name          String
-  type          String    // HOSPITAL, SENIOR_CENTER, INSURANCE, AFFILIATE, OTHER
-  partnerCode   String    @unique
-  contactName   String?
-  contactEmail  String?
-  revenueShare  Float?    // Decimal, e.g., 0.10 = 10%
-  active        Boolean   @default(true)
-  notes         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  referrals     PartnerReferral[]
-}
-
-model PartnerReferral {
-  id           String   @id @default(cuid())
-  partnerId    String
-  partner      Partner  @relation(fields: [partnerId], references: [id])
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
-  payoutStatus String   @default("PENDING") // PENDING, PAID, WAIVED
-  payoutAmount Int?     // In cents
-  paidAt       DateTime?
-  createdAt    DateTime @default(now())
-
-  @@unique([partnerId, userId])
-}
-
-// User additions for production
-model User {
-  // ... existing fields ...
-
-  // Referral relationships
-  referralCodes     ReferralCode[]       @relation("ReferralCodeOwner")
-  referredBy        ReferralRedemption?  @relation("ReferredUser")
-  partnerReferral   PartnerReferral?
-
-  // Account credit (for referral rewards)
-  accountCreditCents Int @default(0)
-}
-```
-
-Section 29.6 (Prisma Schema Summary) — Approve / Modify / Reject
-
----
-
-### 29.7 Admin Panel Views
-
-#### 29.7.1 Demo Admin Views 🟢
-
-**User Detail Page** — Add attribution section:
-
-```
-┌─────────────────────────────────────────────┐
-│ Attribution                                 │
-├─────────────────────────────────────────────┤
-│ Source:    facebook                         │
-│ Medium:    cpc                              │
-│ Campaign:  launch2025                       │
-│ Captured:  Jan 15, 2025 at 2:34 PM         │
-└─────────────────────────────────────────────┘
-```
-
-**Users List** — Optional column: "Source" (shows utmSource or "Direct")
-
-#### 29.7.2 Production Admin Views 🔵
-
-**Attribution Dashboard** (`/admin/attribution`):
-
-- Signups by source (pie chart)
-- Signups by campaign (bar chart)
-- Referral leaderboard (top referrers)
-- Partner performance table
-
-**Referral Management** (`/admin/referrals`):
-
-- All referral codes
-- Redemption history
-- Pending rewards
-- Fraud flags
-
-**Partner Management** (`/admin/partners`):
-
-- Partner list with referral counts
-- Payout queue
-- Partner detail/edit
-
-Section 29.7 (Admin Panel Views) — Approve / Modify / Reject
-
----
-
-### 29.8 Platform-Wide Reconciliation
-
-#### 29.8.1 Cross-Chapter Dependencies
-
-| Chapter | Integration Point | Status |
-|---------|-------------------|--------|
-| Ch 3: User & Account | UTM fields on User model | 🟢 Demo |
-| Ch 7: Registration | Capture UTM at signup | 🟢 Demo |
-| Ch 14: Settings | Referral code display (Production) | 🔵 Production |
-| Ch 19: Notifications | "You earned a referral reward" | 🔵 Production |
-| Ch 27: Admin System | Attribution views | 🟢 Demo (basic) |
-| Ch 33: Analytics | Attribution reporting | 🔵 Production |
-| Ch 38: Third-Party | Analytics tools (Mixpanel, etc.) | 🔵 Production |
-
-#### 29.8.2 Data Flow
-
-**Demo Flow (UTM Only)**:
-
-```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│ Landing Page │ →  │ Signup Form  │ →  │ User Record  │
-│ (read UTM)   │    │ (pass UTM)   │    │ (store UTM)  │
-└──────────────┘    └──────────────┘    └──────────────┘
-```
-
-**Production Flow (Full)**:
-
-```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│ Landing Page │ →  │ Signup Form  │ →  │ User Record  │
-│ (read UTM)   │    │ + ref code   │    │ + referral   │
-│ (read partner│    │ field        │    │ + partner    │
-│  code)       │    │              │    │ link         │
-└──────────────┘    └──────────────┘    └──────────────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ Reward       │
-                    │ Processing   │
-                    └──────────────┘
-```
-
-#### 29.8.3 Numbering & TOC Check
-
-- Chapter 29 follows Chapter 28 (to be verified)
-- No numbering gaps introduced
-- TOC entry exists at line 129
-
-Section 29.8 (Platform-Wide Reconciliation) — Approve / Modify / Reject
-
----
-
-### 29.9 Implementation Status
-
-| Item | Demo 🟢 | Production 🔵 | Notes |
-|------|---------|---------------|-------|
-| 29.1 Attribution Fundamentals | N/A | N/A | Conceptual |
-| 29.2 UTM Parameter Tracking | ⬜ Build | ✅ Included | Demo deliverable |
-| 29.3 Referral Codes | ⬜ Defer | ⬜ Build | Production only |
-| 29.4 Partner/Affiliate Tracking | ⬜ Defer | ⬜ Build | Production only |
-| 29.5 Caregiver Referral Model | ⬜ Defer | ⬜ Build | Production only |
-| 29.6 Schema (UTM fields) | ⬜ Build | ✅ Included | Demo deliverable |
-| 29.6 Schema (Referral/Partner) | ⬜ Defer | ⬜ Build | Production only |
-| 29.7 Admin Attribution View | ⬜ Build | ✅ Included | Demo deliverable |
-| 29.7 Admin Referral/Partner | ⬜ Defer | ⬜ Build | Production only |
-
-Section 29.9 (Implementation Status) — Approve / Modify / Reject
-
----
-
-### 29.10 Key Decisions Log
-
-| Decision | Status | Rationale |
-|----------|--------|-----------|
-| UTM tracking for demo | ✅ Approved | Low complexity, proves attribution works |
-| Defer referral codes to production | ✅ Approved | Adds complexity without demo value |
-| Defer partner tracking to production | ✅ Approved | No partners for demo; UTM can simulate |
-| Caregiver-to-caregiver referrals | ✅ Approved (concept) | Natural word-of-mouth path |
-| Exclude provider-to-provider referrals | ✅ Approved | Unclear value, competitive dynamics |
-| Reward type: account credit | 🟡 Recommended | Simple, no external fulfillment |
-| Standard 5-parameter UTM | ✅ Approved | Industry standard |
-
-Section 29.10 (Key Decisions Log) — Approve / Modify / Reject
-
----
-
-### Summary: Demo vs Production
-
-| Feature | Demo 🟢 | Production 🔵 | Future ⚪ |
-|---------|---------|---------------|----------|
-| UTM parameter capture | ✅ | ✅ | — |
-| UTM in admin panel | ✅ | ✅ | — |
-| Referral codes | — | ✅ | — |
-| Caregiver referral rewards | — | ✅ | — |
-| Family referral rewards | — | ✅ | — |
-| Partner/affiliate tracking | — | ✅ | — |
-| Partner portal | — | — | ⚪ |
-| Revenue share payouts | — | — | ⚪ |
-| Advanced attribution analytics | — | ✅ | — |
-| A/B test attribution | — | — | ⚪ |
-
-**Full Chapter 29 — Approve / Modify / Reject**
-
----
-
-### Update Todos
-
-- [x] Draft complete Chapter 29 with all sections
-- [x] Clarify Section 2.1 (Demo vs Production Attribution)
-- [x] Clarify Section 2.4 (Partner/Affiliate Tracking)
-- [x] Add Caregiver-to-Caregiver Referral Model section
-- [x] Present all sections for approval
-- [x] Awaiting user approval
-- [x] Commit approved changes to H9VzE branch
-
----
 
 ## Chapter 36: Performance & Caching
 
