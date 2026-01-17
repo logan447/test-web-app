@@ -32,8 +32,8 @@
 
 | Status | Count | Chapters |
 |--------|-------|----------|
-| ✅ Reviewed | 31 | 1–26, 28, 29, 37, 38, 39 |
-| ⏳ Pending | 4 | 30, 33, 35, 36 |
+| ✅ Reviewed | 32 | 1–26, 28, 29, 30, 37, 38, 39 |
+| ⏳ Pending | 3 | 33, 35, 36 |
 | 🆕 Placeholder/New | 4 | 27, 31, 32, 34 |
 | **Total** | **39** | |
 
@@ -41,10 +41,9 @@
 
 | Priority | Ch | Title | Current Status |
 |----------|-----|-------|----------------|
-| 1 | 30 | Help Center & Support | ⏳ Pending |
-| 2 | 33 | File Uploads & Media | ⏳ Pending |
-| 3 | 35 | Error Handling & Monitoring | ⏳ Pending |
-| 4 | 36 | Performance & Caching | ⏳ Pending |
+| 1 | 33 | File Uploads & Media | ⏳ Pending |
+| 2 | 35 | Error Handling & Monitoring | ⏳ Pending |
+| 3 | 36 | Performance & Caching | ⏳ Pending |
 
 ### Chapters Requiring Content Development
 
@@ -164,7 +163,7 @@
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 30 | [Help Center & Support](#chapter-30-help-center--support) | ⏳ Pending |
+| 30 | [Customer Support](#chapter-30-customer-support) | ✅ Reviewed |
 
 ### Part XIII: Tech Stack & Infrastructure
 *Complete technical foundation enabling the platform end-to-end — single source of truth for all technology*
@@ -270,8 +269,6 @@
 
 **Remaining to Review**:
 - Ch 27: Human Workflows & SOPs (Placeholder)
-- Ch 29: Referral Programs & Partner Attribution (Pending)
-- Ch 30: Help Center & Support (Pending)
 - Ch 31: Application Architecture & Tech Stack (New)
 - Ch 32: Hosting, Deployment & CI/CD (New)
 - Ch 33: File Uploads & Media (Pending)
@@ -279,7 +276,7 @@
 - Ch 35: Error Handling & Monitoring (Pending)
 - Ch 36: Performance & Caching (Pending)
 
-**Recently Completed**: Chapter 38 (Third-Party Services & Integrations) - Reviewed ✅
+**Recently Completed**: Chapter 30 (Customer Support) - Reviewed ✅
 
 ---
 
@@ -9899,22 +9896,361 @@ Users submitting questions and answers must adhere to:
 
 ---
 
-## Chapter 30: Help Center & Support
+## Chapter 30: Customer Support
 
-**Purpose**: Provide users with help resources and support channels.
+**Review Status**: ✅ Reviewed
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 30.1 FAQ / Help Center | ⬜ | Static content pages |
-| 30.2 Contact Support Form | ⬜ | Email or in-app |
-| 30.3 Live Chat | ⬜ | Intercom, Crisp — deferred |
-| 30.4 Feedback Collection | ⬜ | Simple form or widget |
+**Purpose**: Define the human and automated customer support systems for the Olera platform, including support architecture, common support scenarios, intake channels, ticket management, and references to Standard Operating Procedures (SOPs).
 
-### Key Questions
-- [ ] Minimal FAQ page for demo?
+> **Scope Note**: This chapter describes *what* support systems exist and *how* they function architecturally. Detailed operational procedures (step-by-step SOPs) are maintained separately and referenced where applicable.
 
-### Architectural Notes
-_To be filled in during chapter review._
+> **Cross-References**:
+> - Chapter 26 (Admin System): Support ticket management interface
+> - Chapter 23 (Trust & Safety): Verification issues, content disputes
+> - Chapter 27 (Human Workflows & SOPs): Detailed operational procedures
+> - Chapter 34 (Communications Infrastructure): Email delivery for support responses
+> - Chapter 39 (Legal Framework): Takedown procedures, DMCA compliance
+
+---
+
+### 30.1 Support Architecture Overview
+
+Olera's customer support system operates across three layers:
+
+| Layer | Description | Demo | Production |
+|-------|-------------|------|------------|
+| **Self-Service** | FAQ, help content, in-app guidance | ✅ Basic | ✅ Full |
+| **Automated** | Form submissions, auto-responses, routing | ✅ Basic | ✅ Full |
+| **Human** | Staff-handled tickets, phone support, escalations | ⬜ Minimal | ✅ Full |
+
+**Architecture Diagram (Production)**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         SUPPORT INTAKE CHANNELS                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Contact Form    │  Takedown Form   │  Email         │  Phone          │
+│  (/contact)      │  (provider page) │  (support@)    │  (Zoom Phone)   │
+└────────┬─────────┴────────┬─────────┴───────┬────────┴────────┬────────┘
+         │                  │                 │                 │
+         ▼                  ▼                 ▼                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      TICKET CREATION & ROUTING                          │
+│  - Auto-categorization based on form type / email subject               │
+│  - Priority assignment (P0-P3)                                          │
+│  - Assignment to support queue or specific agent                        │
+└────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     ADMIN PANEL: SUPPORT QUEUE                          │
+│  - Ticket list with filters (status, priority, category)                │
+│  - Ticket detail view with full history                                 │
+│  - Actions: Respond, Escalate, Resolve, Close                           │
+│  - SOP links for common issue types                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 30.2 Self-Service: FAQ & Help Content
+
+#### 30.2.1 Demo Scope
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Static FAQ page (`/help` or `/faq`) | ✅ Required | Single unified page |
+| Mode-aware content (Family vs Provider) | ⬜ Defer | Combined content with section headers |
+| Search functionality | ⬜ Defer | Simple list/accordion sufficient |
+| Footer "Help" link on all pages | ✅ Required | Standard placement |
+| Header help icon (?) | ⬜ Optional | Not required for demo |
+
+**Demo FAQ Content Categories**:
+1. Account & Login (signup, password reset, email verification)
+2. Mode Switching (Family vs Provider experience)
+3. For Families (searching, saving, contacting providers)
+4. For Providers (claiming listings, profile management)
+5. Contact & Support (how to reach us)
+
+#### 30.2.2 Production Scope
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Searchable help center | ✅ | Full-text search across articles |
+| Category navigation | ✅ | Organized by topic |
+| Mode-aware filtering | ✅ | Show relevant content based on user mode |
+| Article view analytics | ✅ | Track popular articles, search terms |
+| "Was this helpful?" feedback | ⬜ Defer | Future enhancement |
+
+---
+
+### 30.3 Support Intake Channels
+
+#### 30.3.1 Contact Us Form
+
+**Purpose**: General inquiries, feedback, and issues not covered by specialized forms.
+
+**Demo Scope**:
+- Location: `/contact` (linked from footer and FAQ page)
+- Fields: Name, Email, Subject (dropdown), Message
+- Subject options: General Inquiry, Account Issue, Provider Question, Family Question, Other
+- Submission: Sends email to `support@olera.com` via Resend
+- Confirmation: "Thank you. We'll respond within 1-2 business days."
+- No ticket number, no tracking
+
+**Production Scope**:
+- Same form, but creates ticket in support system
+- Auto-response email with ticket number
+- User can view ticket status (if logged in)
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Contact form exists | ✅ | ✅ |
+| Email notification to support | ✅ | ✅ |
+| Ticket creation | ⬜ | ✅ |
+| User ticket tracking | ⬜ | ✅ |
+
+#### 30.3.2 Takedown Request Form
+
+**Purpose**: Allow individuals to request removal of unclaimed provider listings.
+
+> **Context**: Some providers sourced from public data may not want to be listed on Olera. Rather than claiming and managing their listing, they may request removal. This must be explicitly supported.
+
+**Location**: Accessible from unclaimed provider profile pages via "Request Removal" or "Report This Listing" link.
+
+**Demo Scope**:
+- Simple form: Name, Email, Relationship to Listing, Reason for Request, Provider URL
+- Submission: Sends email to `support@olera.com` with subject "[Takedown Request]"
+- Confirmation: "Your request has been received. We'll review it within 3-5 business days."
+
+**Production Scope**:
+- Creates ticket with category "Takedown Request"
+- Auto-categorized as P2 priority
+- Triggers SOP: Takedown Request Handling (see Section 30.6)
+- Audit logged per Chapter 37
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Takedown form on unclaimed profiles | ✅ | ✅ |
+| Email notification | ✅ | ✅ |
+| Ticket creation with category | ⬜ | ✅ |
+| SOP trigger | Manual | Automated |
+
+#### 30.3.3 Email Support
+
+**Address**: `support@olera.com`
+
+**Demo Scope**: Monitored manually; no automated processing.
+
+**Production Scope**:
+- Emails to support address auto-create tickets
+- Subject line parsing for auto-categorization
+- Auto-response with ticket number
+- Threaded replies update ticket
+
+#### 30.3.4 Phone Support
+
+**Number**: Zoom Phone line (number TBD)
+
+**Demo Scope**: Not staffed. Voicemail with callback promise.
+
+**Production Scope**:
+- Staffed during business hours (e.g., M-F 9am-5pm ET)
+- Voicemail outside hours with next-day callback
+- Calls logged; tickets created for follow-up items
+- Staff have access to Admin Panel for real-time lookup
+
+**Public Contact Information Display**:
+```
+Need help?
+📧 support@olera.com
+📞 (XXX) XXX-XXXX (Mon-Fri, 9am-5pm ET)
+```
+
+---
+
+### 30.4 Ticket Management (Production)
+
+> **Note**: This section is Production scope only. Demo has no ticketing system.
+
+#### 30.4.1 Ticket Lifecycle
+
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│   New    │───►│   Open   │───►│ Pending  │───►│ Resolved │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘
+                     │                               │
+                     │         ┌──────────┐          │
+                     └────────►│ Escalated│──────────┘
+                               └──────────┘
+```
+
+| Status | Meaning |
+|--------|---------|
+| **New** | Just created, unassigned |
+| **Open** | Assigned to agent, in progress |
+| **Pending** | Awaiting user response or external action |
+| **Escalated** | Requires senior review or special handling |
+| **Resolved** | Issue addressed, awaiting confirmation |
+| **Closed** | Complete, no further action |
+
+#### 30.4.2 Ticket Schema
+
+```prisma
+model SupportTicket {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Source
+  channel       String   // form, email, phone, admin
+  category      String   // general, takedown, verification, billing, account
+
+  // Requester
+  requesterEmail String
+  requesterName  String?
+  userId         String?  // If logged-in user
+
+  // Content
+  subject       String
+  description   String   @db.Text
+
+  // Management
+  status        String   @default("new") // new, open, pending, escalated, resolved, closed
+  priority      String   @default("P3")  // P0, P1, P2, P3
+  assignedTo    String?  // Admin user ID
+
+  // Resolution
+  resolution    String?  @db.Text
+  resolvedAt    DateTime?
+  closedAt      DateTime?
+
+  // Relations
+  messages      SupportMessage[]
+
+  @@index([status])
+  @@index([category])
+  @@index([requesterEmail])
+}
+
+model SupportMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id])
+  createdAt DateTime @default(now())
+  authorType String  // user, agent, system
+  authorId   String?
+  content    String  @db.Text
+  isInternal Boolean @default(false) // Internal notes not visible to user
+}
+```
+
+#### 30.4.3 Priority Levels
+
+| Priority | Response Target | Examples |
+|----------|-----------------|----------|
+| **P0** | 1 hour | Account locked, payment failure, security issue |
+| **P1** | 4 hours | Verification blocked, listing dispute |
+| **P2** | 24 hours | Takedown request, profile issues |
+| **P3** | 48 hours | General questions, feedback |
+
+#### 30.4.4 Admin Panel: Support Queue
+
+**Location**: Admin > Support
+
+**Features**:
+- Ticket list with filters (status, priority, category, assignee)
+- Quick actions: Assign, Change Priority, Add Note
+- Ticket detail view with full message history
+- Internal notes (not visible to requester)
+- SOP quick links based on ticket category
+- Resolution templates for common issues
+
+---
+
+### 30.5 Common Support Scenarios
+
+This section catalogs the most common support needs by user type and how they should be handled.
+
+#### 30.5.1 Family Support Scenarios
+
+| Scenario | Frequency | Handling | SOP Reference |
+|----------|-----------|----------|---------------|
+| Can't log in / password reset | High | Self-service (forgot password flow) | — |
+| Account locked after failed attempts | Medium | Admin unlock via Admin Panel | Account Access SOP |
+| Can't find a provider | Low | FAQ / guided search tips | — |
+| Provider not responding | Medium | Explain provider may be unclaimed; suggest alternatives | — |
+| Billing/subscription question | Medium (Prod) | Billing SOP; Stripe dashboard lookup | Billing SOP |
+| Request account deletion | Low | Data deletion SOP per Ch 39 | Data Deletion SOP |
+| Report inappropriate content | Low | Content moderation SOP | Content Moderation SOP |
+
+#### 30.5.2 Provider Support Scenarios
+
+| Scenario | Frequency | Handling | SOP Reference |
+|----------|-----------|----------|---------------|
+| Can't log in / password reset | High | Self-service (forgot password flow) | — |
+| How do I claim my listing? | High | FAQ; guided claiming flow | — |
+| Claiming verification failed | Medium | Manual verification review | Verification SOP |
+| Someone else claimed my listing | Low | Listing dispute process | Listing Dispute SOP |
+| I want my listing removed | Medium | Takedown request form | Takedown SOP |
+| How do I update my profile? | High | FAQ; in-app guidance | — |
+| Incorrect information on my listing | Medium | Self-edit if claimed; support if unclaimed | — |
+| Billing/subscription question | Medium (Prod) | Billing SOP | Billing SOP |
+| Request account deletion | Low | Data deletion SOP | Data Deletion SOP |
+
+#### 30.5.3 SOP Index
+
+The following SOPs are referenced by support operations. Detailed procedures live in Chapter 27 (Human Workflows & SOPs) or separate operational documentation.
+
+| SOP Name | Trigger | Owner |
+|----------|---------|-------|
+| **Takedown Request Handling** | Takedown form submission | Support |
+| **Listing Dispute Resolution** | Competing ownership claims | Support + Admin |
+| **Manual Verification Review** | Auto-verification failure or flag | Admin |
+| **Account Access Recovery** | Locked accounts, lost 2FA | Support |
+| **Billing Issue Resolution** | Payment failures, refund requests | Support + Finance |
+| **Data Deletion Request** | User deletion request per Ch 39 | Support + Legal |
+| **Content Moderation** | Reported content, policy violations | Admin |
+
+---
+
+### 30.6 Takedown Request Handling
+
+**Purpose**: Define the process for handling requests to remove unclaimed provider listings.
+
+#### 30.6.1 Eligibility
+
+Takedown requests are accepted for:
+- Unclaimed listings only
+- Requestor must demonstrate relationship to listing (owner, employee, or authorized representative)
+
+Takedown requests are **not** accepted for:
+- Claimed listings (provider controls their own content)
+- Requests from third parties with no relationship to listing
+- Requests to remove accurate public information without valid reason
+
+#### 30.6.2 Process Overview
+
+| Step | Action | Timeline |
+|------|--------|----------|
+| 1 | Request received via form or email | — |
+| 2 | Ticket created (Production) or email logged (Demo) | Immediate |
+| 3 | Verify requestor identity and relationship | 1-2 days |
+| 4 | Review listing and request validity | 1-2 days |
+| 5 | Decision: Approve, Deny, or Request More Info | — |
+| 6 | If approved: Remove listing, notify requestor | Same day |
+| 7 | If denied: Notify requestor with reason | Same day |
+| 8 | Audit log entry | Automatic |
+
+#### 30.6.3 Decision Criteria
+
+| Approve If | Deny If |
+|------------|---------|
+| Requestor is verified owner/operator | No verifiable relationship to listing |
+| Valid reason (ceased operations, privacy concern) | Attempting to suppress legitimate public info |
+| Listing is unclaimed | Listing is claimed (direct them to self-manage) |
+
+> **Cross-Reference**: See Chapter 39 (Legal Framework) Section 39.2 for platform liability and content moderation policies.
 
 ---
 
