@@ -1,7 +1,7 @@
 # Olera Platform — Master Systems Manual
 
 > **Version**: 1.0 — Structure Approved
-> **Last Reviewed**: January 17, 2026
+> **Last Reviewed**: January 15, 2026
 
 > **Purpose**: This document serves as the source of truth for all platform systems. It will be iteratively refined as we work through each chapter, answer key questions, and make architectural decisions.
 >
@@ -28,6 +28,11 @@
 
 ## Table of Contents
 
+### Foundational Architectural Decisions
+*Core decisions that apply across multiple chapters*
+
+- [Foundational Architectural Decisions](#foundational-architectural-decisions) | ✅ Reviewed
+
 ### Part I: Platform Foundation
 *How users enter the platform, navigate the system, and experience our design quality*
 
@@ -36,7 +41,7 @@
 | 1 | [Authentication & Account Management](#chapter-1-authentication--account-management) | ✅ Reviewed |
 | 2 | [Mode System (Family vs Provider)](#chapter-2-mode-system-family-vs-provider) | ✅ Reviewed |
 | 3 | [Onboarding Wizard (Shared System)](#chapter-3-onboarding-wizard-shared-system) | ✅ Reviewed |
-| 4 | [UI & Design Language](#chapter-4-ui--design-language) | ✅ Reviewed |
+| 4 | [UI & Design Language](#chapter-4-ui--design-language) | 🆕 Placeholder |
 | 5 | [Navigation & Routing](#chapter-5-navigation--routing) | ✅ Reviewed |
 
 ### Part II: User Identity & Profiles
@@ -84,80 +89,138 @@
 |----|-------|---------------|
 | 20 | [Caregiver Hiring Marketplace](#chapter-20-caregiver-hiring-marketplace) | ✅ Reviewed |
 
-### Part VII: Communications
-*Platform-wide communication and automation systems*
-
-| Ch | Title | Review Status |
-|----|-------|---------------|
-| 21 | [Communications & Automation](#chapter-21-communications--automation) | ✅ Reviewed |
-
-### Part VIII: Monetization
+### Part VII: Monetization
 *Subscription tiers, paywalls, and revenue model*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 22 | [Subscriptions & Paywalls](#chapter-22-subscriptions--paywalls) | ✅ Reviewed |
+| 21 | [Subscriptions & Paywalls](#chapter-21-subscriptions--paywalls) | ✅ Reviewed |
 
-### Part IX: Trust & Quality
+### Part VIII: Trust & Quality
 *Building confidence through reviews, ratings, and safety systems*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 23 | [Reviews & Ratings](#chapter-23-reviews--ratings) | ✅ Reviewed |
-| 24 | [Trust & Safety](#chapter-24-trust--safety) | ✅ Reviewed |
+| 22 | [Reviews & Ratings](#chapter-22-reviews--ratings) | ✅ Reviewed |
+| 23 | [Trust & Safety](#chapter-23-trust--safety) | ✅ Reviewed |
 
-### Part X: Data Acquisition & Directory Scale
+### Part IX: Data Acquisition & Directory Scale
 *Seeding, scaling, and managing the national provider directory*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 25 | [Provider Data Management](#chapter-25-provider-data-management) | ✅ Reviewed |
-| 26 | [Data Acquisition & Enrichment](#chapter-26-data-acquisition--enrichment) | ✅ Reviewed |
+| 24 | [Provider Data Management](#chapter-24-provider-data-management) | ✅ Reviewed |
+| 25 | [Data Acquisition & Enrichment](#chapter-25-data-acquisition--enrichment) | ✅ Reviewed |
 
-### Part XI: Platform Administration & Operations
+### Part X: Platform Administration & Operations
 *Internal tools, workflows, and standard operating procedures*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 27 | [Admin System](#chapter-27-admin-system) | ✅ Reviewed |
-| 28 | [Human Workflows & Standard Operating Procedures](#chapter-28-human-workflows--standard-operating-procedures) | 🆕 Placeholder |
+| 26 | [Admin System](#chapter-26-admin-system) | ✅ Reviewed |
+| 27 | [Human Workflows & Standard Operating Procedures](#chapter-27-human-workflows--standard-operating-procedures) | 🆕 Placeholder |
 
-### Part XII: Marketing & Growth
+### Part XI: Marketing & Growth
 *User acquisition, SEO, and referral programs*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 29 | [Marketing & SEO Pages](#chapter-29-marketing--seo-pages) | ⏳ Pending |
-| 30 | [Referral Programs & Partner Attribution](#chapter-30-referral-programs--partner-attribution) | ⏳ Pending |
+| 28 | [Marketing & SEO Pages](#chapter-28-marketing--seo-pages) | ✅ Reviewed |
+| 29 | [Referral Programs & Partner Attribution](#chapter-29-referral-programs--partner-attribution) | ⏳ Pending |
 
-### Part XIII: Technical Infrastructure
-*Platform technical foundations and operational reliability*
-
-| Ch | Title | Review Status |
-|----|-------|---------------|
-| 31 | [File Uploads & Media](#chapter-31-file-uploads--media) | ⏳ Pending |
-| 32 | [Error Handling & Monitoring](#chapter-32-error-handling--monitoring) | ⏳ Pending |
-| 33 | [Performance & Caching](#chapter-33-performance--caching) | ⏳ Pending |
-
-### Part XIV: Compliance, Legal & Support
-*Regulatory compliance, legal requirements, and user support*
+### Part XII: Help & Support
+*User assistance and support channels*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 34 | [Help & Support](#chapter-34-help--support) | ⏳ Pending |
-| 35 | [Audit & Activity Logging](#chapter-35-audit--activity-logging) | ⏳ Pending |
-| 36 | [Data Export & Portability](#chapter-36-data-export--portability) | ⏳ Pending |
-| 37 | [Accessibility Standards](#chapter-37-accessibility-standards) | ⏳ Pending |
-| 38 | [Legal & Regulatory Compliance](#chapter-38-legal--regulatory-compliance) | 🆕 Placeholder |
+| 30 | [Help Center & Support](#chapter-30-help-center--support) | ⏳ Pending |
+
+### Part XIII: Tech Stack & Infrastructure
+*Complete technical foundation enabling the platform end-to-end — single source of truth for all technology*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 31 | [Application Architecture & Tech Stack](#chapter-31-application-architecture--tech-stack) | 🆕 New |
+| | 31.1 Frontend Architecture (Next.js, React) | |
+| | 31.2 Backend Architecture (API Routes, Services) | |
+| | 31.3 Database Layer (PostgreSQL, Prisma) | |
+| | 31.4 Authentication Infrastructure | |
+| 32 | [Hosting, Deployment & CI/CD](#chapter-32-hosting-deployment--cicd) | 🆕 New |
+| | 32.1 Hosting Environment (Vercel) | |
+| | 32.2 Deployment Pipeline | |
+| | 32.3 Environment Management | |
+| | 32.4 Release Process | |
+| 33 | [File Uploads & Media](#chapter-33-file-uploads--media) | ⏳ Pending |
+| | 33.1 Upload Infrastructure | |
+| | 33.2 Storage (Vercel Blob) | |
+| | 33.3 Image Optimization | |
+| 34 | [Communications Infrastructure](#chapter-34-communications-infrastructure) | 🆕 New |
+| | 34.1 Email System (Resend) | |
+| | 34.2 SMS System (Future) | |
+| | 34.3 Push Notifications (Future) | |
+| | 34.4 Template Management | |
+| 35 | [Error Handling & Monitoring](#chapter-35-error-handling--monitoring) | ⏳ Pending |
+| | 35.1 Error Boundaries & Handling | |
+| | 35.2 Logging Infrastructure | |
+| | 35.3 Monitoring & Alerting | |
+| | 35.4 Incident Response | |
+| 36 | [Performance & Caching](#chapter-36-performance--caching) | ⏳ Pending |
+| | 36.1 Caching Strategy | |
+| | 36.2 Database Optimization | |
+| | 36.3 Frontend Performance | |
+| | 36.4 Core Web Vitals | |
+| 37 | [Analytics & Audit Logging](#chapter-37-analytics--audit-logging) | ⏳ Pending |
+| | 37.1 User Analytics | |
+| | 37.2 Admin Activity Logging | |
+| | 37.3 Audit Trail | |
+| 38 | [Third-Party Services & Integrations](#chapter-38-third-party-services--integrations) | 🆕 New |
+| | 38.1 Service Inventory | |
+| | 38.2 API Integrations | |
+| | 38.3 Vendor Management | |
+
+### Part XIV: Legal & Regulatory Compliance
+*Comprehensive legal framework, policies, and compliance procedures*
+
+| Ch | Title | Review Status |
+|----|-------|---------------|
+| 39 | [Legal Framework Overview](#chapter-39-legal-framework-overview) | 🆕 New |
+| | **39.1 Core Legal & Policy Documents** | |
+| | 39.1.1 Terms of Use (Care Seekers) | |
+| | 39.1.2 Terms of Use (Providers) | |
+| | 39.1.3 Privacy Notice | |
+| | 39.1.4 Cookie & Tracking Policy | |
+| | 39.1.5 Review Policy | |
+| | 39.1.6 Advertising & Endorsement Disclosure Policy | |
+| | 39.1.7 Accessibility & Anti-Discrimination Statement | |
+| | 39.1.8 Medical & Emergency Disclaimer | |
+| | 39.1.9 AI Disclosure Statement | |
+| | 39.1.10 No-PHI Warning Prompt | |
+| | 39.1.11 Featured Badge Tooltip | |
+| | 39.1.12 How Listings & Rankings Work | |
+| | 39.1.13 Olera Score Methodology | |
+| | **39.2 Compliance, Moderation & Enforcement** | |
+| | 39.2.1 DMCA & Trademark Policy | |
+| | 39.2.2 Takedown Request Process | |
+| | 39.2.3 Provider Verification SOP | |
+| | 39.2.4 User Content Moderation SOP | |
+| | 39.2.5 Defamation / Legal Escalation SOP | |
+| | 39.2.6 Incident Response Plan (IRP) | |
+| | 39.2.7 Accessibility Audit & Response SOP | |
+| | 39.2.8 Privacy Impact Assessment Template | |
+| | **39.3 Data Governance & User Rights** | |
+| | 39.3.1 Data Retention & Deletion Policy | |
+| | 39.3.2 Data Export & Portability | |
+| | 39.3.3 Inquiry Form Consent Text | |
+| | 39.3.4 Premium Subscription Terms (Auto-Renewal) | |
 
 ### Future Directions
 *Strategic concepts for future phases — not in current scope*
 
 | ID | Title | Status |
 |----|-------|--------|
-| F1 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
+| F1 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
 | F2 | [Caregiver Workforce & Direct Staffing Model](#future-caregiver-workforce--direct-staffing-model) | ⭐ Future |
-| F3 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
+| F3 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
 
 ### Appendices
 
@@ -172,13 +235,14 @@
 
 | Metric | Count |
 |--------|-------|
-| **Total Main Chapters** | 38 |
-| **Reviewed (✅)** | 27 |
-| **Pending (⏳)** | 9 |
-| **New Placeholders (🆕)** | 2 |
+| **Total Main Chapters** | 39 |
+| **Reviewed (✅)** | 20 |
+| **Pending (⏳)** | 8 |
+| **New Chapters (🆕)** | 10 |
+| **Placeholders (🆕)** | 1 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 38 (Legal & Regulatory Compliance)
+**Next Chapter to Review**: Chapter 29 (Referral Programs & Partner Attribution)
 
 ---
 
@@ -560,6 +624,56 @@ Individual caregivers may be hired by any organization type:
 | Nursing Home | ✅ Yes | For CNAs, aides |
 | All other facility types | ✅ Yes | Universal hiring support |
 
+### Care Journey Pathways (DECIDED)
+
+> These pathways describe how families typically arrive at the platform, informing content strategy, navigation design, and onboarding flows.
+
+Three primary pathways families follow when seeking care:
+
+#### Pathway 1: Hospital Discharge
+
+```
+Hospital Admission → Discharge Planning → Rehab/SNF → Next Level of Care
+```
+
+| Attribute | Details |
+|-----------|---------|
+| **Triggers** | Surgery, stroke, fall, acute illness |
+| **Timeline** | 24-72 hours for placement decisions |
+| **User State** | High urgency, limited research time |
+| **Content Needs** | "What to expect after hospital discharge," SNF vs rehab comparison, Medicare coverage guides |
+| **Platform Entry** | Direct search for specific care type, "Help Me Decide" for guidance |
+
+#### Pathway 2: Clinical Escalation
+
+```
+Primary Care Visit → Recognition of Decline → Family Discussion → Care Transition
+```
+
+| Attribute | Details |
+|-----------|---------|
+| **Triggers** | Cognitive decline, mobility issues, medication management concerns |
+| **Timeline** | Weeks to months |
+| **User State** | Moderate urgency, time to research |
+| **Content Needs** | "Signs your parent needs more help," care type comparisons, family conversation guides |
+| **Platform Entry** | Educational content, comparison pages, care assessment wizard |
+
+#### Pathway 3: Self-Directed Research
+
+```
+Family Concern → Online Research → Care Assessment → Provider Selection
+```
+
+| Attribute | Details |
+|-----------|---------|
+| **Triggers** | Proactive planning, observed changes, caregiver burnout |
+| **Timeline** | Variable, often extended research phase |
+| **User State** | Lower urgency, comprehensive research |
+| **Content Needs** | Comprehensive guides, cost information, local directory pages |
+| **Platform Entry** | SEO content, topic hubs, directory browsing |
+
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for content strategy aligned to these pathways.
+
 ---
 
 ## Chapter 1: Authentication & Account Management
@@ -742,6 +856,8 @@ No separate mode-selection modal. Mode is determined by:
 | 3.6 Early Exit & Partial Completion | 🟡 | Save-as-you-go, safe defaults |
 | 3.7 Post-Wizard Routing | 🟡 | New signup → dashboard; returning → stay |
 | 3.8 Profile Completion Integration | 🟡 | Contributes to completion % |
+| 3.9 Care Assessment Wizard | ⬜ | "Help Me Decide" flow for care type recommendations |
+| 3.10 Caregiver Job Seeker Onboarding | ⬜ | `/caregiver-jobs/` entry flow |
 
 ### Key Questions
 - [x] Should onboarding be skippable or mandatory? → **Skippable, non-blocking**
@@ -853,6 +969,82 @@ Visibility is a prominent wizard step. Controls who can discover the profile.
 - Wizard progress contributes to visible profile completion %
 - Incomplete profiles show nudge in dashboard/nav: "Complete your profile"
 - Completion % stored in DB (not calculated on-the-fly) — details in Chapter 11
+
+#### 3.9 Care Assessment Wizard — "Help Me Decide" (DECIDED)
+
+**Purpose**: Guide families who are unsure of care needs to appropriate care type recommendations.
+
+**Entry Points**:
+- "Help Me Decide" button in primary navigation
+- Topic hub CTAs
+- Article contextual CTAs
+- Comparison page CTAs
+
+**Assessment Flow**:
+
+| Step | Question | Options | Purpose |
+|------|----------|---------|---------|
+| 1 | **Relationship** | "Who needs care?" | Parent, Spouse, Myself, Other |
+| 2 | **Current Situation** | "Where do they live now?" | Own home, Family's home, Already in facility |
+| 3 | **Daily Living** | "Do they need help with daily activities?" | Bathing, Dressing, Eating, Mobility, None |
+| 4 | **Medical Needs** | "Do they require medical care?" | Skilled nursing, Medication management, Therapy, None |
+| 5 | **Cognitive** | "Are there memory or cognitive concerns?" | Diagnosed dementia, Suspected decline, No concerns |
+| 6 | **Location** | "Where are you looking for care?" | City/zip input |
+| 7 | **Budget** | "What is your budget range?" | Ranges by care type |
+| 8 | **Timeline** | "How soon do you need care?" | Immediately, 1-3 months, 3-6 months, Planning ahead |
+
+**Output**: Personalized care type recommendations with:
+- Recommended care type(s) with explanation
+- Links to relevant topic hub
+- Links to local directory (city page)
+- Option to "Talk to an advisor" (future)
+
+**Assessment Behavior**:
+
+| Scenario | Behavior |
+|----------|----------|
+| Not logged in | Complete assessment → results shown → signup prompt with context preserved |
+| Logged in (no profile) | Complete assessment → results shown → option to save to profile |
+| Logged in (has profile) | Complete assessment → results shown → option to update profile |
+
+**Data Storage**: Assessment responses stored with user (if logged in) for:
+- Pre-filling family profile fields
+- Analytics on user needs
+- Future advisor matching
+
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for care pathways that inform assessment design.
+
+#### 3.10 Caregiver Job Seeker Onboarding (DECIDED)
+
+**Purpose**: Capture professional caregivers seeking employment opportunities.
+
+**Entry Point**: `/caregiver-jobs/` landing page or "Looking for Work?" links
+
+**Flow Variant**: Uses Provider wizard variant with job-seeker-specific framing.
+
+| Step | Content | Fields |
+|------|---------|--------|
+| 1 | **Basic Info** | Name, email, phone, location |
+| 2 | **Experience** | Years of experience, settings worked (home care, facility, etc.) |
+| 3 | **Certifications** | CNA, HHA, LPN, RN, CPR, other |
+| 4 | **Availability** | Full-time, part-time, live-in, schedule preferences |
+| 5 | **Work Preferences** | Preferred care types, distance willing to travel, desired pay range |
+| 6 | **Profile Photo** | Optional but recommended |
+
+**Visibility Settings** (job seeker specific):
+
+| Toggle | Default | Purpose |
+|--------|---------|---------|
+| Visible to hiring organizations | **On** | Primary purpose of job seeker flow |
+| Visible to families | Off | Can enable if also seeking direct employment |
+
+**Post-Onboarding**:
+- Profile created as Individual Caregiver
+- Appears in organization hiring searches
+- Can browse providers with "Looking for caregivers" enabled
+- Receives notifications when matched with opportunities
+
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for job seeker landing page content.
 
 ---
 
@@ -1425,7 +1617,8 @@ Current field structure accepted as-is for demo:
 | 5.11 About / Team / Virtual Tour | ✅ | teamMembersJson, virtualTourUrl |
 | 5.12 Claimed vs Unclaimed Status | ✅ | `claimed` boolean |
 | 5.13 Profile Completion Tracking | 🟡 | `/api/dashboard/profile-completion` exists |
-| 5.14 Type-Specific Field Display | 🟡 | May not be conditional by provider type |
+| 5.14 Primary Care Type | ⬜ | Required field for canonical URL |
+| 5.15 "Looking for Work?" Section | ⬜ | Job seeker entry on provider pages |
 
 ### Key Questions
 - [x] Which fields should be required vs optional per provider type? → **See Two-Threshold Model + below**
@@ -1575,6 +1768,73 @@ Current field structure accepted as-is for demo:
 **Nudging**: "Complete your profile" prompt if below visibility threshold.
 
 **Note**: Completion weights similar to family profiles — visibility threshold fields ≈ 40%, additional fields improve matching. Exact weights can be tuned later.
+
+#### 5.14 Primary Care Type Requirement (DECIDED)
+
+**Purpose**: Every provider MUST have a primary care type that determines their canonical URL and primary directory placement.
+
+**Field**: `Provider.primaryCareType` (required, single value)
+
+| Attribute | Specification |
+|-----------|---------------|
+| **Required** | Yes, for all providers |
+| **Type** | Single enum value from care type taxonomy |
+| **Set During** | Onboarding wizard (required step) |
+| **Editable** | Yes, via provider profile settings |
+
+**Valid Primary Care Types**:
+- HOME_CARE
+- HOME_HEALTH
+- ASSISTED_LIVING
+- INDEPENDENT_LIVING
+- MEMORY_CARE
+- NURSING_HOME
+- ADULT_DAY_CARE
+- REHAB
+- HOSPICE
+
+**URL Determination**:
+- Primary care type determines the canonical URL path
+- Example: Provider with `primaryCareType: ASSISTED_LIVING` → `/assisted-living/texas/austin/provider-name/`
+
+**Directory Visibility**:
+- Provider appears in ALL directories for care types they offer (via `careTypesOffered` array)
+- Primary care type determines where the canonical link points
+- Example: A provider with primary type "Assisted Living" offering Memory Care appears in:
+  - `/assisted-living/texas/austin/` (canonical URL)
+  - `/memory-care/texas/austin/` (also appears, links to canonical)
+
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for URL architecture details.
+
+#### 5.15 "Looking for Work?" Section — Job Seeker Entry (DECIDED)
+
+**Purpose**: Provider profile pages can optionally include a section for caregiver job seekers when the provider is actively hiring.
+
+**Visibility Condition**: Section appears when `Provider.activelyHiring === true`
+
+**Section Content**:
+
+| Element | Content |
+|---------|---------|
+| **Header** | "Looking for Work?" or "Join Our Team" |
+| **Subtext** | "We're looking for qualified caregivers" |
+| **CTA Button** | "Apply to Work Here" |
+| **Benefits List** | Optional: pay range, benefits if specified |
+
+**Placement**: Below main provider information, above reviews section.
+
+**CTA Behavior**:
+- If not logged in → Routes to `/caregiver-jobs/` with provider context
+- If logged in (not caregiver) → Routes to caregiver onboarding with provider context
+- If logged in (caregiver) → Creates application engagement with provider
+
+**Provider Control**:
+- Toggle: "Actively Hiring" in provider dashboard settings
+- Optional fields: Positions available, pay range, benefits offered
+
+**Cross-Reference**:
+- See Chapter 3: Onboarding for caregiver job seeker flow
+- See Chapter 28: Marketing & SEO Pages for `/caregiver-jobs/` landing page
 
 ---
 
@@ -3150,7 +3410,7 @@ Routes must match dropdown navigation labels exactly:
 
 ---
 
-## Chapter 23: Reviews & Ratings
+## Chapter 22: Reviews & Ratings
 
 **Purpose**: Build a two-sided accountability system that creates trust, improves quality, and helps families make informed decisions across all care interactions.
 
@@ -4467,7 +4727,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-## Chapter 22: Subscriptions & Paywalls
+## Chapter 21: Subscriptions & Paywalls
 
 **Purpose**: Simple, action-gated monetization where providers pay to engage, not to browse.
 
@@ -5005,7 +5265,7 @@ Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 
 ---
 
-## Chapter 27: Admin System
+## Chapter 26: Admin System
 
 **Purpose**: The central operational hub for the entire Olera platform. This is the single internal interface where all platform operations, monitoring, and management occur.
 
@@ -5031,20 +5291,22 @@ Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 | 20.6 User Reports Queue | ⬜ | Content/user reports from platform users |
 | 20.7 Support Queue | ⬜ | General support requests |
 | 20.8 Legal & Compliance Queue | ⬜ | Legal requests (C&D, DMCA, GDPR, CCPA) |
-| 20.9 Provider Data Management | ⬜ | Full CRUD for provider records |
-| 20.10 User Data Management | ⬜ | User account management |
-| 20.11 Family Data Management | ⬜ | Family profile management |
-| 20.12 Engagement Data View | ⬜ | View/manage engagements |
-| 20.13 System Health Dashboard | ⬜ | API, DB, delivery metrics |
-| 20.14 Background Jobs Monitor | ⬜ | Job status, failures |
-| 20.15 Activity Logs | ⬜ | Admin action history |
-| 20.16 External Tools Map | ⬜ | Links + context for external systems |
-| 20.17 Embedded Documentation | ⬜ | SOPs, policies, guides |
-| 20.18 Database Seeding Tools | ✅ | `/admin/seed` exists |
-| 20.19 Data Clear Tools | ✅ | `/admin/clear-requests` exists |
-| 20.20 SEO Content Management | ⬜ | Future: SEO page creation |
-| 20.21 Help Article Management | ⬜ | Future: Help center content |
-| 20.22 Notification Template Management | ⬜ | Future: Edit notification templates |
+| 20.9 Questions Queue | ⬜ | Community questions/answers moderation |
+| 20.10 Provider Data Management | ⬜ | Full CRUD for provider records |
+| 20.11 User Data Management | ⬜ | User account management |
+| 20.12 Family Data Management | ⬜ | Family profile management |
+| 20.13 Engagement Data View | ⬜ | View/manage engagements |
+| 20.14 System Health Dashboard | ⬜ | API, DB, delivery metrics |
+| 20.15 Background Jobs Monitor | ⬜ | Job status, failures |
+| 20.16 Activity Logs | ⬜ | Admin action history |
+| 20.17 External Tools Map | ⬜ | Links + context for external systems |
+| 20.18 Embedded Documentation | ⬜ | SOPs, policies, guides |
+| 20.19 Database Seeding Tools | ✅ | `/admin/seed` exists |
+| 20.20 Data Clear Tools | ✅ | `/admin/clear-requests` exists |
+| 20.21 SEO Content Management | ⬜ | Future: SEO page creation |
+| 20.22 Help Article Management | ⬜ | Future: Help center content |
+| 20.23 Notification Template Management | ⬜ | Future: Edit notification templates |
+| 20.24 Questions Content Management | ⬜ | Manage community Q&A content |
 
 ### Key Questions — RESOLVED
 
@@ -5097,6 +5359,7 @@ Account Dropdown (Admin user):
 ├── /admin/queues
 │   ├── /admin/queues/claims           → Provider Claims Queue
 │   ├── /admin/queues/reviews          → Review Moderation Queue
+│   ├── /admin/queues/questions        → Questions Moderation Queue
 │   ├── /admin/queues/provider-requests → Provider Requests Queue
 │   ├── /admin/queues/reports          → User/Content Reports Queue
 │   ├── /admin/queues/support          → Support Tickets Queue
@@ -5117,6 +5380,7 @@ Account Dropdown (Admin user):
 │
 ├── /admin/content
 │   ├── /admin/content/seo             → SEO Page Management
+│   ├── /admin/content/questions       → Questions Content Management
 │   ├── /admin/content/help            → Help Articles
 │   └── /admin/content/templates       → Notification Templates
 │
@@ -5265,7 +5529,117 @@ All queues follow a consistent UI pattern:
 
 ---
 
-#### 20.8 Legal & Compliance Queue (DECIDED)
+#### 20.9 Questions Moderation Queue (DECIDED)
+
+**Purpose**: Moderate community-generated questions and answers flagged by auto-moderation triggers.
+
+**Location**: `/admin/queues/questions`
+
+**Queue Items** (auto-flagged content):
+
+| Flag Trigger | Description |
+|--------------|-------------|
+| `PROFANITY` | Content contains words from profanity filter |
+| `EXTERNAL_URL` | First-time poster included external link |
+| `PREVIOUS_FLAGS` | User has prior flagged content |
+| `DUPLICATE` | High similarity to existing question |
+| `SPAM_PATTERN` | Unusual character patterns or repetition |
+
+**Item Statuses:**
+
+| Status | Meaning |
+|--------|---------|
+| `PENDING` | Awaiting review (content is published) |
+| `REVIEWING` | Admin has claimed the item |
+| `APPROVED` | Reviewed, flag cleared, content remains |
+| `EDITED` | Admin edited content, flag cleared |
+| `HIDDEN` | Content hidden from public view |
+| `DELETED` | Content permanently removed |
+
+**Actions Available:**
+
+| Action | Result | User Notification |
+|--------|--------|-------------------|
+| **Approve** | Clear flag, content remains | None |
+| **Edit** | Admin modifies content, clears flag | "Your content was edited by a moderator" |
+| **Hide** | Content hidden from public | "Your content was hidden for policy violation" |
+| **Delete** | Content permanently removed | "Your content was removed for [reason]" |
+| **Warn User** | Warning logged, content may remain | "You've received a warning" |
+
+**Queue List View:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  QUESTIONS MODERATION                            12 items    │
+├─────────────────────────────────────────────────────────────┤
+│  Filter: [Status ▼] [Type ▼] [Trigger ▼]  Sort: [Oldest ▼] │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ 🟡 PENDING  [Question]           [EXTERNAL_URL]        ││
+│  │ "What is the best memory care in Austin?"              ││
+│  │ By: Jane D. (family) • Posted 2 hours ago              ││
+│  │ Topic: Memory Care • Preview: "I found this link..."   ││
+│  │                                                         ││
+│  │ [Approve] [Edit] [Hide] [Delete] [View Full]           ││
+│  └─────────────────────────────────────────────────────────┘│
+│                                                             │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ 🟡 PENDING  [Answer]             [PROFANITY]           ││
+│  │ Answer to: "How much does home care cost?"             ││
+│  │ By: CareExpert42 (user) • Posted 4 hours ago           ││
+│  │ Preview: "That's a [flagged word] question..."         ││
+│  │                                                         ││
+│  │ [Approve] [Edit] [Hide] [Delete] [View Full]           ││
+│  └─────────────────────────────────────────────────────────┘│
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Item Detail View:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FLAGGED QUESTION #Q-12345                        [← Back]  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  CONTENT                                                    │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ "What is the best memory care in Austin?"              ││
+│  │                                                         ││
+│  │ I'm looking for a memory care facility for my mother.  ││
+│  │ I found this helpful resource: http://example.com      ││
+│  │ What do you all think?                                 ││
+│  └─────────────────────────────────────────────────────────┘│
+│                                                             │
+│  FLAG DETAILS                                               │
+│  Trigger: External URL (first post by user)                │
+│  Flagged at: Jan 15, 2026 at 2:34 PM                       │
+│                                                             │
+│  USER INFO                                                  │
+│  Author: Jane D. (family)                                  │
+│  Account created: Jan 10, 2026                             │
+│  Previous flags: 0                                         │
+│  Other posts: 2 questions, 5 answers                       │
+│                                                             │
+│  ACTION                                                     │
+│  [Approve] [Edit Content] [Hide] [Delete] [Warn User]      │
+│                                                             │
+│  Notes: [Text area for admin notes]                        │
+│                                                             │
+│                                        [Save] [Resolve]    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**SLA**: 24 hours for review of flagged content
+
+**Cross-Reference**: See Chapter 24: Trust & Safety (24.8) for moderation rules.
+
+**Demo Implementation**: Basic queue with sample flagged content in seed data.
+
+---
+
+#### 20.10 Legal & Compliance Queue (DECIDED)
 
 **Purpose**: Handle requests with legal implications requiring careful handling.
 
@@ -5852,7 +6226,7 @@ The Admin System integrates with every other chapter:
 
 ---
 
-## Chapter 28: Human Workflows & Standard Operating Procedures
+## Chapter 27: Human Workflows & Standard Operating Procedures
 
 > 🆕 **New Placeholder** — Structure approved, content to be developed.
 
@@ -5920,7 +6294,7 @@ Each SOP should follow this template:
 
 ---
 
-## Chapter 25: Provider Data Management
+## Chapter 24: Provider Data Management
 
 **Purpose**: Define the architecture, migration strategy, and operational workflows for managing provider data at nationwide scale — from the initial 40,000 providers to 500,000+ organizations.
 
@@ -6800,24 +7174,118 @@ These tables are **not required for initial migration** but provide a clean home
 
 **Structure**: Single primary navigation bar, always visible.
 
+**Desktop Layout**:
+```
+[Logo] [Home Care ▼] [Assisted Living ▼] [Memory Care ▼] [Nursing Homes ▼] [More ▼] [Help Me Decide]    [Sign In] [List Your Business]
+```
+
 | Element | Behavior |
 |---------|----------|
 | **Logo** | Routes to `/` (homepage) |
-| **Care Type Dropdowns** | Home Care, Assisted Living, Memory Care, Nursing Homes, Other |
-| **Mode Toggle** | Shows opposite mode (see below) |
-| **Auth / Account** | Logged out: Sign In + Get Started / Logged in: Account Dropdown |
+| **Care Type Dropdowns** | Home Care, Assisted Living, Memory Care, Nursing Homes (see 5.2.1) |
+| **More Menu** | Mega menu with full care ecosystem (see 5.2.2) |
+| **Help Me Decide** | Primary CTA, routes to care assessment wizard |
+| **Auth / Account** | Logged out: Sign In + List Your Business / Logged in: Account Dropdown |
 
-**Mode Toggle Behavior**:
+**Mode Toggle Behavior** (in account dropdown when logged in):
 
 | Current State | Button Label | Action |
 |---------------|--------------|--------|
-| Logged out | Provider Mode | Routes to `/for-providers` landing |
+| Logged out | N/A | "List Your Business" routes to `/for-providers` |
 | Logged in, Family mode | Provider Mode | Switches to Provider mode |
 | Logged in, Provider mode | Family Mode | Switches to Family mode |
 
 **Mode Source of Truth**: Database `User.currentMode` field. URL `?mode=` parameter has been removed per prior decision.
 
 **Implementation**: `components/Navigation/MainNav.tsx`
+
+---
+
+#### 5.2.1 Care Type Dropdowns (DECIDED)
+
+Each of the four primary care type nav items opens a dropdown menu:
+
+**Dropdown Content Structure** (per care type):
+
+| Element | Example (Home Care) |
+|---------|---------------------|
+| **Overview Link** | "Home Care Guide" → `/home-care/` |
+| **Find Near Me** | "Find Home Care Near Me" → `/home-care/` with location prompt |
+| **Compare Link** | "Compare Home Care" → `/compare/` filtered |
+| **Featured Articles** | 2-3 top articles from `/home-care/articles/` |
+| **View All** | "View All Home Care Resources" → `/home-care/` |
+
+**Care Types in Primary Nav**:
+
+| Nav Label | Topic Hub URL | Why Primary |
+|-----------|---------------|-------------|
+| Home Care | `/home-care/` | Highest search volume, entry point for many families |
+| Assisted Living | `/assisted-living/` | Most common facility search |
+| Memory Care | `/memory-care/` | High urgency, specific need |
+| Nursing Homes | `/nursing-homes/` | High search volume, familiar term |
+
+**Other Care Types**: Accessed via "More" mega menu (see 5.2.2).
+
+---
+
+#### 5.2.2 "More" Mega Menu (DECIDED)
+
+The "More" dropdown opens a comprehensive mega menu serving as the complete care ecosystem map:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ CARE TYPES                │ PLANNING & SUPPORT        │ RESOURCES               │
+│                           │                           │                         │
+│ • Home Care               │ • Paying for Care         │ • Research              │
+│ • Home Health             │ • Legal Planning          │ • Aging in America      │
+│ • Assisted Living         │ • Caregiver Support       │ • Compare Care Types    │
+│ • Independent Living      │ • Health Conditions       │ • Care Assessment       │
+│ • Memory Care             │ • Aging at Home           │                         │
+│ • Nursing Homes           │                           │ COMPANY                 │
+│ • Adult Day Care          │ LOOKING FOR WORK?         │                         │
+│ • Rehab                   │                           │ • About Olera           │
+│ • Hospice                 │ • Caregiver Jobs          │ • How Olera Works       │
+│                           │                           │ • Contact Us            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Column Breakdown**:
+
+| Column | Purpose | Links To |
+|--------|---------|----------|
+| **Care Types** | All 9 care types | Topic hubs (`/[care-type]/`) |
+| **Planning & Support** | Non-provider content pillars | Planning topic hubs |
+| **Looking for Work?** | Caregiver job seeker entry | `/caregiver-jobs/` |
+| **Resources** | Authority content | `/research/`, `/aging-in-america/`, `/compare/` |
+| **Company** | Transparency and company info | `/company/`, `/how-olera-works/` |
+
+**Mega Menu Behavior**:
+- Opens on hover (desktop) or tap (mobile)
+- Full-width dropdown with organized columns
+- Links are clearly categorized for quick scanning
+- Mobile: Expands as accordion sections
+
+---
+
+#### 5.2.3 "Help Me Decide" CTA (DECIDED)
+
+Primary navigation call-to-action for families unsure of care needs.
+
+| Attribute | Specification |
+|-----------|---------------|
+| **Label** | "Help Me Decide" |
+| **Style** | Primary button (stands out from nav links) |
+| **Destination** | Care Assessment Wizard (see Chapter 3: Onboarding) |
+| **Behavior** | If not logged in, completes assessment then prompts signup |
+
+**Entry Points for Care Assessment**:
+- Primary nav CTA (this)
+- Topic hub CTAs
+- Article contextual CTAs
+- Comparison page CTAs
+- Exit-intent modal (optional, future)
+
+**Cross-Reference**: See Chapter 3: Onboarding for care assessment wizard specification.
 
 ---
 
@@ -7051,27 +7519,77 @@ IF logged in:
 | Breadcrumbs required for demo | ✅ Decided | Improves navigation clarity |
 | Maximize tab visibility | ✅ Decided | Gate by action, not visibility |
 | Hiring section varies by type | ✅ Decided | Only exception to consistent rendering |
+| Mega menu for "More" | ✅ Decided | Comprehensive care ecosystem navigation |
+| "Help Me Decide" CTA | ✅ Decided | Primary nav CTA routes to care assessment |
+| Footer with transparency hub | ✅ Decided | Trust and legal links in footer |
 
 ---
 
-### 5.11 Cross-Chapter Integration
+### 5.11 Footer Navigation (DECIDED)
+
+**Purpose**: Site-wide footer providing comprehensive navigation, legal compliance, and trust signals.
+
+**Footer Structure**:
+
+```
+CARE TYPES              PLANNING              COMPANY               LEGAL & TRUST
+─────────────────────────────────────────────────────────────────────────────────
+Home Care               Paying for Care       About Us              Terms of Service
+Home Health             Legal Planning        How Olera Works       Privacy Policy
+Assisted Living         Caregiver Support     Careers               Accessibility
+Independent Living      Health Conditions     Press                 Do Not Sell My Info
+Memory Care             Aging at Home         Contact
+Nursing Homes
+Adult Day Care          FOR PROVIDERS
+Rehab                   ─────────────
+Hospice                 List Your Business
+                        Provider Resources
+                        Claim Your Listing
+```
+
+**Column Details**:
+
+| Column | Purpose | Links To |
+|--------|---------|----------|
+| **Care Types** | All 9 care type topic hubs | `/[care-type]/` |
+| **Planning** | Planning & support content | `/paying-for-care/`, `/legal-planning/`, etc. |
+| **For Providers** | Provider acquisition funnel | `/for-providers`, resources |
+| **Company** | Corporate and transparency | `/company/`, `/how-olera-works/` |
+| **Legal & Trust** | Compliance and trust | `/terms`, `/privacy`, `/accessibility` |
+
+**Footer Behavior**:
+- Always visible on all pages
+- Consistent across logged-in and logged-out states
+- Mobile: Columns stack vertically with accordion expand
+
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for transparency hub content.
+
+---
+
+### 5.12 Cross-Chapter Integration
 
 | Chapter | Integration Point |
 |---------|-------------------|
 | Ch 2: Mode System | Mode toggle triggers DB update via `/api/user/mode` |
 | Ch 1: Authentication | Login redirect uses `returnUrl` parameter |
+| Ch 3: Onboarding | "Help Me Decide" routes to care assessment wizard |
 | Ch 12: Family Dashboard | Dashboard tab routes to `/family/dashboard` |
 | Ch 13: Provider Dashboard | My Provider Profile routes to `/provider/dashboard` |
 | Ch 20: Hiring Marketplace | Hiring tabs route to `/provider/hire-staff`, etc. |
+| Ch 29: Marketing & SEO | Topic hubs, mega menu links, footer structure |
 | Ch 32: Error Handling | 404 and error pages consolidated there |
 
 ---
 
-### 5.12 Implementation Status
+### 5.13 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
 | Main Navigation | ✅ Built | `MainNav.tsx` — needs mode parameter removal |
+| Care Type Dropdowns | ⬜ Not Built | 4 dropdowns with featured content |
+| "More" Mega Menu | ⬜ Not Built | Full care ecosystem navigation |
+| "Help Me Decide" CTA | ⬜ Not Built | Routes to care assessment wizard |
+| Footer Navigation | ⬜ Not Built | Full footer with all sections |
 | Account Dropdown | 🟡 Partial | Exists but uses URL mode param |
 | Route Protection | ✅ Built | Middleware working correctly |
 | Login Redirect | ✅ Built | `returnUrl` parameter preserved |
@@ -7083,6 +7601,8 @@ IF logged in:
 | Feature | Demo | Production |
 |---------|------|------------|
 | Account dropdown | Full implementation | Same |
+| Mega menu | Basic structure | Featured content integration |
+| Footer | Full structure | Same |
 | Breadcrumbs | Basic auto-generation | Custom labels, analytics |
 | Route protection | Current middleware | Same + role-based guards |
 
@@ -7284,31 +7804,690 @@ IF logged in:
 
 ---
 
-## Chapter 29: Marketing & SEO Pages
+## Chapter 28: Marketing & SEO Pages
 
-**Purpose**: Public-facing pages for marketing, SEO, and legal compliance.
+**Purpose**: Comprehensive SEO strategy and public-facing content architecture designed to dominate organic search, reduce paid traffic dependency, and build topical authority across the senior care ecosystem.
+
+### 29.1 SEO Strategy Overview
+
+**Competitive Landscape**: Competing against A Place for Mom, Caring.com, SeniorAdvisor, and general directories like Yelp and Google Business Profiles.
+
+**Core Strategy**:
+- **Topic-first URL clustering**: Group content by care type to build topical authority
+- **Hub-and-spoke model**: Topic hubs link to articles, questions, and directories
+- **Programmatic SEO**: City directories as highest ROI pages (scalable, high-intent)
+- **Two content types**: Articles (editorial) and Questions (community/UGC)
+- **Internal linking**: Every page strengthens related pages through deliberate cross-linking
+
+**Success Metrics**:
+- Organic traffic growth
+- Indexed page count
+- Featured snippet capture rate
+- Domain authority improvement
+- Conversion from SEO traffic to family/provider signups
+
+### 29.2 Care Type Taxonomy
+
+Nine primary care types form the foundation of URL architecture and content organization:
+
+| Care Type | URL Slug | Category | Description |
+|-----------|----------|----------|-------------|
+| Home Care | `/home-care/` | Home-Based | Non-medical assistance (ADLs, companionship) |
+| Home Health | `/home-health/` | Home-Based | Licensed medical care at home (nursing, PT, OT) |
+| Assisted Living | `/assisted-living/` | Facility-Based | Residential communities with daily living support |
+| Independent Living | `/independent-living/` | Facility-Based | Active adult communities, minimal care services |
+| Memory Care | `/memory-care/` | Facility-Based | Specialized dementia/Alzheimer's care |
+| Nursing Home | `/nursing-homes/` | Facility-Based | Skilled nursing facilities (SNFs), 24/7 medical care |
+| Adult Day Care | `/adult-day-care/` | Community-Based | Daytime programs, caregiver respite |
+| Rehab | `/rehab/` | Transitional | Short-term rehabilitation post-hospitalization |
+| Hospice | `/hospice/` | End-of-Life | Comfort-focused care for terminal illness |
+
+**Note**: Respite Care is a service attribute, not a primary care type. Providers offering respite indicate it within their service tags.
+
+### 29.3 URL Architecture
+
+**Topic-First Clustering Pattern**:
+```
+/[care-type]/                           → Topic Hub
+/[care-type]/[state]/                   → State Directory
+/[care-type]/[state]/[city]/            → City Directory
+/[care-type]/[state]/[city]/[provider]/ → Provider Profile
+/[care-type]/articles/                  → Article Index
+/[care-type]/articles/[slug]/           → Individual Article
+/[care-type]/questions/                 → Questions Index
+/[care-type]/questions/[slug]/          → Individual Question
+```
+
+**Planning & Support Topics** (no provider directories):
+```
+/paying-for-care/                       → Topic Hub
+/paying-for-care/articles/              → Article Index
+/paying-for-care/articles/[slug]/       → Individual Article
+/paying-for-care/questions/             → Questions Index
+
+/legal-planning/                        → Topic Hub
+/caregiver-support/                     → Topic Hub
+/health-conditions/                     → Topic Hub
+/aging-at-home/                         → Topic Hub
+```
+
+**Comparison Pages**:
+```
+/compare/                               → Comparison Hub
+/compare/[a]-vs-[b]/                    → Direct Comparison
+```
+Examples: `/compare/assisted-living-vs-memory-care/`, `/compare/home-care-vs-home-health/`
+
+**Special Content**:
+```
+/research/                              → Research Hub
+/aging-in-america/                      → Editorial Series
+/caregiver-jobs/                        → Job Seeker Landing
+/company/                               → Company Information
+/how-olera-works/                       → Transparency Hub
+```
+
+### 29.4 Care Journey Pathways
+
+Three primary pathways families follow when seeking care:
+
+**Pathway 1: Hospital Discharge**
+```
+Hospital Admission → Discharge Planning → Rehab/SNF → Next Level of Care
+```
+- Triggers: Surgery, stroke, fall, acute illness
+- Timeline: 24-72 hours for placement decisions
+- Content needs: "What to expect after hospital discharge," SNF vs rehab comparison, Medicare coverage
+
+**Pathway 2: Clinical Escalation**
+```
+Primary Care Visit → Recognition of Decline → Family Discussion → Care Transition
+```
+- Triggers: Cognitive decline, mobility issues, medication management concerns
+- Timeline: Weeks to months
+- Content needs: "Signs your parent needs more help," care type comparisons, family conversation guides
+
+**Pathway 3: Self-Directed Research**
+```
+Family Concern → Online Research → Care Assessment → Provider Selection
+```
+- Triggers: Proactive planning, observed changes, caregiver burnout
+- Timeline: Variable, often extended research phase
+- Content needs: Comprehensive guides, cost information, local directory pages
+
+### 29.5 Page Type Specifications
+
+#### 29.5.1 Topic Hubs
+
+**Purpose**: Authority pages that serve as entry points for each care type or planning topic.
+
+**URL Pattern**: `/[topic]/`
+
+**Content Structure**:
+- H1: "[Topic] Guide" or "Understanding [Topic]"
+- Overview section (300-500 words)
+- Quick navigation to subtopics
+- Featured articles (3-5)
+- Recent questions (3-5)
+- Link to state/city directories (for care types with providers)
+- Related care types section
+
+**Internal Linking**:
+- Links to all article and question index pages
+- Links to comparison pages involving this care type
+- Links to related topic hubs
+- Links to state-level directories
+
+**Schema Markup**: `WebPage` with `BreadcrumbList`
+
+#### 29.5.2 State Directory Pages
+
+**Purpose**: Aggregate all cities within a state for a specific care type.
+
+**URL Pattern**: `/[care-type]/[state]/`
+
+**Content Structure**:
+- H1: "[Care Type] in [State]"
+- State overview (150-300 words, unique per state)
+- City links organized by region/population
+- State-specific regulations callout
+- Featured providers (top-rated in state)
+- State statistics (provider count, average costs if available)
+
+**Internal Linking**:
+- Up to topic hub
+- Down to city directories
+- Across to same state in other care types
+
+**Schema Markup**: `WebPage` with `BreadcrumbList`, `ItemList` for cities
+
+#### 29.5.3 City Directory Pages
+
+**Purpose**: Highest ROI programmatic pages. List all providers of a care type in a specific city.
+
+**URL Pattern**: `/[care-type]/[state]/[city]/`
+
+**Content Structure**:
+- H1: "[Care Type] in [City], [State]"
+- City overview (100-200 words)
+- Provider cards with:
+  - Provider name
+  - Trust score (if sufficient data)
+  - Review snippet
+  - Services summary
+  - CTA to profile
+- Filter/sort options (not in URL, client-side)
+- "Request information from multiple providers" CTA
+- Nearby cities section
+- Related care types in same city
+
+**Provider Visibility Rules**:
+- Providers appear in directories for ALL care types they offer (via service tags)
+- Canonical URL uses provider's **primary care type**
+- Example: A provider with primary type "Assisted Living" offering Memory Care appears in both `/assisted-living/texas/austin/` and `/memory-care/texas/austin/`
+
+**Internal Linking**:
+- Up to state directory
+- Across to same city in other care types
+- To individual provider profiles
+- To relevant local articles/questions
+
+**Schema Markup**: `LocalBusiness` aggregate, `ItemList`, `BreadcrumbList`
+
+**Scalability**: ~27,000+ potential city directory pages (9 care types × 3,000+ cities)
+
+#### 29.5.4 Provider Profile Pages
+
+**Purpose**: Comprehensive provider information for conversion and SEO.
+
+**URL Pattern**: `/[primary-care-type]/[state]/[city]/[provider-slug]/`
+
+**Content Structure**: See Chapter 7: Provider Profiles for full specification.
+
+**SEO Elements**:
+- Unique meta description per provider
+- Schema markup for `LocalBusiness` or `MedicalBusiness`
+- Breadcrumb navigation
+- Internal links to city directory, care type hub
+
+**Primary Care Type Requirement**:
+- Every provider MUST have a primary care type
+- Primary care type determines canonical URL
+- Multi-service providers tagged with additional care types for directory visibility
+
+#### 29.5.5 Article Pages
+
+**Purpose**: Editorial content for topical authority and informational queries.
+
+**URL Pattern**: `/[topic]/articles/[slug]/`
+
+**Content Types**:
+- How-to guides ("How to Choose a Memory Care Facility")
+- Informational explainers ("What Does Home Health Care Include?")
+- Cost guides ("How Much Does Assisted Living Cost in California?")
+- Checklists ("Questions to Ask When Touring a Nursing Home")
+- Condition-specific ("Caring for Someone with Parkinson's Disease")
+
+**Content Structure**:
+- H1: Article title
+- Author byline with credentials
+- Last updated date
+- Table of contents (for 1500+ word articles)
+- Body content with H2/H3 structure
+- Related articles sidebar
+- Related questions section
+- CTA to find local providers (contextual)
+
+**Schema Markup**: `Article` with `Author`, `BreadcrumbList`
+
+**Quality Standards**:
+- Minimum 800 words for indexing
+- Medical accuracy review for health-related content
+- Annual review cycle for evergreen content
+- Clear sourcing for statistics and claims
+
+#### 29.5.6 Question Pages
+
+**Purpose**: Community-generated content capturing long-tail queries and building engagement.
+
+**URL Pattern**: `/[topic]/questions/[slug]/`
+
+**Question System Specifications**:
+
+| Attribute | Specification |
+|-----------|---------------|
+| Submission | Any authenticated user |
+| Moderation | Auto-approve with flag triggers |
+| Threading | 2-level depth maximum (question → answer → reply) |
+| Reactions | "Helpful" only (single reaction type) |
+| Editing | Author can edit within 24 hours |
+| Deletion | Author can delete if no answers; soft-delete otherwise |
+
+**Auto-Approve Flag Triggers**:
+- Profanity filter match
+- External URL in first post
+- User has previous flagged content
+- Duplicate detection match
+- Spam pattern detection
+
+**Content Structure**:
+- H1: Question text
+- Asker info (name, date)
+- Question body/context
+- Answers sorted by "Helpful" count
+- Related questions
+- Topic breadcrumb
+
+**Schema Markup**: `QAPage` with `Question` and `Answer`
+
+**Moderation Queue**: See Chapter 27: Admin System for queue specifications.
+
+#### 29.5.7 Comparison Pages
+
+**Purpose**: Capture "[A] vs [B]" search queries and aid decision-making.
+
+**URL Pattern**: `/compare/[a]-vs-[b]/`
+
+**Content Structure**:
+- H1: "[Care Type A] vs [Care Type B]: What's the Difference?"
+- Side-by-side comparison table
+- Detailed breakdown by factor (cost, level of care, living situation)
+- "Which is right for you?" decision guide
+- Links to both topic hubs
+- "Help me decide" CTA to care assessment
+
+**Priority Comparisons**:
+- Assisted Living vs Memory Care
+- Home Care vs Home Health
+- Assisted Living vs Nursing Home
+- Independent Living vs Assisted Living
+- Home Care vs Assisted Living
+
+**Schema Markup**: `Article` with comparison table markup
+
+### 29.6 Navigation Structure
+
+#### 29.6.1 Primary Navigation
+
+**Desktop Header**:
+```
+[Logo] [Home Care ▼] [Assisted Living ▼] [Memory Care ▼] [Nursing Homes ▼] [More ▼] [Help Me Decide]    [Sign In] [List Your Business]
+```
+
+**Dropdown Menus** (Top 4 Care Types):
+Each dropdown contains:
+- Overview link to topic hub
+- "Find [Care Type] Near Me" (geolocation or manual entry)
+- "Compare [Care Type]" link
+- 2-3 featured articles
+- "View All [Care Type] Resources"
+
+#### 29.6.2 "More" Mega Menu
+
+Comprehensive care ecosystem navigation:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ CARE TYPES                │ PLANNING & SUPPORT        │ RESOURCES               │
+│                           │                           │                         │
+│ • Home Care               │ • Paying for Care         │ • Research              │
+│ • Home Health             │ • Legal Planning          │ • Aging in America      │
+│ • Assisted Living         │ • Caregiver Support       │ • Compare Care Types    │
+│ • Independent Living      │ • Health Conditions       │ • Care Assessment       │
+│ • Memory Care             │ • Aging at Home           │                         │
+│ • Nursing Homes           │                           │ COMPANY                 │
+│ • Adult Day Care          │ LOOKING FOR WORK?         │                         │
+│ • Rehab                   │                           │ • About Olera           │
+│ • Hospice                 │ • Caregiver Jobs          │ • How Olera Works       │
+│                           │                           │ • Contact Us            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 29.6.3 Footer Navigation
+
+```
+CARE TYPES              PLANNING              COMPANY               LEGAL & TRUST
+─────────────────────────────────────────────────────────────────────────────────
+Home Care               Paying for Care       About Us              Terms of Service
+Home Health             Legal Planning        How Olera Works       Privacy Policy
+Assisted Living         Caregiver Support     Careers               Accessibility
+Independent Living      Health Conditions     Press                 Do Not Sell My Info
+Memory Care             Aging at Home         Contact
+Nursing Homes
+Adult Day Care          FOR PROVIDERS
+Rehab                   ─────────────
+Hospice                 List Your Business
+                        Provider Resources
+                        Claim Your Listing
+```
+
+### 29.7 "Help Me Decide" Flow
+
+**Entry Points**:
+- Primary nav CTA button
+- Topic hub CTAs
+- Article contextual CTAs
+- Comparison page CTAs
+- Exit-intent modal (optional)
+
+**Flow**: Routes to Care Assessment Wizard (Chapter 3: Onboarding)
+
+**Assessment Captures**:
+- Care recipient relationship
+- Current living situation
+- Care needs (ADLs, medical, cognitive)
+- Location preferences
+- Budget considerations
+- Timeline urgency
+
+**Output**: Personalized care type recommendations with links to relevant directories.
+
+### 29.8 Job Seeker Capture
+
+**Landing Page**: `/caregiver-jobs/`
+
+**Purpose**: Capture professional caregivers seeking employment to build provider talent pool.
+
+**Content Structure**:
+- Value proposition for caregivers
+- "Create Your Profile" CTA
+- How it works explanation
+- Featured provider partners
+- Caregiver resources/articles
+
+**Profile Creation Flow**:
+1. Basic information
+2. Experience and certifications
+3. Availability and preferences
+4. Work history
+5. Profile photo (optional)
+
+**Provider Visibility**:
+- Providers toggle "Looking for caregivers" in profile settings
+- Enabled providers appear in caregiver job search
+- No job listings created; caregivers apply via provider contact
+
+**Provider Profile Integration**:
+- "Looking for work?" section on provider pages (when provider has visibility enabled)
+- Links to caregiver signup flow
+- See Chapter 7: Provider Profiles for placement specifications
+
+### 29.9 Transparency Hub
+
+**URL**: `/how-olera-works/`
+
+**Purpose**: Build trust by explaining platform mechanics.
+
+**Sections**:
+
+| Page | URL | Content |
+|------|-----|---------|
+| Overview | `/how-olera-works/` | Platform mission and mechanics summary |
+| How Listings Work | `/how-olera-works/listings/` | Claimed vs unclaimed, verification process |
+| How Scores Work | `/how-olera-works/scores/` | Trust score methodology, data sources |
+| How Reviews Work | `/how-olera-works/reviews/` | Review collection, verification, moderation |
+| How Requests Work | `/how-olera-works/requests/` | Information request routing, provider matching |
+
+### 29.10 Brand & Authority Content
+
+#### 29.10.1 Research Hub
+
+**URL**: `/research/`
+
+**Purpose**: Original research, data reports, and industry analysis.
+
+**Content Types**:
+- Annual "State of Senior Care" reports
+- Cost index data by region
+- Consumer surveys
+- Policy analysis
+
+**SEO Value**: Linkable assets for earning backlinks, establishing domain authority.
+
+#### 29.10.2 Aging in America Series
+
+**URL**: `/aging-in-america/`
+
+**Purpose**: Editorial series exploring demographics, cultural perspectives, and societal trends.
+
+**Content Approach**: Long-form journalism, data visualization, personal stories.
+
+**SEO Value**: Brand awareness, social sharing, media coverage potential.
+
+#### 29.10.3 Company Pages
+
+**URL Structure**:
+```
+/company/                  → About Olera
+/company/careers/          → Careers
+/company/press/            → Press & Media
+/company/contact/          → Contact Us
+```
+
+### 29.11 Internal Linking Strategy
+
+**Principles**:
+1. Every page links up (to parent in hierarchy)
+2. Every page links across (to related content)
+3. Hub pages link down to all children
+4. Contextual links within content body
+5. Related content blocks on all pages
+
+**Automated Linking**:
+- Article/Question pages auto-link to relevant city directories
+- City directories auto-link to nearby cities
+- Provider profiles auto-link to care type hubs
+- Cross-care-type linking on geographic pages
+
+**Manual Curation**:
+- Featured articles on hub pages
+- "Related reading" in articles
+- "You might also ask" in questions
+
+### 29.12 Scalable Page Table
+
+| Page Type | URL Pattern | Quantity | ROI | Priority |
+|-----------|-------------|----------|-----|----------|
+| City Directories | `/[care-type]/[state]/[city]/` | ~27,000 | ★★★★★ | P0 |
+| State Directories | `/[care-type]/[state]/` | ~450 | ★★★★☆ | P0 |
+| Topic Hubs | `/[topic]/` | ~15 | ★★★★★ | P0 |
+| Provider Profiles | `/[care-type]/.../[provider]/` | ~50,000+ | ★★★★☆ | P0 |
+| Comparison Pages | `/compare/[a]-vs-[b]/` | ~20 | ★★★★☆ | P1 |
+| Articles | `/[topic]/articles/[slug]/` | 200+ | ★★★☆☆ | P1 |
+| Question Pages | `/[topic]/questions/[slug]/` | 1,000+ | ★★★☆☆ | P2 |
+| Planning Hubs | `/[planning-topic]/` | 5 | ★★★★☆ | P1 |
+| Transparency Hub | `/how-olera-works/...` | 5 | ★★☆☆☆ | P2 |
+| Research Hub | `/research/` | 10+ | ★★★☆☆ | P2 |
+| Caregiver Jobs | `/caregiver-jobs/` | 1 | ★★☆☆☆ | P2 |
+
+**ROI Rationale**:
+- City directories: High-intent, scalable, programmatic generation
+- Provider profiles: Conversion pages, unique content per listing
+- Topic hubs: Authority signals, link equity distribution
+- Comparisons: Decision-stage queries, high conversion potential
+- Articles: Informational intent, brand building, backlink potential
+- Questions: Long-tail capture, community engagement, UGC scale
+
+### 29.13 Technical SEO Requirements
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Sitemap | Dynamic XML sitemaps by page type |
+| Robots.txt | Allow all indexable pages, block admin/auth |
+| Canonical URLs | Self-referencing canonicals, handle pagination |
+| Meta Tags | Unique title/description per page type |
+| Open Graph | Social preview optimization |
+| Schema Markup | Page-type-specific structured data |
+| Page Speed | Core Web Vitals optimization |
+| Mobile | Mobile-first responsive design |
+| HTTPS | Site-wide SSL |
+| Internationalization | `hreflang` if expanding (future) |
+
+### 29.14 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 24.1 Homepage | ✅ | `/` (provider search) |
-| 24.2 For Providers Landing | ✅ | `/for-providers` |
-| 24.3 Terms of Service | ✅ | `/terms` |
-| 24.4 Privacy Policy | ✅ | `/privacy` |
-| 24.5 City/State Directory Pages | ⬜ | SEO landing pages |
-| 24.6 Service Category Pages | ⬜ | By care type |
-| 24.7 Guides/Articles/Blog | ⬜ | Content marketing |
-| 24.8 About Us | ⬜ | Company page |
+| 29.1 Homepage | ✅ | `/` - search-centric |
+| 29.2 For Providers Landing | ✅ | `/for-providers` |
+| 29.3 Topic Hubs (Care Types) | ⬜ | 9 hubs needed |
+| 29.4 Topic Hubs (Planning) | ⬜ | 5 hubs needed |
+| 29.5 State Directory Pages | ⬜ | Programmatic generation |
+| 29.6 City Directory Pages | ⬜ | Programmatic generation |
+| 29.7 Provider Profile SEO | 🟡 | Profiles exist, SEO optimization needed |
+| 29.8 Article System | ⬜ | CMS and templates |
+| 29.9 Questions System | ⬜ | Submission, moderation, display |
+| 29.10 Comparison Pages | ⬜ | Template and content |
+| 29.11 Transparency Hub | ⬜ | 5 pages |
+| 29.12 Research Hub | ⬜ | Template and initial content |
+| 29.13 Caregiver Jobs Landing | ⬜ | Landing page and profile flow |
+| 29.14 Navigation Implementation | 🟡 | Primary nav exists, mega menu needed |
+| 29.15 Footer Update | ⬜ | Full footer with all sections |
+| 29.16 Schema Markup | ⬜ | Page-type-specific |
+| 29.17 XML Sitemaps | ⬜ | Dynamic generation |
+| 29.18 Care Assessment Integration | 🟡 | Wizard exists, "Help Me Decide" CTAs needed |
+
+### 29.15 Cross-Chapter Dependencies
+
+| Chapter | Update Required |
+|---------|-----------------|
+| Foundational Decisions | Care pathways documentation |
+| Ch 3: Onboarding | Care assessment for "Help Me Decide" flow, caregiver profile flow |
+| Ch 5: Navigation | Mega menu structure, footer structure, hub access |
+| Ch 7: Provider Profiles | Primary care type requirement, "Looking for work?" section |
+| Ch 24: Trust & Safety | Questions moderation rules |
+| Ch 27: Admin System | Questions moderation queue |
+| Ch 38: Legal | Transparency hub pages |
+
+### Architectural Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| URL Structure | Topic-first clustering | Builds topical authority, cleaner hierarchy |
+| Care Types | 9 primary types | Comprehensive coverage without over-segmentation |
+| Content Types | Articles + Questions | Simplicity; guides are long articles, forums are questions |
+| Question Threading | 2-level max | Prevents deep nesting, maintains readability |
+| Question Reactions | "Helpful" only | Single signal simplifies UX and ranking |
+| Question Moderation | Auto-approve + flags | Scales without bottleneck while catching issues |
+| Primary Care Type | Required field | Ensures canonical URL, enables directory logic |
+| Navigation | 4 dropdowns + mega menu | Balances quick access with comprehensive discovery |
+| Comparison | Dedicated pillar | Captures high-intent "[A] vs [B]" queries |
 
 ### Key Questions
-- [ ] SEO pages priority for demo?
-- [ ] Content strategy deferred?
-
-### Architectural Notes
-_To be filled in during chapter review._
+- [x] SEO pages priority for demo? → City directories and topic hubs are P0
+- [x] Content strategy deferred? → No, comprehensive strategy defined above
 
 ---
 
-## Chapter 31: File Uploads & Media
+## Chapter 31: Application Architecture & Tech Stack
+
+> 🆕 **New Chapter** — Structure approved, content to be developed.
+
+**Purpose**: Document the complete technical architecture enabling the Olera platform, serving as the single source of truth for all technology decisions.
+
+### Scope
+
+| Section | Status | Notes |
+|---------|--------|-------|
+| 31.1 Frontend Architecture | 🆕 | Next.js, React, TypeScript |
+| 31.2 Backend Architecture | 🆕 | API Routes, Services Layer |
+| 31.3 Database Layer | 🆕 | PostgreSQL, Prisma ORM |
+| 31.4 Authentication Infrastructure | 🆕 | NextAuth.js, session management |
+
+### 31.1 Frontend Architecture
+
+**Technology Stack**:
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Components**: Custom component library
+- **State Management**: React hooks, server components
+
+_Detailed architecture to be documented._
+
+### 31.2 Backend Architecture
+
+**Technology Stack**:
+- **API**: Next.js API Routes
+- **Validation**: Zod schemas
+- **Authentication**: NextAuth.js
+- **Services**: Business logic layer
+
+_Detailed architecture to be documented._
+
+### 31.3 Database Layer
+
+**Technology Stack**:
+- **Database**: PostgreSQL (Neon)
+- **ORM**: Prisma
+- **Migrations**: Prisma Migrate
+
+_Schema documentation and data models to be documented._
+
+### 31.4 Authentication Infrastructure
+
+**Technology Stack**:
+- **Provider**: NextAuth.js
+- **Strategies**: Credentials, OAuth (future)
+- **Sessions**: JWT-based
+
+_Authentication flows to be documented._
+
+---
+
+## Chapter 32: Hosting, Deployment & CI/CD
+
+> 🆕 **New Chapter** — Structure approved, content to be developed.
+
+**Purpose**: Document hosting environment, deployment processes, and release management.
+
+### Scope
+
+| Section | Status | Notes |
+|---------|--------|-------|
+| 32.1 Hosting Environment | 🆕 | Vercel deployment |
+| 32.2 Deployment Pipeline | 🆕 | Git-based deploys |
+| 32.3 Environment Management | 🆕 | Dev, staging, production |
+| 32.4 Release Process | 🆕 | Version control, rollbacks |
+
+### 32.1 Hosting Environment
+
+**Platform**: Vercel
+- Automatic deployments from Git
+- Edge network distribution
+- Serverless functions
+
+_Configuration details to be documented._
+
+### 32.2 Deployment Pipeline
+
+**Process**:
+- Push to main → automatic production deploy
+- Pull requests → preview deployments
+- Branch deploys for staging
+
+_Pipeline configuration to be documented._
+
+### 32.3 Environment Management
+
+**Environments**:
+- Development (local)
+- Preview (PR branches)
+- Production (main branch)
+
+**Environment Variables**: Managed via Vercel dashboard
+
+_Environment configuration to be documented._
+
+### 32.4 Release Process
+
+**Versioning**: Semantic versioning
+**Rollbacks**: Vercel instant rollback capability
+
+_Release procedures to be documented._
+
+---
+
+## Chapter 33: File Uploads & Media
 
 **Purpose**: Handle image and document uploads throughout the platform.
 
@@ -7330,7 +8509,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 24: Trust & Safety
+## Chapter 23: Trust & Safety
 
 **Purpose**: Build user trust through provider verification, content moderation, and user safety features. Critical for demonstrating operational readiness.
 
@@ -7845,7 +9024,76 @@ Report Submitted
 
 ---
 
-### 24.8 Implementation Status
+### 24.8 Questions & Community Content Moderation (DECIDED)
+
+**Purpose**: Define moderation rules for the community Questions system (see Chapter 28: Marketing & SEO Pages).
+
+#### Questions System Specifications
+
+| Attribute | Specification |
+|-----------|---------------|
+| **Submission** | Any authenticated user |
+| **Moderation** | Auto-approve with flag triggers |
+| **Threading** | 2-level depth maximum (question → answer → reply) |
+| **Reactions** | "Helpful" only (single reaction type) |
+| **Editing** | Author can edit within 24 hours |
+| **Deletion** | Author can delete if no answers; soft-delete otherwise |
+
+#### Auto-Approve with Flag Triggers
+
+Questions and answers are published immediately but auto-flagged for moderation review when any trigger fires:
+
+| Flag Trigger | Detection | Action |
+|--------------|-----------|--------|
+| **Profanity filter** | Keyword match against profanity list | Publish + queue for review |
+| **External URL** | Any URL in first post by user | Publish + queue for review |
+| **Previous flags** | User has content previously flagged | Publish + queue for review |
+| **Duplicate detection** | High similarity to existing question | Publish + queue for review |
+| **Spam patterns** | Repeated content, unusual character patterns | Publish + queue for review |
+
+**Rationale**: Auto-approve-with-triggers balances scale (no bottleneck) with quality (catches issues). Content is published immediately for good UX, while problematic content is surfaced for review.
+
+#### Moderation Actions for Questions
+
+| Action | Effect | User Notification |
+|--------|--------|-------------------|
+| **Approve** | Content remains published, flag cleared | None |
+| **Edit** | Admin edits content, flag cleared | "Your content was edited by a moderator" |
+| **Hide** | Content hidden from public view | "Your content was hidden for policy violation" |
+| **Delete** | Content permanently removed | "Your content was removed for [reason]" |
+| **Warn User** | Content may remain, warning logged | "You've received a warning about your content" |
+
+#### Questions Moderation Queue
+
+**Location**: `/admin/moderation` → Questions tab
+
+| Column | Content |
+|--------|---------|
+| **Status** | Pending, Reviewing, Resolved |
+| **Type** | Question, Answer, Reply |
+| **Content Preview** | First 100 characters |
+| **Flag Trigger** | Which trigger(s) fired |
+| **Author** | User name, link to profile |
+| **Age** | Time since flagged |
+
+**Cross-Reference**: See Chapter 27: Admin System for queue implementation details.
+
+#### Content Guidelines for Questions
+
+Users submitting questions and answers must adhere to:
+
+| Guideline | Description |
+|-----------|-------------|
+| **Relevant** | Questions must be about senior care, caregiving, or related planning |
+| **Respectful** | No personal attacks, harassment, or offensive language |
+| **Original** | No copied content from other sources |
+| **Non-promotional** | No advertising, spam, or self-promotion |
+| **No PII** | Do not share personal contact information publicly |
+| **Accurate** | Answers should be factual; medical advice must include disclaimers |
+
+---
+
+### 24.9 Implementation Status
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -7858,10 +9106,12 @@ Report Submitted
 | Block management UI | ⬜ Not Built | Required for demo |
 | Moderation queue | ⬜ Not Built | Required for demo |
 | Moderation actions | ⬜ Not Built | Required for demo |
+| Questions moderation system | ⬜ Not Built | Auto-approve with flag triggers |
+| Questions moderation queue (admin) | ⬜ Not Built | Tab in moderation interface |
 | Background check upload flow | ⬜ Not Built | Production only (self-reported trust signal) |
 | Fraud detection | ⬜ Not Built | Production only |
 
-### 24.9 Key Decisions Log
+### 24.10 Key Decisions Log
 
 | Decision | Status | Rationale |
 |----------|--------|-----------|
@@ -7876,7 +9126,7 @@ Report Submitted
 
 ---
 
-### 24.10 Cross-Chapter Integration
+### 24.11 Cross-Chapter Integration
 
 | Chapter | Integration Point |
 |---------|-------------------|
@@ -7885,6 +9135,7 @@ Report Submitted
 | Ch 25: Provider Data Management | Badge fields on Provider model |
 | Ch 26: Data Acquisition | Two-state model (Unclaimed/Claimed) defined |
 | Ch 27: Admin System | Moderation queue + verification review in admin panel |
+| Ch 29: Marketing & SEO | Questions system moderation rules |
 | Ch 14: Settings | Blocked users list in Settings → Privacy |
 
 ### Demo vs Production Summary
@@ -7902,7 +9153,7 @@ Report Submitted
 
 ---
 
-## Chapter 34: Help & Support
+## Chapter 30: Help Center & Support
 
 **Purpose**: Provide users with help resources and support channels.
 
@@ -7921,7 +9172,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 32: Error Handling & Monitoring
+## Chapter 35: Error Handling & Monitoring
 
 **Purpose**: Ensure application stability and enable debugging.
 
@@ -7942,7 +9193,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 35: Audit & Activity Logging
+## Chapter 37: Analytics & Audit Logging
 
 **Purpose**: Track key actions for debugging, compliance, and admin visibility.
 
@@ -7980,7 +9231,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 30: Referral Programs & Partner Attribution
+## Chapter 29: Referral Programs & Partner Attribution
 
 **Purpose**: Track user acquisition sources, enable referral programs, and manage partner relationships.
 
@@ -8016,7 +9267,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 33: Performance & Caching
+## Chapter 36: Performance & Caching
 
 **Purpose**: Ensure the application performs well under load.
 
@@ -8036,7 +9287,7 @@ _To be filled in during chapter review._
 
 ---
 
-## Chapter 21: Communications & Automation
+## Chapter 34: Communications Infrastructure
 
 **Purpose**: Define the delivery infrastructure for transactional communications, lifecycle automation workflows, and operational outreach systems including call center integration.
 
@@ -8416,7 +9667,7 @@ CallCenterTask {
 
 ---
 
-## Chapter 26: Data Acquisition & Enrichment
+## Chapter 25: Data Acquisition & Enrichment
 
 **Purpose**: Define the four-phase strategy for building and scaling the provider directory, from demo through 500K+ providers.
 
@@ -8729,119 +9980,227 @@ Provider State Model:
 
 ---
 
-## Chapter 38: Legal & Regulatory Compliance
+## Chapter 38: Third-Party Services & Integrations
 
-> 🆕 **New Placeholder** — Structure approved, content to be developed.
+> 🆕 **New Chapter** — Structure approved, content to be developed.
 
-**Purpose**: Document legal requirements, regulatory compliance frameworks, and platform policies that govern Olera's operations.
+**Purpose**: Document all third-party services, external APIs, and vendor integrations used across the platform.
 
 ### Scope
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 38.1 Terms of Service | 🆕 | User agreement structure |
-| 38.2 Privacy Policy | 🆕 | Data handling disclosures |
-| 38.3 HIPAA Considerations | 🆕 | Healthcare data if applicable |
-| 38.4 State Licensing Implications | 🆕 | By-state regulatory landscape |
-| 38.5 Data Retention Policies | 🆕 | How long we keep what |
-| 38.6 Data Deletion Procedures | 🆕 | GDPR/CCPA compliance |
-| 38.7 Third-Party Data Usage | 🆕 | Provider data sourcing rules |
-| 38.8 Liability Framework | 🆕 | Platform vs. provider liability |
-| 38.9 Indemnification Structure | 🆕 | Risk allocation |
-| 38.10 Insurance Requirements | 🆕 | Platform insurance needs |
+| Section | Status | Notes |
+|---------|--------|-------|
+| 38.1 Service Inventory | 🆕 | Complete list of all external services |
+| 38.2 API Integrations | 🆕 | External API connections |
+| 38.3 Vendor Management | 🆕 | Vendor relationships, contracts, SLAs |
 
-### Key Questions
+### 38.1 Service Inventory
 
-- [ ] Do we need HIPAA compliance for any data we collect?
-- [ ] What state-specific regulations apply to care marketplaces?
-- [ ] How do we handle provider data from public sources legally?
-- [ ] What disclaimers are needed for provider information?
+| Service | Purpose | Status |
+|---------|---------|--------|
+| **Vercel** | Hosting, deployment | ✅ Active |
+| **Neon** | PostgreSQL database | ✅ Active |
+| **Resend** | Email delivery | ✅ Active |
+| **Vercel Blob** | File storage | ✅ Active |
+| **Stripe** | Payment processing | ⬜ Future |
+| **Twilio** | SMS delivery | ⬜ Future |
 
-### Architectural Notes
+_Complete service inventory to be documented._
 
-_To be developed with legal counsel. This chapter will serve as the compliance reference for all platform operations._
+### 38.2 API Integrations
+
+**Current Integrations**:
+- Resend API (email delivery)
+- Vercel Blob API (file storage)
+
+**Planned Integrations**:
+- Stripe API (payments)
+- Twilio API (SMS)
+- Analytics providers
+
+_Integration details to be documented._
+
+### 38.3 Vendor Management
+
+**Vendor Evaluation Criteria**:
+- Reliability and uptime SLAs
+- Data handling and privacy compliance
+- Cost and scalability
+- Developer experience
+
+_Vendor management procedures to be documented._
+
+---
+
+## Chapter 39: Legal Framework Overview
+
+> 🆕 **Comprehensive Legal Framework** — Structure approved, content to be developed with legal counsel.
+
+**Purpose**: Serve as the legal backbone of the platform, documenting all legal requirements, regulatory compliance frameworks, policies, and procedures that govern Olera's operations.
+
+### Chapter Structure
+
+| Section | Description | Status |
+|---------|-------------|--------|
+| **39.1 Core Legal & Policy Documents** | User-facing legal documents | 🆕 |
+| **39.2 Compliance, Moderation & Enforcement** | Internal policies and SOPs | 🆕 |
+| **39.3 Data Governance & User Rights** | Data handling policies | 🆕 |
+
+---
+
+### 39.1 Core Legal & Policy Documents
+
+> These are user-facing legal documents that govern the relationship between Olera and its users.
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| **39.1.1 Terms of Use (Care Seekers)** | User agreement for families | 🆕 |
+| **39.1.2 Terms of Use (Providers)** | User agreement for providers | 🆕 |
+| **39.1.3 Privacy Notice** | Data collection and usage disclosures | 🆕 |
+| **39.1.4 Cookie & Tracking Policy** | Cookie usage and tracking disclosure | 🆕 |
+| **39.1.5 Review Policy** | Guidelines for reviews and ratings | 🆕 |
+| **39.1.6 Advertising & Endorsement Disclosure Policy** | FTC compliance for paid content | 🆕 |
+| **39.1.7 Accessibility & Anti-Discrimination Statement** | ADA compliance, fair housing | 🆕 |
+| **39.1.8 Medical & Emergency Disclaimer** | Liability limitations for medical advice | 🆕 |
+| **39.1.9 AI Disclosure Statement** | Transparency about AI usage | 🆕 |
+| **39.1.10 No-PHI Warning Prompt** | HIPAA compliance messaging | 🆕 |
+| **39.1.11 Featured Badge Tooltip** | Explanation of paid/featured badges | 🆕 |
+| **39.1.12 How Listings & Rankings Work** | Transparency about search ranking | 🆕 |
+| **39.1.13 Olera Score Methodology** | How trust scores are calculated | 🆕 |
+
+---
+
+### 39.2 Compliance, Moderation & Enforcement
+
+> Internal policies and standard operating procedures for maintaining platform integrity.
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| **39.2.1 DMCA & Trademark Policy** | Copyright and trademark compliance | 🆕 |
+| **39.2.2 Takedown Request Process** | Procedure for content removal requests | 🆕 |
+| **39.2.3 Provider Verification SOP** | How providers are verified | 🆕 |
+| **39.2.4 User Content Moderation SOP** | How UGC is moderated | 🆕 |
+| **39.2.5 Defamation / Legal Escalation SOP** | Handling legal threats and claims | 🆕 |
+| **39.2.6 Incident Response Plan (IRP)** | Security and data breach procedures | 🆕 |
+| **39.2.7 Accessibility Audit & Response SOP** | ADA compliance procedures | 🆕 |
+| **39.2.8 Privacy Impact Assessment Template** | PIA for new features | 🆕 |
+
+---
+
+### 39.3 Data Governance & User Rights
+
+> Policies governing data retention, deletion, and user rights.
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| **39.3.1 Data Retention & Deletion Policy** | How long data is kept | 🆕 |
+| **39.3.2 Data Export & Portability** | User data export procedures | 🆕 |
+| **39.3.3 Inquiry Form Consent Text** | Consent language for contact forms | 🆕 |
+| **39.3.4 Premium Subscription Terms** | Auto-renewal agreement | 🆕 |
+
+---
 
 ### Regulatory Landscape Overview
 
 | Regulation | Applicability | Notes |
 |------------|---------------|-------|
-| GDPR | EU users (if any) | Data subject rights |
-| CCPA | California users | Consumer privacy rights |
-| HIPAA | TBD | May not apply if no PHI |
-| State Licensing | Various | Care provider licensing varies by state |
-| FTC Act | All users | Truth in advertising, unfair practices |
+| **Section 230** | Platform liability protection | Core to marketplace model |
+| **DMCA** | Copyright safe harbor | Requires proper procedures |
+| **GDPR** | EU users (if any) | Data subject rights |
+| **CCPA/CPRA** | California users | Consumer privacy rights |
+| **HIPAA** | TBD | May not apply if no PHI collected |
+| **ADA/WCAG** | All users | Accessibility requirements |
+| **State Licensing** | Various | Care provider licensing varies by state |
+| **FTC Act** | All users | Truth in advertising, unfair practices |
 
-### Legal Document Requirements
+### Key Legal Principles
 
-1. **Terms of Service** — User agreement for platform use
-2. **Privacy Policy** — Data collection and usage disclosures
-3. **Provider Terms** — Additional terms for provider accounts
-4. **Review Guidelines** — What's allowed in reviews (linked from Ch 23)
-5. **Content Policy** — Acceptable use standards
+| Principle | Implementation |
+|-----------|----------------|
+| **User Rights** | Clear disclosure of rights and obligations |
+| **Liability Limitations** | Appropriate disclaimers throughout platform |
+| **Moderation Authority** | Clear policies on content removal and appeals |
+| **Transparency** | Open explanation of rankings, AI use, paid features |
+| **Compliance** | Adherence to Section 230, DMCA, accessibility laws, privacy regulations |
+
+---
+
+### 39.4 Transparency Hub Pages (DECIDED)
+
+**Purpose**: Public-facing pages explaining how Olera works, building trust through transparency about platform mechanics.
+
+**URL Structure**: `/how-olera-works/`
+
+**Hub Pages**:
+
+| Page | URL | Purpose |
+|------|-----|---------|
+| **Overview** | `/how-olera-works/` | Platform mission, mechanics summary, links to detail pages |
+| **How Listings Work** | `/how-olera-works/listings/` | Claimed vs unclaimed providers, data sources, verification |
+| **How Scores Work** | `/how-olera-works/scores/` | Trust score methodology, data sources, calculation factors |
+| **How Reviews Work** | `/how-olera-works/reviews/` | Review collection, verification, moderation policies |
+| **How Requests Work** | `/how-olera-works/requests/` | Information request routing, provider matching, response times |
+
+#### Overview Page Content
+
+| Section | Content |
+|---------|---------|
+| **Hero** | "How Olera Works" + mission statement |
+| **Quick Links** | Cards linking to each detail page |
+| **Trust Commitment** | Statement on transparency and user protection |
+| **Contact** | Link to support for questions |
+
+#### How Listings Work
+
+| Section | Content |
+|---------|---------|
+| **Data Sources** | Where provider information comes from |
+| **Unclaimed Listings** | What unclaimed means, how providers can claim |
+| **Claimed Listings** | Benefits of claimed status, verification |
+| **Updating Information** | How providers update their listings |
+| **Accuracy Commitment** | How we maintain data quality |
+
+#### How Scores Work
+
+| Section | Content |
+|---------|---------|
+| **What the Score Represents** | Overall trust/quality indicator |
+| **Score Components** | Reviews, verification status, response rates, etc. |
+| **How Scores Are Calculated** | Transparent methodology (without gaming details) |
+| **Score Updates** | How often, what triggers changes |
+| **Score Limitations** | What the score doesn't measure |
+
+#### How Reviews Work
+
+| Section | Content |
+|---------|---------|
+| **Who Can Review** | Verification requirements |
+| **Review Collection** | How we solicit and collect reviews |
+| **Review Moderation** | What's allowed, what's removed |
+| **Provider Responses** | How providers can respond |
+| **Fake Review Prevention** | Detection and removal processes |
+
+#### How Requests Work
+
+| Section | Content |
+|---------|---------|
+| **What Happens When You Submit** | Step-by-step process |
+| **Provider Notification** | How providers receive requests |
+| **Response Expectations** | Typical response times |
+| **Privacy Protections** | What information is shared |
+| **If You Don't Hear Back** | What to do, alternatives |
+
+**Footer Placement**: "How Olera Works" link in Company section and Legal & Trust section.
+
+**SEO Value**: Trust and transparency signals for users researching platform credibility.
+
+**Cross-Reference**: See Chapter 28: Marketing & SEO Pages for navigation integration.
 
 ---
 
 ## Future Directions
 
 > ⭐ **Strategic Concepts for Future Phases** — These sections outline long-term possibilities that are explicitly **not** part of the current demo or build scope. They are included to demonstrate forward thinking and establish placeholders for future strategic decisions.
-
----
-
-### Future: Transaction Hosting Platform
-
-> ⭐ **Future Direction** — Not in current scope
-
-**Concept**: Enable payments and financial transactions between families and providers after they connect through Olera.
-
-**Potential Scope**:
-- Payment processing integration (Stripe Connect, etc.)
-- Escrow and transaction guarantees
-- Invoicing and receipt generation
-- Refund and dispute handling
-- Tax documentation (1099s for providers)
-- Care cost tracking and reporting
-
-**Why Deferred**:
-- Requires significant regulatory review (money transmission laws)
-- Adds liability and compliance complexity
-- Market validation needed to confirm demand
-- Current focus is marketplace/discovery, not transactions
-
-**Prerequisites Before Consideration**:
-- Demonstrated user demand for in-platform payments
-- Legal review of money transmission requirements by state
-- Insurance and liability framework established
-- Operational capacity to handle payment disputes
-
----
-
-### Future: Caregiver Workforce & Direct Staffing Model
-
-> ⭐ **Future Direction** — Not in current scope
-
-**Concept**: Potential future pivot where Olera directly employs, manages, schedules, and dispatches caregivers rather than operating purely as a marketplace.
-
-**Potential Scope**:
-- Direct caregiver employment model
-- Scheduling and dispatch systems
-- Payroll and benefits administration
-- Training and certification programs
-- Quality assurance and supervision
-- Background check management
-- Performance tracking and reviews
-
-**Why Deferred**:
-- Fundamentally different business model than marketplace
-- Significant operational complexity and overhead
-- Employment law and liability considerations
-- Capital intensive (payroll, benefits, insurance)
-- Different unit economics than marketplace model
-
-**Strategic Rationale for Inclusion**:
-- Demonstrates awareness of vertical integration option
-- Shows long-term strategic thinking beyond current scope
-- Acknowledges market where competitors have taken this approach
-- Preserves optionality for future strategic decisions
 
 ---
 
@@ -8901,6 +10260,64 @@ _To be developed with legal counsel. This chapter will serve as the compliance r
 - Partnership evaluation with benefits data providers
 - Voice AI vendor assessment and selection
 - Data licensing and compliance framework established
+
+---
+
+### Future: Caregiver Workforce & Direct Staffing Model
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: Potential future pivot where Olera directly employs, manages, schedules, and dispatches caregivers rather than operating purely as a marketplace.
+
+**Potential Scope**:
+- Direct caregiver employment model
+- Scheduling and dispatch systems
+- Payroll and benefits administration
+- Training and certification programs
+- Quality assurance and supervision
+- Background check management
+- Performance tracking and reviews
+
+**Why Deferred**:
+- Fundamentally different business model than marketplace
+- Significant operational complexity and overhead
+- Employment law and liability considerations
+- Capital intensive (payroll, benefits, insurance)
+- Different unit economics than marketplace model
+
+**Strategic Rationale for Inclusion**:
+- Demonstrates awareness of vertical integration option
+- Shows long-term strategic thinking beyond current scope
+- Acknowledges market where competitors have taken this approach
+- Preserves optionality for future strategic decisions
+
+---
+
+### Future: Transaction Hosting Platform
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: Enable payments and financial transactions between families and providers after they connect through Olera.
+
+**Potential Scope**:
+- Payment processing integration (Stripe Connect, etc.)
+- Escrow and transaction guarantees
+- Invoicing and receipt generation
+- Refund and dispute handling
+- Tax documentation (1099s for providers)
+- Care cost tracking and reporting
+
+**Why Deferred**:
+- Requires significant regulatory review (money transmission laws)
+- Adds liability and compliance complexity
+- Market validation needed to confirm demand
+- Current focus is marketplace/discovery, not transactions
+
+**Prerequisites Before Consideration**:
+- Demonstrated user demand for in-platform payments
+- Legal review of money transmission requirements by state
+- Insurance and liability framework established
+- Operational capacity to handle payment disputes
 
 ---
 
