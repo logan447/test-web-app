@@ -32,8 +32,8 @@
 
 | Status | Count | Chapters |
 |--------|-------|----------|
-| ✅ Reviewed | 33 | 1–26, 28, 29, 30, 33, 37, 38, 39 |
-| ⏳ Pending | 2 | 35, 36 |
+| ✅ Reviewed | 34 | 1–26, 28, 29, 30, 33, 35, 37, 38, 39 |
+| ⏳ Pending | 1 | 36 |
 | 🆕 Placeholder/New | 4 | 27, 31, 32, 34 |
 | **Total** | **39** | |
 
@@ -41,8 +41,7 @@
 
 | Priority | Ch | Title | Current Status |
 |----------|-----|-------|----------------|
-| 1 | 35 | Error Handling & Monitoring | ⏳ Pending |
-| 2 | 36 | Performance & Caching | ⏳ Pending |
+| 1 | 36 | Performance & Caching | ⏳ Pending |
 
 ### Chapters Requiring Content Development
 
@@ -194,11 +193,14 @@
 | | 34.2 SMS System (Future) | |
 | | 34.3 Push Notifications (Future) | |
 | | 34.4 Template Management | |
-| 35 | [Error Handling & Monitoring](#chapter-35-error-handling--monitoring) | ⏳ Pending |
-| | 35.1 Error Boundaries & Handling | |
-| | 35.2 Logging Infrastructure | |
-| | 35.3 Monitoring & Alerting | |
-| | 35.4 Incident Response | |
+| 35 | [Error Handling & Monitoring](#chapter-35-error-handling--monitoring) | ✅ Reviewed |
+| | 35.1 Error Handling Architecture | |
+| | 35.2 Frontend Error States | |
+| | 35.3 API Error Handling | |
+| | 35.4 Error Logging | |
+| | 35.5 Monitoring & Alerting | |
+| | 35.6 Admin System Integration | |
+| | 35.7 Error Recovery Patterns | |
 | 36 | [Performance & Caching](#chapter-36-performance--caching) | ⏳ Pending |
 | | 36.1 Caching Strategy | |
 | | 36.2 Database Optimization | |
@@ -277,10 +279,9 @@
 - Ch 31: Application Architecture & Tech Stack (New)
 - Ch 32: Hosting, Deployment & CI/CD (New)
 - Ch 34: Communications Infrastructure (New)
-- Ch 35: Error Handling & Monitoring (Pending)
 - Ch 36: Performance & Caching (Pending)
 
-**Recently Completed**: Chapter 33 (File Uploads & Media) - Reviewed ✅
+**Recently Completed**: Chapter 35 (Error Handling & Monitoring) - Reviewed ✅
 
 ---
 
@@ -10616,22 +10617,436 @@ Takedown requests are **not** accepted for:
 
 ## Chapter 35: Error Handling & Monitoring
 
-**Purpose**: Ensure application stability and enable debugging.
+**Review Status**: ✅ Reviewed
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 35.1 Global Error Boundaries (React) | 🟡 | May need verification |
-| 35.2 API Error Responses (consistent format) | 🟡 | Standardization needed |
-| 35.3 Error Logging (Sentry, etc.) | ⬜ | Third-party integration |
-| 35.4 Uptime Monitoring | ⬜ | External service |
-| 35.5 Loading States | 🟡 | Components exist |
-| 35.6 Empty States | 🟡 | May need improvement |
+**Purpose**: Define the error handling architecture, user-facing error states, API error formats, monitoring infrastructure, and debugging capabilities for the Olera platform.
 
-### Key Questions
-- [ ] Error handling audit for demo stability?
+> **Cross-References**:
+> - Chapter 26 (Admin System): Admin visibility into system errors
+> - Chapter 30 (Customer Support): Error-triggered support flows
+> - Chapter 33 (File Uploads & Media): Upload error handling
+> - Chapter 36 (Performance & Caching): Performance monitoring overlap
+> - Chapter 37 (Analytics & Audit Logging): Error logging as audit events
+> - Chapter 38 (Third-Party Services): Sentry, monitoring tools
 
-### Architectural Notes
-_To be filled in during chapter review._
+---
+
+### 35.1 Error Handling Architecture
+
+**Layered Error Handling**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           ERROR HANDLING LAYERS                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  Layer 1: Component Level                                               │
+│  ├── Try/catch in event handlers                                        │
+│  ├── Form validation errors (inline)                                    │
+│  └── API call error handling (per-component)                            │
+│                                                                         │
+│  Layer 2: Route Level                                                   │
+│  ├── error.tsx — Catches unhandled errors in route segment              │
+│  ├── not-found.tsx — 404 page                                           │
+│  └── loading.tsx — Route loading states (optional)                      │
+│                                                                         │
+│  Layer 3: Application Level                                             │
+│  ├── Global error boundary (app/error.tsx)                              │
+│  └── Root layout error handling                                         │
+│                                                                         │
+│  Layer 4: Server Level                                                  │
+│  ├── API route error responses                                          │
+│  ├── Server action error handling                                       │
+│  └── Middleware error handling                                          │
+│                                                                         │
+│  Layer 5: Infrastructure Level                                          │
+│  ├── Vercel error logs                                                  │
+│  ├── Sentry integration (Production)                                    │
+│  └── Uptime monitoring (Production)                                     │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+| Layer | Demo | Production |
+|-------|------|------------|
+| Component-level handling | ✅ | ✅ |
+| Route-level error.tsx | ✅ Built | ✅ |
+| Global error boundary | ✅ Built | ✅ |
+| API error responses | ✅ Built | ✅ |
+| Sentry integration | ⬜ Defer | ✅ |
+| Uptime monitoring | ⬜ Defer | ✅ |
+
+---
+
+### 35.2 Frontend Error States
+
+#### 35.2.1 Global Error Boundary
+
+**Location**: `app/error.tsx`
+
+**Current Implementation** (verified):
+- Displays user-friendly error message
+- Provides "Try again" (reset) and "Go home" actions
+- Shows error details in development mode only
+- Logs errors to console
+
+**User-Facing Message**:
+> "Something went wrong. We encountered an unexpected error. Please try again or contact support if the problem persists."
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| User-friendly error page | ✅ Built | ✅ |
+| Reset/retry action | ✅ Built | ✅ |
+| Navigation to home | ✅ Built | ✅ |
+| Dev-only error details | ✅ Built | ✅ |
+| Error reporting to Sentry | ⬜ Defer | ✅ |
+
+#### 35.2.2 Not Found (404) Page
+
+**Location**: `app/not-found.tsx`
+
+**Required Elements**:
+- Clear "Page not found" message
+- Navigation options (home, search, back)
+- Consistent with brand styling
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Custom 404 page | ✅ Required | ✅ |
+| Navigation links | ✅ Required | ✅ |
+| Search suggestion | ⬜ Optional | ✅ |
+
+#### 35.2.3 Loading States
+
+**Strategy**: Component-level loading states (not route-level loading.tsx)
+
+**Patterns**:
+
+| Context | Loading Pattern | Example |
+|---------|-----------------|---------|
+| Page initial load | Skeleton screens | Dashboard cards |
+| Data fetching | Spinner + text | "Loading providers..." |
+| Button action | Button spinner | "Saving..." |
+| Image loading | Blur placeholder | Provider photos |
+| Infinite scroll | Bottom spinner | Search results |
+
+**Standard Loading Component**:
+```tsx
+// Spinner with optional message
+<LoadingSpinner message="Loading..." />
+
+// Skeleton for cards
+<CardSkeleton count={3} />
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Spinner component | ✅ | ✅ |
+| Skeleton components | 🟡 Partial | ✅ |
+| Button loading states | ✅ | ✅ |
+| Image placeholders | ✅ (Next/Image) | ✅ |
+
+#### 35.2.4 Empty States
+
+**When to Show**: No data to display (empty lists, no results, no activity)
+
+**Required Elements**:
+- Descriptive message explaining the empty state
+- Illustration or icon (optional)
+- Call-to-action when applicable
+
+**Examples**:
+
+| Context | Message | CTA |
+|---------|---------|-----|
+| No saved providers | "You haven't saved any providers yet" | "Browse providers" |
+| No search results | "No providers match your search" | "Clear filters" |
+| No messages | "No messages yet" | "Find a provider" |
+| No notifications | "You're all caught up!" | None needed |
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Empty state messages | 🟡 Partial | ✅ |
+| Empty state illustrations | ⬜ Optional | ✅ |
+| Contextual CTAs | 🟡 Partial | ✅ |
+
+---
+
+### 35.3 API Error Handling
+
+#### 35.3.1 Standard Error Response Format
+
+**Format**:
+```typescript
+// Error response
+{
+  "error": "Human-readable error message"
+}
+
+// With optional error code (for programmatic handling)
+{
+  "error": "Email already registered",
+  "code": "EMAIL_EXISTS"
+}
+```
+
+**HTTP Status Codes**:
+
+| Code | Meaning | When to Use |
+|------|---------|-------------|
+| 400 | Bad Request | Invalid input, validation errors |
+| 401 | Unauthorized | Not logged in, session expired |
+| 403 | Forbidden | Logged in but not permitted |
+| 404 | Not Found | Resource doesn't exist |
+| 409 | Conflict | Duplicate resource, state conflict |
+| 422 | Unprocessable | Valid format but business rule violation |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Error | Unexpected server error |
+
+#### 35.3.2 API Error Handling Pattern
+
+**Standard Pattern** (for all API routes):
+```typescript
+export async function POST(request: Request) {
+  try {
+    // 1. Authentication check
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // 2. Input validation
+    const body = await request.json();
+    if (!body.requiredField) {
+      return NextResponse.json(
+        { error: "Required field missing" },
+        { status: 400 }
+      );
+    }
+
+    // 3. Business logic
+    const result = await performAction(body);
+
+    // 4. Success response
+    return NextResponse.json(result);
+
+  } catch (error) {
+    // 5. Error logging
+    console.error("API error:", error);
+
+    // 6. Generic error response (don't leak internals)
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+#### 35.3.3 Client-Side Error Handling
+
+**Pattern for API Calls**:
+```typescript
+async function fetchData() {
+  try {
+    const response = await fetch('/api/endpoint');
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Request failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    // Show user-friendly toast/alert
+    toast.error(error.message || 'Something went wrong');
+    throw error; // Re-throw for component handling
+  }
+}
+```
+
+---
+
+### 35.4 Error Logging
+
+#### 35.4.1 Demo Scope
+
+**Logging Strategy**: Console + Vercel Logs
+
+| Log Type | Method | Visibility |
+|----------|--------|------------|
+| Client errors | `console.error()` | Browser DevTools |
+| API errors | `console.error()` | Vercel Function Logs |
+| Unhandled exceptions | Automatic | Vercel Error Logs |
+
+**Accessing Logs**:
+1. Vercel Dashboard → Project → Logs
+2. Filter by: Function logs, Edge logs, Build logs
+3. Search by timestamp or error message
+
+#### 35.4.2 Production Scope
+
+**Logging Strategy**: Sentry + Vercel Logs
+
+**Sentry Integration**:
+```typescript
+// lib/sentry.ts
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 0.1, // 10% of transactions
+  beforeSend(event) {
+    // Scrub sensitive data
+    return event;
+  },
+});
+```
+
+**What to Log**:
+
+| Event | Severity | Demo | Production |
+|-------|----------|------|------------|
+| Unhandled exceptions | Error | Console | Sentry |
+| API 5xx errors | Error | Console | Sentry |
+| API 4xx errors | Warning | Console | Sentry (sampled) |
+| Auth failures | Warning | Console | Sentry |
+| Validation errors | Info | Console only | Console only |
+| Performance issues | Warning | None | Sentry |
+
+---
+
+### 35.5 Monitoring & Alerting
+
+#### 35.5.1 Demo Scope
+
+**Monitoring**: Vercel Dashboard only
+
+| Metric | Source | Demo | Production |
+|--------|--------|------|------------|
+| Deployment status | Vercel | ✅ | ✅ |
+| Function invocations | Vercel Analytics | ✅ | ✅ |
+| Error count (basic) | Vercel Logs | ✅ | ✅ |
+| Response times | Vercel Analytics | ✅ | ✅ |
+
+#### 35.5.2 Production Scope
+
+**Monitoring Stack**:
+
+| Tool | Purpose |
+|------|---------|
+| **Sentry** | Error tracking, performance monitoring |
+| **Vercel Analytics** | Traffic, performance, Web Vitals |
+| **Better Uptime** (or similar) | Uptime monitoring, status page |
+
+**Alerting Thresholds**:
+
+| Metric | Threshold | Alert Channel |
+|--------|-----------|---------------|
+| Error rate | >1% of requests | Slack |
+| Unhandled exception | Any | Slack + Email |
+| API response time | >2s p95 | Slack |
+| Uptime | <99.5% | Email + SMS |
+| Memory/CPU spike | >80% | Slack |
+
+---
+
+### 35.6 Admin System Integration
+
+#### 35.6.1 Error Visibility for Admins
+
+**Demo Scope**: No admin error dashboard. Errors visible via:
+1. Vercel Dashboard (requires Vercel access)
+2. Console logs in browser DevTools (for client errors)
+
+**Production Scope**: Admin > System Health
+
+**Admin Panel Wireframe**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Admin > System Health                                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│ │ Uptime      │  │ Error Rate  │  │ Avg Response│  │ Active Users│     │
+│ │ 99.9%       │  │ 0.3%        │  │ 245ms       │  │ 127         │     │
+│ └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Recent Errors (last 24h)                                    [View All] │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Time       │ Type      │ Message              │ Count │ Status        │
+├────────────┼───────────┼──────────────────────┼───────┼───────────────┤
+│ 10:32 AM   │ API Error │ Database timeout     │ 3     │ 🔴 Unresolved │
+├────────────┼───────────┼──────────────────────┼───────┼───────────────┤
+│ 09:15 AM   │ Client    │ ChunkLoadError       │ 12    │ 🟡 Monitoring │
+├────────────┼───────────┼──────────────────────┼───────┼───────────────┤
+│ Yesterday  │ API Error │ Rate limit exceeded  │ 45    │ 🟢 Resolved   │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| System health dashboard | ⬜ Defer | ✅ |
+| Recent errors list | ⬜ Defer | ✅ |
+| Error drill-down (Sentry link) | ⬜ Defer | ✅ |
+| Uptime indicator | ⬜ Defer | ✅ |
+
+#### 35.6.2 Error-to-Support Flow
+
+When users encounter errors:
+1. Error page shows "Contact support" link
+2. Link pre-fills support form with error context (if possible)
+3. Support team can reference error ID in Sentry (Production)
+
+> **Cross-Reference**: See Chapter 30 (Customer Support) for support form handling.
+
+#### 35.6.3 Audit Logging for Errors
+
+> **Cross-Reference**: Chapter 37 (Analytics & Audit Logging)
+
+| Error Event | Logged | Demo | Production |
+|-------------|--------|------|------------|
+| API 5xx errors | ✅ | ⬜ | ✅ |
+| Authentication failures | ✅ | ⬜ | ✅ |
+| Rate limit violations | ✅ | ⬜ | ✅ |
+| Admin override actions | ✅ | ⬜ | ✅ |
+
+---
+
+### 35.7 Error Recovery Patterns
+
+#### 35.7.1 Retry Logic
+
+**When to Retry**: Network errors, transient failures, rate limits (with backoff)
+
+**Pattern**:
+```typescript
+async function fetchWithRetry(url: string, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) return response.json();
+      if (response.status !== 429 && response.status < 500) throw new Error();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await sleep(Math.pow(2, i) * 1000); // Exponential backoff
+    }
+  }
+}
+```
+
+#### 35.7.2 Graceful Degradation
+
+| Failure | Degradation Strategy |
+|---------|---------------------|
+| Image load fails | Show placeholder/fallback image |
+| API timeout | Show cached data if available, else error state |
+| Feature unavailable | Hide feature, don't break page |
+| Third-party down | Show "temporarily unavailable" for that feature |
 
 ---
 
