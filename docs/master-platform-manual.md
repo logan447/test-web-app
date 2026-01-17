@@ -32,28 +32,18 @@
 
 | Status | Count | Chapters |
 |--------|-------|----------|
-| ✅ Reviewed | 31 | 1–26, 28, 29, 37, 38, 39 |
-| ⏳ Pending | 4 | 30, 33, 35, 36 |
-| 🆕 Placeholder/New | 4 | 27, 31, 32, 34 |
+| ✅ Reviewed | 39 | 1–39 (all chapters) |
+| ⏳ Pending | 0 | — |
+| 🆕 Placeholder/New | 0 | — |
 | **Total** | **39** | |
 
 ### Remaining Chapters to Review
 
-| Priority | Ch | Title | Current Status |
-|----------|-----|-------|----------------|
-| 1 | 30 | Help Center & Support | ⏳ Pending |
-| 2 | 33 | File Uploads & Media | ⏳ Pending |
-| 3 | 35 | Error Handling & Monitoring | ⏳ Pending |
-| 4 | 36 | Performance & Caching | ⏳ Pending |
+All originally pending chapters have been reviewed. ✅
 
 ### Chapters Requiring Content Development
 
-| Ch | Title | Current Status |
-|----|-------|----------------|
-| 27 | Human Workflows & Standard Operating Procedures | 🆕 Placeholder |
-| 31 | Application Architecture & Tech Stack | 🆕 New |
-| 32 | Hosting, Deployment & CI/CD | 🆕 New |
-| 34 | Communications Infrastructure | 🆕 New |
+All chapters have been reviewed and developed. ✅
 
 ---
 
@@ -149,7 +139,23 @@
 | Ch | Title | Review Status |
 |----|-------|---------------|
 | 26 | [Admin System](#chapter-26-admin-system) | ✅ Reviewed |
-| 27 | [Human Workflows & Standard Operating Procedures](#chapter-27-human-workflows--standard-operating-procedures) | 🆕 Placeholder |
+| 27 | [Human Workflows & Standard Operating Procedures](#chapter-27-human-workflows--standard-operating-procedures) | ✅ Reviewed |
+| | 27.1 Operating Philosophy | |
+| | 27.2 Daily Operations Checklist | |
+| | 27.3 Provider Claim Verification | |
+| | 27.4 Review Moderation | |
+| | 27.5 Takedown & Legal Requests | |
+| | 27.6 User Management | |
+| | 27.7 Provider Listing Management | |
+| | 27.8 Support Ticket Management | |
+| | 27.9 Error & Incident Response | |
+| | 27.10 Attribution & Referral Management | |
+| | 27.11 Audit Log Usage | |
+| | 27.12 SLA Summary | |
+| | 27.13 Escalation Matrix | |
+| | 27.14 Admin Onboarding Checklist | |
+| | 27.15 Demo vs Production Scope | |
+| | 27.16 Quick Reference Card | |
 
 ### Part XI: Marketing & Growth
 *User acquisition, SEO, and referral programs*
@@ -164,42 +170,68 @@
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 30 | [Help Center & Support](#chapter-30-help-center--support) | ⏳ Pending |
+| 30 | [Customer Support](#chapter-30-customer-support) | ✅ Reviewed |
 
 ### Part XIII: Tech Stack & Infrastructure
 *Complete technical foundation enabling the platform end-to-end — single source of truth for all technology*
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 31 | [Application Architecture & Tech Stack](#chapter-31-application-architecture--tech-stack) | 🆕 New |
-| | 31.1 Frontend Architecture (Next.js, React) | |
-| | 31.2 Backend Architecture (API Routes, Services) | |
-| | 31.3 Database Layer (PostgreSQL, Prisma) | |
-| | 31.4 Authentication Infrastructure | |
-| 32 | [Hosting, Deployment & CI/CD](#chapter-32-hosting-deployment--cicd) | 🆕 New |
-| | 32.1 Hosting Environment (Vercel) | |
+| 31 | [Application Architecture & Tech Stack](#chapter-31-application-architecture--tech-stack) | ✅ Reviewed |
+| | 31.1 Technology Stack Overview | |
+| | 31.2 Frontend Architecture | |
+| | 31.3 Backend Architecture | |
+| | 31.4 Database Layer | |
+| | 31.5 Authentication Infrastructure | |
+| | 31.6 Directory Structure | |
+| | 31.7 Environment Variables | |
+| 32 | [Hosting, Deployment & CI/CD](#chapter-32-hosting-deployment--cicd) | ✅ Reviewed |
+| | 32.1 Hosting Environment | |
 | | 32.2 Deployment Pipeline | |
 | | 32.3 Environment Management | |
-| | 32.4 Release Process | |
-| 33 | [File Uploads & Media](#chapter-33-file-uploads--media) | ⏳ Pending |
-| | 33.1 Upload Infrastructure | |
-| | 33.2 Storage (Vercel Blob) | |
-| | 33.3 Image Optimization | |
-| 34 | [Communications Infrastructure](#chapter-34-communications-infrastructure) | 🆕 New |
-| | 34.1 Email System (Resend) | |
-| | 34.2 SMS System (Future) | |
-| | 34.3 Push Notifications (Future) | |
-| | 34.4 Template Management | |
-| 35 | [Error Handling & Monitoring](#chapter-35-error-handling--monitoring) | ⏳ Pending |
-| | 35.1 Error Boundaries & Handling | |
-| | 35.2 Logging Infrastructure | |
-| | 35.3 Monitoring & Alerting | |
-| | 35.4 Incident Response | |
-| 36 | [Performance & Caching](#chapter-36-performance--caching) | ⏳ Pending |
-| | 36.1 Caching Strategy | |
+| | 32.4 Build Configuration | |
+| | 32.5 Domain & SSL | |
+| | 32.6 Monitoring & Logs | |
+| | 32.7 Rollbacks & Recovery | |
+| | 32.8 Demo vs Production Summary | |
+| 33 | [File Uploads & Media](#chapter-33-file-uploads--media) | ✅ Reviewed |
+| | 33.1 Storage Architecture | |
+| | 33.2 Image Upload API | |
+| | 33.3 Upload Use Cases | |
+| | 33.4 Image Optimization | |
+| | 33.5 File Size Limits & Quotas | |
+| | 33.6 Error Handling | |
+| | 33.7 Security Considerations | |
+| | 33.8 Database Schema | |
+| | 33.9 Admin System Integration | |
+| 34 | [Communications Infrastructure](#chapter-34-communications-infrastructure) | ✅ Reviewed |
+| | 34.1 Delivery Infrastructure (Resend, Twilio) | |
+| | 34.2 Template Architecture | |
+| | 34.3 Transactional Email Templates | |
+| | 34.4 Lifecycle Automation | |
+| | 34.5 Call Center Workflow (Production) | |
+| | 34.6 Admin-Initiated Outreach (Production) | |
+| | 34.7 Delivery Tracking | |
+| | 34.8 Implementation Status | |
+| | 34.9 Key Decisions Log | |
+| | 34.10 Cross-Chapter Integration | |
+| 35 | [Error Handling & Monitoring](#chapter-35-error-handling--monitoring) | ✅ Reviewed |
+| | 35.1 Error Handling Architecture | |
+| | 35.2 Frontend Error States | |
+| | 35.3 API Error Handling | |
+| | 35.4 Error Logging | |
+| | 35.5 Monitoring & Alerting | |
+| | 35.6 Admin System Integration | |
+| | 35.7 Error Recovery Patterns | |
+| 36 | [Performance & Caching](#chapter-36-performance--caching) | ✅ Reviewed |
+| | 36.1 Performance Strategy | |
 | | 36.2 Database Optimization | |
-| | 36.3 Frontend Performance | |
-| | 36.4 Core Web Vitals | |
+| | 36.3 Image Optimization | |
+| | 36.4 Data Caching | |
+| | 36.5 Bundle Optimization | |
+| | 36.6 Core Web Vitals | |
+| | 36.7 Admin System Integration | |
+| | 36.8 Performance Checklist | |
 | 37 | [Analytics & Audit Logging](#chapter-37-analytics--audit-logging) | ✅ Reviewed |
 | | 37.1 Demo Scope | |
 | | 37.2 Audit Log Schema | |
@@ -244,9 +276,10 @@
 
 | ID | Title | Status |
 |----|-------|--------|
-| F1 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
-| F2 | [Caregiver Workforce & Direct Staffing Model](#future-caregiver-workforce--direct-staffing-model) | ⭐ Future |
-| F3 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
+| F1 | [Mobile App Development (iOS & Android)](#future-mobile-app-development-ios--android) | ⭐ Future |
+| F2 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
+| F3 | [Caregiver Workforce & Direct Staffing Model](#future-caregiver-workforce--direct-staffing-model) | ⭐ Future |
+| F4 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
 
 ### Appendices
 
@@ -254,32 +287,6 @@
 - [Appendix B: Demo Scenarios](#appendix-b-demo-scenarios)
 - [Appendix C: Known Issues & Tech Debt](#appendix-c-known-issues--tech-debt)
 - [Appendix D: Glossary](#appendix-d-glossary)
-
----
-
-## Review Progress Summary
-
-| Metric | Count |
-|--------|-------|
-| **Total Main Chapters** | 39 |
-| **Reviewed (✅)** | 30 |
-| **Pending (⏳)** | 5 |
-| **New Chapters (🆕)** | 3 |
-| **Placeholders (🆕)** | 1 |
-| **Future Directions (⭐)** | 3 |
-
-**Remaining to Review**:
-- Ch 27: Human Workflows & SOPs (Placeholder)
-- Ch 29: Referral Programs & Partner Attribution (Pending)
-- Ch 30: Help Center & Support (Pending)
-- Ch 31: Application Architecture & Tech Stack (New)
-- Ch 32: Hosting, Deployment & CI/CD (New)
-- Ch 33: File Uploads & Media (Pending)
-- Ch 34: Communications Infrastructure (New)
-- Ch 35: Error Handling & Monitoring (Pending)
-- Ch 36: Performance & Caching (Pending)
-
-**Recently Completed**: Chapter 38 (Third-Party Services & Integrations) - Reviewed ✅
 
 ---
 
@@ -960,7 +967,7 @@ Wizard collects essential fields only. Full profile editing happens in dedicated
 | Individual Caregiver | Name, location, services offered, availability | `Provider` (type=INDEPENDENT_CAREGIVER) |
 | Provider Org | Org name, location, provider type, services | `Provider` |
 
-**Detailed field lists**: See Chapter 4 (Family) and Chapter 5 (Provider).
+**Detailed field lists**: See Chapter 6 (Family Care Profiles) and Chapter 7 (Provider Profiles).
 
 #### 3.5 Visibility Settings (DECIDED)
 
@@ -1539,15 +1546,15 @@ Accessibility is a design requirement, not an audit afterthought.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 4.1 Care Profile Creation | ✅ | `/dashboard/care-profiles` |
-| 4.2 Loved One Info (name, age, relationship) | ✅ | Fields in `FamilyProfile` |
-| 4.3 Care Needs Assessment (care level, conditions, mobility) | ✅ | Multiple fields exist |
-| 4.4 Personality & Preferences | ✅ | Extensive fields |
-| 4.5 Location & Contact Preferences | ✅ | Fields exist |
-| 4.6 Budget & Timeline | ✅ | Fields exist |
-| 4.7 Privacy/Visibility Settings | ✅ | `profileVisibility`, etc. |
-| 4.8 Profile Completion Tracking | 🟡 | May exist but unclear |
-| 4.9 Multiple Care Profiles per Account | 🟡 | Schema supports single profile per user currently |
+| 6.1 Care Profile Creation | ✅ | `/dashboard/care-profiles` |
+| 6.2 Loved One Info (name, age, relationship) | ✅ | Fields in `FamilyProfile` |
+| 6.3 Care Needs Assessment (care level, conditions, mobility) | ✅ | Multiple fields exist |
+| 6.4 Personality & Preferences | ✅ | Extensive fields |
+| 6.5 Location & Contact Preferences | ✅ | Fields exist |
+| 6.6 Budget & Timeline | ✅ | Fields exist |
+| 6.7 Privacy/Visibility Settings | ✅ | `profileVisibility`, etc. |
+| 6.8 Profile Completion Tracking | 🟡 | May exist but unclear |
+| 6.9 Multiple Care Profiles per Account | 🟡 | Schema supports single profile per user currently |
 
 ### Key Questions
 - [x] Should families be able to create multiple care profiles (e.g., for different family members)?
@@ -1556,7 +1563,7 @@ Accessibility is a design requirement, not an audit afterthought.
 
 ### Architectural Notes
 
-#### 4.1 Care Profile Location (DECIDED)
+#### 6.1 Care Profile Location (DECIDED)
 
 Care profile editing lives within the Family Dashboard (`/family/dashboard`), not as a separate page.
 
@@ -1576,24 +1583,24 @@ Care profile editing lives within the Family Dashboard (`/family/dashboard`), no
 
 **Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
-#### 4.2–4.7 Profile Field Categories (DECIDED)
+#### 6.2–6.7 Profile Field Categories (DECIDED)
 
 Current field structure accepted as-is for demo:
 
 | Category | Status | Notes |
 |----------|--------|-------|
-| 4.2 Loved One Info | ✅ Accept | Name, age, relationship, gender |
-| 4.3 Care Needs | ✅ Accept | Care level, conditions, mobility |
-| 4.4 Personality & Preferences | ✅ Accept | Hobbies, communication style |
-| 4.5 Location & Contact | ✅ Accept | Address, contact preferences |
-| 4.6 Budget & Timeline | ✅ Accept | Budget range, urgency |
-| 4.7 Visibility | ✅ Accept | Visible to providers toggle |
+| 6.2 Loved One Info | ✅ Accept | Name, age, relationship, gender |
+| 6.3 Care Needs | ✅ Accept | Care level, conditions, mobility |
+| 6.4 Personality & Preferences | ✅ Accept | Hobbies, communication style |
+| 6.5 Location & Contact | ✅ Accept | Address, contact preferences |
+| 6.6 Budget & Timeline | ✅ Accept | Budget range, urgency |
+| 6.7 Visibility | ✅ Accept | Visible to providers toggle |
 
 **Required for visibility** (per Two-Threshold Model): Name, location, care type needed.
 
 **All other fields**: Optional, improve matching quality.
 
-#### 4.8 Profile Completion Tracking (DECIDED)
+#### 6.8 Profile Completion Tracking (DECIDED)
 
 **Storage**: `FamilyProfile.completionPercentage` field in DB (not calculated on-the-fly).
 
@@ -1615,7 +1622,7 @@ Current field structure accepted as-is for demo:
 
 **Note**: Crossing visibility threshold ≈ 40% complete. Weights can be tuned later.
 
-#### 4.9 Multiple Care Profiles (DECIDED)
+#### 6.9 Multiple Care Profiles (DECIDED)
 
 > **Cross-Reference**: See Chapter 39 (Legal Framework) for data retention periods (39.3.1), data export requirements (39.3.2), and CCPA privacy rights.
 
@@ -1645,30 +1652,30 @@ Current field structure accepted as-is for demo:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 5.1 Provider Model (basic info) | ✅ | Extensive `Provider` model |
-| 5.2 Provider Types | ✅ | HOME_CARE, ASSISTED_LIVING, MEMORY_CARE, NURSING_HOME, HOSPICE, REHABILITATION, INDEPENDENT_CAREGIVER |
-| 5.3 Services Offered | ✅ | `careTypesOffered`, detailed service arrays |
-| 5.4 Location & Service Area | ✅ | address, city, state, zip, serviceRadius |
-| 5.5 Photos & Media | ✅ | photos array, coverPhoto |
-| 5.6 Licensing & Certifications | ✅ | Fields exist |
-| 5.7 Pricing Information | ✅ | Extensive pricing fields |
-| 5.8 Staff Information | ✅ | Ratios, credentials, training |
-| 5.9 Amenities & Features | ✅ | Multiple arrays |
-| 5.10 Specialty Programs | ✅ | Memory care, hospice, etc. |
-| 5.11 About / Team / Virtual Tour | ✅ | teamMembersJson, virtualTourUrl |
-| 5.12 Claimed vs Unclaimed Status | ✅ | `claimed` boolean |
-| 5.13 Profile Completion Tracking | 🟡 | `/api/dashboard/profile-completion` exists |
-| 5.14 Primary Care Type | ⬜ | Required field for canonical URL |
-| 5.15 "Looking for Work?" Section | ⬜ | Job seeker entry on provider pages |
+| 7.1 Provider Model (basic info) | ✅ | Extensive `Provider` model |
+| 7.2 Provider Types | ✅ | HOME_CARE, ASSISTED_LIVING, MEMORY_CARE, NURSING_HOME, HOSPICE, REHABILITATION, INDEPENDENT_CAREGIVER |
+| 7.3 Services Offered | ✅ | `careTypesOffered`, detailed service arrays |
+| 7.4 Location & Service Area | ✅ | address, city, state, zip, serviceRadius |
+| 7.5 Photos & Media | ✅ | photos array, coverPhoto |
+| 7.6 Licensing & Certifications | ✅ | Fields exist |
+| 7.7 Pricing Information | ✅ | Extensive pricing fields |
+| 7.8 Staff Information | ✅ | Ratios, credentials, training |
+| 7.9 Amenities & Features | ✅ | Multiple arrays |
+| 7.10 Specialty Programs | ✅ | Memory care, hospice, etc. |
+| 7.11 About / Team / Virtual Tour | ✅ | teamMembersJson, virtualTourUrl |
+| 7.12 Claimed vs Unclaimed Status | ✅ | `claimed` boolean |
+| 7.13 Profile Completion Tracking | 🟡 | `/api/dashboard/profile-completion` exists |
+| 7.14 Primary Care Type | ⬜ | Required field for canonical URL |
+| 7.15 "Looking for Work?" Section | ⬜ | Job seeker entry on provider pages |
 
 ### Key Questions
 - [x] Which fields should be required vs optional per provider type? → **See Two-Threshold Model + below**
-- [x] How should unclaimed profiles differ in display/editing? → **See 5.12 Three-Tier Model**
+- [x] How should unclaimed profiles differ in display/editing? → **See 7.12 Three-Tier Model**
 - [x] What is the minimum viable profile for each provider type? → **See Two-Threshold Model**
 
 ### Architectural Notes
 
-#### 5.1 Provider Profile Location (DECIDED)
+#### 7.1 Provider Profile Location (DECIDED)
 
 Provider profile editing lives within the Provider Dashboard (`/provider/dashboard`), not as a separate page.
 
@@ -1688,7 +1695,7 @@ Provider profile editing lives within the Provider Dashboard (`/provider/dashboa
 
 **Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
-#### 5.2 & 5.14 Provider Types and Type-Specific Fields (DECIDED)
+#### 7.2 & 7.14 Provider Types and Type-Specific Fields (DECIDED)
 
 **Provider Type Categories**:
 
@@ -1713,21 +1720,21 @@ Provider profile editing lives within the Provider Dashboard (`/provider/dashboa
 
 **Demo approach**: Accept that some fields may show for all types initially. Full conditional logic refined during UI polish phase.
 
-#### 5.3–5.11 Profile Field Categories (DECIDED)
+#### 7.3–7.11 Profile Field Categories (DECIDED)
 
 Current field structure accepted as-is for demo:
 
 | Category | Status | Notes |
 |----------|--------|-------|
-| 5.3 Services Offered | ✅ Accept | `careTypesOffered`, service arrays |
-| 5.4 Location & Service Area | ✅ Accept | Address, zip, serviceRadius |
-| 5.5 Photos & Media | ✅ Accept | photos array, coverPhoto |
-| 5.6 Licensing & Certifications | ✅ Accept | Fields exist |
-| 5.7 Pricing Information | ✅ Accept | Extensive pricing fields |
-| 5.8 Staff Information | ✅ Accept | Ratios, credentials, training |
-| 5.9 Amenities & Features | ✅ Accept | Multiple arrays |
-| 5.10 Specialty Programs | ✅ Accept | Memory care, hospice, etc. |
-| 5.11 About / Team / Virtual Tour | ✅ Accept | teamMembersJson, virtualTourUrl |
+| 7.3 Services Offered | ✅ Accept | `careTypesOffered`, service arrays |
+| 7.4 Location & Service Area | ✅ Accept | Address, zip, serviceRadius |
+| 7.5 Photos & Media | ✅ Accept | photos array, coverPhoto |
+| 7.6 Licensing & Certifications | ✅ Accept | Fields exist |
+| 7.7 Pricing Information | ✅ Accept | Extensive pricing fields |
+| 7.8 Staff Information | ✅ Accept | Ratios, credentials, training |
+| 7.9 Amenities & Features | ✅ Accept | Multiple arrays |
+| 7.10 Specialty Programs | ✅ Accept | Memory care, hospice, etc. |
+| 7.11 About / Team / Virtual Tour | ✅ Accept | teamMembersJson, virtualTourUrl |
 
 **Required for visibility** (per Two-Threshold Model):
 - Organization: Org name, location, provider type
@@ -1737,7 +1744,7 @@ Current field structure accepted as-is for demo:
 
 > **Cross-Reference**: See Chapter 39 (Legal Framework) for Terms of Service requirements (39.1.4), Provider liability language (39.2.1), and No-PHI warning implementation (39.1.8).
 
-#### 5.12 Claimed vs Unclaimed Status (DECIDED)
+#### 7.12 Claimed vs Unclaimed Status (DECIDED)
 
 **Context**: Only organizations have unclaimed profiles (seeded nationwide directory). Individual caregivers and families never have unclaimed profiles.
 
@@ -1800,7 +1807,7 @@ Current field structure accepted as-is for demo:
 - Claiming workflow details in Chapter 8
 - Subscription tiers and pricing in Chapter 18
 
-#### 5.13 Provider Profile Completion Tracking (DECIDED)
+#### 7.13 Provider Profile Completion Tracking (DECIDED)
 
 **Storage**: `Provider.completionPercentage` field in DB (not calculated on-the-fly).
 
@@ -1812,7 +1819,7 @@ Current field structure accepted as-is for demo:
 
 **Note**: Completion weights similar to family profiles — visibility threshold fields ≈ 40%, additional fields improve matching. Exact weights can be tuned later.
 
-#### 5.14 Primary Care Type Requirement (DECIDED)
+#### 7.14 Primary Care Type Requirement (DECIDED)
 
 **Purpose**: Every provider MUST have a primary care type that determines their canonical URL and primary directory placement.
 
@@ -1849,7 +1856,7 @@ Current field structure accepted as-is for demo:
 
 **Cross-Reference**: See Chapter 28: Marketing & SEO Pages for URL architecture details.
 
-#### 5.15 "Looking for Work?" Section — Job Seeker Entry (DECIDED)
+#### 7.15 "Looking for Work?" Section — Job Seeker Entry (DECIDED)
 
 **Purpose**: Provider profile pages can optionally include a section for caregiver job seekers when the provider is actively hiring.
 
@@ -1887,20 +1894,20 @@ Current field structure accepted as-is for demo:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 6.1 ProviderIdentity Model | ❌ Remove | Redundant, simplify to Provider existence |
-| 6.2 Identity Type (ORGANIZATION vs INDIVIDUAL) | ✅ | Use `Provider.providerType` instead |
-| 6.3 Onboarding Complete Flag | ❌ Remove | Use profile completion % instead |
-| 6.4 Linking to Provider Profile | ✅ | Direct User → Provider relationship |
-| 6.5 Feature Gating Logic | 🟡 | Needs implementation per three-tier model |
+| 8.1 ProviderIdentity Model | ❌ Remove | Redundant, simplify to Provider existence |
+| 8.2 Identity Type (ORGANIZATION vs INDIVIDUAL) | ✅ | Use `Provider.providerType` instead |
+| 8.3 Onboarding Complete Flag | ❌ Remove | Use profile completion % instead |
+| 8.4 Linking to Provider Profile | ✅ | Direct User → Provider relationship |
+| 8.5 Feature Gating Logic | 🟡 | Needs implementation per three-tier model |
 
 ### Key Questions
-- [x] What features are gated behind ProviderIdentity? → **See three-tier model in 5.12**
+- [x] What features are gated behind ProviderIdentity? → **See three-tier model in 7.12**
 - [x] Is this model necessary, or can gating be simplified? → **Remove ProviderIdentity, use Provider + subscription**
 - [x] How does this interact with mode system? → **Mode controls nav, gating controls actions**
 
 ### Architectural Notes
 
-#### 6.1 Remove ProviderIdentity Model (DECIDED)
+#### 8.1 Remove ProviderIdentity Model (DECIDED)
 
 **Problem**: `ProviderIdentity` creates unnecessary indirection (User → ProviderIdentity → Provider).
 
@@ -1918,7 +1925,7 @@ Current field structure accepted as-is for demo:
 3. Drop `ProviderIdentity` table from schema
 4. Update any code referencing `hasProviderIdentity`
 
-#### 6.2 Provider Type Determination (DECIDED)
+#### 8.2 Provider Type Determination (DECIDED)
 
 Provider type is determined by `Provider.providerType`:
 
@@ -1933,9 +1940,9 @@ isIndividualCaregiver(provider) = provider.providerType === 'INDEPENDENT_CAREGIV
 isOrganization(provider) = provider.providerType !== 'INDEPENDENT_CAREGIVER'
 ```
 
-#### 6.3 Three-Tier Gating Logic (DECIDED)
+#### 8.3 Three-Tier Gating Logic (DECIDED)
 
-**Cross-reference**: See Chapter 5.12 for full permissions matrix.
+**Cross-reference**: See Chapter 7.12 for full permissions matrix.
 
 **Gating checks**:
 
@@ -1956,7 +1963,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 **Note**: User-created providers (via onboarding) are automatically `claimed = true`.
 
-#### 6.4 Feature Gating Implementation (DECIDED)
+#### 8.4 Feature Gating Implementation (DECIDED)
 
 **No hard blocking** — use nudges and paywalls instead of preventing navigation.
 
@@ -1975,7 +1982,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 - "Upgrade to connect with these families"
 - Clear value proposition
 
-#### 6.5 Mode vs Gating Separation (DECIDED)
+#### 8.5 Mode vs Gating Separation (DECIDED)
 
 | Concept | What It Controls |
 |---------|------------------|
@@ -1998,18 +2005,18 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 7.1 Provider Listing Page | ✅ | `/providers` (currently redirects to `/`, will be separate) |
-| 7.2 Location-Based Search | ✅ | City/state for demo; zip+radius deferred |
-| 7.3 Filter by Provider Type | ✅ | All provider types in dropdown |
-| 7.4 Filter by Services/Specialties | ✅ | Care type dropdown exists |
-| 7.5 Filter by Price Range | ✅ | Price slider (0–15000) |
-| 7.6 Sort Options | ✅ | Sort dropdown exists |
-| 7.7 Provider Cards | ✅ | `EnhancedProviderCard` component |
-| 7.8 Provider Detail Page | ✅ | `/providers/[id]` with full sections |
-| 7.9 Map View | ✅ | Leaflet integration, list/map toggle |
-| 7.10 "Near Me" Geolocation | ❌ | Deferred for demo |
-| 7.11 City/State SEO Pages | ❌ | Deferred for demo |
-| 7.12 Search Results Caching | ❌ | Deferred for demo |
+| 9.1 Provider Listing Page | ✅ | `/providers` (currently redirects to `/`, will be separate) |
+| 9.2 Location-Based Search | ✅ | City/state for demo; zip+radius deferred |
+| 9.3 Filter by Provider Type | ✅ | All provider types in dropdown |
+| 9.4 Filter by Services/Specialties | ✅ | Care type dropdown exists |
+| 9.5 Filter by Price Range | ✅ | Price slider (0–15000) |
+| 9.6 Sort Options | ✅ | Sort dropdown exists |
+| 9.7 Provider Cards | ✅ | `EnhancedProviderCard` component |
+| 9.8 Provider Detail Page | ✅ | `/providers/[id]` with full sections |
+| 9.9 Map View | ✅ | Leaflet integration, list/map toggle |
+| 9.10 "Near Me" Geolocation | ❌ | Deferred for demo |
+| 9.11 City/State SEO Pages | ❌ | Deferred for demo |
+| 9.12 Search Results Caching | ❌ | Deferred for demo |
 
 ### Key Questions
 - [x] What filters are most important for demo? → **See Foundational Decisions: Standardized Filter Set**
@@ -2018,7 +2025,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 ### Architectural Notes
 
-#### 7.1 Directory Location (DECIDED)
+#### 9.1 Directory Location (DECIDED)
 
 `/providers` is the dedicated provider directory page (Zillow-style).
 
@@ -2028,7 +2035,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 **Cross-reference**: See Foundational Decisions → Homepage vs Directory Architecture.
 
-#### 7.2 Location Search (DECIDED)
+#### 9.2 Location Search (DECIDED)
 
 | Feature | Demo | Post-Demo |
 |---------|------|-----------|
@@ -2037,7 +2044,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 | Zip code search | ❌ Deferred | ✅ |
 | Radius filtering | ❌ Deferred | ✅ |
 
-#### 7.3–7.6 Filters and Sort (DECIDED)
+#### 9.3–9.6 Filters and Sort (DECIDED)
 
 All current filters accepted for demo:
 - Provider type dropdown
@@ -2048,7 +2055,7 @@ All current filters accepted for demo:
 
 **Cross-reference**: See Foundational Decisions → Standardized Filter Set for full list.
 
-#### 7.7 Provider Cards (DECIDED)
+#### 9.7 Provider Cards (DECIDED)
 
 `EnhancedProviderCard` component displays:
 - Cover photo
@@ -2059,9 +2066,9 @@ All current filters accepted for demo:
 - Badges (verified, licensed, etc.)
 - Specialty indicators (memory care, hospice, etc.)
 
-**Additional requirement**: Cards for unclaimed providers should show "Unclaimed" badge per Chapter 5.12.
+**Additional requirement**: Cards for unclaimed providers should show "Unclaimed" badge per Chapter 7.12.
 
-#### 7.8 Provider Detail Page (DECIDED)
+#### 9.8 Provider Detail Page (DECIDED)
 
 `/providers/[id]` includes comprehensive sections:
 - Photo gallery
@@ -2078,7 +2085,7 @@ All current filters accepted for demo:
 - Show appropriate CTAs based on claimed/subscription status
 - "Back" navigation returns to `/providers`
 
-#### 7.9 Map View (DECIDED)
+#### 9.9 Map View (DECIDED)
 
 Leaflet map integration exists with list/map toggle.
 
@@ -2086,13 +2093,13 @@ Leaflet map integration exists with list/map toggle.
 
 **Post-demo**: Full interactive map with clustering, hover previews.
 
-#### 7.10–7.12 Deferred Items (DECIDED)
+#### 9.10–9.12 Deferred Items (DECIDED)
 
 | Item | Reason for Deferral |
 |------|---------------------|
-| 7.10 Geolocation | Adds complexity (permissions, accuracy); city/state sufficient |
-| 7.11 SEO Pages | Not needed for demo functionality; important for organic traffic post-launch |
-| 7.12 Caching | Performance optimization; only needed at scale |
+| 9.10 Geolocation | Adds complexity (permissions, accuracy); city/state sufficient |
+| 9.11 SEO Pages | Not needed for demo functionality; important for organic traffic post-launch |
+| 9.12 Caching | Performance optimization; only needed at scale |
 
 ---
 
@@ -2102,25 +2109,25 @@ Leaflet map integration exists with list/map toggle.
 
 **Important**: Only organizations have unclaimed profiles. Families and individual caregivers never have unclaimed profiles — they create profiles directly.
 
-**Cross-reference**: See Chapter 5.12 for three-tier provider access model (Unclaimed → Claimed → Subscribed).
+**Cross-reference**: See Chapter 7.12 for three-tier provider access model (Unclaimed → Claimed → Subscribed).
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 8.1 Claim Request Submission | 🟡 | Placeholder exists, workflow not implemented |
-| 8.2 Verification Methods | ⬜ | Not implemented |
-| 8.3 Admin Review Queue | ⬜ | Not implemented |
-| 8.4 Claimed → Editable Transition | 🟡 | `claimed` field exists, logic needed |
-| 8.5 Claim Notifications | ⬜ | Not implemented |
-| 8.6 Rejection Handling | ⬜ | Not implemented |
+| 10.1 Claim Request Submission | 🟡 | Placeholder exists, workflow not implemented |
+| 10.2 Verification Methods | ⬜ | Not implemented |
+| 10.3 Admin Review Queue | ⬜ | Not implemented |
+| 10.4 Claimed → Editable Transition | 🟡 | `claimed` field exists, logic needed |
+| 10.5 Claim Notifications | ⬜ | Not implemented |
+| 10.6 Rejection Handling | ⬜ | Not implemented |
 
 ### Key Questions
-- [x] What verification methods should be supported? → **See 8.2 below**
-- [x] What information can unclaimed profiles display? → **See Chapter 5.12**
-- [x] Admin review workflow requirements? → **See 8.3 below**
+- [x] What verification methods should be supported? → **See 10.2 below**
+- [x] What information can unclaimed profiles display? → **See Chapter 7.12**
+- [x] Admin review workflow requirements? → **See 10.3 below**
 
 ### Architectural Notes
 
-#### 8.1 Claim Request Submission (DECIDED)
+#### 10.1 Claim Request Submission (DECIDED)
 
 ##### Demo Scope
 - Self-service claiming with **instant approval**
@@ -2163,7 +2170,7 @@ On approval: Provider.claimed = true, Provider.userId = user.id
 | `/provider/onboarding` | "Claim Existing Listing" option | Search for listing, then claim |
 | `/for-providers` marketing | "Already listed? Claim your profile" | Search for listing, then claim |
 
-#### 8.2 Verification Methods (DECIDED)
+#### 10.2 Verification Methods (DECIDED)
 
 ##### Demo Scope
 
@@ -2187,7 +2194,7 @@ On approval: Provider.claimed = true, Provider.userId = user.id
 2. If phone verification succeeds → **Auto-approve**
 3. Otherwise → **Route to admin review**
 
-#### 8.3 Admin Review Queue (DECIDED)
+#### 10.3 Admin Review Queue (DECIDED)
 
 ##### Demo Scope
 Not implemented. All claims auto-approved instantly.
@@ -2227,7 +2234,7 @@ When a claim cannot be auto-verified, the system initiates a human review proces
 
 **SLA Target**: Review within 24-48 hours of submission.
 
-#### 8.4 Claimed → Editable Transition (DECIDED)
+#### 10.4 Claimed → Editable Transition (DECIDED)
 
 **On successful claim approval**:
 
@@ -2246,7 +2253,7 @@ When a claim cannot be auto-verified, the system initiates a human review proces
 - ❌ Respond to leads (requires subscription)
 - ❌ Initiate outreach (requires subscription)
 
-#### 8.5 Claim Notifications (DECIDED)
+#### 10.5 Claim Notifications (DECIDED)
 
 ##### Demo Scope
 Not implemented.
@@ -2270,7 +2277,7 @@ Not implemented.
 | Claim SLA warning | Claim pending > 24 hours | Reminder with claim details |
 | Daily digest | Morning summary | Count of pending claims, oldest claim age |
 
-#### 8.6 Rejection & Appeal Handling (DECIDED)
+#### 10.6 Rejection & Appeal Handling (DECIDED)
 
 ##### Demo Scope
 Not implemented (no rejections since auto-approve).
@@ -2313,15 +2320,15 @@ Not implemented (no rejections since auto-approve).
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 9.1 Dashboard Home | ✅ | `/family/dashboard` (renamed from `/dashboard`) |
-| 9.2 My Providers (engagements) | ✅ | `/family/my-providers` (renamed from `/dashboard/requests`) |
-| 9.3 Engagement Detail + Messaging | ✅ | `/family/my-providers/[id]` |
-| 9.4 Saved Providers | ✅ | `/family/saved-providers` (renamed from `/dashboard/saved`) |
-| 9.5 Care Profile Management | ✅ | Tab within `/family/dashboard` (consolidated) |
-| 9.6 Activity Feed | 🟡 | API exists, needs all engagement types |
-| 9.7 Dashboard Stats/Summary | 🟡 | API exists |
-| 9.8 Profile Completion Prompts | 🟡 | Needs implementation |
-| 9.9 Calendar & Quick Actions | 🟡 | Calendar should be primary element |
+| 12.1 Dashboard Home | ✅ | `/family/dashboard` (renamed from `/dashboard`) |
+| 12.2 My Providers (engagements) | ✅ | `/family/my-providers` (renamed from `/dashboard/requests`) |
+| 12.3 Engagement Detail + Messaging | ✅ | `/family/my-providers/[id]` |
+| 12.4 Saved Providers | ✅ | `/family/saved-providers` (renamed from `/dashboard/saved`) |
+| 12.5 Care Profile Management | ✅ | Tab within `/family/dashboard` (consolidated) |
+| 12.6 Activity Feed | 🟡 | API exists, needs all engagement types |
+| 12.7 Dashboard Stats/Summary | 🟡 | API exists |
+| 12.8 Profile Completion Prompts | 🟡 | Needs implementation |
+| 12.9 Calendar & Quick Actions | 🟡 | Calendar should be primary element |
 
 ### Key Questions
 - [x] What should the dashboard home prioritize? → **Calendar first, then profile completion, activity feed, quick actions**
@@ -2329,7 +2336,7 @@ Not implemented (no rejections since auto-approve).
 
 ### Architectural Notes
 
-#### 9.1 Dashboard Home Structure (DECIDED)
+#### 12.1 Dashboard Home Structure (DECIDED)
 
 Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first design.
 
@@ -2355,7 +2362,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 - Week/month view toggle
 - Visual distinction by engagement type
 
-#### 9.2–9.3 My Providers — Unified Engagement System (DECIDED)
+#### 12.2–12.3 My Providers — Unified Engagement System (DECIDED)
 
 **Route**: `/family/my-providers` (renamed from `/dashboard/requests`)
 
@@ -2382,7 +2389,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 **Terminology Note**: "Requests" may be revisited in favor of a clearer umbrella term (e.g., "Engagements" or "Conversations"). For now, keeping "requests" in code but using "My Providers" in UI navigation.
 
-#### 9.4 Saved Providers (DECIDED)
+#### 12.4 Saved Providers (DECIDED)
 
 **Route**: `/family/saved-providers` (renamed from `/dashboard/saved`)
 
@@ -2392,15 +2399,15 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 - Click through to provider detail
 - Supports both organizations and individual caregivers
 
-#### 9.5 Care Profile Management (DECIDED)
+#### 12.5 Care Profile Management (DECIDED)
 
 **Location**: Tab within `/family/dashboard` (not separate page)
 
 **Implementation**: Consolidate `/dashboard/care-profiles` into dashboard tab.
 
-**Cross-reference**: See Chapter 4 for care profile fields and completion tracking.
+**Cross-reference**: See Chapter 6 for care profile fields and completion tracking.
 
-#### 9.6 Activity Feed (DECIDED)
+#### 12.6 Activity Feed (DECIDED)
 
 **Purpose**: Chronological log of all meaningful engagements.
 
@@ -2429,7 +2436,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 - Mark all as read
 - Activity grouping by day
 
-#### 9.7 Dashboard Stats (DECIDED)
+#### 12.7 Dashboard Stats (DECIDED)
 
 **Stats to Display**:
 
@@ -2442,7 +2449,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 **Terminology**: Using "Engagements" rather than "Requests" in stats where appropriate. May revisit overall terminology post-demo.
 
-#### 9.8 Profile Completion Prompts (DECIDED)
+#### 12.8 Profile Completion Prompts (DECIDED)
 
 | Profile State | Display |
 |---------------|---------|
@@ -2452,7 +2459,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 **Cross-reference**: See Foundational Decisions → Two-Threshold Model.
 
-#### 9.9 Calendar as Primary Element (DECIDED)
+#### 12.9 Calendar as Primary Element (DECIDED)
 
 **Calendar Requirements**:
 
@@ -2492,15 +2499,15 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 10.1 Dashboard Home | ✅ | `/provider/dashboard` |
-| 10.2 My Families (engagements) | ✅ | `/provider/my-families` (renamed) |
-| 10.3 Engagement Detail + Messaging | ✅ | `/provider/my-families/[id]` |
-| 10.4 Saved Families | ✅ | `/provider/saved-families` (renamed) |
-| 10.5 Hiring: Find Caregivers | 🟡 | `/provider/find-caregivers` (org providers only) |
-| 10.6 Hiring: My Candidates | 🟡 | `/provider/my-candidates` (org providers only) |
-| 10.7 Profile Completion Tracking | 🟡 | Widget in dashboard |
-| 10.8 Calendar (Scheduled Appointments) | 🟡 | Primary dashboard element |
-| 10.9 Provider Profile Edit | 🟡 | Tab within dashboard |
+| 13.1 Dashboard Home | ✅ | `/provider/dashboard` |
+| 13.2 My Families (engagements) | ✅ | `/provider/my-families` (renamed) |
+| 13.3 Engagement Detail + Messaging | ✅ | `/provider/my-families/[id]` |
+| 13.4 Saved Families | ✅ | `/provider/saved-families` (renamed) |
+| 13.5 Hiring: Find Caregivers | 🟡 | `/provider/find-caregivers` (org providers only) |
+| 13.6 Hiring: My Candidates | 🟡 | `/provider/my-candidates` (org providers only) |
+| 13.7 Profile Completion Tracking | 🟡 | Widget in dashboard |
+| 13.8 Calendar (Scheduled Appointments) | 🟡 | Primary dashboard element |
+| 13.9 Provider Profile Edit | 🟡 | Tab within dashboard |
 
 ### Key Questions
 - [x] What should provider dashboard prioritize? → **Calendar first, then leads/paywall, profile completion, activity**
@@ -2517,7 +2524,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 These systems do NOT overlap. A provider's "My Families" page shows family engagements only. Hiring engagements appear in "My Candidates" only.
 
-#### 10.1 Dashboard Home Structure (DECIDED)
+#### 13.1 Dashboard Home Structure (DECIDED)
 
 Provider Dashboard (`/provider/dashboard`) uses calendar-first design with three-tier gating.
 
@@ -2576,7 +2583,7 @@ A persistent dashboard card for review management:
 | Claimed (Free) | See lead count, blurred previews, "Upgrade to respond" CTA |
 | Subscribed | Full access to all features |
 
-#### 10.2–10.3 My Families — Bidirectional Engagement (DECIDED)
+#### 13.2–13.3 My Families — Bidirectional Engagement (DECIDED)
 
 **Route**: `/provider/my-families` (renamed from `/provider/requests`)
 
@@ -2624,7 +2631,7 @@ Engagement {
 - Interview: "Schedule Interview", "Confirm Interview"
 - General: "Send Message", "Accept", "Decline"
 
-#### 10.4 Saved Families (DECIDED)
+#### 13.4 Saved Families (DECIDED)
 
 **Route**: `/provider/saved-families` (renamed from `/provider/saved`)
 
@@ -2632,7 +2639,7 @@ Engagement {
 
 **Note**: Only families with visibility enabled appear in browse/save.
 
-#### 10.5–10.6 Hiring System — Simplified Model (DECIDED)
+#### 13.5–13.6 Hiring System — Simplified Model (DECIDED)
 
 **Applies to**: Organization providers hiring individual caregivers.
 
@@ -2699,14 +2706,14 @@ HiringEngagement {
 
 > **Cross-Reference**: See Chapter 5.4 for complete dropdown specifications. The hiring section is the only part of navigation that varies by user state.
 
-#### 10.7 Profile Completion Tracking (DECIDED)
+#### 13.7 Profile Completion Tracking (DECIDED)
 
 Same pattern as Family Dashboard:
 - Progress bar widget
 - CTA if below visibility threshold
-- Cross-reference: Chapter 5.13
+- Cross-reference: Chapter 7.13
 
-#### 10.8 Calendar as Primary Element (DECIDED)
+#### 13.8 Calendar as Primary Element (DECIDED)
 
 **Engagement Type Visual Distinction**:
 
@@ -2719,11 +2726,11 @@ Same pattern as Family Dashboard:
 
 **Features**: Same as Family Dashboard (week view, click to detail, type colors).
 
-#### 10.9 Provider Profile Edit (DECIDED)
+#### 13.9 Provider Profile Edit (DECIDED)
 
 **Location**: Tab within `/provider/dashboard`
 
-**Cross-reference**: See Chapter 5 for provider profile fields.
+**Cross-reference**: See Chapter 7 for provider profile fields.
 
 #### Activity Feed — All Systems (DECIDED)
 
@@ -2757,20 +2764,20 @@ Same pattern as Family Dashboard:
 **Purpose**: The unified system for all interactions between parties — covering care-seeking (Family ↔ Provider) and hiring (Org ↔ Caregiver).
 
 **Cross-reference**:
-- Chapter 9 (Family Dashboard) and Chapter 10 (Provider Dashboard) for engagement views
-- Chapter 12 for messaging within engagements
-- Chapter 13 for scheduling within engagements
+- Chapter 12 (Family Dashboard) and Chapter 13 (Provider Dashboard) for engagement views
+- Chapter 16 for messaging within engagements
+- Chapter 17 for scheduling within engagements
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 11.1 Engagement Creation | ✅ | Bidirectional (any party can initiate) |
-| 11.2 Engagement Types | 🟡 | Expand beyond CONSULTATION/HIRING |
-| 11.3 Engagement Status Workflow | ✅ | PENDING → ACCEPTED → ACTIVE → COMPLETED |
-| 11.4 Engagement Context/Reason | ✅ | Aligned with types |
-| 11.5 Contact Preferences & Video | 🟡 | Phone/Email/Video |
-| 11.6 Engagement Listing | ✅ | Bidirectional views per user type |
-| 11.7 Engagement Expiration | ⬜ | Deferred for demo |
-| 11.8 Systems Separation | 🟡 | Separate models for Care-Seeking vs Hiring |
+| 15.1 Engagement Creation | ✅ | Bidirectional (any party can initiate) |
+| 15.2 Engagement Types | 🟡 | Expand beyond CONSULTATION/HIRING |
+| 15.3 Engagement Status Workflow | ✅ | PENDING → ACCEPTED → ACTIVE → COMPLETED |
+| 15.4 Engagement Context/Reason | ✅ | Aligned with types |
+| 15.5 Contact Preferences & Video | 🟡 | Phone/Email/Video |
+| 15.6 Engagement Listing | ✅ | Bidirectional views per user type |
+| 15.7 Engagement Expiration | ⬜ | Deferred for demo |
+| 15.8 Systems Separation | 🟡 | Separate models for Care-Seeking vs Hiring |
 
 ### Key Questions
 - [x] Are all request statuses being used correctly? → **Yes, added ACTIVE state**
@@ -2778,7 +2785,7 @@ Same pattern as Family Dashboard:
 
 ### Architectural Notes
 
-#### 11.1 Engagement Creation — Bidirectional (DECIDED)
+#### 15.1 Engagement Creation — Bidirectional (DECIDED)
 
 Any party can initiate an engagement.
 
@@ -2799,7 +2806,7 @@ Any party can initiate an engagement.
 
 **Implementation**: Current `ConsultRequest.senderId` already supports bidirectional initiation.
 
-#### 11.2 Engagement Types (DECIDED)
+#### 15.2 Engagement Types (DECIDED)
 
 Expanded beyond simple CONSULTATION/HIRING to granular types.
 
@@ -2822,7 +2829,7 @@ Expanded beyond simple CONSULTATION/HIRING to granular types.
 
 **Implementation**: Add `engagementType` enum field to models.
 
-#### 11.3 Engagement Status Workflow (DECIDED)
+#### 15.3 Engagement Status Workflow (DECIDED)
 
 | Status | Meaning | Transitions From |
 |--------|---------|------------------|
@@ -2840,7 +2847,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
  DECLINED  CANCELLED  CANCELLED
 ```
 
-#### 11.3.1 Contact Information Release (DECIDED)
+#### 15.3.1 Contact Information Release (DECIDED)
 
 **Contact info visibility rules by user type**:
 
@@ -2865,7 +2872,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 - General location (city/state)
 - Profile details (services, description, etc.)
 
-#### 11.4 Engagement Context/Reason (DECIDED)
+#### 15.4 Engagement Context/Reason (DECIDED)
 
 `contactReason` field aligned with engagement types:
 
@@ -2877,7 +2884,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 | INQUIRY | Ask a question, Request information |
 | OUTREACH | Share availability, Follow up |
 
-#### 11.5 Contact Preferences & Video Calling (DECIDED)
+#### 15.5 Contact Preferences & Video Calling (DECIDED)
 
 **Contact Method Options**:
 
@@ -2901,7 +2908,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 - Recording capability (consider)
 - Virtual waiting room
 
-#### 11.5.1 Calendar Integration (DECIDED)
+#### 15.5.1 Calendar Integration (DECIDED)
 
 **Approach**: Auto-invite as default (Option C), ICS fallback.
 
@@ -2941,7 +2948,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 - "Add to Calendar" (.ics) download link
 - Edit/reschedule triggers new invite
 
-#### 11.6 Engagement Listing — Bidirectional Views (DECIDED)
+#### 15.6 Engagement Listing — Bidirectional Views (DECIDED)
 
 **Cross-reference**: Already documented in Chapters 9 & 10.
 
@@ -2952,7 +2959,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 | Org Provider | My Candidates | All hiring engagements (inbound + outbound) |
 | Individual Caregiver | My Opportunities | All hiring engagements (inbound + outbound) |
 
-#### 11.7 Engagement Expiration (DECIDED)
+#### 15.7 Engagement Expiration (DECIDED)
 
 ##### Demo Scope
 Deferred — no automatic expiration.
@@ -2969,7 +2976,7 @@ Deferred — no automatic expiration.
 - "Your inquiry to [Provider] has expired with no response"
 - "Your conversation with [Family] has been inactive for 30 days"
 
-#### 11.8 Engagement Systems Separation (DECIDED)
+#### 15.8 Engagement Systems Separation (DECIDED)
 
 **Decision**: Separate models for Care-Seeking and Hiring (Option B).
 
@@ -3000,17 +3007,17 @@ Deferred — no automatic expiration.
 **Purpose**: Enable communication within engagements between families, providers, and caregivers.
 
 **Cross-reference**:
-- Chapter 11 (Engagements) for engagement context
-- Chapter 16 (Notifications) for message notification integration
+- Chapter 15 (Engagements) for engagement context
+- Chapter 19 (Notifications) for message notification integration
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 12.1 Messages Within Engagements | ✅ | `Message` model, API exists |
-| 12.2 Read/Unread Status | ✅ | `status` field (SENT/DELIVERED/READ), timestamps |
-| 12.3 Typing Indicators | ❌ | Deferred — requires real-time to be useful |
-| 12.4 File Attachments | ✅ | `attachments` JSON field, basic support for demo |
-| 12.5 Real-time Updates | 🟡 | Polling for demo, WebSocket for production |
-| 12.6 Message Notifications | 🟡 | In-app for demo, email digest optional |
+| 16.1 Messages Within Engagements | ✅ | `Message` model, API exists |
+| 16.2 Read/Unread Status | ✅ | `status` field (SENT/DELIVERED/READ), timestamps |
+| 16.3 Typing Indicators | ❌ | Deferred — requires real-time to be useful |
+| 16.4 File Attachments | ✅ | `attachments` JSON field, basic support for demo |
+| 16.5 Real-time Updates | 🟡 | Polling for demo, WebSocket for production |
+| 16.6 Message Notifications | 🟡 | In-app for demo, email digest optional |
 
 ### Key Questions
 - [x] Is polling acceptable for demo, or do we need real-time? → **Polling acceptable for demo**
@@ -3018,7 +3025,7 @@ Deferred — no automatic expiration.
 
 ### Architectural Notes
 
-#### 12.1 Messages Within Engagements (DECIDED)
+#### 16.1 Messages Within Engagements (DECIDED)
 
 **Model Approach**: Single `Message` model with nullable foreign keys to both engagement systems.
 
@@ -3034,7 +3041,7 @@ Deferred — no automatic expiration.
 
 **Rationale**: Message logic is identical across both systems. Single model avoids duplication while maintaining clear relationships.
 
-#### 12.2 Read/Unread Status (DECIDED)
+#### 16.2 Read/Unread Status (DECIDED)
 
 **Current implementation accepted.**
 
@@ -3048,7 +3055,7 @@ Deferred — no automatic expiration.
 - Unread messages highlighted in thread
 - Read receipts shown to sender (simple indicator for demo, checkmarks for production)
 
-#### 12.3 Typing Indicators (DECIDED)
+#### 16.3 Typing Indicators (DECIDED)
 
 **Status**: ❌ Deferred for demo.
 
@@ -3058,7 +3065,7 @@ Deferred — no automatic expiration.
 
 **Production**: Implement alongside WebSocket messaging.
 
-#### 12.4 File Attachments (DECIDED)
+#### 16.4 File Attachments (DECIDED)
 
 ##### Demo Scope
 
@@ -3092,7 +3099,7 @@ Deferred — no automatic expiration.
 - Data retention and deletion policies
 - Encryption at rest and in transit
 
-#### 12.5 Real-time Updates (DECIDED)
+#### 16.5 Real-time Updates (DECIDED)
 
 ##### Demo Scope
 **Polling-based** — client fetches new messages every 5-10 seconds.
@@ -3115,7 +3122,7 @@ Deferred — no automatic expiration.
 
 **Rationale for demo**: Demo conversations are low-volume. 5-10 second delay is acceptable. Real-time adds significant complexity for marginal demo benefit.
 
-#### 12.6 Message Notifications (DECIDED)
+#### 16.6 Message Notifications (DECIDED)
 
 **Cross-reference**: Chapter 16 (Notifications) for full notification system.
 
@@ -3139,7 +3146,7 @@ Deferred — no automatic expiration.
 
 **Ideal for demo**: Basic transactional email (new message notification) would improve experience. Can be deferred if it materially slows delivery.
 
-#### 12.7 Message UI/UX (DECIDED)
+#### 16.7 Message UI/UX (DECIDED)
 
 ##### Demo Scope
 
@@ -3188,16 +3195,16 @@ Deferred — no automatic expiration.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 13.1 Scheduling Model | ✅ | Integrated into `Engagement` / `HiringEngagement` models |
-| 13.2 Context-Aware CTAs & Language | ⬜ | CTA text varies by provider type |
-| 13.3 Propose Appointment | 🟡 | Via engagement creation with `scheduledAt` |
-| 13.4 Accept / Decline Flow | 🟡 | Part of engagement status workflow |
-| 13.5 Reschedule Flow | ⬜ | Update `scheduledAt`, notify other party |
-| 13.6 Cancellation Flow | 🟡 | Set status to CANCELLED |
-| 13.7 Email Reminders | ⬜ | **Demo-critical**: 24h + 1h before |
-| 13.8 SMS Reminders | ⬜ | **Demo-critical**: 24h + 1h before via Twilio |
-| 13.9 Calendar Integration | ⬜ | Opt-out default, both parties receive invites |
-| 13.10 Video Call vs In-Person | ⬜ | `meetingType` field, clear UX distinction |
+| 17.1 Scheduling Model | ✅ | Integrated into `Engagement` / `HiringEngagement` models |
+| 17.2 Context-Aware CTAs & Language | ⬜ | CTA text varies by provider type |
+| 17.3 Propose Appointment | 🟡 | Via engagement creation with `scheduledAt` |
+| 17.4 Accept / Decline Flow | 🟡 | Part of engagement status workflow |
+| 17.5 Reschedule Flow | ⬜ | Update `scheduledAt`, notify other party |
+| 17.6 Cancellation Flow | 🟡 | Set status to CANCELLED |
+| 17.7 Email Reminders | ⬜ | **Demo-critical**: 24h + 1h before |
+| 17.8 SMS Reminders | ⬜ | **Demo-critical**: 24h + 1h before via Twilio |
+| 17.9 Calendar Integration | ⬜ | Opt-out default, both parties receive invites |
+| 17.10 Video Call vs In-Person | ⬜ | `meetingType` field, clear UX distinction |
 
 ### Key Questions — RESOLVED
 
@@ -3215,7 +3222,7 @@ Deferred — no automatic expiration.
 
 ### Architectural Notes
 
-#### 13.1 Scheduling Model — INTEGRATED (DECIDED)
+#### 17.1 Scheduling Model — INTEGRATED (DECIDED)
 
 Scheduling is **not a separate system** — it's embedded in engagement workflow:
 
@@ -3230,7 +3237,7 @@ Status workflow handles scheduling state:
 - `ACTIVE` = engagement in progress
 - `COMPLETED` / `CANCELLED` = terminal states
 
-#### 13.2 Context-Aware CTAs & Language (DECIDED)
+#### 17.2 Context-Aware CTAs & Language (DECIDED)
 
 > **Reference**: See [CTA Reference](#cta-reference-decided) in Foundational Decisions for the complete CTA matrix.
 
@@ -3257,7 +3264,7 @@ CTA text varies by provider type and marketplace context:
 | Organization → Caregiver | "Invite to Interview" | HIRING_INTERVIEW |
 | Caregiver → Organization | "Apply" | APPLICATION |
 
-#### 13.7 Email Reminders (DECIDED — Demo-Critical)
+#### 17.7 Email Reminders (DECIDED — Demo-Critical)
 
 **Both parties** receive email reminders for all engagement types.
 
@@ -3272,7 +3279,7 @@ CTA text varies by provider type and marketplace context:
 - Sends to both parties using email on file
 - Google Calendar reminders serve as additional layer (if integrated)
 
-#### 13.8 SMS Reminders (DECIDED — Demo-Critical)
+#### 17.8 SMS Reminders (DECIDED — Demo-Critical)
 
 **Both parties** receive SMS reminders for all engagement types.
 
@@ -3292,7 +3299,7 @@ CTA text varies by provider type and marketplace context:
 - If user skips onboarding, prompt when scheduling first engagement
 - Fallback to Option C (optional with clear trade-off) if Option B proves insufficient
 
-#### 13.9 Calendar Integration (DECIDED)
+#### 17.9 Calendar Integration (DECIDED)
 
 **Opt-out by default** — calendar invites sent automatically using email on file.
 
@@ -3314,7 +3321,7 @@ This applies to **all engagement types**: Family ↔ Provider, Org ↔ Caregiver
 - Works for both in-person and video engagements
 - Consistent UX across all scheduling contexts
 
-#### 13.10 Video Call vs In-Person UX (DECIDED)
+#### 17.10 Video Call vs In-Person UX (DECIDED)
 
 **Core Principle**: Users must always be able to orient themselves. At any point, they should clearly see:
 1. **What** — Is this video or in-person?
@@ -3469,21 +3476,21 @@ Routes must match dropdown navigation labels exactly:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 15.1 Olera Score (Unified) | 🟡 | Master score aggregating all signals |
-| 15.2 Review Model (Care-Seeking) | ✅ | `Review` model exists, needs expansion |
-| 15.3 Review Model (Hiring) | ⬜ | `HiringReview` model needed |
-| 15.4 Two-Sided Reviews | ⬜ | Family ↔ Provider, Org ↔ Caregiver |
-| 15.5 Blind Review Window | ⬜ | 14-day window, reveals when both submit |
-| 15.6 Interaction-Based Reviews | ⬜ | Tours, consults, interviews, ongoing care |
-| 15.7 Multi-Channel Collection | ⬜ | Platform prompts, QR, links, phone |
-| 15.8 Review Trigger Logic | ⬜ | "Did this happen?" confirmation flow |
-| 15.9 Prompt Cadence | ⬜ | Multiple reminders, quarterly for ongoing |
-| 15.10 Direct Provider Page Reviews | ⬜ | Public entry point with structured intake |
-| 15.11 Structured Feedback Sessions | ⬜ | Post-demo: scheduled feedback calls |
-| 15.12 Review Display & Trust Signals | 🟡 | Components exist, need refinement |
-| 15.13 Provider Response to Reviews | ⬜ | One public response allowed |
-| 15.14 Review Moderation | 🟡 | `approved` field exists |
-| 15.15 Helpful Votes | ✅ | `helpfulCount` field, API exists |
+| 22.1 Olera Score (Unified) | 🟡 | Master score aggregating all signals |
+| 22.2 Review Model (Care-Seeking) | ✅ | `Review` model exists, needs expansion |
+| 22.3 Review Model (Hiring) | ⬜ | `HiringReview` model needed |
+| 22.4 Two-Sided Reviews | ⬜ | Family ↔ Provider, Org ↔ Caregiver |
+| 22.5 Blind Review Window | ⬜ | 14-day window, reveals when both submit |
+| 22.6 Interaction-Based Reviews | ⬜ | Tours, consults, interviews, ongoing care |
+| 22.7 Multi-Channel Collection | ⬜ | Platform prompts, QR, links, phone |
+| 22.8 Review Trigger Logic | ⬜ | "Did this happen?" confirmation flow |
+| 22.9 Prompt Cadence | ⬜ | Multiple reminders, quarterly for ongoing |
+| 22.10 Direct Provider Page Reviews | ⬜ | Public entry point with structured intake |
+| 22.11 Structured Feedback Sessions | ⬜ | Post-demo: scheduled feedback calls |
+| 22.12 Review Display & Trust Signals | 🟡 | Components exist, need refinement |
+| 22.13 Provider Response to Reviews | ⬜ | One public response allowed |
+| 22.14 Review Moderation | 🟡 | `approved` field exists |
+| 22.15 Helpful Votes | ✅ | `helpfulCount` field, API exists |
 
 ### Key Questions — RESOLVED
 
@@ -3503,7 +3510,7 @@ Routes must match dropdown navigation labels exactly:
 
 ---
 
-#### 15.1 Olera Score — Unified Master Score (DECIDED)
+#### 22.1 Olera Score — Unified Master Score (DECIDED)
 
 The Olera Score is the **single, primary quality signal** for every provider.
 
@@ -3532,7 +3539,7 @@ The Olera Score is the **single, primary quality signal** for every provider.
 
 ---
 
-#### 15.2-15.4 Two-Sided Review System (DECIDED)
+#### 22.2-22.4 Two-Sided Review System (DECIDED)
 
 Reviews flow in both directions across both engagement systems:
 
@@ -3561,7 +3568,7 @@ Reviews flow in both directions across both engagement systems:
 
 ---
 
-#### 15.5 Blind Review Window (DECIDED)
+#### 22.5 Blind Review Window (DECIDED)
 
 Prevents retaliation, encourages honest feedback (Uber/Airbnb pattern).
 
@@ -3600,7 +3607,7 @@ Engagement/Interaction Completes (or scheduled time passes)
 
 ---
 
-#### 15.6 Interaction-Based Reviews (DECIDED)
+#### 22.6 Interaction-Based Reviews (DECIDED)
 
 Reviews can be left for **any interaction type**, not just ongoing care:
 
@@ -3619,7 +3626,7 @@ Reviews can be left for **any interaction type**, not just ongoing care:
 
 ---
 
-#### 15.7 Multi-Channel Review Collection (DECIDED)
+#### 22.7 Multi-Channel Review Collection (DECIDED)
 
 **Channel 1: Platform Prompts (Automated)**
 - Triggered after scheduled interaction time passes
@@ -3655,7 +3662,7 @@ Reviews can be left for **any interaction type**, not just ongoing care:
 
 ---
 
-#### 15.8 Review Trigger Logic (DECIDED)
+#### 22.8 Review Trigger Logic (DECIDED)
 
 We don't always have verified engagement completion, but we have scheduled timestamps.
 
@@ -3685,7 +3692,7 @@ Scheduled Interaction Time Passes
 
 ---
 
-#### 15.9 Prompt Cadence (DECIDED)
+#### 22.9 Prompt Cadence (DECIDED)
 
 **For Single Interactions (Tour, Consult, Interview):**
 
@@ -3713,7 +3720,7 @@ Scheduled Interaction Time Passes
 
 ---
 
-#### 15.10 Direct Provider Page Reviews (DECIDED)
+#### 22.10 Direct Provider Page Reviews (DECIDED)
 
 For users arriving at provider page without tracked engagement (e.g., from Google):
 
@@ -3734,7 +3741,7 @@ For users arriving at provider page without tracked engagement (e.g., from Googl
 
 ---
 
-#### 15.11 Structured Feedback Sessions (Post-Demo)
+#### 22.11 Structured Feedback Sessions (Post-Demo)
 
 Optional workflow for early relationship health checks:
 
@@ -3755,7 +3762,7 @@ Optional workflow for early relationship health checks:
 
 ---
 
-#### 15.12 Review Display & Trust Signals (DECIDED)
+#### 22.12 Review Display & Trust Signals (DECIDED)
 
 **On Provider Profile:**
 
@@ -3792,7 +3799,7 @@ Optional workflow for early relationship health checks:
 
 ---
 
-#### 15.13 Provider Response to Reviews (DECIDED)
+#### 22.13 Provider Response to Reviews (DECIDED)
 
 **Core Rules:**
 - Provider can post **one public response** per review
@@ -3882,7 +3889,7 @@ Providers receive escalating reminders for unresponded reviews:
 
 ---
 
-#### 15.14 Review Moderation (DECIDED)
+#### 22.14 Review Moderation (DECIDED)
 
 **Demo Scope:**
 - Auto-approve all reviews (controlled environment)
@@ -4041,16 +4048,16 @@ model ReviewRequest {
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 16.1 Activity Feed (Unified) | 🟡 | Canonical notification log on dashboard |
-| 16.2 In-App Notification Count | ✅ | `/api/notifications/unread-count` |
-| 16.3 Mark Notifications Viewed | ✅ | `/api/notifications/mark-viewed` |
-| 16.4 Notification List UI | 🟡 | Needs verification |
-| 16.5 Notification Types | ⬜ | Comprehensive list below |
-| 16.6 Email Notifications | ⬜ | All types, individual delivery |
-| 16.7 SMS Notifications | ⬜ | All types, first-class channel |
-| 16.8 Notification Preferences | ⬜ | Centralized in Settings |
-| 16.9 Quiet Hours | ⬜ | Default business hours M-F |
-| 16.10 Push Notifications | ⬜ | Planned for production |
+| 19.1 Activity Feed (Unified) | 🟡 | Canonical notification log on dashboard |
+| 19.2 In-App Notification Count | ✅ | `/api/notifications/unread-count` |
+| 19.3 Mark Notifications Viewed | ✅ | `/api/notifications/mark-viewed` |
+| 19.4 Notification List UI | 🟡 | Needs verification |
+| 19.5 Notification Types | ⬜ | Comprehensive list below |
+| 19.6 Email Notifications | ⬜ | All types, individual delivery |
+| 19.7 SMS Notifications | ⬜ | All types, first-class channel |
+| 19.8 Notification Preferences | ⬜ | Centralized in Settings |
+| 19.9 Quiet Hours | ⬜ | Default business hours M-F |
+| 19.10 Push Notifications | ⬜ | Planned for production |
 
 ### Key Questions — RESOLVED
 
@@ -4070,7 +4077,7 @@ model ReviewRequest {
 
 ---
 
-#### 16.1 Activity Feed — Unified Notification Log (DECIDED)
+#### 19.1 Activity Feed — Unified Notification Log (DECIDED)
 
 The Activity feed on the dashboard is the **single source of truth** for all system activity.
 
@@ -4105,7 +4112,7 @@ Example:
 
 ---
 
-#### 16.5 Notification Types — Comprehensive List (DECIDED)
+#### 19.5 Notification Types — Comprehensive List (DECIDED)
 
 All types below are delivered via **all three channels** (In-App + Email + SMS) by default.
 
@@ -4173,7 +4180,7 @@ Providers receive reminders to respond to reviews, with escalating urgency:
 
 ---
 
-#### 16.6-16.7 Email & SMS — All Types, Individual Delivery (DECIDED)
+#### 19.6-19.7 Email & SMS — All Types, Individual Delivery (DECIDED)
 
 **Delivery Strategy:**
 - **Individual sends** for all notifications (no batching/digest)
@@ -4198,7 +4205,7 @@ Providers receive reminders to respond to reviews, with escalating urgency:
 
 ---
 
-#### 16.8 Notification Preferences — Centralized in Settings (DECIDED)
+#### 19.8 Notification Preferences — Centralized in Settings (DECIDED)
 
 **Location:** `/settings/notifications` (or Settings page with Notifications section)
 
@@ -4228,7 +4235,7 @@ Providers receive reminders to respond to reviews, with escalating urgency:
 
 ---
 
-#### 16.9 Quiet Hours (DECIDED)
+#### 19.9 Quiet Hours (DECIDED)
 
 **Default Behavior:**
 - Quiet hours: **Outside business hours, Monday-Friday**
@@ -4255,7 +4262,7 @@ Providers receive reminders to respond to reviews, with escalating urgency:
 
 ---
 
-#### 16.10 Push Notifications — Planned for Production (DECIDED)
+#### 19.10 Push Notifications — Planned for Production (DECIDED)
 
 **Clarification:**
 - **Browser push** (service workers): Deferred for production
@@ -4384,16 +4391,16 @@ This notification system supports all previously decided flows:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 17.1 Profile Completion % (All Types) | 🟡 | Needs explicit storage |
-| 17.2 Completion Storage | ⬜ | Store in DB for matching |
-| 17.3 "Complete Your Profile" Prompts | 🟡 | May exist, needs verification |
-| 17.4 Match Scoring Algorithm | ⬜ | Rule-based, weighted |
-| 17.5 Match Score Display | ⬜ | Percentage or qualitative |
-| 17.6 "Best Matches" - Family → Provider | ⬜ | Dashboard recommendations |
-| 17.7 "Best Matches" - Provider → Family | ⬜ | Dashboard recommendations |
-| 17.8 "Best Matches" - Org → Caregiver | ⬜ | Hiring recommendations |
-| 17.9 "Best Matches" - Caregiver → Org | ⬜ | Opportunity recommendations |
-| 17.10 Olera Score Integration | ⬜ | Factors into match ranking |
+| 11.1 Profile Completion % (All Types) | 🟡 | Needs explicit storage |
+| 11.2 Completion Storage | ⬜ | Store in DB for matching |
+| 11.3 "Complete Your Profile" Prompts | 🟡 | May exist, needs verification |
+| 11.4 Match Scoring Algorithm | ⬜ | Rule-based, weighted |
+| 11.5 Match Score Display | ⬜ | Percentage or qualitative |
+| 11.6 "Best Matches" - Family → Provider | ⬜ | Dashboard recommendations |
+| 11.7 "Best Matches" - Provider → Family | ⬜ | Dashboard recommendations |
+| 11.8 "Best Matches" - Org → Caregiver | ⬜ | Hiring recommendations |
+| 11.9 "Best Matches" - Caregiver → Org | ⬜ | Opportunity recommendations |
+| 11.10 Olera Score Integration | ⬜ | Factors into match ranking |
 
 ### Key Questions — RESOLVED
 
@@ -4413,7 +4420,7 @@ This notification system supports all previously decided flows:
 
 ---
 
-#### 17.1-17.2 Profile Completion — Stored Explicitly (DECIDED)
+#### 11.1-11.2 Profile Completion — Stored Explicitly (DECIDED)
 
 Profile completion is **stored in the database**, not calculated on-the-fly.
 
@@ -4499,7 +4506,7 @@ Optional fields contribute 40% (rewards additional detail).
 
 ---
 
-#### 17.4 Match Scoring Algorithm (DECIDED)
+#### 11.4 Match Scoring Algorithm (DECIDED)
 
 **Approach:** Rule-based weighted matching. No ML required.
 
@@ -4585,7 +4592,7 @@ TOTAL POSSIBLE: 110 points
 
 ---
 
-#### 17.5 Match Score Display (DECIDED)
+#### 11.5 Match Score Display (DECIDED)
 
 **Options:**
 
@@ -4607,7 +4614,7 @@ TOTAL POSSIBLE: 110 points
 
 ---
 
-#### 17.3 "Complete Your Profile" Prompts (DECIDED)
+#### 11.3 "Complete Your Profile" Prompts (DECIDED)
 
 **Prompt Triggers:**
 
@@ -4627,7 +4634,7 @@ This directly reinforces: **better data → better matches**.
 
 ---
 
-#### 17.6-17.9 "Best Matches" Recommendations (DECIDED)
+#### 11.6-11.9 "Best Matches" Recommendations (DECIDED)
 
 **Framing:** "Best matches for your needs" (not "Nearby" or "Recommended")
 
@@ -4691,7 +4698,7 @@ This directly reinforces: **better data → better matches**.
 
 ---
 
-#### 17.10 Olera Score Integration (DECIDED)
+#### 11.10 Olera Score Integration (DECIDED)
 
 Olera Score factors into matching as a **quality signal**:
 
@@ -4798,16 +4805,16 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 18.1 Membership Model | ⬜ | Two-tier: Non-Active (free) vs Active (paid) |
-| 18.2 Pricing | ⬜ | $25/mo or $240/year ($20/mo) |
-| 18.3 Paywall UI | 🟡 | Exists, needs update for new model |
-| 18.4 Paywall Triggers | ⬜ | Engagement actions only |
-| 18.5 "Active" Badge | ⬜ | Subtle indicator on provider cards |
-| 18.6 Unclaimed Provider UX | ⬜ | Clear messaging for families |
-| 18.7 Stripe Integration | ⬜ | Production only |
-| 18.8 Mock Membership (Demo) | ⬜ | Admin toggle for demo |
-| 18.9 Grace Period | ⬜ | 7 days for failed payments |
-| 18.10 Review Tools Gating | ⬜ | Active review generation = paid |
+| 21.1 Membership Model | ⬜ | Two-tier: Non-Active (free) vs Active (paid) |
+| 21.2 Pricing | ⬜ | $25/mo or $240/year ($20/mo) |
+| 21.3 Paywall UI | 🟡 | Exists, needs update for new model |
+| 21.4 Paywall Triggers | ⬜ | Engagement actions only |
+| 21.5 "Active" Badge | ⬜ | Subtle indicator on provider cards |
+| 21.6 Unclaimed Provider UX | ⬜ | Clear messaging for families |
+| 21.7 Stripe Integration | ⬜ | Production only |
+| 21.8 Mock Membership (Demo) | ⬜ | Admin toggle for demo |
+| 21.9 Grace Period | ⬜ | 7 days for failed payments |
+| 21.10 Review Tools Gating | ⬜ | Active review generation = paid |
 
 ### Key Questions — RESOLVED
 
@@ -4827,7 +4834,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-#### 18.1 Two-Tier Membership Model (DECIDED)
+#### 21.1 Two-Tier Membership Model (DECIDED)
 
 **Families: Always Free**
 
@@ -4869,7 +4876,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-#### 18.2 Pricing (DECIDED)
+#### 21.2 Pricing (DECIDED)
 
 | Plan | Price | Effective Monthly |
 |------|-------|-------------------|
@@ -4878,7 +4885,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-#### 18.4 Paywall Triggers (DECIDED)
+#### 21.4 Paywall Triggers (DECIDED)
 
 The paywall appears when a non-active provider clicks:
 
@@ -4920,7 +4927,7 @@ The paywall appears when a non-active provider clicks:
 
 ---
 
-#### 18.5 "Active" Badge (DECIDED)
+#### 21.5 "Active" Badge (DECIDED)
 
 Providers with active membership show a subtle badge:
 
@@ -4932,7 +4939,7 @@ This helps families identify providers who can respond through the platform, whi
 
 ---
 
-#### 18.6 Unclaimed Provider UX (DECIDED)
+#### 21.6 Unclaimed Provider UX (DECIDED)
 
 When a family engages an unclaimed provider:
 
@@ -4959,7 +4966,7 @@ When a family engages an unclaimed provider:
 
 ---
 
-#### 18.7-18.8 Stripe vs Mock (DECIDED)
+#### 21.7-21.8 Stripe vs Mock (DECIDED)
 
 **Demo Scope: Mock Membership**
 - Admin can toggle provider membership status
@@ -4974,7 +4981,7 @@ When a family engages an unclaimed provider:
 
 ---
 
-#### 18.9 Grace Period (DECIDED)
+#### 21.9 Grace Period (DECIDED)
 
 When payment fails:
 
@@ -4989,7 +4996,7 @@ Provider can re-activate by updating payment method and paying.
 
 ---
 
-#### 18.10 Review Tools Gating (DECIDED)
+#### 21.10 Review Tools Gating (DECIDED)
 
 | Review Capability | Non-Active (Free) | Active (Paid) |
 |-------------------|-------------------|---------------|
@@ -5067,15 +5074,15 @@ model ProviderMembership {
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 19.1 Find Caregivers (for orgs) | 🟡 | `/provider/find-caregivers` |
-| 19.2 Find Organizations (for caregivers) | ⬜ | `/provider/find-organizations` |
-| 19.3 Caregiver Availability Display | ⬜ | Critical for hiring decisions |
-| 19.4 Bidirectional Hiring Engagements | 🟡 | `HiringEngagement` model |
-| 19.5 Context-Specific CTAs | ⬜ | Different by direction |
-| 19.6 Hiring Engagement Workflow | 🟡 | Interview → Hired flow |
-| 19.7 Saved Candidates / Opportunities | ⬜ | Models defined in Ch. 14 |
-| 19.8 Org Hiring Profile Fields | ⬜ | Within unified provider profile |
-| 19.9 Caregiver Job-Seeking Profile | ⬜ | Extended fields on Provider |
+| 20.1 Find Caregivers (for orgs) | 🟡 | `/provider/find-caregivers` |
+| 20.2 Find Organizations (for caregivers) | ⬜ | `/provider/find-organizations` |
+| 20.3 Caregiver Availability Display | ⬜ | Critical for hiring decisions |
+| 20.4 Bidirectional Hiring Engagements | 🟡 | `HiringEngagement` model |
+| 20.5 Context-Specific CTAs | ⬜ | Different by direction |
+| 20.6 Hiring Engagement Workflow | 🟡 | Interview → Hired flow |
+| 20.7 Saved Candidates / Opportunities | ⬜ | Models defined in Ch. 14 |
+| 20.8 Org Hiring Profile Fields | ⬜ | Within unified provider profile |
+| 20.9 Caregiver Job-Seeking Profile | ⬜ | Extended fields on Provider |
 
 ### Key Questions — RESOLVED
 
@@ -5092,7 +5099,7 @@ model ProviderMembership {
 
 ---
 
-#### 19.1-19.2 Browse Experiences (DECIDED)
+#### 20.1-20.2 Browse Experiences (DECIDED)
 
 **Organizations Finding Caregivers:**
 
@@ -5112,7 +5119,7 @@ model ProviderMembership {
 
 ---
 
-#### 19.3 Caregiver Availability Display (DECIDED — Critical)
+#### 20.3 Caregiver Availability Display (DECIDED — Critical)
 
 **This is a critical hiring blocker.** Organizations need to quickly assess whether a caregiver is available for the specific shifts they are trying to staff.
 
@@ -5155,7 +5162,7 @@ Organizations can filter caregiver search by:
 
 ---
 
-#### 19.4-19.5 Bidirectional Hiring Engagements & CTAs (DECIDED)
+#### 20.4-20.5 Bidirectional Hiring Engagements & CTAs (DECIDED)
 
 **Context-Specific CTAs (Not Generic):**
 
@@ -5173,7 +5180,7 @@ Organizations can filter caregiver search by:
 
 ---
 
-#### 19.6 Hiring Engagement Workflow (DECIDED)
+#### 20.6 Hiring Engagement Workflow (DECIDED)
 
 **Simplified Model** (no job postings, no formal applications):
 
@@ -5217,7 +5224,7 @@ ENGAGEMENT CREATED
 
 ---
 
-#### 19.7 Saved Candidates / Opportunities (DECIDED)
+#### 20.7 Saved Candidates / Opportunities (DECIDED)
 
 **Cross-reference:** See Chapter 14 for models.
 
@@ -5230,7 +5237,7 @@ Both include optional `notes` field for tracking.
 
 ---
 
-#### 19.8 Organization Hiring Profile (DECIDED)
+#### 20.8 Organization Hiring Profile (DECIDED)
 
 **One unified provider profile** — no separate "hiring profile."
 
@@ -5266,7 +5273,7 @@ Organizations actively hiring add these fields to their existing profile:
 
 ---
 
-#### 19.9 Caregiver Job-Seeking Profile (DECIDED)
+#### 20.9 Caregiver Job-Seeking Profile (DECIDED)
 
 Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 
@@ -5686,7 +5693,7 @@ All queues follow a consistent UI pattern:
 
 **SLA**: 24 hours for review of flagged content
 
-**Cross-Reference**: See Chapter 24: Trust & Safety (24.8) for moderation rules.
+**Cross-Reference**: See Chapter 23: Trust & Safety (23.8) for moderation rules.
 
 **Demo Implementation**: Basic queue with sample flagged content in seed data.
 
@@ -6317,68 +6324,695 @@ The Admin panel includes a dedicated **Legal & Compliance** section as a **first
 
 ## Chapter 27: Human Workflows & Standard Operating Procedures
 
-> 🆕 **New Placeholder** — Structure approved, content to be developed.
+**Review Status**: ✅ Reviewed
 
-**Purpose**: Document how internal teams interact with the platform, including standard operating procedures, escalation paths, and operational workflows.
+**Purpose**: Serve as the operational playbook for the Olera admin team, defining exactly what to do, when to do it, and where to do it in the admin panel for all human-required workflows across the platform.
 
-### Scope
+> **Audience**: This chapter is written for a small admin team (2–3 business-hours staff) who are not engineers. SOPs are designed to be prescriptive, consistent, and low-judgment.
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 28.1 Claim Verification Workflows | 🆕 | Step-by-step claim review process |
-| 28.2 Content Moderation Procedures | 🆕 | Review moderation guidelines |
-| 28.3 Customer Support Escalation | 🆕 | Tiered support routing |
-| 28.4 Data Quality Review | 🆕 | Provider data audit procedures |
-| 28.5 Provider Onboarding Support | 🆕 | High-touch onboarding workflows |
-| 28.6 Incident Response Procedures | 🆕 | Emergency response protocols |
-| 28.7 Legal Request Handling | 🆕 | C&D, DMCA, regulatory inquiries |
-| 28.8 Team Onboarding Checklist | 🆕 | New team member orientation |
+> **Cross-References**:
+> - Chapter 26 (Admin System): Admin panel structure and capabilities
+> - Chapter 30 (Customer Support): Support intake channels
+> - Chapter 23 (Trust & Safety): Safety policies and enforcement
+> - Chapter 37 (Analytics & Audit Logging): Audit trail requirements
 
-### Key Questions
+---
 
-- [ ] What workflows require human intervention vs. automation?
-- [ ] What SLAs should apply to different queue types?
-- [ ] How do we measure operational efficiency?
-- [ ] What tooling do ops teams need beyond the Admin UI?
+### 27.1 Operating Philosophy
 
-### Architectural Notes
+#### 27.1.1 Automation First, Humans Second
 
-_To be developed. This chapter will serve as the operational handbook for internal teams, complementing the Admin System (Chapter 27) with detailed human procedures._
-
-### Relationship to Admin System
-
-Chapter 27 (Admin System) defines the **tools** — the queues, dashboards, and interfaces that admins use.
-
-Chapter 28 (this chapter) defines the **procedures** — how humans use those tools, when to escalate, what decisions to make, and how to maintain quality.
-
-### Sample SOP Structure
-
-Each SOP should follow this template:
+**Principle**: The system handles routine work automatically. Humans focus on exceptions, edge cases, and high-risk decisions.
 
 ```
-# SOP: [Procedure Name]
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      AUTOMATION TIERS                                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   TIER 1: Fully Automated                                               │
+│   ├── User signup/login                                                 │
+│   ├── Profile creation and updates                                      │
+│   ├── Engagement booking flow                                           │
+│   ├── Standard notifications                                            │
+│   └── Basic data validation                                             │
+│                                                                         │
+│   TIER 2: Auto-Approved + Flagged for Review                           │
+│   ├── Reviews (published, flagged if suspicious)                        │
+│   ├── Provider profile edits (live, flagged if significant)            │
+│   ├── New provider signups (active, flagged if high-risk)              │
+│   └── Claim submissions (queued, auto-verified if signals strong)      │
+│                                                                         │
+│   TIER 3: Human Review Required                                         │
+│   ├── Flagged reviews (reported or system-flagged)                      │
+│   ├── Claim verification (low confidence)                               │
+│   ├── Takedown requests (DMCA, defamation, legal)                      │
+│   ├── User suspensions/bans                                             │
+│   ├── Escalated support tickets                                         │
+│   └── Edge cases and exceptions                                         │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
-**Version**: X.X
-**Last Updated**: YYYY-MM-DD
-**SLA**: [Response time commitment]
+#### 27.1.2 Admin Panel as Command Center
 
-## Purpose
-[Why this procedure exists]
+**All human workflows funnel into the admin panel.** Admins should never need to:
+- Access the database directly
+- Edit code or configuration files
+- Use external tools for core operations
 
-## When to Use
-[Triggering conditions]
+**Admin Panel Location**: `/admin`
 
-## Procedure
-[Step-by-step instructions]
+**Key Sections**:
 
-## Escalation
-[When and how to escalate]
+| Section | Location | Purpose |
+|---------|----------|---------|
+| Dashboard | `/admin` | Overview, alerts, key metrics |
+| Users | `/admin/users` | User management, suspensions |
+| Providers | `/admin/providers` | Provider listings, verification |
+| Claims Queue | `/admin/claims` | Pending claim verifications |
+| Reviews | `/admin/reviews` | Review moderation queue |
+| Support | `/admin/support` | Support ticket management |
+| Legal | `/admin/legal` | Takedowns, DMCA, legal requests |
+| Audit Log | `/admin/audit` | All system actions |
 
-## Common Issues
-[FAQ and troubleshooting]
+---
 
-## Related SOPs
-[Cross-references]
+### 27.2 Daily Operations Checklist
+
+**Frequency**: Every business day, first thing
+
+**Location**: `/admin` (Dashboard)
+
+| Step | Action | Where | Expected Time |
+|------|--------|-------|---------------|
+| 1 | Check overnight alerts | Dashboard → Alerts | 2 min |
+| 2 | Review claims queue | `/admin/claims` | 5–15 min |
+| 3 | Process flagged reviews | `/admin/reviews` → Flagged | 5–10 min |
+| 4 | Check support tickets | `/admin/support` | 10–20 min |
+| 5 | Review legal queue | `/admin/legal` | 5 min |
+| 6 | Spot-check recent signups | `/admin/users` → Recent | 5 min |
+
+**Total Daily Time**: 30–60 minutes (light day) to 2 hours (busy day)
+
+---
+
+### 27.3 Provider Claim Verification
+
+**Triggering Event**: Provider submits claim for an unclaimed listing
+
+**Location**: `/admin/claims`
+
+**SLA**: 24 business hours
+
+#### 27.3.1 Claim Queue Overview
+
+| Column | Content |
+|--------|---------|
+| Claim ID | Unique identifier |
+| Provider Name | Business name being claimed |
+| Claimant | User submitting claim |
+| Submitted | Date/time |
+| Verification Status | Auto-verified, Pending Review, Flagged |
+| Actions | Verify, Reject, Request Info |
+
+#### 27.3.2 Auto-Verification (No Human Action Needed)
+
+**System auto-verifies when ALL conditions met**:
+- Email domain matches business website
+- User verified their email
+- No existing claim disputes
+- Business information matches public records
+
+**Result**: Claim approved automatically, admin sees in log only
+
+#### 27.3.3 Manual Verification Procedure
+
+**When**: Auto-verification fails or flags raised
+
+**Steps**:
+
+| Step | Action | Notes |
+|------|--------|-------|
+| 1 | Open claim from queue | Click claim ID |
+| 2 | Review claimant info | Check email, phone, stated role |
+| 3 | Compare to listing | Does claimed role match business? |
+| 4 | Check for red flags | Multiple claims, suspicious email, etc. |
+| 5 | **If confident**: Click "Approve Claim" | Claimant gets control of listing |
+| 6 | **If unsure**: Click "Request Verification" | System sends verification request |
+| 7 | **If suspicious**: Click "Reject Claim" | Select rejection reason |
+
+**Verification Methods** (in order of preference):
+1. Email from business domain
+2. Phone verification (admin calls business)
+3. Documentation (license, incorporation docs)
+
+#### 27.3.4 Rejection Reasons
+
+| Reason | When to Use |
+|--------|-------------|
+| Cannot verify identity | No matching evidence |
+| Duplicate claim | Another user already claimed |
+| Fraudulent attempt | Clear bad faith |
+| Incomplete information | Need more details |
+
+**After Rejection**: User receives notification with reason. They can resubmit with additional documentation.
+
+#### 27.3.5 Escalation
+
+**Escalate to leadership when**:
+- Claimant disputes rejection
+- Legal threats made
+- High-profile business involved
+- Uncertain about decision
+
+---
+
+### 27.4 Review Moderation
+
+**Triggering Events**:
+- User reports a review
+- System flags review (profanity, spam signals)
+- Provider disputes review
+
+**Location**: `/admin/reviews`
+
+**SLA**: 48 business hours
+
+#### 27.4.1 Review Queue Tabs
+
+| Tab | Content | Priority |
+|-----|---------|----------|
+| **Reported** | User-reported reviews | High |
+| **Flagged** | System-flagged reviews | Medium |
+| **Disputed** | Provider-disputed reviews | Medium |
+| **All** | All reviews (for spot-checking) | Low |
+
+#### 27.4.2 Review Moderation Procedure
+
+**Steps**:
+
+| Step | Action |
+|------|--------|
+| 1 | Open flagged review |
+| 2 | Read full review content |
+| 3 | Check reviewer history (other reviews, account age) |
+| 4 | Check provider history (review patterns, disputes) |
+| 5 | Apply moderation decision (see below) |
+| 6 | Add internal note explaining decision |
+
+#### 27.4.3 Moderation Decisions
+
+| Decision | When to Use | Effect |
+|----------|-------------|--------|
+| **Approve** | Review is legitimate | Review remains visible |
+| **Remove** | Violates guidelines | Review hidden, reviewer notified |
+| **Edit** | Minor issues (profanity) | Redact specific content |
+| **Escalate** | Legal risk, threats | Sent to legal queue |
+
+#### 27.4.4 Review Removal Criteria
+
+**Remove if review contains**:
+- Profanity or slurs
+- Personal attacks on individuals (not business)
+- Clearly false factual claims
+- Spam or promotional content
+- Confidential information
+- Threats or harassment
+
+**Keep even if**:
+- Negative opinion (allowed)
+- Mentions specific incidents (if factual)
+- Low star rating (allowed)
+- Provider disagrees (opinion is protected)
+
+#### 27.4.5 Provider Dispute Handling
+
+**When provider disputes a review**:
+
+| Step | Action |
+|------|--------|
+| 1 | Review provider's dispute reason |
+| 2 | Compare to review content |
+| 3 | Check if review violates guidelines |
+| 4 | **If violation**: Remove review |
+| 5 | **If no violation**: Deny dispute, explain to provider |
+| 6 | If provider escalates: Send to legal queue |
+
+---
+
+### 27.5 Takedown & Legal Requests
+
+**Triggering Events**:
+- DMCA takedown notice received
+- Defamation claim received
+- Legal inquiry or subpoena
+- Trademark complaint
+
+**Location**: `/admin/legal`
+
+**SLA**: 24 hours acknowledgment, resolution varies
+
+#### 27.5.1 Legal Queue Overview
+
+| Request Type | Source | Urgency |
+|--------------|--------|---------|
+| DMCA | Copyright holder | High (legal deadline) |
+| Defamation | Subject of content | Medium |
+| Trademark | Brand owner | Medium |
+| Subpoena | Court/law enforcement | High |
+| General Legal | Attorneys, users | Varies |
+
+#### 27.5.2 DMCA Takedown Procedure
+
+**Legal Requirement**: Must act on valid DMCA notices
+
+| Step | Action | Timing |
+|------|--------|--------|
+| 1 | Verify notice completeness | See checklist below |
+| 2 | If complete: Remove content immediately | Same day |
+| 3 | Notify uploader of removal | Within 24h |
+| 4 | Log in audit trail | Immediate |
+| 5 | If counter-notice received: Restore in 10–14 days | Per DMCA |
+
+**DMCA Notice Checklist**:
+- [ ] Identifies copyrighted work
+- [ ] Identifies infringing content (URL)
+- [ ] Good faith statement
+- [ ] Accuracy statement
+- [ ] Signature (electronic OK)
+- [ ] Contact information
+
+**If notice incomplete**: Respond requesting missing information
+
+#### 27.5.3 Defamation Request Procedure
+
+| Step | Action |
+|------|--------|
+| 1 | Log request in legal queue |
+| 2 | Review content in question |
+| 3 | Is it opinion or factual claim? |
+| 4 | **Opinion**: Generally protected, deny request |
+| 5 | **Factual claim**: Is it provably false? |
+| 6 | **If unsure**: Escalate to leadership/legal counsel |
+| 7 | Respond to requester with decision |
+
+**Default Position**: Content stays unless clearly violates guidelines or legal counsel advises removal.
+
+#### 27.5.4 Law Enforcement Requests
+
+| Step | Action |
+|------|--------|
+| 1 | Verify request is legitimate (official letterhead, badge number) |
+| 2 | Determine scope of request |
+| 3 | **Subpoena**: Comply with scope, preserve data |
+| 4 | **Voluntary request**: Escalate to leadership |
+| 5 | Document everything in audit log |
+| 6 | Do not notify user if prohibited by order |
+
+**Escalate immediately**: All law enforcement requests go to leadership.
+
+---
+
+### 27.6 User Management
+
+**Location**: `/admin/users`
+
+#### 27.6.1 User Lookup
+
+**Search by**:
+- Email address
+- User ID
+- Name
+- Phone number
+
+**User Detail View Shows**:
+- Account info (email, created date, role)
+- Profile completion
+- Activity history
+- Engagements
+- Reviews written
+- Flags/warnings
+
+#### 27.6.2 User Suspension Procedure
+
+**Triggering Events**:
+- Multiple guideline violations
+- Harassment reports
+- Fraud detection
+- Safety concerns
+
+| Step | Action |
+|------|--------|
+| 1 | Open user from `/admin/users` |
+| 2 | Review violation history |
+| 3 | Document reason for suspension |
+| 4 | Click "Suspend User" |
+| 5 | Select duration (temporary/permanent) |
+| 6 | User receives notification |
+| 7 | Action logged in audit trail |
+
+**Suspension Tiers**:
+
+| Tier | Duration | Trigger |
+|------|----------|---------|
+| Warning | N/A | First minor violation |
+| Temp Suspension | 7 days | Repeated minor violations |
+| Temp Suspension | 30 days | Serious violation |
+| Permanent Ban | Indefinite | Severe violation, safety risk |
+
+#### 27.6.3 Account Deletion Requests
+
+**Triggering Event**: User requests account deletion
+
+**Location**: `/admin/users` → User detail → "Deletion Requests"
+
+| Step | Action |
+|------|--------|
+| 1 | Verify request is from account owner |
+| 2 | Check for active engagements |
+| 3 | If active engagements: Contact user, cannot delete until resolved |
+| 4 | If clear: Process deletion |
+| 5 | Anonymize data per retention policy |
+| 6 | Audit log retained (anonymized) |
+
+**Data Retained After Deletion** (per Ch 39):
+- Audit logs (anonymized)
+- Financial records (7 years)
+- Legal hold data (if applicable)
+
+---
+
+### 27.7 Provider Listing Management
+
+**Location**: `/admin/providers`
+
+#### 27.7.1 Provider Lookup
+
+**Search by**:
+- Business name
+- Provider ID
+- City/State
+- Email
+- Phone
+
+**Provider Detail View Shows**:
+- Business information
+- Claim status (claimed/unclaimed)
+- Verification badges
+- Reviews summary
+- Engagement history
+- Edit history
+
+#### 27.7.2 Listing Quality Issues
+
+**When flagged for quality**:
+
+| Issue | Action |
+|-------|--------|
+| Missing required info | Contact provider, request completion |
+| Duplicate listing | Merge or remove duplicate |
+| Incorrect information | Verify and correct |
+| Closed business | Mark as inactive |
+| Photos inappropriate | Remove photos, notify |
+
+#### 27.7.3 Provider Suspension
+
+**Triggers**:
+- Fraud confirmed
+- Safety violations
+- Legal requirement
+- Repeated policy violations
+
+| Step | Action |
+|------|--------|
+| 1 | Document evidence thoroughly |
+| 2 | Escalate to leadership for approval |
+| 3 | If approved: Suspend listing |
+| 4 | Notify provider with reason |
+| 5 | Listing hidden from directory |
+| 6 | Active engagements handled case-by-case |
+
+---
+
+### 27.8 Support Ticket Management
+
+**Location**: `/admin/support`
+
+**SLA**: First response within 24 business hours
+
+#### 27.8.1 Ticket Queue
+
+| Column | Content |
+|--------|---------|
+| Ticket ID | Unique identifier |
+| Subject | Brief description |
+| User | Submitter info |
+| Category | Support category |
+| Status | New, In Progress, Waiting, Resolved |
+| Priority | Low, Normal, High, Urgent |
+| Created | Submission time |
+
+#### 27.8.2 Ticket Processing Procedure
+
+| Step | Action |
+|------|--------|
+| 1 | Open ticket from queue |
+| 2 | Read full message and context |
+| 3 | Check user history if relevant |
+| 4 | **If simple**: Respond and resolve |
+| 5 | **If complex**: Investigate, update status to "In Progress" |
+| 6 | **If needs user input**: Respond with questions, set to "Waiting" |
+| 7 | **If escalation needed**: Tag appropriately, assign to lead |
+
+#### 27.8.3 Common Support Scenarios
+
+| Scenario | Action |
+|----------|--------|
+| "Can't log in" | Reset password link, check account status |
+| "Want to delete account" | Direct to settings, or process deletion request |
+| "Wrong info on listing" | If claimed: Direct to edit. If unclaimed: Admin edit |
+| "Review is unfair" | Explain review policy, offer dispute if criteria met |
+| "Didn't receive notification" | Check delivery status, verify contact info |
+| "Billing question" | Check Stripe, explain charges |
+| "How do I...?" | Link to relevant help content or guide through |
+
+#### 27.8.4 Escalation Triggers
+
+**Escalate to leadership when**:
+- User threatens legal action
+- Safety concern raised
+- Technical issue beyond admin scope
+- Policy exception requested
+- Media/PR involvement
+
+---
+
+### 27.9 Error & Incident Response
+
+**Triggering Events**:
+- System error alerts
+- User-reported bugs
+- Performance degradation
+- Service outages
+
+**Location**: `/admin` → Dashboard → Alerts
+
+#### 27.9.1 Error Severity Levels
+
+| Level | Description | Response |
+|-------|-------------|----------|
+| **Critical** | Platform down, data loss risk | Immediate escalation |
+| **High** | Major feature broken | Escalate within 1 hour |
+| **Medium** | Feature degraded | Log ticket, business hours |
+| **Low** | Minor issue | Log for engineering backlog |
+
+#### 27.9.2 Incident Response Procedure
+
+**For Critical/High severity**:
+
+| Step | Action | Who |
+|------|--------|-----|
+| 1 | Acknowledge alert | Admin |
+| 2 | Document symptoms | Admin |
+| 3 | Escalate to engineering | Admin → Engineering |
+| 4 | Update status page (if exists) | Engineering |
+| 5 | Monitor for resolution | Admin |
+| 6 | Notify affected users if needed | Admin |
+| 7 | Post-incident review | Team |
+
+**For Medium/Low severity**:
+
+| Step | Action |
+|------|--------|
+| 1 | Log issue details |
+| 2 | Create ticket for engineering |
+| 3 | Note workarounds if available |
+| 4 | Monitor for recurrence |
+
+---
+
+### 27.10 Attribution & Referral Management
+
+**Location**: `/admin/attribution` (if built) or `/admin/users`
+
+#### 27.10.1 Referral Tracking
+
+**What's Tracked**:
+- Referral source (partner, campaign, organic)
+- Conversion events
+- Attribution disputes
+
+#### 27.10.2 Attribution Dispute Handling
+
+| Step | Action |
+|------|--------|
+| 1 | Review dispute details |
+| 2 | Check referral tracking data |
+| 3 | Verify cookie/parameter data |
+| 4 | Make determination |
+| 5 | Communicate decision to partner |
+| 6 | Adjust attribution if needed |
+
+---
+
+### 27.11 Audit Log Usage
+
+**Location**: `/admin/audit`
+
+**Purpose**: Track all system actions for compliance, debugging, and accountability.
+
+#### 27.11.1 Audit Log Fields
+
+| Field | Description |
+|-------|-------------|
+| Timestamp | When action occurred |
+| Actor | Who performed action (user, admin, system) |
+| Action | What was done |
+| Target | What was affected |
+| Details | Additional context |
+| IP Address | Origin (for security) |
+
+#### 27.11.2 Common Audit Log Uses
+
+| Use Case | How to Search |
+|----------|---------------|
+| User activity history | Filter by actor ID |
+| Track specific action | Filter by action type |
+| Investigate incident | Filter by time range |
+| Compliance review | Export filtered results |
+
+#### 27.11.3 Audit Log Retention
+
+| Log Type | Retention |
+|----------|-----------|
+| Auth events | 7 years |
+| Admin actions | 7 years |
+| User data changes | 7 years |
+| System events | 1 year |
+
+---
+
+### 27.12 SLA Summary
+
+| Queue | First Response | Resolution Target |
+|-------|----------------|-------------------|
+| Claims | 24 business hours | 48 business hours |
+| Flagged Reviews | 24 business hours | 48 business hours |
+| Support Tickets | 24 business hours | Varies by complexity |
+| Legal Requests | 24 hours | Per legal requirements |
+| DMCA | Same day | Same day |
+| Critical Errors | Immediate | ASAP |
+
+---
+
+### 27.13 Escalation Matrix
+
+| Situation | Escalate To | Method |
+|-----------|-------------|--------|
+| Legal threats | Leadership | Immediate message |
+| Safety concerns | Leadership | Immediate message |
+| Technical issues (Critical) | Engineering | On-call alert |
+| Policy exceptions | Leadership | Email with context |
+| Media/PR inquiries | Leadership | Immediate message |
+| Fraud patterns | Leadership + Engineering | Meeting |
+| User appeals (after denial) | Leadership | Email with history |
+
+---
+
+### 27.14 Admin Onboarding Checklist
+
+**For new admin team members**:
+
+| Day | Task | Duration |
+|-----|------|----------|
+| 1 | Read this chapter (Ch 27) | 2 hours |
+| 1 | Admin panel walkthrough | 1 hour |
+| 1 | Shadow experienced admin | 2 hours |
+| 2 | Practice claim verification (supervised) | 2 hours |
+| 2 | Practice review moderation (supervised) | 2 hours |
+| 3 | Handle support tickets (supervised) | 4 hours |
+| 4 | Solo operations (with backup available) | Full day |
+| 5 | Full solo operations | Full day |
+
+**Access Levels**:
+
+| Level | Can Do |
+|-------|--------|
+| Admin (Standard) | All daily operations |
+| Admin (Senior) | + User suspensions, escalation handling |
+| Admin (Lead) | + Policy exceptions, team management |
+
+---
+
+### 27.15 Demo vs Production Scope
+
+| Workflow | Demo | Production |
+|----------|------|------------|
+| Claim verification | ✅ Manual queue | ✅ + Auto-verification |
+| Review moderation | ✅ Manual queue | ✅ + AI flagging |
+| Support tickets | ✅ Basic queue | ✅ + SLA tracking |
+| Legal handling | ✅ Manual process | ✅ + Legal tooling |
+| Incident response | 🟡 Basic alerts | ✅ + PagerDuty |
+| Audit logging | ✅ Basic | ✅ + Retention policies |
+| SLA monitoring | ⬜ Defer | ✅ Dashboard |
+
+---
+
+### 27.16 Quick Reference Card
+
+**Print this for daily use**:
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║                    ADMIN QUICK REFERENCE                               ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                        ║
+║  DAILY CHECKLIST                                                       ║
+║  □ Check alerts (/admin → Dashboard)                                   ║
+║  □ Process claims (/admin/claims)                                      ║
+║  □ Review flagged reviews (/admin/reviews)                            ║
+║  □ Handle support tickets (/admin/support)                            ║
+║  □ Check legal queue (/admin/legal)                                   ║
+║                                                                        ║
+║  SLA REMINDERS                                                         ║
+║  • Claims: 24h first response, 48h resolution                         ║
+║  • Reviews: 48h resolution                                            ║
+║  • Support: 24h first response                                        ║
+║  • DMCA: Same day action required                                     ║
+║                                                                        ║
+║  ESCALATE IMMEDIATELY                                                  ║
+║  • Legal threats → Leadership                                         ║
+║  • Safety concerns → Leadership                                       ║
+║  • Platform down → Engineering                                        ║
+║  • Media inquiries → Leadership                                       ║
+║                                                                        ║
+║  WHEN IN DOUBT                                                         ║
+║  • Document everything                                                 ║
+║  • Don't rush decisions                                               ║
+║  • Ask for help                                                       ║
+║  • Check audit log for precedent                                      ║
+║                                                                        ║
+╚═══════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
@@ -8171,7 +8805,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 
 **Schema Markup**: `QAPage` with `Question` and `Answer`
 
-**Moderation Queue**: See Chapter 27: Admin System for queue specifications.
+**Moderation Queue**: See Chapter 26: Admin System for queue specifications.
 
 #### 28.5.7 Comparison Pages
 
@@ -9124,132 +9758,1248 @@ Section 29.10 (Key Decisions Log) — Approve / Modify / Reject
 
 ## Chapter 31: Application Architecture & Tech Stack
 
-> 🆕 **New Chapter** — Structure approved, content to be developed.
+**Review Status**: ✅ Reviewed
 
 **Purpose**: Document the complete technical architecture enabling the Olera platform, serving as the single source of truth for all technology decisions.
 
-### Scope
+> **Cross-References**:
+> - Chapter 32 (Hosting & Deployment): Vercel configuration, environment management
+> - Chapter 33 (File Uploads): Vercel Blob storage integration
+> - Chapter 35 (Error Handling): Error architecture patterns
+> - Chapter 36 (Performance): Database indexes, caching strategies
+> - Chapter 38 (Third-Party Services): Complete service registry
 
-| Section | Status | Notes |
-|---------|--------|-------|
-| 31.1 Frontend Architecture | 🆕 | Next.js, React, TypeScript |
-| 31.2 Backend Architecture | 🆕 | API Routes, Services Layer |
-| 31.3 Database Layer | 🆕 | PostgreSQL, Prisma ORM |
-| 31.4 Authentication Infrastructure | 🆕 | NextAuth.js, session management |
+---
 
-### 31.1 Frontend Architecture
+### 31.1 Technology Stack Overview
 
-**Technology Stack**:
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Components**: Custom component library
-- **State Management**: React hooks, server components
+**Core Stack Summary**:
 
-_Detailed architecture to be documented._
+| Layer | Technology | Version | Purpose |
+|-------|------------|---------|---------|
+| **Framework** | Next.js | 15.1.0 | Full-stack React framework (App Router) |
+| **Language** | TypeScript | 5.7.2 | Type-safe JavaScript |
+| **UI Library** | React | 18.3.1 | Component-based UI |
+| **Styling** | Tailwind CSS | 3.4.17 | Utility-first CSS |
+| **Database** | PostgreSQL | — | Relational database (hosted on Neon) |
+| **ORM** | Prisma | 6.2.0 | Type-safe database client |
+| **Authentication** | NextAuth.js | 4.24.11 | Auth framework for Next.js |
+| **Validation** | Zod | 3.24.1 | Schema validation |
+| **File Storage** | Vercel Blob | 2.0.0 | Object storage for uploads |
+| **Hosting** | Vercel | — | Serverless deployment platform |
 
-### 31.2 Backend Architecture
+**Key Dependencies**:
 
-**Technology Stack**:
-- **API**: Next.js API Routes
-- **Validation**: Zod schemas
-- **Authentication**: NextAuth.js
-- **Services**: Business logic layer
+| Package | Purpose |
+|---------|---------|
+| `@headlessui/react` | Accessible UI components (modals, dropdowns) |
+| `react-hot-toast` | Toast notifications |
+| `date-fns` | Date manipulation |
+| `bcryptjs` | Password hashing |
+| `leaflet` / `react-leaflet` | Map components |
+| `marked` | Markdown parsing |
+| `isomorphic-dompurify` | HTML sanitization |
 
-_Detailed architecture to be documented._
+---
 
-### 31.3 Database Layer
+### 31.2 Frontend Architecture
 
-**Technology Stack**:
-- **Database**: PostgreSQL (Neon)
-- **ORM**: Prisma
-- **Migrations**: Prisma Migrate
+#### 31.2.1 Next.js App Router
 
-_Schema documentation and data models to be documented._
+**Router**: App Router (Next.js 13+)
 
-### 31.4 Authentication Infrastructure
+**Key Features Used**:
+- Server Components (default)
+- Client Components (`"use client"` directive)
+- API Routes (`app/api/`)
+- Layouts and nested routing
+- Loading and error states
 
-**Technology Stack**:
-- **Provider**: NextAuth.js
-- **Strategies**: Credentials, OAuth (future)
-- **Sessions**: JWT-based
+**Directory Structure**:
+```
+app/
+├── layout.tsx              # Root layout (providers, global styles)
+├── page.tsx                # Homepage
+├── error.tsx               # Global error boundary
+├── not-found.tsx           # 404 page
+├── globals.css             # Global styles
+├── api/                    # API routes (20 directories)
+├── admin/                  # Admin pages
+├── dashboard/              # User dashboard
+├── provider/               # Provider pages
+├── providers/              # Provider directory
+├── login/                  # Auth pages
+├── signup/
+├── settings/
+└── ...
+```
 
-_Authentication flows to be documented._
+#### 31.2.2 Component Architecture
+
+**Component Organization**:
+```
+components/
+├── Auth/                   # Authentication components
+├── CareProfile/            # Family profile components
+├── Dashboard/              # Dashboard widgets
+├── Directory/              # Provider directory cards
+├── Gallery/                # Photo gallery/upload
+├── Loading/                # Loading skeletons
+├── Messaging/              # Chat/messaging UI
+├── Navigation/             # Header, sidebar, nav
+├── Paywall/                # Subscription gates
+├── Provider/               # Provider page components
+├── ProviderProfile/        # Provider profile editing
+├── Reviews/                # Review display/forms
+├── SEO/                    # Meta tags, structured data
+└── UI/                     # Shared UI primitives
+```
+
+**Component Patterns**:
+
+| Pattern | Usage |
+|---------|-------|
+| Server Components | Data fetching, static content |
+| Client Components | Interactive UI, forms, state |
+| Composition | Layouts wrapping page content |
+| Props drilling | Minimal; prefer server fetching |
+
+#### 31.2.3 Styling with Tailwind
+
+**Configuration**: Default Tailwind with custom theme extensions
+
+**Patterns**:
+- Utility classes for all styling
+- `className` prop for component styling
+- Responsive prefixes (`sm:`, `md:`, `lg:`)
+- Dark mode: Not implemented for demo
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Responsive design | ✅ | ✅ |
+| Custom color palette | ✅ | ✅ |
+| Dark mode | ⬜ Defer | ✅ |
+| Component variants | 🟡 Ad-hoc | Design system |
+
+---
+
+### 31.3 Backend Architecture
+
+#### 31.3.1 API Routes
+
+**Location**: `app/api/`
+
+**Route Categories**:
+
+| Category | Routes | Purpose |
+|----------|--------|---------|
+| **Auth** | `/api/auth/*`, `/api/register` | Authentication, signup |
+| **Users** | `/api/user/*` | User profile management |
+| **Providers** | `/api/providers/*` | Provider CRUD, search |
+| **Families** | `/api/family-profiles/*` | Family profile management |
+| **Engagements** | `/api/requests/*` | Booking/engagement flow |
+| **Messaging** | `/api/dashboard/messages/*` | Chat functionality |
+| **Reviews** | `/api/reviews/*` | Review management |
+| **Subscriptions** | `/api/subscription/*` | Stripe integration |
+| **Notifications** | `/api/notifications/*` | In-app notifications |
+| **Admin** | `/api/admin/*` | Admin operations |
+| **Uploads** | `/api/upload/*` | File uploads |
+
+**API Pattern**:
+```typescript
+// Standard API route structure
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(request: NextRequest) {
+  // 1. Authentication check
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // 2. Business logic
+  const data = await prisma.model.findMany({ ... });
+
+  // 3. Response
+  return NextResponse.json(data);
+}
+```
+
+#### 31.3.2 Services Layer
+
+**Location**: `lib/`
+
+| File | Purpose |
+|------|---------|
+| `auth.ts` | NextAuth configuration, session handling |
+| `prisma.ts` | Prisma client singleton |
+| `mode-helpers.ts` | User mode (FAMILY/PROVIDER) utilities |
+| `contact-masking.ts` | Contact info visibility logic |
+| `providerUtils.ts` | Provider-specific utilities |
+| `toast.ts` | Toast notification helpers |
+
+**Prisma Client Pattern**:
+```typescript
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
+```
+
+#### 31.3.3 Validation with Zod
+
+**Pattern**: Validate request bodies in API routes
+
+```typescript
+import { z } from 'zod';
+
+const CreateReviewSchema = z.object({
+  providerId: z.string(),
+  rating: z.number().min(1).max(5),
+  content: z.string().min(10).max(2000),
+});
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const result = CreateReviewSchema.safeParse(body);
+
+  if (!result.success) {
+    return NextResponse.json(
+      { error: result.error.issues[0].message },
+      { status: 400 }
+    );
+  }
+
+  // Use validated data
+  const { providerId, rating, content } = result.data;
+}
+```
+
+---
+
+### 31.4 Database Layer
+
+#### 31.4.1 PostgreSQL on Neon
+
+**Provider**: Neon (serverless PostgreSQL)
+
+**Connection**: Via `DATABASE_URL` environment variable
+
+**Features Used**:
+- Standard PostgreSQL
+- Serverless scaling (Neon)
+- Connection pooling (Neon managed)
+
+#### 31.4.2 Prisma ORM
+
+**Schema Location**: `prisma/schema.prisma`
+
+**Core Models**:
+
+| Model | Purpose |
+|-------|---------|
+| `User` | User accounts (all roles) |
+| `FamilyProfile` | Family/care recipient details |
+| `Provider` | Provider listings |
+| `ProviderIdentity` | Provider onboarding gate |
+| `ConsultRequest` | Engagement/booking requests |
+| `Review` | Provider reviews |
+| `Subscription` | Stripe subscription data |
+| `SavedProvider` | Family saved providers |
+| `SavedFamilyProfile` | Provider saved families |
+| `ContactView` | Contact info unlock tracking |
+| `Notification` | In-app notifications |
+
+**Enums**:
+
+| Enum | Values |
+|------|--------|
+| `UserRole` | FAMILY, PROVIDER, ADMIN |
+| `UserMode` | FAMILY, PROVIDER |
+| `ProviderType` | HOME_CARE, ASSISTED_LIVING, MEMORY_CARE, ... |
+| `CareType` | COMPANION_CARE, PERSONAL_CARE, SKILLED_NURSING, ... |
+| `ConsultRequestStatus` | PENDING, ACCEPTED, DECLINED, COMPLETED, CANCELLED |
+| `SubscriptionTier` | FREE, BASIC, PRO |
+| `SubscriptionStatus` | ACTIVE, CANCELLED, EXPIRED, PAST_DUE |
+
+**Key Indexes** (performance optimization):
+
+| Model | Indexed Fields |
+|-------|----------------|
+| Provider | `city`, `state`, `providerType` |
+| ConsultRequest | `familyProfileId`, `providerId`, `status` |
+| SavedProvider | `userId`, `providerId` |
+| Review | `providerId`, `userId` |
+
+#### 31.4.3 Migrations
+
+**Strategy**: `prisma db push` for demo (schema sync without migrations)
+
+```bash
+# Development: Push schema changes
+npx prisma db push
+
+# Generate client after schema changes
+npx prisma generate
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Schema push | ✅ `db push` | ⬜ |
+| Migrations | ⬜ Defer | ✅ `prisma migrate` |
+| Seed data | ✅ `prisma/seed.ts` | ✅ |
+
+---
+
+### 31.5 Authentication Infrastructure
+
+#### 31.5.1 NextAuth.js Configuration
+
+**Location**: `lib/auth.ts`
+
+**Session Strategy**: JWT (stateless)
+
+**Providers**:
+- Credentials (email/password) — ✅ Implemented
+- OAuth (Google, etc.) — ⬜ Deferred for demo
+
+**Session Data**:
+```typescript
+{
+  user: {
+    id: string,
+    email: string,
+    name: string,
+    role: 'FAMILY' | 'PROVIDER' | 'ADMIN',
+    activeMode: 'FAMILY' | 'PROVIDER'
+  }
+}
+```
+
+#### 31.5.2 Authentication Flow
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   /login    │ ──▶ │  NextAuth   │ ──▶ │  Prisma     │
+│   (form)    │     │  authorize  │     │  (verify)   │
+└─────────────┘     └─────────────┘     └─────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  JWT Token  │
+                    │  (cookie)   │
+                    └─────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  Session    │
+                    │  (server)   │
+                    └─────────────┘
+```
+
+**Mode Calculation on Login**:
+- Default: FAMILY mode
+- If user has Provider with ≥15% profile completion → PROVIDER mode
+- Mode stored in `user.activeMode` and JWT
+
+#### 31.5.3 Protected Routes
+
+**Server-Side Protection**:
+```typescript
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+
+export default async function ProtectedPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect('/login');
+
+  return <div>Protected content</div>;
+}
+```
+
+**API Route Protection**:
+```typescript
+const session = await getServerSession(authOptions);
+if (!session?.user) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+}
+```
+
+---
+
+### 31.6 Directory Structure
+
+**Complete Project Structure**:
+```
+/home/user/test-web-app/
+├── app/                      # Next.js App Router
+│   ├── api/                 # API routes (20 directories)
+│   │   ├── auth/           # NextAuth handlers
+│   │   ├── providers/      # Provider CRUD
+│   │   ├── family-profiles/# Family CRUD
+│   │   ├── requests/       # Engagements
+│   │   ├── reviews/        # Reviews
+│   │   ├── subscription/   # Stripe
+│   │   ├── notifications/  # Notifications
+│   │   ├── upload/         # File uploads
+│   │   └── ...
+│   ├── admin/              # Admin pages
+│   ├── dashboard/          # User dashboard
+│   ├── provider/           # Provider pages
+│   ├── providers/          # Directory/search
+│   ├── login/              # Auth pages
+│   ├── signup/
+│   ├── settings/
+│   ├── layout.tsx          # Root layout
+│   ├── page.tsx            # Homepage
+│   ├── error.tsx           # Error boundary
+│   ├── not-found.tsx       # 404 page
+│   └── globals.css         # Global styles
+├── components/              # React components (19 directories)
+│   ├── Auth/
+│   ├── CareProfile/
+│   ├── Dashboard/
+│   ├── Directory/
+│   ├── Gallery/
+│   ├── Messaging/
+│   ├── Navigation/
+│   ├── Provider/
+│   ├── Reviews/
+│   ├── UI/
+│   └── ...
+├── lib/                     # Utilities
+│   ├── auth.ts             # NextAuth config
+│   ├── prisma.ts           # Prisma client
+│   ├── mode-helpers.ts     # Mode utilities
+│   └── ...
+├── prisma/
+│   ├── schema.prisma       # Database schema
+│   └── seed.ts             # Seed data script
+├── types/                   # TypeScript definitions
+├── public/                  # Static assets
+├── scripts/                 # Build/utility scripts
+├── docs/                    # Documentation
+├── package.json
+├── next.config.ts
+├── tailwind.config.ts
+├── tsconfig.json
+└── vercel.json             # Vercel configuration
+```
+
+---
+
+### 31.7 Environment Variables
+
+**Required Variables**:
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://...` |
+| `NEXTAUTH_SECRET` | JWT signing secret | Random 32+ char string |
+| `NEXTAUTH_URL` | Base URL for auth | `https://olera.app` |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob access | Vercel-provided |
+
+**Optional/Future Variables**:
+
+| Variable | Purpose | Demo Status |
+|----------|---------|-------------|
+| `STRIPE_SECRET_KEY` | Stripe payments | ⬜ If payments enabled |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhooks | ⬜ If payments enabled |
+| `RESEND_API_KEY` | Email sending | ⬜ For communications |
+| `TWILIO_ACCOUNT_SID` | SMS sending | ⬜ For communications |
+| `TWILIO_AUTH_TOKEN` | SMS sending | ⬜ For communications |
+| `TWILIO_PHONE_NUMBER` | SMS sender | ⬜ For communications |
+| `SENTRY_DSN` | Error tracking | ⬜ Production only |
+
+> **Cross-Reference**: See Chapter 38 (Third-Party Services) for complete environment variable registry.
 
 ---
 
 ## Chapter 32: Hosting, Deployment & CI/CD
 
-> 🆕 **New Chapter** — Structure approved, content to be developed.
+**Review Status**: ✅ Reviewed
 
-**Purpose**: Document hosting environment, deployment processes, and release management.
+**Purpose**: Document hosting environment, deployment processes, and release management for the Olera platform.
 
-### Scope
+> **Cross-References**:
+> - Chapter 31 (Application Architecture): Technology stack details
+> - Chapter 35 (Error Handling): Vercel logs for monitoring
+> - Chapter 36 (Performance): Vercel Analytics
+> - Chapter 38 (Third-Party Services): Vercel in service registry
 
-| Section | Status | Notes |
-|---------|--------|-------|
-| 32.1 Hosting Environment | 🆕 | Vercel deployment |
-| 32.2 Deployment Pipeline | 🆕 | Git-based deploys |
-| 32.3 Environment Management | 🆕 | Dev, staging, production |
-| 32.4 Release Process | 🆕 | Version control, rollbacks |
+---
 
 ### 32.1 Hosting Environment
 
-**Platform**: Vercel
-- Automatic deployments from Git
-- Edge network distribution
-- Serverless functions
+#### 32.1.1 Vercel Platform
 
-_Configuration details to be documented._
+**Provider**: Vercel
+
+| Feature | Description |
+|---------|-------------|
+| **Hosting Type** | Serverless (Functions + Edge) |
+| **CDN** | Global Edge Network |
+| **SSL** | Automatic HTTPS |
+| **Domain** | Custom domain support |
+| **Framework** | Next.js (first-class support) |
+
+**Why Vercel**:
+- Native Next.js integration (Vercel created Next.js)
+- Zero-config deployments
+- Automatic preview deployments
+- Built-in analytics
+- Serverless functions with no cold-start optimization
+
+#### 32.1.2 Infrastructure Components
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         VERCEL INFRASTRUCTURE                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐  │
+│   │   Edge Network  │     │   Serverless    │     │   Vercel Blob   │  │
+│   │   (CDN/Static)  │     │   Functions     │     │   (Storage)     │  │
+│   └────────┬────────┘     └────────┬────────┘     └────────┬────────┘  │
+│            │                       │                       │           │
+│            └───────────────────────┼───────────────────────┘           │
+│                                    │                                    │
+│                           ┌────────▼────────┐                          │
+│                           │   Next.js App   │                          │
+│                           └────────┬────────┘                          │
+│                                    │                                    │
+└────────────────────────────────────┼────────────────────────────────────┘
+                                     │
+                            ┌────────▼────────┐
+                            │   Neon (DB)     │
+                            │   PostgreSQL    │
+                            └─────────────────┘
+```
+
+#### 32.1.3 Vercel Configuration
+
+**File**: `vercel.json`
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "prisma db push --accept-data-loss && npm run build",
+  "framework": "nextjs"
+}
+```
+
+**Configuration Notes**:
+- Custom build command includes Prisma schema sync
+- Framework auto-detected as Next.js
+- No custom routes or redirects configured (Next.js handles routing)
+
+| Setting | Value | Notes |
+|---------|-------|-------|
+| Build Command | `prisma db push && npm run build` | Schema sync before build |
+| Output Directory | Auto (`.next`) | Next.js default |
+| Install Command | `npm install` | Default |
+| Node.js Version | 18.x | LTS version |
+
+---
 
 ### 32.2 Deployment Pipeline
 
-**Process**:
-- Push to main → automatic production deploy
-- Pull requests → preview deployments
-- Branch deploys for staging
+#### 32.2.1 Git-Based Workflow
 
-_Pipeline configuration to be documented._
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Local     │     │   GitHub    │     │   Vercel    │
+│   Dev       │ ──▶ │   Push      │ ──▶ │   Build     │
+└─────────────┘     └─────────────┘     └─────────────┘
+                           │                    │
+                           │                    ▼
+                    ┌──────┴──────┐      ┌─────────────┐
+                    │   Branch    │      │   Deploy    │
+                    └─────────────┘      └─────────────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+        ┌──────────┐ ┌──────────┐ ┌──────────┐
+        │  main    │ │  PR      │ │  feature │
+        │  branch  │ │  branch  │ │  branch  │
+        └────┬─────┘ └────┬─────┘ └────┬─────┘
+             │            │            │
+             ▼            ▼            ▼
+        Production    Preview      Preview
+```
+
+#### 32.2.2 Deployment Types
+
+| Type | Trigger | URL | Purpose |
+|------|---------|-----|---------|
+| **Production** | Push to `main` | `olera.app` | Live production site |
+| **Preview** | Pull request | `*.vercel.app` | PR review, testing |
+| **Branch** | Push to any branch | `*.vercel.app` | Development testing |
+
+**Current Production URL**: `test-web-app-pi.vercel.app` (from `main` branch)
+
+#### 32.2.3 Build Process
+
+**Build Steps**:
+1. Install dependencies (`npm install`)
+2. Generate Prisma client (`postinstall: prisma generate`)
+3. Sync database schema (`prisma db push`)
+4. Build Next.js application (`next build`)
+5. Deploy to Vercel infrastructure
+
+**Build Output**:
+```
+├── .next/                  # Compiled application
+│   ├── static/            # Static assets (JS, CSS)
+│   ├── server/            # Server-side code
+│   └── cache/             # Build cache
+```
+
+**Build Time**: ~2-3 minutes (typical)
+
+| Step | Duration | Notes |
+|------|----------|-------|
+| Install | ~30s | npm dependencies |
+| Prisma Generate | ~5s | Type generation |
+| Prisma Push | ~10s | Schema sync |
+| Next.js Build | ~90s | Compilation |
+| Deploy | ~30s | Edge distribution |
+
+---
 
 ### 32.3 Environment Management
 
-**Environments**:
-- Development (local)
-- Preview (PR branches)
-- Production (main branch)
+#### 32.3.1 Environment Types
 
-**Environment Variables**: Managed via Vercel dashboard
+| Environment | Branch | Database | Purpose |
+|-------------|--------|----------|---------|
+| **Development** | local | Local or shared Neon | Local development |
+| **Preview** | PR branches | Shared Neon (demo) | PR review |
+| **Production** | `main` | Production Neon | Live site |
 
-_Environment configuration to be documented._
+**Current Setup** (Demo):
+- Single Neon database shared across all environments
+- Production and preview use same data
 
-### 32.4 Release Process
+**Production Setup** (Future):
+- Separate databases per environment
+- Database branching for previews
 
-**Versioning**: Semantic versioning
-**Rollbacks**: Vercel instant rollback capability
+#### 32.3.2 Environment Variables
 
-_Release procedures to be documented._
+**Management**: Vercel Dashboard → Project → Settings → Environment Variables
+
+**Variable Scopes**:
+
+| Scope | Description |
+|-------|-------------|
+| Production | Only production deployments |
+| Preview | All preview deployments |
+| Development | Local development (via `.env.local`) |
+
+**Required Variables by Environment**:
+
+| Variable | Development | Preview | Production |
+|----------|-------------|---------|------------|
+| `DATABASE_URL` | ✅ | ✅ | ✅ |
+| `NEXTAUTH_SECRET` | ✅ | ✅ | ✅ |
+| `NEXTAUTH_URL` | ✅ | Auto | Auto |
+| `BLOB_READ_WRITE_TOKEN` | ✅ | ✅ | ✅ |
+
+**Local Development** (`.env.local`):
+```bash
+DATABASE_URL="postgresql://..."
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3001"
+BLOB_READ_WRITE_TOKEN="vercel_blob_..."
+```
+
+> **Note**: `.env.local` is gitignored and not committed to version control.
+
+#### 32.3.3 Secrets Management
+
+| Secret Type | Storage | Access |
+|-------------|---------|--------|
+| Database credentials | Vercel env vars | Build + runtime |
+| API keys | Vercel env vars | Runtime only |
+| Auth secrets | Vercel env vars | Runtime only |
+
+**Best Practices**:
+- Never commit secrets to Git
+- Use Vercel's encrypted environment variables
+- Rotate secrets periodically (production)
+- Use different values per environment
+
+---
+
+### 32.4 Build Configuration
+
+#### 32.4.1 Next.js Configuration
+
+**File**: `next.config.ts`
+
+```typescript
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  // Disable caching during development
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
+};
+
+export default nextConfig;
+```
+
+**Current Configuration**: Minimal (relies on Next.js defaults)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Image optimization | ✅ Default | Vercel Image Optimization |
+| API routes | ✅ Default | Serverless functions |
+| Static generation | ✅ Default | Automatic |
+| Edge runtime | ⬜ Not used | Could optimize specific routes |
+
+#### 32.4.2 TypeScript Configuration
+
+**File**: `tsconfig.json`
+
+**Key Settings**:
+- Strict mode enabled
+- Path aliases (`@/*` → `/*`)
+- Next.js plugin for type checking
+
+#### 32.4.3 Package Scripts
+
+**File**: `package.json`
+
+```json
+{
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  }
+}
+```
+
+| Script | Purpose | When Used |
+|--------|---------|-----------|
+| `dev` | Local development server | Development |
+| `build` | Production build | Vercel build |
+| `start` | Start production server | Not used (Vercel) |
+| `lint` | ESLint check | Development |
+| `postinstall` | Generate Prisma client | After npm install |
+| `seed` | Seed database | Manual |
+
+---
+
+### 32.5 Domain & SSL
+
+#### 32.5.1 Domain Configuration
+
+**Current Setup**:
+- Vercel subdomain: `test-web-app-pi.vercel.app`
+- Custom domain: ⬜ Not configured for demo
+
+**Production Setup** (Future):
+| Domain | Purpose |
+|--------|---------|
+| `olera.app` | Primary domain |
+| `www.olera.app` | Redirect to primary |
+| `app.olera.app` | Application (optional) |
+
+#### 32.5.2 SSL/HTTPS
+
+**Provider**: Vercel (automatic Let's Encrypt)
+
+| Feature | Status |
+|---------|--------|
+| HTTPS enforcement | ✅ Automatic |
+| SSL certificate | ✅ Auto-provisioned |
+| Certificate renewal | ✅ Automatic |
+| HTTP → HTTPS redirect | ✅ Automatic |
+
+---
+
+### 32.6 Monitoring & Logs
+
+#### 32.6.1 Vercel Dashboard
+
+**Location**: `vercel.com/dashboard`
+
+**Available Metrics**:
+
+| Metric | Description | Demo | Production |
+|--------|-------------|------|------------|
+| Deployment status | Build success/failure | ✅ | ✅ |
+| Function invocations | API call counts | ✅ | ✅ |
+| Function duration | Execution time | ✅ | ✅ |
+| Edge requests | CDN traffic | ✅ | ✅ |
+| Bandwidth | Data transfer | ✅ | ✅ |
+
+#### 32.6.2 Logs
+
+**Log Types**:
+
+| Log Type | Access | Retention |
+|----------|--------|-----------|
+| Build logs | Vercel Dashboard | 7 days |
+| Function logs | Vercel Dashboard → Logs | 1 hour (free tier) |
+| Edge logs | Vercel Dashboard → Logs | 1 hour (free tier) |
+
+**Accessing Logs**:
+1. Vercel Dashboard → Project → Deployments
+2. Select deployment → View Function Logs
+3. Filter by timestamp, function name, status
+
+#### 32.6.3 Vercel Analytics
+
+**Features**:
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Web Vitals | ✅ | ✅ |
+| Page views | ✅ | ✅ |
+| Unique visitors | ✅ | ✅ |
+| Geographic distribution | ✅ | ✅ |
+| Device breakdown | ✅ | ✅ |
+
+> **Cross-Reference**: See Chapter 36 (Performance) for Core Web Vitals targets.
+
+---
+
+### 32.7 Rollbacks & Recovery
+
+#### 32.7.1 Instant Rollback
+
+**Feature**: Vercel supports instant rollback to any previous deployment
+
+**Process**:
+1. Vercel Dashboard → Deployments
+2. Find previous stable deployment
+3. Click "..." → "Promote to Production"
+
+**Rollback Time**: < 1 minute (no rebuild required)
+
+#### 32.7.2 Deployment History
+
+**Retention**: All deployments retained indefinitely
+
+| Action | Result |
+|--------|--------|
+| Rollback | Previous deployment becomes active |
+| Redeploy | Rebuild from same commit |
+| Promote | Make preview deployment production |
+
+---
+
+### 32.8 Demo vs Production Summary
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Hosting | ✅ Vercel | ✅ Vercel |
+| Custom domain | ⬜ Vercel subdomain | ✅ Custom domain |
+| SSL | ✅ Automatic | ✅ Automatic |
+| Environment separation | 🟡 Shared DB | ✅ Separate DBs |
+| CI/CD | ✅ Git-based | ✅ Git-based |
+| Preview deployments | ✅ | ✅ |
+| Rollbacks | ✅ | ✅ |
+| Monitoring | ✅ Vercel Dashboard | ✅ + Sentry |
+| Log retention | 🟡 1 hour | ✅ Extended |
 
 ---
 
 ## Chapter 33: File Uploads & Media
 
-**Purpose**: Handle image and document uploads throughout the platform.
+**Review Status**: ✅ Reviewed
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 33.1 Image Upload API | ✅ | `/api/upload/images` |
-| 33.2 Vercel Blob Storage | ✅ | Configured |
-| 33.3 Profile Photo Upload | ✅ | Integrated |
-| 33.4 Provider Photo Gallery | ✅ | Components exist |
-| 33.5 Document Uploads (certificates) | 🟡 | `certificateUrls` field exists |
-| 33.6 File Size Limits | 🟡 | May need verification |
-| 33.7 Image Optimization | 🟡 | Next/Image usage |
+**Purpose**: Define the file upload and media management infrastructure for the Olera platform, covering image uploads (profile photos, galleries), document uploads (certificates, licenses), storage architecture, optimization strategies, and admin oversight.
 
-### Key Questions
-- [ ] Any upload issues to address?
+> **Cross-References**:
+> - Chapter 6 (Provider Profiles): Photo gallery integration
+> - Chapter 7 (Family Profiles): Profile photo upload
+> - Chapter 23 (Trust & Safety): Certificate/license verification documents
+> - Chapter 26 (Admin System): Media Management section (Production)
+> - Chapter 35 (Error Handling): Upload error states
+> - Chapter 36 (Performance & Caching): Image optimization
+> - Chapter 37 (Analytics & Audit Logging): File upload/delete audit trail
+> - Chapter 38 (Third-Party Services): Vercel Blob storage
 
-### Architectural Notes
-_To be filled in during chapter review._
+---
+
+### 33.1 Storage Architecture
+
+**Storage Provider**: Vercel Blob
+
+| Attribute | Value |
+|-----------|-------|
+| **Provider** | Vercel Blob |
+| **Why** | Native Vercel integration, automatic CDN, simple API |
+| **Access** | Public URLs for images |
+| **Naming** | Random suffix added automatically (prevents collisions) |
+| **Regions** | Auto-distributed via Vercel Edge |
+
+**Environment Variables**:
+```
+BLOB_READ_WRITE_TOKEN=<vercel-blob-token>
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Vercel Blob storage | ✅ | ✅ |
+| Public image URLs | ✅ | ✅ |
+| CDN distribution | ✅ | ✅ |
+| Private document storage | ⬜ Defer | ✅ |
+
+---
+
+### 33.2 Image Upload API
+
+**Endpoint**: `POST /api/upload/images`
+
+**Implementation** (verified in codebase):
+```typescript
+// Request: multipart/form-data with 'file' field
+// Response: { url: string, pathname: string }
+```
+
+**Validation Rules**:
+
+| Rule | Value | Error Message |
+|------|-------|---------------|
+| Authentication | Required | "Unauthorized" (401) |
+| File presence | Required | "No file provided" (400) |
+| File type | JPEG, PNG, WebP | "Invalid file type. Only JPEG, PNG, and WebP images are allowed." (400) |
+| File size | Max 5MB | "File too large. Maximum size is 5MB." (400) |
+
+**Response Format**:
+```json
+{
+  "url": "https://xxxxx.public.blob.vercel-storage.com/image-abc123.jpg",
+  "pathname": "image-abc123.jpg"
+}
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Image upload endpoint | ✅ Built | ✅ |
+| Authentication required | ✅ Built | ✅ |
+| File type validation | ✅ Built | ✅ |
+| File size validation | ✅ Built | ✅ |
+| Virus/malware scanning | ⬜ Defer | ✅ |
+
+---
+
+### 33.3 Upload Use Cases
+
+#### 33.3.1 Profile Photos (Users & Providers)
+
+**Component**: `ProfilePhotoUpload`
+
+| Attribute | Value |
+|-----------|-------|
+| Max size | 5MB |
+| Types | JPEG, PNG, WebP |
+| Quantity | Single image |
+| Crop/resize | Client-side (optional) |
+| Storage field | `User.image` or `Provider.photoUrl` |
+
+**Status**: ✅ Built and functional
+
+#### 33.3.2 Provider Photo Gallery
+
+**Component**: `EnhancedPhotoUpload`
+
+| Attribute | Value |
+|-----------|-------|
+| Max size | 5MB per image |
+| Types | JPEG, PNG, WebP |
+| Quantity | Multiple (up to 10 recommended) |
+| Storage field | `Provider.galleryUrls` (JSON array) |
+
+**Status**: ✅ Built and functional
+
+#### 33.3.3 Document Uploads (Certificates, Licenses)
+
+**Status**: ⬜ Deferred for demo
+
+**Production Scope**:
+
+| Attribute | Value |
+|-----------|-------|
+| Max size | 10MB |
+| Types | PDF, JPEG, PNG |
+| Storage | Private (not public URL) |
+| Access | Admin verification only |
+| Storage field | `Provider.certificateUrls` |
+
+---
+
+### 33.4 Image Optimization
+
+**Strategy**: Client-side optimization via Next.js Image component
+
+| Technique | Implementation | Demo | Production |
+|-----------|----------------|------|------------|
+| Responsive sizing | `next/image` with `sizes` prop | ✅ | ✅ |
+| Lazy loading | `next/image` default behavior | ✅ | ✅ |
+| Format conversion | Automatic WebP via Vercel | ✅ | ✅ |
+| Quality reduction | `quality` prop (75-85 recommended) | ✅ | ✅ |
+| Server-side resize | Sharp processing on upload | ⬜ Defer | ✅ |
+| Thumbnail generation | Pre-generate small versions | ⬜ Defer | ✅ |
+
+**Usage Pattern**:
+```tsx
+import Image from 'next/image';
+
+<Image
+  src={provider.photoUrl}
+  alt={provider.name}
+  width={400}
+  height={300}
+  quality={80}
+  sizes="(max-width: 768px) 100vw, 400px"
+/>
+```
+
+---
+
+### 33.5 File Size Limits & Quotas
+
+| Upload Type | Max File Size | Max Files | Notes |
+|-------------|---------------|-----------|-------|
+| Profile photo | 5MB | 1 | Replaces existing |
+| Gallery image | 5MB | 10 | Per provider |
+| Certificate (Prod) | 10MB | 5 | Per provider |
+| Message attachment (Prod) | 10MB | 3 | Per message |
+
+**Quota Enforcement**:
+- Demo: No hard quotas (low usage expected)
+- Production: Enforce via database counts before accepting upload
+
+---
+
+### 33.6 Error Handling
+
+| Error | HTTP Code | User Message | Resolution |
+|-------|-----------|--------------|------------|
+| Not authenticated | 401 | "Please log in to upload" | Redirect to login |
+| No file provided | 400 | "Please select a file" | Show file picker |
+| Invalid file type | 400 | "Only JPEG, PNG, and WebP images are allowed" | Clear, try again |
+| File too large | 400 | "File too large. Maximum size is 5MB" | Compress and retry |
+| Upload failed | 500 | "Upload failed. Please try again" | Retry or contact support |
+| Storage quota exceeded | 400 | "Maximum images reached" | Delete existing first |
+
+**UI Requirements**:
+- Loading state during upload
+- Progress indicator for large files (Production)
+- Clear error messages with actionable guidance
+- Success confirmation with preview
+
+---
+
+### 33.7 Security Considerations
+
+| Concern | Mitigation | Demo | Production |
+|---------|------------|------|------------|
+| Unauthorized upload | Session authentication required | ✅ | ✅ |
+| Malicious file types | MIME type validation | ✅ | ✅ |
+| Oversized files | Size limit enforcement | ✅ | ✅ |
+| Path traversal | Vercel Blob handles naming | ✅ | ✅ |
+| Malware in files | Virus scanning | ⬜ Defer | ✅ |
+| EXIF data leakage | Strip metadata on upload | ⬜ Defer | ✅ |
+| Hotlinking abuse | Referer restrictions | ⬜ Defer | ⬜ Optional |
+
+---
+
+### 33.8 Database Schema
+
+**Existing fields** (no changes required for demo):
+
+```prisma
+model User {
+  image         String?   // Profile photo URL
+}
+
+model Provider {
+  photoUrl      String?   // Primary profile photo
+  galleryUrls   Json?     // Array of gallery image URLs
+  certificateUrls Json?   // Array of certificate document URLs (Production)
+}
+```
+
+**Production Addition** (for audit/cleanup):
+
+```prisma
+model UploadedFile {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  url         String   @unique
+  pathname    String
+  fileType    String   // image, document
+  mimeType    String
+  size        Int      // bytes
+  uploadedBy  String   // userId
+  entityType  String?  // user, provider, message
+  entityId    String?
+  deleted     Boolean  @default(false)
+  deletedAt   DateTime?
+
+  @@index([uploadedBy])
+  @@index([entityType, entityId])
+}
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| URL storage in entity fields | ✅ | ✅ |
+| Separate UploadedFile tracking | ⬜ Defer | ✅ |
+| Orphan file cleanup | ⬜ Defer | ✅ |
+
+---
+
+### 33.9 Admin System Integration
+
+#### 33.9.1 Storage Locations
+
+| Data Type | Storage Location | Access Method |
+|-----------|------------------|---------------|
+| **Image files** | Vercel Blob (public URLs) | Direct URL access |
+| **Document files** (Prod) | Vercel Blob (private URLs) | Signed URL via API |
+| **File metadata** | PostgreSQL (`Provider.galleryUrls`, etc.) | Admin Panel queries |
+| **Upload tracking** (Prod) | PostgreSQL (`UploadedFile` table) | Admin Panel |
+| **Upload errors** | Application logs (Vercel) | Vercel Dashboard → Logs |
+| **Audit trail** | PostgreSQL (`AuditLog` table) | Admin Panel → Audit Log |
+
+#### 33.9.2 Error Surfacing
+
+| Error Type | Where Surfaced | Who Sees It |
+|------------|----------------|-------------|
+| **User-facing upload error** | UI toast/alert | End user |
+| **API error (4xx/5xx)** | Console log + Vercel logs | Developers |
+| **Storage failure** | Vercel Blob dashboard + logs | Developers |
+| **Repeated failures** (Prod) | Error monitoring (Sentry) | Developers |
+| **Quota exceeded** | UI message + admin flag | User + Admin |
+
+**Demo Scope**: Errors logged to Vercel console; no dedicated error dashboard.
+
+**Production Scope**:
+- Integrate with Sentry for error aggregation
+- Alert on repeated upload failures (e.g., >5 failures/hour)
+- Admin Panel shows recent upload errors per user/provider
+
+#### 33.9.3 Admin Panel Access
+
+**Location**: Admin > Media Management (Production only)
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| View all uploaded files | ⬜ Defer | ✅ |
+| Filter by user/provider | ⬜ Defer | ✅ |
+| View file metadata (size, type, date) | ⬜ Defer | ✅ |
+| Preview images inline | ⬜ Defer | ✅ |
+| Delete/remove files | ⬜ Defer | ✅ |
+| View upload errors | ⬜ Defer | ✅ |
+| Storage usage dashboard | ⬜ Defer | ✅ |
+
+**Demo Workaround**: Admins can view uploaded images via:
+1. Provider/User detail pages in Admin Panel (existing)
+2. Direct URL inspection from database fields
+3. Vercel Blob dashboard (requires Vercel access)
+
+**Admin Panel Wireframe (Production)**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Admin > Media Management                                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Filters: [File Type ▼] [Date Range] [User/Provider Search]              │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Preview  │ File Name       │ Type   │ Size   │ Uploaded By │ Actions   │
+├──────────┼─────────────────┼────────┼────────┼─────────────┼───────────┤
+│ [thumb]  │ profile-abc.jpg │ Image  │ 1.2MB  │ user:123    │ [Delete]  │
+├──────────┼─────────────────┼────────┼────────┼─────────────┼───────────┤
+│ [thumb]  │ gallery-xyz.png │ Image  │ 3.4MB  │ provider:45 │ [Delete]  │
+├──────────┼─────────────────┼────────┼────────┼─────────────┼───────────┤
+│ [icon]   │ license.pdf     │ Doc    │ 2.1MB  │ provider:45 │ [View]    │
+└─────────────────────────────────────────────────────────────────────────┘
+│ Total Storage: 1.2 GB │ Files: 3,421 │ Errors (24h): 3              │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 33.9.4 Permissions & Access Controls
+
+| Role | Can Upload | Can View Own | Can View All | Can Delete Own | Can Delete All |
+|------|------------|--------------|--------------|----------------|----------------|
+| **Unauthenticated** | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Family User** | ✅ Profile photo | ✅ | ❌ | ✅ | ❌ |
+| **Provider User** | ✅ Profile + Gallery | ✅ | ❌ | ✅ | ❌ |
+| **Support Staff** (Prod) | ❌ | ❌ | ✅ Read-only | ❌ | ❌ |
+| **Admin** | ✅ On behalf of | ✅ | ✅ | ✅ | ✅ |
+
+**Admin Override Actions** (Production):
+- Remove inappropriate images
+- Replace profile photos on behalf of user (with audit log)
+- Access private documents for verification review
+
+#### 33.9.5 Audit Logging Integration
+
+> **Cross-Reference**: Chapter 37 (Analytics & Audit Logging)
+
+| Action | Logged | Log Fields | Demo | Production |
+|--------|--------|------------|------|------------|
+| Image uploaded | ✅ | userId, fileUrl, size, type | ⬜ | ✅ |
+| Image deleted by user | ✅ | userId, fileUrl | ⬜ | ✅ |
+| Image deleted by admin | ✅ | adminId, targetUserId, fileUrl, reason | ⬜ | ✅ |
+| Upload failed | ✅ | userId, error, fileType, size | ⬜ | ✅ |
+| Document accessed for verification | ✅ | adminId, documentUrl | ⬜ | ✅ |
+
+**Audit Log Entry Example**:
+```json
+{
+  "timestamp": "2026-01-17T10:32:00Z",
+  "actorId": "admin:456",
+  "actorType": "admin",
+  "action": "file_delete",
+  "targetType": "provider",
+  "targetId": "provider:123",
+  "metadata": {
+    "fileUrl": "https://blob.vercel-storage.com/gallery-xyz.jpg",
+    "reason": "Inappropriate content",
+    "previousValue": "[gallery array]"
+  }
+}
+```
+
+#### 33.9.6 Monitoring & Alerting (Production)
+
+| Metric | Threshold | Alert |
+|--------|-----------|-------|
+| Upload error rate | >5% of attempts | Slack notification |
+| Storage usage | >80% of quota | Email to admin |
+| Large file attempts | >10MB rejected | Log only |
+| Repeated failures (same user) | >3 in 1 hour | Flag for review |
+
+**Integration Points**:
+- Vercel Analytics: Request volume, latency
+- Sentry: Error tracking, stack traces
+- Custom dashboard (Production): Storage metrics, error rates
 
 ---
 
@@ -9899,43 +11649,1163 @@ Users submitting questions and answers must adhere to:
 
 ---
 
-## Chapter 30: Help Center & Support
+## Chapter 30: Customer Support
 
-**Purpose**: Provide users with help resources and support channels.
+**Review Status**: ✅ Reviewed
 
-| Item | Status | Notes |
-|------|--------|-------|
-| 30.1 FAQ / Help Center | ⬜ | Static content pages |
-| 30.2 Contact Support Form | ⬜ | Email or in-app |
-| 30.3 Live Chat | ⬜ | Intercom, Crisp — deferred |
-| 30.4 Feedback Collection | ⬜ | Simple form or widget |
+**Purpose**: Define the human and automated customer support systems for the Olera platform, including support architecture, common support scenarios, intake channels, ticket management, and references to Standard Operating Procedures (SOPs).
 
-### Key Questions
-- [ ] Minimal FAQ page for demo?
+> **Scope Note**: This chapter describes *what* support systems exist and *how* they function architecturally. Detailed operational procedures (step-by-step SOPs) are maintained separately and referenced where applicable.
 
-### Architectural Notes
-_To be filled in during chapter review._
+> **Cross-References**:
+> - Chapter 26 (Admin System): Support ticket management interface
+> - Chapter 23 (Trust & Safety): Verification issues, content disputes
+> - Chapter 27 (Human Workflows & SOPs): Detailed operational procedures
+> - Chapter 34 (Communications Infrastructure): Email delivery for support responses
+> - Chapter 39 (Legal Framework): Takedown procedures, DMCA compliance
+
+---
+
+### 30.1 Support Architecture Overview
+
+Olera's customer support system operates across three layers:
+
+| Layer | Description | Demo | Production |
+|-------|-------------|------|------------|
+| **Self-Service** | FAQ, help content, in-app guidance | ✅ Basic | ✅ Full |
+| **Automated** | Form submissions, auto-responses, routing | ✅ Basic | ✅ Full |
+| **Human** | Staff-handled tickets, phone support, escalations | ⬜ Minimal | ✅ Full |
+
+**Architecture Diagram (Production)**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         SUPPORT INTAKE CHANNELS                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Contact Form    │  Takedown Form   │  Email         │  Phone          │
+│  (/contact)      │  (provider page) │  (support@)    │  (Zoom Phone)   │
+└────────┬─────────┴────────┬─────────┴───────┬────────┴────────┬────────┘
+         │                  │                 │                 │
+         ▼                  ▼                 ▼                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      TICKET CREATION & ROUTING                          │
+│  - Auto-categorization based on form type / email subject               │
+│  - Priority assignment (P0-P3)                                          │
+│  - Assignment to support queue or specific agent                        │
+└────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     ADMIN PANEL: SUPPORT QUEUE                          │
+│  - Ticket list with filters (status, priority, category)                │
+│  - Ticket detail view with full history                                 │
+│  - Actions: Respond, Escalate, Resolve, Close                           │
+│  - SOP links for common issue types                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 30.2 Self-Service: FAQ & Help Content
+
+#### 30.2.1 Demo Scope
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Static FAQ page (`/help` or `/faq`) | ✅ Required | Single unified page |
+| Mode-aware content (Family vs Provider) | ⬜ Defer | Combined content with section headers |
+| Search functionality | ⬜ Defer | Simple list/accordion sufficient |
+| Footer "Help" link on all pages | ✅ Required | Standard placement |
+| Header help icon (?) | ⬜ Optional | Not required for demo |
+
+**Demo FAQ Content Categories**:
+1. Account & Login (signup, password reset, email verification)
+2. Mode Switching (Family vs Provider experience)
+3. For Families (searching, saving, contacting providers)
+4. For Providers (claiming listings, profile management)
+5. Contact & Support (how to reach us)
+
+#### 30.2.2 Production Scope
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Searchable help center | ✅ | Full-text search across articles |
+| Category navigation | ✅ | Organized by topic |
+| Mode-aware filtering | ✅ | Show relevant content based on user mode |
+| Article view analytics | ✅ | Track popular articles, search terms |
+| "Was this helpful?" feedback | ⬜ Defer | Future enhancement |
+
+---
+
+### 30.3 Support Intake Channels
+
+#### 30.3.1 Contact Us Form
+
+**Purpose**: General inquiries, feedback, and issues not covered by specialized forms.
+
+**Demo Scope**:
+- Location: `/contact` (linked from footer and FAQ page)
+- Fields: Name, Email, Subject (dropdown), Message
+- Subject options: General Inquiry, Account Issue, Provider Question, Family Question, Other
+- Submission: Sends email to `support@olera.com` via Resend
+- Confirmation: "Thank you. We'll respond within 1-2 business days."
+- No ticket number, no tracking
+
+**Production Scope**:
+- Same form, but creates ticket in support system
+- Auto-response email with ticket number
+- User can view ticket status (if logged in)
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Contact form exists | ✅ | ✅ |
+| Email notification to support | ✅ | ✅ |
+| Ticket creation | ⬜ | ✅ |
+| User ticket tracking | ⬜ | ✅ |
+
+#### 30.3.2 Takedown Request Form
+
+**Purpose**: Allow individuals to request removal of unclaimed provider listings.
+
+> **Context**: Some providers sourced from public data may not want to be listed on Olera. Rather than claiming and managing their listing, they may request removal. This must be explicitly supported.
+
+**Location**: Accessible from unclaimed provider profile pages via "Request Removal" or "Report This Listing" link.
+
+**Demo Scope**:
+- Simple form: Name, Email, Relationship to Listing, Reason for Request, Provider URL
+- Submission: Sends email to `support@olera.com` with subject "[Takedown Request]"
+- Confirmation: "Your request has been received. We'll review it within 3-5 business days."
+
+**Production Scope**:
+- Creates ticket with category "Takedown Request"
+- Auto-categorized as P2 priority
+- Triggers SOP: Takedown Request Handling (see Section 30.6)
+- Audit logged per Chapter 37
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Takedown form on unclaimed profiles | ✅ | ✅ |
+| Email notification | ✅ | ✅ |
+| Ticket creation with category | ⬜ | ✅ |
+| SOP trigger | Manual | Automated |
+
+#### 30.3.3 Email Support
+
+**Address**: `support@olera.com`
+
+**Demo Scope**: Monitored manually; no automated processing.
+
+**Production Scope**:
+- Emails to support address auto-create tickets
+- Subject line parsing for auto-categorization
+- Auto-response with ticket number
+- Threaded replies update ticket
+
+#### 30.3.4 Phone Support
+
+**Number**: Zoom Phone line (number TBD)
+
+**Demo Scope**: Not staffed. Voicemail with callback promise.
+
+**Production Scope**:
+- Staffed during business hours (e.g., M-F 9am-5pm ET)
+- Voicemail outside hours with next-day callback
+- Calls logged; tickets created for follow-up items
+- Staff have access to Admin Panel for real-time lookup
+
+**Public Contact Information Display**:
+```
+Need help?
+📧 support@olera.com
+📞 (XXX) XXX-XXXX (Mon-Fri, 9am-5pm ET)
+```
+
+---
+
+### 30.4 Ticket Management (Production)
+
+> **Note**: This section is Production scope only. Demo has no ticketing system.
+
+#### 30.4.1 Ticket Lifecycle
+
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│   New    │───►│   Open   │───►│ Pending  │───►│ Resolved │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘
+                     │                               │
+                     │         ┌──────────┐          │
+                     └────────►│ Escalated│──────────┘
+                               └──────────┘
+```
+
+| Status | Meaning |
+|--------|---------|
+| **New** | Just created, unassigned |
+| **Open** | Assigned to agent, in progress |
+| **Pending** | Awaiting user response or external action |
+| **Escalated** | Requires senior review or special handling |
+| **Resolved** | Issue addressed, awaiting confirmation |
+| **Closed** | Complete, no further action |
+
+#### 30.4.2 Ticket Schema
+
+```prisma
+model SupportTicket {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Source
+  channel       String   // form, email, phone, admin
+  category      String   // general, takedown, verification, billing, account
+
+  // Requester
+  requesterEmail String
+  requesterName  String?
+  userId         String?  // If logged-in user
+
+  // Content
+  subject       String
+  description   String   @db.Text
+
+  // Management
+  status        String   @default("new") // new, open, pending, escalated, resolved, closed
+  priority      String   @default("P3")  // P0, P1, P2, P3
+  assignedTo    String?  // Admin user ID
+
+  // Resolution
+  resolution    String?  @db.Text
+  resolvedAt    DateTime?
+  closedAt      DateTime?
+
+  // Relations
+  messages      SupportMessage[]
+
+  @@index([status])
+  @@index([category])
+  @@index([requesterEmail])
+}
+
+model SupportMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id])
+  createdAt DateTime @default(now())
+  authorType String  // user, agent, system
+  authorId   String?
+  content    String  @db.Text
+  isInternal Boolean @default(false) // Internal notes not visible to user
+}
+```
+
+#### 30.4.3 Priority Levels
+
+| Priority | Response Target | Examples |
+|----------|-----------------|----------|
+| **P0** | 1 hour | Account locked, payment failure, security issue |
+| **P1** | 4 hours | Verification blocked, listing dispute |
+| **P2** | 24 hours | Takedown request, profile issues |
+| **P3** | 48 hours | General questions, feedback |
+
+#### 30.4.4 Admin Panel: Support Queue
+
+**Location**: Admin > Support
+
+**Features**:
+- Ticket list with filters (status, priority, category, assignee)
+- Quick actions: Assign, Change Priority, Add Note
+- Ticket detail view with full message history
+- Internal notes (not visible to requester)
+- SOP quick links based on ticket category
+- Resolution templates for common issues
+
+---
+
+### 30.5 Common Support Scenarios
+
+This section catalogs the most common support needs by user type and how they should be handled.
+
+#### 30.5.1 Family Support Scenarios
+
+| Scenario | Frequency | Handling | SOP Reference |
+|----------|-----------|----------|---------------|
+| Can't log in / password reset | High | Self-service (forgot password flow) | — |
+| Account locked after failed attempts | Medium | Admin unlock via Admin Panel | Account Access SOP |
+| Can't find a provider | Low | FAQ / guided search tips | — |
+| Provider not responding | Medium | Explain provider may be unclaimed; suggest alternatives | — |
+| Billing/subscription question | Medium (Prod) | Billing SOP; Stripe dashboard lookup | Billing SOP |
+| Request account deletion | Low | Data deletion SOP per Ch 39 | Data Deletion SOP |
+| Report inappropriate content | Low | Content moderation SOP | Content Moderation SOP |
+
+#### 30.5.2 Provider Support Scenarios
+
+| Scenario | Frequency | Handling | SOP Reference |
+|----------|-----------|----------|---------------|
+| Can't log in / password reset | High | Self-service (forgot password flow) | — |
+| How do I claim my listing? | High | FAQ; guided claiming flow | — |
+| Claiming verification failed | Medium | Manual verification review | Verification SOP |
+| Someone else claimed my listing | Low | Listing dispute process | Listing Dispute SOP |
+| I want my listing removed | Medium | Takedown request form | Takedown SOP |
+| How do I update my profile? | High | FAQ; in-app guidance | — |
+| Incorrect information on my listing | Medium | Self-edit if claimed; support if unclaimed | — |
+| Billing/subscription question | Medium (Prod) | Billing SOP | Billing SOP |
+| Request account deletion | Low | Data deletion SOP | Data Deletion SOP |
+
+#### 30.5.3 SOP Index
+
+The following SOPs are referenced by support operations. Detailed procedures live in Chapter 27 (Human Workflows & SOPs) or separate operational documentation.
+
+| SOP Name | Trigger | Owner |
+|----------|---------|-------|
+| **Takedown Request Handling** | Takedown form submission | Support |
+| **Listing Dispute Resolution** | Competing ownership claims | Support + Admin |
+| **Manual Verification Review** | Auto-verification failure or flag | Admin |
+| **Account Access Recovery** | Locked accounts, lost 2FA | Support |
+| **Billing Issue Resolution** | Payment failures, refund requests | Support + Finance |
+| **Data Deletion Request** | User deletion request per Ch 39 | Support + Legal |
+| **Content Moderation** | Reported content, policy violations | Admin |
+
+---
+
+### 30.6 Takedown Request Handling
+
+**Purpose**: Define the process for handling requests to remove unclaimed provider listings.
+
+#### 30.6.1 Eligibility
+
+Takedown requests are accepted for:
+- Unclaimed listings only
+- Requestor must demonstrate relationship to listing (owner, employee, or authorized representative)
+
+Takedown requests are **not** accepted for:
+- Claimed listings (provider controls their own content)
+- Requests from third parties with no relationship to listing
+- Requests to remove accurate public information without valid reason
+
+#### 30.6.2 Process Overview
+
+| Step | Action | Timeline |
+|------|--------|----------|
+| 1 | Request received via form or email | — |
+| 2 | Ticket created (Production) or email logged (Demo) | Immediate |
+| 3 | Verify requestor identity and relationship | 1-2 days |
+| 4 | Review listing and request validity | 1-2 days |
+| 5 | Decision: Approve, Deny, or Request More Info | — |
+| 6 | If approved: Remove listing, notify requestor | Same day |
+| 7 | If denied: Notify requestor with reason | Same day |
+| 8 | Audit log entry | Automatic |
+
+#### 30.6.3 Decision Criteria
+
+| Approve If | Deny If |
+|------------|---------|
+| Requestor is verified owner/operator | No verifiable relationship to listing |
+| Valid reason (ceased operations, privacy concern) | Attempting to suppress legitimate public info |
+| Listing is unclaimed | Listing is claimed (direct them to self-manage) |
+
+> **Cross-Reference**: See Chapter 39 (Legal Framework) Section 39.2 for platform liability and content moderation policies.
 
 ---
 
 ## Chapter 35: Error Handling & Monitoring
 
-**Purpose**: Ensure application stability and enable debugging.
+**Review Status**: ✅ Reviewed
+
+**Purpose**: Define the error handling architecture, user-facing error states, API error formats, monitoring infrastructure, and debugging capabilities for the Olera platform.
+
+> **Cross-References**:
+> - Chapter 26 (Admin System): Admin visibility into system errors
+> - Chapter 30 (Customer Support): Error-triggered support flows
+> - Chapter 33 (File Uploads & Media): Upload error handling
+> - Chapter 36 (Performance & Caching): Performance monitoring overlap
+> - Chapter 37 (Analytics & Audit Logging): Error logging as audit events
+> - Chapter 38 (Third-Party Services): Sentry, monitoring tools
+
+---
+
+### 35.1 Error Handling Architecture
+
+**Layered Error Handling**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           ERROR HANDLING LAYERS                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  Layer 1: Component Level                                               │
+│  ├── Try/catch in event handlers                                        │
+│  ├── Form validation errors (inline)                                    │
+│  └── API call error handling (per-component)                            │
+│                                                                         │
+│  Layer 2: Route Level                                                   │
+│  ├── error.tsx — Catches unhandled errors in route segment              │
+│  ├── not-found.tsx — 404 page                                           │
+│  └── loading.tsx — Route loading states (optional)                      │
+│                                                                         │
+│  Layer 3: Application Level                                             │
+│  ├── Global error boundary (app/error.tsx)                              │
+│  └── Root layout error handling                                         │
+│                                                                         │
+│  Layer 4: Server Level                                                  │
+│  ├── API route error responses                                          │
+│  ├── Server action error handling                                       │
+│  └── Middleware error handling                                          │
+│                                                                         │
+│  Layer 5: Infrastructure Level                                          │
+│  ├── Vercel error logs                                                  │
+│  ├── Sentry integration (Production)                                    │
+│  └── Uptime monitoring (Production)                                     │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+| Layer | Demo | Production |
+|-------|------|------------|
+| Component-level handling | ✅ | ✅ |
+| Route-level error.tsx | ✅ Built | ✅ |
+| Global error boundary | ✅ Built | ✅ |
+| API error responses | ✅ Built | ✅ |
+| Sentry integration | ⬜ Defer | ✅ |
+| Uptime monitoring | ⬜ Defer | ✅ |
+
+---
+
+### 35.2 Frontend Error States
+
+#### 35.2.1 Global Error Boundary
+
+**Location**: `app/error.tsx`
+
+**Current Implementation** (verified):
+- Displays user-friendly error message
+- Provides "Try again" (reset) and "Go home" actions
+- Shows error details in development mode only
+- Logs errors to console
+
+**User-Facing Message**:
+> "Something went wrong. We encountered an unexpected error. Please try again or contact support if the problem persists."
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| User-friendly error page | ✅ Built | ✅ |
+| Reset/retry action | ✅ Built | ✅ |
+| Navigation to home | ✅ Built | ✅ |
+| Dev-only error details | ✅ Built | ✅ |
+| Error reporting to Sentry | ⬜ Defer | ✅ |
+
+#### 35.2.2 Not Found (404) Page
+
+**Location**: `app/not-found.tsx`
+
+**Required Elements**:
+- Clear "Page not found" message
+- Navigation options (home, search, back)
+- Consistent with brand styling
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Custom 404 page | ✅ Required | ✅ |
+| Navigation links | ✅ Required | ✅ |
+| Search suggestion | ⬜ Optional | ✅ |
+
+#### 35.2.3 Loading States
+
+**Strategy**: Component-level loading states (not route-level loading.tsx)
+
+**Patterns**:
+
+| Context | Loading Pattern | Example |
+|---------|-----------------|---------|
+| Page initial load | Skeleton screens | Dashboard cards |
+| Data fetching | Spinner + text | "Loading providers..." |
+| Button action | Button spinner | "Saving..." |
+| Image loading | Blur placeholder | Provider photos |
+| Infinite scroll | Bottom spinner | Search results |
+
+**Standard Loading Component**:
+```tsx
+// Spinner with optional message
+<LoadingSpinner message="Loading..." />
+
+// Skeleton for cards
+<CardSkeleton count={3} />
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Spinner component | ✅ | ✅ |
+| Skeleton components | 🟡 Partial | ✅ |
+| Button loading states | ✅ | ✅ |
+| Image placeholders | ✅ (Next/Image) | ✅ |
+
+#### 35.2.4 Empty States
+
+**When to Show**: No data to display (empty lists, no results, no activity)
+
+**Required Elements**:
+- Descriptive message explaining the empty state
+- Illustration or icon (optional)
+- Call-to-action when applicable
+
+**Examples**:
+
+| Context | Message | CTA |
+|---------|---------|-----|
+| No saved providers | "You haven't saved any providers yet" | "Browse providers" |
+| No search results | "No providers match your search" | "Clear filters" |
+| No messages | "No messages yet" | "Find a provider" |
+| No notifications | "You're all caught up!" | None needed |
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Empty state messages | 🟡 Partial | ✅ |
+| Empty state illustrations | ⬜ Optional | ✅ |
+| Contextual CTAs | 🟡 Partial | ✅ |
+
+---
+
+### 35.3 API Error Handling
+
+#### 35.3.1 Standard Error Response Format
+
+**Format**:
+```typescript
+// Error response
+{
+  "error": "Human-readable error message"
+}
+
+// With optional error code (for programmatic handling)
+{
+  "error": "Email already registered",
+  "code": "EMAIL_EXISTS"
+}
+```
+
+**HTTP Status Codes**:
+
+| Code | Meaning | When to Use |
+|------|---------|-------------|
+| 400 | Bad Request | Invalid input, validation errors |
+| 401 | Unauthorized | Not logged in, session expired |
+| 403 | Forbidden | Logged in but not permitted |
+| 404 | Not Found | Resource doesn't exist |
+| 409 | Conflict | Duplicate resource, state conflict |
+| 422 | Unprocessable | Valid format but business rule violation |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Error | Unexpected server error |
+
+#### 35.3.2 API Error Handling Pattern
+
+**Standard Pattern** (for all API routes):
+```typescript
+export async function POST(request: Request) {
+  try {
+    // 1. Authentication check
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // 2. Input validation
+    const body = await request.json();
+    if (!body.requiredField) {
+      return NextResponse.json(
+        { error: "Required field missing" },
+        { status: 400 }
+      );
+    }
+
+    // 3. Business logic
+    const result = await performAction(body);
+
+    // 4. Success response
+    return NextResponse.json(result);
+
+  } catch (error) {
+    // 5. Error logging
+    console.error("API error:", error);
+
+    // 6. Generic error response (don't leak internals)
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+#### 35.3.3 Client-Side Error Handling
+
+**Pattern for API Calls**:
+```typescript
+async function fetchData() {
+  try {
+    const response = await fetch('/api/endpoint');
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Request failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    // Show user-friendly toast/alert
+    toast.error(error.message || 'Something went wrong');
+    throw error; // Re-throw for component handling
+  }
+}
+```
+
+---
+
+### 35.4 Error Logging
+
+#### 35.4.1 Demo Scope
+
+**Logging Strategy**: Console + Vercel Logs
+
+| Log Type | Method | Visibility |
+|----------|--------|------------|
+| Client errors | `console.error()` | Browser DevTools |
+| API errors | `console.error()` | Vercel Function Logs |
+| Unhandled exceptions | Automatic | Vercel Error Logs |
+
+**Accessing Logs**:
+1. Vercel Dashboard → Project → Logs
+2. Filter by: Function logs, Edge logs, Build logs
+3. Search by timestamp or error message
+
+#### 35.4.2 Production Scope
+
+**Logging Strategy**: Sentry + Vercel Logs
+
+**Sentry Integration**:
+```typescript
+// lib/sentry.ts
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 0.1, // 10% of transactions
+  beforeSend(event) {
+    // Scrub sensitive data
+    return event;
+  },
+});
+```
+
+**What to Log**:
+
+| Event | Severity | Demo | Production |
+|-------|----------|------|------------|
+| Unhandled exceptions | Error | Console | Sentry |
+| API 5xx errors | Error | Console | Sentry |
+| API 4xx errors | Warning | Console | Sentry (sampled) |
+| Auth failures | Warning | Console | Sentry |
+| Validation errors | Info | Console only | Console only |
+| Performance issues | Warning | None | Sentry |
+
+---
+
+### 35.5 Monitoring & Alerting
+
+#### 35.5.1 Demo Scope
+
+**Monitoring**: Vercel Dashboard only
+
+| Metric | Source | Demo | Production |
+|--------|--------|------|------------|
+| Deployment status | Vercel | ✅ | ✅ |
+| Function invocations | Vercel Analytics | ✅ | ✅ |
+| Error count (basic) | Vercel Logs | ✅ | ✅ |
+| Response times | Vercel Analytics | ✅ | ✅ |
+
+#### 35.5.2 Production Scope
+
+**Monitoring Stack**:
+
+| Tool | Purpose |
+|------|---------|
+| **Sentry** | Error tracking, performance monitoring |
+| **Vercel Analytics** | Traffic, performance, Web Vitals |
+| **Better Uptime** (or similar) | Uptime monitoring, status page |
+
+**Alerting Thresholds**:
+
+| Metric | Threshold | Alert Channel |
+|--------|-----------|---------------|
+| Error rate | >1% of requests | Slack |
+| Unhandled exception | Any | Slack + Email |
+| API response time | >2s p95 | Slack |
+| Uptime | <99.5% | Email + SMS |
+| Memory/CPU spike | >80% | Slack |
+
+---
+
+### 35.6 Admin System Integration
+
+#### 35.6.1 Error Visibility for Admins
+
+**Demo Scope**: No admin error dashboard. Errors visible via:
+1. Vercel Dashboard (requires Vercel access)
+2. Console logs in browser DevTools (for client errors)
+
+**Production Scope**: Admin > System Health
+
+**Admin Panel Wireframe**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Admin > System Health                                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│ │ Uptime      │  │ Error Rate  │  │ Avg Response│  │ Active Users│     │
+│ │ 99.9%       │  │ 0.3%        │  │ 245ms       │  │ 127         │     │
+│ └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Recent Errors (last 24h)                                    [View All] │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Time       │ Type      │ Message              │ Count │ Status        │
+├────────────┼───────────┼──────────────────────┼───────┼───────────────┤
+│ 10:32 AM   │ API Error │ Database timeout     │ 3     │ 🔴 Unresolved │
+├────────────┼───────────┼──────────────────────┼───────┼───────────────┤
+│ 09:15 AM   │ Client    │ ChunkLoadError       │ 12    │ 🟡 Monitoring │
+├────────────┼───────────┼──────────────────────┼───────┼───────────────┤
+│ Yesterday  │ API Error │ Rate limit exceeded  │ 45    │ 🟢 Resolved   │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| System health dashboard | ⬜ Defer | ✅ |
+| Recent errors list | ⬜ Defer | ✅ |
+| Error drill-down (Sentry link) | ⬜ Defer | ✅ |
+| Uptime indicator | ⬜ Defer | ✅ |
+
+#### 35.6.2 Error-to-Support Flow
+
+When users encounter errors:
+1. Error page shows "Contact support" link
+2. Link pre-fills support form with error context (if possible)
+3. Support team can reference error ID in Sentry (Production)
+
+> **Cross-Reference**: See Chapter 30 (Customer Support) for support form handling.
+
+#### 35.6.3 Audit Logging for Errors
+
+> **Cross-Reference**: Chapter 37 (Analytics & Audit Logging)
+
+| Error Event | Logged | Demo | Production |
+|-------------|--------|------|------------|
+| API 5xx errors | ✅ | ⬜ | ✅ |
+| Authentication failures | ✅ | ⬜ | ✅ |
+| Rate limit violations | ✅ | ⬜ | ✅ |
+| Admin override actions | ✅ | ⬜ | ✅ |
+
+---
+
+### 35.7 Error Recovery Patterns
+
+#### 35.7.1 Retry Logic
+
+**When to Retry**: Network errors, transient failures, rate limits (with backoff)
+
+**Pattern**:
+```typescript
+async function fetchWithRetry(url: string, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) return response.json();
+      if (response.status !== 429 && response.status < 500) throw new Error();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await sleep(Math.pow(2, i) * 1000); // Exponential backoff
+    }
+  }
+}
+```
+
+#### 35.7.2 Graceful Degradation
+
+| Failure | Degradation Strategy |
+|---------|---------------------|
+| Image load fails | Show placeholder/fallback image |
+| API timeout | Show cached data if available, else error state |
+| Feature unavailable | Hide feature, don't break page |
+| Third-party down | Show "temporarily unavailable" for that feature |
+
+---
+
+## Chapter 36: Performance & Caching
+
+**Review Status**: ✅ Reviewed
+
+**Purpose**: Define the performance optimization strategy, caching patterns, and monitoring approach for the Olera platform to ensure fast, responsive user experiences.
+
+> **Cross-References**:
+> - Chapter 33 (File Uploads & Media): Image storage and CDN delivery
+> - Chapter 35 (Error Handling & Monitoring): Performance monitoring overlap
+> - Chapter 37 (Analytics & Audit Logging): Web Vitals tracking
+> - Chapter 38 (Third-Party Services): Vercel Analytics, monitoring tools
+
+---
+
+### 36.1 Performance Strategy
+
+**Philosophy**: Leverage Next.js and Vercel's built-in optimizations rather than adding custom infrastructure complexity. For demo scope, rely on platform defaults; for production, layer in explicit caching and monitoring.
+
+**Performance Priorities**:
+
+| Priority | Area | Demo Approach | Production Approach |
+|----------|------|---------------|---------------------|
+| **P0** | Database queries | ✅ Indexes (built) | Indexes + query monitoring |
+| **P0** | Image delivery | ✅ Next/Image (built) | Next/Image + CDN tuning |
+| **P1** | Page load times | Vercel defaults | ISR + Edge caching |
+| **P2** | Bundle size | Implicit code splitting | Explicit analysis + optimization |
+| **P3** | API response times | No caching | Redis + response caching |
+
+**Demo Scope Decision**: No Redis, no bundle analyzer, no custom caching layer. Platform defaults are sufficient for demo traffic.
+
+---
+
+### 36.2 Database Optimization
+
+#### 36.2.1 Index Strategy
+
+**Current Indexes** (verified in Prisma schema):
+
+| Model | Indexed Fields | Purpose |
+|-------|----------------|---------|
+| **User** | `userId` | Fast user lookups |
+| **Provider** | `city`, `state`, `providerType` | Directory filtering |
+| **Engagement** | `familyProfileId`, `providerId`, `status`, `requestType` | Engagement queries |
+| **ConsultRequest** | `consultRequestId`, `requestId`, `status` | Request lookups |
+| **SavedProvider** | `userId`, `familyProfileId`, `providerId` | Saved provider queries |
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Prisma indexes defined | ✅ Built | ✅ |
+| Query performance monitoring | ⬜ Defer | ✅ |
+| Slow query logging | ⬜ Defer | ✅ |
+| Connection pooling | Vercel managed | Vercel managed |
+
+#### 36.2.2 Query Best Practices
+
+**Patterns to Follow**:
+```typescript
+// ✅ Good: Select only needed fields
+const providers = await prisma.provider.findMany({
+  where: { city: "Austin", status: "ACTIVE" },
+  select: { id: true, businessName: true, city: true }
+});
+
+// ✅ Good: Use include sparingly, only when needed
+const engagement = await prisma.engagement.findUnique({
+  where: { id },
+  include: { provider: { select: { businessName: true } } }
+});
+
+// ❌ Avoid: Fetching entire related records
+const user = await prisma.user.findUnique({
+  where: { id },
+  include: { engagements: true, savedProviders: true, messages: true }
+});
+```
+
+**N+1 Query Prevention**:
+- Use `include` for related data needed immediately
+- Use separate queries for optional/lazy-loaded data
+- Avoid loops that query database per iteration
+
+---
+
+### 36.3 Image Optimization
+
+#### 36.3.1 Next/Image Implementation
+
+**Current Usage** (verified in 8 components):
+- `ProfilePhotoUpload.tsx`
+- `CaregiverCard.tsx`
+- `EnhancedProviderCard.tsx`
+- `OrganizationCard.tsx`
+- `SavedProviderCard.tsx`
+- `EnhancedPhotoUpload.tsx`
+- `PhotoGallery.tsx`
+- `PhotoUpload.tsx`
+
+**Next/Image Benefits** (automatic):
+- Automatic WebP/AVIF conversion
+- Responsive sizing (`sizes` prop)
+- Lazy loading by default
+- Blur placeholder support
+- Vercel Image Optimization CDN
+
+#### 36.3.2 Image Configuration
+
+**Current next.config.ts**: Minimal (no image configuration needed — Vercel defaults apply)
+
+**Required Patterns**:
+```tsx
+// Provider card image
+<Image
+  src={provider.photoUrl || "/placeholder-provider.png"}
+  alt={provider.businessName}
+  width={200}
+  height={200}
+  className="object-cover"
+  priority={isAboveFold}  // Only for above-fold images
+/>
+
+// Gallery images (lazy loaded)
+<Image
+  src={photo.url}
+  alt={photo.alt}
+  fill
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  className="object-cover"
+/>
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Next/Image usage | ✅ Built | ✅ |
+| Placeholder images | ✅ Built | ✅ |
+| Responsive sizes | ✅ Built | ✅ |
+| Priority loading (above-fold) | 🟡 Partial | ✅ |
+| Image CDN (Vercel) | ✅ Automatic | ✅ |
+
+---
+
+### 36.4 Data Caching
+
+#### 36.4.1 Demo Scope
+
+**Approach**: No explicit caching. Rely on:
+- Vercel Edge Network (static assets)
+- Next.js automatic fetch deduplication
+- Browser caching (Cache-Control headers)
+
+#### 36.4.2 Production Scope
+
+**ISR (Incremental Static Regeneration)** — for semi-static pages:
+
+```typescript
+// app/providers/[city]/page.tsx
+export const revalidate = 3600; // Revalidate every hour
+
+export default async function CityProvidersPage({ params }) {
+  const providers = await getProvidersByCity(params.city);
+  return <ProviderList providers={providers} />;
+}
+```
+
+**Candidates for ISR**:
+
+| Page | Revalidate Interval | Rationale |
+|------|---------------------|-----------|
+| Provider directory (by city) | 1 hour | Provider data changes infrequently |
+| Provider profile (public) | 1 hour | Profile updates are rare |
+| Static pages (terms, privacy) | 24 hours | Rarely change |
+| Homepage | 1 hour | Featured providers may update |
+
+**API Response Caching** (Production only):
+
+```typescript
+// Cache API responses at edge
+export async function GET(request: Request) {
+  const data = await fetchData();
+
+  return NextResponse.json(data, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+    }
+  });
+}
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| ISR for directory pages | ⬜ Defer | ✅ |
+| API response caching | ⬜ Defer | ✅ |
+| Redis caching layer | ⬜ Not needed | 🟡 If scale requires |
+| Vercel Edge caching | ✅ Automatic | ✅ |
+
+---
+
+### 36.5 Bundle Optimization
+
+#### 36.5.1 Automatic Optimizations
+
+Next.js provides automatic code splitting:
+- **Route-based splitting**: Each page loads only its code
+- **Component-based splitting**: `dynamic()` for heavy components
+- **Third-party chunking**: Vendor code separated
+
+#### 36.5.2 Dynamic Imports
+
+**Pattern for Heavy Components**:
+```typescript
+import dynamic from 'next/dynamic';
+
+// Lazy load map component (heavy)
+const MapView = dynamic(() => import('@/components/MapView'), {
+  loading: () => <MapSkeleton />,
+  ssr: false  // Client-only for map libraries
+});
+
+// Lazy load rich text editor
+const RichTextEditor = dynamic(
+  () => import('@/components/RichTextEditor'),
+  { loading: () => <EditorSkeleton /> }
+);
+```
+
+**Candidates for Dynamic Import**:
+
+| Component | Reason | Demo | Production |
+|-----------|--------|------|------------|
+| Map components | Large library (Mapbox/Google) | ✅ If used | ✅ |
+| Rich text editors | Heavy dependencies | ✅ If used | ✅ |
+| Chart/graph libraries | Data visualization | ⬜ Not used | ✅ |
+| PDF generators | Large libraries | ⬜ Not used | ✅ |
+
+#### 36.5.3 Bundle Analysis (Production)
+
+**Setup** (production only):
+```bash
+npm install @next/bundle-analyzer
+```
+
+```typescript
+// next.config.ts (production analysis)
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+module.exports = withBundleAnalyzer(nextConfig);
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Automatic code splitting | ✅ Built-in | ✅ |
+| Dynamic imports (heavy components) | 🟡 As needed | ✅ |
+| Bundle analyzer | ⬜ Defer | ✅ |
+| Tree shaking | ✅ Built-in | ✅ |
+
+---
+
+### 36.6 Core Web Vitals
+
+#### 36.6.1 Target Metrics
+
+| Metric | Target | Description |
+|--------|--------|-------------|
+| **LCP** (Largest Contentful Paint) | < 2.5s | Main content visible |
+| **FID** (First Input Delay) | < 100ms | Time to interactive |
+| **CLS** (Cumulative Layout Shift) | < 0.1 | Visual stability |
+| **TTFB** (Time to First Byte) | < 600ms | Server response time |
+
+#### 36.6.2 Measurement
+
+**Demo Scope**: Vercel Analytics (automatic)
+
+```
+Vercel Dashboard → Project → Analytics → Web Vitals
+```
+
+**Production Scope**: Vercel Analytics + Sentry Performance
+
+| Tool | Purpose | Demo | Production |
+|------|---------|------|------------|
+| Vercel Analytics | Core Web Vitals, traffic | ✅ | ✅ |
+| Vercel Speed Insights | Real user monitoring | ✅ | ✅ |
+| Sentry Performance | Transaction tracing | ⬜ Defer | ✅ |
+| Lighthouse CI | Build-time audits | ⬜ Defer | ✅ |
+
+#### 36.6.3 Optimization Techniques
+
+| Metric | Optimization | Implementation |
+|--------|--------------|----------------|
+| **LCP** | Priority images above fold | `priority` prop on hero images |
+| **LCP** | Preload critical fonts | `next/font` (automatic) |
+| **FID** | Minimize JS on initial load | Code splitting, dynamic imports |
+| **FID** | Defer non-critical scripts | `next/script` with strategy |
+| **CLS** | Reserve image dimensions | Always specify `width`/`height` |
+| **CLS** | Avoid layout-shifting elements | Fixed heights for dynamic content |
+
+---
+
+### 36.7 Admin System Integration
+
+#### 36.7.1 Performance Visibility
+
+**Demo Scope**: No admin performance dashboard. Use:
+1. Vercel Dashboard (requires Vercel access)
+2. Browser DevTools for ad-hoc testing
+
+**Production Scope**: Admin > System Health (shared with Ch 35)
+
+**Admin Performance Panel** (Production):
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Admin > System Health > Performance                                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│ │ LCP         │  │ FID         │  │ CLS         │  │ TTFB        │     │
+│ │ 1.8s ✅     │  │ 45ms ✅     │  │ 0.05 ✅     │  │ 320ms ✅    │     │
+│ └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Slowest Pages (last 24h)                                    [View All] │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Page                    │ Avg LCP  │ p95 LCP  │ Traffic │ Status       │
+├─────────────────────────┼──────────┼──────────┼─────────┼──────────────┤
+│ /providers/austin       │ 2.1s    │ 3.2s    │ 1,234   │ 🟡 Warning   │
+├─────────────────────────┼──────────┼──────────┼─────────┼──────────────┤
+│ /dashboard              │ 1.5s    │ 2.0s    │ 892     │ ✅ Good      │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Performance dashboard in admin | ⬜ Defer | ✅ |
+| Web Vitals display | ⬜ Defer | ✅ |
+| Slow page identification | ⬜ Defer | ✅ |
+| Alerts for performance regression | ⬜ Defer | ✅ |
+
+> **Cross-Reference**: See Chapter 35.6 (Admin System Integration) for shared System Health panel structure.
+
+---
+
+### 36.8 Performance Checklist
+
+**Demo Launch Checklist**:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 35.1 Global Error Boundaries (React) | 🟡 | May need verification |
-| 35.2 API Error Responses (consistent format) | 🟡 | Standardization needed |
-| 35.3 Error Logging (Sentry, etc.) | ⬜ | Third-party integration |
-| 35.4 Uptime Monitoring | ⬜ | External service |
-| 35.5 Loading States | 🟡 | Components exist |
-| 35.6 Empty States | 🟡 | May need improvement |
+| Database indexes defined | ✅ | Verified in Prisma schema |
+| Next/Image used for all images | ✅ | 8 components verified |
+| No N+1 query patterns | 🟡 | Review during development |
+| Critical images have `priority` | 🟡 | Review above-fold images |
+| Image dimensions specified | 🟡 | Review for CLS |
+| Vercel Analytics enabled | ✅ | Automatic with deployment |
 
-### Key Questions
-- [ ] Error handling audit for demo stability?
+**Production Checklist** (Future):
 
-### Architectural Notes
-_To be filled in during chapter review._
+| Item | Status | Notes |
+|------|--------|-------|
+| ISR for directory pages | ⬜ | Add `revalidate` exports |
+| Bundle analyzer review | ⬜ | Run before launch |
+| API response caching | ⬜ | Add Cache-Control headers |
+| Sentry Performance enabled | ⬜ | Configure tracing |
+| Lighthouse CI in pipeline | ⬜ | Add to CI/CD |
+| Performance budget defined | ⬜ | LCP < 2.5s, bundle < 200KB |
 
 ---
 
@@ -10128,36 +12998,23 @@ Admin Panel
 
 > **Cross-Reference**: See Chapter 26 (Admin System) for full admin panel structure.
 
-
-## Chapter 36: Performance & Caching
-
-> **Note**: Data Export & Portability requirements are covered in Chapter 14 (Settings & Preferences) and Chapter 39 (Legal Framework, Section 39.3.2).
-
-**Purpose**: Ensure the application performs well under load.
-
-| Item | Status | Notes |
-|------|--------|-------|
-| 36.1 Database Query Optimization | 🟡 | Index verification needed |
-| 36.2 API Response Caching | ⬜ | Redis or in-memory |
-| 36.3 Static Page Generation (ISR) | ⬜ | Next.js incremental static regen |
-| 36.4 Image Optimization | 🟡 | Next/Image, CDN |
-| 36.5 Bundle Size Analysis | ⬜ | Webpack analyzer |
-
-### Key Questions
-- [ ] Performance issues observed?
-
-### Architectural Notes
-_To be filled in during chapter review._
-
 ---
 
 ## Chapter 34: Communications Infrastructure
 
-**Purpose**: Define the delivery infrastructure for transactional communications, lifecycle automation workflows, and operational outreach systems including call center integration.
+**Review Status**: ✅ Reviewed
 
-> **Scope Distinction**: Chapter 19 (Notifications) defines *what* to send and *when*. This chapter defines *how* to send it — infrastructure, templates, automation rules, and delivery tracking.
+**Purpose**: Define the delivery infrastructure for transactional communications (email and SMS) that enable the end-to-end user experience.
 
-> **Cross-Reference**: See Chapter 38 (Third-Party Services & Integrations) for the master service registry, environment variable requirements, and vendor management details.
+> **Scope Distinction**: Chapter 19 (Notifications) defines *what* to send and *when*. This chapter defines *how* to send it — infrastructure, templates, and delivery tracking.
+
+> **Demo Scope Summary**: Email and SMS notifications for key user transactions. No call center tooling, live chat, or ticketing system for demo.
+
+> **Cross-References**:
+> - Chapter 14 (Settings & Preferences): Notification preferences control delivery
+> - Chapter 19 (Notifications): Defines notification types; this chapter delivers them
+> - Chapter 26 (Admin System): Admin visibility into delivery status
+> - Chapter 38 (Third-Party Services): Master service registry, environment variables
 
 ### 34.1 Delivery Infrastructure (DECIDED)
 
@@ -10191,19 +13048,27 @@ _To be filled in during chapter review._
                         └──────────────────┘
 ```
 
-#### SMS Provider: Twilio (If Time Permits)
+#### SMS Provider: Twilio
 
 | Attribute | Value |
 |-----------|-------|
 | **Provider** | Twilio |
-| **Demo scope** | Include if low-risk; defer if adds complexity |
+| **Demo scope** | ✅ Required — important for end-to-end experience |
 | **Setup** | Account SID, Auth Token, Phone Number |
 | **Integration** | `twilio` npm package |
 
-**SMS Decision**:
-- **Include for demo** if setup is straightforward and time permits
-- **Defer** if phone number provisioning or webhook handling creates risk
-- Chapter 19 specifies SMS as "first-class channel" — production must include
+**SMS Setup Requirements**:
+1. Create Twilio account
+2. Add credentials to environment (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`)
+3. Provision phone number (can use trial number for demo)
+4. Install package: `twilio`
+
+**Demo SMS Use Cases**:
+| Notification | Trigger | Message |
+|--------------|---------|---------|
+| Engagement confirmation | Booking confirmed | "Your {{type}} with {{provider}} is confirmed for {{date}}" |
+| Appointment reminder | 1 hour before | "Reminder: {{type}} in 1 hour at {{location}}" |
+| New message alert | Message received | "New message from {{from}} on Olera. View: {{url}}" |
 
 ---
 
@@ -10304,144 +13169,46 @@ _To be filled in during chapter review._
 
 ---
 
-### 34.5 Call Center Workflow (DECIDED — Required for Demo)
+### 34.5 Call Center Workflow (Production Only)
 
-**Purpose**: Enable admin/support staff to manage outbound calls, track outcomes, and trigger follow-up actions.
+**Demo Scope**: ⬜ **Deferred** — No call center tooling for demo
 
-#### Call Center Task Model
+**Production Purpose**: Enable admin/support staff to manage outbound calls, track outcomes, and trigger follow-up actions.
 
-```typescript
-CallCenterTask {
-  id: string
-  type: OUTBOUND_CALL | FOLLOW_UP | VERIFICATION
-  status: PENDING | IN_PROGRESS | COMPLETED | FAILED | CANCELLED
-  priority: LOW | NORMAL | HIGH | URGENT
+**Why Deferred**: Demo focuses on email and SMS transactional notifications. Call center operations add complexity that isn't needed to demonstrate the core user experience.
 
-  // Target
-  targetType: USER | PROVIDER | FAMILY
-  targetId: string
-  targetName: string
-  targetPhone: string
+**Production Features** (documented for future implementation):
 
-  // Assignment
-  assignedTo?: string  // Admin user ID
-  assignedAt?: DateTime
+| Feature | Description |
+|---------|-------------|
+| Task queue UI | `/admin/call-center` with priority-based queue |
+| CallCenterTask model | Tracks calls, outcomes, follow-ups |
+| Automated triggers | Claims, stuck engagements, verification calls |
+| Click-to-call | VoIP integration for browser-based calling |
+| Outcome tracking | Answer, voicemail, reschedule, etc. |
+| Reports | Call volume, conversion, staff performance |
 
-  // Scheduling
-  scheduledFor?: DateTime
-  dueBy?: DateTime
-
-  // Context
-  reason: string  // Why this call is needed
-  script?: string  // Suggested talking points
-  relatedEngagementId?: string
-  relatedClaimId?: string
-
-  // Outcome
-  outcome?: ANSWERED | NO_ANSWER | VOICEMAIL | WRONG_NUMBER | COMPLETED | RESCHEDULE
-  notes?: string
-  completedAt?: DateTime
-
-  // Follow-up
-  requiresFollowUp: boolean
-  followUpDate?: DateTime
-  followUpTaskId?: string
-
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-```
-
-#### Call Center Triggers (Automation)
-
-| Trigger Event | Creates Task | Priority | Script/Notes |
-|---------------|--------------|----------|--------------|
-| Provider claim submitted | Verification call | HIGH | Verify identity, confirm details |
-| Engagement stuck PENDING 48h | Follow-up call (provider) | NORMAL | Prompt response |
-| Family no activity 7 days | Outreach call | LOW | Assistance offer |
-| High-value provider unclaimed | Outreach call | HIGH | Claim invitation |
-| Review dispute filed | Mediation call | URGENT | Resolve dispute |
-
-#### Call Center Admin UI
-
-**Location**: `/admin/call-center`
-
-**Views**:
-```
-/admin/call-center
-├── Queue (default) — Tasks by priority, filtered by status
-├── My Tasks — Assigned to current admin
-├── Completed — Outcome history
-└── Reports — Call volume, outcomes, conversion
-```
-
-**Queue Table Columns**:
-| Column | Content |
-|--------|---------|
-| Priority | Color-coded badge |
-| Type | Call type |
-| Target | Name, phone (click to call) |
-| Reason | Brief context |
-| Due | Deadline |
-| Assigned | Admin name or "Unassigned" |
-| Actions | Claim, Start, Complete |
-
-**Task Detail Modal**:
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Verification Call — High Priority                           │
-├─────────────────────────────────────────────────────────────┤
-│ Target: Sunrise Senior Living                               │
-│ Phone: (555) 123-4567  [📞 Click to Call]                  │
-│ Reason: New claim submitted, verify ownership               │
-│                                                             │
-│ Script:                                                     │
-│ "Hi, this is [Name] from Olera. We received your claim     │
-│ for [Business Name]. Can you verify..."                     │
-│                                                             │
-│ Related: Claim #CLM-12345 [View]                           │
-├─────────────────────────────────────────────────────────────┤
-│ Outcome: [Dropdown: Select outcome]                         │
-│ Notes: [Text area]                                          │
-│                                                             │
-│ □ Requires follow-up                                        │
-│   Follow-up date: [Date picker]                             │
-├─────────────────────────────────────────────────────────────┤
-│ [Cancel]                              [Save] [Complete Call]│
-└─────────────────────────────────────────────────────────────┘
-```
-
-#### Call Center Demo Scope
-
-| Feature | Demo | Production |
-|---------|------|------------|
-| Task queue UI | ✅ Full | Same |
-| Manual task creation | ✅ | Same |
-| Automated task triggers | ✅ Key triggers | Full automation |
-| Click-to-call | 🟡 Link only | VoIP integration |
-| Outcome tracking | ✅ | Same + analytics |
-| Follow-up scheduling | ✅ | Same |
-| Reports/analytics | ⬜ Defer | Full dashboard |
+> **Note**: Full call center specification preserved in version control for production implementation.
 
 ---
 
-### 34.6 Admin-Initiated Outreach (DECIDED)
+### 34.6 Admin-Initiated Outreach (Production Only)
 
-**Purpose**: Allow admins to send one-off or batch communications to users.
+**Demo Scope**: ⬜ **Deferred** — Single-user email via standard admin actions only
 
-#### Single User Outreach
+**Production Purpose**: Allow admins to send one-off or batch communications to users.
 
-**Location**: User detail page in admin → "Send Message" action
+**Why Deferred**: Demo uses standard notification triggers. Batch outreach and segment builders add complexity.
 
-**Options**:
-- Email (custom or template)
-- SMS (if phone available)
-- Create call center task
+**Production Features**:
 
-#### Batch Outreach (Production)
-
-**Demo Scope**: ⬜ Deferred — single user only
-**Production Scope**: Segment builder, batch send, A/B testing
+| Feature | Demo | Production |
+|---------|------|------------|
+| Single-user email from admin | ⬜ Defer | ✅ |
+| Single-user SMS from admin | ⬜ Defer | ✅ |
+| Segment builder | ⬜ Defer | ✅ |
+| Batch send | ⬜ Defer | ✅ |
+| A/B testing | ⬜ Defer | ✅ |
 
 ---
 
@@ -10458,7 +13225,7 @@ CallCenterTask {
 | `bounced` | ✅ | Mark email invalid, alert admin |
 | `complained` | ✅ | Auto-unsubscribe, flag account |
 
-#### SMS Events (via Twilio webhooks, if implemented)
+#### SMS Events (via Twilio webhooks)
 
 | Event | Tracked | Action |
 |-------|---------|--------|
@@ -10479,30 +13246,31 @@ CallCenterTask {
 
 ### 34.8 Implementation Status
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Email service (Resend) | ⬜ Not Built | Setup required |
-| React Email templates | ⬜ Not Built | Create template library |
-| SMS service (Twilio) | ⬜ Not Built | Include if time permits |
-| Welcome email automation | ⬜ Not Built | Required for demo |
-| Profile nudge automation | ⬜ Not Built | Required for demo |
-| Call center queue UI | ⬜ Not Built | Required for demo |
-| Call center task model | ⬜ Not Built | Required for demo |
-| Automated task triggers | ⬜ Not Built | Required for demo |
-| Delivery tracking | ⬜ Not Built | Basic send/fail for demo |
+| Item | Status | Demo Required | Notes |
+|------|--------|---------------|-------|
+| Email service (Resend) | ⬜ Not Built | ✅ Yes | Setup required |
+| React Email templates | ⬜ Not Built | ✅ Yes | Core templates for demo |
+| SMS service (Twilio) | ⬜ Not Built | ✅ Yes | Required for end-to-end experience |
+| Welcome email | ⬜ Not Built | ✅ Yes | Single email on signup |
+| Engagement notifications | ⬜ Not Built | ✅ Yes | Email + SMS for bookings |
+| Appointment reminders | ⬜ Not Built | ✅ Yes | 1-hour SMS reminder |
+| Message alerts | ⬜ Not Built | ✅ Yes | Email + SMS for new messages |
+| Basic delivery tracking | ⬜ Not Built | ✅ Yes | Send/fail status |
+| Call center workflow | ⬜ Not Built | ⬜ No | Deferred to production |
+| Admin batch outreach | ⬜ Not Built | ⬜ No | Deferred to production |
 
 ### 34.9 Key Decisions Log
 
 | Decision | Status | Rationale |
 |----------|--------|-----------|
 | Email provider: Resend | ✅ Decided | Simplest setup, modern API, React Email support |
-| SMS provider: Twilio | ✅ Decided | Industry standard; include if low-risk for demo |
+| SMS provider: Twilio | ✅ Decided | Required for demo — important for end-to-end experience |
 | Template system: React Email | ✅ Decided | Component-based, type-safe, easy to maintain |
 | Welcome email for demo | ✅ Decided | Required for complete user journey |
-| Profile nudge for demo | ✅ Decided | Required for complete user journey |
-| Call center for demo | ✅ Decided | Critical for demonstrating full UX to colleagues |
+| Transactional notifications | ✅ Decided | Email + SMS for key actions |
+| Call center: defer | ✅ Decided | No call center tooling for demo — adds unnecessary complexity |
 | Re-engagement: defer | ✅ Decided | Not needed for demo; production feature |
-| Batch outreach: defer | ✅ Decided | Single-user sufficient for demo |
+| Batch outreach: defer | ✅ Decided | Not needed for demo; production feature |
 
 ---
 
@@ -10510,26 +13278,28 @@ CallCenterTask {
 
 | Chapter | Integration Point |
 |---------|-------------------|
-| Ch 14: Settings | Notification preferences control delivery |
+| Ch 14: Settings | Notification preferences control delivery channels |
+| Ch 15: Engagements | Engagement events trigger email + SMS notifications |
 | Ch 19: Notifications | Defines notification types; this chapter delivers them |
-| Ch 27: Admin System | Call center queue in admin interface |
-| Ch 10: Provider Claiming | Claim triggers verification call task |
-| Ch 15: Engagements | Engagement events trigger transactional emails |
+| Ch 26: Admin System | Delivery status visibility in admin |
+| Ch 38: Third-Party Services | Resend and Twilio in service registry |
 
 ### Demo vs Production Summary
 
 | Feature | Demo | Production |
 |---------|------|------------|
-| Email (Resend) | ✅ Full | Same |
-| SMS (Twilio) | 🟡 If time permits | Full |
+| Email (Resend) | ✅ Required | Same |
+| SMS (Twilio) | ✅ Required | Same |
 | Transactional templates | ✅ Core set | Full library |
 | Welcome email | ✅ Single email | Multi-step sequence |
+| Engagement notifications | ✅ Email + SMS | Same |
+| Appointment reminders | ✅ 1-hour SMS | 24h + 1h multi-channel |
+| Message alerts | ✅ Email + SMS | Same |
 | Profile nudge | ✅ Single nudge | Escalating sequence |
 | Re-engagement | ⬜ Defer | Full campaigns |
-| Call center queue | ✅ Full UI | Same |
-| Call center triggers | ✅ Key triggers | Full automation |
+| Call center workflow | ⬜ Defer | Full queue + triggers |
 | Admin batch outreach | ⬜ Defer | Segment builder |
-| Delivery analytics | 🟡 Basic | Full dashboard |
+| Delivery analytics | 🟡 Basic send/fail | Full dashboard |
 
 ---
 
@@ -11719,6 +14489,148 @@ Section 230 of the Communications Decency Act (47 U.S.C. § 230) provides that "
 ## Future Directions
 
 > ⭐ **Strategic Concepts for Future Phases** — These sections outline long-term possibilities that are explicitly **not** part of the current demo or build scope. They are included to demonstrate forward thinking and establish placeholders for future strategic decisions.
+
+---
+
+### Future: Mobile App Development (iOS & Android)
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: Native iOS and Android mobile applications that serve as companion apps to the Olera web platform, providing families and providers with on-the-go access to core functionality while maintaining a unified, consistent user experience across all platforms.
+
+#### Strategic Vision
+
+The Olera mobile apps will extend—not replace—the web platform, following the proven patterns established by Zillow, Airbnb, and Yelp. These companies demonstrate that successful mobile companions share a common backend, maintain consistent data models, and deliver parallel UX patterns across platforms while optimizing for each platform's native strengths.
+
+**Core Principles**:
+- **Single source of truth**: All platforms (web, iOS, Android) connect to the same backend APIs and database
+- **Feature parity**: Core functionality available on all platforms, with platform-appropriate optimizations
+- **Consistent UX language**: Same information architecture and user mental models across platforms
+- **Native-first interactions**: Leverage platform-specific capabilities (notifications, camera, location) where they add value
+- **Offline-aware design**: Graceful degradation when connectivity is limited
+
+#### Architecture Alignment
+
+The current web application architecture is designed to support future mobile clients without rework:
+
+**Shared Backend & APIs**:
+- Next.js API routes follow RESTful patterns that translate directly to mobile API consumption
+- Authentication via NextAuth JWT tokens works seamlessly with mobile clients
+- All business logic lives in server-side services, not in frontend components
+- Database schema and Prisma models are platform-agnostic
+
+**Consistent Data Models**:
+- User, Provider, Family, and Engagement models are designed for multi-platform access
+- Mode switching (Family/Provider) architecture works identically via API
+- File upload patterns (Vercel Blob) support mobile upload workflows
+- Notification data model accommodates push notification delivery
+
+**Reusable Systems**:
+| Web System | Mobile Reusability |
+|------------|-------------------|
+| Authentication (JWT) | Direct reuse—mobile clients authenticate via same endpoints |
+| API routes | Direct consumption—RESTful patterns work for React Native/Swift/Kotlin |
+| Prisma schema | No changes—same database serves all clients |
+| Validation (Zod) | Server-side validation protects all clients equally |
+| File uploads | Same Vercel Blob URLs work across platforms |
+| Messaging system | Same API, mobile-optimized display |
+| Notifications | Extend to push notifications via existing notification infrastructure |
+
+#### Platform-Specific Considerations
+
+**iOS Development**:
+- Swift/SwiftUI for native iOS experience
+- Leverage iOS-specific features: Face ID, Apple Maps integration, Siri shortcuts
+- App Store compliance and review process
+- Push notifications via Apple Push Notification Service (APNS)
+- Support for iOS accessibility features (VoiceOver, Dynamic Type)
+
+**Android Development**:
+- Kotlin/Jetpack Compose for modern Android development
+- Material Design 3 alignment with platform conventions
+- Google Play Store distribution and policies
+- Push notifications via Firebase Cloud Messaging (FCM)
+- Android accessibility support (TalkBack, font scaling)
+
+**Cross-Platform Considerations**:
+- Evaluate React Native or Flutter for code sharing, balanced against native performance needs
+- Shared business logic libraries where appropriate
+- Platform-specific UI implementations for optimal user experience
+- Unified testing strategy across platforms
+
+#### Mobile-First Features
+
+While the web platform is fully functional, mobile apps can optimize for mobile-specific use cases:
+
+**For Families**:
+- Quick provider search with GPS-based location
+- Camera integration for care profile photos
+- Push notifications for provider responses and messages
+- Saved providers accessible offline
+- Tour scheduling with calendar integration
+
+**For Providers**:
+- Instant notification of new inquiries
+- Quick response templates optimized for mobile
+- Photo uploads directly from device camera
+- Dashboard metrics at a glance
+- On-the-go profile updates
+
+#### Current State & Path Forward
+
+**Current State**:
+- Web application serves as the primary platform
+- iOS and Android prototypes exist but lack unified production architecture
+- No shared component library or design system formalized for mobile
+- Backend APIs are mobile-ready but not yet optimized for mobile consumption patterns
+
+**Prerequisites Before Mobile Development**:
+1. Web application feature-complete and stable
+2. API documentation finalized for mobile consumption
+3. Design system formalized with mobile-specific components
+4. Authentication flow validated for mobile security requirements
+5. Push notification infrastructure selected and integrated
+6. Mobile analytics and crash reporting strategy defined
+
+**Development Approach**:
+1. **Phase 1**: API audit and optimization for mobile patterns (pagination, caching headers, response size optimization)
+2. **Phase 2**: Design system extension with mobile component specifications
+3. **Phase 3**: Core feature development (authentication, profile, search, messaging)
+4. **Phase 4**: Platform-specific optimizations and native integrations
+5. **Phase 5**: Beta testing, App Store/Play Store submission, launch
+
+#### Architectural Guardrails
+
+To ensure the web platform development does not block future mobile work:
+
+**Do**:
+- Keep business logic in API routes, not React components
+- Use platform-agnostic data formats in API responses
+- Design APIs with pagination and filtering for large datasets
+- Implement proper cache headers for mobile bandwidth optimization
+- Store file references as URLs, not platform-specific formats
+- Use relative time formatting that works across timezones
+
+**Avoid**:
+- Coupling business logic to Next.js-specific features
+- Server-side rendering dependencies in core data flows
+- Browser-specific APIs in shared service code
+- Hardcoded web-only assumptions in database schema
+- Session-based auth patterns that don't translate to mobile
+
+#### Why Deferred
+
+- Core web platform must stabilize before multi-platform development
+- Mobile development requires dedicated iOS/Android expertise
+- App Store presence brings ongoing maintenance and review obligations
+- Limited resources better focused on web feature completion
+- Market validation of web platform informs mobile priorities
+
+#### Strategic Value
+
+Mobile apps represent a natural extension of Olera's mission to simplify senior care discovery. Mobile-first users—particularly busy adult children coordinating care—benefit from on-the-go access. The architecture established in the web platform ensures mobile development will be an evolution, not a rewrite.
+
+**Cross-Reference**: See Chapter 31 (Application Architecture & Tech Stack) for current backend infrastructure and Chapter 34 (Communications Infrastructure) for notification systems that extend to mobile push.
 
 ---
 
