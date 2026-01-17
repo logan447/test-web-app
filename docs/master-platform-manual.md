@@ -1050,44 +1050,449 @@ Visibility is a prominent wizard step. Controls who can discover the profile.
 
 ## Chapter 4: UI & Design Language
 
-> 🆕 **New Placeholder** — Structure approved, content to be developed.
+**Review Status**: ✅ Reviewed
 
-**Purpose**: Establish platform-wide UI/UX principles and design quality standards that ensure Olera delivers a top-tier, consumer-grade experience across all systems.
+**Purpose**: Establish platform-wide UI/UX principles and design quality standards that ensure Olera delivers a top-tier, consumer-grade experience across all systems. This chapter is upstream of all user-facing implementation — decisions here cascade into every component, page, and interaction.
+
+**Primary User Optimization**: We optimize for all user types (seniors, family members, caregivers, clinicians, discharge planners), but design with seniors as the baseline. If the experience is usable for seniors themselves, it will be usable for everyone. The goal is for any user to confidently show the product to a loved one and navigate it together.
 
 ### Scope
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 4.1 Design Philosophy & Principles | 🆕 | Core guiding principles |
-| 4.2 Visual Language | 🆕 | Typography, color, spacing, iconography |
-| 4.3 Component Library Standards | 🆕 | Consistent UI patterns |
-| 4.4 Interaction Patterns | 🆕 | Animations, transitions, feedback |
-| 4.5 Quality Bar & Inspiration | 🆕 | Reference examples, benchmarks |
-| 4.6 Accessibility in Design | 🆕 | WCAG integration in design process |
-| 4.7 Responsive Design Guidelines | 🆕 | Mobile, tablet, desktop breakpoints |
+| 4.1 Design Philosophy & Principles | ✅ | 7 core principles |
+| 4.2 Visual Language | ✅ | Typography, color, spacing, iconography |
+| 4.3 Component Library Standards | ✅ | shadcn/ui + application layer |
+| 4.4 Interaction Patterns | ✅ | Loading, empty, error, transitions |
+| 4.5 Quality Bar & Inspiration | ✅ | Reference apps, anti-patterns |
+| 4.6 Accessibility in Design | ✅ | WCAG integration in design process |
+| 4.7 Responsive Design Guidelines | ✅ | Mobile-first, breakpoints |
+| 4.8 Demo vs. Production Scope | ✅ | Scope distinctions |
 
-### Key Questions
+---
 
-- [ ] What design systems or frameworks should we reference?
-- [ ] What is the quality bar for visual polish?
-- [ ] How do we balance speed with design quality?
-- [ ] What external inspiration (apps, sites) represents our target?
+### 4.1 Design Philosophy & Principles
+
+These 7 principles govern all design decisions across the platform:
+
+| # | Principle | Definition | Application Example |
+|---|-----------|------------|---------------------|
+| 1 | **Clarity over cleverness** | Users understand immediately what to do | No ambiguous icons without labels |
+| 2 | **Warmth with professionalism** | Care is personal; design feels human but credible | Warm teal palette, professional typography |
+| 3 | **Progressive disclosure** | Show only what's needed at each step | Multi-step forms, expandable sections |
+| 4 | **Consistent patterns** | Same actions look and feel the same everywhere | All "Save" buttons behave identically |
+| 5 | **Mobile-first, desktop-enhanced** | Design for mobile constraints first | Touch targets ≥44px, thumb-zone navigation |
+| 6 | **Accessible by default** | Accessibility is not an add-on | WCAG AA minimum, semantic HTML always |
+| 7 | **Speed communicates quality** | Perceived performance matters | Skeleton loaders, optimistic UI |
+
+**Quality Commitment**: Olera is not a "good enough" platform. Every screen, every interaction, every detail should meet a consumer-grade quality bar comparable to the best modern applications.
+
+---
+
+### 4.2 Visual Language
+
+#### 4.2.1 Typography
+
+**Font System**: Single-family system for consistency.
+
+| Role | Font | Rationale |
+|------|------|-----------|
+| **All text** | Inter (or system equivalent) | Clean, modern, excellent readability at all sizes |
+
+**Type Scale** (16px base):
+
+| Token | Size | Line Height | Use Case |
+|-------|------|-------------|----------|
+| `text-xs` | 12px | 16px | Captions, timestamps |
+| `text-sm` | 14px | 20px | Secondary text, labels |
+| `text-base` | 16px | 24px | Body text (minimum for readability) |
+| `text-lg` | 18px | 28px | Emphasized body, card titles |
+| `text-xl` | 20px | 28px | Section headers |
+| `text-2xl` | 24px | 32px | Page section titles |
+| `text-3xl` | 30px | 36px | Page titles |
+| `text-4xl` | 36px | 40px | Hero headlines |
+
+**Accessibility Requirements**:
+- Body text never below 16px
+- Interactive element labels never below 14px
+- Line height minimum 1.5x font size for body text
+
+#### 4.2.2 Color System
+
+The Olera color palette prioritizes warmth and trust while maintaining professional credibility. Colors are derived from the existing brand identity.
+
+**Primary Palette** (Olera Teal):
+
+| Token | Use | Hex | Notes |
+|-------|-----|-----|-------|
+| `primary` | Primary actions, links, accents | `#0D9488` (teal-600) | Brand teal — 4.5:1 contrast on white |
+| `primary-hover` | Hover state | `#0F766E` (teal-700) | Darker for affordance |
+| `primary-light` | Backgrounds, badges, highlights | `#CCFBF1` (teal-100) | Subtle emphasis |
+| `primary-50` | Very light backgrounds | `#F0FDFA` (teal-50) | Section backgrounds |
+
+**Secondary Palette** (Neutral):
+
+| Token | Use | Hex | Notes |
+|-------|-----|-----|-------|
+| `secondary` | Secondary actions, borders | `#6B7280` (gray-500) | Neutral, non-competing |
+| `secondary-hover` | Hover state | `#4B5563` (gray-600) | — |
+| `text-primary` | Primary text | `#111827` (gray-900) | High contrast |
+| `text-secondary` | Secondary text | `#6B7280` (gray-500) | De-emphasized |
+| `text-muted` | Muted/placeholder | `#9CA3AF` (gray-400) | Lowest emphasis |
+
+**Semantic Colors**:
+
+| Token | Use | Hex |
+|-------|-----|-----|
+| `success` | Confirmations, verified badges, completed | `#10B981` (emerald-500) |
+| `warning` | Cautions, pending states | `#F59E0B` (amber-500) |
+| `error` | Errors, destructive actions | `#EF4444` (red-500) |
+| `info` | Informational messages | `#3B82F6` (blue-500) |
+
+**Background Colors**:
+
+| Token | Use | Hex |
+|-------|-----|-----|
+| `bg-white` | Primary background | `#FFFFFF` |
+| `bg-gray-50` | Section alternation | `#F9FAFB` |
+| `bg-gray-100` | Card backgrounds, inputs | `#F3F4F6` |
+
+**Contrast Requirements**: All text/background combinations must meet WCAG AA (4.5:1 for normal text, 3:1 for large text and UI components).
+
+#### 4.2.3 Spacing System
+
+Uses a 4px base unit aligned with Tailwind's default scale. Maintain consistency with existing Olera patterns where effective.
+
+| Token | Value | Common Use |
+|-------|-------|------------|
+| `space-1` | 4px | Tight inline spacing |
+| `space-2` | 8px | Related element gaps, icon padding |
+| `space-3` | 12px | Form field spacing |
+| `space-4` | 16px | Standard padding, card gaps |
+| `space-5` | 20px | Medium section padding |
+| `space-6` | 24px | Card padding, section gaps |
+| `space-8` | 32px | Section margins |
+| `space-10` | 40px | Large section breaks |
+| `space-12` | 48px | Major section breaks |
+| `space-16` | 64px | Page section padding |
+
+**Rule**: Never use arbitrary pixel values. All spacing uses tokens.
+
+**Layout Patterns**:
+- Card padding: `space-6` (24px)
+- Form field gaps: `space-4` (16px)
+- Section separation: `space-8` to `space-12` (32-48px)
+- Page margins (mobile): `space-4` (16px)
+- Page margins (desktop): `space-6` to `space-8` (24-32px)
+
+#### 4.2.4 Iconography
+
+**Primary Library**: Lucide Icons (standard in shadcn ecosystem)
+
+**Icon Usage Rules**:
+1. Icons always paired with text labels for primary actions
+2. Icon-only buttons require `aria-label` and tooltip on hover
+3. Consistent sizing:
+   - 16px: Inline with text
+   - 20px: Buttons, form elements
+   - 24px: Navigation, card actions
+4. Stroke width: 1.5px (default), 2px (emphasized)
+5. Color: Inherit from text color or use semantic color
+
+**Common Icons**:
+
+| Action | Icon | Notes |
+|--------|------|-------|
+| Save/Favorite | Heart (outline/filled) | Toggle state |
+| Search | Search (magnifying glass) | — |
+| Location | MapPin | — |
+| Phone | Phone | — |
+| Email | Mail | — |
+| Settings | Settings (gear) | — |
+| Menu | Menu (hamburger) | Mobile nav |
+| Close | X | Modals, dismissible |
+| Back | ArrowLeft | Navigation |
+| External link | ExternalLink | Opens new tab |
+| Verified | CheckCircle or BadgeCheck | Trust indicator |
+
+---
+
+### 4.3 Component Library Standards
+
+#### Base Layer: shadcn/ui
+
+| Aspect | Standard |
+|--------|----------|
+| **Library** | shadcn/ui with Radix primitives |
+| **Styling** | Tailwind CSS with CSS variables for theming |
+| **Location** | `components/ui/` for base components |
+| **Customization** | Extend via variants, never modify core components directly |
+
+#### Application Layer
+
+| Category | Location | Examples |
+|----------|----------|----------|
+| **Domain components** | `components/` | ProviderCard, FamilyProfile, EngagementCard |
+| **Layout components** | `components/layout/` | PageHeader, Sidebar, ModeAwareNav |
+| **Form components** | `components/forms/` | OnboardingWizard, ProfileEditor |
+
+#### Component Documentation Standard
+
+Each custom component should include:
+```typescript
+/**
+ * @component ProviderCard
+ * @description Displays provider summary for directory/search contexts
+ * @see Chapter 9 (Provider Directory) for usage context
+ * @see Chapter 7 (Provider Profiles) for data model
+ */
+```
+
+#### Key Component Patterns
+
+| Component | Pattern | Notes |
+|-----------|---------|-------|
+| **Buttons** | Primary (teal), Secondary (outline), Ghost, Destructive | Consistent sizing: sm, default, lg |
+| **Cards** | White background, subtle shadow, rounded-lg | Consistent padding (space-6) |
+| **Forms** | Label above input, error below, required indicator | 16px min input height on mobile |
+| **Modals** | Centered, backdrop blur, focus trap | Max-width 640px |
+| **Toasts** | Bottom-right, auto-dismiss (5s), action optional | Use sparingly |
+
+---
+
+### 4.4 Interaction Patterns
+
+#### 4.4.1 Loading States
+
+| Context | Pattern | Implementation |
+|---------|---------|----------------|
+| **Page load** | Skeleton screens | Match layout structure, pulse animation |
+| **Action pending** | Button spinner | Replace button text with spinner, disable button |
+| **Data fetch** | Inline skeleton | Replace content area only |
+| **Background save** | Toast notification | "Saved" confirmation after completion |
+| **Long operation** | Progress indicator | For multi-step processes |
+
+**Rule**: Never use full-page spinners. Always show structural skeleton that matches the expected layout.
+
+#### 4.4.2 Empty States
+
+Every empty state must include:
+
+| Element | Required | Notes |
+|---------|----------|-------|
+| **Illustration** | ✅ Yes (demo + production) | Custom illustrations showing the intended content |
+| **Headline** | ✅ Yes | Clear, action-oriented (e.g., "No saved providers yet") |
+| **Description** | ✅ Yes | Brief explanation of what would appear here |
+| **Primary CTA** | ✅ Yes | Action to populate the empty state |
+
+**Examples**:
+
+| Context | Headline | CTA |
+|---------|----------|-----|
+| Saved Providers (empty) | "No saved providers yet" | "Browse providers" |
+| Messages (empty) | "No conversations yet" | "Find providers" |
+| Search no results | "No providers match your filters" | "Clear filters" or "Broaden search" |
+
+#### 4.4.3 Error States
+
+| Error Type | Pattern | Implementation |
+|------------|---------|----------------|
+| **Form validation** | Inline error below field | Red border, error icon, red text |
+| **API error (recoverable)** | Toast notification | With retry action if applicable |
+| **API error (blocking)** | Inline alert | Within the content area |
+| **Page error** | Error boundary | Full-page with illustration, retry button |
+| **Network error** | Offline indicator | Banner at top, retry when online |
+
+**Error Message Guidelines**:
+- Be specific: "Email is already registered" not "Invalid input"
+- Offer solutions: "Try signing in instead" after duplicate email
+- Never blame the user: "We couldn't process that" not "You entered it wrong"
+
+#### 4.4.4 Transitions & Animation
+
+| Animation | Duration | Easing | Use Case |
+|-----------|----------|--------|----------|
+| **Micro** | 150ms | ease-out | Button hover, focus rings, toggles |
+| **Standard** | 200ms | ease-in-out | Modals opening, dropdowns, tooltips |
+| **Complex** | 300ms | ease-in-out | Page transitions, accordions, carousels |
+| **Emphasis** | 400ms | spring | Success celebrations, first-time tutorials |
+
+**Animation Principles**:
+1. **Purposeful**: Every animation should provide feedback or guide attention
+2. **Subtle**: Animations enhance, never distract
+3. **Performant**: Use CSS transforms and opacity; avoid layout-triggering properties
+4. **Respectful**: Honor `prefers-reduced-motion` — all animations must have reduced-motion fallbacks
+
+**Micro-interactions to Include**:
+- Button press feedback (scale down slightly)
+- Heart icon animation on save
+- Progress bar animations
+- Form field focus transitions
+- Card hover lift effect
+
+---
+
+### 4.5 Quality Bar & Inspiration
+
+#### Primary Inspiration
+
+These applications represent our target quality bar for specific aspects:
+
+| App | What to Learn |
+|-----|---------------|
+| **Airbnb** | Homepage hero design, search UX, photo galleries, trust badges, listing cards |
+| **Zillow** | Directory filters, map integration, saved searches, property cards |
+| **LinkedIn** | Profile completeness indicators, professional presentation, notification patterns |
+
+#### Secondary Inspiration
+
+| App | What to Learn |
+|-----|---------------|
+| **One Medical** | Clean healthcare UX, trust signals, appointment booking flows |
+| **Headspace** | Warmth in digital health, calming aesthetics, onboarding |
+| **Zocdoc** | Provider directory patterns, review presentation, booking confirmation |
+
+#### Anti-Patterns to Avoid
+
+| Pattern | Why | Instead |
+|---------|-----|---------|
+| **Cluttered dashboards** | Overwhelms users, especially older adults | Progressive disclosure, clear hierarchy |
+| **Tiny text / low contrast** | Accessibility failure | 16px minimum, WCAG AA contrast |
+| **Aggressive upsells** | Erodes trust in care context | Subtle upgrade prompts, value-first |
+| **Dark patterns** | Unethical, damages brand | Honest UI, easy cancellation |
+| **Infinite scroll without position** | Disorienting, hard to return | Pagination or "load more" with scroll position |
+| **Auto-playing media** | Startling, accessibility issue | User-initiated only |
+
+#### Quality Gate
+
+Before any page ships, ask: **"Would this feel out of place in Airbnb or LinkedIn?"** If yes, iterate.
+
+---
+
+### 4.6 Accessibility in Design
+
+Accessibility is a design requirement, not an audit afterthought.
+
+#### Minimum Standards
+
+| Requirement | Standard | Verification |
+|-------------|----------|--------------|
+| **Color contrast** | WCAG AA (4.5:1 text, 3:1 UI) | Automated tooling (axe, Lighthouse) |
+| **Touch targets** | 44x44px minimum | Design review |
+| **Focus indicators** | Visible on all interactive elements | Manual testing |
+| **Text scaling** | Supports 200% zoom without horizontal scroll | Browser testing |
+| **Screen reader** | All content accessible, logical reading order | VoiceOver/NVDA testing |
+| **Keyboard navigation** | All actions reachable via keyboard | Tab through every flow |
+
+#### Design Process Integration
+
+| Phase | Accessibility Action |
+|-------|---------------------|
+| **Design** | Use accessible color palette, verify contrast, specify focus states |
+| **Development** | Semantic HTML first, ARIA only when needed |
+| **Review** | Automated a11y tests in CI (axe-core) |
+| **QA** | Manual keyboard + screen reader testing for key flows |
+
+#### Senior-Specific Considerations
+
+| Consideration | Implementation |
+|---------------|----------------|
+| **Larger default text** | 16px minimum body, 14px minimum labels |
+| **High contrast mode support** | Test with Windows High Contrast |
+| **Clear tap targets** | Generous padding on buttons (44px+ height) |
+| **Simple language** | Avoid jargon, use plain terms |
+| **Forgiving inputs** | Phone number formatting, flexible date entry |
+| **Confirmation before destructive actions** | "Are you sure?" for deletes |
+
+> **Cross-Reference**: Chapter 37 (Accessibility Standards) covers compliance auditing and i18n. This section covers accessibility in the design process.
+
+---
+
+### 4.7 Responsive Design Guidelines
+
+#### Breakpoints
+
+| Name | Width | Primary Context |
+|------|-------|-----------------|
+| `mobile` | < 640px | Phones (portrait) |
+| `sm` | ≥ 640px | Phones (landscape), small tablets |
+| `md` | ≥ 768px | Tablets |
+| `lg` | ≥ 1024px | Laptops, small desktops |
+| `xl` | ≥ 1280px | Desktops |
+| `2xl` | ≥ 1536px | Large monitors |
+
+#### Mobile-First Rules
+
+| Rule | Implementation |
+|------|----------------|
+| **Default styles are mobile** | Base CSS targets mobile; add complexity at breakpoints |
+| **Touch-first interactions** | Hover states are enhancements, not requirements |
+| **Thumb-zone navigation** | Primary actions in bottom 40% of viewport on mobile |
+| **No horizontal scroll** | Content reflows; tables become cards on mobile |
+| **Tap targets** | Minimum 44x44px with adequate spacing |
+
+#### Layout Patterns by Page Type
+
+| Page Type | Mobile | Tablet | Desktop |
+|-----------|--------|--------|---------|
+| **Homepage** | Stacked sections | 2-column where appropriate | Full hero, 3-column features |
+| **Directory** | Single column cards, map toggle | 2-column grid | 3-column grid + map sidebar |
+| **Provider Profile** | Stacked sections | 2-column (photo + info) | 2-column with sticky sidebar |
+| **Dashboard** | Bottom tab navigation | Sidebar nav (collapsible) | Persistent sidebar |
+| **Forms** | Full-width inputs | Constrained width (max 640px) | Constrained width, centered |
+| **Settings** | Full-width list | 2-column (nav + content) | 2-column with sidebar |
+
+#### Navigation Patterns
+
+| Context | Mobile | Desktop |
+|---------|--------|---------|
+| **Primary nav** | Hamburger menu OR bottom tabs | Horizontal header nav |
+| **Mode switcher** | In hamburger menu | Header dropdown |
+| **Account menu** | In hamburger menu | Header dropdown |
+| **Back navigation** | Top-left arrow + header title | Breadcrumbs |
+
+---
+
+### 4.8 Demo vs. Production Scope
+
+| Aspect | Demo Scope | Production Scope |
+|--------|------------|------------------|
+| **Typography** | ✅ Final system | ✅ Same |
+| **Colors** | ✅ Final Olera palette | ✅ Same |
+| **Core components** | ✅ Polished, production-ready | ✅ Same |
+| **Micro-interactions** | ✅ Full implementation | ✅ Same |
+| **Custom illustrations** | ✅ For empty states, key moments | ✅ Expanded library |
+| **Loading skeletons** | ✅ All pages | ✅ Same |
+| **Error states** | ✅ Full implementation | ✅ Same |
+| **Empty states** | ✅ With illustrations and CTAs | ✅ Same |
+| **Dark mode** | ❌ Deferred | 🟡 If demand warrants |
+| **Print styles** | ❌ Deferred | 🟡 For profiles, reports |
+| **Admin UI polish** | 🟡 Functional, clear, not highly polished | ✅ Full polish |
+
+**Demo Quality Standard**: The demo should feel like a clearly evolved, superior version of the current Olera site. Strong branding alignment, clean interaction patterns, smooth self-serve usability. No radical visual departures — improvements should feel natural and inevitable.
+
+---
 
 ### Architectural Notes
 
-_To be developed. This chapter will establish the design language that informs all user-facing components across the platform._
+**CSS Architecture**:
+- Tailwind CSS as primary styling system
+- CSS variables for theme tokens (colors, spacing)
+- Component-scoped styles only when necessary
+- No global style overrides outside of theme configuration
 
-### Design Principles (Draft)
+**Animation Library**: CSS transitions for simple animations; Framer Motion for complex sequences (optional, evaluate bundle impact).
 
-1. **Clarity over cleverness** — Users should understand immediately what to do
-2. **Warmth with professionalism** — Care is personal; our design should feel human
-3. **Progressive disclosure** — Show only what's needed at each step
-4. **Consistent patterns** — Same actions should look and feel the same everywhere
-5. **Mobile-first** — Most users will access via mobile; design for that reality
+**Image Handling**:
+- Next/Image for automatic optimization
+- Defined size presets for common use cases (avatar, card thumbnail, hero)
+- WebP format with JPEG fallback
+- Lazy loading below the fold
 
-### Quality Commitment
-
-> Olera is not a "good enough" platform. Every screen, every interaction, every detail should meet a consumer-grade quality bar comparable to the best modern applications.
+**Font Loading**:
+- `font-display: swap` for web fonts
+- Preload critical fonts in document head
+- System font stack as fallback
 
 ---
 
