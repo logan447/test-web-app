@@ -32,9 +32,9 @@
 
 | Status | Count | Chapters |
 |--------|-------|----------|
-| ✅ Reviewed | 36 | 1–26, 28, 29, 30, 33, 34, 35, 36, 37, 38, 39 |
+| ✅ Reviewed | 38 | 1–26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39 |
 | ⏳ Pending | 0 | — |
-| 🆕 Placeholder/New | 3 | 27, 31, 32 |
+| 🆕 Placeholder/New | 1 | 27 |
 | **Total** | **39** | |
 
 ### Remaining Chapters to Review
@@ -46,8 +46,6 @@ All originally pending chapters have been reviewed. ✅
 | Ch | Title | Current Status |
 |----|-------|----------------|
 | 27 | Human Workflows & Standard Operating Procedures | 🆕 Placeholder |
-| 31 | Application Architecture & Tech Stack | 🆕 New |
-| 32 | Hosting, Deployment & CI/CD | 🆕 New |
 
 ---
 
@@ -165,16 +163,23 @@ All originally pending chapters have been reviewed. ✅
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 31 | [Application Architecture & Tech Stack](#chapter-31-application-architecture--tech-stack) | 🆕 New |
-| | 31.1 Frontend Architecture (Next.js, React) | |
-| | 31.2 Backend Architecture (API Routes, Services) | |
-| | 31.3 Database Layer (PostgreSQL, Prisma) | |
-| | 31.4 Authentication Infrastructure | |
-| 32 | [Hosting, Deployment & CI/CD](#chapter-32-hosting-deployment--cicd) | 🆕 New |
-| | 32.1 Hosting Environment (Vercel) | |
+| 31 | [Application Architecture & Tech Stack](#chapter-31-application-architecture--tech-stack) | ✅ Reviewed |
+| | 31.1 Technology Stack Overview | |
+| | 31.2 Frontend Architecture | |
+| | 31.3 Backend Architecture | |
+| | 31.4 Database Layer | |
+| | 31.5 Authentication Infrastructure | |
+| | 31.6 Directory Structure | |
+| | 31.7 Environment Variables | |
+| 32 | [Hosting, Deployment & CI/CD](#chapter-32-hosting-deployment--cicd) | ✅ Reviewed |
+| | 32.1 Hosting Environment | |
 | | 32.2 Deployment Pipeline | |
 | | 32.3 Environment Management | |
-| | 32.4 Release Process | |
+| | 32.4 Build Configuration | |
+| | 32.5 Domain & SSL | |
+| | 32.6 Monitoring & Logs | |
+| | 32.7 Rollbacks & Recovery | |
+| | 32.8 Demo vs Production Summary | |
 | 33 | [File Uploads & Media](#chapter-33-file-uploads--media) | ✅ Reviewed |
 | | 33.1 Storage Architecture | |
 | | 33.2 Image Upload API | |
@@ -275,20 +280,18 @@ All originally pending chapters have been reviewed. ✅
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 39 |
-| **Reviewed (✅)** | 36 |
+| **Reviewed (✅)** | 38 |
 | **Pending (⏳)** | 0 |
-| **New Chapters (🆕)** | 2 |
+| **New Chapters (🆕)** | 0 |
 | **Placeholders (🆕)** | 1 |
 | **Future Directions (⭐)** | 3 |
 
 **Chapters Requiring Content Development**:
 - Ch 27: Human Workflows & SOPs (Placeholder)
-- Ch 31: Application Architecture & Tech Stack (New)
-- Ch 32: Hosting, Deployment & CI/CD (New)
 
-**Recently Completed**: Chapter 34 (Communications Infrastructure) - Reviewed ✅
+**Recently Completed**: Chapters 31 & 32 (Architecture & Deployment) - Reviewed ✅
 
-**All Originally Pending Chapters Reviewed** ✅
+**38 of 39 Chapters Complete** — Only Ch 27 (SOPs) remains as placeholder
 
 ---
 
@@ -9133,110 +9136,870 @@ Section 29.10 (Key Decisions Log) — Approve / Modify / Reject
 
 ## Chapter 31: Application Architecture & Tech Stack
 
-> 🆕 **New Chapter** — Structure approved, content to be developed.
+**Review Status**: ✅ Reviewed
 
 **Purpose**: Document the complete technical architecture enabling the Olera platform, serving as the single source of truth for all technology decisions.
 
-### Scope
+> **Cross-References**:
+> - Chapter 32 (Hosting & Deployment): Vercel configuration, environment management
+> - Chapter 33 (File Uploads): Vercel Blob storage integration
+> - Chapter 35 (Error Handling): Error architecture patterns
+> - Chapter 36 (Performance): Database indexes, caching strategies
+> - Chapter 38 (Third-Party Services): Complete service registry
 
-| Section | Status | Notes |
-|---------|--------|-------|
-| 31.1 Frontend Architecture | 🆕 | Next.js, React, TypeScript |
-| 31.2 Backend Architecture | 🆕 | API Routes, Services Layer |
-| 31.3 Database Layer | 🆕 | PostgreSQL, Prisma ORM |
-| 31.4 Authentication Infrastructure | 🆕 | NextAuth.js, session management |
+---
 
-### 31.1 Frontend Architecture
+### 31.1 Technology Stack Overview
 
-**Technology Stack**:
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Components**: Custom component library
-- **State Management**: React hooks, server components
+**Core Stack Summary**:
 
-_Detailed architecture to be documented._
+| Layer | Technology | Version | Purpose |
+|-------|------------|---------|---------|
+| **Framework** | Next.js | 15.1.0 | Full-stack React framework (App Router) |
+| **Language** | TypeScript | 5.7.2 | Type-safe JavaScript |
+| **UI Library** | React | 18.3.1 | Component-based UI |
+| **Styling** | Tailwind CSS | 3.4.17 | Utility-first CSS |
+| **Database** | PostgreSQL | — | Relational database (hosted on Neon) |
+| **ORM** | Prisma | 6.2.0 | Type-safe database client |
+| **Authentication** | NextAuth.js | 4.24.11 | Auth framework for Next.js |
+| **Validation** | Zod | 3.24.1 | Schema validation |
+| **File Storage** | Vercel Blob | 2.0.0 | Object storage for uploads |
+| **Hosting** | Vercel | — | Serverless deployment platform |
 
-### 31.2 Backend Architecture
+**Key Dependencies**:
 
-**Technology Stack**:
-- **API**: Next.js API Routes
-- **Validation**: Zod schemas
-- **Authentication**: NextAuth.js
-- **Services**: Business logic layer
+| Package | Purpose |
+|---------|---------|
+| `@headlessui/react` | Accessible UI components (modals, dropdowns) |
+| `react-hot-toast` | Toast notifications |
+| `date-fns` | Date manipulation |
+| `bcryptjs` | Password hashing |
+| `leaflet` / `react-leaflet` | Map components |
+| `marked` | Markdown parsing |
+| `isomorphic-dompurify` | HTML sanitization |
 
-_Detailed architecture to be documented._
+---
 
-### 31.3 Database Layer
+### 31.2 Frontend Architecture
 
-**Technology Stack**:
-- **Database**: PostgreSQL (Neon)
-- **ORM**: Prisma
-- **Migrations**: Prisma Migrate
+#### 31.2.1 Next.js App Router
 
-_Schema documentation and data models to be documented._
+**Router**: App Router (Next.js 13+)
 
-### 31.4 Authentication Infrastructure
+**Key Features Used**:
+- Server Components (default)
+- Client Components (`"use client"` directive)
+- API Routes (`app/api/`)
+- Layouts and nested routing
+- Loading and error states
 
-**Technology Stack**:
-- **Provider**: NextAuth.js
-- **Strategies**: Credentials, OAuth (future)
-- **Sessions**: JWT-based
+**Directory Structure**:
+```
+app/
+├── layout.tsx              # Root layout (providers, global styles)
+├── page.tsx                # Homepage
+├── error.tsx               # Global error boundary
+├── not-found.tsx           # 404 page
+├── globals.css             # Global styles
+├── api/                    # API routes (20 directories)
+├── admin/                  # Admin pages
+├── dashboard/              # User dashboard
+├── provider/               # Provider pages
+├── providers/              # Provider directory
+├── login/                  # Auth pages
+├── signup/
+├── settings/
+└── ...
+```
 
-_Authentication flows to be documented._
+#### 31.2.2 Component Architecture
+
+**Component Organization**:
+```
+components/
+├── Auth/                   # Authentication components
+├── CareProfile/            # Family profile components
+├── Dashboard/              # Dashboard widgets
+├── Directory/              # Provider directory cards
+├── Gallery/                # Photo gallery/upload
+├── Loading/                # Loading skeletons
+├── Messaging/              # Chat/messaging UI
+├── Navigation/             # Header, sidebar, nav
+├── Paywall/                # Subscription gates
+├── Provider/               # Provider page components
+├── ProviderProfile/        # Provider profile editing
+├── Reviews/                # Review display/forms
+├── SEO/                    # Meta tags, structured data
+└── UI/                     # Shared UI primitives
+```
+
+**Component Patterns**:
+
+| Pattern | Usage |
+|---------|-------|
+| Server Components | Data fetching, static content |
+| Client Components | Interactive UI, forms, state |
+| Composition | Layouts wrapping page content |
+| Props drilling | Minimal; prefer server fetching |
+
+#### 31.2.3 Styling with Tailwind
+
+**Configuration**: Default Tailwind with custom theme extensions
+
+**Patterns**:
+- Utility classes for all styling
+- `className` prop for component styling
+- Responsive prefixes (`sm:`, `md:`, `lg:`)
+- Dark mode: Not implemented for demo
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Responsive design | ✅ | ✅ |
+| Custom color palette | ✅ | ✅ |
+| Dark mode | ⬜ Defer | ✅ |
+| Component variants | 🟡 Ad-hoc | Design system |
+
+---
+
+### 31.3 Backend Architecture
+
+#### 31.3.1 API Routes
+
+**Location**: `app/api/`
+
+**Route Categories**:
+
+| Category | Routes | Purpose |
+|----------|--------|---------|
+| **Auth** | `/api/auth/*`, `/api/register` | Authentication, signup |
+| **Users** | `/api/user/*` | User profile management |
+| **Providers** | `/api/providers/*` | Provider CRUD, search |
+| **Families** | `/api/family-profiles/*` | Family profile management |
+| **Engagements** | `/api/requests/*` | Booking/engagement flow |
+| **Messaging** | `/api/dashboard/messages/*` | Chat functionality |
+| **Reviews** | `/api/reviews/*` | Review management |
+| **Subscriptions** | `/api/subscription/*` | Stripe integration |
+| **Notifications** | `/api/notifications/*` | In-app notifications |
+| **Admin** | `/api/admin/*` | Admin operations |
+| **Uploads** | `/api/upload/*` | File uploads |
+
+**API Pattern**:
+```typescript
+// Standard API route structure
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(request: NextRequest) {
+  // 1. Authentication check
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // 2. Business logic
+  const data = await prisma.model.findMany({ ... });
+
+  // 3. Response
+  return NextResponse.json(data);
+}
+```
+
+#### 31.3.2 Services Layer
+
+**Location**: `lib/`
+
+| File | Purpose |
+|------|---------|
+| `auth.ts` | NextAuth configuration, session handling |
+| `prisma.ts` | Prisma client singleton |
+| `mode-helpers.ts` | User mode (FAMILY/PROVIDER) utilities |
+| `contact-masking.ts` | Contact info visibility logic |
+| `providerUtils.ts` | Provider-specific utilities |
+| `toast.ts` | Toast notification helpers |
+
+**Prisma Client Pattern**:
+```typescript
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
+```
+
+#### 31.3.3 Validation with Zod
+
+**Pattern**: Validate request bodies in API routes
+
+```typescript
+import { z } from 'zod';
+
+const CreateReviewSchema = z.object({
+  providerId: z.string(),
+  rating: z.number().min(1).max(5),
+  content: z.string().min(10).max(2000),
+});
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const result = CreateReviewSchema.safeParse(body);
+
+  if (!result.success) {
+    return NextResponse.json(
+      { error: result.error.issues[0].message },
+      { status: 400 }
+    );
+  }
+
+  // Use validated data
+  const { providerId, rating, content } = result.data;
+}
+```
+
+---
+
+### 31.4 Database Layer
+
+#### 31.4.1 PostgreSQL on Neon
+
+**Provider**: Neon (serverless PostgreSQL)
+
+**Connection**: Via `DATABASE_URL` environment variable
+
+**Features Used**:
+- Standard PostgreSQL
+- Serverless scaling (Neon)
+- Connection pooling (Neon managed)
+
+#### 31.4.2 Prisma ORM
+
+**Schema Location**: `prisma/schema.prisma`
+
+**Core Models**:
+
+| Model | Purpose |
+|-------|---------|
+| `User` | User accounts (all roles) |
+| `FamilyProfile` | Family/care recipient details |
+| `Provider` | Provider listings |
+| `ProviderIdentity` | Provider onboarding gate |
+| `ConsultRequest` | Engagement/booking requests |
+| `Review` | Provider reviews |
+| `Subscription` | Stripe subscription data |
+| `SavedProvider` | Family saved providers |
+| `SavedFamilyProfile` | Provider saved families |
+| `ContactView` | Contact info unlock tracking |
+| `Notification` | In-app notifications |
+
+**Enums**:
+
+| Enum | Values |
+|------|--------|
+| `UserRole` | FAMILY, PROVIDER, ADMIN |
+| `UserMode` | FAMILY, PROVIDER |
+| `ProviderType` | HOME_CARE, ASSISTED_LIVING, MEMORY_CARE, ... |
+| `CareType` | COMPANION_CARE, PERSONAL_CARE, SKILLED_NURSING, ... |
+| `ConsultRequestStatus` | PENDING, ACCEPTED, DECLINED, COMPLETED, CANCELLED |
+| `SubscriptionTier` | FREE, BASIC, PRO |
+| `SubscriptionStatus` | ACTIVE, CANCELLED, EXPIRED, PAST_DUE |
+
+**Key Indexes** (performance optimization):
+
+| Model | Indexed Fields |
+|-------|----------------|
+| Provider | `city`, `state`, `providerType` |
+| ConsultRequest | `familyProfileId`, `providerId`, `status` |
+| SavedProvider | `userId`, `providerId` |
+| Review | `providerId`, `userId` |
+
+#### 31.4.3 Migrations
+
+**Strategy**: `prisma db push` for demo (schema sync without migrations)
+
+```bash
+# Development: Push schema changes
+npx prisma db push
+
+# Generate client after schema changes
+npx prisma generate
+```
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Schema push | ✅ `db push` | ⬜ |
+| Migrations | ⬜ Defer | ✅ `prisma migrate` |
+| Seed data | ✅ `prisma/seed.ts` | ✅ |
+
+---
+
+### 31.5 Authentication Infrastructure
+
+#### 31.5.1 NextAuth.js Configuration
+
+**Location**: `lib/auth.ts`
+
+**Session Strategy**: JWT (stateless)
+
+**Providers**:
+- Credentials (email/password) — ✅ Implemented
+- OAuth (Google, etc.) — ⬜ Deferred for demo
+
+**Session Data**:
+```typescript
+{
+  user: {
+    id: string,
+    email: string,
+    name: string,
+    role: 'FAMILY' | 'PROVIDER' | 'ADMIN',
+    activeMode: 'FAMILY' | 'PROVIDER'
+  }
+}
+```
+
+#### 31.5.2 Authentication Flow
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   /login    │ ──▶ │  NextAuth   │ ──▶ │  Prisma     │
+│   (form)    │     │  authorize  │     │  (verify)   │
+└─────────────┘     └─────────────┘     └─────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  JWT Token  │
+                    │  (cookie)   │
+                    └─────────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  Session    │
+                    │  (server)   │
+                    └─────────────┘
+```
+
+**Mode Calculation on Login**:
+- Default: FAMILY mode
+- If user has Provider with ≥15% profile completion → PROVIDER mode
+- Mode stored in `user.activeMode` and JWT
+
+#### 31.5.3 Protected Routes
+
+**Server-Side Protection**:
+```typescript
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+
+export default async function ProtectedPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect('/login');
+
+  return <div>Protected content</div>;
+}
+```
+
+**API Route Protection**:
+```typescript
+const session = await getServerSession(authOptions);
+if (!session?.user) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+}
+```
+
+---
+
+### 31.6 Directory Structure
+
+**Complete Project Structure**:
+```
+/home/user/test-web-app/
+├── app/                      # Next.js App Router
+│   ├── api/                 # API routes (20 directories)
+│   │   ├── auth/           # NextAuth handlers
+│   │   ├── providers/      # Provider CRUD
+│   │   ├── family-profiles/# Family CRUD
+│   │   ├── requests/       # Engagements
+│   │   ├── reviews/        # Reviews
+│   │   ├── subscription/   # Stripe
+│   │   ├── notifications/  # Notifications
+│   │   ├── upload/         # File uploads
+│   │   └── ...
+│   ├── admin/              # Admin pages
+│   ├── dashboard/          # User dashboard
+│   ├── provider/           # Provider pages
+│   ├── providers/          # Directory/search
+│   ├── login/              # Auth pages
+│   ├── signup/
+│   ├── settings/
+│   ├── layout.tsx          # Root layout
+│   ├── page.tsx            # Homepage
+│   ├── error.tsx           # Error boundary
+│   ├── not-found.tsx       # 404 page
+│   └── globals.css         # Global styles
+├── components/              # React components (19 directories)
+│   ├── Auth/
+│   ├── CareProfile/
+│   ├── Dashboard/
+│   ├── Directory/
+│   ├── Gallery/
+│   ├── Messaging/
+│   ├── Navigation/
+│   ├── Provider/
+│   ├── Reviews/
+│   ├── UI/
+│   └── ...
+├── lib/                     # Utilities
+│   ├── auth.ts             # NextAuth config
+│   ├── prisma.ts           # Prisma client
+│   ├── mode-helpers.ts     # Mode utilities
+│   └── ...
+├── prisma/
+│   ├── schema.prisma       # Database schema
+│   └── seed.ts             # Seed data script
+├── types/                   # TypeScript definitions
+├── public/                  # Static assets
+├── scripts/                 # Build/utility scripts
+├── docs/                    # Documentation
+├── package.json
+├── next.config.ts
+├── tailwind.config.ts
+├── tsconfig.json
+└── vercel.json             # Vercel configuration
+```
+
+---
+
+### 31.7 Environment Variables
+
+**Required Variables**:
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://...` |
+| `NEXTAUTH_SECRET` | JWT signing secret | Random 32+ char string |
+| `NEXTAUTH_URL` | Base URL for auth | `https://olera.app` |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob access | Vercel-provided |
+
+**Optional/Future Variables**:
+
+| Variable | Purpose | Demo Status |
+|----------|---------|-------------|
+| `STRIPE_SECRET_KEY` | Stripe payments | ⬜ If payments enabled |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhooks | ⬜ If payments enabled |
+| `RESEND_API_KEY` | Email sending | ⬜ For communications |
+| `TWILIO_ACCOUNT_SID` | SMS sending | ⬜ For communications |
+| `TWILIO_AUTH_TOKEN` | SMS sending | ⬜ For communications |
+| `TWILIO_PHONE_NUMBER` | SMS sender | ⬜ For communications |
+| `SENTRY_DSN` | Error tracking | ⬜ Production only |
+
+> **Cross-Reference**: See Chapter 38 (Third-Party Services) for complete environment variable registry.
 
 ---
 
 ## Chapter 32: Hosting, Deployment & CI/CD
 
-> 🆕 **New Chapter** — Structure approved, content to be developed.
+**Review Status**: ✅ Reviewed
 
-**Purpose**: Document hosting environment, deployment processes, and release management.
+**Purpose**: Document hosting environment, deployment processes, and release management for the Olera platform.
 
-### Scope
+> **Cross-References**:
+> - Chapter 31 (Application Architecture): Technology stack details
+> - Chapter 35 (Error Handling): Vercel logs for monitoring
+> - Chapter 36 (Performance): Vercel Analytics
+> - Chapter 38 (Third-Party Services): Vercel in service registry
 
-| Section | Status | Notes |
-|---------|--------|-------|
-| 32.1 Hosting Environment | 🆕 | Vercel deployment |
-| 32.2 Deployment Pipeline | 🆕 | Git-based deploys |
-| 32.3 Environment Management | 🆕 | Dev, staging, production |
-| 32.4 Release Process | 🆕 | Version control, rollbacks |
+---
 
 ### 32.1 Hosting Environment
 
-**Platform**: Vercel
-- Automatic deployments from Git
-- Edge network distribution
-- Serverless functions
+#### 32.1.1 Vercel Platform
 
-_Configuration details to be documented._
+**Provider**: Vercel
+
+| Feature | Description |
+|---------|-------------|
+| **Hosting Type** | Serverless (Functions + Edge) |
+| **CDN** | Global Edge Network |
+| **SSL** | Automatic HTTPS |
+| **Domain** | Custom domain support |
+| **Framework** | Next.js (first-class support) |
+
+**Why Vercel**:
+- Native Next.js integration (Vercel created Next.js)
+- Zero-config deployments
+- Automatic preview deployments
+- Built-in analytics
+- Serverless functions with no cold-start optimization
+
+#### 32.1.2 Infrastructure Components
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         VERCEL INFRASTRUCTURE                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐  │
+│   │   Edge Network  │     │   Serverless    │     │   Vercel Blob   │  │
+│   │   (CDN/Static)  │     │   Functions     │     │   (Storage)     │  │
+│   └────────┬────────┘     └────────┬────────┘     └────────┬────────┘  │
+│            │                       │                       │           │
+│            └───────────────────────┼───────────────────────┘           │
+│                                    │                                    │
+│                           ┌────────▼────────┐                          │
+│                           │   Next.js App   │                          │
+│                           └────────┬────────┘                          │
+│                                    │                                    │
+└────────────────────────────────────┼────────────────────────────────────┘
+                                     │
+                            ┌────────▼────────┐
+                            │   Neon (DB)     │
+                            │   PostgreSQL    │
+                            └─────────────────┘
+```
+
+#### 32.1.3 Vercel Configuration
+
+**File**: `vercel.json`
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "prisma db push --accept-data-loss && npm run build",
+  "framework": "nextjs"
+}
+```
+
+**Configuration Notes**:
+- Custom build command includes Prisma schema sync
+- Framework auto-detected as Next.js
+- No custom routes or redirects configured (Next.js handles routing)
+
+| Setting | Value | Notes |
+|---------|-------|-------|
+| Build Command | `prisma db push && npm run build` | Schema sync before build |
+| Output Directory | Auto (`.next`) | Next.js default |
+| Install Command | `npm install` | Default |
+| Node.js Version | 18.x | LTS version |
+
+---
 
 ### 32.2 Deployment Pipeline
 
-**Process**:
-- Push to main → automatic production deploy
-- Pull requests → preview deployments
-- Branch deploys for staging
+#### 32.2.1 Git-Based Workflow
 
-_Pipeline configuration to be documented._
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Local     │     │   GitHub    │     │   Vercel    │
+│   Dev       │ ──▶ │   Push      │ ──▶ │   Build     │
+└─────────────┘     └─────────────┘     └─────────────┘
+                           │                    │
+                           │                    ▼
+                    ┌──────┴──────┐      ┌─────────────┐
+                    │   Branch    │      │   Deploy    │
+                    └─────────────┘      └─────────────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+        ┌──────────┐ ┌──────────┐ ┌──────────┐
+        │  main    │ │  PR      │ │  feature │
+        │  branch  │ │  branch  │ │  branch  │
+        └────┬─────┘ └────┬─────┘ └────┬─────┘
+             │            │            │
+             ▼            ▼            ▼
+        Production    Preview      Preview
+```
+
+#### 32.2.2 Deployment Types
+
+| Type | Trigger | URL | Purpose |
+|------|---------|-----|---------|
+| **Production** | Push to `main` | `olera.app` | Live production site |
+| **Preview** | Pull request | `*.vercel.app` | PR review, testing |
+| **Branch** | Push to any branch | `*.vercel.app` | Development testing |
+
+**Current Production URL**: `test-web-app-pi.vercel.app` (from `main` branch)
+
+#### 32.2.3 Build Process
+
+**Build Steps**:
+1. Install dependencies (`npm install`)
+2. Generate Prisma client (`postinstall: prisma generate`)
+3. Sync database schema (`prisma db push`)
+4. Build Next.js application (`next build`)
+5. Deploy to Vercel infrastructure
+
+**Build Output**:
+```
+├── .next/                  # Compiled application
+│   ├── static/            # Static assets (JS, CSS)
+│   ├── server/            # Server-side code
+│   └── cache/             # Build cache
+```
+
+**Build Time**: ~2-3 minutes (typical)
+
+| Step | Duration | Notes |
+|------|----------|-------|
+| Install | ~30s | npm dependencies |
+| Prisma Generate | ~5s | Type generation |
+| Prisma Push | ~10s | Schema sync |
+| Next.js Build | ~90s | Compilation |
+| Deploy | ~30s | Edge distribution |
+
+---
 
 ### 32.3 Environment Management
 
-**Environments**:
-- Development (local)
-- Preview (PR branches)
-- Production (main branch)
+#### 32.3.1 Environment Types
 
-**Environment Variables**: Managed via Vercel dashboard
+| Environment | Branch | Database | Purpose |
+|-------------|--------|----------|---------|
+| **Development** | local | Local or shared Neon | Local development |
+| **Preview** | PR branches | Shared Neon (demo) | PR review |
+| **Production** | `main` | Production Neon | Live site |
 
-_Environment configuration to be documented._
+**Current Setup** (Demo):
+- Single Neon database shared across all environments
+- Production and preview use same data
 
-### 32.4 Release Process
+**Production Setup** (Future):
+- Separate databases per environment
+- Database branching for previews
 
-**Versioning**: Semantic versioning
-**Rollbacks**: Vercel instant rollback capability
+#### 32.3.2 Environment Variables
 
-_Release procedures to be documented._
+**Management**: Vercel Dashboard → Project → Settings → Environment Variables
+
+**Variable Scopes**:
+
+| Scope | Description |
+|-------|-------------|
+| Production | Only production deployments |
+| Preview | All preview deployments |
+| Development | Local development (via `.env.local`) |
+
+**Required Variables by Environment**:
+
+| Variable | Development | Preview | Production |
+|----------|-------------|---------|------------|
+| `DATABASE_URL` | ✅ | ✅ | ✅ |
+| `NEXTAUTH_SECRET` | ✅ | ✅ | ✅ |
+| `NEXTAUTH_URL` | ✅ | Auto | Auto |
+| `BLOB_READ_WRITE_TOKEN` | ✅ | ✅ | ✅ |
+
+**Local Development** (`.env.local`):
+```bash
+DATABASE_URL="postgresql://..."
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3001"
+BLOB_READ_WRITE_TOKEN="vercel_blob_..."
+```
+
+> **Note**: `.env.local` is gitignored and not committed to version control.
+
+#### 32.3.3 Secrets Management
+
+| Secret Type | Storage | Access |
+|-------------|---------|--------|
+| Database credentials | Vercel env vars | Build + runtime |
+| API keys | Vercel env vars | Runtime only |
+| Auth secrets | Vercel env vars | Runtime only |
+
+**Best Practices**:
+- Never commit secrets to Git
+- Use Vercel's encrypted environment variables
+- Rotate secrets periodically (production)
+- Use different values per environment
+
+---
+
+### 32.4 Build Configuration
+
+#### 32.4.1 Next.js Configuration
+
+**File**: `next.config.ts`
+
+```typescript
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  // Disable caching during development
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
+};
+
+export default nextConfig;
+```
+
+**Current Configuration**: Minimal (relies on Next.js defaults)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Image optimization | ✅ Default | Vercel Image Optimization |
+| API routes | ✅ Default | Serverless functions |
+| Static generation | ✅ Default | Automatic |
+| Edge runtime | ⬜ Not used | Could optimize specific routes |
+
+#### 32.4.2 TypeScript Configuration
+
+**File**: `tsconfig.json`
+
+**Key Settings**:
+- Strict mode enabled
+- Path aliases (`@/*` → `/*`)
+- Next.js plugin for type checking
+
+#### 32.4.3 Package Scripts
+
+**File**: `package.json`
+
+```json
+{
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  }
+}
+```
+
+| Script | Purpose | When Used |
+|--------|---------|-----------|
+| `dev` | Local development server | Development |
+| `build` | Production build | Vercel build |
+| `start` | Start production server | Not used (Vercel) |
+| `lint` | ESLint check | Development |
+| `postinstall` | Generate Prisma client | After npm install |
+| `seed` | Seed database | Manual |
+
+---
+
+### 32.5 Domain & SSL
+
+#### 32.5.1 Domain Configuration
+
+**Current Setup**:
+- Vercel subdomain: `test-web-app-pi.vercel.app`
+- Custom domain: ⬜ Not configured for demo
+
+**Production Setup** (Future):
+| Domain | Purpose |
+|--------|---------|
+| `olera.app` | Primary domain |
+| `www.olera.app` | Redirect to primary |
+| `app.olera.app` | Application (optional) |
+
+#### 32.5.2 SSL/HTTPS
+
+**Provider**: Vercel (automatic Let's Encrypt)
+
+| Feature | Status |
+|---------|--------|
+| HTTPS enforcement | ✅ Automatic |
+| SSL certificate | ✅ Auto-provisioned |
+| Certificate renewal | ✅ Automatic |
+| HTTP → HTTPS redirect | ✅ Automatic |
+
+---
+
+### 32.6 Monitoring & Logs
+
+#### 32.6.1 Vercel Dashboard
+
+**Location**: `vercel.com/dashboard`
+
+**Available Metrics**:
+
+| Metric | Description | Demo | Production |
+|--------|-------------|------|------------|
+| Deployment status | Build success/failure | ✅ | ✅ |
+| Function invocations | API call counts | ✅ | ✅ |
+| Function duration | Execution time | ✅ | ✅ |
+| Edge requests | CDN traffic | ✅ | ✅ |
+| Bandwidth | Data transfer | ✅ | ✅ |
+
+#### 32.6.2 Logs
+
+**Log Types**:
+
+| Log Type | Access | Retention |
+|----------|--------|-----------|
+| Build logs | Vercel Dashboard | 7 days |
+| Function logs | Vercel Dashboard → Logs | 1 hour (free tier) |
+| Edge logs | Vercel Dashboard → Logs | 1 hour (free tier) |
+
+**Accessing Logs**:
+1. Vercel Dashboard → Project → Deployments
+2. Select deployment → View Function Logs
+3. Filter by timestamp, function name, status
+
+#### 32.6.3 Vercel Analytics
+
+**Features**:
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Web Vitals | ✅ | ✅ |
+| Page views | ✅ | ✅ |
+| Unique visitors | ✅ | ✅ |
+| Geographic distribution | ✅ | ✅ |
+| Device breakdown | ✅ | ✅ |
+
+> **Cross-Reference**: See Chapter 36 (Performance) for Core Web Vitals targets.
+
+---
+
+### 32.7 Rollbacks & Recovery
+
+#### 32.7.1 Instant Rollback
+
+**Feature**: Vercel supports instant rollback to any previous deployment
+
+**Process**:
+1. Vercel Dashboard → Deployments
+2. Find previous stable deployment
+3. Click "..." → "Promote to Production"
+
+**Rollback Time**: < 1 minute (no rebuild required)
+
+#### 32.7.2 Deployment History
+
+**Retention**: All deployments retained indefinitely
+
+| Action | Result |
+|--------|--------|
+| Rollback | Previous deployment becomes active |
+| Redeploy | Rebuild from same commit |
+| Promote | Make preview deployment production |
+
+---
+
+### 32.8 Demo vs Production Summary
+
+| Feature | Demo | Production |
+|---------|------|------------|
+| Hosting | ✅ Vercel | ✅ Vercel |
+| Custom domain | ⬜ Vercel subdomain | ✅ Custom domain |
+| SSL | ✅ Automatic | ✅ Automatic |
+| Environment separation | 🟡 Shared DB | ✅ Separate DBs |
+| CI/CD | ✅ Git-based | ✅ Git-based |
+| Preview deployments | ✅ | ✅ |
+| Rollbacks | ✅ | ✅ |
+| Monitoring | ✅ Vercel Dashboard | ✅ + Sentry |
+| Log retention | 🟡 1 hour | ✅ Extended |
 
 ---
 
