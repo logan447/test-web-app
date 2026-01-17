@@ -276,9 +276,10 @@ All chapters have been reviewed and developed. ✅
 
 | ID | Title | Status |
 |----|-------|--------|
-| F1 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
-| F2 | [Caregiver Workforce & Direct Staffing Model](#future-caregiver-workforce--direct-staffing-model) | ⭐ Future |
-| F3 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
+| F1 | [Mobile App Development (iOS & Android)](#future-mobile-app-development-ios--android) | ⭐ Future |
+| F2 | [AI Benefits Finder](#future-ai-benefits-finder) | ⭐ Future |
+| F3 | [Caregiver Workforce & Direct Staffing Model](#future-caregiver-workforce--direct-staffing-model) | ⭐ Future |
+| F4 | [Transaction Hosting Platform](#future-transaction-hosting-platform) | ⭐ Future |
 
 ### Appendices
 
@@ -286,26 +287,6 @@ All chapters have been reviewed and developed. ✅
 - [Appendix B: Demo Scenarios](#appendix-b-demo-scenarios)
 - [Appendix C: Known Issues & Tech Debt](#appendix-c-known-issues--tech-debt)
 - [Appendix D: Glossary](#appendix-d-glossary)
-
----
-
-## Review Progress Summary
-
-| Metric | Count |
-|--------|-------|
-| **Total Main Chapters** | 39 |
-| **Reviewed (✅)** | 38 |
-| **Pending (⏳)** | 0 |
-| **New Chapters (🆕)** | 0 |
-| **Placeholders (🆕)** | 1 |
-| **Future Directions (⭐)** | 3 |
-
-**Chapters Requiring Content Development**:
-- Ch 27: Human Workflows & SOPs (Placeholder)
-
-**Recently Completed**: Chapters 31 & 32 (Architecture & Deployment) - Reviewed ✅
-
-**38 of 39 Chapters Complete** — Only Ch 27 (SOPs) remains as placeholder
 
 ---
 
@@ -986,7 +967,7 @@ Wizard collects essential fields only. Full profile editing happens in dedicated
 | Individual Caregiver | Name, location, services offered, availability | `Provider` (type=INDEPENDENT_CAREGIVER) |
 | Provider Org | Org name, location, provider type, services | `Provider` |
 
-**Detailed field lists**: See Chapter 4 (Family) and Chapter 5 (Provider).
+**Detailed field lists**: See Chapter 6 (Family Care Profiles) and Chapter 7 (Provider Profiles).
 
 #### 3.5 Visibility Settings (DECIDED)
 
@@ -1565,15 +1546,15 @@ Accessibility is a design requirement, not an audit afterthought.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 4.1 Care Profile Creation | ✅ | `/dashboard/care-profiles` |
-| 4.2 Loved One Info (name, age, relationship) | ✅ | Fields in `FamilyProfile` |
-| 4.3 Care Needs Assessment (care level, conditions, mobility) | ✅ | Multiple fields exist |
-| 4.4 Personality & Preferences | ✅ | Extensive fields |
-| 4.5 Location & Contact Preferences | ✅ | Fields exist |
-| 4.6 Budget & Timeline | ✅ | Fields exist |
-| 4.7 Privacy/Visibility Settings | ✅ | `profileVisibility`, etc. |
-| 4.8 Profile Completion Tracking | 🟡 | May exist but unclear |
-| 4.9 Multiple Care Profiles per Account | 🟡 | Schema supports single profile per user currently |
+| 6.1 Care Profile Creation | ✅ | `/dashboard/care-profiles` |
+| 6.2 Loved One Info (name, age, relationship) | ✅ | Fields in `FamilyProfile` |
+| 6.3 Care Needs Assessment (care level, conditions, mobility) | ✅ | Multiple fields exist |
+| 6.4 Personality & Preferences | ✅ | Extensive fields |
+| 6.5 Location & Contact Preferences | ✅ | Fields exist |
+| 6.6 Budget & Timeline | ✅ | Fields exist |
+| 6.7 Privacy/Visibility Settings | ✅ | `profileVisibility`, etc. |
+| 6.8 Profile Completion Tracking | 🟡 | May exist but unclear |
+| 6.9 Multiple Care Profiles per Account | 🟡 | Schema supports single profile per user currently |
 
 ### Key Questions
 - [x] Should families be able to create multiple care profiles (e.g., for different family members)?
@@ -1582,7 +1563,7 @@ Accessibility is a design requirement, not an audit afterthought.
 
 ### Architectural Notes
 
-#### 4.1 Care Profile Location (DECIDED)
+#### 6.1 Care Profile Location (DECIDED)
 
 Care profile editing lives within the Family Dashboard (`/family/dashboard`), not as a separate page.
 
@@ -1602,24 +1583,24 @@ Care profile editing lives within the Family Dashboard (`/family/dashboard`), no
 
 **Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
-#### 4.2–4.7 Profile Field Categories (DECIDED)
+#### 6.2–6.7 Profile Field Categories (DECIDED)
 
 Current field structure accepted as-is for demo:
 
 | Category | Status | Notes |
 |----------|--------|-------|
-| 4.2 Loved One Info | ✅ Accept | Name, age, relationship, gender |
-| 4.3 Care Needs | ✅ Accept | Care level, conditions, mobility |
-| 4.4 Personality & Preferences | ✅ Accept | Hobbies, communication style |
-| 4.5 Location & Contact | ✅ Accept | Address, contact preferences |
-| 4.6 Budget & Timeline | ✅ Accept | Budget range, urgency |
-| 4.7 Visibility | ✅ Accept | Visible to providers toggle |
+| 6.2 Loved One Info | ✅ Accept | Name, age, relationship, gender |
+| 6.3 Care Needs | ✅ Accept | Care level, conditions, mobility |
+| 6.4 Personality & Preferences | ✅ Accept | Hobbies, communication style |
+| 6.5 Location & Contact | ✅ Accept | Address, contact preferences |
+| 6.6 Budget & Timeline | ✅ Accept | Budget range, urgency |
+| 6.7 Visibility | ✅ Accept | Visible to providers toggle |
 
 **Required for visibility** (per Two-Threshold Model): Name, location, care type needed.
 
 **All other fields**: Optional, improve matching quality.
 
-#### 4.8 Profile Completion Tracking (DECIDED)
+#### 6.8 Profile Completion Tracking (DECIDED)
 
 **Storage**: `FamilyProfile.completionPercentage` field in DB (not calculated on-the-fly).
 
@@ -1641,7 +1622,7 @@ Current field structure accepted as-is for demo:
 
 **Note**: Crossing visibility threshold ≈ 40% complete. Weights can be tuned later.
 
-#### 4.9 Multiple Care Profiles (DECIDED)
+#### 6.9 Multiple Care Profiles (DECIDED)
 
 > **Cross-Reference**: See Chapter 39 (Legal Framework) for data retention periods (39.3.1), data export requirements (39.3.2), and CCPA privacy rights.
 
@@ -1671,30 +1652,30 @@ Current field structure accepted as-is for demo:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 5.1 Provider Model (basic info) | ✅ | Extensive `Provider` model |
-| 5.2 Provider Types | ✅ | HOME_CARE, ASSISTED_LIVING, MEMORY_CARE, NURSING_HOME, HOSPICE, REHABILITATION, INDEPENDENT_CAREGIVER |
-| 5.3 Services Offered | ✅ | `careTypesOffered`, detailed service arrays |
-| 5.4 Location & Service Area | ✅ | address, city, state, zip, serviceRadius |
-| 5.5 Photos & Media | ✅ | photos array, coverPhoto |
-| 5.6 Licensing & Certifications | ✅ | Fields exist |
-| 5.7 Pricing Information | ✅ | Extensive pricing fields |
-| 5.8 Staff Information | ✅ | Ratios, credentials, training |
-| 5.9 Amenities & Features | ✅ | Multiple arrays |
-| 5.10 Specialty Programs | ✅ | Memory care, hospice, etc. |
-| 5.11 About / Team / Virtual Tour | ✅ | teamMembersJson, virtualTourUrl |
-| 5.12 Claimed vs Unclaimed Status | ✅ | `claimed` boolean |
-| 5.13 Profile Completion Tracking | 🟡 | `/api/dashboard/profile-completion` exists |
-| 5.14 Primary Care Type | ⬜ | Required field for canonical URL |
-| 5.15 "Looking for Work?" Section | ⬜ | Job seeker entry on provider pages |
+| 7.1 Provider Model (basic info) | ✅ | Extensive `Provider` model |
+| 7.2 Provider Types | ✅ | HOME_CARE, ASSISTED_LIVING, MEMORY_CARE, NURSING_HOME, HOSPICE, REHABILITATION, INDEPENDENT_CAREGIVER |
+| 7.3 Services Offered | ✅ | `careTypesOffered`, detailed service arrays |
+| 7.4 Location & Service Area | ✅ | address, city, state, zip, serviceRadius |
+| 7.5 Photos & Media | ✅ | photos array, coverPhoto |
+| 7.6 Licensing & Certifications | ✅ | Fields exist |
+| 7.7 Pricing Information | ✅ | Extensive pricing fields |
+| 7.8 Staff Information | ✅ | Ratios, credentials, training |
+| 7.9 Amenities & Features | ✅ | Multiple arrays |
+| 7.10 Specialty Programs | ✅ | Memory care, hospice, etc. |
+| 7.11 About / Team / Virtual Tour | ✅ | teamMembersJson, virtualTourUrl |
+| 7.12 Claimed vs Unclaimed Status | ✅ | `claimed` boolean |
+| 7.13 Profile Completion Tracking | 🟡 | `/api/dashboard/profile-completion` exists |
+| 7.14 Primary Care Type | ⬜ | Required field for canonical URL |
+| 7.15 "Looking for Work?" Section | ⬜ | Job seeker entry on provider pages |
 
 ### Key Questions
 - [x] Which fields should be required vs optional per provider type? → **See Two-Threshold Model + below**
-- [x] How should unclaimed profiles differ in display/editing? → **See 5.12 Three-Tier Model**
+- [x] How should unclaimed profiles differ in display/editing? → **See 7.12 Three-Tier Model**
 - [x] What is the minimum viable profile for each provider type? → **See Two-Threshold Model**
 
 ### Architectural Notes
 
-#### 5.1 Provider Profile Location (DECIDED)
+#### 7.1 Provider Profile Location (DECIDED)
 
 Provider profile editing lives within the Provider Dashboard (`/provider/dashboard`), not as a separate page.
 
@@ -1714,7 +1695,7 @@ Provider profile editing lives within the Provider Dashboard (`/provider/dashboa
 
 **Cross-reference**: See Foundational Decisions → Route Architecture for full navigation structure.
 
-#### 5.2 & 5.14 Provider Types and Type-Specific Fields (DECIDED)
+#### 7.2 & 7.14 Provider Types and Type-Specific Fields (DECIDED)
 
 **Provider Type Categories**:
 
@@ -1739,21 +1720,21 @@ Provider profile editing lives within the Provider Dashboard (`/provider/dashboa
 
 **Demo approach**: Accept that some fields may show for all types initially. Full conditional logic refined during UI polish phase.
 
-#### 5.3–5.11 Profile Field Categories (DECIDED)
+#### 7.3–7.11 Profile Field Categories (DECIDED)
 
 Current field structure accepted as-is for demo:
 
 | Category | Status | Notes |
 |----------|--------|-------|
-| 5.3 Services Offered | ✅ Accept | `careTypesOffered`, service arrays |
-| 5.4 Location & Service Area | ✅ Accept | Address, zip, serviceRadius |
-| 5.5 Photos & Media | ✅ Accept | photos array, coverPhoto |
-| 5.6 Licensing & Certifications | ✅ Accept | Fields exist |
-| 5.7 Pricing Information | ✅ Accept | Extensive pricing fields |
-| 5.8 Staff Information | ✅ Accept | Ratios, credentials, training |
-| 5.9 Amenities & Features | ✅ Accept | Multiple arrays |
-| 5.10 Specialty Programs | ✅ Accept | Memory care, hospice, etc. |
-| 5.11 About / Team / Virtual Tour | ✅ Accept | teamMembersJson, virtualTourUrl |
+| 7.3 Services Offered | ✅ Accept | `careTypesOffered`, service arrays |
+| 7.4 Location & Service Area | ✅ Accept | Address, zip, serviceRadius |
+| 7.5 Photos & Media | ✅ Accept | photos array, coverPhoto |
+| 7.6 Licensing & Certifications | ✅ Accept | Fields exist |
+| 7.7 Pricing Information | ✅ Accept | Extensive pricing fields |
+| 7.8 Staff Information | ✅ Accept | Ratios, credentials, training |
+| 7.9 Amenities & Features | ✅ Accept | Multiple arrays |
+| 7.10 Specialty Programs | ✅ Accept | Memory care, hospice, etc. |
+| 7.11 About / Team / Virtual Tour | ✅ Accept | teamMembersJson, virtualTourUrl |
 
 **Required for visibility** (per Two-Threshold Model):
 - Organization: Org name, location, provider type
@@ -1763,7 +1744,7 @@ Current field structure accepted as-is for demo:
 
 > **Cross-Reference**: See Chapter 39 (Legal Framework) for Terms of Service requirements (39.1.4), Provider liability language (39.2.1), and No-PHI warning implementation (39.1.8).
 
-#### 5.12 Claimed vs Unclaimed Status (DECIDED)
+#### 7.12 Claimed vs Unclaimed Status (DECIDED)
 
 **Context**: Only organizations have unclaimed profiles (seeded nationwide directory). Individual caregivers and families never have unclaimed profiles.
 
@@ -1826,7 +1807,7 @@ Current field structure accepted as-is for demo:
 - Claiming workflow details in Chapter 8
 - Subscription tiers and pricing in Chapter 18
 
-#### 5.13 Provider Profile Completion Tracking (DECIDED)
+#### 7.13 Provider Profile Completion Tracking (DECIDED)
 
 **Storage**: `Provider.completionPercentage` field in DB (not calculated on-the-fly).
 
@@ -1838,7 +1819,7 @@ Current field structure accepted as-is for demo:
 
 **Note**: Completion weights similar to family profiles — visibility threshold fields ≈ 40%, additional fields improve matching. Exact weights can be tuned later.
 
-#### 5.14 Primary Care Type Requirement (DECIDED)
+#### 7.14 Primary Care Type Requirement (DECIDED)
 
 **Purpose**: Every provider MUST have a primary care type that determines their canonical URL and primary directory placement.
 
@@ -1875,7 +1856,7 @@ Current field structure accepted as-is for demo:
 
 **Cross-Reference**: See Chapter 28: Marketing & SEO Pages for URL architecture details.
 
-#### 5.15 "Looking for Work?" Section — Job Seeker Entry (DECIDED)
+#### 7.15 "Looking for Work?" Section — Job Seeker Entry (DECIDED)
 
 **Purpose**: Provider profile pages can optionally include a section for caregiver job seekers when the provider is actively hiring.
 
@@ -1913,20 +1894,20 @@ Current field structure accepted as-is for demo:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 6.1 ProviderIdentity Model | ❌ Remove | Redundant, simplify to Provider existence |
-| 6.2 Identity Type (ORGANIZATION vs INDIVIDUAL) | ✅ | Use `Provider.providerType` instead |
-| 6.3 Onboarding Complete Flag | ❌ Remove | Use profile completion % instead |
-| 6.4 Linking to Provider Profile | ✅ | Direct User → Provider relationship |
-| 6.5 Feature Gating Logic | 🟡 | Needs implementation per three-tier model |
+| 8.1 ProviderIdentity Model | ❌ Remove | Redundant, simplify to Provider existence |
+| 8.2 Identity Type (ORGANIZATION vs INDIVIDUAL) | ✅ | Use `Provider.providerType` instead |
+| 8.3 Onboarding Complete Flag | ❌ Remove | Use profile completion % instead |
+| 8.4 Linking to Provider Profile | ✅ | Direct User → Provider relationship |
+| 8.5 Feature Gating Logic | 🟡 | Needs implementation per three-tier model |
 
 ### Key Questions
-- [x] What features are gated behind ProviderIdentity? → **See three-tier model in 5.12**
+- [x] What features are gated behind ProviderIdentity? → **See three-tier model in 7.12**
 - [x] Is this model necessary, or can gating be simplified? → **Remove ProviderIdentity, use Provider + subscription**
 - [x] How does this interact with mode system? → **Mode controls nav, gating controls actions**
 
 ### Architectural Notes
 
-#### 6.1 Remove ProviderIdentity Model (DECIDED)
+#### 8.1 Remove ProviderIdentity Model (DECIDED)
 
 **Problem**: `ProviderIdentity` creates unnecessary indirection (User → ProviderIdentity → Provider).
 
@@ -1944,7 +1925,7 @@ Current field structure accepted as-is for demo:
 3. Drop `ProviderIdentity` table from schema
 4. Update any code referencing `hasProviderIdentity`
 
-#### 6.2 Provider Type Determination (DECIDED)
+#### 8.2 Provider Type Determination (DECIDED)
 
 Provider type is determined by `Provider.providerType`:
 
@@ -1959,9 +1940,9 @@ isIndividualCaregiver(provider) = provider.providerType === 'INDEPENDENT_CAREGIV
 isOrganization(provider) = provider.providerType !== 'INDEPENDENT_CAREGIVER'
 ```
 
-#### 6.3 Three-Tier Gating Logic (DECIDED)
+#### 8.3 Three-Tier Gating Logic (DECIDED)
 
-**Cross-reference**: See Chapter 5.12 for full permissions matrix.
+**Cross-reference**: See Chapter 7.12 for full permissions matrix.
 
 **Gating checks**:
 
@@ -1982,7 +1963,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 **Note**: User-created providers (via onboarding) are automatically `claimed = true`.
 
-#### 6.4 Feature Gating Implementation (DECIDED)
+#### 8.4 Feature Gating Implementation (DECIDED)
 
 **No hard blocking** — use nudges and paywalls instead of preventing navigation.
 
@@ -2001,7 +1982,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 - "Upgrade to connect with these families"
 - Clear value proposition
 
-#### 6.5 Mode vs Gating Separation (DECIDED)
+#### 8.5 Mode vs Gating Separation (DECIDED)
 
 | Concept | What It Controls |
 |---------|------------------|
@@ -2024,18 +2005,18 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 7.1 Provider Listing Page | ✅ | `/providers` (currently redirects to `/`, will be separate) |
-| 7.2 Location-Based Search | ✅ | City/state for demo; zip+radius deferred |
-| 7.3 Filter by Provider Type | ✅ | All provider types in dropdown |
-| 7.4 Filter by Services/Specialties | ✅ | Care type dropdown exists |
-| 7.5 Filter by Price Range | ✅ | Price slider (0–15000) |
-| 7.6 Sort Options | ✅ | Sort dropdown exists |
-| 7.7 Provider Cards | ✅ | `EnhancedProviderCard` component |
-| 7.8 Provider Detail Page | ✅ | `/providers/[id]` with full sections |
-| 7.9 Map View | ✅ | Leaflet integration, list/map toggle |
-| 7.10 "Near Me" Geolocation | ❌ | Deferred for demo |
-| 7.11 City/State SEO Pages | ❌ | Deferred for demo |
-| 7.12 Search Results Caching | ❌ | Deferred for demo |
+| 9.1 Provider Listing Page | ✅ | `/providers` (currently redirects to `/`, will be separate) |
+| 9.2 Location-Based Search | ✅ | City/state for demo; zip+radius deferred |
+| 9.3 Filter by Provider Type | ✅ | All provider types in dropdown |
+| 9.4 Filter by Services/Specialties | ✅ | Care type dropdown exists |
+| 9.5 Filter by Price Range | ✅ | Price slider (0–15000) |
+| 9.6 Sort Options | ✅ | Sort dropdown exists |
+| 9.7 Provider Cards | ✅ | `EnhancedProviderCard` component |
+| 9.8 Provider Detail Page | ✅ | `/providers/[id]` with full sections |
+| 9.9 Map View | ✅ | Leaflet integration, list/map toggle |
+| 9.10 "Near Me" Geolocation | ❌ | Deferred for demo |
+| 9.11 City/State SEO Pages | ❌ | Deferred for demo |
+| 9.12 Search Results Caching | ❌ | Deferred for demo |
 
 ### Key Questions
 - [x] What filters are most important for demo? → **See Foundational Decisions: Standardized Filter Set**
@@ -2044,7 +2025,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 ### Architectural Notes
 
-#### 7.1 Directory Location (DECIDED)
+#### 9.1 Directory Location (DECIDED)
 
 `/providers` is the dedicated provider directory page (Zillow-style).
 
@@ -2054,7 +2035,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 
 **Cross-reference**: See Foundational Decisions → Homepage vs Directory Architecture.
 
-#### 7.2 Location Search (DECIDED)
+#### 9.2 Location Search (DECIDED)
 
 | Feature | Demo | Post-Demo |
 |---------|------|-----------|
@@ -2063,7 +2044,7 @@ if (provider && provider.claimed && isSubscribed) → Subscribed
 | Zip code search | ❌ Deferred | ✅ |
 | Radius filtering | ❌ Deferred | ✅ |
 
-#### 7.3–7.6 Filters and Sort (DECIDED)
+#### 9.3–9.6 Filters and Sort (DECIDED)
 
 All current filters accepted for demo:
 - Provider type dropdown
@@ -2074,7 +2055,7 @@ All current filters accepted for demo:
 
 **Cross-reference**: See Foundational Decisions → Standardized Filter Set for full list.
 
-#### 7.7 Provider Cards (DECIDED)
+#### 9.7 Provider Cards (DECIDED)
 
 `EnhancedProviderCard` component displays:
 - Cover photo
@@ -2085,9 +2066,9 @@ All current filters accepted for demo:
 - Badges (verified, licensed, etc.)
 - Specialty indicators (memory care, hospice, etc.)
 
-**Additional requirement**: Cards for unclaimed providers should show "Unclaimed" badge per Chapter 5.12.
+**Additional requirement**: Cards for unclaimed providers should show "Unclaimed" badge per Chapter 7.12.
 
-#### 7.8 Provider Detail Page (DECIDED)
+#### 9.8 Provider Detail Page (DECIDED)
 
 `/providers/[id]` includes comprehensive sections:
 - Photo gallery
@@ -2104,7 +2085,7 @@ All current filters accepted for demo:
 - Show appropriate CTAs based on claimed/subscription status
 - "Back" navigation returns to `/providers`
 
-#### 7.9 Map View (DECIDED)
+#### 9.9 Map View (DECIDED)
 
 Leaflet map integration exists with list/map toggle.
 
@@ -2112,13 +2093,13 @@ Leaflet map integration exists with list/map toggle.
 
 **Post-demo**: Full interactive map with clustering, hover previews.
 
-#### 7.10–7.12 Deferred Items (DECIDED)
+#### 9.10–9.12 Deferred Items (DECIDED)
 
 | Item | Reason for Deferral |
 |------|---------------------|
-| 7.10 Geolocation | Adds complexity (permissions, accuracy); city/state sufficient |
-| 7.11 SEO Pages | Not needed for demo functionality; important for organic traffic post-launch |
-| 7.12 Caching | Performance optimization; only needed at scale |
+| 9.10 Geolocation | Adds complexity (permissions, accuracy); city/state sufficient |
+| 9.11 SEO Pages | Not needed for demo functionality; important for organic traffic post-launch |
+| 9.12 Caching | Performance optimization; only needed at scale |
 
 ---
 
@@ -2128,25 +2109,25 @@ Leaflet map integration exists with list/map toggle.
 
 **Important**: Only organizations have unclaimed profiles. Families and individual caregivers never have unclaimed profiles — they create profiles directly.
 
-**Cross-reference**: See Chapter 5.12 for three-tier provider access model (Unclaimed → Claimed → Subscribed).
+**Cross-reference**: See Chapter 7.12 for three-tier provider access model (Unclaimed → Claimed → Subscribed).
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 8.1 Claim Request Submission | 🟡 | Placeholder exists, workflow not implemented |
-| 8.2 Verification Methods | ⬜ | Not implemented |
-| 8.3 Admin Review Queue | ⬜ | Not implemented |
-| 8.4 Claimed → Editable Transition | 🟡 | `claimed` field exists, logic needed |
-| 8.5 Claim Notifications | ⬜ | Not implemented |
-| 8.6 Rejection Handling | ⬜ | Not implemented |
+| 10.1 Claim Request Submission | 🟡 | Placeholder exists, workflow not implemented |
+| 10.2 Verification Methods | ⬜ | Not implemented |
+| 10.3 Admin Review Queue | ⬜ | Not implemented |
+| 10.4 Claimed → Editable Transition | 🟡 | `claimed` field exists, logic needed |
+| 10.5 Claim Notifications | ⬜ | Not implemented |
+| 10.6 Rejection Handling | ⬜ | Not implemented |
 
 ### Key Questions
-- [x] What verification methods should be supported? → **See 8.2 below**
-- [x] What information can unclaimed profiles display? → **See Chapter 5.12**
-- [x] Admin review workflow requirements? → **See 8.3 below**
+- [x] What verification methods should be supported? → **See 10.2 below**
+- [x] What information can unclaimed profiles display? → **See Chapter 7.12**
+- [x] Admin review workflow requirements? → **See 10.3 below**
 
 ### Architectural Notes
 
-#### 8.1 Claim Request Submission (DECIDED)
+#### 10.1 Claim Request Submission (DECIDED)
 
 ##### Demo Scope
 - Self-service claiming with **instant approval**
@@ -2189,7 +2170,7 @@ On approval: Provider.claimed = true, Provider.userId = user.id
 | `/provider/onboarding` | "Claim Existing Listing" option | Search for listing, then claim |
 | `/for-providers` marketing | "Already listed? Claim your profile" | Search for listing, then claim |
 
-#### 8.2 Verification Methods (DECIDED)
+#### 10.2 Verification Methods (DECIDED)
 
 ##### Demo Scope
 
@@ -2213,7 +2194,7 @@ On approval: Provider.claimed = true, Provider.userId = user.id
 2. If phone verification succeeds → **Auto-approve**
 3. Otherwise → **Route to admin review**
 
-#### 8.3 Admin Review Queue (DECIDED)
+#### 10.3 Admin Review Queue (DECIDED)
 
 ##### Demo Scope
 Not implemented. All claims auto-approved instantly.
@@ -2253,7 +2234,7 @@ When a claim cannot be auto-verified, the system initiates a human review proces
 
 **SLA Target**: Review within 24-48 hours of submission.
 
-#### 8.4 Claimed → Editable Transition (DECIDED)
+#### 10.4 Claimed → Editable Transition (DECIDED)
 
 **On successful claim approval**:
 
@@ -2272,7 +2253,7 @@ When a claim cannot be auto-verified, the system initiates a human review proces
 - ❌ Respond to leads (requires subscription)
 - ❌ Initiate outreach (requires subscription)
 
-#### 8.5 Claim Notifications (DECIDED)
+#### 10.5 Claim Notifications (DECIDED)
 
 ##### Demo Scope
 Not implemented.
@@ -2296,7 +2277,7 @@ Not implemented.
 | Claim SLA warning | Claim pending > 24 hours | Reminder with claim details |
 | Daily digest | Morning summary | Count of pending claims, oldest claim age |
 
-#### 8.6 Rejection & Appeal Handling (DECIDED)
+#### 10.6 Rejection & Appeal Handling (DECIDED)
 
 ##### Demo Scope
 Not implemented (no rejections since auto-approve).
@@ -2339,15 +2320,15 @@ Not implemented (no rejections since auto-approve).
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 9.1 Dashboard Home | ✅ | `/family/dashboard` (renamed from `/dashboard`) |
-| 9.2 My Providers (engagements) | ✅ | `/family/my-providers` (renamed from `/dashboard/requests`) |
-| 9.3 Engagement Detail + Messaging | ✅ | `/family/my-providers/[id]` |
-| 9.4 Saved Providers | ✅ | `/family/saved-providers` (renamed from `/dashboard/saved`) |
-| 9.5 Care Profile Management | ✅ | Tab within `/family/dashboard` (consolidated) |
-| 9.6 Activity Feed | 🟡 | API exists, needs all engagement types |
-| 9.7 Dashboard Stats/Summary | 🟡 | API exists |
-| 9.8 Profile Completion Prompts | 🟡 | Needs implementation |
-| 9.9 Calendar & Quick Actions | 🟡 | Calendar should be primary element |
+| 12.1 Dashboard Home | ✅ | `/family/dashboard` (renamed from `/dashboard`) |
+| 12.2 My Providers (engagements) | ✅ | `/family/my-providers` (renamed from `/dashboard/requests`) |
+| 12.3 Engagement Detail + Messaging | ✅ | `/family/my-providers/[id]` |
+| 12.4 Saved Providers | ✅ | `/family/saved-providers` (renamed from `/dashboard/saved`) |
+| 12.5 Care Profile Management | ✅ | Tab within `/family/dashboard` (consolidated) |
+| 12.6 Activity Feed | 🟡 | API exists, needs all engagement types |
+| 12.7 Dashboard Stats/Summary | 🟡 | API exists |
+| 12.8 Profile Completion Prompts | 🟡 | Needs implementation |
+| 12.9 Calendar & Quick Actions | 🟡 | Calendar should be primary element |
 
 ### Key Questions
 - [x] What should the dashboard home prioritize? → **Calendar first, then profile completion, activity feed, quick actions**
@@ -2355,7 +2336,7 @@ Not implemented (no rejections since auto-approve).
 
 ### Architectural Notes
 
-#### 9.1 Dashboard Home Structure (DECIDED)
+#### 12.1 Dashboard Home Structure (DECIDED)
 
 Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first design.
 
@@ -2381,7 +2362,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 - Week/month view toggle
 - Visual distinction by engagement type
 
-#### 9.2–9.3 My Providers — Unified Engagement System (DECIDED)
+#### 12.2–12.3 My Providers — Unified Engagement System (DECIDED)
 
 **Route**: `/family/my-providers` (renamed from `/dashboard/requests`)
 
@@ -2408,7 +2389,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 **Terminology Note**: "Requests" may be revisited in favor of a clearer umbrella term (e.g., "Engagements" or "Conversations"). For now, keeping "requests" in code but using "My Providers" in UI navigation.
 
-#### 9.4 Saved Providers (DECIDED)
+#### 12.4 Saved Providers (DECIDED)
 
 **Route**: `/family/saved-providers` (renamed from `/dashboard/saved`)
 
@@ -2418,15 +2399,15 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 - Click through to provider detail
 - Supports both organizations and individual caregivers
 
-#### 9.5 Care Profile Management (DECIDED)
+#### 12.5 Care Profile Management (DECIDED)
 
 **Location**: Tab within `/family/dashboard` (not separate page)
 
 **Implementation**: Consolidate `/dashboard/care-profiles` into dashboard tab.
 
-**Cross-reference**: See Chapter 4 for care profile fields and completion tracking.
+**Cross-reference**: See Chapter 6 for care profile fields and completion tracking.
 
-#### 9.6 Activity Feed (DECIDED)
+#### 12.6 Activity Feed (DECIDED)
 
 **Purpose**: Chronological log of all meaningful engagements.
 
@@ -2455,7 +2436,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 - Mark all as read
 - Activity grouping by day
 
-#### 9.7 Dashboard Stats (DECIDED)
+#### 12.7 Dashboard Stats (DECIDED)
 
 **Stats to Display**:
 
@@ -2468,7 +2449,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 **Terminology**: Using "Engagements" rather than "Requests" in stats where appropriate. May revisit overall terminology post-demo.
 
-#### 9.8 Profile Completion Prompts (DECIDED)
+#### 12.8 Profile Completion Prompts (DECIDED)
 
 | Profile State | Display |
 |---------------|---------|
@@ -2478,7 +2459,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 **Cross-reference**: See Foundational Decisions → Two-Threshold Model.
 
-#### 9.9 Calendar as Primary Element (DECIDED)
+#### 12.9 Calendar as Primary Element (DECIDED)
 
 **Calendar Requirements**:
 
@@ -2518,15 +2499,15 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 10.1 Dashboard Home | ✅ | `/provider/dashboard` |
-| 10.2 My Families (engagements) | ✅ | `/provider/my-families` (renamed) |
-| 10.3 Engagement Detail + Messaging | ✅ | `/provider/my-families/[id]` |
-| 10.4 Saved Families | ✅ | `/provider/saved-families` (renamed) |
-| 10.5 Hiring: Find Caregivers | 🟡 | `/provider/find-caregivers` (org providers only) |
-| 10.6 Hiring: My Candidates | 🟡 | `/provider/my-candidates` (org providers only) |
-| 10.7 Profile Completion Tracking | 🟡 | Widget in dashboard |
-| 10.8 Calendar (Scheduled Appointments) | 🟡 | Primary dashboard element |
-| 10.9 Provider Profile Edit | 🟡 | Tab within dashboard |
+| 13.1 Dashboard Home | ✅ | `/provider/dashboard` |
+| 13.2 My Families (engagements) | ✅ | `/provider/my-families` (renamed) |
+| 13.3 Engagement Detail + Messaging | ✅ | `/provider/my-families/[id]` |
+| 13.4 Saved Families | ✅ | `/provider/saved-families` (renamed) |
+| 13.5 Hiring: Find Caregivers | 🟡 | `/provider/find-caregivers` (org providers only) |
+| 13.6 Hiring: My Candidates | 🟡 | `/provider/my-candidates` (org providers only) |
+| 13.7 Profile Completion Tracking | 🟡 | Widget in dashboard |
+| 13.8 Calendar (Scheduled Appointments) | 🟡 | Primary dashboard element |
+| 13.9 Provider Profile Edit | 🟡 | Tab within dashboard |
 
 ### Key Questions
 - [x] What should provider dashboard prioritize? → **Calendar first, then leads/paywall, profile completion, activity**
@@ -2543,7 +2524,7 @@ Family Dashboard (`/family/dashboard`) is a tabbed interface with calendar-first
 
 These systems do NOT overlap. A provider's "My Families" page shows family engagements only. Hiring engagements appear in "My Candidates" only.
 
-#### 10.1 Dashboard Home Structure (DECIDED)
+#### 13.1 Dashboard Home Structure (DECIDED)
 
 Provider Dashboard (`/provider/dashboard`) uses calendar-first design with three-tier gating.
 
@@ -2602,7 +2583,7 @@ A persistent dashboard card for review management:
 | Claimed (Free) | See lead count, blurred previews, "Upgrade to respond" CTA |
 | Subscribed | Full access to all features |
 
-#### 10.2–10.3 My Families — Bidirectional Engagement (DECIDED)
+#### 13.2–13.3 My Families — Bidirectional Engagement (DECIDED)
 
 **Route**: `/provider/my-families` (renamed from `/provider/requests`)
 
@@ -2650,7 +2631,7 @@ Engagement {
 - Interview: "Schedule Interview", "Confirm Interview"
 - General: "Send Message", "Accept", "Decline"
 
-#### 10.4 Saved Families (DECIDED)
+#### 13.4 Saved Families (DECIDED)
 
 **Route**: `/provider/saved-families` (renamed from `/provider/saved`)
 
@@ -2658,7 +2639,7 @@ Engagement {
 
 **Note**: Only families with visibility enabled appear in browse/save.
 
-#### 10.5–10.6 Hiring System — Simplified Model (DECIDED)
+#### 13.5–13.6 Hiring System — Simplified Model (DECIDED)
 
 **Applies to**: Organization providers hiring individual caregivers.
 
@@ -2725,14 +2706,14 @@ HiringEngagement {
 
 > **Cross-Reference**: See Chapter 5.4 for complete dropdown specifications. The hiring section is the only part of navigation that varies by user state.
 
-#### 10.7 Profile Completion Tracking (DECIDED)
+#### 13.7 Profile Completion Tracking (DECIDED)
 
 Same pattern as Family Dashboard:
 - Progress bar widget
 - CTA if below visibility threshold
-- Cross-reference: Chapter 5.13
+- Cross-reference: Chapter 7.13
 
-#### 10.8 Calendar as Primary Element (DECIDED)
+#### 13.8 Calendar as Primary Element (DECIDED)
 
 **Engagement Type Visual Distinction**:
 
@@ -2745,11 +2726,11 @@ Same pattern as Family Dashboard:
 
 **Features**: Same as Family Dashboard (week view, click to detail, type colors).
 
-#### 10.9 Provider Profile Edit (DECIDED)
+#### 13.9 Provider Profile Edit (DECIDED)
 
 **Location**: Tab within `/provider/dashboard`
 
-**Cross-reference**: See Chapter 5 for provider profile fields.
+**Cross-reference**: See Chapter 7 for provider profile fields.
 
 #### Activity Feed — All Systems (DECIDED)
 
@@ -2783,20 +2764,20 @@ Same pattern as Family Dashboard:
 **Purpose**: The unified system for all interactions between parties — covering care-seeking (Family ↔ Provider) and hiring (Org ↔ Caregiver).
 
 **Cross-reference**:
-- Chapter 9 (Family Dashboard) and Chapter 10 (Provider Dashboard) for engagement views
-- Chapter 12 for messaging within engagements
-- Chapter 13 for scheduling within engagements
+- Chapter 12 (Family Dashboard) and Chapter 13 (Provider Dashboard) for engagement views
+- Chapter 16 for messaging within engagements
+- Chapter 17 for scheduling within engagements
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 11.1 Engagement Creation | ✅ | Bidirectional (any party can initiate) |
-| 11.2 Engagement Types | 🟡 | Expand beyond CONSULTATION/HIRING |
-| 11.3 Engagement Status Workflow | ✅ | PENDING → ACCEPTED → ACTIVE → COMPLETED |
-| 11.4 Engagement Context/Reason | ✅ | Aligned with types |
-| 11.5 Contact Preferences & Video | 🟡 | Phone/Email/Video |
-| 11.6 Engagement Listing | ✅ | Bidirectional views per user type |
-| 11.7 Engagement Expiration | ⬜ | Deferred for demo |
-| 11.8 Systems Separation | 🟡 | Separate models for Care-Seeking vs Hiring |
+| 15.1 Engagement Creation | ✅ | Bidirectional (any party can initiate) |
+| 15.2 Engagement Types | 🟡 | Expand beyond CONSULTATION/HIRING |
+| 15.3 Engagement Status Workflow | ✅ | PENDING → ACCEPTED → ACTIVE → COMPLETED |
+| 15.4 Engagement Context/Reason | ✅ | Aligned with types |
+| 15.5 Contact Preferences & Video | 🟡 | Phone/Email/Video |
+| 15.6 Engagement Listing | ✅ | Bidirectional views per user type |
+| 15.7 Engagement Expiration | ⬜ | Deferred for demo |
+| 15.8 Systems Separation | 🟡 | Separate models for Care-Seeking vs Hiring |
 
 ### Key Questions
 - [x] Are all request statuses being used correctly? → **Yes, added ACTIVE state**
@@ -2804,7 +2785,7 @@ Same pattern as Family Dashboard:
 
 ### Architectural Notes
 
-#### 11.1 Engagement Creation — Bidirectional (DECIDED)
+#### 15.1 Engagement Creation — Bidirectional (DECIDED)
 
 Any party can initiate an engagement.
 
@@ -2825,7 +2806,7 @@ Any party can initiate an engagement.
 
 **Implementation**: Current `ConsultRequest.senderId` already supports bidirectional initiation.
 
-#### 11.2 Engagement Types (DECIDED)
+#### 15.2 Engagement Types (DECIDED)
 
 Expanded beyond simple CONSULTATION/HIRING to granular types.
 
@@ -2848,7 +2829,7 @@ Expanded beyond simple CONSULTATION/HIRING to granular types.
 
 **Implementation**: Add `engagementType` enum field to models.
 
-#### 11.3 Engagement Status Workflow (DECIDED)
+#### 15.3 Engagement Status Workflow (DECIDED)
 
 | Status | Meaning | Transitions From |
 |--------|---------|------------------|
@@ -2866,7 +2847,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
  DECLINED  CANCELLED  CANCELLED
 ```
 
-#### 11.3.1 Contact Information Release (DECIDED)
+#### 15.3.1 Contact Information Release (DECIDED)
 
 **Contact info visibility rules by user type**:
 
@@ -2891,7 +2872,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 - General location (city/state)
 - Profile details (services, description, etc.)
 
-#### 11.4 Engagement Context/Reason (DECIDED)
+#### 15.4 Engagement Context/Reason (DECIDED)
 
 `contactReason` field aligned with engagement types:
 
@@ -2903,7 +2884,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 | INQUIRY | Ask a question, Request information |
 | OUTREACH | Share availability, Follow up |
 
-#### 11.5 Contact Preferences & Video Calling (DECIDED)
+#### 15.5 Contact Preferences & Video Calling (DECIDED)
 
 **Contact Method Options**:
 
@@ -2927,7 +2908,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 - Recording capability (consider)
 - Virtual waiting room
 
-#### 11.5.1 Calendar Integration (DECIDED)
+#### 15.5.1 Calendar Integration (DECIDED)
 
 **Approach**: Auto-invite as default (Option C), ICS fallback.
 
@@ -2967,7 +2948,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 - "Add to Calendar" (.ics) download link
 - Edit/reschedule triggers new invite
 
-#### 11.6 Engagement Listing — Bidirectional Views (DECIDED)
+#### 15.6 Engagement Listing — Bidirectional Views (DECIDED)
 
 **Cross-reference**: Already documented in Chapters 9 & 10.
 
@@ -2978,7 +2959,7 @@ PENDING → ACCEPTED → ACTIVE → COMPLETED
 | Org Provider | My Candidates | All hiring engagements (inbound + outbound) |
 | Individual Caregiver | My Opportunities | All hiring engagements (inbound + outbound) |
 
-#### 11.7 Engagement Expiration (DECIDED)
+#### 15.7 Engagement Expiration (DECIDED)
 
 ##### Demo Scope
 Deferred — no automatic expiration.
@@ -2995,7 +2976,7 @@ Deferred — no automatic expiration.
 - "Your inquiry to [Provider] has expired with no response"
 - "Your conversation with [Family] has been inactive for 30 days"
 
-#### 11.8 Engagement Systems Separation (DECIDED)
+#### 15.8 Engagement Systems Separation (DECIDED)
 
 **Decision**: Separate models for Care-Seeking and Hiring (Option B).
 
@@ -3026,17 +3007,17 @@ Deferred — no automatic expiration.
 **Purpose**: Enable communication within engagements between families, providers, and caregivers.
 
 **Cross-reference**:
-- Chapter 11 (Engagements) for engagement context
-- Chapter 16 (Notifications) for message notification integration
+- Chapter 15 (Engagements) for engagement context
+- Chapter 19 (Notifications) for message notification integration
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 12.1 Messages Within Engagements | ✅ | `Message` model, API exists |
-| 12.2 Read/Unread Status | ✅ | `status` field (SENT/DELIVERED/READ), timestamps |
-| 12.3 Typing Indicators | ❌ | Deferred — requires real-time to be useful |
-| 12.4 File Attachments | ✅ | `attachments` JSON field, basic support for demo |
-| 12.5 Real-time Updates | 🟡 | Polling for demo, WebSocket for production |
-| 12.6 Message Notifications | 🟡 | In-app for demo, email digest optional |
+| 16.1 Messages Within Engagements | ✅ | `Message` model, API exists |
+| 16.2 Read/Unread Status | ✅ | `status` field (SENT/DELIVERED/READ), timestamps |
+| 16.3 Typing Indicators | ❌ | Deferred — requires real-time to be useful |
+| 16.4 File Attachments | ✅ | `attachments` JSON field, basic support for demo |
+| 16.5 Real-time Updates | 🟡 | Polling for demo, WebSocket for production |
+| 16.6 Message Notifications | 🟡 | In-app for demo, email digest optional |
 
 ### Key Questions
 - [x] Is polling acceptable for demo, or do we need real-time? → **Polling acceptable for demo**
@@ -3044,7 +3025,7 @@ Deferred — no automatic expiration.
 
 ### Architectural Notes
 
-#### 12.1 Messages Within Engagements (DECIDED)
+#### 16.1 Messages Within Engagements (DECIDED)
 
 **Model Approach**: Single `Message` model with nullable foreign keys to both engagement systems.
 
@@ -3060,7 +3041,7 @@ Deferred — no automatic expiration.
 
 **Rationale**: Message logic is identical across both systems. Single model avoids duplication while maintaining clear relationships.
 
-#### 12.2 Read/Unread Status (DECIDED)
+#### 16.2 Read/Unread Status (DECIDED)
 
 **Current implementation accepted.**
 
@@ -3074,7 +3055,7 @@ Deferred — no automatic expiration.
 - Unread messages highlighted in thread
 - Read receipts shown to sender (simple indicator for demo, checkmarks for production)
 
-#### 12.3 Typing Indicators (DECIDED)
+#### 16.3 Typing Indicators (DECIDED)
 
 **Status**: ❌ Deferred for demo.
 
@@ -3084,7 +3065,7 @@ Deferred — no automatic expiration.
 
 **Production**: Implement alongside WebSocket messaging.
 
-#### 12.4 File Attachments (DECIDED)
+#### 16.4 File Attachments (DECIDED)
 
 ##### Demo Scope
 
@@ -3118,7 +3099,7 @@ Deferred — no automatic expiration.
 - Data retention and deletion policies
 - Encryption at rest and in transit
 
-#### 12.5 Real-time Updates (DECIDED)
+#### 16.5 Real-time Updates (DECIDED)
 
 ##### Demo Scope
 **Polling-based** — client fetches new messages every 5-10 seconds.
@@ -3141,7 +3122,7 @@ Deferred — no automatic expiration.
 
 **Rationale for demo**: Demo conversations are low-volume. 5-10 second delay is acceptable. Real-time adds significant complexity for marginal demo benefit.
 
-#### 12.6 Message Notifications (DECIDED)
+#### 16.6 Message Notifications (DECIDED)
 
 **Cross-reference**: Chapter 16 (Notifications) for full notification system.
 
@@ -3165,7 +3146,7 @@ Deferred — no automatic expiration.
 
 **Ideal for demo**: Basic transactional email (new message notification) would improve experience. Can be deferred if it materially slows delivery.
 
-#### 12.7 Message UI/UX (DECIDED)
+#### 16.7 Message UI/UX (DECIDED)
 
 ##### Demo Scope
 
@@ -3214,16 +3195,16 @@ Deferred — no automatic expiration.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 13.1 Scheduling Model | ✅ | Integrated into `Engagement` / `HiringEngagement` models |
-| 13.2 Context-Aware CTAs & Language | ⬜ | CTA text varies by provider type |
-| 13.3 Propose Appointment | 🟡 | Via engagement creation with `scheduledAt` |
-| 13.4 Accept / Decline Flow | 🟡 | Part of engagement status workflow |
-| 13.5 Reschedule Flow | ⬜ | Update `scheduledAt`, notify other party |
-| 13.6 Cancellation Flow | 🟡 | Set status to CANCELLED |
-| 13.7 Email Reminders | ⬜ | **Demo-critical**: 24h + 1h before |
-| 13.8 SMS Reminders | ⬜ | **Demo-critical**: 24h + 1h before via Twilio |
-| 13.9 Calendar Integration | ⬜ | Opt-out default, both parties receive invites |
-| 13.10 Video Call vs In-Person | ⬜ | `meetingType` field, clear UX distinction |
+| 17.1 Scheduling Model | ✅ | Integrated into `Engagement` / `HiringEngagement` models |
+| 17.2 Context-Aware CTAs & Language | ⬜ | CTA text varies by provider type |
+| 17.3 Propose Appointment | 🟡 | Via engagement creation with `scheduledAt` |
+| 17.4 Accept / Decline Flow | 🟡 | Part of engagement status workflow |
+| 17.5 Reschedule Flow | ⬜ | Update `scheduledAt`, notify other party |
+| 17.6 Cancellation Flow | 🟡 | Set status to CANCELLED |
+| 17.7 Email Reminders | ⬜ | **Demo-critical**: 24h + 1h before |
+| 17.8 SMS Reminders | ⬜ | **Demo-critical**: 24h + 1h before via Twilio |
+| 17.9 Calendar Integration | ⬜ | Opt-out default, both parties receive invites |
+| 17.10 Video Call vs In-Person | ⬜ | `meetingType` field, clear UX distinction |
 
 ### Key Questions — RESOLVED
 
@@ -3241,7 +3222,7 @@ Deferred — no automatic expiration.
 
 ### Architectural Notes
 
-#### 13.1 Scheduling Model — INTEGRATED (DECIDED)
+#### 17.1 Scheduling Model — INTEGRATED (DECIDED)
 
 Scheduling is **not a separate system** — it's embedded in engagement workflow:
 
@@ -3256,7 +3237,7 @@ Status workflow handles scheduling state:
 - `ACTIVE` = engagement in progress
 - `COMPLETED` / `CANCELLED` = terminal states
 
-#### 13.2 Context-Aware CTAs & Language (DECIDED)
+#### 17.2 Context-Aware CTAs & Language (DECIDED)
 
 > **Reference**: See [CTA Reference](#cta-reference-decided) in Foundational Decisions for the complete CTA matrix.
 
@@ -3283,7 +3264,7 @@ CTA text varies by provider type and marketplace context:
 | Organization → Caregiver | "Invite to Interview" | HIRING_INTERVIEW |
 | Caregiver → Organization | "Apply" | APPLICATION |
 
-#### 13.7 Email Reminders (DECIDED — Demo-Critical)
+#### 17.7 Email Reminders (DECIDED — Demo-Critical)
 
 **Both parties** receive email reminders for all engagement types.
 
@@ -3298,7 +3279,7 @@ CTA text varies by provider type and marketplace context:
 - Sends to both parties using email on file
 - Google Calendar reminders serve as additional layer (if integrated)
 
-#### 13.8 SMS Reminders (DECIDED — Demo-Critical)
+#### 17.8 SMS Reminders (DECIDED — Demo-Critical)
 
 **Both parties** receive SMS reminders for all engagement types.
 
@@ -3318,7 +3299,7 @@ CTA text varies by provider type and marketplace context:
 - If user skips onboarding, prompt when scheduling first engagement
 - Fallback to Option C (optional with clear trade-off) if Option B proves insufficient
 
-#### 13.9 Calendar Integration (DECIDED)
+#### 17.9 Calendar Integration (DECIDED)
 
 **Opt-out by default** — calendar invites sent automatically using email on file.
 
@@ -3340,7 +3321,7 @@ This applies to **all engagement types**: Family ↔ Provider, Org ↔ Caregiver
 - Works for both in-person and video engagements
 - Consistent UX across all scheduling contexts
 
-#### 13.10 Video Call vs In-Person UX (DECIDED)
+#### 17.10 Video Call vs In-Person UX (DECIDED)
 
 **Core Principle**: Users must always be able to orient themselves. At any point, they should clearly see:
 1. **What** — Is this video or in-person?
@@ -3495,21 +3476,21 @@ Routes must match dropdown navigation labels exactly:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 15.1 Olera Score (Unified) | 🟡 | Master score aggregating all signals |
-| 15.2 Review Model (Care-Seeking) | ✅ | `Review` model exists, needs expansion |
-| 15.3 Review Model (Hiring) | ⬜ | `HiringReview` model needed |
-| 15.4 Two-Sided Reviews | ⬜ | Family ↔ Provider, Org ↔ Caregiver |
-| 15.5 Blind Review Window | ⬜ | 14-day window, reveals when both submit |
-| 15.6 Interaction-Based Reviews | ⬜ | Tours, consults, interviews, ongoing care |
-| 15.7 Multi-Channel Collection | ⬜ | Platform prompts, QR, links, phone |
-| 15.8 Review Trigger Logic | ⬜ | "Did this happen?" confirmation flow |
-| 15.9 Prompt Cadence | ⬜ | Multiple reminders, quarterly for ongoing |
-| 15.10 Direct Provider Page Reviews | ⬜ | Public entry point with structured intake |
-| 15.11 Structured Feedback Sessions | ⬜ | Post-demo: scheduled feedback calls |
-| 15.12 Review Display & Trust Signals | 🟡 | Components exist, need refinement |
-| 15.13 Provider Response to Reviews | ⬜ | One public response allowed |
-| 15.14 Review Moderation | 🟡 | `approved` field exists |
-| 15.15 Helpful Votes | ✅ | `helpfulCount` field, API exists |
+| 22.1 Olera Score (Unified) | 🟡 | Master score aggregating all signals |
+| 22.2 Review Model (Care-Seeking) | ✅ | `Review` model exists, needs expansion |
+| 22.3 Review Model (Hiring) | ⬜ | `HiringReview` model needed |
+| 22.4 Two-Sided Reviews | ⬜ | Family ↔ Provider, Org ↔ Caregiver |
+| 22.5 Blind Review Window | ⬜ | 14-day window, reveals when both submit |
+| 22.6 Interaction-Based Reviews | ⬜ | Tours, consults, interviews, ongoing care |
+| 22.7 Multi-Channel Collection | ⬜ | Platform prompts, QR, links, phone |
+| 22.8 Review Trigger Logic | ⬜ | "Did this happen?" confirmation flow |
+| 22.9 Prompt Cadence | ⬜ | Multiple reminders, quarterly for ongoing |
+| 22.10 Direct Provider Page Reviews | ⬜ | Public entry point with structured intake |
+| 22.11 Structured Feedback Sessions | ⬜ | Post-demo: scheduled feedback calls |
+| 22.12 Review Display & Trust Signals | 🟡 | Components exist, need refinement |
+| 22.13 Provider Response to Reviews | ⬜ | One public response allowed |
+| 22.14 Review Moderation | 🟡 | `approved` field exists |
+| 22.15 Helpful Votes | ✅ | `helpfulCount` field, API exists |
 
 ### Key Questions — RESOLVED
 
@@ -3529,7 +3510,7 @@ Routes must match dropdown navigation labels exactly:
 
 ---
 
-#### 15.1 Olera Score — Unified Master Score (DECIDED)
+#### 22.1 Olera Score — Unified Master Score (DECIDED)
 
 The Olera Score is the **single, primary quality signal** for every provider.
 
@@ -3558,7 +3539,7 @@ The Olera Score is the **single, primary quality signal** for every provider.
 
 ---
 
-#### 15.2-15.4 Two-Sided Review System (DECIDED)
+#### 22.2-22.4 Two-Sided Review System (DECIDED)
 
 Reviews flow in both directions across both engagement systems:
 
@@ -3587,7 +3568,7 @@ Reviews flow in both directions across both engagement systems:
 
 ---
 
-#### 15.5 Blind Review Window (DECIDED)
+#### 22.5 Blind Review Window (DECIDED)
 
 Prevents retaliation, encourages honest feedback (Uber/Airbnb pattern).
 
@@ -3626,7 +3607,7 @@ Engagement/Interaction Completes (or scheduled time passes)
 
 ---
 
-#### 15.6 Interaction-Based Reviews (DECIDED)
+#### 22.6 Interaction-Based Reviews (DECIDED)
 
 Reviews can be left for **any interaction type**, not just ongoing care:
 
@@ -3645,7 +3626,7 @@ Reviews can be left for **any interaction type**, not just ongoing care:
 
 ---
 
-#### 15.7 Multi-Channel Review Collection (DECIDED)
+#### 22.7 Multi-Channel Review Collection (DECIDED)
 
 **Channel 1: Platform Prompts (Automated)**
 - Triggered after scheduled interaction time passes
@@ -3681,7 +3662,7 @@ Reviews can be left for **any interaction type**, not just ongoing care:
 
 ---
 
-#### 15.8 Review Trigger Logic (DECIDED)
+#### 22.8 Review Trigger Logic (DECIDED)
 
 We don't always have verified engagement completion, but we have scheduled timestamps.
 
@@ -3711,7 +3692,7 @@ Scheduled Interaction Time Passes
 
 ---
 
-#### 15.9 Prompt Cadence (DECIDED)
+#### 22.9 Prompt Cadence (DECIDED)
 
 **For Single Interactions (Tour, Consult, Interview):**
 
@@ -3739,7 +3720,7 @@ Scheduled Interaction Time Passes
 
 ---
 
-#### 15.10 Direct Provider Page Reviews (DECIDED)
+#### 22.10 Direct Provider Page Reviews (DECIDED)
 
 For users arriving at provider page without tracked engagement (e.g., from Google):
 
@@ -3760,7 +3741,7 @@ For users arriving at provider page without tracked engagement (e.g., from Googl
 
 ---
 
-#### 15.11 Structured Feedback Sessions (Post-Demo)
+#### 22.11 Structured Feedback Sessions (Post-Demo)
 
 Optional workflow for early relationship health checks:
 
@@ -3781,7 +3762,7 @@ Optional workflow for early relationship health checks:
 
 ---
 
-#### 15.12 Review Display & Trust Signals (DECIDED)
+#### 22.12 Review Display & Trust Signals (DECIDED)
 
 **On Provider Profile:**
 
@@ -3818,7 +3799,7 @@ Optional workflow for early relationship health checks:
 
 ---
 
-#### 15.13 Provider Response to Reviews (DECIDED)
+#### 22.13 Provider Response to Reviews (DECIDED)
 
 **Core Rules:**
 - Provider can post **one public response** per review
@@ -3908,7 +3889,7 @@ Providers receive escalating reminders for unresponded reviews:
 
 ---
 
-#### 15.14 Review Moderation (DECIDED)
+#### 22.14 Review Moderation (DECIDED)
 
 **Demo Scope:**
 - Auto-approve all reviews (controlled environment)
@@ -4067,16 +4048,16 @@ model ReviewRequest {
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 16.1 Activity Feed (Unified) | 🟡 | Canonical notification log on dashboard |
-| 16.2 In-App Notification Count | ✅ | `/api/notifications/unread-count` |
-| 16.3 Mark Notifications Viewed | ✅ | `/api/notifications/mark-viewed` |
-| 16.4 Notification List UI | 🟡 | Needs verification |
-| 16.5 Notification Types | ⬜ | Comprehensive list below |
-| 16.6 Email Notifications | ⬜ | All types, individual delivery |
-| 16.7 SMS Notifications | ⬜ | All types, first-class channel |
-| 16.8 Notification Preferences | ⬜ | Centralized in Settings |
-| 16.9 Quiet Hours | ⬜ | Default business hours M-F |
-| 16.10 Push Notifications | ⬜ | Planned for production |
+| 19.1 Activity Feed (Unified) | 🟡 | Canonical notification log on dashboard |
+| 19.2 In-App Notification Count | ✅ | `/api/notifications/unread-count` |
+| 19.3 Mark Notifications Viewed | ✅ | `/api/notifications/mark-viewed` |
+| 19.4 Notification List UI | 🟡 | Needs verification |
+| 19.5 Notification Types | ⬜ | Comprehensive list below |
+| 19.6 Email Notifications | ⬜ | All types, individual delivery |
+| 19.7 SMS Notifications | ⬜ | All types, first-class channel |
+| 19.8 Notification Preferences | ⬜ | Centralized in Settings |
+| 19.9 Quiet Hours | ⬜ | Default business hours M-F |
+| 19.10 Push Notifications | ⬜ | Planned for production |
 
 ### Key Questions — RESOLVED
 
@@ -4096,7 +4077,7 @@ model ReviewRequest {
 
 ---
 
-#### 16.1 Activity Feed — Unified Notification Log (DECIDED)
+#### 19.1 Activity Feed — Unified Notification Log (DECIDED)
 
 The Activity feed on the dashboard is the **single source of truth** for all system activity.
 
@@ -4131,7 +4112,7 @@ Example:
 
 ---
 
-#### 16.5 Notification Types — Comprehensive List (DECIDED)
+#### 19.5 Notification Types — Comprehensive List (DECIDED)
 
 All types below are delivered via **all three channels** (In-App + Email + SMS) by default.
 
@@ -4199,7 +4180,7 @@ Providers receive reminders to respond to reviews, with escalating urgency:
 
 ---
 
-#### 16.6-16.7 Email & SMS — All Types, Individual Delivery (DECIDED)
+#### 19.6-19.7 Email & SMS — All Types, Individual Delivery (DECIDED)
 
 **Delivery Strategy:**
 - **Individual sends** for all notifications (no batching/digest)
@@ -4224,7 +4205,7 @@ Providers receive reminders to respond to reviews, with escalating urgency:
 
 ---
 
-#### 16.8 Notification Preferences — Centralized in Settings (DECIDED)
+#### 19.8 Notification Preferences — Centralized in Settings (DECIDED)
 
 **Location:** `/settings/notifications` (or Settings page with Notifications section)
 
@@ -4254,7 +4235,7 @@ Providers receive reminders to respond to reviews, with escalating urgency:
 
 ---
 
-#### 16.9 Quiet Hours (DECIDED)
+#### 19.9 Quiet Hours (DECIDED)
 
 **Default Behavior:**
 - Quiet hours: **Outside business hours, Monday-Friday**
@@ -4281,7 +4262,7 @@ Providers receive reminders to respond to reviews, with escalating urgency:
 
 ---
 
-#### 16.10 Push Notifications — Planned for Production (DECIDED)
+#### 19.10 Push Notifications — Planned for Production (DECIDED)
 
 **Clarification:**
 - **Browser push** (service workers): Deferred for production
@@ -4410,16 +4391,16 @@ This notification system supports all previously decided flows:
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 17.1 Profile Completion % (All Types) | 🟡 | Needs explicit storage |
-| 17.2 Completion Storage | ⬜ | Store in DB for matching |
-| 17.3 "Complete Your Profile" Prompts | 🟡 | May exist, needs verification |
-| 17.4 Match Scoring Algorithm | ⬜ | Rule-based, weighted |
-| 17.5 Match Score Display | ⬜ | Percentage or qualitative |
-| 17.6 "Best Matches" - Family → Provider | ⬜ | Dashboard recommendations |
-| 17.7 "Best Matches" - Provider → Family | ⬜ | Dashboard recommendations |
-| 17.8 "Best Matches" - Org → Caregiver | ⬜ | Hiring recommendations |
-| 17.9 "Best Matches" - Caregiver → Org | ⬜ | Opportunity recommendations |
-| 17.10 Olera Score Integration | ⬜ | Factors into match ranking |
+| 11.1 Profile Completion % (All Types) | 🟡 | Needs explicit storage |
+| 11.2 Completion Storage | ⬜ | Store in DB for matching |
+| 11.3 "Complete Your Profile" Prompts | 🟡 | May exist, needs verification |
+| 11.4 Match Scoring Algorithm | ⬜ | Rule-based, weighted |
+| 11.5 Match Score Display | ⬜ | Percentage or qualitative |
+| 11.6 "Best Matches" - Family → Provider | ⬜ | Dashboard recommendations |
+| 11.7 "Best Matches" - Provider → Family | ⬜ | Dashboard recommendations |
+| 11.8 "Best Matches" - Org → Caregiver | ⬜ | Hiring recommendations |
+| 11.9 "Best Matches" - Caregiver → Org | ⬜ | Opportunity recommendations |
+| 11.10 Olera Score Integration | ⬜ | Factors into match ranking |
 
 ### Key Questions — RESOLVED
 
@@ -4439,7 +4420,7 @@ This notification system supports all previously decided flows:
 
 ---
 
-#### 17.1-17.2 Profile Completion — Stored Explicitly (DECIDED)
+#### 11.1-11.2 Profile Completion — Stored Explicitly (DECIDED)
 
 Profile completion is **stored in the database**, not calculated on-the-fly.
 
@@ -4525,7 +4506,7 @@ Optional fields contribute 40% (rewards additional detail).
 
 ---
 
-#### 17.4 Match Scoring Algorithm (DECIDED)
+#### 11.4 Match Scoring Algorithm (DECIDED)
 
 **Approach:** Rule-based weighted matching. No ML required.
 
@@ -4611,7 +4592,7 @@ TOTAL POSSIBLE: 110 points
 
 ---
 
-#### 17.5 Match Score Display (DECIDED)
+#### 11.5 Match Score Display (DECIDED)
 
 **Options:**
 
@@ -4633,7 +4614,7 @@ TOTAL POSSIBLE: 110 points
 
 ---
 
-#### 17.3 "Complete Your Profile" Prompts (DECIDED)
+#### 11.3 "Complete Your Profile" Prompts (DECIDED)
 
 **Prompt Triggers:**
 
@@ -4653,7 +4634,7 @@ This directly reinforces: **better data → better matches**.
 
 ---
 
-#### 17.6-17.9 "Best Matches" Recommendations (DECIDED)
+#### 11.6-11.9 "Best Matches" Recommendations (DECIDED)
 
 **Framing:** "Best matches for your needs" (not "Nearby" or "Recommended")
 
@@ -4717,7 +4698,7 @@ This directly reinforces: **better data → better matches**.
 
 ---
 
-#### 17.10 Olera Score Integration (DECIDED)
+#### 11.10 Olera Score Integration (DECIDED)
 
 Olera Score factors into matching as a **quality signal**:
 
@@ -4824,16 +4805,16 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 18.1 Membership Model | ⬜ | Two-tier: Non-Active (free) vs Active (paid) |
-| 18.2 Pricing | ⬜ | $25/mo or $240/year ($20/mo) |
-| 18.3 Paywall UI | 🟡 | Exists, needs update for new model |
-| 18.4 Paywall Triggers | ⬜ | Engagement actions only |
-| 18.5 "Active" Badge | ⬜ | Subtle indicator on provider cards |
-| 18.6 Unclaimed Provider UX | ⬜ | Clear messaging for families |
-| 18.7 Stripe Integration | ⬜ | Production only |
-| 18.8 Mock Membership (Demo) | ⬜ | Admin toggle for demo |
-| 18.9 Grace Period | ⬜ | 7 days for failed payments |
-| 18.10 Review Tools Gating | ⬜ | Active review generation = paid |
+| 21.1 Membership Model | ⬜ | Two-tier: Non-Active (free) vs Active (paid) |
+| 21.2 Pricing | ⬜ | $25/mo or $240/year ($20/mo) |
+| 21.3 Paywall UI | 🟡 | Exists, needs update for new model |
+| 21.4 Paywall Triggers | ⬜ | Engagement actions only |
+| 21.5 "Active" Badge | ⬜ | Subtle indicator on provider cards |
+| 21.6 Unclaimed Provider UX | ⬜ | Clear messaging for families |
+| 21.7 Stripe Integration | ⬜ | Production only |
+| 21.8 Mock Membership (Demo) | ⬜ | Admin toggle for demo |
+| 21.9 Grace Period | ⬜ | 7 days for failed payments |
+| 21.10 Review Tools Gating | ⬜ | Active review generation = paid |
 
 ### Key Questions — RESOLVED
 
@@ -4853,7 +4834,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-#### 18.1 Two-Tier Membership Model (DECIDED)
+#### 21.1 Two-Tier Membership Model (DECIDED)
 
 **Families: Always Free**
 
@@ -4895,7 +4876,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-#### 18.2 Pricing (DECIDED)
+#### 21.2 Pricing (DECIDED)
 
 | Plan | Price | Effective Monthly |
 |------|-------|-------------------|
@@ -4904,7 +4885,7 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 
 ---
 
-#### 18.4 Paywall Triggers (DECIDED)
+#### 21.4 Paywall Triggers (DECIDED)
 
 The paywall appears when a non-active provider clicks:
 
@@ -4946,7 +4927,7 @@ The paywall appears when a non-active provider clicks:
 
 ---
 
-#### 18.5 "Active" Badge (DECIDED)
+#### 21.5 "Active" Badge (DECIDED)
 
 Providers with active membership show a subtle badge:
 
@@ -4958,7 +4939,7 @@ This helps families identify providers who can respond through the platform, whi
 
 ---
 
-#### 18.6 Unclaimed Provider UX (DECIDED)
+#### 21.6 Unclaimed Provider UX (DECIDED)
 
 When a family engages an unclaimed provider:
 
@@ -4985,7 +4966,7 @@ When a family engages an unclaimed provider:
 
 ---
 
-#### 18.7-18.8 Stripe vs Mock (DECIDED)
+#### 21.7-21.8 Stripe vs Mock (DECIDED)
 
 **Demo Scope: Mock Membership**
 - Admin can toggle provider membership status
@@ -5000,7 +4981,7 @@ When a family engages an unclaimed provider:
 
 ---
 
-#### 18.9 Grace Period (DECIDED)
+#### 21.9 Grace Period (DECIDED)
 
 When payment fails:
 
@@ -5015,7 +4996,7 @@ Provider can re-activate by updating payment method and paying.
 
 ---
 
-#### 18.10 Review Tools Gating (DECIDED)
+#### 21.10 Review Tools Gating (DECIDED)
 
 | Review Capability | Non-Active (Free) | Active (Paid) |
 |-------------------|-------------------|---------------|
@@ -5093,15 +5074,15 @@ model ProviderMembership {
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 19.1 Find Caregivers (for orgs) | 🟡 | `/provider/find-caregivers` |
-| 19.2 Find Organizations (for caregivers) | ⬜ | `/provider/find-organizations` |
-| 19.3 Caregiver Availability Display | ⬜ | Critical for hiring decisions |
-| 19.4 Bidirectional Hiring Engagements | 🟡 | `HiringEngagement` model |
-| 19.5 Context-Specific CTAs | ⬜ | Different by direction |
-| 19.6 Hiring Engagement Workflow | 🟡 | Interview → Hired flow |
-| 19.7 Saved Candidates / Opportunities | ⬜ | Models defined in Ch. 14 |
-| 19.8 Org Hiring Profile Fields | ⬜ | Within unified provider profile |
-| 19.9 Caregiver Job-Seeking Profile | ⬜ | Extended fields on Provider |
+| 20.1 Find Caregivers (for orgs) | 🟡 | `/provider/find-caregivers` |
+| 20.2 Find Organizations (for caregivers) | ⬜ | `/provider/find-organizations` |
+| 20.3 Caregiver Availability Display | ⬜ | Critical for hiring decisions |
+| 20.4 Bidirectional Hiring Engagements | 🟡 | `HiringEngagement` model |
+| 20.5 Context-Specific CTAs | ⬜ | Different by direction |
+| 20.6 Hiring Engagement Workflow | 🟡 | Interview → Hired flow |
+| 20.7 Saved Candidates / Opportunities | ⬜ | Models defined in Ch. 14 |
+| 20.8 Org Hiring Profile Fields | ⬜ | Within unified provider profile |
+| 20.9 Caregiver Job-Seeking Profile | ⬜ | Extended fields on Provider |
 
 ### Key Questions — RESOLVED
 
@@ -5118,7 +5099,7 @@ model ProviderMembership {
 
 ---
 
-#### 19.1-19.2 Browse Experiences (DECIDED)
+#### 20.1-20.2 Browse Experiences (DECIDED)
 
 **Organizations Finding Caregivers:**
 
@@ -5138,7 +5119,7 @@ model ProviderMembership {
 
 ---
 
-#### 19.3 Caregiver Availability Display (DECIDED — Critical)
+#### 20.3 Caregiver Availability Display (DECIDED — Critical)
 
 **This is a critical hiring blocker.** Organizations need to quickly assess whether a caregiver is available for the specific shifts they are trying to staff.
 
@@ -5181,7 +5162,7 @@ Organizations can filter caregiver search by:
 
 ---
 
-#### 19.4-19.5 Bidirectional Hiring Engagements & CTAs (DECIDED)
+#### 20.4-20.5 Bidirectional Hiring Engagements & CTAs (DECIDED)
 
 **Context-Specific CTAs (Not Generic):**
 
@@ -5199,7 +5180,7 @@ Organizations can filter caregiver search by:
 
 ---
 
-#### 19.6 Hiring Engagement Workflow (DECIDED)
+#### 20.6 Hiring Engagement Workflow (DECIDED)
 
 **Simplified Model** (no job postings, no formal applications):
 
@@ -5243,7 +5224,7 @@ ENGAGEMENT CREATED
 
 ---
 
-#### 19.7 Saved Candidates / Opportunities (DECIDED)
+#### 20.7 Saved Candidates / Opportunities (DECIDED)
 
 **Cross-reference:** See Chapter 14 for models.
 
@@ -5256,7 +5237,7 @@ Both include optional `notes` field for tracking.
 
 ---
 
-#### 19.8 Organization Hiring Profile (DECIDED)
+#### 20.8 Organization Hiring Profile (DECIDED)
 
 **One unified provider profile** — no separate "hiring profile."
 
@@ -5292,7 +5273,7 @@ Organizations actively hiring add these fields to their existing profile:
 
 ---
 
-#### 19.9 Caregiver Job-Seeking Profile (DECIDED)
+#### 20.9 Caregiver Job-Seeking Profile (DECIDED)
 
 Extended fields on Provider model for `type=INDIVIDUAL_CAREGIVER`:
 
@@ -5712,7 +5693,7 @@ All queues follow a consistent UI pattern:
 
 **SLA**: 24 hours for review of flagged content
 
-**Cross-Reference**: See Chapter 24: Trust & Safety (24.8) for moderation rules.
+**Cross-Reference**: See Chapter 23: Trust & Safety (23.8) for moderation rules.
 
 **Demo Implementation**: Basic queue with sample flagged content in seed data.
 
@@ -8824,7 +8805,7 @@ Family Concern → Online Research → Care Assessment → Provider Selection
 
 **Schema Markup**: `QAPage` with `Question` and `Answer`
 
-**Moderation Queue**: See Chapter 27: Admin System for queue specifications.
+**Moderation Queue**: See Chapter 26: Admin System for queue specifications.
 
 #### 28.5.7 Comparison Pages
 
@@ -14508,6 +14489,148 @@ Section 230 of the Communications Decency Act (47 U.S.C. § 230) provides that "
 ## Future Directions
 
 > ⭐ **Strategic Concepts for Future Phases** — These sections outline long-term possibilities that are explicitly **not** part of the current demo or build scope. They are included to demonstrate forward thinking and establish placeholders for future strategic decisions.
+
+---
+
+### Future: Mobile App Development (iOS & Android)
+
+> ⭐ **Future Direction** — Not in current scope
+
+**Concept**: Native iOS and Android mobile applications that serve as companion apps to the Olera web platform, providing families and providers with on-the-go access to core functionality while maintaining a unified, consistent user experience across all platforms.
+
+#### Strategic Vision
+
+The Olera mobile apps will extend—not replace—the web platform, following the proven patterns established by Zillow, Airbnb, and Yelp. These companies demonstrate that successful mobile companions share a common backend, maintain consistent data models, and deliver parallel UX patterns across platforms while optimizing for each platform's native strengths.
+
+**Core Principles**:
+- **Single source of truth**: All platforms (web, iOS, Android) connect to the same backend APIs and database
+- **Feature parity**: Core functionality available on all platforms, with platform-appropriate optimizations
+- **Consistent UX language**: Same information architecture and user mental models across platforms
+- **Native-first interactions**: Leverage platform-specific capabilities (notifications, camera, location) where they add value
+- **Offline-aware design**: Graceful degradation when connectivity is limited
+
+#### Architecture Alignment
+
+The current web application architecture is designed to support future mobile clients without rework:
+
+**Shared Backend & APIs**:
+- Next.js API routes follow RESTful patterns that translate directly to mobile API consumption
+- Authentication via NextAuth JWT tokens works seamlessly with mobile clients
+- All business logic lives in server-side services, not in frontend components
+- Database schema and Prisma models are platform-agnostic
+
+**Consistent Data Models**:
+- User, Provider, Family, and Engagement models are designed for multi-platform access
+- Mode switching (Family/Provider) architecture works identically via API
+- File upload patterns (Vercel Blob) support mobile upload workflows
+- Notification data model accommodates push notification delivery
+
+**Reusable Systems**:
+| Web System | Mobile Reusability |
+|------------|-------------------|
+| Authentication (JWT) | Direct reuse—mobile clients authenticate via same endpoints |
+| API routes | Direct consumption—RESTful patterns work for React Native/Swift/Kotlin |
+| Prisma schema | No changes—same database serves all clients |
+| Validation (Zod) | Server-side validation protects all clients equally |
+| File uploads | Same Vercel Blob URLs work across platforms |
+| Messaging system | Same API, mobile-optimized display |
+| Notifications | Extend to push notifications via existing notification infrastructure |
+
+#### Platform-Specific Considerations
+
+**iOS Development**:
+- Swift/SwiftUI for native iOS experience
+- Leverage iOS-specific features: Face ID, Apple Maps integration, Siri shortcuts
+- App Store compliance and review process
+- Push notifications via Apple Push Notification Service (APNS)
+- Support for iOS accessibility features (VoiceOver, Dynamic Type)
+
+**Android Development**:
+- Kotlin/Jetpack Compose for modern Android development
+- Material Design 3 alignment with platform conventions
+- Google Play Store distribution and policies
+- Push notifications via Firebase Cloud Messaging (FCM)
+- Android accessibility support (TalkBack, font scaling)
+
+**Cross-Platform Considerations**:
+- Evaluate React Native or Flutter for code sharing, balanced against native performance needs
+- Shared business logic libraries where appropriate
+- Platform-specific UI implementations for optimal user experience
+- Unified testing strategy across platforms
+
+#### Mobile-First Features
+
+While the web platform is fully functional, mobile apps can optimize for mobile-specific use cases:
+
+**For Families**:
+- Quick provider search with GPS-based location
+- Camera integration for care profile photos
+- Push notifications for provider responses and messages
+- Saved providers accessible offline
+- Tour scheduling with calendar integration
+
+**For Providers**:
+- Instant notification of new inquiries
+- Quick response templates optimized for mobile
+- Photo uploads directly from device camera
+- Dashboard metrics at a glance
+- On-the-go profile updates
+
+#### Current State & Path Forward
+
+**Current State**:
+- Web application serves as the primary platform
+- iOS and Android prototypes exist but lack unified production architecture
+- No shared component library or design system formalized for mobile
+- Backend APIs are mobile-ready but not yet optimized for mobile consumption patterns
+
+**Prerequisites Before Mobile Development**:
+1. Web application feature-complete and stable
+2. API documentation finalized for mobile consumption
+3. Design system formalized with mobile-specific components
+4. Authentication flow validated for mobile security requirements
+5. Push notification infrastructure selected and integrated
+6. Mobile analytics and crash reporting strategy defined
+
+**Development Approach**:
+1. **Phase 1**: API audit and optimization for mobile patterns (pagination, caching headers, response size optimization)
+2. **Phase 2**: Design system extension with mobile component specifications
+3. **Phase 3**: Core feature development (authentication, profile, search, messaging)
+4. **Phase 4**: Platform-specific optimizations and native integrations
+5. **Phase 5**: Beta testing, App Store/Play Store submission, launch
+
+#### Architectural Guardrails
+
+To ensure the web platform development does not block future mobile work:
+
+**Do**:
+- Keep business logic in API routes, not React components
+- Use platform-agnostic data formats in API responses
+- Design APIs with pagination and filtering for large datasets
+- Implement proper cache headers for mobile bandwidth optimization
+- Store file references as URLs, not platform-specific formats
+- Use relative time formatting that works across timezones
+
+**Avoid**:
+- Coupling business logic to Next.js-specific features
+- Server-side rendering dependencies in core data flows
+- Browser-specific APIs in shared service code
+- Hardcoded web-only assumptions in database schema
+- Session-based auth patterns that don't translate to mobile
+
+#### Why Deferred
+
+- Core web platform must stabilize before multi-platform development
+- Mobile development requires dedicated iOS/Android expertise
+- App Store presence brings ongoing maintenance and review obligations
+- Limited resources better focused on web feature completion
+- Market validation of web platform informs mobile priorities
+
+#### Strategic Value
+
+Mobile apps represent a natural extension of Olera's mission to simplify senior care discovery. Mobile-first users—particularly busy adult children coordinating care—benefit from on-the-go access. The architecture established in the web platform ensures mobile development will be an evolution, not a rewrite.
+
+**Cross-Reference**: See Chapter 31 (Application Architecture & Tech Stack) for current backend infrastructure and Chapter 34 (Communications Infrastructure) for notification systems that extend to mobile push.
 
 ---
 
