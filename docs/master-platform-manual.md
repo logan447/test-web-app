@@ -26,6 +26,37 @@
 
 ---
 
+## Review Progress
+
+**Last Updated**: January 17, 2026
+
+| Status | Count | Chapters |
+|--------|-------|----------|
+| ✅ Reviewed | 31 | 1–26, 28, 29, 37, 38, 39 |
+| ⏳ Pending | 4 | 30, 33, 35, 36 |
+| 🆕 Placeholder/New | 4 | 27, 31, 32, 34 |
+| **Total** | **39** | |
+
+### Remaining Chapters to Review
+
+| Priority | Ch | Title | Current Status |
+|----------|-----|-------|----------------|
+| 1 | 30 | Help Center & Support | ⏳ Pending |
+| 2 | 33 | File Uploads & Media | ⏳ Pending |
+| 3 | 35 | Error Handling & Monitoring | ⏳ Pending |
+| 4 | 36 | Performance & Caching | ⏳ Pending |
+
+### Chapters Requiring Content Development
+
+| Ch | Title | Current Status |
+|----|-------|----------------|
+| 27 | Human Workflows & Standard Operating Procedures | 🆕 Placeholder |
+| 31 | Application Architecture & Tech Stack | 🆕 New |
+| 32 | Hosting, Deployment & CI/CD | 🆕 New |
+| 34 | Communications Infrastructure | 🆕 New |
+
+---
+
 ## Table of Contents
 
 ### Foundational Architectural Decisions
