@@ -183,7 +183,7 @@
 
 | Ch | Title | Review Status |
 |----|-------|---------------|
-| 39 | [Legal Framework Overview](#chapter-39-legal-framework-overview) | 🆕 New |
+| 39 | [Legal Framework Overview](#chapter-39-legal-framework-overview) | ✅ Reviewed |
 | | **39.1 Core Legal & Policy Documents** | |
 | | 39.1.1 Terms of Use (Care Seekers) | |
 | | 39.1.2 Terms of Use (Providers) | |
@@ -236,13 +236,13 @@
 | Metric | Count |
 |--------|-------|
 | **Total Main Chapters** | 39 |
-| **Reviewed (✅)** | 21 |
+| **Reviewed (✅)** | 22 |
 | **Pending (⏳)** | 8 |
-| **New Chapters (🆕)** | 10 |
+| **New Chapters (🆕)** | 9 |
 | **Placeholders (🆕)** | 0 |
 | **Future Directions (⭐)** | 3 |
 
-**Next Chapter to Review**: Chapter 38 (Legal & Regulatory Compliance)
+**Next Chapter to Review**: Chapter 37 (Analytics & Audit Logging)
 
 ---
 
@@ -1580,6 +1580,8 @@ Current field structure accepted as-is for demo:
 
 #### 4.9 Multiple Care Profiles (DECIDED)
 
+> **Cross-Reference**: See Chapter 39 (Legal Framework) for data retention periods (39.3.1), data export requirements (39.3.2), and CCPA privacy rights.
+
 **Demo**: Single care profile per account.
 
 **Post-demo**: Support multiple profiles if user research confirms need.
@@ -1590,6 +1592,8 @@ Current field structure accepted as-is for demo:
 | Future | Multiple profiles with separate visibility toggles |
 
 **Rationale**: Single profile simplifies matching, UI, and data model. Multi-profile can be added later without breaking changes.
+
+> **Cross-Reference**: See Chapter 39 (Legal Framework) Section 39.1.8 for No-PHI warning prompts. Profiles must NOT collect sensitive medical information.
 
 **Future implementation notes** (if needed):
 - Dashboard shows list of profiles with "Add another loved one"
@@ -1693,6 +1697,8 @@ Current field structure accepted as-is for demo:
 - Individual Caregiver: Full name, location, services offered
 
 **All other fields**: Optional, improve matching quality.
+
+> **Cross-Reference**: See Chapter 39 (Legal Framework) for Terms of Service requirements (39.1.4), Provider liability language (39.2.1), and No-PHI warning implementation (39.1.8).
 
 #### 5.12 Claimed vs Unclaimed Status (DECIDED)
 
@@ -3992,6 +3998,8 @@ model ReviewRequest {
 | **Individual Delivery** | Notifications sent individually, not batched into digests. |
 | **Centralized Preferences** | Settings page controls all notification preferences. Not inline or in modals. |
 
+> **Cross-Reference**: See Chapter 39 (Legal Framework) Section 39.1.6 for CAN-SPAM compliance (email) and TCPA compliance (SMS). All marketing emails must include unsubscribe links, and SMS requires explicit opt-in consent.
+
 ### Features
 
 | Item | Status | Notes |
@@ -4736,6 +4744,8 @@ This creates a clear, demonstrable relationship that will resonate with stakehol
 > **Families are always free. Providers pay to engage.**
 >
 > The paywall sits at the engagement layer. Everything is visible (profiles, marketplaces, inbound activity). The paywall only appears when a provider tries to take action.
+
+> **Cross-Reference**: See Chapter 39 (Legal Framework) Section 39.3.4 for subscription terms including auto-renewal disclosures, cancellation rights, and refund policies. Subscription checkout must include prominent terms acceptance.
 
 ### Provider States
 
@@ -7724,6 +7734,8 @@ Hospice                 List Your Business
   - Messages: Deleted
   - Reviews: Anonymized (content preserved, author shown as "Deleted User")
 
+> **Cross-Reference**: See Chapter 39 (Legal Framework) for data retention periods (39.3.1), data export requirements (39.3.2), and CCPA compliance requirements.
+
 ---
 
 ### 14.6 Settings Page Sections
@@ -8513,6 +8525,8 @@ _To be filled in during chapter review._
 
 **Purpose**: Build user trust through provider verification, content moderation, and user safety features. Critical for demonstrating operational readiness.
 
+> **Cross-Reference**: See Chapter 39 (Legal Framework) for Section 230 protections (39.2.2), content moderation policies (39.2.3), and platform liability limitations (39.2.1). Olera operates as an information marketplace and does not guarantee provider quality or care outcomes.
+
 ### 24.1 Provider Status & Trust Badges (DECIDED — Required for Demo)
 
 **Purpose**: Visual indicators that communicate provider status and trustworthiness at a glance.
@@ -9196,6 +9210,8 @@ _To be filled in during chapter review._
 ## Chapter 37: Analytics & Audit Logging
 
 **Purpose**: Track key actions for debugging, compliance, and admin visibility.
+
+> **Cross-Reference**: See Chapter 39 (Legal Framework) Section 39.3.1 for audit log retention requirements (7-year minimum for compliance). Audit logs are exempt from user deletion requests per 39.3.1.
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -10034,56 +10050,290 @@ _Vendor management procedures to be documented._
 
 ## Chapter 39: Legal Framework Overview
 
-> 🆕 **Comprehensive Legal Framework** — Structure approved, content to be developed with legal counsel.
+**Review Status**: ✅ Reviewed
 
 **Purpose**: Serve as the legal backbone of the platform, documenting all legal requirements, regulatory compliance frameworks, policies, and procedures that govern Olera's operations.
+
+> **Important**: This chapter documents legal requirements and content structure. Actual legal document text must be reviewed by qualified legal counsel before production launch.
+
+---
+
+### Platform Legal Positioning (DECIDED)
+
+> **Olera Legal Positioning**
+>
+> Olera operates as an **information marketplace and directory service** connecting families seeking care with care providers.
+>
+> **Olera Does NOT**:
+> - Provide care services directly
+> - Employ caregivers or care workers
+> - Guarantee care quality or outcomes
+> - Process care-related payments (current scope)
+> - Provide medical advice, diagnoses, or recommendations
+>
+> **Olera DOES**:
+> - Provide information about care providers from public sources and self-reporting
+> - Facilitate communication between families and providers
+> - Display user-generated reviews and ratings
+> - Offer tools to help families organize their care search
+>
+> This positioning maintains Section 230 protections and limits platform liability.
+
+---
 
 ### Chapter Structure
 
 | Section | Description | Status |
 |---------|-------------|--------|
-| **39.1 Core Legal & Policy Documents** | User-facing legal documents | 🆕 |
-| **39.2 Compliance, Moderation & Enforcement** | Internal policies and SOPs | 🆕 |
-| **39.3 Data Governance & User Rights** | Data handling policies | 🆕 |
+| **39.1 Core Legal & Policy Documents** | User-facing legal documents | ✅ Reviewed |
+| **39.2 Compliance, Moderation & Enforcement** | Internal policies and SOPs | ✅ Reviewed |
+| **39.3 Data Governance & User Rights** | Data handling policies | ✅ Reviewed |
+| **39.4 Transparency Hub Pages** | Public explainer pages | ✅ Decided |
 
 ---
 
 ### 39.1 Core Legal & Policy Documents
 
-> These are user-facing legal documents that govern the relationship between Olera and its users.
+> User-facing legal documents governing the relationship between Olera and its users.
 
-| Document | Purpose | Status |
-|----------|---------|--------|
-| **39.1.1 Terms of Use (Care Seekers)** | User agreement for families | 🆕 |
-| **39.1.2 Terms of Use (Providers)** | User agreement for providers | 🆕 |
-| **39.1.3 Privacy Notice** | Data collection and usage disclosures | 🆕 |
-| **39.1.4 Cookie & Tracking Policy** | Cookie usage and tracking disclosure | 🆕 |
-| **39.1.5 Review Policy** | Guidelines for reviews and ratings | 🆕 |
-| **39.1.6 Advertising & Endorsement Disclosure Policy** | FTC compliance for paid content | 🆕 |
-| **39.1.7 Accessibility & Anti-Discrimination Statement** | ADA compliance, fair housing | 🆕 |
-| **39.1.8 Medical & Emergency Disclaimer** | Liability limitations for medical advice | 🆕 |
-| **39.1.9 AI Disclosure Statement** | Transparency about AI usage | 🆕 |
-| **39.1.10 No-PHI Warning Prompt** | HIPAA compliance messaging | 🆕 |
-| **39.1.11 Featured Badge Tooltip** | Explanation of paid/featured badges | 🆕 |
-| **39.1.12 How Listings & Rankings Work** | Transparency about search ranking | 🆕 |
-| **39.1.13 Olera Score Methodology** | How trust scores are calculated | 🆕 |
+| Document | Purpose | Demo | Production |
+|----------|---------|------|------------|
+| **39.1.1 Terms of Service** | User agreement (all users) | ✅ Draft | ✅ Attorney-reviewed |
+| **39.1.2 Privacy Notice** | Data collection disclosures | ✅ Draft | ✅ Attorney-reviewed |
+| **39.1.3 Cookie & Tracking Policy** | Cookie disclosure | 🟡 Basic banner | ✅ Full policy |
+| **39.1.4 Review Policy** | Review guidelines | ✅ Documented (Ch 23) | ✅ Same |
+| **39.1.5 Advertising Disclosure** | FTC compliance | ✅ Implemented | ✅ Same |
+| **39.1.6 Accessibility Statement** | ADA compliance | ✅ Draft | ✅ Polished |
+| **39.1.7 Medical Disclaimer** | Liability limitation | ✅ Implemented | ✅ Same |
+| **39.1.8 No-PHI Warning** | HIPAA compliance | ✅ Implemented | ✅ Same |
+| **39.1.9 AI Disclosure** | AI transparency | ✅ Implemented | ✅ Same |
+| **39.1.10 Featured Badge Tooltip** | Paid feature disclosure | ✅ Implemented | ✅ Same |
+| **39.1.11 Ranking Transparency** | How search works | 🟡 Basic | ✅ Full page |
+| **39.1.12 Olera Score Methodology** | Score calculation | 🟡 Basic | ✅ Full page |
+
+#### 39.1.1 Terms of Service (DECIDED)
+
+**Document Approach**: Single Terms of Service with role-specific sections for Care Seekers and Providers. This simplifies surfacing at touchpoints while maintaining distinct obligations.
+
+**Surfacing Points**:
+| Touchpoint | Action |
+|------------|--------|
+| Account creation | Checkbox + link: "I agree to the Terms of Service" |
+| Provider claiming | Additional checkbox for provider-specific terms |
+| Subscription checkout | Checkbox + link including subscription terms |
+| First review submission | Link to Review Policy |
+
+**Terms of Service Structure**:
+
+| Section | Key Provisions |
+|---------|----------------|
+| **1. Acceptance** | Using the platform = accepting terms |
+| **2. Eligibility** | Age 18+, legal capacity |
+| **3. Account Terms** | Accurate info, account security, one account per person |
+| **4. Platform Description** | Information marketplace (not healthcare provider) |
+| **5. Acceptable Use** | Prohibited activities, content standards |
+| **6. User Content** | Users responsible for their content; license to Olera |
+| **7. Care Seeker Terms** | Inquiry process, independent verification responsibility |
+| **8. Provider Terms** | Accurate info attestation, licensing representation, response expectations, claiming terms |
+| **9. Reviews** | Guidelines, Olera's right to remove, provider response rights |
+| **10. Intellectual Property** | Olera owns platform; trademarks |
+| **11. Disclaimers** | Not healthcare provider, info "as-is", no outcome guarantees |
+| **12. Limitation of Liability** | Cap on damages, exclusions |
+| **13. Indemnification** | Users indemnify Olera for their content/conduct |
+| **14. Dispute Resolution** | Governing law (Texas), informal resolution first, arbitration optional |
+| **15. Termination** | Olera can terminate; user can close account; effect of termination |
+| **16. Changes** | How updates are communicated; continued use = acceptance |
+| **17. General** | Severability, entire agreement, no waiver |
+
+**Key Disclaimers** (Section 11):
+
+> "Olera is an information marketplace that connects families with care providers. Olera is NOT a healthcare provider and does NOT provide medical advice, diagnosis, treatment, or care services. Olera does NOT employ caregivers, guarantee care quality, or verify all provider claims. Information on this platform is provided 'as-is' from public sources and provider self-reporting. Users are responsible for independently verifying provider credentials, licensing, and suitability before engaging any provider."
+
+#### 39.1.2 Privacy Notice (DECIDED)
+
+**Structure**:
+
+| Section | Content |
+|---------|---------|
+| **Information We Collect** | Account data, profile data, usage data, device info, cookies |
+| **How We Collect It** | Direct input, automatic collection, third parties (analytics) |
+| **How We Use It** | Service delivery, matching, communication, analytics, marketing, safety |
+| **Legal Basis** | Contract, consent, legitimate interest |
+| **Information Sharing** | With providers (per consent), service providers, legal requirements |
+| **Third-Party Services** | Analytics, hosting, email — no selling of personal data |
+| **Data Retention** | Retention periods (see 39.3.1) |
+| **Your Rights** | Access, correction, deletion, portability, objection |
+| **California Rights (CCPA)** | Right to know, delete, opt-out of sale (we don't sell), non-discrimination |
+| **Security** | Encryption, access controls, monitoring |
+| **Children** | No collection from under-18 |
+| **International** | US-based; no EU targeting |
+| **Changes** | How updates communicated, effective date |
+| **Contact** | Privacy inquiries contact |
+
+**CCPA-Specific Disclosures**:
+
+| Category | Collected | Disclosed To | Sold |
+|----------|-----------|--------------|------|
+| Identifiers | ✅ | Service providers, providers (with consent) | ❌ No |
+| Commercial info | ✅ | Service providers | ❌ No |
+| Internet activity | ✅ | Analytics providers | ❌ No |
+| Geolocation | ✅ (coarse) | Service providers | ❌ No |
+| Professional info | ✅ (providers) | Users (public profile) | ❌ No |
+
+#### 39.1.7 Medical & Emergency Disclaimer (DECIDED)
+
+**Standard Text**:
+
+> "Olera is not a healthcare provider and does not provide medical advice, diagnosis, or treatment. Information on this platform is for informational purposes only and should not be used as a substitute for professional medical advice. Always consult qualified healthcare professionals for medical decisions. In case of medical emergency, call 911 immediately."
+
+**Placement**:
+- Global footer
+- Provider profile pages (above inquiry form)
+- Inquiry submission confirmation
+- Help/FAQ pages
+
+#### 39.1.8 No-PHI Warning Prompt (DECIDED)
+
+**HIPAA Position**: Olera is NOT a HIPAA-covered entity. Olera does not meet the definition of a covered entity (healthcare provider transmitting health information electronically, health plan, or healthcare clearinghouse) and does not collect, store, or process Protected Health Information (PHI). No Business Associate Agreement (BAA) workflow is required or offered.
+
+**No-PHI Warning Text**:
+
+> "**Important**: Please do not share sensitive medical information, diagnoses, medical records, treatment details, or other protected health information (PHI) in messages, profiles, reviews, or file uploads. Olera is not a healthcare provider and cannot protect medical information under HIPAA. Keep communications focused on care needs and logistics."
+
+**Placement** (prominent UI display):
+
+| Location | Display |
+|----------|---------|
+| **Message composer** | Yellow warning banner above text input |
+| **Profile forms** (family care needs) | Warning text above free-text fields |
+| **Inquiry forms** | Warning text above message field |
+| **File upload** | Warning modal before upload: "Do not upload medical records, prescriptions, or documents containing PHI" |
+| **Review submission** | Warning text above review body |
+
+**File Upload Specific Warning**:
+
+> "**Do not upload medical records.** Olera cannot accept medical records, prescriptions, diagnostic reports, or any documents containing protected health information (PHI). Acceptable uploads include: profile photos, facility photos, certifications, and business documents."
 
 ---
 
 ### 39.2 Compliance, Moderation & Enforcement
 
-> Internal policies and standard operating procedures for maintaining platform integrity.
+> Internal policies and SOPs for maintaining platform integrity.
 
-| Document | Purpose | Status |
-|----------|---------|--------|
-| **39.2.1 DMCA & Trademark Policy** | Copyright and trademark compliance | 🆕 |
-| **39.2.2 Takedown Request Process** | Procedure for content removal requests | 🆕 |
-| **39.2.3 Provider Verification SOP** | How providers are verified | 🆕 |
-| **39.2.4 User Content Moderation SOP** | How UGC is moderated | 🆕 |
-| **39.2.5 Defamation / Legal Escalation SOP** | Handling legal threats and claims | 🆕 |
-| **39.2.6 Incident Response Plan (IRP)** | Security and data breach procedures | 🆕 |
-| **39.2.7 Accessibility Audit & Response SOP** | ADA compliance procedures | 🆕 |
-| **39.2.8 Privacy Impact Assessment Template** | PIA for new features | 🆕 |
+| Document | Purpose | Demo | Production |
+|----------|---------|------|------------|
+| **39.2.1 DMCA Policy** | Copyright safe harbor | ✅ Contact + process | ✅ Full workflow |
+| **39.2.2 Takedown Process** | Content removal | ✅ Manual | ✅ Ticketed workflow |
+| **39.2.3 Provider Verification SOP** | Verification procedures | ✅ Manual | ✅ Documented |
+| **39.2.4 Content Moderation SOP** | UGC moderation | ✅ Manual | ✅ Documented |
+| **39.2.5 Legal Escalation SOP** | Defamation, legal threats | 🟡 Outline | ✅ Full SOP |
+| **39.2.6 Incident Response Plan** | Data breach procedures | 🟡 Outline | ✅ Full IRP |
+| **39.2.7 Accessibility SOP** | ADA response | 🟡 Outline | ✅ Full SOP |
+| **39.2.8 Privacy Impact Assessment** | New feature review | ❌ Deferred | ✅ Template |
+
+#### 39.2.1 DMCA & Trademark Policy (DECIDED)
+
+**Section 230 and DMCA Background**:
+
+Section 230 of the Communications Decency Act (47 U.S.C. § 230) provides that "No provider or user of an interactive computer service shall be treated as the publisher or speaker of any information provided by another information content provider." This means Olera is generally not liable for user-generated content (reviews, messages, profile information submitted by users).
+
+**Key Legal Points**:
+- Section 230 immunity applies to user-generated content
+- Content moderation does NOT destroy Section 230 protection (the "Good Samaritan" provision)
+- DMCA provides safe harbor for copyright claims IF proper procedures are followed
+- Platform can lose protection if it materially contributes to unlawful content
+
+**DMCA Designated Agent**:
+- Name: [To be designated]
+- Email: dmca@olera.com
+- Address: [Company address]
+- Registration: Must register with US Copyright Office
+
+**DMCA Takedown Process**:
+
+| Step | Action | Timeline |
+|------|--------|----------|
+| 1 | Receive DMCA notice | Log immediately |
+| 2 | Verify notice completeness | Within 24 hours |
+| 3 | Remove/disable content | "Expeditiously" (within 24-48 hours) |
+| 4 | Notify content poster | Within 24 hours of removal |
+| 5 | Receive counter-notice (if any) | 10-14 days for counter |
+| 6 | Restore content (if counter-notice valid) | 10-14 days after counter |
+| 7 | Document resolution | Ongoing |
+
+**DMCA Notice Requirements** (must include all):
+- Physical/electronic signature of copyright owner
+- Identification of copyrighted work
+- Identification of infringing material + location
+- Contact information
+- Good faith statement
+- Accuracy statement under penalty of perjury
+
+**Repeat Infringer Policy**: Accounts with 3+ valid DMCA strikes will be terminated.
+
+#### 39.2.5 Defamation / Legal Escalation SOP (DECIDED)
+
+**Guiding Principle**: Section 230 generally protects Olera from defamation liability for user reviews. However, good-faith response procedures are important for risk management and user trust.
+
+**Escalation Triggers**:
+- Lawyer letter / cease and desist
+- Formal legal complaint
+- Regulatory inquiry
+- Subpoena or court order
+- Credible defamation claim
+
+**Response Process**:
+
+| Step | Action | Timeline | Owner |
+|------|--------|----------|-------|
+| 1 | Receive complaint | Log in Legal Queue | Support |
+| 2 | Initial assessment | Within 24 hours | Admin |
+| 3 | Preserve content | Before any action | Admin |
+| 4 | Classify severity | Within 24 hours | Admin Lead |
+| 5 | Escalate to counsel | If credible legal threat | Admin Lead |
+| 6 | Acknowledge receipt | Within 48-72 hours | Admin/Counsel |
+| 7 | Investigate claim | Per counsel guidance | Counsel |
+| 8 | Decision + action | Per counsel guidance | Counsel |
+| 9 | Respond to complainant | Per counsel guidance | Counsel |
+| 10 | Document resolution | After resolution | Admin |
+
+**Content Preservation**: Never delete content that is subject to a legal complaint without counsel approval. Preserve screenshots, metadata, and user information.
+
+**Response Templates**:
+- Acknowledgment of receipt
+- Request for additional information
+- Explanation of Section 230 (if applicable)
+- Resolution notification
+
+#### 39.2.6 Incident Response Plan (DECIDED)
+
+**Scope**: Security incidents, data breaches, unauthorized access
+
+**Incident Classification**:
+
+| Severity | Description | Response Time |
+|----------|-------------|---------------|
+| **Critical** | Confirmed data breach with PII exposure | Immediate |
+| **High** | Suspected breach, unauthorized access | Within 2 hours |
+| **Medium** | Security vulnerability discovered | Within 24 hours |
+| **Low** | Minor security event, no data exposure | Within 72 hours |
+
+**Response Phases**:
+
+| Phase | Actions |
+|-------|---------|
+| **1. Detection** | Monitoring alerts, user reports, security scans |
+| **2. Containment** | Isolate systems, revoke access, preserve evidence |
+| **3. Assessment** | Determine scope, affected users, data types |
+| **4. Notification** | Legal obligations (CA: 72 hours), affected users, authorities if required |
+| **5. Remediation** | Patch vulnerability, restore systems, reset credentials |
+| **6. Recovery** | Monitor for recurrence, restore normal operations |
+| **7. Post-Incident** | Root cause analysis, update procedures, document lessons |
+
+**Notification Requirements**:
+- California (CCPA): Notify AG if 500+ CA residents affected
+- Other states: Varying requirements, consult counsel
+- Users: "Without unreasonable delay"
 
 ---
 
@@ -10091,37 +10341,177 @@ _Vendor management procedures to be documented._
 
 > Policies governing data retention, deletion, and user rights.
 
-| Document | Purpose | Status |
-|----------|---------|--------|
-| **39.3.1 Data Retention & Deletion Policy** | How long data is kept | 🆕 |
-| **39.3.2 Data Export & Portability** | User data export procedures | 🆕 |
-| **39.3.3 Inquiry Form Consent Text** | Consent language for contact forms | 🆕 |
-| **39.3.4 Premium Subscription Terms** | Auto-renewal agreement | 🆕 |
+| Document | Purpose | Demo | Production |
+|----------|---------|------|------------|
+| **39.3.1 Data Retention Policy** | Retention periods | ✅ Documented | ✅ Same |
+| **39.3.2 Data Export & Portability** | User data export | 🟡 Manual (support) | ✅ Self-service |
+| **39.3.3 Consent Text** | Form consent language | ✅ Implemented | ✅ Same |
+| **39.3.4 Subscription Terms** | Auto-renewal | ✅ Documented | ✅ Same |
+
+#### 39.3.1 Data Retention & Deletion Policy (DECIDED)
+
+**Retention Periods**:
+
+| Data Type | Retention Period | Deletion Trigger |
+|-----------|------------------|------------------|
+| **Active account data** | While account active | Account deletion request |
+| **Deleted account data** | 30 days (soft delete) | Auto-purge after 30 days |
+| **Messages** | 3 years after last activity | Account deletion (both parties) OR auto-purge |
+| **Reviews** | Indefinitely | Author deletion request OR moderation removal |
+| **Provider data (unclaimed)** | Indefinitely (public info) | Provider removal request |
+| **Provider data (claimed)** | While claimed + 30 days | Account deletion |
+| **Audit logs** | 7 years | Automated purge |
+| **Analytics (anonymized)** | Indefinitely | N/A (anonymized) |
+| **Support tickets** | 3 years | Automated purge |
+| **Email/SMS logs** | 1 year | Automated purge |
+
+**Deletion Process**:
+
+| Step | Action | Timeline |
+|------|--------|----------|
+| 1 | User requests deletion | Immediate acknowledgment |
+| 2 | Account soft-deleted | Within 24 hours |
+| 3 | User data anonymized/deleted | Within 30 days |
+| 4 | Backups purged | Within 90 days |
+| 5 | Confirmation sent | Upon completion |
+
+**Exceptions to Deletion**:
+- Active legal hold
+- Pending dispute or investigation
+- Required for fraud prevention (anonymized patterns only)
+- Regulatory retention requirements
+
+**Legal Hold Process**: When litigation is anticipated or pending, affected data is flagged and excluded from routine deletion.
+
+#### 39.3.2 Data Export & Portability (DECIDED)
+
+**User Rights**:
+- Download personal data in machine-readable format (JSON)
+- Request within 45 days (CCPA compliance)
+- Free of charge (first request per 12 months)
+
+**Export Contents** (Care Seekers):
+
+| Category | Included |
+|----------|----------|
+| **Profile** | Name, email, location, preferences |
+| **Care profiles** | All care recipient profiles |
+| **Messages** | Sent and received messages |
+| **Reviews** | Reviews authored |
+| **Saved providers** | Saved/favorited providers |
+| **Activity** | Search history, engagement history |
+| **Settings** | Preferences, notification settings |
+
+**Export Contents** (Providers):
+
+| Category | Included |
+|----------|----------|
+| **Profile** | All profile information |
+| **Engagements** | Inquiry history, engagement data |
+| **Reviews received** | Reviews and responses |
+| **Messages** | Sent and received |
+| **Analytics** | Profile views, response rates |
+
+**Demo Scope**: Manual export via support request
+**Production Scope**: Self-service in Settings → Privacy → "Download my data"
+
+#### 39.3.3 Inquiry Form Consent Text (DECIDED)
+
+**Standard Consent** (displayed on inquiry submission):
+
+> "By submitting this inquiry, you consent to Olera sharing your name, email, phone number, and message with **[Provider Name]** so they can respond to your request. The provider may contact you directly. See our [Privacy Notice] for details on how your information is used and protected."
+
+**Checkbox Text** (required before submission):
+
+> "I consent to sharing my contact information with this provider"
+
+#### 39.3.4 Premium Subscription Terms (DECIDED)
+
+**Auto-Renewal Disclosure** (per FTC guidelines, state laws):
+
+> "Your subscription will automatically renew at the end of each billing period at the then-current rate unless you cancel before the renewal date. You can cancel anytime in your Account Settings. Cancellation takes effect at the end of your current billing period."
+
+**Placement**:
+- Subscription checkout page (prominent)
+- Confirmation email
+- Account Settings → Subscription
+
+**Cancellation**:
+- Self-service cancellation in Settings
+- No penalty for cancellation
+- Access continues until end of billing period
+- Confirmation email upon cancellation
 
 ---
 
-### Regulatory Landscape Overview
+### Regulatory Compliance Matrix (DECIDED)
 
-| Regulation | Applicability | Notes |
-|------------|---------------|-------|
-| **Section 230** | Platform liability protection | Core to marketplace model |
-| **DMCA** | Copyright safe harbor | Requires proper procedures |
-| **GDPR** | EU users (if any) | Data subject rights |
-| **CCPA/CPRA** | California users | Consumer privacy rights |
-| **HIPAA** | TBD | May not apply if no PHI collected |
-| **ADA/WCAG** | All users | Accessibility requirements |
-| **State Licensing** | Various | Care provider licensing varies by state |
-| **FTC Act** | All users | Truth in advertising, unfair practices |
+| Regulation | Applies | Olera Obligation | Implementation |
+|------------|---------|------------------|----------------|
+| **Section 230** | ✅ Yes | Maintain platform (not publisher) status | Don't editorialize; moderate per policy; preserve immunity |
+| **DMCA** | ✅ Yes | Safe harbor procedures | Designated agent, takedown process (39.2.1) |
+| **CCPA/CPRA** | ✅ Yes | Privacy rights for CA residents | Privacy Notice (39.1.2) + data request workflow |
+| **HIPAA** | ❌ No | N/A — not a covered entity | No-PHI prompts (39.1.8), disclaimers, no BAA |
+| **ADA/WCAG** | ✅ Yes | Web accessibility | WCAG AA compliance (Ch 37) |
+| **FTC Act** | ✅ Yes | Truth in advertising | Honest marketing, endorsement disclosure |
+| **CAN-SPAM** | ✅ Yes | Email marketing compliance | Unsubscribe, sender ID, physical address |
+| **TCPA** | ✅ Yes | SMS/call consent | Opt-in for SMS, easy opt-out, no autodialing |
+| **State Licensing** | ⚠️ Monitor | Some states regulate referrals | Legal review before state expansion |
+| **GDPR** | ❌ No | Not targeting EU users | Revisit if international expansion |
 
-### Key Legal Principles
+---
 
-| Principle | Implementation |
-|-----------|----------------|
-| **User Rights** | Clear disclosure of rights and obligations |
-| **Liability Limitations** | Appropriate disclaimers throughout platform |
-| **Moderation Authority** | Clear policies on content removal and appeals |
-| **Transparency** | Open explanation of rankings, AI use, paid features |
-| **Compliance** | Adherence to Section 230, DMCA, accessibility laws, privacy regulations |
+### Liability Framework (DECIDED)
+
+#### Liability Allocation
+
+| Party | Responsible For |
+|-------|-----------------|
+| **Olera** | Platform availability, data security, accuracy of Olera-generated content, moderation per policy |
+| **Providers** | Accuracy of self-reported info, care quality, licensing compliance, response to inquiries |
+| **Care Seekers** | Accuracy of their profiles, their conduct, due diligence in provider selection |
+
+#### Olera Disclaims Liability For
+
+- Care quality or outcomes
+- Provider licensing status (beyond displayed info)
+- Accuracy of public-source provider data
+- Accuracy of provider self-reported data
+- Actions taken outside the platform
+- User-generated content (reviews, messages)
+- Loss from reliance on platform information
+- Provider responsiveness or availability
+- Disputes between users and providers
+
+#### Required Disclaimers
+
+| Disclaimer | Placement | Text Summary |
+|------------|-----------|--------------|
+| **Not a Healthcare Provider** | Footer, ToS, profiles, inquiry forms | Olera doesn't provide medical advice or care |
+| **Information As-Is** | Provider profiles, ToS | Verify independently; public sources + self-reporting |
+| **No Employment Relationship** | Hiring marketplace, ToS | Olera doesn't employ caregivers |
+| **No Outcome Guarantee** | ToS, Help pages | Olera doesn't guarantee care quality |
+| **Verify Independently** | Provider profiles, inquiry confirmation | Users responsible for due diligence |
+| **Review Disclaimer** | Reviews section | Individual experiences; may not be typical |
+
+---
+
+### Demo vs. Production Scope Summary
+
+| Category | Demo | Production |
+|----------|------|------------|
+| **Legal Documents** | ✅ Draft placeholders (clearly marked) | ✅ Attorney-reviewed |
+| **Terms of Service** | ✅ Draft | ✅ Attorney-reviewed |
+| **Privacy Notice** | ✅ Draft with CCPA elements | ✅ Attorney-reviewed |
+| **Cookie Consent** | 🟡 Basic banner | ✅ Granular controls |
+| **Disclaimers** | ✅ All implemented | ✅ Same |
+| **No-PHI Warnings** | ✅ All placements | ✅ Same |
+| **DMCA Process** | ✅ Contact email + manual | ✅ Full workflow |
+| **Data Export** | 🟡 Manual (support request) | ✅ Self-service |
+| **Account Deletion** | 🟡 Manual (support request) | ✅ Self-service |
+| **Transparency Hub** | 🟡 Overview page only | ✅ All 5 pages |
+| **All SOPs** | 🟡 Outline/placeholder | ✅ Fully documented |
+| **Legal Counsel Review** | ❌ Not required | ✅ Required before launch |
 
 ---
 
