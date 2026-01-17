@@ -194,33 +194,19 @@
 |----|-------|---------------|
 | 39 | [Legal Framework Overview](#chapter-39-legal-framework-overview) | ✅ Reviewed |
 | | **39.1 Core Legal & Policy Documents** | |
-| | 39.1.1 Terms of Use (Care Seekers) | |
-| | 39.1.2 Terms of Use (Providers) | |
-| | 39.1.3 Privacy Notice | |
-| | 39.1.4 Cookie & Tracking Policy | |
-| | 39.1.5 Review Policy | |
-| | 39.1.6 Advertising & Endorsement Disclosure Policy | |
-| | 39.1.7 Accessibility & Anti-Discrimination Statement | |
-| | 39.1.8 Medical & Emergency Disclaimer | |
-| | 39.1.9 AI Disclosure Statement | |
-| | 39.1.10 No-PHI Warning Prompt | |
-| | 39.1.11 Featured Badge Tooltip | |
-| | 39.1.12 How Listings & Rankings Work | |
-| | 39.1.13 Olera Score Methodology | |
+| | 39.1.1 Terms of Service | |
+| | 39.1.2 Privacy Notice | |
+| | 39.1.3 Medical & Emergency Disclaimer | |
+| | 39.1.4 No-PHI Warning Prompt | |
 | | **39.2 Compliance, Moderation & Enforcement** | |
 | | 39.2.1 DMCA & Trademark Policy | |
-| | 39.2.2 Takedown Request Process | |
-| | 39.2.3 Provider Verification SOP | |
-| | 39.2.4 User Content Moderation SOP | |
-| | 39.2.5 Defamation / Legal Escalation SOP | |
-| | 39.2.6 Incident Response Plan (IRP) | |
-| | 39.2.7 Accessibility Audit & Response SOP | |
-| | 39.2.8 Privacy Impact Assessment Template | |
+| | 39.2.2 Defamation / Legal Escalation SOP | |
+| | 39.2.3 Incident Response Plan | |
 | | **39.3 Data Governance & User Rights** | |
 | | 39.3.1 Data Retention & Deletion Policy | |
 | | 39.3.2 Data Export & Portability | |
 | | 39.3.3 Inquiry Form Consent Text | |
-| | 39.3.4 Premium Subscription Terms (Auto-Renewal) | |
+| | 39.3.4 Premium Subscription Terms | |
 
 ### Future Directions
 *Strategic concepts for future phases — not in current scope*
@@ -6790,7 +6776,7 @@ These fields are operational/workflow artifacts and should not be migrated:
 
 ---
 
-### 24.10 Upload File Format (DECIDED)
+### 24.8 Upload File Format (DECIDED)
 
 **Standardized CSV Format**
 
@@ -6834,7 +6820,7 @@ external_id,name,provider_type,address,city,state,zip_code,phone,website,email,d
 
 ---
 
-### 24.11 Validation Rules (DECIDED)
+### 24.9 Validation Rules (DECIDED)
 
 **Pre-Import Validation**
 
@@ -6874,7 +6860,7 @@ Each row is validated before import. Invalid rows are rejected with error detail
 
 ---
 
-### 24.12 Deduplication Strategy (DECIDED)
+### 24.10 Deduplication Strategy (DECIDED)
 
 **Deduplication Key**
 
@@ -6906,7 +6892,7 @@ Records flagged as potential duplicates appear in Admin queue for manual resolut
 
 ---
 
-### 24.13 Update Behavior (DECIDED)
+### 24.11 Update Behavior (DECIDED)
 
 **Merge vs. Overwrite Rules**
 
@@ -6939,7 +6925,7 @@ Every import creates an audit record:
 
 ---
 
-### 24.14 Admin UI Integration (CROSS-REFERENCE)
+### 24.12 Admin UI Integration (CROSS-REFERENCE)
 
 **Cross-reference**: See Chapter 20 → Admin Tools → Bulk Import.
 
@@ -7001,7 +6987,7 @@ Admin navigates to /admin/tools/bulk-import
 
 ---
 
-### 24.15 Current Scale: ~40,000 Providers
+### 24.13 Current Scale: ~40,000 Providers
 
 **Dataset Characteristics**
 
@@ -7025,7 +7011,7 @@ Admin navigates to /admin/tools/bulk-import
 
 ---
 
-### 24.16 Target Scale: 500,000+ Providers
+### 24.14 Target Scale: 500,000+ Providers
 
 **Scaling Considerations**
 
@@ -7057,7 +7043,7 @@ Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads.
 
 ---
 
-### 24.17 Demo & Development Data
+### 24.15 Demo & Development Data
 
 **Demo User Accounts**
 
@@ -7089,7 +7075,7 @@ Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads.
 
 ---
 
-### 24.18 Demo Walkthrough Documentation
+### 24.16 Demo Walkthrough Documentation
 
 **To Be Documented**
 
@@ -7102,7 +7088,7 @@ Scaling to 500K+ requires data acquisition strategies beyond manual CSV uploads.
 
 ---
 
-### 24.19 Data Reset Capabilities
+### 24.17 Data Reset Capabilities
 
 **Reset Options**
 
@@ -8994,13 +8980,13 @@ Section 29.7 (Admin Panel Views) — Approve / Modify / Reject
 
 | Chapter | Integration Point | Status |
 |---------|-------------------|--------|
-| Ch 3: User & Account | UTM fields on User model | 🟢 Demo |
-| Ch 7: Registration | Capture UTM at signup | 🟢 Demo |
-| Ch 14: Settings | Referral code display (Production) | 🔵 Production |
+| Ch 1: Authentication & Account Management | Capture UTM at signup | 🟢 Demo |
+| Ch 3: Onboarding Wizard | Persist UTM through onboarding flow | 🟢 Demo |
+| Ch 14: Settings & Preferences | Referral code display (Production) | 🔵 Production |
 | Ch 19: Notifications | "You earned a referral reward" | 🔵 Production |
-| Ch 27: Admin System | Attribution views | 🟢 Demo (basic) |
-| Ch 33: Analytics | Attribution reporting | 🔵 Production |
-| Ch 38: Third-Party | Analytics tools (Mixpanel, etc.) | 🔵 Production |
+| Ch 26: Admin System | Attribution views in user management | 🟢 Demo (basic) |
+| Ch 37: Analytics & Audit Logging | Attribution reporting | 🔵 Production |
+| Ch 38: Third-Party Services & Integrations | Analytics tools (Mixpanel, etc.) | 🔵 Production |
 
 #### 29.8.2 Data Flow
 
@@ -11291,7 +11277,7 @@ This chapter serves as the central registry. Detailed implementation for each se
 | Geolocation | ✅ (coarse) | Service providers | ❌ No |
 | Professional info | ✅ (providers) | Users (public profile) | ❌ No |
 
-#### 39.1.7 Medical & Emergency Disclaimer (DECIDED)
+#### 39.1.3 Medical & Emergency Disclaimer (DECIDED)
 
 **Standard Text**:
 
@@ -11303,7 +11289,7 @@ This chapter serves as the central registry. Detailed implementation for each se
 - Inquiry submission confirmation
 - Help/FAQ pages
 
-#### 39.1.8 No-PHI Warning Prompt (DECIDED)
+#### 39.1.4 No-PHI Warning Prompt (DECIDED)
 
 **HIPAA Position**: Olera is NOT a HIPAA-covered entity. Olera does not meet the definition of a covered entity (healthcare provider transmitting health information electronically, health plan, or healthcare clearinghouse) and does not collect, store, or process Protected Health Information (PHI). No Business Associate Agreement (BAA) workflow is required or offered.
 
@@ -11382,7 +11368,7 @@ Section 230 of the Communications Decency Act (47 U.S.C. § 230) provides that "
 
 **Repeat Infringer Policy**: Accounts with 3+ valid DMCA strikes will be terminated.
 
-#### 39.2.5 Defamation / Legal Escalation SOP (DECIDED)
+#### 39.2.2 Defamation / Legal Escalation SOP (DECIDED)
 
 **Guiding Principle**: Section 230 generally protects Olera from defamation liability for user reviews. However, good-faith response procedures are important for risk management and user trust.
 
@@ -11416,7 +11402,7 @@ Section 230 of the Communications Decency Act (47 U.S.C. § 230) provides that "
 - Explanation of Section 230 (if applicable)
 - Resolution notification
 
-#### 39.2.6 Incident Response Plan (DECIDED)
+#### 39.2.3 Incident Response Plan (DECIDED)
 
 **Scope**: Security incidents, data breaches, unauthorized access
 
