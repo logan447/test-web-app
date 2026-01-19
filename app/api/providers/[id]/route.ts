@@ -8,7 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
     const { id } = await params;
+
     const provider = await prisma.provider.findUnique({
       where: { id },
     });
@@ -20,7 +22,51 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(provider);
+    // For INDEPENDENT_CAREGIVER, gate contact info until engagement is ACCEPTED
+    // Organizations: everything always visible
+    let contactRevealed = true;
+
+    if (provider.providerType === "INDEPENDENT_CAREGIVER" && session?.user?.id) {
+      // Check if this is the provider owner
+      const isOwner = provider.userId === session.user.id;
+
+      if (!isOwner) {
+        // Find family profile for current user to check for accepted engagement
+        const viewerFamily = await prisma.familyProfile.findFirst({
+          where: { userId: session.user.id },
+          select: { id: true },
+        });
+
+        if (viewerFamily) {
+          // Check for ACCEPTED or COMPLETED engagement
+          const acceptedEngagement = await prisma.consultRequest.findFirst({
+            where: {
+              familyProfileId: viewerFamily.id,
+              providerId: id,
+              status: { in: ["ACCEPTED", "COMPLETED"] },
+            },
+          });
+          contactRevealed = !!acceptedEngagement;
+        } else {
+          // No family profile = can't have engagement
+          contactRevealed = false;
+        }
+      }
+    }
+
+    // Build response
+    const response: any = {
+      ...provider,
+      contactRevealed,
+    };
+
+    // For individual caregivers without accepted engagement, hide contact info
+    if (provider.providerType === "INDEPENDENT_CAREGIVER" && !contactRevealed) {
+      response.phone = null;
+      response.email = null;
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error fetching provider:", error);
     return NextResponse.json(

@@ -25,8 +25,8 @@ type Provider = {
   name: string;
   providerType: ProviderType;
   description: string | null;
-  email: string;
-  phone: string;
+  email: string | null;
+  phone: string | null;
   website: string | null;
   address: string;
   city: string;
@@ -72,6 +72,8 @@ type Provider = {
   hasRespiteCare: boolean;
   hasHospiceCare: boolean;
   specialtyPrograms: string[];
+  claimed?: boolean;
+  contactRevealed?: boolean;
 };
 
 export default function ProviderProfilePage() {
@@ -336,6 +338,15 @@ export default function ProviderProfilePage() {
                   Waitlist available
                 </span>
               )}
+
+              {provider.claimed === false && (
+                <span className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  Unclaimed Profile
+                </span>
+              )}
             </div>
           </div>
 
@@ -470,27 +481,48 @@ export default function ProviderProfilePage() {
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
-              <div className="space-y-2">
-                <p className="text-gray-700">
-                  <span className="font-medium">Phone:</span> {provider.phone}
-                </p>
-                <p className="text-gray-700">
-                  <span className="font-medium">Email:</span> {provider.email}
-                </p>
-                {provider.website && (
-                  <p className="text-gray-700">
-                    <span className="font-medium">Website:</span>{" "}
-                    <a
-                      href={provider.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary-600 hover:underline"
-                    >
-                      {provider.website}
-                    </a>
-                  </p>
-                )}
-              </div>
+              {/* Show contact info if revealed (organizations always, individual caregivers after acceptance) */}
+              {provider.contactRevealed !== false ? (
+                <div className="space-y-2">
+                  {provider.phone && (
+                    <p className="text-gray-700">
+                      <span className="font-medium">Phone:</span> {provider.phone}
+                    </p>
+                  )}
+                  {provider.email && (
+                    <p className="text-gray-700">
+                      <span className="font-medium">Email:</span> {provider.email}
+                    </p>
+                  )}
+                  {provider.website && (
+                    <p className="text-gray-700">
+                      <span className="font-medium">Website:</span>{" "}
+                      <a
+                        href={provider.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:underline"
+                      >
+                        {provider.website}
+                      </a>
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-gray-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Contact info protected</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Send a consultation request to connect with this caregiver. Contact details will be shared once they accept.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

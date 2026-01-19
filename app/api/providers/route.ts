@@ -191,6 +191,7 @@ export async function GET(req: Request) {
           hasMemoryCare: true,
           hasRespiteCare: true,
           hasHospiceCare: true,
+          claimed: true,
         },
         orderBy,
         skip,

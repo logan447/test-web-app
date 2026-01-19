@@ -185,6 +185,7 @@ model FamilyProfile {
   allowDirectMessages   Boolean @default(true)
   showContactInfo       Boolean @default(false)
   showFullName          Boolean @default(false)
+  showProfilePhoto      Boolean @default(false) // Family photo visibility toggle (opt-in with nudge)
   hideFromSearch        Boolean @default(false)
   profileNotes          String?
 
