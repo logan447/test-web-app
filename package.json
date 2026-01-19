@@ -11,7 +11,11 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "postinstall": "prisma generate",
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "db:seed:test": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-test.ts",
+    "db:seed:test:verify": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-test.ts verify",
+    "db:seed:test:reset": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-test.ts reset"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
