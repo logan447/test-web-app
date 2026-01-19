@@ -3,24 +3,20 @@
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useProviderIdentity } from "@/hooks/useProviderIdentity";
 
 /**
  * Provider landing page - redirects to appropriate destination:
- * - If user has provider identity → /provider/dashboard
- * - If user doesn't have provider identity → /provider/onboarding
+ * - If in provider mode → /provider/dashboard (shows onboarding prompt if needed)
  * - If not in provider mode → /dashboard
+ *
+ * Per Manual Ch 8: "Maximize visibility, gate by action" - no forced onboarding redirect
  */
 export default function ProviderLandingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { hasIdentity, loading: identityLoading } = useProviderIdentity({
-    requireIdentity: false,
-    checkMode: false,
-  });
 
   useEffect(() => {
-    if (status === "loading" || identityLoading) return;
+    if (status === "loading") return;
 
     // Only redirect to login if session status is definitively unauthenticated
     if (status === "unauthenticated") {
@@ -40,13 +36,9 @@ export default function ProviderLandingPage() {
       return;
     }
 
-    // In provider mode - check for identity
-    if (hasIdentity) {
-      router.push("/provider/dashboard");
-    } else {
-      router.push("/provider/onboarding");
-    }
-  }, [session, status, router, hasIdentity, identityLoading]);
+    // In provider mode - go to dashboard (which shows onboarding prompt if needed)
+    router.push("/provider/dashboard");
+  }, [session, status, router]);
 
   // Show loading state while determining redirect
   return (

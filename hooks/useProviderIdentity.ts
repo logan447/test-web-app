@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
 interface ProviderIdentity {
   id: string;
@@ -12,15 +11,18 @@ interface ProviderIdentity {
 }
 
 interface UseProviderIdentityOptions {
-  // Redirect to onboarding if no identity exists
+  // DEPRECATED: Auto-redirect removed per Manual Ch 8 (gentle nudges, not forced redirects)
+  // This option is now ignored - use needsOnboarding return value and show prompts instead
   requireIdentity?: boolean;
-  // Only redirect if user is in provider mode
+  // Only check if user is in provider mode
   checkMode?: boolean;
 }
 
 interface UseProviderIdentityReturn {
   identity: ProviderIdentity | null;
   hasIdentity: boolean;
+  // True when user is in provider mode but has no identity - use to show prompts
+  needsOnboarding: boolean;
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
@@ -29,16 +31,20 @@ interface UseProviderIdentityReturn {
 /**
  * Hook to check and manage provider identity (Manual Ch 8)
  *
+ * Philosophy: "Maximize visibility, gate by action" — users can explore all
+ * provider pages freely. Show gentle prompts to complete onboarding instead
+ * of forcing redirects.
+ *
  * Usage:
- * - Provider pages should use this to gate access
- * - Redirects to /provider/onboarding if no identity and requireIdentity=true
+ * - Call this hook on provider pages
+ * - Check `needsOnboarding` to show a dismissible prompt/CTA
+ * - DO NOT block page content or force redirects
  */
 export function useProviderIdentity(
   options: UseProviderIdentityOptions = {}
 ): UseProviderIdentityReturn {
-  const { requireIdentity = false, checkMode = true } = options;
+  const { checkMode = true } = options;
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   const [identity, setIdentity] = useState<ProviderIdentity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,11 +73,7 @@ export function useProviderIdentity(
         setIdentity(data.providerIdentity);
       } else {
         setIdentity(null);
-
-        // Redirect to onboarding if required and user is in provider mode
-        if (requireIdentity && (!checkMode || isProviderMode)) {
-          router.push("/provider/onboarding");
-        }
+        // No redirect - pages should show gentle prompts instead (Manual Ch 8)
       }
     } catch (err) {
       console.error("Error fetching provider identity:", err);
@@ -98,11 +100,15 @@ export function useProviderIdentity(
     }
 
     fetchIdentity();
-  }, [session, status, isProviderMode, checkMode, requireIdentity]);
+  }, [session, status, isProviderMode, checkMode]);
+
+  // User needs onboarding if they're in provider mode but have no identity
+  const needsOnboarding = isProviderMode && !identity && !loading;
 
   return {
     identity,
     hasIdentity: !!identity,
+    needsOnboarding,
     loading: status === "loading" || loading,
     error,
     refetch: fetchIdentity,

@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import SavedFamilyCard from '@/components/Directory/SavedFamilyCard';
+import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type SavedFamilyProfile = {
@@ -42,9 +43,8 @@ export default function SavedFamilyProfilesPage() {
   // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
-  // Check for provider identity - redirects to onboarding if missing (Manual Ch 8)
-  const { hasIdentity, loading: identityLoading } = useProviderIdentity({
-    requireIdentity: true,
+  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
+  const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
 
@@ -66,12 +66,10 @@ export default function SavedFamilyProfilesPage() {
       return;
     }
 
-    // If no identity, the hook will redirect to onboarding
-    if (!hasIdentity) return;
-
+    // Fetch data (even if no identity - show empty states with prompt)
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, status, router, isProviderMode, hasIdentity, identityLoading]);
+  }, [session, status, router, isProviderMode, identityLoading]);
 
   const fetchSavedProfiles = async () => {
     try {
@@ -185,6 +183,9 @@ export default function SavedFamilyProfilesPage() {
             Family profiles you&apos;ve saved for follow-up
           </p>
         </div>
+
+        {/* Gentle nudge for onboarding (Manual Ch 8) */}
+        {needsOnboarding && <OnboardingPrompt context="saved" />}
 
         {/* Results Count */}
         {profiles.length > 0 && (

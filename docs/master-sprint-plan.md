@@ -368,7 +368,7 @@ None (this is Sprint 0)
 
 | Item | Rationale | Sprint |
 |------|-----------|--------|
-| Remove URL `?mode=` parameter | Working but not causing issues; lower priority | Sprint 1 |
+| ~~Remove URL `?mode=` parameter~~ | **Already done** — URL param was never implemented; DB is source of truth | ✅ N/A |
 | Footer implementation | Demo acceptable without full footer | Sprint 1 |
 | Test framework setup (Jest/Vitest) | Time constraint; manual testing sufficient for Sprint 0 | Sprint 1 |
 | Input validation layer (Zod) | Existing validation working; enhancement deferred | Sprint 1 |

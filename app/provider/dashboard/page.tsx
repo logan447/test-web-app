@@ -8,6 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
+import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
 import { useProviderIdentity } from "@/hooks/useProviderIdentity";
 
 interface DashboardStats {
@@ -48,9 +49,8 @@ export default function ProviderDashboardPage() {
   // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
-  // Check for provider identity - redirects to onboarding if missing (Manual Ch 8)
-  const { hasIdentity, loading: identityLoading } = useProviderIdentity({
-    requireIdentity: true,
+  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
+  const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
 
@@ -74,12 +74,9 @@ export default function ProviderDashboardPage() {
       return;
     }
 
-    // If no identity, the hook will redirect to onboarding
-    if (!hasIdentity) return;
-
-    // Fetch dashboard data
+    // Fetch dashboard data (even if no identity - show empty states)
     fetchDashboardData();
-  }, [session, status, router, isProviderMode, hasIdentity, identityLoading]);
+  }, [session, status, router, isProviderMode, identityLoading]);
 
   const fetchDashboardData = async () => {
     try {
@@ -203,6 +200,9 @@ export default function ProviderDashboardPage() {
               : "Connect with families who need your services"}
           </p>
         </div>
+
+        {/* Gentle nudge for onboarding (Manual Ch 8) */}
+        {needsOnboarding && <OnboardingPrompt context="dashboard" />}
 
         {/* Profile Completion Widget */}
         <div className="mb-8">
