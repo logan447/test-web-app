@@ -31,7 +31,7 @@ type Caregiver = {
 };
 
 export default function HireStaffPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,14 +39,21 @@ export default function HireStaffPage() {
   const [requestedCaregiverIds, setRequestedCaregiverIds] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
-    if (!session) {
+    // Wait for session to load
+    if (status === 'loading') return;
+
+    // Only show auth modal if definitively unauthenticated
+    if (status === 'unauthenticated') {
       setAuthModalOpen(true);
       return;
     }
 
+    // Session is authenticated but data might still be loading
+    if (!session) return;
+
     // Check if user has organization-type provider profile
     checkProviderType();
-  }, [session]);
+  }, [session, status]);
 
   const checkProviderType = async () => {
     try {

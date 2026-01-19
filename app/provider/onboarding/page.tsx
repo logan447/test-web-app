@@ -8,18 +8,21 @@ import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 
 export default function ProviderOnboarding() {
-  const { data: session, update } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [selectedType, setSelectedType] = useState<'ORGANIZATION' | 'INDIVIDUAL' | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!session) {
+    if (status === 'loading') return;
+
+    // Only redirect to login if session status is definitively unauthenticated
+    if (status === 'unauthenticated') {
       router.push('/login');
       return;
     }
-  }, [session, router]);
+  }, [status, router]);
 
   const handleCreateIdentity = async () => {
     if (!selectedType) {
@@ -59,8 +62,16 @@ export default function ProviderOnboarding() {
     }
   };
 
-  if (!session) {
-    return null;
+  // Show loading or redirect state
+  if (status === 'loading' || !session) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

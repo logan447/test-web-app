@@ -65,10 +65,14 @@ export default function ProviderRequestsPage() {
   useEffect(() => {
     if (status === 'loading' || identityLoading) return;
 
-    if (!session) {
+    // Only redirect to login if session status is definitively unauthenticated
+    if (status === 'unauthenticated') {
       router.push('/login');
       return;
     }
+
+    // Session is authenticated but data might still be loading
+    if (!session) return;
 
     // If mode is family, redirect to family homepage
     if (!isProviderMode) {

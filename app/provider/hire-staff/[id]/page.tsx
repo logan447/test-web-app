@@ -29,7 +29,7 @@ type Caregiver = {
 };
 
 export default function CaregiverHireDetailPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -46,12 +46,20 @@ export default function CaregiverHireDetailPage() {
   const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {
-    if (!session) {
+    // Wait for session to load
+    if (status === 'loading') return;
+
+    // Only show auth modal if definitively unauthenticated
+    if (status === 'unauthenticated') {
       setAuthModalOpen(true);
       return;
     }
+
+    // Session is authenticated but data might still be loading
+    if (!session) return;
+
     fetchCaregiver();
-  }, [session, router, params.id]);
+  }, [session, status, router, params.id]);
 
   const fetchCaregiver = async () => {
     try {

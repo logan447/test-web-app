@@ -120,8 +120,8 @@ export default function Breadcrumb({ items, currentPage, className = "" }: Bread
   }
 
   return (
-    <nav aria-label="Breadcrumb" className={`mb-4 ${className}`}>
-      <ol className="flex items-center space-x-2 text-sm text-gray-600">
+    <nav aria-label="Breadcrumb" className={`bg-gray-100 border-b border-gray-200 ${className}`}>
+      <ol className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center space-x-2 text-sm text-gray-600">
         {breadcrumbs.map((item, index) => {
           const isLast = index === breadcrumbs.length - 1;
 
