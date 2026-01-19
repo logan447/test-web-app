@@ -376,7 +376,7 @@ None (this is Sprint 0)
 | Remove ProviderIdentity model | Per Manual Ch 8; requires schema migration | Sprint 1 |
 | Route renaming `/provider/requests` → `/provider/find-families` | Per Manual Ch 13; cosmetic change | Sprint 1 |
 | Provider login default landing page | Currently goes to `/provider/dashboard`; Manual specifies `/provider/find-families` | Sprint 1 |
-| Remove forced onboarding redirect | Per Manual Ch 8.4; use gentle nudges instead | Sprint 1 |
+| ~~Remove forced onboarding redirect~~ | **Done** — Implemented gentle nudges per Manual Ch 8 | ✅ Complete |
 
 ### Gap Verification (Post-Audit)
 
