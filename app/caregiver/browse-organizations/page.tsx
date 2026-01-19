@@ -54,7 +54,7 @@ export default function BrowseOrganizationsPage() {
         const provider = await response.json();
         if (provider.providerType !== 'INDEPENDENT_CAREGIVER') {
           // Redirect if user is not an independent caregiver
-          router.push('/provider/requests');
+          router.push('/provider/find-families');
           return;
         }
         // User is independent caregiver, fetch organizations

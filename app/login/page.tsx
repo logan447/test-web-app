@@ -44,7 +44,7 @@ export default function LoginPage() {
       if (isProviderMode) {
         // Provider mode users go to Find Families page
         console.log('LOGIN DEBUG: Redirecting to provider mode (Find Families page)');
-        window.location.href = "/provider/requests";
+        window.location.href = "/provider/find-families";
       } else {
         // Family mode users go to Find Providers homepage
         console.log('LOGIN DEBUG: Redirecting to family mode (Find Providers page)');

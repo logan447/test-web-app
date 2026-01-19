@@ -218,7 +218,7 @@ export default function SavedFamilyCard({
         <div className="pt-3 border-t border-gray-100">
           <div className="flex gap-2">
             <Link
-              href={`/provider/requests/${profile.id}?from=saved`}
+              href={`/provider/find-families/${profile.id}?from=saved`}
               className="flex-1 px-4 py-2.5 bg-white border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 font-semibold text-center transition-colors text-sm"
             >
               View Details
@@ -232,7 +232,7 @@ export default function SavedFamilyCard({
               </Link>
             ) : (
               <Link
-                href={`/provider/requests/${profile.id}?from=saved`}
+                href={`/provider/find-families/${profile.id}?from=saved`}
                 className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 font-semibold text-center transition-all shadow-sm hover:shadow-md text-sm"
               >
                 Send Request

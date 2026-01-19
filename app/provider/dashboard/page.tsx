@@ -236,7 +236,7 @@ export default function ProviderDashboardPage() {
               </div>
             </div>
             <Link
-              href="/provider/requests"
+              href="/provider/find-families"
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View requests →
@@ -424,7 +424,7 @@ export default function ProviderDashboardPage() {
               </Link>
             ) : (
               <Link
-                href="/provider/requests"
+                href="/provider/find-families"
                 className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
               >
                 <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -623,7 +623,7 @@ export default function ProviderDashboardPage() {
                   </Link>
                 ) : (
                   <Link
-                    href="/provider/requests"
+                    href="/provider/find-families"
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Find families to get started →

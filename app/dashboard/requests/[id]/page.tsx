@@ -133,7 +133,7 @@ export default function RequestDetailPage() {
   const isHiringRequest = request?.requestType === 'HIRING';
 
   const backHref = fromSaved
-    ? (isProviderMode ? '/provider/saved' : '/dashboard/saved')
+    ? (isProviderMode ? '/provider/saved-families' : '/dashboard/saved')
     : isHiringRequest
       ? '/provider/hiring-requests'
       : '/dashboard/requests';

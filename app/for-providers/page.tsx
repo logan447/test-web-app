@@ -15,7 +15,7 @@ export default function ForProvidersPage() {
 
   // If already logged in, redirect to provider mode
   if (session) {
-    router.push("/provider/requests");
+    router.push("/provider/find-families");
     return null;
   }
 

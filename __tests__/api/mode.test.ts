@@ -68,12 +68,12 @@ describe('/api/user/mode', () => {
 
       const expectedResponse = createSuccessResponse({
         mode: 'PROVIDER',
-        landingPage: '/provider/requests',
+        landingPage: '/provider/find-families',
       });
 
       expect(expectedResponse.success).toBe(true);
       expect(expectedResponse.data.mode).toBe('PROVIDER');
-      expect(expectedResponse.data.landingPage).toBe('/provider/requests');
+      expect(expectedResponse.data.landingPage).toBe('/provider/find-families');
     });
 
     it('should successfully switch to FAMILY mode', async () => {
@@ -93,15 +93,15 @@ describe('/api/user/mode', () => {
 
     it('should return correct landing pages for each mode', () => {
       // Per Manual Ch 2:
-      // - PROVIDER mode → /provider/requests (Find Families)
+      // - PROVIDER mode → /provider/find-families (Find Families)
       // - FAMILY mode → / (Find Providers)
 
       const modeLandingPages = {
-        PROVIDER: '/provider/requests',
+        PROVIDER: '/provider/find-families',
         FAMILY: '/',
       };
 
-      expect(modeLandingPages.PROVIDER).toBe('/provider/requests');
+      expect(modeLandingPages.PROVIDER).toBe('/provider/find-families');
       expect(modeLandingPages.FAMILY).toBe('/');
     });
   });

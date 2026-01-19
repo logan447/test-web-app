@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       success: true,
       mode,
       // FAMILY mode → home page (find providers), PROVIDER mode → find families page
-      landingPage: mode === 'PROVIDER' ? '/provider/requests' : '/'
+      landingPage: mode === 'PROVIDER' ? '/provider/find-families' : '/'
     });
 
   } catch (error) {

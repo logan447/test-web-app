@@ -55,7 +55,7 @@ export default function SavedProvidersPage() {
 
     // Redirect provider mode to their saved families page
     if (isProviderMode) {
-      router.push('/provider/saved');
+      router.push('/provider/saved-families');
       return;
     }
 

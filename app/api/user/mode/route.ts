@@ -59,7 +59,7 @@ export async function PATCH(req: Request) {
       success: true,
       data: {
         mode: updatedUser.activeMode,
-        landingPage: mode === 'PROVIDER' ? '/provider/requests' : '/',
+        landingPage: mode === 'PROVIDER' ? '/provider/find-families' : '/',
       }
     });
 

@@ -62,7 +62,7 @@ export default function HireStaffPage() {
         const provider = await response.json();
         if (provider.providerType === 'INDEPENDENT_CAREGIVER') {
           // Redirect if user is an independent caregiver, not an organization
-          router.push('/provider/requests');
+          router.push('/provider/find-families');
           return;
         }
         // User has organization profile, fetch caregivers

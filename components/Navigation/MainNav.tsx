@@ -309,7 +309,7 @@ function MainNavContent() {
             {session ? (
               isProviderMode ? (
                 <Link
-                  href="/provider/requests"
+                  href="/provider/find-families"
                   className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
                 >
                   Provider Mode
@@ -368,10 +368,10 @@ function MainNavContent() {
                       {providerType ? (
                         <>
                           {/* Has provider profile */}
-                          <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/find-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
-                          <Link href="/provider/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/saved-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Saved Families
                           </Link>
                           <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -413,7 +413,7 @@ function MainNavContent() {
                       ) : (
                         <>
                           {/* No provider profile */}
-                          <Link href="/provider/requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/find-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
                           <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -613,7 +613,7 @@ function MainNavContent() {
             {session ? (
               isProviderMode ? (
                 <Link
-                  href="/provider/requests"
+                  href="/provider/find-families"
                   className="block px-3 py-2 text-gray-700 font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -659,10 +659,10 @@ function MainNavContent() {
                       {providerType ? (
                         <>
                           {/* Has provider profile */}
-                          <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/find-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
-                          <Link href="/provider/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/saved-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Saved Families
                           </Link>
                           <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
@@ -704,7 +704,7 @@ function MainNavContent() {
                       ) : (
                         <>
                           {/* No provider profile */}
-                          <Link href="/provider/requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/find-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
                           <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>

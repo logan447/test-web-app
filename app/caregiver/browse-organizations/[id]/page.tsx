@@ -44,7 +44,7 @@ export default function OrganizationDetailPage() {
 
   // Determine back link
   const fromSaved = searchParams.get('from') === 'saved';
-  const backHref = fromSaved ? '/provider/saved' : '/caregiver/browse-organizations';
+  const backHref = fromSaved ? '/provider/saved-families' : '/caregiver/browse-organizations';
   const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {

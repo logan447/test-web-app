@@ -52,7 +52,7 @@ export default function ProviderOnboarding() {
       await update({ activeMode: 'PROVIDER' });
 
       // Redirect to provider requests page
-      router.push('/provider/requests');
+      router.push('/provider/find-families');
       router.refresh();
 
     } catch (error) {

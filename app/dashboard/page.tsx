@@ -453,7 +453,7 @@ export default function DashboardPage() {
                   </div>
                 </Link>
                 <Link
-                  href="/provider/requests"
+                  href="/provider/find-families"
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-green-100 p-3 rounded-lg mr-4">
