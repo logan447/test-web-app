@@ -10,6 +10,16 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Bootstrap routes are PUBLIC - they handle their own security
+  // by checking if any admin exists in the database
+  const isBootstrapRoute =
+    pathname === '/admin/bootstrap' ||
+    pathname === '/api/admin/bootstrap';
+
+  if (isBootstrapRoute) {
+    return NextResponse.next();
+  }
+
   // Protected routes that require authentication
   const isProtectedRoute =
     pathname.startsWith('/provider') ||
@@ -25,7 +35,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Admin routes require ADMIN role
+  // Admin routes require ADMIN role (except bootstrap which is handled above)
   if (pathname.startsWith('/admin') && token?.role !== 'ADMIN') {
     return NextResponse.redirect(new URL('/', request.url));
   }
