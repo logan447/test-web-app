@@ -147,6 +147,7 @@
 Ensure core platform architecture is solid before building features. Fix 🟡 Partial systems that would cause cascading issues. Establish testing and validation patterns for all subsequent sprints.
 
 ### Chapters Covered
+- Ch 1: Authentication (mode initialization at signup/login)
 - Ch 2: Mode System
 - Ch 5: Navigation & Routing
 - Ch 8: Provider Identity & Gating
@@ -156,12 +157,23 @@ Ensure core platform architecture is solid before building features. Fix 🟡 Pa
 ### Tasks
 
 #### 0.1 Mode System Refactor (Ch 2)
+
+**Mode Persistence (Remove URL param)**:
 - [ ] Remove URL-based `?mode=` parameter from all routes
 - [ ] Read `activeMode` from database via API/session
 - [ ] Update `MainNav.tsx` to use DB mode instead of URL param
 - [ ] Update account dropdown to reflect current mode from DB
 - [ ] Add mode switch API endpoint (`PATCH /api/user/mode`)
 - [ ] Test mode persistence across page navigation
+
+**Mode Initialization (Signup & Login)**:
+- [ ] Add `intent` query param support to signup flow
+  - Accept `?intent=provider` on `/signup` and `/api/auth/signup`
+  - Set `User.activeMode` based on intent param (default: FAMILY)
+- [ ] Remove profile-completion-based mode calculation from login flow
+- [ ] Ensure login restores `User.activeMode` directly from DB
+- [ ] Test: signup with `?intent=provider` → user starts in PROVIDER mode
+- [ ] Test: returning user login → restores last active mode from DB
 
 #### 0.2 Navigation Foundation (Ch 5)
 - [ ] Audit `MainNav.tsx` for mode parameter removal
@@ -234,6 +246,9 @@ None (this is Sprint 0)
 | Test | How to Verify | Expected Result |
 |------|---------------|-----------------|
 | Mode persistence | Log in → switch mode → navigate 3 pages → refresh | Mode remains consistent; no URL param |
+| Mode init (provider intent) | Sign up via `/signup?intent=provider` | User starts in PROVIDER mode |
+| Mode init (default) | Sign up via `/signup` (no intent) | User starts in FAMILY mode |
+| Mode restore on login | Log out → log back in | Mode matches what user had before logout |
 | Breadcrumb display | Visit `/dashboard`, `/dashboard/care-profile`, `/providers/[id]` | Breadcrumbs show correct hierarchy |
 | Footer render | Visit any 5 pages | Footer appears on all pages |
 | Provider onboarding | Create new account → select Provider mode → complete onboarding | Provider dashboard accessible |
@@ -253,7 +268,10 @@ None (this is Sprint 0)
 ### Tech Debt Notes
 - **Demo acceptable**: Footer links can be placeholder (`#`)
 - **Demo acceptable**: Breadcrumbs minimal (no dropdown menus)
+- **Deferred**: Full CTA intent propagation (adding `?intent=provider` to all provider-targeted CTAs) → Sprint 1/2
+- **Deferred**: "Get Started" wizard with explicit mode question → Sprint 1+
 - **Must be solid**: Mode system must work correctly — this affects all features
+- **Must be solid**: Mode initialization and persistence — foundational for all user flows
 - **Must be solid**: Provider gating — security-critical
 - **Must be solid**: Error response format — affects all API consumers
 
@@ -831,7 +849,7 @@ Prepare platform for production deployment with monitoring, error handling, and 
 
 | Sprint | Focus | Key Deliverable |
 |--------|-------|-----------------|
-| **0** | Foundation | Mode system, navigation, provider gating, test framework, validation |
+| **0** | Foundation | Mode system (persistence + initialization), navigation, provider gating, test framework, validation |
 | **1** | Family Discovery | Family can browse, save, and contact providers |
 | **2** | Provider Response | Provider can view and respond to requests |
 | **3** | Engagement | Full messaging and tour scheduling |
@@ -872,7 +890,7 @@ These items should be addressed throughout all sprints:
 
 | Chapter | Primary Sprint | Also Touched In |
 |---------|---------------|-----------------|
-| Ch 1: Auth | ✅ Built | — |
+| Ch 1: Auth | ✅ Built | Sprint 0 (mode initialization) |
 | Ch 2: Mode System | Sprint 0 | — |
 | Ch 3: Onboarding | Sprint 0 | Sprint 2 |
 | Ch 4: UI/Design | Sprint 9 | All sprints |
