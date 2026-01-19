@@ -447,7 +447,76 @@ Based on Sprint 0 findings, Sprint 1 should prioritize:
 | Route renaming per Manual Ch 13 | ✅ Complete | `03b02bd` |
 | Footer implementation | ✅ Complete | `808b2ea` |
 | Directory pagination (1.2 gap) | ✅ Complete | `89f034b` |
-| Family Discovery features (1.1-1.5) | 🔍 Under Audit | — |
+| Family Discovery features (1.1-1.5) | ✅ Complete | `75be01a` |
+| Visibility rules (identity/contact gating) | ✅ Complete | `7279359` |
+| Unclaimed badge on provider cards | ✅ Complete | `7279359` |
+| Photo visibility toggle (opt-in) | ✅ Complete | `75be01a` |
+
+---
+
+## Sprint 1 Completion Record
+
+> **Completion Date**: January 19, 2026
+> **Status**: ✅ Complete (with documented deferrals to Sprint 2)
+
+### What Was Built
+
+| Feature | Implementation | Notes |
+|---------|----------------|-------|
+| Provider directory with filters | `app/page.tsx` | Type, care type, location filters + pagination |
+| Provider detail page | `app/providers/[id]/page.tsx` | All sections, save button, contact CTA |
+| Saved providers | `app/dashboard/saved/page.tsx` | List, remove, empty state |
+| Contact initiation | `EnhancedContactModal` | Creates ConsultRequest |
+| Family profile form | `app/dashboard/care-profile/page.tsx` | Multi-section form |
+| Family identity gating | `app/api/family-profiles/[id]/route.ts` | Hidden until ACCEPTED engagement |
+| Individual caregiver contact gating | `app/api/providers/[id]/route.ts` | Hidden until ACCEPTED engagement |
+| Unclaimed badge | `EnhancedProviderCard`, `SavedProviderCard`, detail page | Shows when `claimed === false` |
+| Photo visibility toggle | `AboutLovedOneSection.tsx` | Opt-in with nudge message |
+
+### Explicit Deferrals to Sprint 2
+
+| Item | Reason | Sprint 2 Task |
+|------|--------|---------------|
+| Persistent `completionPercentage` field | Schema change; UI approximates this | Add to 2.2 Profile Editing |
+| Visibility threshold enforcement (40%) | Logic gap; manual `isPublic` toggle works for demo | New task: 2.2.1 |
+| Redirect after contact submission | UX polish; user can navigate manually | Add to Sprint 3 (Engagement) |
+
+### Planning Notes (Captured for Sprint 2)
+
+**Task 1.1 — Care Profile Scope & Visibility**
+- Current form has ~80 fields; consider reducing to immediately meaningful fields
+- Avoid "lagging" or low-value fields at this stage
+- Sprint 2 must implement:
+  - Profile completion tracking (persistent `completionPercentage`)
+  - Completion threshold below which profiles are NOT visible to providers
+  - Clear strategy: threshold met → can toggle `isPublic`; threshold not met → `isPublic` stays false
+
+**Task 1.5 — Engagement Detail Redirect**
+- Redirect after contact submission is important for coherent user journey
+- Deferred to Sprint 2 or Sprint 3 (Engagement & Scheduling)
+- Implementation: After successful `ConsultRequest` creation, `router.push(/dashboard/requests/[id])`
+
+**Evidence-Based Gaps Accepted**
+- Profile completion logic → Sprint 2
+- Visibility thresholds → Sprint 2
+- Contact initiation redirect → Sprint 2/3
+
+### Sprint 2 Scope Additions (from Sprint 1 deferrals)
+
+Add these to Sprint 2 tasks:
+
+```markdown
+#### 2.2.1 Profile Completion Enforcement (from Sprint 1)
+- [ ] Add `completionPercentage Int @default(0)` to FamilyProfile schema
+- [ ] Calculate and persist percentage on profile save
+- [ ] Enforce: `isPublic` cannot be true if completionPercentage < 40
+- [ ] UI: Show "Complete X more fields to make your profile visible" prompt
+- [ ] Test: Family cannot toggle visibility until threshold met
+
+#### 2.2.2 Contact Submission Redirect (from Sprint 1)
+- [ ] After successful ConsultRequest creation, redirect to `/dashboard/requests/[id]`
+- [ ] Show success message on the engagement detail page
+```
 
 ---
 
