@@ -365,11 +365,12 @@ export default function ForProvidersPage() {
         </div>
       </section>
 
-      {/* Auth Modal */}
+      {/* Auth Modal - with provider intent for signup */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         defaultView={authModalView}
+        intent="provider"
       />
     </div>
   );

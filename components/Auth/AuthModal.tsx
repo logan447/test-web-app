@@ -9,9 +9,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultView?: "login" | "signup";
+  intent?: "provider" | "family"; // For provider-targeted signup flows
 }
 
-export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent }: AuthModalProps) {
   const router = useRouter();
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
@@ -71,6 +72,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
       name: formData.get("name") as string,
       phone: formData.get("phone") as string,
       role,
+      intent: intent || undefined, // Pass intent for mode initialization
     };
 
     try {
@@ -102,12 +104,14 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
         return;
       }
 
-      // Close modal and redirect based on user role
+      // Close modal and redirect based on activeMode from signup response
       onClose();
-      if (role === "FAMILY") {
-        router.push("/");
+      if (result.activeMode === "PROVIDER") {
+        // Provider mode → provider dashboard (will redirect to onboarding if needed)
+        router.push("/provider/dashboard");
       } else {
-        router.push("/dashboard");
+        // Family mode → browse providers
+        router.push("/providers");
       }
       router.refresh();
     } catch (error) {
