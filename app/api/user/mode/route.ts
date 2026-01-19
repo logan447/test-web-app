@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { UserMode } from "@prisma/client";
+import { validateModeSwitch } from "@/lib/validations";
 
 /**
  * PATCH /api/user/mode - Update user's active mode
@@ -26,22 +27,24 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { mode } = body;
 
-    // Validate mode
-    if (!mode || !['FAMILY', 'PROVIDER'].includes(mode)) {
+    // Validate mode using Zod schema
+    const validation = validateModeSwitch(body);
+    if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: "INVALID_MODE",
-            message: "Invalid mode. Must be FAMILY or PROVIDER",
-            details: { received: mode, valid: ['FAMILY', 'PROVIDER'] }
+            message: validation.error.errors[0]?.message || "Invalid mode",
+            details: validation.error.flatten(),
           }
         },
         { status: 400 }
       );
     }
+
+    const { mode } = validation.data;
 
     // Update user's active mode in database
     const updatedUser = await prisma.user.update({
