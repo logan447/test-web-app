@@ -32,91 +32,23 @@ export default function LoginPage() {
         return;
       }
 
-      // Fetch session
+      // Fetch session to get activeMode from database (Manual Ch 1.2)
+      // Mode was restored from DB during authorize callback
       const session = await getSession();
 
-      // Check for returnUrl parameter
-      const urlParams = new URLSearchParams(window.location.search);
-      const returnUrl = urlParams.get('returnUrl');
+      console.log('LOGIN DEBUG: User logged in, activeMode from session:', session?.user?.activeMode);
 
-      // Calculate provider profile completion to determine default mode
-      let shouldDefaultToProvider = false;
+      // Redirect based on activeMode from session (database is source of truth)
+      const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
-      if (session?.user?.role === 'PROVIDER') {
-        try {
-          const providerResponse = await fetch('/api/providers/me');
-          console.log('[LOGIN DEBUG] Provider profile response status:', providerResponse.status);
-
-          if (providerResponse.ok) {
-            const provider = await providerResponse.json();
-            console.log('[LOGIN DEBUG] Provider profile data:', provider);
-
-            // Calculate provider profile completion based on actual schema fields
-            let completedSections = 0;
-            const totalSections = 6;
-
-            // 1. Basic Info (name, description, address all required for creation, so this should always be 1)
-            if (provider.name && provider.description && provider.address) completedSections++;
-            // 2. Services (careTypesOffered is the actual field name)
-            if (provider.careTypesOffered && provider.careTypesOffered.length > 0) completedSections++;
-            // 3. Photos
-            if (provider.photos && provider.photos.length > 0) completedSections++;
-            // 4. Licensing
-            if (provider.licenseNumber) completedSections++;
-            // 5. Pricing (check if any pricing fields are set)
-            if (provider.priceMin || provider.priceMax || provider.privateRoomMin || provider.semiPrivateRoomMin) completedSections++;
-            // 6. Staff (check if any staff information is provided)
-            if ((provider.staffCredentials && provider.staffCredentials.length > 0) ||
-                provider.staffToResidentRatio ||
-                provider.daytimeStaffRatio) completedSections++;
-
-            const completionPercentage = Math.round((completedSections / totalSections) * 100);
-            console.log('Provider profile completion calculation:', {
-              completedSections,
-              totalSections,
-              completionPercentage,
-              sections: {
-                basicInfo: !!(provider.name && provider.description && provider.address),
-                services: !!(provider.careTypesOffered && provider.careTypesOffered.length > 0),
-                photos: !!(provider.photos && provider.photos.length > 0),
-                licensing: !!provider.licenseNumber,
-                pricing: !!(provider.priceMin || provider.priceMax || provider.privateRoomMin || provider.semiPrivateRoomMin),
-                staff: !!((provider.staffCredentials && provider.staffCredentials.length > 0) || provider.staffToResidentRatio || provider.daytimeStaffRatio)
-              }
-            });
-
-            // Default to provider mode if 15%+ complete
-            if (completionPercentage >= 15) {
-              shouldDefaultToProvider = true;
-            }
-          } else {
-            console.error('Provider profile fetch failed:', await providerResponse.text());
-          }
-        } catch (error) {
-          console.error('Error fetching provider profile:', error);
-        }
-      }
-
-      // Determine default mode
-      const defaultMode = shouldDefaultToProvider ? 'provider' : 'family';
-
-      console.log('Login redirect:', {
-        role: session?.user?.role,
-        shouldDefaultToProvider,
-        defaultMode,
-        returnUrl
-      });
-
-      // Always use smart redirect based on profile completion
-      // Ignore returnUrl to ensure users land on the correct page for their mode
-      if (shouldDefaultToProvider) {
+      if (isProviderMode) {
         // Provider mode users go to Find Families page
-        console.log('Redirecting to provider mode (Find Families page)');
-        window.location.href = "/provider/requests?mode=provider";
+        console.log('LOGIN DEBUG: Redirecting to provider mode (Find Families page)');
+        window.location.href = "/provider/requests";
       } else {
         // Family mode users go to Find Providers homepage
-        console.log('Redirecting to family mode (Find Providers page)');
-        window.location.href = "/?mode=family";
+        console.log('LOGIN DEBUG: Redirecting to family mode (Find Providers page)');
+        window.location.href = "/";
       }
     } catch (error) {
       setError("Something went wrong");

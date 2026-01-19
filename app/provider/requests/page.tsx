@@ -1,8 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import { showToast } from '@/lib/toast';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
@@ -30,10 +30,9 @@ type FamilyProfile = {
   isSaved?: boolean;
 };
 
-function ProviderRequestsContent() {
-  const { data: session } = useSession();
+export default function ProviderRequestsPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
@@ -42,8 +41,8 @@ function ProviderRequestsContent() {
   const [selectedProfileForUnlock, setSelectedProfileForUnlock] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('newest');
 
-  // Read mode from URL parameter
-  const mode = searchParams.get('mode');
+  // Read mode from session (database is source of truth per Manual Ch 2)
+  const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
   // Filters
   const [filters, setFilters] = useState<FamilyFilters>({
@@ -56,21 +55,23 @@ function ProviderRequestsContent() {
   });
 
   useEffect(() => {
+    if (status === 'loading') return;
+
     if (!session) {
       router.push('/login');
       return;
     }
 
-    // If mode is family or missing, redirect to family homepage
-    if (mode !== 'provider') {
-      router.push('/?mode=family');
+    // If mode is family, redirect to family homepage
+    if (!isProviderMode) {
+      router.push('/');
       return;
     }
 
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, router, mode]);
+  }, [session, status, router, isProviderMode]);
 
   const fetchProfiles = async () => {
     try {
@@ -413,17 +414,3 @@ function ProviderRequestsContent() {
   );
 }
 
-export default function ProviderRequests() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ProfileCardsSkeleton />
-        </div>
-      </div>
-    }>
-      <ProviderRequestsContent />
-    </Suspense>
-  );
-}

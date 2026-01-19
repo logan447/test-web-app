@@ -1,8 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
@@ -30,32 +30,33 @@ type SavedFamilyProfile = {
   notes: string | null;
 };
 
-function SavedFamilyProfilesContent() {
-  const { data: session } = useSession();
+export default function SavedFamilyProfilesPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<SavedFamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
 
-  // Read mode from URL parameter (source of truth)
-  const mode = searchParams.get('mode');
+  // Read mode from session (database is source of truth per Manual Ch 2)
+  const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
   useEffect(() => {
+    if (status === 'loading') return;
+
     if (!session) {
       router.push('/login');
       return;
     }
 
-    // If mode is family or missing, redirect to family saved page
-    if (mode !== 'provider') {
-      router.push('/dashboard/saved?mode=family');
+    // If mode is family, redirect to family saved page
+    if (!isProviderMode) {
+      router.push('/dashboard/saved');
       return;
     }
 
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, router, mode]);
+  }, [session, status, router, isProviderMode]);
 
   const fetchSavedProfiles = async () => {
     try {
@@ -230,17 +231,3 @@ function SavedFamilyProfilesContent() {
   );
 }
 
-export default function SavedFamilyProfiles() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ProfileCardsSkeleton />
-        </div>
-      </div>
-    }>
-      <SavedFamilyProfilesContent />
-    </Suspense>
-  );
-}

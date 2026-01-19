@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
@@ -33,16 +33,14 @@ type ConsultRequest = {
   };
 };
 
-function RequestsPageContent() {
+export default function RequestsPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Read mode from URL parameter (source of truth)
-  const mode = searchParams.get('mode');
-  const isProviderMode = mode === 'provider';
+  // Read mode from session (database is source of truth per Manual Ch 2)
+  const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
   // Default to "sent" for families (they send to providers), "received" for providers (they receive from families)
   const [activeTab, setActiveTab] = useState<"sent" | "received">(
@@ -56,16 +54,10 @@ function RequestsPageContent() {
     }
 
     if (status === "authenticated") {
-      // Add default mode if missing
-      if (!mode) {
-        router.push('/dashboard/requests?mode=family');
-        return;
-      }
-
       fetchRequests();
       markAsViewed();
     }
-  }, [status, activeTab, mode]);
+  }, [status, activeTab, isProviderMode]);
 
   const markAsViewed = async () => {
     try {
@@ -329,19 +321,3 @@ function RequestsPageContent() {
   );
 }
 
-export default function RequestsPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
-            <div className="h-10 bg-gray-200 rounded w-1/3 mb-8"></div>
-          </div>
-        </main>
-      </div>
-    }>
-      <RequestsPageContent />
-    </Suspense>
-  );
-}

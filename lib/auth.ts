@@ -26,9 +26,6 @@ export const authOptions: NextAuthOptions = {
           where: {
             email: credentials.email,
           },
-          include: {
-            provider: true,
-          },
         });
 
         if (!user || !user.passwordHash) {
@@ -44,77 +41,18 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        // On login: default to FAMILY mode, but switch to PROVIDER if 15%+ profile completion
-        // This ensures users always start in FAMILY mode unless they qualify for PROVIDER mode
-        let activeMode: 'FAMILY' | 'PROVIDER' = 'FAMILY';
-
-        if (user.provider && user.role === 'PROVIDER') {
-          const provider = user.provider;
-
-          // Calculate provider profile completion
-          let completedSections = 0;
-          const totalSections = 6;
-
-          // 1. Basic Info
-          if (provider.name && provider.description && provider.email && provider.phone) {
-            completedSections++;
-          }
-
-          // 2. Services & Amenities
-          if (provider.roomFeatures && Array.isArray(provider.roomFeatures) && provider.roomFeatures.length > 0) {
-            completedSections++;
-          }
-
-          // 3. Photos
-          if (provider.photos && Array.isArray(provider.photos) && provider.photos.length >= 5) {
-            completedSections++;
-          }
-
-          // 4. Licensing
-          if (provider.licensed && provider.licenseNumber) {
-            completedSections++;
-          }
-
-          // 5. Pricing
-          if (provider.priceMin && provider.priceMax) {
-            completedSections++;
-          }
-
-          // 6. Staff Info
-          if (provider.staffToResidentRatio) {
-            completedSections++;
-          }
-
-          const completionPercentage = Math.round((completedSections / totalSections) * 100);
-
-          // If profile is 15%+ complete, use PROVIDER mode
-          if (completionPercentage >= 15) {
-            activeMode = 'PROVIDER';
-          }
-
-          // Update database to match the calculated default mode
-          if (user.activeMode !== activeMode) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: { activeMode: activeMode },
-            });
-          }
-        } else {
-          // Non-provider users: ensure they're set to FAMILY mode in database
-          if (user.activeMode !== 'FAMILY') {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: { activeMode: 'FAMILY' },
-            });
-          }
-        }
+        // Login: Restore activeMode directly from database (Manual Ch 1.2)
+        // The database is the single source of truth for mode.
+        // Mode was set during signup based on intent, or by user switching modes.
+        // We do NOT recalculate mode on login - we simply restore what's stored.
+        console.log('LOGIN DEBUG: User logged in:', user.email, 'activeMode from DB:', user.activeMode);
 
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role,
-          activeMode: activeMode,
+          activeMode: user.activeMode, // Restore from DB, don't calculate
         };
       },
     }),
