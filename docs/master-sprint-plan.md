@@ -374,8 +374,8 @@ None (this is Sprint 0)
 | Input validation layer (Zod) | Existing validation working; enhancement deferred | Sprint 1 |
 | Error response standardization | Existing patterns working; formalization deferred | Sprint 1 |
 | Remove ProviderIdentity model | Per Manual Ch 8; requires schema migration | Sprint 1 |
-| Route renaming `/provider/requests` → `/provider/find-families` | Per Manual Ch 13; cosmetic change | Sprint 1 |
-| Provider login default landing page | Currently goes to `/provider/dashboard`; Manual specifies `/provider/find-families` | Sprint 1 |
+| ~~Route renaming `/provider/requests` → `/provider/find-families`~~ | **Done** — Routes renamed with redirects for backwards compatibility | ✅ Complete |
+| ~~Provider login default landing page~~ | **Done** — Now redirects to `/provider/find-families` | ✅ Complete |
 | ~~Remove forced onboarding redirect~~ | **Done** — Implemented gentle nudges per Manual Ch 8 | ✅ Complete |
 
 ### Gap Verification (Post-Audit)
@@ -434,10 +434,19 @@ None (this is Sprint 0)
 
 Based on Sprint 0 findings, Sprint 1 should prioritize:
 
-1. **Remove URL `?mode=` parameter** — DB is the sole source of truth; URL param causes sync bugs
-2. **Remove forced onboarding redirect** — Per Manual Ch 8, use gentle nudges instead of blocking
-3. **Route renaming** — Align routes with Manual specifications (e.g., `/provider/requests` → `/provider/find-families`)
-4. **Footer implementation** — Complete navigation structure
+1. ~~**Remove URL `?mode=` parameter**~~ — ✅ Already done (URL param was never implemented)
+2. ~~**Remove forced onboarding redirect**~~ — ✅ Complete (gentle nudges implemented)
+3. ~~**Route renaming**~~ — ✅ Complete (`/provider/requests` → `/provider/find-families`, `/provider/saved` → `/provider/saved-families`)
+4. **Footer implementation** — Complete navigation structure (remaining)
+
+### Sprint 1 Progress
+
+| Task | Status | Commit |
+|------|--------|--------|
+| Gentle nudges for provider onboarding | ✅ Complete | `8242688` |
+| Route renaming per Manual Ch 13 | ✅ Complete | `03b02bd` |
+| Footer implementation | ⬜ Pending | — |
+| Family Discovery features (1.1-1.5) | ⬜ Pending | — |
 
 ---
 
