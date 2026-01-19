@@ -558,23 +558,25 @@ Always restore the user's last active mode from `User.activeMode` in the databas
 | FAMILY | `/` ("Find Providers") | Discovery-first, not dashboard |
 | PROVIDER | `/provider/find-families` ("Find Families") | Discovery-first, not dashboard |
 
-### Post-Signup Redirect Destinations (Manual Ch 3.7)
+### Post-Signup Redirect Destinations (UPDATED)
+
+> **Note**: Manual Ch 3.7 originally specified dashboard landing, but human audit determined that discovery-first landing (`/provider/find-families`) provides better UX with gentle profile nudge. This is now the standardized behavior.
 
 | Scenario | Redirect To |
 |----------|-------------|
-| New user signup with FAMILY mode | `/providers` (or `/`) — browse providers |
-| New user signup with PROVIDER mode | `/provider/dashboard` — provider onboarding flow |
+| New user signup with FAMILY mode | `/` — homepage (browse providers) |
+| New user signup with PROVIDER mode | `/provider/find-families` — discovery-first with profile nudge |
 | User dismisses wizard early | Stay on current page |
 
-### Decision Table: Entry Context → Post-Auth Destination
+### Decision Table: Entry Context → Post-Auth Destination (UPDATED)
 
 | Entry Context | Auth Type | Intent | Initial Mode | Post-Auth Redirect |
 |---------------|-----------|--------|--------------|-------------------|
-| `/signup` (direct) | Signup | (none) | FAMILY | `/providers` |
-| `/signup?intent=provider` | Signup | provider | PROVIDER | `/provider/dashboard` |
-| `/for-providers` CTA | Signup | provider | PROVIDER | `/provider/dashboard` |
-| "Become a Provider" footer | Signup | provider | PROVIDER | `/provider/dashboard` |
-| "Get Started" (unknown) | Signup | (default) | FAMILY | `/providers` |
+| `/signup` (direct) | Signup | (none) | FAMILY | `/` |
+| `/signup?intent=provider` | Signup | provider | PROVIDER | `/provider/find-families` |
+| `/for-providers` CTA | Signup | provider | PROVIDER | `/provider/find-families` |
+| "Become a Provider" footer | Signup | provider | PROVIDER | `/provider/find-families` |
+| "Get Started" (unknown) | Signup | (default) | FAMILY | `/` |
 | `/login` (direct) | Login | N/A | Restore from DB | FAMILY → `/`, PROVIDER → `/provider/find-families` |
 | Login modal | Login | N/A | Restore from DB | FAMILY → `/`, PROVIDER → `/provider/find-families` |
 
@@ -584,6 +586,14 @@ Always restore the user's last active mode from `User.activeMode` in the databas
 |-------|------|-----|
 | AuthModal login redirect used role instead of activeMode | `components/Auth/AuthModal.tsx` | Changed to use `getSession()` and redirect based on `activeMode` |
 | "Become a Provider" link pointed to non-existent `/providers/signup` | `components/Directory/TrustFooter.tsx` | Changed to `/for-providers` |
+| White-screen-until-refresh bug on login | `components/Auth/AuthModal.tsx` | Changed `router.push()` to `window.location.href` for full page reload |
+| Inconsistent provider post-signup landing | `components/Auth/AuthModal.tsx`, `app/signup/page.tsx` | Standardized all provider signup flows to land on `/provider/find-families` |
+
+### Deferred Items (from Walkthrough 0.5)
+
+| Issue | Severity | Description | Deferred To |
+|-------|----------|-------------|-------------|
+| Save icon not visible on provider cards for logged-out users | Low | Test 0.5.6 blocked — no heart icon to trigger auth modal from homepage | Sprint 2+ (UI affordance) |
 
 ---
 

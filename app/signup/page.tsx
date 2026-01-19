@@ -59,14 +59,14 @@ function SignupForm() {
       }
 
       // Redirect based on activeMode from signup response
-      // PROVIDER mode → provider dashboard (will redirect to onboarding if needed)
-      // FAMILY mode → browse providers
+      // Use window.location.href for full page reload to ensure clean state
+      // PROVIDER mode → Find Families (discovery-first, with gentle profile nudge)
+      // FAMILY mode → homepage (browse providers)
       if (result.activeMode === "PROVIDER") {
-        router.push("/provider/dashboard");
+        window.location.href = "/provider/find-families";
       } else {
-        router.push("/providers");
+        window.location.href = "/";
       }
-      router.refresh();
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);

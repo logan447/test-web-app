@@ -57,13 +57,13 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
 
       // Close modal and redirect based on activeMode (database is source of truth)
       // Manual Ch 2.2: FAMILY mode → "/" (Find Providers), PROVIDER mode → "/provider/find-families"
+      // Use window.location.href for full page reload to avoid white-screen rendering bug
       onClose();
       if (isProviderMode) {
-        router.push("/provider/find-families");
+        window.location.href = "/provider/find-families";
       } else {
-        router.push("/");
+        window.location.href = "/";
       }
-      router.refresh();
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
@@ -115,15 +115,15 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       }
 
       // Close modal and redirect based on activeMode from signup response
+      // Use window.location.href for full page reload to ensure clean state
       onClose();
       if (result.activeMode === "PROVIDER") {
-        // Provider mode → provider dashboard (will redirect to onboarding if needed)
-        router.push("/provider/dashboard");
+        // Provider mode → Find Families (discovery-first, with gentle profile nudge)
+        window.location.href = "/provider/find-families";
       } else {
         // Family mode → browse providers
-        router.push("/providers");
+        window.location.href = "/";
       }
-      router.refresh();
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
