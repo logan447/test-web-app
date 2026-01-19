@@ -149,6 +149,7 @@ Ensure core platform architecture is solid before building features. Fix 🟡 Pa
 ### Chapters Covered
 - Ch 1: Authentication (mode initialization at signup/login)
 - Ch 2: Mode System
+- Ch 4: UI/Design (visual foundation)
 - Ch 5: Navigation & Routing
 - Ch 8: Provider Identity & Gating
 - Ch 31: Architecture (verification)
@@ -228,6 +229,42 @@ Ensure core platform architecture is solid before building features. Fix 🟡 Pa
 - [ ] Create client-side error handling utility
 - [ ] Test: API errors display user-friendly messages in UI
 
+#### 0.8 Design System Foundation (Ch 4)
+
+**Purpose**: Establish the visual foundation so the site "feels right" from Sprint 0. This is about alignment, not polish—later sprints refine without revisiting core aesthetic decisions.
+
+**Color Palette & Tokens**:
+- [ ] Update Tailwind config with authoritative color palette (from provided references)
+- [ ] Define semantic color tokens (primary, secondary, accent, success, warning, error)
+- [ ] Ensure consistent color usage across existing components
+
+**Typography**:
+- [ ] Establish type scale (headings, body, captions, labels)
+- [ ] Configure font family in Tailwind (match provided references)
+- [ ] Apply consistent typography to existing pages
+
+**Spacing & Layout**:
+- [ ] Define spacing scale (use existing Tailwind or extend as needed)
+- [ ] Establish consistent padding/margin patterns for cards, sections, containers
+
+**Logo & Branding**:
+- [ ] Integrate correct logo assets (small bird mark per provided reference)
+- [ ] Ensure logo is correctly sized and positioned in header
+- [ ] Verify favicon is updated
+
+**Component Patterns**:
+- [ ] Align button styles with design references (primary, secondary, ghost)
+- [ ] Align card styles (border radius, shadows, padding)
+- [ ] Align form input styles (borders, focus states, validation states)
+
+**Documentation**:
+- [ ] Create `docs/ui-style-guide.md` documenting:
+  - Color palette with hex values
+  - Typography scale
+  - Spacing conventions
+  - Component patterns with examples
+- [ ] Reference provided screenshots as authoritative source
+
 ### Dependencies
 None (this is Sprint 0)
 
@@ -240,6 +277,8 @@ None (this is Sprint 0)
 - [ ] `npm run build` completes without errors
 - [ ] `npm test` passes all tests
 - [ ] API endpoints return standardized error responses
+- [ ] Visual foundation established: colors, typography, logo match design references
+- [ ] UI style guide documented in `docs/ui-style-guide.md`
 
 ### Definition of Done — Testable Outcomes
 
@@ -257,23 +296,31 @@ None (this is Sprint 0)
 | Test suite | Run `npm test` | All tests pass |
 | Validation | Submit invalid data to `/api/user/mode` | Structured error response returned |
 | Error format | Trigger API error | Response matches standard format |
+| Visual consistency | Compare homepage, dashboard, provider detail against reference screenshots | Colors, typography, spacing match design references |
+| Logo display | Check header on 3+ pages | Logo (bird mark) renders correctly, consistent size/position |
+| Button styles | Inspect primary/secondary buttons across site | Styles match design references |
+| Style guide | Check `docs/ui-style-guide.md` exists | Documents color palette, typography, spacing, components |
 
 ### Documentation Deliverables
 - [ ] Update Master Platform Manual Ch 2 implementation status
+- [ ] Update Master Platform Manual Ch 4 implementation status
 - [ ] Update Master Platform Manual Ch 5 implementation status
 - [ ] Update Master Platform Manual Ch 8 implementation status
 - [ ] Document error response format in `docs/api-conventions.md`
 - [ ] Document test setup in `docs/testing.md`
+- [ ] Create UI style guide in `docs/ui-style-guide.md`
 
 ### Tech Debt Notes
 - **Demo acceptable**: Footer links can be placeholder (`#`)
 - **Demo acceptable**: Breadcrumbs minimal (no dropdown menus)
 - **Deferred**: Full CTA intent propagation (adding `?intent=provider` to all provider-targeted CTAs) → Sprint 1/2
 - **Deferred**: "Get Started" wizard with explicit mode question → Sprint 1+
+- **Deferred**: UI micro-interactions, animations, advanced responsive polish → Sprint 9
 - **Must be solid**: Mode system must work correctly — this affects all features
 - **Must be solid**: Mode initialization and persistence — foundational for all user flows
 - **Must be solid**: Provider gating — security-critical
 - **Must be solid**: Error response format — affects all API consumers
+- **Must be solid**: Visual foundation (colors, typography, logo, core components) — site should "feel right" from Sprint 0
 
 ---
 
@@ -849,7 +896,7 @@ Prepare platform for production deployment with monitoring, error handling, and 
 
 | Sprint | Focus | Key Deliverable |
 |--------|-------|-----------------|
-| **0** | Foundation | Mode system (persistence + initialization), navigation, provider gating, test framework, validation |
+| **0** | Foundation | Mode system (persistence + initialization), navigation, provider gating, test framework, validation, visual foundation |
 | **1** | Family Discovery | Family can browse, save, and contact providers |
 | **2** | Provider Response | Provider can view and respond to requests |
 | **3** | Engagement | Full messaging and tour scheduling |
@@ -893,7 +940,7 @@ These items should be addressed throughout all sprints:
 | Ch 1: Auth | ✅ Built | Sprint 0 (mode initialization) |
 | Ch 2: Mode System | Sprint 0 | — |
 | Ch 3: Onboarding | Sprint 0 | Sprint 2 |
-| Ch 4: UI/Design | Sprint 9 | All sprints |
+| Ch 4: UI/Design | Sprint 0 (foundation) | Sprint 9 (polish) |
 | Ch 5: Navigation | Sprint 0 | Sprint 9 |
 | Ch 6: Family Profiles | Sprint 1 | — |
 | Ch 7: Provider Profiles | Sprint 2 | Sprint 1 |
