@@ -520,6 +520,73 @@ Add these to Sprint 2 tasks:
 
 ---
 
+## Authoritative Routing Rules (from Manual)
+
+> **Reference**: Manual Ch 1.1, 1.2, 2.2, 3.7
+> **Added**: January 19, 2026 (Sprint 1 Audit)
+> **Reason**: Clarify and document deterministic routing behavior for signup/login flows
+
+### Signup Entry Points & Mode Defaulting (Manual Ch 1.1)
+
+Signup entry point determines the user's initial `activeMode`:
+
+| Entry Point | Default Mode | Rationale |
+|-------------|--------------|-----------|
+| `/signup` (direct) | FAMILY | Most users seeking care |
+| `/signup?intent=provider` | PROVIDER | Explicit provider intent |
+| `/for-providers` CTA | PROVIDER | Explicitly targeting providers |
+| `/providers/[id]` — "Claim this page" CTA | PROVIDER | Provider claiming action |
+| `/providers/[id]` — save/contact action | FAMILY | User was browsing as family |
+| Inline modal (anywhere) | Inherit from context | Preserve user intent via `intent` prop |
+| "Become a Provider" footer link | PROVIDER | Links to `/for-providers` |
+
+### Login Mode Defaulting (Manual Ch 1.2)
+
+Always restore the user's last active mode from `User.activeMode` in the database.
+
+| Scenario | Behavior |
+|----------|----------|
+| Returning user logs in | Restore `User.activeMode` from DB (whatever they last used) |
+| New user logs in for first time | Use mode set during signup (per 1.1 decision) |
+
+**Implementation**: Login handlers (both `/login` page and `AuthModal`) must use `getSession()` to retrieve `activeMode` and redirect based on that, NOT based on `role`.
+
+### Mode Switch Landing Pages (Manual Ch 2.2)
+
+| Mode Switched To | Landing Page | Notes |
+|------------------|--------------|-------|
+| FAMILY | `/` ("Find Providers") | Discovery-first, not dashboard |
+| PROVIDER | `/provider/find-families` ("Find Families") | Discovery-first, not dashboard |
+
+### Post-Signup Redirect Destinations (Manual Ch 3.7)
+
+| Scenario | Redirect To |
+|----------|-------------|
+| New user signup with FAMILY mode | `/providers` (or `/`) — browse providers |
+| New user signup with PROVIDER mode | `/provider/dashboard` — provider onboarding flow |
+| User dismisses wizard early | Stay on current page |
+
+### Decision Table: Entry Context → Post-Auth Destination
+
+| Entry Context | Auth Type | Intent | Initial Mode | Post-Auth Redirect |
+|---------------|-----------|--------|--------------|-------------------|
+| `/signup` (direct) | Signup | (none) | FAMILY | `/providers` |
+| `/signup?intent=provider` | Signup | provider | PROVIDER | `/provider/dashboard` |
+| `/for-providers` CTA | Signup | provider | PROVIDER | `/provider/dashboard` |
+| "Become a Provider" footer | Signup | provider | PROVIDER | `/provider/dashboard` |
+| "Get Started" (unknown) | Signup | (default) | FAMILY | `/providers` |
+| `/login` (direct) | Login | N/A | Restore from DB | FAMILY → `/`, PROVIDER → `/provider/find-families` |
+| Login modal | Login | N/A | Restore from DB | FAMILY → `/`, PROVIDER → `/provider/find-families` |
+
+### Fixes Applied (January 19, 2026)
+
+| Issue | File | Fix |
+|-------|------|-----|
+| AuthModal login redirect used role instead of activeMode | `components/Auth/AuthModal.tsx` | Changed to use `getSession()` and redirect based on `activeMode` |
+| "Become a Provider" link pointed to non-existent `/providers/signup` | `components/Directory/TrustFooter.tsx` | Changed to `/for-providers` |
+
+---
+
 ## Sprint 1 Internal Audit
 
 > **Audit Date**: January 19, 2026

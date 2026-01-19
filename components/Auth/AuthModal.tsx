@@ -2,7 +2,7 @@
 
 import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 interface AuthModalProps {
@@ -50,16 +50,18 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Fetch user role from our API
-      const userResponse = await fetch(`/api/user/role?email=${encodeURIComponent(email)}`);
-      const userData = await userResponse.json();
+      // Fetch session to get activeMode from database (Manual Ch 1.2)
+      // Mode was restored from DB during authorize callback
+      const session = await getSession();
+      const isProviderMode = session?.user?.activeMode === "PROVIDER";
 
-      // Close modal and redirect based on user role
+      // Close modal and redirect based on activeMode (database is source of truth)
+      // Manual Ch 2.2: FAMILY mode → "/" (Find Providers), PROVIDER mode → "/provider/find-families"
       onClose();
-      if (userData?.role === "FAMILY") {
-        router.push("/");
+      if (isProviderMode) {
+        router.push("/provider/find-families");
       } else {
-        router.push("/dashboard");
+        router.push("/");
       }
       router.refresh();
     } catch (error) {
