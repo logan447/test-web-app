@@ -1,6 +1,6 @@
 # Olera Platform — Master Sprint Plan
 
-> **Version**: 1.1 — Sprint 0 Finalized
+> **Version**: 1.2 — Sprint 0 Complete
 > **Last Updated**: January 19, 2026
 > **Purpose**: Execution-focused roadmap translating the Master Platform Manual into clear build tasks and sprint sequences.
 
@@ -321,6 +321,75 @@ None (this is Sprint 0)
 - **Must be solid**: Provider gating — security-critical
 - **Must be solid**: Error response format — affects all API consumers
 - **Must be solid**: Visual foundation (colors, typography, logo, core components) — site should "feel right" from Sprint 0
+
+---
+
+## Sprint 0: Audit Results & Completion Status
+
+> **Audit Date**: January 19, 2026
+> **Status**: ✅ Complete (with documented deferrals)
+
+### Walkthrough Results
+
+| Walkthrough | Description | Result |
+|-------------|-------------|--------|
+| W1: Landing & Discovery | Homepage → Search → Provider Detail | ✅ PASS |
+| W2: Family Signup & Profile | Signup → Dashboard → Care Profile | ✅ PASS |
+| W3: Mode System | Toggle mode → Persist across navigation → Refresh | ✅ PASS |
+| W4: Provider Onboarding | Mode switch → Onboarding → Dashboard | ✅ PASS |
+| W5: Provider Dashboard | Dashboard → Requests → Seed data flows | ✅ PASS |
+
+### Completed Items
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Breadcrumb Component | ✅ Complete | Auto-generated from route path, displays on 19+ pages |
+| Provider Onboarding Flow | ✅ Complete | `/provider/onboarding` functional |
+| Provider Gating | ✅ Complete | Redirects to onboarding when no ProviderIdentity |
+| Mode Persistence | ✅ Complete | `User.activeMode` stored in DB, restored on login |
+| Route Protection | ✅ Complete | Middleware correctly gates authenticated routes |
+| Seed Data API | ✅ Complete | `/api/admin/seed` creates test accounts with relationships |
+| Auth Race Condition Fix | ✅ Complete | Fixed hard-refresh redirect bugs on provider pages |
+| Build Success | ✅ Complete | `npm run build` completes without errors |
+
+### Fixes Applied During Audit
+
+| Issue | Root Cause | Fix |
+|-------|-----------|-----|
+| Breadcrumbs not visible on dashboard/requests/settings | CUID regex too broad (`^[a-z0-9]{8,}$`) matching known segments | Check `SEGMENT_LABELS` before ID detection |
+| Hard refresh redirects to login | Using `!session` instead of `status === "unauthenticated"` | Fixed auth checks in all provider pages |
+| 404 on breadcrumb `/provider` click | No page existed at `/provider` route | Created redirect page based on identity status |
+| Provider ID showing in breadcrumbs | No `currentPage` prop on detail pages | Added entity names to detail page breadcrumbs |
+
+### Deferred to Sprint 1
+
+| Item | Rationale | Sprint |
+|------|-----------|--------|
+| Remove URL `?mode=` parameter | Working but not causing issues; lower priority | Sprint 1 |
+| Footer implementation | Demo acceptable without full footer | Sprint 1 |
+| Test framework setup (Jest/Vitest) | Time constraint; manual testing sufficient for Sprint 0 | Sprint 1 |
+| Input validation layer (Zod) | Existing validation working; enhancement deferred | Sprint 1 |
+| Error response standardization | Existing patterns working; formalization deferred | Sprint 1 |
+| UI style guide documentation | Visual foundation exists; formal docs deferred | Sprint 1 |
+| Remove ProviderIdentity model | Per Manual Ch 8; requires schema migration | Sprint 1 |
+| Route renaming `/provider/requests` → `/provider/find-families` | Per Manual Ch 13; cosmetic change | Sprint 1 |
+| Provider login default landing page | Currently goes to `/provider/dashboard`; Manual specifies `/provider/find-families` | Sprint 1 |
+| Remove forced onboarding redirect | Per Manual Ch 8.4; use gentle nudges instead | Sprint 1 |
+
+### Key Architectural Decisions Confirmed
+
+1. **Mode Source of Truth**: `User.activeMode` in database (URL param to be removed in Sprint 1)
+2. **Provider Gating**: Uses `ProviderIdentity` model (to be simplified per Manual Ch 8 in Sprint 1)
+3. **Breadcrumb Strategy**: Auto-generated from URL path with `SEGMENT_LABELS` mapping
+4. **Auth Pattern**: Use `status === "unauthenticated"` not `!session` for redirect logic
+
+### Commits (Sprint 0)
+
+- `81ae8fd` Fix breadcrumb regression: known segments were incorrectly skipped
+- `c456a54` Fix auth race condition on all provider pages + improve breadcrumb visibility
+- `7e2b14c` Address Sprint 0 audit findings from Walkthrough 4
+- `f8fd0e5` Add Breadcrumb component platform-wide for consistent navigation
+- `97167f9` Add Breadcrumb component to dashboard page for Sprint 0 navigation audit
 
 ---
 

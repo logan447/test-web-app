@@ -1,7 +1,7 @@
 # Olera Platform — Master Systems Manual
 
-> **Version**: 1.0 — Structure Approved
-> **Last Reviewed**: January 17, 2026
+> **Version**: 1.1 — Sprint 0 Complete
+> **Last Reviewed**: January 19, 2026
 
 > **Purpose**: This document serves as the source of truth for all platform systems. It will be iteratively refined as we work through each chapter, answer key questions, and make architectural decisions.
 >
@@ -28,7 +28,7 @@
 
 ## Review Progress
 
-**Last Updated**: January 17, 2026
+**Last Updated**: January 19, 2026 (Sprint 0 Audit Complete)
 
 | Status | Count | Chapters |
 |--------|-------|----------|
@@ -814,14 +814,16 @@ Current JWT fields are sufficient for demo:
 
 **Purpose**: Allow users to switch between family (care-seeker) and provider (care-giver) modes within a single account.
 
+> **Sprint 0 Status**: Verified working (January 19, 2026)
+
 | Item | Status | Notes |
 |------|--------|-------|
-| 2.1 Mode Storage (`User.activeMode`) | ✅ | Database field exists |
-| 2.2 Mode Switching (toggle) | 🟡 | Works but has caused routing bugs |
-| 2.3 Mode Defaulting on Login | 🟡 | Based on profile completion %; logic may need revision |
-| 2.4 Mode Persistence Across Sessions | ✅ | Stored in DB |
-| 2.5 URL Mode Parameter (`?mode=`) | 🟡 | Implemented but fragile, causes "bleeding" |
-| 2.6 Mode Selection Modal (signup/onboarding) | 🟡 | May be broken/incomplete |
+| 2.1 Mode Storage (`User.activeMode`) | ✅ | Database field exists, verified in Sprint 0 |
+| 2.2 Mode Switching (toggle) | ✅ | Works correctly, routing verified |
+| 2.3 Mode Defaulting on Login | ✅ | Restores from DB correctly |
+| 2.4 Mode Persistence Across Sessions | ✅ | Stored in DB, verified across refresh |
+| 2.5 URL Mode Parameter (`?mode=`) | 🟡 | To be removed in Sprint 1 (DB is source of truth) |
+| 2.6 Mode Selection Modal (signup/onboarding) | 🟡 | Provider onboarding works; formal wizard deferred |
 
 ### Key Questions
 - [x] Should signup source (e.g., `/for-providers`) influence default mode? → **Yes (see Chapter 1.1)**
@@ -8306,18 +8308,26 @@ Hospice                 List Your Business
 
 ### 5.13 Implementation Status
 
+> **Last Updated**: January 19, 2026 (Sprint 0 Complete)
+
 | Item | Status | Notes |
 |------|--------|-------|
-| Main Navigation | ✅ Built | `MainNav.tsx` — needs mode parameter removal |
+| Main Navigation | ✅ Built | `MainNav.tsx` — needs mode parameter removal (Sprint 1) |
 | Care Type Dropdowns | ⬜ Not Built | 4 dropdowns with featured content |
 | "More" Mega Menu | ⬜ Not Built | Full care ecosystem navigation |
 | "Help Me Decide" CTA | ⬜ Not Built | Routes to care assessment wizard |
-| Footer Navigation | ⬜ Not Built | Full footer with all sections |
-| Account Dropdown | 🟡 Partial | Exists but uses URL mode param |
+| Footer Navigation | ⬜ Not Built | Full footer with all sections (Sprint 1) |
+| Account Dropdown | 🟡 Partial | Exists but uses URL mode param (Sprint 1 cleanup) |
 | Route Protection | ✅ Built | Middleware working correctly |
 | Login Redirect | ✅ Built | `returnUrl` parameter preserved |
-| Breadcrumbs | ⬜ Not Built | Required for demo |
-| Mode from DB | 🟡 Partial | API exists, MainNav needs update |
+| Breadcrumbs | ✅ Built | Auto-generated from path, 19+ pages, `SEGMENT_LABELS` mapping |
+| Mode from DB | ✅ Built | `User.activeMode` restored on login, persists across sessions |
+
+**Sprint 0 Notes**:
+- Breadcrumb component (`components/Navigation/Breadcrumb.tsx`) implemented with auto-generation from URL path
+- Uses `SEGMENT_LABELS` mapping for route-to-label translation
+- ID detection (UUID, CUID) skips dynamic segments; detail pages use `currentPage` prop
+- Auth race condition fixed: uses `status === "unauthenticated"` pattern
 
 ### Demo vs Production
 
