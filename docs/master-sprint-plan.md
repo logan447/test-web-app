@@ -351,6 +351,8 @@ None (this is Sprint 0)
 | Seed Data API | ✅ Complete | `/api/admin/seed` creates test accounts with relationships |
 | Auth Race Condition Fix | ✅ Complete | Fixed hard-refresh redirect bugs on provider pages |
 | Build Success | ✅ Complete | `npm run build` completes without errors |
+| Signup Intent Parameter | ✅ Complete | `/signup?intent=provider` correctly sets PROVIDER mode |
+| Dev Server | ✅ Complete | `npm run dev` starts without errors |
 
 ### Fixes Applied During Audit
 
@@ -360,6 +362,7 @@ None (this is Sprint 0)
 | Hard refresh redirects to login | Using `!session` instead of `status === "unauthenticated"` | Fixed auth checks in all provider pages |
 | 404 on breadcrumb `/provider` click | No page existed at `/provider` route | Created redirect page based on identity status |
 | Provider ID showing in breadcrumbs | No `currentPage` prop on detail pages | Added entity names to detail page breadcrumbs |
+| Signup intent parameter ignored | Signup page didn't read URL params or pass intent to API | Added `useSearchParams()`, pass intent, redirect by mode |
 
 ### Deferred to Sprint 1
 
@@ -370,11 +373,19 @@ None (this is Sprint 0)
 | Test framework setup (Jest/Vitest) | Time constraint; manual testing sufficient for Sprint 0 | Sprint 1 |
 | Input validation layer (Zod) | Existing validation working; enhancement deferred | Sprint 1 |
 | Error response standardization | Existing patterns working; formalization deferred | Sprint 1 |
-| UI style guide documentation | Visual foundation exists; formal docs deferred | Sprint 1 |
 | Remove ProviderIdentity model | Per Manual Ch 8; requires schema migration | Sprint 1 |
 | Route renaming `/provider/requests` → `/provider/find-families` | Per Manual Ch 13; cosmetic change | Sprint 1 |
 | Provider login default landing page | Currently goes to `/provider/dashboard`; Manual specifies `/provider/find-families` | Sprint 1 |
 | Remove forced onboarding redirect | Per Manual Ch 8.4; use gentle nudges instead | Sprint 1 |
+
+### Gap Verification (Post-Audit)
+
+| Gap | Finding | Resolution |
+|-----|---------|------------|
+| Mode Initialization (signup flow) | **BUG FOUND** — Signup page didn't read `?intent=provider` | **FIXED** — Now reads intent, passes to API, redirects by mode |
+| Design System Foundation | **COMPLETE** — UI style guide exists (10KB), Tailwind configured | No action needed (incorrectly listed as deferred) |
+| Data Model | **VALID** — Schema generates successfully, 21+ indexes defined | No action needed |
+| `npm run dev` | **PASS** — Starts without errors in 4.3s | No action needed |
 
 ### Key Architectural Decisions Confirmed
 

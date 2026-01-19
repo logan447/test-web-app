@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Read intent from URL query params (e.g., /signup?intent=provider)
+  const intent = searchParams.get("intent");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,7 +25,8 @@ export default function SignupPage() {
       password: formData.get("password") as string,
       name: formData.get("name") as string,
       phone: formData.get("phone") as string,
-      role: "FAMILY" as const, // All users start in family mode
+      role: "FAMILY" as const,
+      intent: intent || undefined, // Pass intent to API for mode initialization
     };
 
     try {
@@ -53,8 +58,14 @@ export default function SignupPage() {
         return;
       }
 
-      // Always redirect to browse providers page (family mode default)
-      router.push("/providers");
+      // Redirect based on activeMode from signup response
+      // PROVIDER mode → provider dashboard (will redirect to onboarding if needed)
+      // FAMILY mode → browse providers
+      if (result.activeMode === "PROVIDER") {
+        router.push("/provider/dashboard");
+      } else {
+        router.push("/providers");
+      }
       router.refresh();
     } catch (error) {
       setError("Something went wrong");
@@ -155,5 +166,18 @@ export default function SignupPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+// Wrap in Suspense for useSearchParams() (Next.js 15 requirement)
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }
