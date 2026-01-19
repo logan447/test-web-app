@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,14 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
   const [loading, setLoading] = useState(false);
   // All users default to FAMILY role on signup
   const role = "FAMILY";
+
+  // Sync view state when modal opens or defaultView changes
+  useEffect(() => {
+    if (isOpen) {
+      setView(defaultView);
+      setError("");
+    }
+  }, [isOpen, defaultView]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
