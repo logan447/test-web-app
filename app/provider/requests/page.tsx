@@ -10,6 +10,7 @@ import PaywallModal from '@/components/Paywall/PaywallModal';
 import EnhancedFamilyCard from '@/components/Directory/EnhancedFamilyCard';
 import FamilyFiltersBar, { FamilyFilters } from '@/components/Directory/FamilyFiltersBar';
 import ScrollToTop from '@/components/Directory/ScrollToTop';
+import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type FamilyProfile = {
   id: string;
@@ -44,6 +45,12 @@ export default function ProviderRequestsPage() {
   // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
+  // Check for provider identity - redirects to onboarding if missing (Manual Ch 8)
+  const { hasIdentity, loading: identityLoading } = useProviderIdentity({
+    requireIdentity: true,
+    checkMode: true,
+  });
+
   // Filters
   const [filters, setFilters] = useState<FamilyFilters>({
     city: '',
@@ -55,7 +62,7 @@ export default function ProviderRequestsPage() {
   });
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === 'loading' || identityLoading) return;
 
     if (!session) {
       router.push('/login');
@@ -68,10 +75,13 @@ export default function ProviderRequestsPage() {
       return;
     }
 
+    // If no identity, the hook will redirect to onboarding
+    if (!hasIdentity) return;
+
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, status, router, isProviderMode]);
+  }, [session, status, router, isProviderMode, hasIdentity, identityLoading]);
 
   const fetchProfiles = async () => {
     try {

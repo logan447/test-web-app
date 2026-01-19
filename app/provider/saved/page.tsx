@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import SavedFamilyCard from '@/components/Directory/SavedFamilyCard';
+import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type SavedFamilyProfile = {
   id: string;
@@ -40,8 +41,14 @@ export default function SavedFamilyProfilesPage() {
   // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
+  // Check for provider identity - redirects to onboarding if missing (Manual Ch 8)
+  const { hasIdentity, loading: identityLoading } = useProviderIdentity({
+    requireIdentity: true,
+    checkMode: true,
+  });
+
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === 'loading' || identityLoading) return;
 
     if (!session) {
       router.push('/login');
@@ -54,9 +61,12 @@ export default function SavedFamilyProfilesPage() {
       return;
     }
 
+    // If no identity, the hook will redirect to onboarding
+    if (!hasIdentity) return;
+
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, status, router, isProviderMode]);
+  }, [session, status, router, isProviderMode, hasIdentity, identityLoading]);
 
   const fetchSavedProfiles = async () => {
     try {

@@ -7,6 +7,7 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
+import { useProviderIdentity } from "@/hooks/useProviderIdentity";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -46,8 +47,14 @@ export default function ProviderDashboardPage() {
   // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
+  // Check for provider identity - redirects to onboarding if missing (Manual Ch 8)
+  const { hasIdentity, loading: identityLoading } = useProviderIdentity({
+    requireIdentity: true,
+    checkMode: true,
+  });
+
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === "loading" || identityLoading) return;
 
     if (!session) {
       router.push("/login");
@@ -60,9 +67,12 @@ export default function ProviderDashboardPage() {
       return;
     }
 
+    // If no identity, the hook will redirect to onboarding
+    if (!hasIdentity) return;
+
     // Fetch dashboard data
     fetchDashboardData();
-  }, [session, status, router, isProviderMode]);
+  }, [session, status, router, isProviderMode, hasIdentity, identityLoading]);
 
   const fetchDashboardData = async () => {
     try {
