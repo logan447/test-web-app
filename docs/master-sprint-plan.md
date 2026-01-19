@@ -446,7 +446,8 @@ Based on Sprint 0 findings, Sprint 1 should prioritize:
 | Gentle nudges for provider onboarding | ✅ Complete | `8242688` |
 | Route renaming per Manual Ch 13 | ✅ Complete | `03b02bd` |
 | Footer implementation | ✅ Complete | `808b2ea` |
-| Family Discovery features (1.1-1.5) | ⬜ Pending | — |
+| Directory pagination (1.2 gap) | ✅ Complete | `89f034b` |
+| Family Discovery features (1.1-1.5) | ✅ Complete | Pre-existing |
 
 ---
 
