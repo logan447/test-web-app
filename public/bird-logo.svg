@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!--
+    Olera Bird Logo
+    Stylized bird/leaf mark representing care, growth, and guidance
+    Primary color: Olera Teal #0D9488
+
+    Design intent: Minimal, elegant bird mark matching reference screenshots.
+    Approximation created for Sprint 0 visual foundation.
+
+    @see docs/ui-style-guide.md
+    @see docs/master-platform-manual.md Chapter 4
+  -->
+
+  <!-- Main bird shape - elegant curved form suggesting flight/care -->
+  <path
+    d="M6 26 Q2 22, 6 16 Q10 10, 18 6 Q22 4, 26 6 Q22 10, 16 14 Q10 18, 8 24 Q7 26, 6 26 Z"
+    fill="#0D9488"
+  />
+
+  <!-- Wing accent - smaller leaf shape -->
+  <path
+    d="M14 10 Q18 8, 22 10 Q18 12, 14 12 Q12 11, 14 10 Z"
+    fill="#0F766E"
+  />
+</svg>

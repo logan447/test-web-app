@@ -17,7 +17,8 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Inter is the primary font per Manual Ch 4.2.1 */
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* Custom scrollbar for WebKit browsers */
@@ -134,20 +135,69 @@ body {
     @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-smooth;
   }
 
+  /*
+   * Button Styles (Manual Ch 4.3)
+   * Primary: Teal background, white text, pill-shaped
+   * Secondary: White background, teal border, pill-shaped
+   * Ghost: No background, teal text
+   *
+   * Sizes: Use px-4 py-2 for sm, px-6 py-3 for default, px-8 py-4 for lg
+   */
   .btn-primary {
-    @apply bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-smooth shadow-sm hover:shadow-md focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-primary-600 text-white px-6 py-3 rounded-pill font-semibold hover:bg-primary-700 transition-smooth shadow-sm hover:shadow-md focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary-sm {
+    @apply bg-primary-600 text-white px-4 py-2 rounded-pill font-medium text-sm hover:bg-primary-700 transition-smooth shadow-sm focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold border-2 border-primary-600 hover:bg-primary-50 transition-smooth focus-ring;
+    @apply bg-white text-primary-600 px-6 py-3 rounded-pill font-semibold border-2 border-primary-600 hover:bg-primary-50 transition-smooth focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
+  .btn-secondary-sm {
+    @apply bg-white text-primary-600 px-4 py-2 rounded-pill font-medium text-sm border-2 border-primary-600 hover:bg-primary-50 transition-smooth focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply text-primary-600 px-4 py-2 rounded-lg font-medium hover:bg-primary-50 transition-smooth focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /*
+   * Card Styles (Manual Ch 4.3)
+   * White background, subtle shadow, rounded corners
+   * Consistent padding: space-6 (24px)
+   */
   .card {
-    @apply bg-white rounded-xl shadow-sm hover:shadow-md transition-smooth border border-gray-100;
+    @apply bg-white rounded-xl shadow-card hover:shadow-card-hover transition-smooth border border-gray-100;
+  }
+
+  .card-interactive {
+    @apply bg-white rounded-xl shadow-card hover:shadow-card-hover transition-smooth border border-gray-100 cursor-pointer hover-lift;
   }
 
   .section-divider {
     @apply border-t border-gray-200 my-8;
+  }
+
+  /*
+   * Form Input Styles (Manual Ch 4.3)
+   * Rounded borders, clear focus states, validation states
+   */
+  .input {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-smooth focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 placeholder:text-gray-400;
+  }
+
+  .input-error {
+    @apply border-error focus:border-error focus:ring-error;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .error-message {
+    @apply text-sm text-error mt-1;
   }
 }
 

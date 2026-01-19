@@ -188,12 +188,16 @@ function MainNavContent() {
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo */}
+          {/* Logo - Bird mark + wordmark per Manual Ch 4 */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center mr-2">
-                <span className="text-white text-xl font-bold">O</span>
-              </div>
+            <Link href="/" className="flex items-center gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/bird-logo.svg"
+                alt=""
+                className="w-8 h-8"
+                aria-hidden="true"
+              />
               <span className="text-2xl font-bold text-gray-900">Olera</span>
             </Link>
           </div>
@@ -815,10 +819,14 @@ export default function MainNav() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center mr-2">
-                  <span className="text-white text-xl font-bold">O</span>
-                </div>
+              <Link href="/" className="flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/bird-logo.svg"
+                  alt=""
+                  className="w-8 h-8"
+                  aria-hidden="true"
+                />
                 <span className="text-2xl font-bold text-gray-900">Olera</span>
               </Link>
             </div>

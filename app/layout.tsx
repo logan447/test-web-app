@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
+// Font configuration per Manual Ch 4.2.1
+// Inter is specified in globals.css and tailwind.config.ts as the primary font
+// Using system font stack with Inter as preferred when available
+// This approach avoids build-time network dependency on Google Fonts
+
 export const metadata: Metadata = {
   title: {
     default: "Olera - Find Trusted Elder Care Providers",
