@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import { showToast } from '@/lib/toast';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import PaywallModal from '@/components/Paywall/PaywallModal';
@@ -413,6 +414,7 @@ export default function ProviderRequestsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
       {renderContent()}
       <ScrollToTop />
       <PaywallModal

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import EnhancedPhotoUpload, { PhotoMetadata } from "@/components/Gallery/EnhancedPhotoUpload";
 import ProviderProfileCompleteness from "@/components/ProviderProfile/ProviderProfileCompleteness";
 import CareServicesSection, { CareServicesData } from "@/components/ProviderProfile/CareServicesSection";
@@ -879,6 +880,7 @@ export default function ProviderProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <div className="flex items-center justify-center py-12">
           <p className="text-gray-600">Loading...</p>
         </div>
@@ -889,6 +891,7 @@ export default function ProviderProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-6">

@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
@@ -131,6 +132,7 @@ export default function SavedFamilyProfilesPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
@@ -158,6 +160,7 @@ export default function SavedFamilyProfilesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

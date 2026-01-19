@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import ProgressIndicator from "@/components/CareProfile/ProgressIndicator";
 import WarmIntroduction from "@/components/CareProfile/WarmIntroduction";
 import ProfileCompleteness from "@/components/CareProfile/ProfileCompleteness";
@@ -510,6 +511,7 @@ export default function CareProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Loading Skeleton */}
           <div className="animate-pulse space-y-6">
@@ -561,6 +563,7 @@ export default function CareProfilePage() {
       </a>
 
       <MainNav />
+      <Breadcrumb />
 
       {/* Main Content */}
       <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

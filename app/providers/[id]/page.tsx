@@ -6,6 +6,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import AuthModal from "@/components/Auth/AuthModal";
 import PhotoGallery from "@/components/Gallery/PhotoGallery";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
@@ -231,6 +232,7 @@ export default function ProviderProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <ProviderDetailSkeleton />
       </div>
     );
@@ -243,6 +245,7 @@ export default function ProviderProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       {/* Provider Profile */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

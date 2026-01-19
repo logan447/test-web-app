@@ -5,6 +5,7 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import PaywallModal from "@/components/Paywall/PaywallModal";
 import { showToast } from "@/lib/toast";
 import { maskContactInfo } from "@/lib/contact-masking";
@@ -711,6 +712,7 @@ export default function RequestDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
+      <Breadcrumb />
 
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">

@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import AuthModal from '@/components/Auth/AuthModal';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
@@ -125,6 +126,7 @@ export default function HireStaffPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
@@ -141,6 +143,7 @@ export default function HireStaffPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
