@@ -8,6 +8,7 @@ import { CareType } from "@prisma/client";
 const careProfileSchema = z.object({
   // About loved one (Sprint 2)
   profilePhoto: z.string().optional().nullable(),
+  showProfilePhoto: z.boolean().optional(),
   lovedOneName: z.string().optional().nullable(),
   ageRange: z.string().optional().nullable(),
   gender: z.string().optional().nullable(),

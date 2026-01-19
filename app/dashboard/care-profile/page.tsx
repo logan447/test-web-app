@@ -21,6 +21,7 @@ type CareProfile = {
   id: string;
   // About loved one
   profilePhoto?: string | null;
+  showProfilePhoto?: boolean;
   lovedOneName?: string | null;
   ageRange?: string | null;
   gender?: string | null;
@@ -97,6 +98,7 @@ export default function CareProfilePage() {
   // About loved one state
   const [aboutLovedOne, setAboutLovedOne] = useState({
     profilePhoto: profile?.profilePhoto || null,
+    showProfilePhoto: profile?.showProfilePhoto || false,
     lovedOneName: profile?.lovedOneName || "",
     ageRange: profile?.ageRange || "",
     gender: profile?.gender || "",
@@ -205,6 +207,7 @@ export default function CareProfilePage() {
           // Update aboutLovedOne state with fetched data
           setAboutLovedOne({
             profilePhoto: data.profilePhoto || null,
+            showProfilePhoto: data.showProfilePhoto || false,
             lovedOneName: data.lovedOneName || "",
             ageRange: data.ageRange || "",
             gender: data.gender || "",
@@ -344,6 +347,7 @@ export default function CareProfilePage() {
     const data = {
       // About loved one
       profilePhoto: aboutLovedOne.profilePhoto,
+      showProfilePhoto: aboutLovedOne.showProfilePhoto || false,
       lovedOneName: aboutLovedOne.lovedOneName || null,
       ageRange: aboutLovedOne.ageRange || null,
       gender: aboutLovedOne.gender || null,
