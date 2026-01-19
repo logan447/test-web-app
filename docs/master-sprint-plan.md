@@ -394,13 +394,50 @@ None (this is Sprint 0)
 3. **Breadcrumb Strategy**: Auto-generated from URL path with `SEGMENT_LABELS` mapping
 4. **Auth Pattern**: Use `status === "unauthenticated"` not `!session` for redirect logic
 
+### Human Audit Checklist Results
+
+> **Audit Date**: January 19, 2026
+> **Auditor**: Human (manual testing)
+
+| Audit | Description | Result | Notes |
+|-------|-------------|--------|-------|
+| **1. Provider Intent Signup** | `/signup?intent=provider` and for-providers CTA flows | ✅ PASS | Fixed during audit — intent now passed correctly |
+| **2. Breadcrumbs** | Family and provider breadcrumb visibility and navigation | ✅ PASS | Auto-generated on 19+ pages |
+| **3. Auth Persistence** | Hard refresh on all protected pages | ✅ PASS | No session loss or false redirects |
+| **4. Mode Persistence** | Toggle, navigate, refresh, re-login | ✅ PASS | Mode correctly restored from DB |
+| **5. Provider Onboarding Gating** | New user → provider mode → onboarding | ✅ PASS | Works but uses forced redirect (deferred: gentle nudges) |
+| **6. Build & Dev Server** | `npm run build` and `npm run dev` | ✅ PASS | Both complete without errors |
+| **7. Design System** | UI consistency spot check | ⏸️ DEFERRED | Deferred to Sprint 2 (Polish & UX) |
+| **8. Seed Data** | Admin seed page and test accounts | ✅ PASS | All 4 accounts created correctly |
+| **9. Documentation** | Manual and sprint plan accuracy | ✅ PASS | Updated with all findings |
+
+### UX Items Noted (Non-Blocking)
+
+| Item | Description | Deferred To |
+|------|-------------|-------------|
+| Modal vs dedicated page for signup | Consider full-page signup for provider intent | Sprint 2 |
+| Visible close button on AuthModal | Add X button for easier dismissal | Sprint 2 |
+| Navigation UX gap | Manual specifies "gentle nudges" not forced redirects | Sprint 1 |
+
 ### Commits (Sprint 0)
 
+- `9d3b3c9` Fix AuthModal view state not resetting when reopened
+- `4c780d6` Fix provider intent flow in AuthModal and for-providers page
+- `7ad66ff` Fix signup intent parameter handling + complete Sprint 0 gap verification
 - `81ae8fd` Fix breadcrumb regression: known segments were incorrectly skipped
 - `c456a54` Fix auth race condition on all provider pages + improve breadcrumb visibility
 - `7e2b14c` Address Sprint 0 audit findings from Walkthrough 4
 - `f8fd0e5` Add Breadcrumb component platform-wide for consistent navigation
 - `97167f9` Add Breadcrumb component to dashboard page for Sprint 0 navigation audit
+
+### Sprint 1 Implications
+
+Based on Sprint 0 findings, Sprint 1 should prioritize:
+
+1. **Remove URL `?mode=` parameter** — DB is the sole source of truth; URL param causes sync bugs
+2. **Remove forced onboarding redirect** — Per Manual Ch 8, use gentle nudges instead of blocking
+3. **Route renaming** — Align routes with Manual specifications (e.g., `/provider/requests` → `/provider/find-families`)
+4. **Footer implementation** — Complete navigation structure
 
 ---
 
