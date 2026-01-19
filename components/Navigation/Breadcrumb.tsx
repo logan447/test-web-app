@@ -66,14 +66,19 @@ function buildBreadcrumbs(pathname: string): BreadcrumbItem[] {
     const segment = segments[i];
     currentPath += `/${segment}`;
 
-    // Skip ID-like segments (detail pages) - they'll be handled by the page via currentPage prop
-    // Matches: UUIDs, CUIDs, and other alphanumeric IDs (8+ chars with mixed case/numbers)
-    const isUUID = segment.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
-    const isCUID = segment.match(/^c[a-z0-9]{7,}$/i) || segment.match(/^[a-z0-9]{8,}$/i);
-    const isUnknownSegment = !SEGMENT_LABELS[segment] && segment.match(/^[a-zA-Z0-9]{6,}$/);
+    // IMPORTANT: Known segments should NEVER be skipped
+    // Only skip segments that look like IDs and are NOT in our label mapping
+    const isKnownSegment = !!SEGMENT_LABELS[segment];
 
-    if (isUUID || isCUID || isUnknownSegment) {
-      continue;
+    if (!isKnownSegment) {
+      // Skip ID-like segments (detail pages) - they'll be handled by the page via currentPage prop
+      const isUUID = segment.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      const isCUID = segment.match(/^c[a-z0-9]{7,}$/i) || segment.match(/^[a-z0-9]{8,}$/i);
+      const isAlphanumericId = segment.match(/^[a-zA-Z0-9]{6,}$/);
+
+      if (isUUID || isCUID || isAlphanumericId) {
+        continue;
+      }
     }
 
     // Get label from mapping or capitalize the segment
