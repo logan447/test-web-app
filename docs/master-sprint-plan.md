@@ -447,7 +447,173 @@ Based on Sprint 0 findings, Sprint 1 should prioritize:
 | Route renaming per Manual Ch 13 | ✅ Complete | `03b02bd` |
 | Footer implementation | ✅ Complete | `808b2ea` |
 | Directory pagination (1.2 gap) | ✅ Complete | `89f034b` |
-| Family Discovery features (1.1-1.5) | ✅ Complete | Pre-existing |
+| Family Discovery features (1.1-1.5) | 🔍 Under Audit | — |
+
+---
+
+## Sprint 1 Internal Audit
+
+> **Audit Date**: January 19, 2026
+> **Status**: In Progress
+
+### Audit Methodology
+
+Cross-referenced Sprint 1 tasks against:
+- Master Platform Manual chapters 6, 9, 15, 18
+- Actual codebase implementation
+- Sprint 1 acceptance criteria
+
+### Critical Gaps Identified
+
+| Gap | Severity | Manual Ref | Description |
+|-----|----------|------------|-------------|
+| Profile completeness not persistent | 🔴 CRITICAL | Ch 6 | No `completionPercentage` field on FamilyProfile schema. Manual requires persistent storage. |
+| Visibility threshold logic missing | 🔴 CRITICAL | Ch 6 | No logic checking 40% threshold before profile is visible to providers. |
+| Contact info visibility not gated | 🔴 CRITICAL | Ch 15.3.1 | Individual provider contact info shown always; should be hidden until engagement ACCEPTED. |
+
+### Important Gaps Identified
+
+| Gap | Severity | Manual Ref | Description |
+|-----|----------|------------|-------------|
+| No "Unclaimed" badge on provider cards | 🟡 IMPORTANT | Ch 7.12, 9.7 | Provider schema has `claimed` field but badge not displayed in UI. |
+| Context-aware CTAs missing | 🟡 IMPORTANT | Ch 15, 17 | All providers show same contact form; should vary by type (Tour/Consultation/Interview). |
+| No status transition UI | 🟡 IMPORTANT | Ch 15 | No UI for Accept/Decline engagement requests. |
+| Engagement types limited | 🟡 IMPORTANT | Ch 15.2 | Only CONSULTATION/HIRING types; missing TOUR, INTERVIEW, INQUIRY, OUTREACH. |
+| HiringEngagement model missing | 🟡 IMPORTANT | Ch 15.8 | Only ConsultRequest model exists; hiring marketplace needs separate model. |
+
+### Minor Gaps Identified
+
+| Gap | Severity | Manual Ref | Description |
+|-----|----------|------------|-------------|
+| Route naming: `/dashboard/saved` | 🟢 MINOR | Ch 12.4 | Should be `/family/saved-providers` per route architecture. |
+| `/providers` redirects to `/` | 🟢 MINOR | Ch 9.1 | Should be separate Zillow-style page; current redirect acceptable for demo. |
+| Notes field UI | 🟢 MINOR | Ch 18 | SavedProvider has notes field but unclear if editable in UI. |
+
+### What Is Implemented (Verified)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Care profile form (80+ fields) | ✅ Working | Comprehensive multi-section form |
+| Profile completion checklist | ✅ Working | Shows section completion status |
+| Provider directory with filters | ✅ Working | Type, care type, location, price, rating filters |
+| Pagination (Load More) | ✅ Working | Added in `89f034b` |
+| Provider detail page | ✅ Working | About, Services, Amenities, Photos, Reviews, CTA |
+| Save/unsave providers | ✅ Working | Toggle functionality with heart icon |
+| Saved providers list | ✅ Working | Grid view with remove action and empty state |
+| Contact modal/form | ✅ Working | Message, reason, contact method, tour date fields |
+| ConsultRequest creation | ✅ Working | POST /api/requests creates engagement |
+| Map view toggle | ✅ Working | Leaflet integration |
+| Empty states | ✅ Working | Helpful messages with CTAs |
+
+### Recommendations
+
+**Before Human Audit:**
+1. ⚠️ Document critical gaps but defer implementation decision to human review
+2. ⚠️ Determine if critical gaps block Sprint 1 completion or can be tracked as Tech Debt
+
+**Potential Deferrals (for discussion):**
+- Profile completeness tracking → Could be Sprint 2 (Provider Response Journey relates to this)
+- Contact info gating → Could be Sprint 2 (Engagement response flow)
+- Unclaimed badge → Could be Sprint 2 (Provider Claiming task 2.5)
+- Context-aware CTAs → Could be Sprint 3 (Engagement & Scheduling)
+
+### Human Audit Plan
+
+Walk through each Sprint 1 task with explicit test steps. Mark PASS/FAIL for each.
+
+#### Walkthrough 1: Family Profile (Task 1.1)
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 1.1.1 | Log in as family user (or use seeded account) | Dashboard loads | |
+| 1.1.2 | Navigate to `/dashboard/care-profile` | Care profile form displays | |
+| 1.1.3 | Verify required fields present: Name, Location (city/state/zip), Care Types | All fields visible and editable | |
+| 1.1.4 | Verify optional fields: Personality, Hobbies, Budget, Timeline, Contact preferences | All sections accessible | |
+| 1.1.5 | Check for completion indicator | Checklist or progress shown in sidebar | |
+| 1.1.6 | Fill minimum fields, save | Profile saves successfully | |
+| 1.1.7 | ⚠️ **GAP CHECK**: Is there a persistent `completionPercentage` shown? | Currently NO - gap documented | |
+| 1.1.8 | ⚠️ **GAP CHECK**: Does visibility change based on completion? | Currently NO - manual toggle only | |
+
+#### Walkthrough 2: Provider Directory (Task 1.2)
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 1.2.1 | Navigate to homepage `/` | Directory with provider cards displays | |
+| 1.2.2 | Verify provider card shows: name, type, location, rating, photo | All elements visible on cards | |
+| 1.2.3 | Use Provider Type dropdown filter | Results filter correctly | |
+| 1.2.4 | Use Care Type dropdown filter | Results filter correctly | |
+| 1.2.5 | Enter city name in location filter | Results filter by city | |
+| 1.2.6 | Enter state in location filter | Results filter by state | |
+| 1.2.7 | Apply filter that returns no results | Empty state with helpful message displays | |
+| 1.2.8 | Clear filters, verify 20+ providers exist | Providers load | |
+| 1.2.9 | Scroll down, click "Load More" | Additional providers append to list | |
+| 1.2.10 | Toggle to Map view | Map displays with provider markers | |
+| 1.2.11 | ⚠️ **GAP CHECK**: Do unclaimed providers show "Unclaimed" badge? | Currently NO - gap documented | |
+
+#### Walkthrough 3: Provider Detail Page (Task 1.3)
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 1.3.1 | Click on a provider card | Navigate to `/providers/[id]` | |
+| 1.3.2 | Verify About section with description | Description displays | |
+| 1.3.3 | Verify Services section with care types | Care types displayed as tags | |
+| 1.3.4 | Verify Amenities section | Amenities list displays | |
+| 1.3.5 | Verify Photos section | Photo gallery with cover photo | |
+| 1.3.6 | Verify Reviews section (if any exist) | Reviews or "No reviews yet" message | |
+| 1.3.7 | Verify Save button (heart icon) present | Heart icon in header or CTA section | |
+| 1.3.8 | Click Save button | Provider saved, heart fills/changes state | |
+| 1.3.9 | Verify Contact CTA button present | "Contact" or engagement button visible | |
+| 1.3.10 | ⚠️ **GAP CHECK**: Is contact info (phone/email) visible before engagement? | Currently YES - gap if provider is individual | |
+
+#### Walkthrough 4: Saved Providers (Task 1.4)
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 1.4.1 | Navigate to `/dashboard/saved` | Saved providers page loads | |
+| 1.4.2 | Verify saved provider from W3 appears in list | Provider card displayed | |
+| 1.4.3 | Verify Remove button on card | Remove/delete icon present | |
+| 1.4.4 | Click Remove button | Provider removed from list | |
+| 1.4.5 | Remove all saved providers | Empty state displays with "Browse Providers" CTA | |
+
+#### Walkthrough 5: Contact Initiation (Task 1.5)
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 1.5.1 | Navigate back to a provider detail page | Detail page loads | |
+| 1.5.2 | Click Contact/Inquiry CTA button | Contact modal opens | |
+| 1.5.3 | Verify form fields: message, contact reason, preferred contact method | All fields present | |
+| 1.5.4 | Select "Schedule Tour" as reason | Preferred tour date field appears | |
+| 1.5.5 | Fill out form with valid data | Form validates | |
+| 1.5.6 | Submit contact form | Success message/toast displays | |
+| 1.5.7 | Navigate to `/dashboard/requests` | Engagement list page loads | |
+| 1.5.8 | Verify new engagement appears in list | Request card visible with PENDING status | |
+| 1.5.9 | Click on engagement | Detail page loads with message thread | |
+| 1.5.10 | ⚠️ **GAP CHECK**: Is status transition UI present (Accept/Decline)? | Currently NO - this is provider-side | |
+
+#### Walkthrough 6: End-to-End Family Journey
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 1.6.1 | Sign up as new family user | Account created, dashboard accessible | |
+| 1.6.2 | Complete care profile (minimum fields) | Profile saves | |
+| 1.6.3 | Browse provider directory | Providers display | |
+| 1.6.4 | Save a provider | Provider saved | |
+| 1.6.5 | View saved providers list | Saved provider appears | |
+| 1.6.6 | Send contact request to provider | Request created | |
+| 1.6.7 | View engagement in dashboard | Engagement visible | |
+| 1.6.8 | Log out and log back in | Session persists, data intact | |
+
+### Gap Resolution Decision Points
+
+After human audit, decide on each critical gap:
+
+| Gap | Options | Decision |
+|-----|---------|----------|
+| Profile completeness tracking | A) Fix now B) Defer to Sprint 2 C) Track as Tech Debt | |
+| Visibility threshold logic | A) Fix now B) Defer to Sprint 2 C) Track as Tech Debt | |
+| Contact info visibility gating | A) Fix now B) Defer to Sprint 2 C) Track as Tech Debt | |
+| Unclaimed badge | A) Fix now B) Defer to Sprint 2 C) Track as Tech Debt | |
+| Context-aware CTAs | A) Fix now B) Defer to Sprint 3 C) Track as Tech Debt | |
 
 ---
 
