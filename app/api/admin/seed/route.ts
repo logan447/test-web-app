@@ -164,13 +164,47 @@ export async function POST(req: Request) {
 
       // Create ProviderIdentity if needed
       if (account.createProviderIdentity) {
+        // First create or get the Provider listing
+        const providerEmail = 'provider-listing@test.olera.com';
+        let provider = await prisma.provider.findFirst({
+          where: { email: providerEmail },
+        });
+
+        if (!provider) {
+          provider = await prisma.provider.create({
+            data: {
+              userId: user.id,
+              name: 'Sunrise Senior Care',
+              providerType: 'ASSISTED_LIVING',
+              description: 'A caring assisted living community dedicated to providing personalized care for seniors. Our experienced staff provides 24/7 support, engaging activities, and a warm, home-like environment.',
+              email: providerEmail,
+              phone: '(555) 123-4567',
+              website: 'https://sunriseseniorcare.test',
+              address: '123 Care Boulevard',
+              city: 'San Diego',
+              state: 'CA',
+              zipCode: '92101',
+              serviceRadius: 25,
+              careTypesOffered: ['PERSONAL_CARE', 'MEMORY_CARE', 'RESPITE_CARE'],
+              licensed: true,
+              licenseNumber: 'CA-ASL-12345',
+              yearsInBusiness: 15,
+              capacity: 50,
+            },
+          });
+        }
+
         await prisma.providerIdentity.upsert({
           where: { userId: user.id },
-          update: {},
+          update: {
+            providerId: provider.id,
+            onboardingComplete: true,
+          },
           create: {
             userId: user.id,
-            type: 'INDIVIDUAL',
-            onboardingComplete: false,
+            type: 'ORGANIZATION',
+            providerId: provider.id,
+            onboardingComplete: true,
           },
         });
         hasIdentity = true;
@@ -185,6 +219,48 @@ export async function POST(req: Request) {
         hasProfile,
         hasIdentity,
       });
+    }
+
+    // Create a test consult request between family and provider
+    const familyUser = await prisma.user.findUnique({
+      where: { email: 'family@test.olera.com' },
+      include: { familyProfile: true },
+    });
+
+    const providerUser = await prisma.user.findUnique({
+      where: { email: 'provider@test.olera.com' },
+      include: { providerIdentity: true },
+    });
+
+    if (familyUser?.familyProfile && providerUser?.providerIdentity?.providerId) {
+      const provider = await prisma.provider.findUnique({
+        where: { id: providerUser.providerIdentity.providerId },
+      });
+
+      if (provider) {
+        // Check if a test request already exists
+        const existingRequest = await prisma.consultRequest.findFirst({
+          where: {
+            senderId: familyUser.id,
+            providerId: provider.id,
+          },
+        });
+
+        if (!existingRequest) {
+          await prisma.consultRequest.create({
+            data: {
+              senderId: familyUser.id,
+              familyProfileId: familyUser.familyProfile.id,
+              providerId: provider.id,
+              message: 'Hello, I am interested in learning more about your assisted living services for my mother. She needs memory care support and we are looking for a caring environment close to San Diego. Could we schedule a tour?',
+              status: 'PENDING',
+              requestType: 'CONSULTATION',
+              contactReason: 'Schedule a tour',
+              preferredContactMethod: 'Phone',
+            },
+          });
+        }
+      }
     }
 
     console.log(`[SEED] Test accounts seeded by ${session.user.email}`);

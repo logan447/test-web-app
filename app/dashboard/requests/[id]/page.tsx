@@ -712,7 +712,7 @@ export default function RequestDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
-      <Breadcrumb />
+      <Breadcrumb currentPage={isFamily ? request.provider.name : request.familyProfile.user.name} />
 
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">

@@ -66,8 +66,13 @@ function buildBreadcrumbs(pathname: string): BreadcrumbItem[] {
     const segment = segments[i];
     currentPath += `/${segment}`;
 
-    // Skip UUID-like segments (detail pages) - they'll be handled by the page
-    if (segment.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+    // Skip ID-like segments (detail pages) - they'll be handled by the page via currentPage prop
+    // Matches: UUIDs, CUIDs, and other alphanumeric IDs (8+ chars with mixed case/numbers)
+    const isUUID = segment.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    const isCUID = segment.match(/^c[a-z0-9]{7,}$/i) || segment.match(/^[a-z0-9]{8,}$/i);
+    const isUnknownSegment = !SEGMENT_LABELS[segment] && segment.match(/^[a-zA-Z0-9]{6,}$/);
+
+    if (isUUID || isCUID || isUnknownSegment) {
       continue;
     }
 

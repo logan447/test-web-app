@@ -34,10 +34,14 @@ export default function SettingsPage() {
   useEffect(() => {
     if (status === "loading") return;
 
-    if (!session) {
+    // Only redirect to login if session status is definitively unauthenticated
+    if (status === "unauthenticated") {
       router.push("/login");
       return;
     }
+
+    // Session is authenticated but data might still be loading
+    if (!session) return;
 
     // Fetch user data
     const fetchUserData = async () => {

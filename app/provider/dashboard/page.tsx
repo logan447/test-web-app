@@ -55,12 +55,18 @@ export default function ProviderDashboardPage() {
   });
 
   useEffect(() => {
+    // Wait for session to fully load
     if (status === "loading" || identityLoading) return;
 
-    if (!session) {
+    // Only redirect to login if session status is definitively unauthenticated
+    // This prevents race conditions on hard refresh
+    if (status === "unauthenticated") {
       router.push("/login");
       return;
     }
+
+    // Session is authenticated but data might still be loading
+    if (!session) return;
 
     // If mode is family, redirect to family dashboard
     if (!isProviderMode) {
