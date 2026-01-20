@@ -33,6 +33,8 @@ interface UseOnboardingWizardReturn {
 
 const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
 const ONBOARDING_TRIGGER_KEY = "olera_onboarding_trigger";
+// Key to persist wizard's open state across component remounts
+const ONBOARDING_ACTIVE_KEY = "olera_onboarding_active";
 
 // Minimum time (ms) the wizard must stay open after trigger-based opening
 // This prevents race conditions with other effects that might try to close it
@@ -77,12 +79,31 @@ export function useOnboardingWizard(
   // Check if user needs onboarding (simple check - can be expanded)
   const needsOnboarding = status === "authenticated" && !hasCompletedOnboarding();
 
-  // Check for onboarding trigger from signup redirect
+  // Check for onboarding trigger from signup redirect OR restore active state
   useEffect(() => {
     if (typeof window === "undefined") return;
     // Only process trigger once per hook instance to prevent race conditions
     if (triggerProcessedRef.current) return;
 
+    // First, check if there's an active wizard state that needs to be restored
+    // This handles component remounts - the wizard should stay open
+    const activeState = sessionStorage.getItem(ONBOARDING_ACTIVE_KEY);
+    if (activeState && status === "authenticated") {
+      try {
+        const activeData = JSON.parse(activeState);
+        triggerProcessedRef.current = true;
+        setIntent(activeData.intent || null);
+        setProviderSubtype(activeData.providerSubtype || null);
+        setIsOpen(true);
+        openProtectionRef.current = Date.now();
+        return; // Don't process trigger if we restored from active state
+      } catch {
+        // Invalid active state, clear it and continue to check trigger
+        sessionStorage.removeItem(ONBOARDING_ACTIVE_KEY);
+      }
+    }
+
+    // Check for fresh trigger from signup redirect
     const trigger = sessionStorage.getItem(ONBOARDING_TRIGGER_KEY);
     if (trigger && status === "authenticated") {
       try {
@@ -91,6 +112,12 @@ export function useOnboardingWizard(
         triggerProcessedRef.current = true;
         // Clear trigger from storage immediately
         sessionStorage.removeItem(ONBOARDING_TRIGGER_KEY);
+
+        // Store active state for persistence across remounts
+        sessionStorage.setItem(ONBOARDING_ACTIVE_KEY, JSON.stringify({
+          intent: triggerData.intent || null,
+          providerSubtype: triggerData.providerSubtype || null,
+        }));
 
         setIntent(triggerData.intent || null);
         setProviderSubtype(triggerData.providerSubtype || null);
@@ -135,6 +162,10 @@ export function useOnboardingWizard(
     }
 
     setIsOpen(false);
+    // Clear active state since user explicitly closed the wizard
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem(ONBOARDING_ACTIVE_KEY);
+    }
     // Mark onboarding as shown (even if not completed)
     markOnboardingShown();
   }, []);
