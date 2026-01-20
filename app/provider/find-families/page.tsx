@@ -1,8 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import { showToast } from '@/lib/toast';
@@ -33,10 +33,9 @@ type FamilyProfile = {
   isSaved?: boolean;
 };
 
-function ProviderRequestsPageContent() {
+export default function ProviderRequestsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
@@ -76,10 +75,7 @@ function ProviderRequestsPageContent() {
     if (!session) return;
 
     // If mode is family, redirect to family homepage
-    // BUT: Skip redirect if mode_switched param is present (mode switch in progress)
-    // MainNav will refresh the session and the mode will update
-    const modeSwitching = searchParams.get('mode_switched') === 'PROVIDER';
-    if (!isProviderMode && !modeSwitching) {
+    if (!isProviderMode) {
       router.push('/');
       return;
     }
@@ -88,7 +84,7 @@ function ProviderRequestsPageContent() {
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, status, router, isProviderMode, identityLoading, searchParams]);
+  }, [session, status, router, isProviderMode, identityLoading]);
 
   const fetchProfiles = async () => {
     try {
@@ -432,23 +428,6 @@ function ProviderRequestsPageContent() {
         onUpgrade={handleUpgradeSubscription}
       />
     </div>
-  );
-}
-
-// Wrap in Suspense for useSearchParams() compatibility
-export default function ProviderRequestsPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <Breadcrumb />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ProfileCardsSkeleton />
-        </div>
-      </div>
-    }>
-      <ProviderRequestsPageContent />
-    </Suspense>
   );
 }
 

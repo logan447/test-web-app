@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
@@ -92,10 +92,8 @@ const OTHER_CATEGORIES = [
 ];
 
 function MainNavContent() {
-  const { data: session, status, update: updateSession } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openOtherSubdropdown, setOpenOtherSubdropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -105,29 +103,6 @@ function MainNavContent() {
   const [switchingMode, setSwitchingMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [providerType, setProviderType] = useState<string | null>(null);
-
-  // Handle mode switch completion - refresh session and show toast
-  useEffect(() => {
-    const modeSwitched = searchParams.get('mode_switched');
-    if (modeSwitched && status === 'authenticated') {
-      // Refresh the session to get the updated mode from the JWT
-      updateSession().then((updatedSession) => {
-        // Only show toast if the mode actually matches (prevents stale URL issues)
-        // If someone bookmarks/shares URL with ?mode_switched=PROVIDER but they're
-        // in FAMILY mode, we don't show a misleading toast
-        const actualMode = updatedSession?.user?.activeMode;
-        if (actualMode === modeSwitched) {
-          const modeLabel = modeSwitched === 'PROVIDER' ? 'Provider' : 'Family';
-          showToast.success(`Switched to ${modeLabel} mode`);
-        }
-
-        // Always clean up the query parameter
-        const url = new URL(window.location.href);
-        url.searchParams.delete('mode_switched');
-        window.history.replaceState({}, '', url.toString());
-      });
-    }
-  }, [searchParams, status, updateSession]);
 
   // Fetch provider type
   useEffect(() => {
@@ -193,24 +168,21 @@ function MainNavContent() {
 
       const result = await response.json();
 
-      // Step 2: Hard navigation to landing page with mode_switched query param
-      // The query param tells the landing page to:
-      // 1. Refresh the session to get updated JWT
-      // 2. Show the success toast
-      // This approach is robust because:
-      // - Query params survive hard navigation (unlike React state)
-      // - No race conditions with page useEffects
-      // - Single source of truth for mode switch notification
-      const landingUrl = new URL(result.data.landingPage, window.location.origin);
-      landingUrl.searchParams.set('mode_switched', newMode);
-      window.location.href = landingUrl.toString();
+      // Step 2: Update NextAuth session/JWT with new mode
+      await updateSession({ activeMode: newMode });
+
+      // Step 3: Show success message
+      showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
+
+      // Step 4: Navigate to landing page (soft navigation preserves session)
+      router.push(result.data.landingPage);
 
     } catch (error) {
       console.error('MODE SWITCH ERROR:', error);
       showToast.error('Failed to switch mode. Please try again.');
+    } finally {
       setSwitchingMode(false);
     }
-    // Note: No finally block needed - page will reload
   };
 
   // Read mode from session (database is source of truth per Manual Ch 2)
@@ -884,25 +856,5 @@ function MainNavContent() {
   );
 }
 
-// Wrap in Suspense for useSearchParams() compatibility with static generation
-function MainNavFallback() {
-  return (
-    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <span className="text-2xl font-bold text-gray-900">Olera</span>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-export default function MainNav() {
-  return (
-    <Suspense fallback={<MainNavFallback />}>
-      <MainNavContent />
-    </Suspense>
-  );
-}
+// Export component directly
+export default MainNavContent;
