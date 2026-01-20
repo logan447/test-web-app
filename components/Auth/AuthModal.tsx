@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { signIn, getSession } from "next-auth/react";
 import OnboardingWizardOverlay from "@/components/Onboarding/OnboardingWizardOverlay";
@@ -22,16 +22,23 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingIntent, setOnboardingIntent] = useState<OnboardingIntent>(null);
 
+  // Guard to prevent useEffect from resetting state during onboarding
+  const onboardingInitiatedRef = useRef(false);
+
   // All users default to FAMILY role on signup
   const role = "FAMILY";
 
-  // Sync view state when modal opens or defaultView changes
+  // Sync view state when modal opens fresh (not during onboarding)
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !onboardingInitiatedRef.current) {
       setView(defaultView);
       setError("");
       setShowOnboarding(false);
       setOnboardingIntent(null);
+    }
+    // Reset the guard when modal fully closes
+    if (!isOpen) {
+      onboardingInitiatedRef.current = false;
     }
   }, [isOpen, defaultView]);
 
@@ -126,6 +133,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       setLoading(false);
       // Only pass initialIntent if explicitly provided via props (e.g., from For Providers CTA)
       // Otherwise, let the wizard show the intent selection step by passing null
+      onboardingInitiatedRef.current = true; // Guard against useEffect resetting state
       setOnboardingIntent(intent === "provider" ? "provider" : null);
       setShowOnboarding(true);
 
