@@ -142,7 +142,7 @@ function getStepTitle(step: WizardStep): string {
 interface StepProps {
   data: OnboardingData;
   onUpdate: (updates: Partial<OnboardingData>) => void;
-  onNext: () => void;
+  onNext: (selectedValue?: { intent?: OnboardingIntent; providerSubtype?: ProviderSubtype }) => void;
   onBack?: () => void;
   onSkip: () => void;
 }
@@ -150,8 +150,8 @@ interface StepProps {
 function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
   const handleSelect = (intent: OnboardingIntent) => {
     onUpdate({ intent });
-    // Auto-advance after selection
-    setTimeout(onNext, 150);
+    // Auto-advance after selection - pass intent directly to avoid stale closure
+    setTimeout(() => onNext({ intent }), 150);
   };
 
   return (
@@ -230,7 +230,8 @@ function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
 function ProviderSubtypeStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps) {
   const handleSelect = (subtype: ProviderSubtype) => {
     onUpdate({ providerSubtype: subtype });
-    setTimeout(onNext, 150);
+    // Auto-advance after selection - pass subtype directly to avoid stale closure
+    setTimeout(() => onNext({ providerSubtype: subtype }), 150);
   };
 
   return (
@@ -750,20 +751,24 @@ export default function OnboardingWizardOverlay({
     setData((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const handleNext = useCallback(async () => {
+  const handleNext = useCallback(async (selectedValue?: { intent?: OnboardingIntent; providerSubtype?: ProviderSubtype }) => {
     switch (currentStep) {
       case "intent":
-        if (data.intent === "family") {
+        // Use passed intent to avoid stale closure, fallback to state
+        const selectedIntent = selectedValue?.intent ?? data.intent;
+        if (selectedIntent === "family") {
           setCurrentStep("family-fields");
-        } else if (data.intent === "provider") {
+        } else if (selectedIntent === "provider") {
           setCurrentStep("provider-subtype");
         }
         break;
 
       case "provider-subtype":
-        if (data.providerSubtype === "organization") {
+        // Use passed subtype to avoid stale closure, fallback to state
+        const selectedSubtype = selectedValue?.providerSubtype ?? data.providerSubtype;
+        if (selectedSubtype === "organization") {
           setCurrentStep("provider-org-fields");
-        } else if (data.providerSubtype === "individual") {
+        } else if (selectedSubtype === "individual") {
           setCurrentStep("provider-individual-fields");
         }
         break;
