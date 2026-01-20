@@ -124,7 +124,9 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       // NEW APPROACH: Show onboarding wizard immediately, BEFORE any redirect
       // This eliminates the need for sessionStorage triggers and SSR hydration issues
       setLoading(false);
-      setOnboardingIntent(result.activeMode === "PROVIDER" ? "provider" : "family");
+      // Only pass initialIntent if explicitly provided via props (e.g., from For Providers CTA)
+      // Otherwise, let the wizard show the intent selection step by passing null
+      setOnboardingIntent(intent === "provider" ? "provider" : null);
       setShowOnboarding(true);
 
     } catch (error) {
