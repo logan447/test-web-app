@@ -93,7 +93,8 @@ export default function HireStaffPage() {
       const response = await fetch('/api/providers?availableForOrganizations=true');
       if (response.ok) {
         const data = await response.json();
-        setCaregivers(data);
+        // API returns { providers: [], pagination: {} } - extract the array
+        setCaregivers(data.providers || []);
       }
     } catch (err) {
       console.error('Error fetching caregivers:', err);

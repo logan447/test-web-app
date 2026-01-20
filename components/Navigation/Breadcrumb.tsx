@@ -24,7 +24,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   provider: "Provider",
   hire: "Hire",
   "hire-staff": "Hire Care Staff",
-  "hiring-requests": "My Candidates",
+  "my-candidates": "My Candidates",
   onboarding: "Onboarding",
 
   // Care type routes

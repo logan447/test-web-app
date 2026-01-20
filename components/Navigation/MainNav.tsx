@@ -167,21 +167,20 @@ function MainNavContent() {
 
       const result = await response.json();
 
-      // Update NextAuth session with new mode
-      await updateSession({ activeMode: newMode });
-
-      // Show success message
+      // Show success message before navigation
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Navigate to appropriate landing page
-      router.push(result.data.landingPage);
+      // Use hard navigation to landing page to avoid race conditions
+      // with page-level useEffects that might redirect based on mode
+      // Provider mode -> Find Families, Family mode -> Find Providers (home)
+      window.location.href = result.data.landingPage;
 
     } catch (error) {
       console.error('MODE SWITCH ERROR:', error);
       showToast.error('Failed to switch mode. Please try again.');
-    } finally {
       setSwitchingMode(false);
     }
+    // Note: No finally block needed - page will reload
   };
 
   // Read mode from session (database is source of truth per Manual Ch 2)
@@ -395,7 +394,7 @@ function MainNavContent() {
                               <Link href="/caregiver/browse-organizations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Hiring Organizations
                               </Link>
-                              <Link href="/provider/hiring-requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/my-candidates" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 My Job Opportunities
                               </Link>
                             </>
@@ -404,7 +403,7 @@ function MainNavContent() {
                               <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Hire Care Staff
                               </Link>
-                              <Link href="/provider/hiring-requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/my-candidates" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 My Candidates
                               </Link>
                             </>
@@ -706,7 +705,7 @@ function MainNavContent() {
                               <Link href="/caregiver/browse-organizations" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 Hiring Organizations
                               </Link>
-                              <Link href="/provider/hiring-requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href="/provider/my-candidates" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 My Job Opportunities
                               </Link>
                             </>
@@ -715,7 +714,7 @@ function MainNavContent() {
                               <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 Hire Care Staff
                               </Link>
-                              <Link href="/provider/hiring-requests" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href="/provider/my-candidates" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 My Candidates
                               </Link>
                             </>
