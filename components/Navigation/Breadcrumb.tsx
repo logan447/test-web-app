@@ -10,11 +10,11 @@ interface BreadcrumbItem {
 
 // Route segment to display label mapping
 const SEGMENT_LABELS: Record<string, string> = {
-  // Dashboard routes
+  // Dashboard routes (family mode)
   dashboard: "Dashboard",
   requests: "My Providers",
   "my-providers": "My Providers",
-  saved: "Saved",
+  saved: "Saved Providers",
   "care-profile": "Care Profile",
   "care-profiles": "Care Profiles",
   "provider-profile": "Provider Profile",
@@ -22,7 +22,8 @@ const SEGMENT_LABELS: Record<string, string> = {
 
   // Provider routes
   provider: "Provider",
-  hire: "Hire",
+  "find-families": "Find Families",
+  "saved-families": "Saved Families",
   "hire-staff": "Hire Care Staff",
   "my-candidates": "My Candidates",
   onboarding: "Onboarding",
