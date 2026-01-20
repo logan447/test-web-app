@@ -261,6 +261,21 @@ export default function ProviderProfilePage() {
                   📍 {provider.address}, {provider.city}, {provider.state} {provider.zipCode}
                 </p>
               </div>
+              {/* Save Button - visible for all users */}
+              <button
+                onClick={handleSaveToggle}
+                disabled={saving}
+                className={`flex-shrink-0 p-3 rounded-full transition-colors ${
+                  isSaved
+                    ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                } disabled:opacity-50`}
+                title={isSaved ? 'Remove from saved' : 'Save provider'}
+              >
+                <svg className={`w-6 h-6 ${isSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill={isSaved ? 'currentColor' : 'none'}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
             </div>
 
             {/* Trust Badges & Availability */}
@@ -544,28 +559,6 @@ export default function ProviderProfilePage() {
             onWriteReview={handleWriteReview}
           />
 
-          {/* Call to Action - Enhanced */}
-          <div className="border-t pt-6">
-            <div className="flex gap-4 items-start">
-              {/* Save Button */}
-              {session?.user?.role === "FAMILY" && (
-                <button
-                  onClick={handleSaveToggle}
-                  disabled={saving}
-                  className={`px-6 py-3 rounded-md font-medium transition-colors flex items-center gap-2 ${
-                    isSaved
-                      ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  } disabled:opacity-50`}
-                >
-                  <svg className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill={isSaved ? 'currentColor' : 'none'}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                  {saving ? 'Saving...' : (isSaved ? 'Saved' : 'Save Provider')}
-                </button>
-              )}
-            </div>
-          </div>
         </div>
         </div>
 
@@ -589,7 +582,8 @@ export default function ProviderProfilePage() {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        defaultView="login"
+        defaultView="signup"
+        intent="family"
       />
 
       {/* Review Modal */}
