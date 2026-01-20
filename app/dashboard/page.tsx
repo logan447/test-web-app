@@ -26,6 +26,12 @@ interface Activity {
   isUnread: boolean;
 }
 
+/**
+ * Family Dashboard - Family-side overview and quick actions
+ *
+ * This is an explicit route (not mode-aware) per Manual architecture principles.
+ * For provider-side dashboard, see /provider/dashboard
+ */
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -39,22 +45,16 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
 
-  // Read mode from session (database is source of truth per Manual Ch 2)
-  const isProviderMode = session?.user?.activeMode === 'PROVIDER';
-
   useEffect(() => {
     if (status === "loading") return;
 
-    // Only redirect to login if session status is definitively unauthenticated
     if (status === "unauthenticated") {
       router.push("/login");
       return;
     }
 
-    // Session is authenticated but data might still be loading
     if (!session) return;
 
-    // Fetch dashboard data (no mode-based redirect - let user see page regardless of mode)
     fetchDashboardData();
   }, [session, status, router]);
 
@@ -82,7 +82,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Show loading state
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -101,10 +100,6 @@ export default function DashboardPage() {
       </div>
     );
   }
-
-  // Check activeMode, not base role, to determine what dashboard content to show
-  const isFamily = session?.user.activeMode !== 'PROVIDER';
-  const isProvider = session?.user.role === "PROVIDER";
 
   const filteredActivities = filterType === "all"
     ? activities
@@ -173,25 +168,21 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                {isFamily ? "My Dashboard" : "Provider Dashboard"}
+                My Dashboard
               </h1>
               <p className="text-lg text-gray-600">
-                {isFamily
-                  ? "Manage your care search and consultation requests"
-                  : "Connect with families who need your services"}
+                Manage your care search and consultation requests
               </p>
             </div>
-            {isFamily && (
-              <Link
-                href="/dashboard/care-profile"
-                className="px-4 py-2 border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 font-semibold transition-colors flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit Care Profile
-              </Link>
-            )}
+            <Link
+              href="/dashboard/care-profile"
+              className="px-4 py-2 border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 font-semibold transition-colors flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Care Profile
+            </Link>
           </div>
         </div>
 
@@ -205,9 +196,7 @@ export default function DashboardPage() {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">
-                  {isFamily ? "Pending Requests" : "New Requests"}
-                </p>
+                <p className="text-sm text-gray-600 mb-1">Pending Requests</p>
                 <p className="text-3xl font-bold text-gray-900">
                   {stats.pendingRequests}
                 </p>
@@ -271,11 +260,9 @@ export default function DashboardPage() {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">
-                  {isFamily ? "Saved Providers" : "Total Requests"}
-                </p>
+                <p className="text-sm text-gray-600 mb-1">Saved Providers</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {isFamily ? stats.savedProviders : stats.totalRequests}
+                  {stats.savedProviders}
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
@@ -289,20 +276,16 @@ export default function DashboardPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d={
-                      isFamily
-                        ? "M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                        : "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    }
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
                   />
                 </svg>
               </div>
             </div>
             <Link
-              href={isFamily ? "/dashboard/saved" : "/dashboard/my-providers"}
+              href="/dashboard/saved-providers"
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
-              {isFamily ? "View saved →" : "View all →"}
+              View saved →
             </Link>
           </div>
         </div>
@@ -313,217 +296,108 @@ export default function DashboardPage() {
             Quick Actions
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {isFamily ? (
-              <>
-                <Link
-                  href="/"
-                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+            <Link
+              href="/"
+              className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+            >
+              <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                <svg
+                  className="w-6 h-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                    <svg
-                      className="w-6 h-6 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Browse Providers
-                    </h3>
-                    <p className="text-sm text-gray-600">Find care options</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/dashboard/care-profile"
-                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  Browse Providers
+                </h3>
+                <p className="text-sm text-gray-600">Find care options</p>
+              </div>
+            </Link>
+            <Link
+              href="/dashboard/care-profile"
+              className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+            >
+              <div className="bg-green-100 p-3 rounded-lg mr-4">
+                <svg
+                  className="w-6 h-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <div className="bg-green-100 p-3 rounded-lg mr-4">
-                    <svg
-                      className="w-6 h-6 text-green-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Update Care Profile
-                    </h3>
-                    <p className="text-sm text-gray-600">Edit your needs</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/dashboard/saved"
-                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  Update Care Profile
+                </h3>
+                <p className="text-sm text-gray-600">Edit your needs</p>
+              </div>
+            </Link>
+            <Link
+              href="/dashboard/saved-providers"
+              className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+            >
+              <div className="bg-purple-100 p-3 rounded-lg mr-4">
+                <svg
+                  className="w-6 h-6 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                    <svg
-                      className="w-6 h-6 text-purple-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Saved Providers
-                    </h3>
-                    <p className="text-sm text-gray-600">View favorites</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/dashboard/my-providers"
-                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  Saved Providers
+                </h3>
+                <p className="text-sm text-gray-600">View favorites</p>
+              </div>
+            </Link>
+            <Link
+              href="/dashboard/my-providers"
+              className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+            >
+              <div className="bg-orange-100 p-3 rounded-lg mr-4">
+                <svg
+                  className="w-6 h-6 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <div className="bg-orange-100 p-3 rounded-lg mr-4">
-                    <svg
-                      className="w-6 h-6 text-orange-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Messages</h3>
-                    <p className="text-sm text-gray-600">View conversations</p>
-                  </div>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/dashboard/provider-profile"
-                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
-                >
-                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                    <svg
-                      className="w-6 h-6 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Edit Profile
-                    </h3>
-                    <p className="text-sm text-gray-600">Update services</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/provider/find-families"
-                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
-                >
-                  <div className="bg-green-100 p-3 rounded-lg mr-4">
-                    <svg
-                      className="w-6 h-6 text-green-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Find Families
-                    </h3>
-                    <p className="text-sm text-gray-600">Browse care requests</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/dashboard/my-providers"
-                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
-                >
-                  <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                    <svg
-                      className="w-6 h-6 text-purple-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      View Requests
-                    </h3>
-                    <p className="text-sm text-gray-600">Manage inquiries</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/dashboard/my-providers"
-                  className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
-                >
-                  <div className="bg-orange-100 p-3 rounded-lg mr-4">
-                    <svg
-                      className="w-6 h-6 text-orange-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Messages</h3>
-                    <p className="text-sm text-gray-600">Chat with families</p>
-                  </div>
-                </Link>
-              </>
-            )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Messages</h3>
+                <p className="text-sm text-gray-600">View conversations</p>
+              </div>
+            </Link>
           </div>
         </div>
 
@@ -663,4 +537,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

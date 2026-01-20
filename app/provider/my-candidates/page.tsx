@@ -6,6 +6,8 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
+import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
+import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type HiringRequest = {
   id: string;
@@ -31,6 +33,16 @@ type HiringRequest = {
   };
 };
 
+/**
+ * My Candidates - For organizations to manage hiring engagements with caregivers
+ *
+ * Shows caregiver candidates that have an engagement relationship with this organization:
+ * - Caregivers who applied to the organization
+ * - Caregivers the organization reached out to
+ * - Active conversations, pending, accepted states
+ *
+ * This page is accessible without a complete profile (shows empty state with prompt).
+ */
 export default function HiringRequestsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -39,13 +51,23 @@ export default function HiringRequestsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
 
+  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
+  const { needsOnboarding, loading: identityLoading } = useProviderIdentity({
+    checkMode: true,
+  });
+
   useEffect(() => {
+    if (status === 'loading' || identityLoading) return;
+
     if (status === 'unauthenticated') {
       router.push('/login');
-    } else if (status === 'authenticated') {
+      return;
+    }
+
+    if (status === 'authenticated') {
       fetchRequests();
     }
-  }, [status]);
+  }, [status, identityLoading]);
 
   const fetchRequests = async () => {
     try {
@@ -99,7 +121,7 @@ export default function HiringRequestsPage() {
     return status;
   };
 
-  if (loading || status === 'loading') {
+  if (loading || status === 'loading' || identityLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
@@ -116,7 +138,6 @@ export default function HiringRequestsPage() {
   }
 
   const requests = activeTab === 'received' ? receivedRequests : sentRequests;
-  const isProviderMode = (session?.user?.activeMode || 'FAMILY') === 'PROVIDER';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -130,6 +151,11 @@ export default function HiringRequestsPage() {
             Manage your hiring conversations with independent caregivers
           </p>
         </div>
+
+        {/* Onboarding prompt for incomplete profiles */}
+        {needsOnboarding && (
+          <OnboardingPrompt context="requests" />
+        )}
 
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-6">
@@ -178,22 +204,33 @@ export default function HiringRequestsPage() {
             </h3>
             <p className="mt-2 text-gray-600 max-w-md mx-auto">
               {activeTab === 'received'
-                ? 'Caregivers who are interested in working with your organization will appear here.'
+                ? needsOnboarding
+                  ? 'Complete your organization profile to be discovered by caregivers looking for positions.'
+                  : 'Caregivers who are interested in working with your organization will appear here.'
                 : 'Browse available caregivers and reach out to start a conversation.'}
             </p>
-            <Link
-              href="/provider/hire-staff"
-              className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
-            >
-              Browse Caregivers
-            </Link>
+            {activeTab === 'received' && needsOnboarding ? (
+              <Link
+                href="/provider/onboarding"
+                className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+              >
+                Complete Your Profile
+              </Link>
+            ) : (
+              <Link
+                href="/provider/hire-staff"
+                className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+              >
+                Browse Caregivers
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
             {requests.map((request) => (
               <Link
                 key={request.id}
-                href={`/dashboard/my-providers/${request.id}`}
+                href={`/provider/my-candidates/${request.id}`}
                 className="block bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6"
               >
                 <div className="flex justify-between items-start mb-4">
