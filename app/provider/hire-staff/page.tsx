@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
-import AuthModal from '@/components/Auth/AuthModal';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import CaregiverCard from '@/components/Directory/CaregiverCard';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
@@ -37,7 +36,6 @@ export default function HireStaffPage() {
   const router = useRouter();
   const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
   const [loading, setLoading] = useState(true);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [requestedCaregiverIds, setRequestedCaregiverIds] = useState<Map<string, string>>(new Map());
   const [isIndependentCaregiver, setIsIndependentCaregiver] = useState(false);
 
@@ -45,7 +43,7 @@ export default function HireStaffPage() {
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
   // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
-  const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
+  const { needsOnboarding, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
 
@@ -53,9 +51,9 @@ export default function HireStaffPage() {
     // Wait for session to load
     if (status === 'loading' || identityLoading) return;
 
-    // Only show auth modal if definitively unauthenticated
+    // Redirect to login if unauthenticated (middleware also handles this)
     if (status === 'unauthenticated') {
-      setAuthModalOpen(true);
+      router.push('/login');
       return;
     }
 
@@ -68,9 +66,9 @@ export default function HireStaffPage() {
       return;
     }
 
-    // Check provider type and fetch caregivers
+    // Fetch data (even if no identity - show empty states with prompt)
     checkProviderType();
-  }, [session, status, isProviderMode, identityLoading]);
+  }, [session, status, router, isProviderMode, identityLoading]);
 
   const checkProviderType = async () => {
     try {
@@ -78,7 +76,6 @@ export default function HireStaffPage() {
       if (response.ok) {
         const provider = await response.json();
         if (provider.providerType === 'INDEPENDENT_CAREGIVER') {
-          // Mark as independent caregiver - they can browse but messaging differs
           setIsIndependentCaregiver(true);
         }
       }
@@ -87,7 +84,6 @@ export default function HireStaffPage() {
       fetchSentRequests();
     } catch (err) {
       console.error('Error checking provider type:', err);
-      // Still fetch caregivers even on error
       fetchCaregivers();
     }
   };
@@ -139,83 +135,34 @@ export default function HireStaffPage() {
     }
   };
 
-  // Show loading state first (before session check)
-  if (status === 'loading' || identityLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <Breadcrumb />
+  // Don't render until session is available (let middleware handle auth redirects)
+  if (!session) {
+    return null;
+  }
+
+  // Render content based on loading state
+  const renderContent = () => {
+    if (loading) {
+      return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
             <p className="text-lg text-gray-600">
-              Browse independent caregivers available for employment by your organization
+              Browse independent caregivers available for employment
             </p>
           </div>
           <ProfileCardsSkeleton count={6} />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  // Handle unauthenticated users - show page with auth modal
-  if (status === 'unauthenticated' || !session) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <Breadcrumb />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
-            <p className="text-lg text-gray-600">
-              Browse independent caregivers available for employment by your organization
-            </p>
-          </div>
-          <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
-            <h3 className="text-xl font-semibold text-gray-900">Sign in to continue</h3>
-            <p className="mt-2 text-gray-600">Please sign in to access the hiring marketplace.</p>
-          </div>
-        </div>
-        <AuthModal
-          isOpen={authModalOpen}
-          onClose={() => {
-            setAuthModalOpen(false);
-            router.push('/');
-          }}
-          defaultView="login"
-        />
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <Breadcrumb />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
-            <p className="text-lg text-gray-600">
-              Browse independent caregivers available for employment by your organization
-            </p>
-          </div>
-          <ProfileCardsSkeleton count={6} />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <MainNav />
-      <Breadcrumb />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
           <p className="text-lg text-gray-600">
-            Browse independent caregivers available for employment by your organization
+            Browse independent caregivers available for employment
           </p>
         </div>
 
@@ -249,6 +196,7 @@ export default function HireStaffPage() {
           </div>
         )}
 
+        {/* Results */}
         {caregivers.length === 0 ? (
           <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
             <svg
@@ -296,15 +244,14 @@ export default function HireStaffPage() {
           </div>
         )}
       </div>
+    );
+  };
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => {
-          setAuthModalOpen(false);
-          router.push('/');
-        }}
-        defaultView="login"
-      />
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <MainNav />
+      <Breadcrumb />
+      {renderContent()}
     </div>
   );
 }
