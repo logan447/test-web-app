@@ -413,6 +413,7 @@ function MainNavContent() {
                       ) : (
                         <>
                           {/* No provider profile - still show full navigation */}
+                          {/* Primary provider nav */}
                           <Link href="/provider/find-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
@@ -427,15 +428,16 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
+                          <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Provider Dashboard
+                          </Link>
+                          {/* Secondary provider nav */}
+                          <div className="border-t border-gray-200 my-1"></div>
                           <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Hire Care Staff
                           </Link>
-                          <div className="border-t border-gray-200 my-1"></div>
                           <Link href="/provider/onboarding" className="block px-4 py-2 text-sm text-primary-600 hover:bg-gray-100 font-medium">
                             Become a Caregiver
-                          </Link>
-                          <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Provider Dashboard
                           </Link>
                         </>
                       )}
@@ -722,6 +724,7 @@ function MainNavContent() {
                       ) : (
                         <>
                           {/* No provider profile - still show full navigation */}
+                          {/* Primary provider nav */}
                           <Link href="/provider/find-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
@@ -736,15 +739,16 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
+                          <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Provider Dashboard
+                          </Link>
+                          {/* Secondary provider nav */}
+                          <div className="border-t border-gray-200 my-2"></div>
                           <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Hire Care Staff
                           </Link>
-                          <div className="border-t border-gray-200 my-2"></div>
                           <Link href="/provider/onboarding" className="block px-3 py-2 text-primary-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
                             Become a Caregiver
-                          </Link>
-                          <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Provider Dashboard
                           </Link>
                         </>
                       )}
