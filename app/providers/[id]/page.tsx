@@ -17,6 +17,7 @@ import LocationSection from "@/components/Provider/LocationSection";
 import SpecialtyCareSection from "@/components/Provider/SpecialtyCareSection";
 import ProviderCTASection from "@/components/Provider/ProviderCTASection";
 import EnhancedContactModal, { ContactFormData } from "@/components/Provider/EnhancedContactModal";
+import ClaimProviderModal from "@/components/Provider/ClaimProviderModal";
 import ProviderDetailSkeleton from "@/components/Loading/ProviderDetailSkeleton";
 import { showToast } from "@/lib/toast";
 
@@ -85,9 +86,11 @@ export default function ProviderProfilePage() {
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authIntent, setAuthIntent] = useState<"family" | "provider">("family");
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactReason, setContactReason] = useState("Ask a question");
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
 
   useEffect(() => {
     fetchProvider();
@@ -128,6 +131,7 @@ export default function ProviderProfilePage() {
 
   const handleSaveToggle = async () => {
     if (!session?.user) {
+      setAuthIntent("family");
       setAuthModalOpen(true);
       return;
     }
@@ -171,6 +175,7 @@ export default function ProviderProfilePage() {
 
   const handleWriteReview = () => {
     if (!session?.user) {
+      setAuthIntent("family");
       setAuthModalOpen(true);
       return;
     }
@@ -182,8 +187,24 @@ export default function ProviderProfilePage() {
     fetchProvider();
   };
 
+  const handleClaimClick = () => {
+    if (!session?.user) {
+      setAuthIntent("provider");
+      setAuthModalOpen(true);
+      return;
+    }
+    setClaimModalOpen(true);
+  };
+
+  const handleClaimSuccess = () => {
+    // Refresh provider data and redirect to provider dashboard
+    showToast.success('Provider claimed successfully!');
+    router.push('/dashboard/provider-profile');
+  };
+
   const handleOpenRequestForm = (reason: string) => {
     if (!session?.user) {
+      setAuthIntent("family");
       setAuthModalOpen(true);
       return;
     }
@@ -346,6 +367,15 @@ export default function ProviderProfilePage() {
                 </span>
               )}
 
+              {provider.claimed === true && (
+                <span className="bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Claimed
+                </span>
+              )}
+
               {provider.claimed === false && (
                 <span className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -356,6 +386,36 @@ export default function ProviderProfilePage() {
               )}
             </div>
           </div>
+
+          {/* Claim This Listing Banner - for unclaimed providers */}
+          {provider.claimed === false && (
+            <div className="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-200 rounded-xl p-5 mb-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900">Is this your business?</h3>
+                    <p className="text-sm text-gray-600 mt-0.5">
+                      Claim this listing to manage your profile, respond to inquiries, and connect with families.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClaimClick}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm whitespace-nowrap flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Claim This Listing
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Photo Gallery */}
           {(provider.photos.length > 0 || provider.coverPhoto) && (
@@ -591,7 +651,7 @@ export default function ProviderProfilePage() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         defaultView="signup"
-        intent="family"
+        intent={authIntent}
       />
 
       {/* Review Modal */}
@@ -611,6 +671,15 @@ export default function ProviderProfilePage() {
         providerName={provider.name}
         defaultReason={contactReason}
         onSubmit={handleContactSubmit}
+      />
+
+      {/* Claim Provider Modal */}
+      <ClaimProviderModal
+        isOpen={claimModalOpen}
+        onClose={() => setClaimModalOpen(false)}
+        providerId={provider.id}
+        providerName={provider.name}
+        onClaimSuccess={handleClaimSuccess}
       />
     </div>
   );
