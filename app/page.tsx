@@ -94,6 +94,9 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  // Track if user has interacted with directory (to hide category cards after interaction)
+  const [hasInteracted, setHasInteracted] = useState(false);
+
   useEffect(() => {
     fetchProviders();
     if (session) {
@@ -191,6 +194,7 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setHasInteracted(true);
     fetchProviders();
   };
 
@@ -240,6 +244,7 @@ export default function Home() {
     setInsurance([]);
     setLanguages([]);
     setSortBy("newest");
+    setHasInteracted(true); // Prevent category cards from showing after clear
     setTimeout(() => fetchProviders(), 0);
   };
 
@@ -308,8 +313,8 @@ export default function Home() {
         totalProviders={totalProviders || 1000}
       />
 
-      {/* Category Cards */}
-      {!loading && providers.length === 0 && !search && !city && !state && !providerType && !careType && (
+      {/* Category Cards - Only show on initial load, never after user interaction */}
+      {!loading && !hasInteracted && providers.length === 0 && !search && !city && !state && !providerType && !careType && (
         <CategoryCards onCategoryClick={handleCategoryClick} />
       )}
 

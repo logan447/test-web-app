@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
@@ -79,7 +79,6 @@ type Provider = {
 export default function ProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
@@ -89,11 +88,6 @@ export default function ProviderProfilePage() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactReason, setContactReason] = useState("Ask a question");
-
-  // Determine back link based on where user came from
-  const fromSaved = searchParams.get('from') === 'saved';
-  const backHref = fromSaved ? '/dashboard/saved' : '/providers';
-  const backText = fromSaved ? '← Back to Saved Providers' : '← Back to Browse Providers';
 
   useEffect(() => {
     fetchProvider();
@@ -251,16 +245,6 @@ export default function ProviderProfilePage() {
 
       {/* Provider Profile */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link
-          href={backHref}
-          className="text-primary-600 hover:text-primary-700 mb-6 inline-flex items-center gap-2 font-medium transition-smooth"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          {backText}
-        </Link>
-
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           {/* Main content - 2/3 width */}
           <div className="lg:col-span-2 space-y-6">

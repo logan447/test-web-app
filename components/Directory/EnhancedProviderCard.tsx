@@ -65,6 +65,8 @@ export default function EnhancedProviderCard({
   return (
     <Link
       href={linkHref}
+      target="_blank"
+      rel="noopener noreferrer"
       className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden hover-lift block"
     >
       {/* Image */}
