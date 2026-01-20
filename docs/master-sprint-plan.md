@@ -509,10 +509,10 @@ Based on Sprint 0 findings, Sprint 1 should prioritize:
 
 | Item | Reason | Impact | Sprint 2 Task |
 |------|--------|--------|---------------|
-| Persistent `completionPercentage` field | Schema change needed | Low — UI shows checklist | 2.2.1 |
-| Visibility threshold enforcement (40%) | Logic complexity | Low — manual `isPublic` works | 2.2.1 |
-| Post-contact redirect to engagement | UX polish | Low — user can navigate manually | 2.2.2 or Sprint 3 |
-| Family onboarding wizard | New flow needed | Medium — families land on homepage | 2.2.3 |
+| Persistent `completionPercentage` field | Schema change needed | Low — UI shows checklist | 2.0.2 |
+| Visibility threshold enforcement (Profile Card Minimum) | Logic complexity | Low — manual `isPublic` works | 2.0.2 |
+| Post-contact redirect to engagement | UX polish | Low — user can navigate manually | 2.0.3 |
+| Shared onboarding wizard overlay | New flow needed | Medium — replaces standalone page | 2.0.0, 2.0.1 |
 | Provider profile editing | Sprint 2 scope | N/A — planned for Sprint 2 | 2.2 |
 
 ### Key Decisions Made During Sprint 1
@@ -543,24 +543,28 @@ Key commits in chronological order:
 The following tasks are queued for Sprint 2 based on Sprint 1 deferrals and the Provider Response Journey goal:
 
 ```markdown
-#### 2.2.1 Profile Completion Enforcement (from Sprint 1)
+#### 2.0.0 Shared Onboarding Wizard Overlay (NEW)
+- [ ] Build <OnboardingWizardOverlay> as shared modal component
+- [ ] Support variants: family, provider-org, caregiver
+- [ ] Reconcile /provider/onboarding route (redirect + trigger overlay)
+- [ ] Integrate at all entry points per Manual Ch 3.1
+
+#### 2.0.1 Family Onboarding (via shared overlay)
+- [ ] Family variant of shared overlay
+- [ ] Collect Profile Card Minimum fields: name, location, care type
+- [ ] Trigger on first-time family signup
+- [ ] Test: New family signup → overlay → homepage
+
+#### 2.0.2 Profile Completion & Visibility Enforcement (from Sprint 1)
 - [ ] Add `completionPercentage Int @default(0)` to FamilyProfile schema
 - [ ] Calculate and persist percentage on profile save
-- [ ] Enforce: `isPublic` cannot be true if completionPercentage < 40
-- [ ] UI: Show "Complete X more fields to make your profile visible" prompt
-- [ ] Test: Family cannot toggle visibility until threshold met
+- [ ] Enforce: `isPublic` requires Profile Card Minimum (not fixed %)
+- [ ] UI: Show specific missing fields: "Add [field] to make your profile visible"
+- [ ] Test: Visibility blocked until Profile Card Minimum met
 
-#### 2.2.2 Contact Submission Redirect (from Sprint 1)
+#### 2.0.3 Contact Submission Redirect (from Sprint 1)
 - [ ] After successful ConsultRequest creation, redirect to `/dashboard/my-providers/[id]`
 - [ ] Show success message on the engagement detail page
-
-#### 2.2.3 Family Onboarding Wizard (from Sprint 1 Audit)
-- [ ] Create family onboarding wizard at `/onboarding` or modal flow
-- [ ] Trigger on first-time family signup ONLY (not sign-in)
-- [ ] Collect minimum required fields for family profile (per Manual Ch 3 & 6)
-- [ ] Allow skip/exit at any point (per Manual Ch 3.6)
-- [ ] On completion or skip, redirect to homepage `/` (browse providers)
-- [ ] Test: New family signup → onboarding wizard → homepage
 
 #### 2.2.4 Provider Intent Signup Routing (Verification)
 - [x] Verify: `/signup?intent=provider` → provider onboarding → `/provider/find-families` ✅ Working
@@ -663,7 +667,7 @@ Cross-referenced Sprint 1 tasks against:
 | Gap | Severity | Manual Ref | Description |
 |-----|----------|------------|-------------|
 | Profile completeness not persistent | 🔴 CRITICAL | Ch 6 | No `completionPercentage` field on FamilyProfile schema. Manual requires persistent storage. |
-| Visibility threshold logic missing | 🔴 CRITICAL | Ch 6 | No logic checking 40% threshold before profile is visible to providers. |
+| Visibility threshold logic missing | 🔴 CRITICAL | Ch 6 | No logic checking Profile Card Minimum (name, location, care type) before profile is visible to providers. |
 | Contact info visibility not gated | 🔴 CRITICAL | Ch 15.3.1 | Individual provider contact info shown always; should be hidden until engagement ACCEPTED. |
 
 ### Important Gaps Identified
@@ -882,7 +886,7 @@ A family user can browse the provider directory, view provider details, save fav
 A provider can view incoming requests, respond to families, and manage their profile.
 
 ### Chapters Covered
-- Ch 3: Onboarding (family wizard — deferred from Sprint 1)
+- Ch 3: Onboarding (shared wizard overlay — deferred from Sprint 1)
 - Ch 6: Family Profiles (completion tracking — deferred from Sprint 1)
 - Ch 7: Provider Profiles (editing)
 - Ch 10: Provider Claiming
@@ -890,41 +894,89 @@ A provider can view incoming requests, respond to families, and manage their pro
 - Ch 15: Engagements (response flow)
 - Ch 16: Messaging (basic)
 
+### Key Decisions Made (Sprint 2 Planning)
+
+| Decision | Details | Impact |
+|----------|---------|--------|
+| **Onboarding = Module Overlay** | Onboarding wizard is a shared overlay component, NOT standalone pages. Used for Families, Provider Orgs, and Individual Caregivers. | Reconcile `/provider/onboarding` via redirect + overlay trigger |
+| **Visibility = Profile Card Minimum** | Visibility threshold is defined by minimum fields to render a profile card (not fixed 40%). Fields: name, location, role-specific type. | Simpler logic, clearer user messaging |
+| **Contact Redirect (2.0.3)** | Confirmed for Sprint 2. Redirect to `/dashboard/my-providers/[id]` after ConsultRequest. | Improved post-contact UX |
+| **Provider Dashboard Widgets** | **RETRACTED** — no additional widgets needed this sprint. Profile completion + quick links only. | Reduced scope |
+| **Provider Profile UX** | Should match family dashboard → care profile pattern in look, feel, and UX. | Consistent experience |
+| **Q7-Q9 Recommendations** | Accepted as proposed. | See task details below |
+
 ### Tasks
 
-#### 2.0 Sprint 1 Deferrals (MUST COMPLETE FIRST)
+#### 2.0 Sprint 1 Deferrals & Shared Onboarding System (MUST COMPLETE FIRST)
+
+**2.0.0 Shared Onboarding Wizard Overlay** (NEW — Ch 3 architecture update)
+> Per Manual Ch 3: Onboarding is a **module overlay**, not a standalone page. This is a shared component used for all user types (Families, Provider Organizations, Individual Caregivers).
+
+- [ ] Create `<OnboardingWizardOverlay>` component as shared modal overlay
+- [ ] Support three variants via prop: `variant="family" | "provider-org" | "caregiver"`
+- [ ] Implement intent/subtype selection flow (per Manual 3.3):
+  - "Are you looking for care?" → Family variant
+  - "Are you a care provider?" → "Individual caregiver?" vs "Care organization?"
+- [ ] Integrate triggers at all entry points (per Manual 3.1):
+  - "Get Started" button
+  - First-time signup (after auth completes)
+  - First mode switch without profile
+  - `/for-providers` CTA
+  - "Claim this page" on provider profiles
+- [ ] Reconcile existing `/provider/onboarding` route:
+  - Redirect to `/` with overlay auto-triggered
+  - Eventually deprecate standalone page
+- [ ] Implement save-as-you-go on blur/Next (per Manual 3.6)
+- [ ] Implement dismissible behavior (X button always visible)
+- [ ] Test: All entry points trigger correct variant
 
 **2.0.1 Family Onboarding Wizard** (from Sprint 1 audit)
-- [ ] Create family onboarding wizard at `/onboarding` or modal flow
-- [ ] Trigger on first-time family signup ONLY (not sign-in)
-- [ ] Collect minimum required fields: loved one name, location (city/state), primary care type needed
-- [ ] Allow skip/exit at any point (per Manual Ch 3.6)
-- [ ] On completion or skip, redirect to homepage `/` (browse providers)
-- [ ] Test: New family signup → onboarding wizard → homepage
+> Now implemented as a **variant of the shared overlay**, not a standalone page.
 
-**2.0.2 Profile Completion Enforcement** (from Sprint 1)
+- [ ] Family variant of `<OnboardingWizardOverlay>`
+- [ ] Trigger on first-time family signup (after auth completes)
+- [ ] Collect **Profile Card Minimum Fields** (per Two-Threshold Model):
+  - Full name
+  - Location (city/state)
+  - Primary care type needed
+- [ ] Allow skip/exit at any point (per Manual Ch 3.6)
+- [ ] On completion or skip, dismiss overlay (user stays on current page or goes to `/`)
+- [ ] Test: New family signup → overlay appears → can skip/complete → homepage
+
+**2.0.2 Profile Completion & Visibility Enforcement** (from Sprint 1)
+> Visibility is based on **Profile Card Minimum Fields**, NOT a fixed percentage.
+
 - [ ] Add `completionPercentage Int @default(0)` to FamilyProfile schema
 - [ ] Calculate and persist percentage on profile save
-- [ ] Enforce: `isPublic` cannot be true if completionPercentage < 40
-- [ ] UI: Show "Complete X more fields to make your profile visible" prompt
-- [ ] Test: Family cannot toggle visibility until threshold met
+- [ ] Visibility rule: `isPublic` cannot be true unless **Profile Card Minimum** is met:
+  - Family: name, location, care type
+  - Provider Org: org name, location, provider type
+  - Caregiver: name, location, services
+- [ ] UI: Show specific missing fields: "Add [location] to make your profile visible"
+- [ ] Completion % is for UX feedback only (separate from visibility gate)
+- [ ] Test: Family cannot toggle visibility until profile card minimum met
 
-**2.0.3 Contact Submission Redirect** (from Sprint 1)
+**2.0.3 Contact Submission Redirect** (from Sprint 1 — CONFIRMED)
 - [ ] After successful ConsultRequest creation, redirect to `/dashboard/my-providers/[id]`
 - [ ] Show success message on the engagement detail page
-- [ ] Alternative: defer to Sprint 3 if not blocking
 
 #### 2.1 Provider Dashboard (Ch 13)
-- [ ] Verify `/provider/dashboard` shows summary widgets
-- [ ] Display: pending requests count, recent messages, profile completion
+> Provider dashboard widgets beyond profile completion are **RETRACTED** from Sprint 2 scope.
+
+- [ ] Verify `/provider/dashboard` exists and functions
+- [ ] Display: profile completion indicator
 - [ ] Add quick links to: requests, profile editing, saved families
+- [ ] Note: Additional summary widgets (request counts, messages) deferred
 
 #### 2.2 Provider Profile Editing (Ch 7)
-- [ ] Build comprehensive profile editor at `/provider/dashboard` (or `/provider/profile`)
+> Provider profile editing should closely match the **family dashboard → care profile** pattern in look, feel, and UX.
+
+- [ ] Profile editor accessible via "Edit Profile" action on provider dashboard
 - [ ] Sections: Basic Info, Services, Amenities, Photos, Pricing
 - [ ] Photo upload using existing upload infrastructure
 - [ ] Cover photo selection
-- [ ] Profile completion percentage indicator
+- [ ] Profile completion percentage indicator with specific field prompts
+- [ ] UX parity with family care profile editing experience
 
 #### 2.3 Incoming Requests (Ch 15)
 - [ ] Verify `/provider/my-families` (formerly `/provider/requests`) lists all ConsultRequests
@@ -948,49 +1000,60 @@ A provider can view incoming requests, respond to families, and manage their pro
 - Sprint 1 complete ✅ (family can initiate contact)
 
 ### Acceptance Criteria
-- [ ] Family onboarding wizard captures minimum required fields
-- [ ] Profile completion tracking persists and enforces visibility threshold
+- [ ] Shared onboarding wizard overlay implemented for all user types
+- [ ] Family onboarding captures Profile Card Minimum fields
+- [ ] Provider onboarding captures Profile Card Minimum fields (via same overlay)
+- [ ] Visibility enforced by Profile Card Minimum (not fixed %)
+- [ ] Profile completion % persists for UX feedback
 - [ ] Provider sees incoming requests on dashboard
 - [ ] Provider can accept/decline requests
 - [ ] Provider can send reply message
-- [ ] Provider can edit their profile
+- [ ] Provider can edit their profile (matches family UX pattern)
+- [ ] Contact submission redirects to engagement detail page
 - [ ] Unclaimed provider can be claimed by user
 
 ### Definition of Done — Testable Outcomes
 
 | Test | How to Verify | Expected Result |
 |------|---------------|-----------------|
-| Family onboarding | Sign up as new family | Onboarding wizard appears, can skip/complete |
-| Profile completion | Save partial family profile | `completionPercentage` updates, visibility toggle respects threshold |
-| Provider dashboard | Log in as provider | Summary widgets show request counts |
+| Shared onboarding overlay | Click "Get Started" | Overlay appears, asks family vs provider |
+| Family onboarding | Sign up as new family | Family variant overlay appears, can skip/complete |
+| Provider onboarding | Switch to provider mode (no profile) | Provider variant overlay appears |
+| `/provider/onboarding` reconciliation | Navigate to `/provider/onboarding` | Redirects to `/` with overlay triggered |
+| Profile visibility | Try to enable visibility without card minimum | Blocked with specific field prompt |
+| Profile completion | Save partial family profile | `completionPercentage` updates (separate from visibility) |
+| Contact submission | Submit consult request | Redirect to `/dashboard/my-providers/[id]` with success |
+| Provider dashboard | Log in as provider | Dashboard shows profile completion, quick links |
 | Incoming requests | Provider views requests | List shows family requests with status |
 | Accept request | Provider clicks Accept | Status changes, family info revealed |
 | Reply to request | Provider sends message | Message appears in thread |
-| Provider profile edit | Edit provider profile | Changes persist, completion % updates |
+| Provider profile edit | Edit provider profile | Changes persist, UX matches family pattern |
 | Claim provider | Click "Claim this listing" | Provider linked to user, badge changes |
 
 ### Tech Debt Notes
 - **Demo acceptable**: Claiming verification is simple confirmation (no document upload)
 - **Demo acceptable**: Basic messaging (no real-time, no read receipts yet)
-- **Demo acceptable**: Family wizard can be modal or page — optimize for conversion
+- **Must be solid**: Shared onboarding overlay works for all user types
 - **Must be solid**: Request status transitions must be correct
 - **Must be solid**: Provider-User linking via ProviderIdentity
-- **Must be solid**: Profile completion calculation must be deterministic
+- **Must be solid**: Profile Card Minimum visibility gate is deterministic
 
 ### Risks & Dependencies
 
 | Risk | Mitigation |
 |------|------------|
 | Schema migration for `completionPercentage` | Run migration in dev/staging before production |
+| Shared overlay complexity | Start with family variant, extend to provider |
+| `/provider/onboarding` deprecation | Keep redirect in place until overlay stable |
 | Family wizard may increase signup friction | Allow skip at any point; measure completion rate |
 | Provider claiming requires verification | Demo uses simple confirmation; production adds document upload |
 
 ### Estimated Scope
 
 Based on Sprint 0-1 velocity, Sprint 2 contains approximately:
-- 3 deferred items from Sprint 1 (2.0.1, 2.0.2, 2.0.3)
+- 4 deferred/new items for shared onboarding (2.0.0, 2.0.1, 2.0.2, 2.0.3)
 - 5 new tasks (2.1, 2.2, 2.3, 2.4, 2.5)
-- ~40 files affected (based on Sprint 1 pattern)
+- ~45 files affected (shared overlay adds ~5 files)
 
 ---
 

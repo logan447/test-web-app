@@ -1,6 +1,6 @@
 # Olera Platform — Master Systems Manual
 
-> **Version**: 1.2 — Sprint 1 Complete
+> **Version**: 1.3 — Sprint 2 Planning Update
 > **Last Reviewed**: January 20, 2026
 
 > **Purpose**: This document serves as the source of truth for all platform systems. It will be iteratively refined as we work through each chapter, answer key questions, and make architectural decisions.
@@ -446,20 +446,24 @@ These are documented behaviors that differ from the ideal/production specificati
 | Threshold | Requirements | What It Enables |
 |-----------|--------------|-----------------|
 | **Account Creation** | Email + password (or social auth) | Explore platform, but profile invisible, no matching |
-| **Profile Visibility + Matching** | Name, location, basic role-specific fields | Profile card renders, visibility toggles work, matching activates |
+| **Profile Visibility + Matching** | Profile Card Minimum Fields | Profile card renders, visibility toggles work, matching activates |
 
-**Visibility Threshold Fields** (minimum to cross):
+**Visibility Threshold Definition**:
+> The visibility threshold is NOT a fixed percentage (e.g., 40%). Instead, it is defined by the **minimum set of fields required to render a profile card** in the relevant marketplace. A profile becomes visible once it contains the data necessary to be displayed correctly in search results and cards.
 
-| Profile Type | Required for Visibility |
-|--------------|------------------------|
-| Family | Full name, location, care type needed |
-| Individual Caregiver | Full name, location, services offered |
-| Provider Organization | Org name, location, provider type |
+**Profile Card Minimum Fields** (required for visibility):
+
+| Profile Type | Required for Profile Card | Rationale |
+|--------------|---------------------------|-----------|
+| Family | Full name, location, care type needed | Card displays: name, location, seeking care type |
+| Individual Caregiver | Full name, location, services offered | Card displays: name, location, services list |
+| Provider Organization | Org name, location, provider type | Card displays: org name, location, care type badge |
 
 **Behavior if threshold not met**:
 - Profile exists but marked invisible
 - User prompted to complete required fields if they try to enable visibility
 - Matching algorithm ignores profiles below threshold
+- UI clearly shows which specific fields are needed: "Add [field] to make your profile visible"
 
 ### Route Architecture Principles (DECIDED)
 
@@ -1039,8 +1043,36 @@ No separate mode-selection modal. Mode is determined by:
 
 **Purpose**: Single, lightweight wizard supporting multiple entry points and user types. This is a shared system referenced by other chapters.
 
+### Core Architectural Decision: Module Overlay Pattern (DECIDED)
+
+> **IMPORTANT**: The onboarding wizard is implemented as a **module overlay** (modal), NOT as a standalone page. This is a shared UI component used across all user types:
+> - Families
+> - Provider Organizations
+> - Individual Caregivers
+>
+> The overlay pattern ensures:
+> 1. **Consistent UX**: Same interaction pattern for all user types
+> 2. **Non-blocking**: User can dismiss and continue exploring
+> 3. **Context preservation**: Overlay appears over current page; user returns to same context after completion/dismissal
+> 4. **Shared codebase**: Single component with variant-specific content
+
+**Route Reconciliation** (addressing existing `/provider/onboarding` page):
+
+| Current State | Target State |
+|---------------|--------------|
+| `/provider/onboarding` exists as standalone page | Deprecated; replaced by shared overlay |
+| Page handles type selection + identity creation | Overlay handles same flow |
+| Direct navigation to `/provider/onboarding` | Redirect to previous page + trigger overlay |
+
+**Migration Path**:
+1. Build shared `<OnboardingWizardOverlay>` component
+2. Integrate overlay triggers at entry points (3.1)
+3. Redirect `/provider/onboarding` to `/` with overlay auto-triggered
+4. Eventually remove standalone page once overlay is stable
+
 | Item | Status | Notes |
 |------|--------|-------|
+| 3.0 Module Overlay Architecture | ⬜ | Shared overlay component (Sprint 2) |
 | 3.1 Wizard Triggers | 🟡 | Multiple entry points, needs consolidation |
 | 3.2 Wizard Variants (Family / Caregiver / Org) | 🟡 | Exists but may need cleanup |
 | 3.3 Intent & Subtype Selection | 🟡 | "Get Started" + provider subtype question |
@@ -1056,6 +1088,7 @@ No separate mode-selection modal. Mode is determined by:
 - [x] Should onboarding be skippable or mandatory? → **Skippable, non-blocking**
 - [x] What are the distinct entry points? → **See 3.1 below**
 - [x] What is the minimum info required for each user type? → **None beyond email/password (see below)**
+- [x] Should onboarding be a standalone page or overlay? → **Module overlay (modal), shared across all user types**
 
 ### Profile Data Philosophy (DECIDED)
 
@@ -1757,19 +1790,28 @@ Current field structure accepted as-is for demo:
 
 **Display**: Progress bar/indicator in Family Dashboard.
 
-**Nudging**: "Complete your profile" prompt if below visibility threshold.
+**Visibility Threshold** (Profile Card Minimum):
+> Visibility is NOT determined by a fixed percentage. A profile becomes visible when it has the **minimum fields required to render a profile card** in the provider marketplace.
+>
+> **Family Profile Card Minimum**: Full name, location, care type needed
+>
+> Cross-reference: See Foundational Decisions → Two-Threshold Model
 
-**Suggested completion weights**:
+**Completion Percentage Calculation** (separate from visibility):
+Completion % is for UX feedback only; visibility is binary based on profile card minimum.
 
 | Field Group | Weight | Notes |
 |-------------|--------|-------|
-| Visibility threshold (name, location, care type) | 40% | Must complete to be visible |
+| Profile card minimum (name, location, care type) | 40% | **Required for visibility** |
 | Care needs details | 20% | Improves matching |
 | Personality & preferences | 15% | Improves matching |
 | Budget & timeline | 15% | Improves matching |
 | Contact preferences | 10% | Improves engagement |
 
-**Note**: Crossing visibility threshold ≈ 40% complete. Weights can be tuned later.
+**Nudging Logic**:
+- If profile card minimum NOT met: "Add [missing field] to make your profile visible"
+- If visible but <80% complete: "Add more details to improve your match quality"
+- If ≥80% complete: Subtle or no prompt
 
 #### 6.9 Multiple Care Profiles (DECIDED)
 
@@ -1964,9 +2006,21 @@ Current field structure accepted as-is for demo:
 
 **Display**: Progress bar/indicator in Provider Dashboard.
 
-**Nudging**: "Complete your profile" prompt if below visibility threshold.
+**Visibility Threshold** (Profile Card Minimum):
+> Visibility is NOT determined by a fixed percentage. A profile becomes visible when it has the **minimum fields required to render a profile card** in the family marketplace.
+>
+> **Provider Org Card Minimum**: Org name, location, provider type
+> **Individual Caregiver Card Minimum**: Full name, location, services offered
+>
+> Cross-reference: See Foundational Decisions → Two-Threshold Model
 
-**Note**: Completion weights similar to family profiles — visibility threshold fields ≈ 40%, additional fields improve matching. Exact weights can be tuned later.
+**Completion Percentage Calculation** (separate from visibility):
+Completion % is for UX feedback only; visibility is binary based on profile card minimum.
+
+**Nudging Logic**:
+- If profile card minimum NOT met: "Add [missing field] to make your profile visible to families"
+- If visible but <80% complete: "Add more details to attract more families"
+- If ≥80% complete: Subtle or no prompt
 
 #### 7.14 Primary Care Type Requirement (DECIDED)
 
