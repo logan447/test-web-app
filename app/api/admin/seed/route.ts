@@ -23,7 +23,7 @@ import { hash } from 'bcryptjs';
  */
 const TEST_ACCOUNTS = {
   domain: '@test.olera.com',
-  password: 'test123!',
+  password: 'test1234!',
   accounts: [
     {
       key: 'family',
