@@ -1056,18 +1056,33 @@ No separate mode-selection modal. Mode is determined by:
 > 3. **Context preservation**: Overlay appears over current page; user returns to same context after completion/dismissal
 > 4. **Shared codebase**: Single component with variant-specific content
 
+**Overlay Context by Intent** (DECIDED):
+
+The overlay appears over the **appropriate mode context** based on the entry point:
+
+| Entry Point | Intent | Overlay Appears Over |
+|-------------|--------|---------------------|
+| "Get Started" (ambiguous) | Ask user | Family homepage (`/`) initially, then route based on selection |
+| `/signup` (default) | Family | Family homepage (`/`) |
+| `/for-providers` CTA | Provider | Provider mode page (`/provider/find-families`) |
+| "Claim this page" on provider profile | Provider | Provider mode page (`/provider/find-families`) |
+| First switch to provider mode | Provider | Provider mode page (current page or `/provider/find-families`) |
+| First switch to family mode | Family | Family homepage (`/`) |
+
+> **Key Principle**: When provider intent is clear from the entry point, the overlay appears over provider-mode pages, maintaining context continuity. The user stays in the provider experience throughout onboarding.
+
 **Route Reconciliation** (addressing existing `/provider/onboarding` page):
 
 | Current State | Target State |
 |---------------|--------------|
 | `/provider/onboarding` exists as standalone page | Deprecated; replaced by shared overlay |
 | Page handles type selection + identity creation | Overlay handles same flow |
-| Direct navigation to `/provider/onboarding` | Redirect to previous page + trigger overlay |
+| Direct navigation to `/provider/onboarding` | Redirect to `/provider/find-families` + trigger overlay |
 
 **Migration Path**:
 1. Build shared `<OnboardingWizardOverlay>` component
 2. Integrate overlay triggers at entry points (3.1)
-3. Redirect `/provider/onboarding` to `/` with overlay auto-triggered
+3. Redirect `/provider/onboarding` to `/provider/find-families` with overlay auto-triggered
 4. Eventually remove standalone page once overlay is stable
 
 | Item | Status | Notes |
