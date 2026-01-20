@@ -127,23 +127,6 @@ export default function RequestDetailPage() {
   const [smartNotifications, setSmartNotifications] = useState<SmartNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Determine back link based on where user came from and request type
-  const fromSaved = searchParams.get('from') === 'saved';
-  const isProviderMode = (session?.user?.activeMode || 'FAMILY') === 'PROVIDER';
-  const isHiringRequest = request?.requestType === 'HIRING';
-
-  const backHref = fromSaved
-    ? (isProviderMode ? '/provider/saved-families' : '/dashboard/saved')
-    : isHiringRequest
-      ? '/provider/hiring-requests'
-      : '/dashboard/my-providers';
-
-  const backText = fromSaved
-    ? '← Back to Saved'
-    : isHiringRequest
-      ? '← Back to Hiring Requests'
-      : '← Back to My Providers';
-
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -715,12 +698,6 @@ export default function RequestDetailPage() {
       <Breadcrumb currentPage={isFamily ? request.provider.name : request.familyProfile.user.name} />
 
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <Link href={backHref} className="text-primary-600 hover:text-primary-700">
-            {backText}
-          </Link>
-        </div>
-
         {/* Request Header */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex justify-between items-start mb-4">
