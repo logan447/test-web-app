@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { OnboardingIntent, ProviderSubtype } from "@/components/Onboarding";
 
@@ -34,6 +34,10 @@ interface UseOnboardingWizardReturn {
 const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
 const ONBOARDING_TRIGGER_KEY = "olera_onboarding_trigger";
 
+// Minimum time (ms) the wizard must stay open after trigger-based opening
+// This prevents race conditions with other effects that might try to close it
+const WIZARD_OPEN_PROTECTION_MS = 500;
+
 /**
  * Hook to manage the onboarding wizard overlay state.
  *
@@ -64,22 +68,36 @@ export function useOnboardingWizard(
     options.initialProviderSubtype || null
   );
 
+  // Ref to track whether wizard is in a "protected open" state
+  // This prevents race conditions from closing the wizard prematurely
+  const openProtectionRef = useRef<number | null>(null);
+  // Ref to track if trigger was already processed in this session
+  const triggerProcessedRef = useRef(false);
+
   // Check if user needs onboarding (simple check - can be expanded)
   const needsOnboarding = status === "authenticated" && !hasCompletedOnboarding();
 
   // Check for onboarding trigger from signup redirect
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Only process trigger once per hook instance to prevent race conditions
+    if (triggerProcessedRef.current) return;
 
     const trigger = sessionStorage.getItem(ONBOARDING_TRIGGER_KEY);
     if (trigger && status === "authenticated") {
       try {
         const triggerData = JSON.parse(trigger);
+        // Mark as processed BEFORE setting state to prevent double-processing
+        triggerProcessedRef.current = true;
+        // Clear trigger from storage immediately
+        sessionStorage.removeItem(ONBOARDING_TRIGGER_KEY);
+
         setIntent(triggerData.intent || null);
         setProviderSubtype(triggerData.providerSubtype || null);
         setIsOpen(true);
-        // Clear trigger after use
-        sessionStorage.removeItem(ONBOARDING_TRIGGER_KEY);
+
+        // Set protection timestamp - close() will be blocked for a short period
+        openProtectionRef.current = Date.now();
       } catch {
         // Invalid trigger data, ignore
         sessionStorage.removeItem(ONBOARDING_TRIGGER_KEY);
@@ -104,6 +122,18 @@ export function useOnboardingWizard(
   );
 
   const close = useCallback(() => {
+    // Check if we're in the protection period after trigger-based opening
+    if (openProtectionRef.current !== null) {
+      const elapsed = Date.now() - openProtectionRef.current;
+      if (elapsed < WIZARD_OPEN_PROTECTION_MS) {
+        // Still in protection period - ignore close attempt
+        // This prevents race conditions with other effects
+        return;
+      }
+      // Protection period expired - clear the ref
+      openProtectionRef.current = null;
+    }
+
     setIsOpen(false);
     // Mark onboarding as shown (even if not completed)
     markOnboardingShown();
