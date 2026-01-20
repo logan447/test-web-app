@@ -13,7 +13,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   // Dashboard routes (family mode)
   dashboard: "Dashboard",
   requests: "My Providers",
-  "my-providers": "My Providers",
+  "my-providers": "My Families",
   saved: "Saved Providers",
   "care-profile": "Care Profile",
   "care-profiles": "Care Profiles",

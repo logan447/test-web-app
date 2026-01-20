@@ -60,10 +60,10 @@ function SignupForm() {
 
       // Redirect based on activeMode from signup response
       // Use window.location.href for full page reload to ensure clean state
-      // PROVIDER mode → Find Families (discovery-first, with gentle profile nudge)
-      // FAMILY mode → homepage (browse providers)
+      // PROVIDER mode → Onboarding wizard (per Manual Ch 3)
+      // FAMILY mode → homepage (family onboarding wizard is Sprint 2)
       if (result.activeMode === "PROVIDER") {
-        window.location.href = "/provider/find-families";
+        window.location.href = "/provider/onboarding";
       } else {
         window.location.href = "/";
       }

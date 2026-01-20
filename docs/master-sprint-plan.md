@@ -516,6 +516,19 @@ Add these to Sprint 2 tasks:
 #### 2.2.2 Contact Submission Redirect (from Sprint 1)
 - [ ] After successful ConsultRequest creation, redirect to `/dashboard/requests/[id]`
 - [ ] Show success message on the engagement detail page
+
+#### 2.2.3 Family Onboarding Wizard (from Sprint 1 Audit)
+- [ ] Create family onboarding wizard at `/onboarding` or modal flow
+- [ ] Trigger on first-time family signup ONLY (not sign-in)
+- [ ] Collect minimum required fields for family profile (per Manual Ch 3 & 6)
+- [ ] Allow skip/exit at any point (per Manual Ch 3.6)
+- [ ] On completion or skip, redirect to homepage `/` (browse providers)
+- [ ] Test: New family signup → onboarding wizard → homepage
+
+#### 2.2.4 Provider Intent Signup Routing (Verification)
+- [ ] Verify: `/signup?intent=provider` → provider onboarding wizard at `/provider/onboarding`
+- [ ] Verify: `/for-providers` CTA signup → provider onboarding wizard
+- [ ] This should already be working; verify and document
 ```
 
 ---
@@ -560,12 +573,12 @@ Always restore the user's last active mode from `User.activeMode` in the databas
 
 ### Post-Signup Redirect Destinations (UPDATED)
 
-> **Note**: Manual Ch 3.7 originally specified dashboard landing, but human audit determined that discovery-first landing (`/provider/find-families`) provides better UX with gentle profile nudge. This is now the standardized behavior.
+> **Note**: Manual Ch 3.7 specifies onboarding wizard for new signups. Provider signups now route to onboarding wizard; family onboarding wizard is Sprint 2.
 
 | Scenario | Redirect To |
 |----------|-------------|
-| New user signup with FAMILY mode | `/` — homepage (browse providers) |
-| New user signup with PROVIDER mode | `/provider/find-families` — discovery-first with profile nudge |
+| New user signup with FAMILY mode | `/` — homepage (family onboarding wizard is Sprint 2) |
+| New user signup with PROVIDER mode | `/provider/onboarding` — onboarding wizard (per Manual Ch 3) |
 | User dismisses wizard early | Stay on current page |
 
 ### Decision Table: Entry Context → Post-Auth Destination (UPDATED)
@@ -573,9 +586,9 @@ Always restore the user's last active mode from `User.activeMode` in the databas
 | Entry Context | Auth Type | Intent | Initial Mode | Post-Auth Redirect |
 |---------------|-----------|--------|--------------|-------------------|
 | `/signup` (direct) | Signup | (none) | FAMILY | `/` |
-| `/signup?intent=provider` | Signup | provider | PROVIDER | `/provider/find-families` |
-| `/for-providers` CTA | Signup | provider | PROVIDER | `/provider/find-families` |
-| "Become a Provider" footer | Signup | provider | PROVIDER | `/provider/find-families` |
+| `/signup?intent=provider` | Signup | provider | PROVIDER | `/provider/onboarding` |
+| `/for-providers` CTA | Signup | provider | PROVIDER | `/provider/onboarding` |
+| "Become a Provider" footer | Signup | provider | PROVIDER | `/provider/onboarding` |
 | "Get Started" (unknown) | Signup | (default) | FAMILY | `/` |
 | `/login` (direct) | Login | N/A | Restore from DB | FAMILY → `/`, PROVIDER → `/provider/find-families` |
 | Login modal | Login | N/A | Restore from DB | FAMILY → `/`, PROVIDER → `/provider/find-families` |

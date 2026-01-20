@@ -118,10 +118,10 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       // Use window.location.href for full page reload to ensure clean state
       onClose();
       if (result.activeMode === "PROVIDER") {
-        // Provider mode → Find Families (discovery-first, with gentle profile nudge)
-        window.location.href = "/provider/find-families";
+        // Provider mode → Onboarding wizard (per Manual Ch 3)
+        window.location.href = "/provider/onboarding";
       } else {
-        // Family mode → browse providers
+        // Family mode → browse providers (family onboarding wizard is Sprint 2)
         window.location.href = "/";
       }
     } catch (error) {
