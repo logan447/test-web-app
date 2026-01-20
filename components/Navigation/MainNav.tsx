@@ -146,6 +146,20 @@ function MainNavContent() {
     return () => clearInterval(interval);
   }, [session]);
 
+  // Show mode switch toast after navigation (stored in sessionStorage before hard nav)
+  useEffect(() => {
+    const modeSwitchData = sessionStorage.getItem('modeSwitch');
+    if (modeSwitchData) {
+      try {
+        const { message } = JSON.parse(modeSwitchData);
+        showToast.success(message);
+      } catch (e) {
+        console.error('Error parsing mode switch data:', e);
+      }
+      sessionStorage.removeItem('modeSwitch');
+    }
+  }, []);
+
   // Mode switching handler - updates DB and session (Manual Ch 2)
   // Database is the single source of truth for mode
   const handleModeSwitch = async (newMode: 'FAMILY' | 'PROVIDER') => {
@@ -154,7 +168,7 @@ function MainNavContent() {
     setSwitchingMode(true);
 
     try {
-      // Update mode in database via PATCH endpoint
+      // Step 1: Update mode in database via PATCH endpoint
       const response = await fetch('/api/user/mode', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -167,12 +181,20 @@ function MainNavContent() {
 
       const result = await response.json();
 
-      // Show success message before navigation
-      showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
+      // Step 2: Update JWT token with new mode (critical for session consistency)
+      await updateSession({ activeMode: newMode });
 
-      // Use hard navigation to landing page to avoid race conditions
-      // with page-level useEffects that might redirect based on mode
-      // Provider mode -> Find Families, Family mode -> Find Providers (home)
+      // Step 3: Store toast message in sessionStorage to show after navigation
+      // (Hard navigation interrupts React, so toast won't show otherwise)
+      sessionStorage.setItem('modeSwitch', JSON.stringify({
+        mode: newMode,
+        message: `Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`
+      }));
+
+      // Step 4: Hard navigation to landing page
+      // This prevents race conditions with page-level useEffects that redirect based on mode
+      // Provider mode -> Find Families (/provider/find-families)
+      // Family mode -> Find Providers (/)
       window.location.href = result.data.landingPage;
 
     } catch (error) {
