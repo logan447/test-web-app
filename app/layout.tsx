@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import Footer from "@/components/Navigation/Footer";
+import { OnboardingTrigger } from "@/components/Onboarding";
+
+// Font configuration per Manual Ch 4.2.1
+// Inter is specified in globals.css and tailwind.config.ts as the primary font
+// Using system font stack with Inter as preferred when available
+// This approach avoids build-time network dependency on Google Fonts
 
 export const metadata: Metadata = {
   title: {
@@ -84,8 +91,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        <Providers>{children}</Providers>
+      <body className="antialiased min-h-screen flex flex-col">
+        <Providers>
+          <div className="flex-1">{children}</div>
+          <Footer />
+          <OnboardingTrigger />
+        </Providers>
       </body>
     </html>
   );

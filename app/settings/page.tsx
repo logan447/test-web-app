@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 
 export default function SettingsPage() {
   const { data: session, status, update } = useSession();
@@ -33,10 +34,14 @@ export default function SettingsPage() {
   useEffect(() => {
     if (status === "loading") return;
 
-    if (!session) {
+    // Only redirect to login if session status is definitively unauthenticated
+    if (status === "unauthenticated") {
       router.push("/login");
       return;
     }
+
+    // Session is authenticated but data might still be loading
+    if (!session) return;
 
     // Fetch user data
     const fetchUserData = async () => {
@@ -145,6 +150,7 @@ export default function SettingsPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-10 bg-gray-200 rounded w-1/3 mb-8"></div>
@@ -165,6 +171,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

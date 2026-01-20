@@ -1,7 +1,7 @@
 # Olera Platform — Master Systems Manual
 
-> **Version**: 1.0 — Structure Approved
-> **Last Reviewed**: January 17, 2026
+> **Version**: 1.3 — Sprint 2 Planning Update
+> **Last Reviewed**: January 20, 2026
 
 > **Purpose**: This document serves as the source of truth for all platform systems. It will be iteratively refined as we work through each chapter, answer key questions, and make architectural decisions.
 >
@@ -28,7 +28,7 @@
 
 ## Review Progress
 
-**Last Updated**: January 17, 2026
+**Last Updated**: January 20, 2026 (Sprint 1 Audit Complete)
 
 | Status | Count | Chapters |
 |--------|-------|----------|
@@ -44,6 +44,153 @@ All originally pending chapters have been reviewed. ✅
 ### Chapters Requiring Content Development
 
 All chapters have been reviewed and developed. ✅
+
+---
+
+## Sprint 0 Completion Summary
+
+> **Completion Date**: January 19, 2026
+> **Status**: ✅ Complete — Platform foundations verified and stable
+
+### What Was Verified
+
+Sprint 0 focused on stabilizing the foundation layer before building features. The following systems were verified through comprehensive human audits:
+
+| System | Status | Verification Method |
+|--------|--------|---------------------|
+| Authentication & Session | ✅ Solid | Hard refresh tests, login/logout cycles |
+| Mode System (FAMILY/PROVIDER) | ✅ Solid | Toggle, persist, refresh, cross-session |
+| Mode Initialization (Signup) | ✅ Fixed | Intent parameter flow verified end-to-end |
+| Route Protection | ✅ Solid | Middleware gates all protected routes |
+| Breadcrumb Navigation | ✅ Built | Auto-generated on 19+ pages |
+| Provider Gating | ✅ Working | Redirects to onboarding when no ProviderIdentity |
+| Build System | ✅ Passing | `npm run build` and `npm run dev` verified |
+| Seed Data System | ✅ Working | 4 test accounts with proper relationships |
+
+### Bugs Fixed During Sprint 0
+
+| Bug | Impact | Fix Applied |
+|-----|--------|-------------|
+| Signup ignored `?intent=provider` | Provider-targeted signup didn't set PROVIDER mode | Added `useSearchParams()`, pass intent to API |
+| AuthModal didn't pass intent | Modal signup always defaulted to FAMILY mode | Added intent prop, redirect by mode |
+| AuthModal view state not resetting | Re-opening modal showed previous view | Added useEffect to sync view state on open |
+| Hard refresh caused login redirect | Using `!session` instead of auth status | Changed to `status === "unauthenticated"` pattern |
+| Breadcrumbs missing on known routes | CUID regex matched known segments like "dashboard" | Check `SEGMENT_LABELS` before ID detection |
+
+### Key Architectural Decisions Confirmed
+
+1. **Mode Source of Truth**: `User.activeMode` in database (URL param to be removed in Sprint 1)
+2. **Auth Pattern**: Use `status === "unauthenticated"` not `!session` for redirect logic
+3. **Provider Gating**: Uses `ProviderIdentity` model (to be simplified in Sprint 1)
+4. **Breadcrumb Strategy**: Auto-generated from URL path with `SEGMENT_LABELS` mapping
+5. **Intent Flow**: `/signup?intent=provider` → API → `activeMode: PROVIDER` → redirect to provider dashboard
+
+### Platform-Wide Implications for Future Sprints
+
+| Implication | Affected Sprints | Notes |
+|-------------|------------------|-------|
+| Auth pattern established | All | Always use `status === "unauthenticated"` for redirects |
+| Mode is DB-only | Sprint 1+ | Remove all URL `?mode=` handling |
+| Gentle nudges over forced redirects | Sprint 1 | Per Manual Ch 8, use prompts not blocks |
+| Navigation rendering principle | Sprint 1+ | "Maximize visibility, gate by action" |
+
+### Items Deferred to Sprint 1
+
+See Sprint Plan for full deferral list. Key items:
+- Remove URL `?mode=` parameter (DB is source of truth)
+- Remove forced onboarding redirect (use gentle nudges)
+- Footer implementation
+- Route renaming per Manual specifications
+
+---
+
+## Sprint 1 Completion Summary
+
+> **Completion Date**: January 20, 2026
+> **Status**: ✅ Complete — Family Discovery Journey functional end-to-end
+
+### What Was Built
+
+Sprint 1 delivered the complete family discovery journey: families can browse providers, view detailed profiles, save favorites, and initiate contact. Comprehensive human audits verified all critical flows.
+
+| Feature | Status | Implementation Notes |
+|---------|--------|---------------------|
+| Provider Directory with Filters | ✅ Built | Type, care type, location filters + Load More pagination |
+| Provider Detail Page | ✅ Built | About, Services, Amenities, Photos, Reviews, Contact CTA |
+| Saved Providers | ✅ Built | Save/unsave toggle, list view with empty states |
+| Contact Initiation (EnhancedContactModal) | ✅ Built | Creates ConsultRequest, validates fields |
+| Care Profile Form | ✅ Simplified | Reduced from ~80 fields to core demo fields |
+| Footer Component | ✅ Built | Global footer on all pages via root layout |
+| Unclaimed Badge | ✅ Built | Displayed on provider cards and detail pages |
+| Photo Visibility Toggle | ✅ Built | Family opt-in with nudge message |
+| Identity/Contact Gating | ✅ Built | Hidden until ACCEPTED engagement |
+
+### Bugs Fixed During Sprint 1
+
+| Bug | Impact | Fix Applied |
+|-----|--------|-------------|
+| Breadcrumb showed "Requests" instead of "My Providers" | Confusing navigation | Updated SEGMENT_LABELS mapping |
+| Provider signup went to find-families instead of onboarding | Broken intent flow | Fixed routing in AuthModal and signup page |
+| Mode switch caused race conditions | Inconsistent state | Implemented robust query param approach with state management |
+| Care Profile save validation errors | Form unusable | Fixed field validation and required field handling |
+| Provider detail page missing unclaimed badge | Incomplete trust signals | Added badge component to detail page |
+| Directory had no pagination | Poor UX for large datasets | Added "Load More" infinite scroll pattern |
+
+### Route Changes Applied
+
+| Old Route | New Route | Rationale |
+|-----------|-----------|-----------|
+| `/dashboard/requests` | `/dashboard/my-providers` | Family-centric naming (per Manual Ch 12) |
+| `/dashboard/requests/[id]` | `/dashboard/my-providers/[id]` | Consistency |
+| `/provider/requests` | `/provider/find-families` | Completed in Sprint 0 |
+
+**Backward Compatibility**: All old routes redirect to new routes to prevent broken links.
+
+### Key Behavioral Clarifications
+
+The following behaviors were established and verified during Sprint 1 walkthroughs:
+
+| Behavior | Current State | Manual Alignment |
+|----------|---------------|------------------|
+| Family post-signup landing | Homepage (`/`) | ✅ Correct — discovery-first |
+| Provider post-signup landing | `/provider/onboarding` | ✅ Correct — wizard flow |
+| Mode switch landing (→FAMILY) | Homepage (`/`) | ✅ Correct |
+| Mode switch landing (→PROVIDER) | `/provider/find-families` | ✅ Correct |
+| Provider contact info visibility | Hidden until ACCEPTED | ✅ Correct (individual caregivers) |
+| Family identity visibility | Hidden until ACCEPTED | ✅ Correct |
+| Unclaimed provider badge | Shows when `claimed === false` | ✅ Correct |
+
+### Known Limitations (Current Behavior)
+
+These are documented behaviors that differ from the ideal/production specification:
+
+| Limitation | Current Behavior | Manual Specification | Deferred To |
+|------------|------------------|---------------------|-------------|
+| Profile completion tracking | No persistent `completionPercentage` field | Should track completion % | Sprint 2 |
+| Visibility threshold enforcement | Manual `isPublic` toggle only | 40% threshold for visibility | Sprint 2 |
+| Post-contact redirect | Stays on provider page | Should redirect to engagement detail | Sprint 2/3 |
+| Family onboarding wizard | No wizard (goes to homepage) | Should show onboarding wizard | Sprint 2 |
+| Care profile form scope | Simplified to ~15 fields | Full ~80 field form exists but is overwhelming | Evaluate in Sprint 2 |
+
+### Platform-Wide Implications for Future Sprints
+
+| Implication | Affected Sprints | Notes |
+|-------------|------------------|-------|
+| Route naming convention established | All | `/dashboard/my-providers` pattern for family, `/provider/find-families` for provider |
+| Contact gating pattern established | Sprint 2+ | Use `engagement.status === 'ACCEPTED'` to reveal contact info |
+| Empty state pattern established | All | Helpful message + CTA button + link to relevant action |
+| Form simplification principle | Sprint 2+ | Prefer fewer, high-value fields over exhaustive forms |
+
+### Human Audit Results (January 20, 2026)
+
+| Walkthrough | Description | Result | Notes |
+|-------------|-------------|--------|-------|
+| W1: Family Profile | Care profile form editing | ✅ PASS | Simplified form saves correctly |
+| W2: Provider Directory | Filters and pagination | ✅ PASS | Load More works, filters functional |
+| W3: Provider Detail | Full profile view and save | ✅ PASS | All sections render, save toggles correctly |
+| W4: Saved Providers | List and remove | ✅ PASS | Empty state displays correctly |
+| W5: Contact Initiation | Modal and request creation | ✅ PASS | ConsultRequest created, validation works |
+| W6: End-to-End | Complete family journey | ✅ PASS | Signup → Profile → Browse → Save → Contact works |
 
 ---
 
@@ -299,20 +446,24 @@ All chapters have been reviewed and developed. ✅
 | Threshold | Requirements | What It Enables |
 |-----------|--------------|-----------------|
 | **Account Creation** | Email + password (or social auth) | Explore platform, but profile invisible, no matching |
-| **Profile Visibility + Matching** | Name, location, basic role-specific fields | Profile card renders, visibility toggles work, matching activates |
+| **Profile Visibility + Matching** | Profile Card Minimum Fields | Profile card renders, visibility toggles work, matching activates |
 
-**Visibility Threshold Fields** (minimum to cross):
+**Visibility Threshold Definition**:
+> The visibility threshold is NOT a fixed percentage (e.g., 40%). Instead, it is defined by the **minimum set of fields required to render a profile card** in the relevant marketplace. A profile becomes visible once it contains the data necessary to be displayed correctly in search results and cards.
 
-| Profile Type | Required for Visibility |
-|--------------|------------------------|
-| Family | Full name, location, care type needed |
-| Individual Caregiver | Full name, location, services offered |
-| Provider Organization | Org name, location, provider type |
+**Profile Card Minimum Fields** (required for visibility):
+
+| Profile Type | Required for Profile Card | Rationale |
+|--------------|---------------------------|-----------|
+| Family | Full name, location, care type needed | Card displays: name, location, seeking care type |
+| Individual Caregiver | Full name, location, services offered | Card displays: name, location, services list |
+| Provider Organization | Org name, location, provider type | Card displays: org name, location, care type badge |
 
 **Behavior if threshold not met**:
 - Profile exists but marked invisible
 - User prompted to complete required fields if they try to enable visibility
 - Matching algorithm ignores profiles below threshold
+- UI clearly shows which specific fields are needed: "Add [field] to make your profile visible"
 
 ### Route Architecture Principles (DECIDED)
 
@@ -814,14 +965,16 @@ Current JWT fields are sufficient for demo:
 
 **Purpose**: Allow users to switch between family (care-seeker) and provider (care-giver) modes within a single account.
 
+> **Sprint 0 Status**: Verified working (January 19, 2026)
+
 | Item | Status | Notes |
 |------|--------|-------|
-| 2.1 Mode Storage (`User.activeMode`) | ✅ | Database field exists |
-| 2.2 Mode Switching (toggle) | 🟡 | Works but has caused routing bugs |
-| 2.3 Mode Defaulting on Login | 🟡 | Based on profile completion %; logic may need revision |
-| 2.4 Mode Persistence Across Sessions | ✅ | Stored in DB |
-| 2.5 URL Mode Parameter (`?mode=`) | 🟡 | Implemented but fragile, causes "bleeding" |
-| 2.6 Mode Selection Modal (signup/onboarding) | 🟡 | May be broken/incomplete |
+| 2.1 Mode Storage (`User.activeMode`) | ✅ | Database field exists, verified in Sprint 0 |
+| 2.2 Mode Switching (toggle) | ✅ | Works correctly, routing verified |
+| 2.3 Mode Defaulting on Login | ✅ | Restores from DB correctly |
+| 2.4 Mode Persistence Across Sessions | ✅ | Stored in DB, verified across refresh |
+| 2.5 URL Mode Parameter (`?mode=`) | 🟡 | To be removed in Sprint 1 (DB is source of truth) |
+| 2.6 Mode Selection Modal (signup/onboarding) | 🟡 | Provider onboarding works; formal wizard deferred |
 
 ### Key Questions
 - [x] Should signup source (e.g., `/for-providers`) influence default mode? → **Yes (see Chapter 1.1)**
@@ -890,8 +1043,51 @@ No separate mode-selection modal. Mode is determined by:
 
 **Purpose**: Single, lightweight wizard supporting multiple entry points and user types. This is a shared system referenced by other chapters.
 
+### Core Architectural Decision: Module Overlay Pattern (DECIDED)
+
+> **IMPORTANT**: The onboarding wizard is implemented as a **module overlay** (modal), NOT as a standalone page. This is a shared UI component used across all user types:
+> - Families
+> - Provider Organizations
+> - Individual Caregivers
+>
+> The overlay pattern ensures:
+> 1. **Consistent UX**: Same interaction pattern for all user types
+> 2. **Non-blocking**: User can dismiss and continue exploring
+> 3. **Context preservation**: Overlay appears over current page; user returns to same context after completion/dismissal
+> 4. **Shared codebase**: Single component with variant-specific content
+
+**Overlay Context by Intent** (DECIDED):
+
+The overlay appears over the **appropriate mode context** based on the entry point:
+
+| Entry Point | Intent | Overlay Appears Over |
+|-------------|--------|---------------------|
+| "Get Started" (ambiguous) | Ask user | Family homepage (`/`) initially, then route based on selection |
+| `/signup` (default) | Family | Family homepage (`/`) |
+| `/for-providers` CTA | Provider | Provider mode page (`/provider/find-families`) |
+| "Claim this page" on provider profile | Provider | Provider mode page (`/provider/find-families`) |
+| First switch to provider mode | Provider | Provider mode page (current page or `/provider/find-families`) |
+| First switch to family mode | Family | Family homepage (`/`) |
+
+> **Key Principle**: When provider intent is clear from the entry point, the overlay appears over provider-mode pages, maintaining context continuity. The user stays in the provider experience throughout onboarding.
+
+**Route Reconciliation** (addressing existing `/provider/onboarding` page):
+
+| Current State | Target State |
+|---------------|--------------|
+| `/provider/onboarding` exists as standalone page | Deprecated; replaced by shared overlay |
+| Page handles type selection + identity creation | Overlay handles same flow |
+| Direct navigation to `/provider/onboarding` | Redirect to `/provider/find-families` + trigger overlay |
+
+**Migration Path**:
+1. Build shared `<OnboardingWizardOverlay>` component
+2. Integrate overlay triggers at entry points (3.1)
+3. Redirect `/provider/onboarding` to `/provider/find-families` with overlay auto-triggered
+4. Eventually remove standalone page once overlay is stable
+
 | Item | Status | Notes |
 |------|--------|-------|
+| 3.0 Module Overlay Architecture | ⬜ | Shared overlay component (Sprint 2) |
 | 3.1 Wizard Triggers | 🟡 | Multiple entry points, needs consolidation |
 | 3.2 Wizard Variants (Family / Caregiver / Org) | 🟡 | Exists but may need cleanup |
 | 3.3 Intent & Subtype Selection | 🟡 | "Get Started" + provider subtype question |
@@ -907,6 +1103,7 @@ No separate mode-selection modal. Mode is determined by:
 - [x] Should onboarding be skippable or mandatory? → **Skippable, non-blocking**
 - [x] What are the distinct entry points? → **See 3.1 below**
 - [x] What is the minimum info required for each user type? → **None beyond email/password (see below)**
+- [x] Should onboarding be a standalone page or overlay? → **Module overlay (modal), shared across all user types**
 
 ### Profile Data Philosophy (DECIDED)
 
@@ -1553,7 +1750,7 @@ Accessibility is a design requirement, not an audit afterthought.
 | 6.5 Location & Contact Preferences | ✅ | Fields exist |
 | 6.6 Budget & Timeline | ✅ | Fields exist |
 | 6.7 Privacy/Visibility Settings | ✅ | `profileVisibility`, etc. |
-| 6.8 Profile Completion Tracking | 🟡 | May exist but unclear |
+| 6.8 Profile Completion Tracking | 🟡 | UI shows checklist; no persistent `completionPercentage` field (deferred to Sprint 2) |
 | 6.9 Multiple Care Profiles per Account | 🟡 | Schema supports single profile per user currently |
 
 ### Key Questions
@@ -1608,19 +1805,28 @@ Current field structure accepted as-is for demo:
 
 **Display**: Progress bar/indicator in Family Dashboard.
 
-**Nudging**: "Complete your profile" prompt if below visibility threshold.
+**Visibility Threshold** (Profile Card Minimum):
+> Visibility is NOT determined by a fixed percentage. A profile becomes visible when it has the **minimum fields required to render a profile card** in the provider marketplace.
+>
+> **Family Profile Card Minimum**: Full name, location, care type needed
+>
+> Cross-reference: See Foundational Decisions → Two-Threshold Model
 
-**Suggested completion weights**:
+**Completion Percentage Calculation** (separate from visibility):
+Completion % is for UX feedback only; visibility is binary based on profile card minimum.
 
 | Field Group | Weight | Notes |
 |-------------|--------|-------|
-| Visibility threshold (name, location, care type) | 40% | Must complete to be visible |
+| Profile card minimum (name, location, care type) | 40% | **Required for visibility** |
 | Care needs details | 20% | Improves matching |
 | Personality & preferences | 15% | Improves matching |
 | Budget & timeline | 15% | Improves matching |
 | Contact preferences | 10% | Improves engagement |
 
-**Note**: Crossing visibility threshold ≈ 40% complete. Weights can be tuned later.
+**Nudging Logic**:
+- If profile card minimum NOT met: "Add [missing field] to make your profile visible"
+- If visible but <80% complete: "Add more details to improve your match quality"
+- If ≥80% complete: Subtle or no prompt
 
 #### 6.9 Multiple Care Profiles (DECIDED)
 
@@ -1815,9 +2021,21 @@ Current field structure accepted as-is for demo:
 
 **Display**: Progress bar/indicator in Provider Dashboard.
 
-**Nudging**: "Complete your profile" prompt if below visibility threshold.
+**Visibility Threshold** (Profile Card Minimum):
+> Visibility is NOT determined by a fixed percentage. A profile becomes visible when it has the **minimum fields required to render a profile card** in the family marketplace.
+>
+> **Provider Org Card Minimum**: Org name, location, provider type
+> **Individual Caregiver Card Minimum**: Full name, location, services offered
+>
+> Cross-reference: See Foundational Decisions → Two-Threshold Model
 
-**Note**: Completion weights similar to family profiles — visibility threshold fields ≈ 40%, additional fields improve matching. Exact weights can be tuned later.
+**Completion Percentage Calculation** (separate from visibility):
+Completion % is for UX feedback only; visibility is binary based on profile card minimum.
+
+**Nudging Logic**:
+- If profile card minimum NOT met: "Add [missing field] to make your profile visible to families"
+- If visible but <80% complete: "Add more details to attract more families"
+- If ≥80% complete: Subtle or no prompt
 
 #### 7.14 Primary Care Type Requirement (DECIDED)
 
@@ -8306,18 +8524,26 @@ Hospice                 List Your Business
 
 ### 5.13 Implementation Status
 
+> **Last Updated**: January 19, 2026 (Sprint 0 Complete)
+
 | Item | Status | Notes |
 |------|--------|-------|
-| Main Navigation | ✅ Built | `MainNav.tsx` — needs mode parameter removal |
+| Main Navigation | ✅ Built | `MainNav.tsx` — needs mode parameter removal (Sprint 1) |
 | Care Type Dropdowns | ⬜ Not Built | 4 dropdowns with featured content |
 | "More" Mega Menu | ⬜ Not Built | Full care ecosystem navigation |
 | "Help Me Decide" CTA | ⬜ Not Built | Routes to care assessment wizard |
-| Footer Navigation | ⬜ Not Built | Full footer with all sections |
-| Account Dropdown | 🟡 Partial | Exists but uses URL mode param |
+| Footer Navigation | ⬜ Not Built | Full footer with all sections (Sprint 1) |
+| Account Dropdown | 🟡 Partial | Exists but uses URL mode param (Sprint 1 cleanup) |
 | Route Protection | ✅ Built | Middleware working correctly |
 | Login Redirect | ✅ Built | `returnUrl` parameter preserved |
-| Breadcrumbs | ⬜ Not Built | Required for demo |
-| Mode from DB | 🟡 Partial | API exists, MainNav needs update |
+| Breadcrumbs | ✅ Built | Auto-generated from path, 19+ pages, `SEGMENT_LABELS` mapping |
+| Mode from DB | ✅ Built | `User.activeMode` restored on login, persists across sessions |
+
+**Sprint 0 Notes**:
+- Breadcrumb component (`components/Navigation/Breadcrumb.tsx`) implemented with auto-generation from URL path
+- Uses `SEGMENT_LABELS` mapping for route-to-label translation
+- ID detection (UUID, CUID) skips dynamic segments; detail pages use `currentPage` prop
+- Auth race condition fixed: uses `status === "unauthenticated"` pattern
 
 ### Demo vs Production
 

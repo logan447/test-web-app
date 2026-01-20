@@ -15,7 +15,7 @@ export default function ForProvidersPage() {
 
   // If already logged in, redirect to provider mode
   if (session) {
-    router.push("/provider/requests");
+    router.push("/provider/find-families");
     return null;
   }
 
@@ -365,11 +365,12 @@ export default function ForProvidersPage() {
         </div>
       </section>
 
-      {/* Auth Modal */}
+      {/* Auth Modal - with provider intent for signup */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         defaultView={authModalView}
+        intent="provider"
       />
     </div>
   );

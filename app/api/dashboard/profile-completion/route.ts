@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getProviderCompletionSummary } from "@/lib/providerProfileCompletion";
 
 interface CompletionItem {
   label: string;
@@ -114,7 +115,7 @@ export async function GET() {
       if (hasPhoto) completedCount++;
       totalCount++;
     } else {
-      // Check provider profile completion
+      // Check provider profile completion using new Sprint 2 logic
       const provider = await prisma.provider.findUnique({
         where: { userId: userId },
       });
@@ -123,84 +124,37 @@ export async function GET() {
         return NextResponse.json({
           completionPercentage: 0,
           completedCount: 0,
-          totalCount: 6,
+          totalCount: 10,
           items: [],
+          mode: activeMode,
+          meetsVisibility: false,
+          missingRequired: [],
         });
       }
 
-      // 1. Basic Information
-      const hasBasicInfo = !!(
-        provider.name &&
-        provider.description &&
-        provider.address
-      );
-      items.push({
-        label: "Basic Information",
-        completed: hasBasicInfo,
-        description: "Add your facility name, description, and address",
-        action: "Complete basic info",
-      });
-      if (hasBasicInfo) completedCount++;
-      totalCount++;
+      // Use the new provider completion summary
+      const summary = getProviderCompletionSummary(provider);
 
-      // 2. Services & Amenities
-      const hasServices = !!(
-        provider.roomFeatures &&
-        Array.isArray(provider.roomFeatures) &&
-        provider.roomFeatures.length > 0
-      );
-      items.push({
-        label: "Services & Amenities",
-        completed: hasServices,
-        description: "List the services and amenities you offer",
-        action: "Add services",
-      });
-      if (hasServices) completedCount++;
-      totalCount++;
+      // Transform summary items to match expected format
+      const transformedItems: CompletionItem[] = summary.items.map((item) => ({
+        label: item.label,
+        completed: item.completed,
+        description: item.description,
+        action: item.completed ? "View" : `Complete ${item.label.toLowerCase()}`,
+      }));
 
-      // 3. Photos & Virtual Tour
-      const hasPhotos = !!(provider.photos && Array.isArray(provider.photos) && provider.photos.length >= 5);
-      items.push({
-        label: "Photos",
-        completed: hasPhotos,
-        description: "Upload at least 5 high-quality photos of your facility",
-        action: "Upload photos",
+      return NextResponse.json({
+        completionPercentage: summary.completionPercentage,
+        completedCount: summary.completedSections,
+        totalCount: summary.totalSections,
+        items: transformedItems,
+        mode: activeMode,
+        // Sprint 2: Visibility gate info
+        meetsVisibility: summary.meetsVisibility,
+        missingRequired: summary.missingRequired,
+        nudgeMessage: summary.nudgeMessage,
+        nextAction: summary.nextAction,
       });
-      if (hasPhotos) completedCount++;
-      totalCount++;
-
-      // 4. Licensing & Certifications
-      const hasLicensing = !!(provider.licenseNumber);
-      items.push({
-        label: "Licensing",
-        completed: hasLicensing,
-        description: "Add your license number and certifications",
-        action: "Add licensing info",
-      });
-      if (hasLicensing) completedCount++;
-      totalCount++;
-
-      // 5. Pricing Information
-      const hasPricing = !!(provider.priceMin && provider.priceMax);
-      items.push({
-        label: "Pricing",
-        completed: hasPricing,
-        description: "Add transparent pricing information",
-        action: "Add pricing",
-      });
-      if (hasPricing) completedCount++;
-      totalCount++;
-
-      // 6. Staff Information
-      const hasStaffInfo = !!(provider.staffToResidentRatio);
-      items.push({
-        label: "Staff Information",
-        completed: hasStaffInfo,
-        description: "Add information about your team",
-        action: "Add staff info",
-      });
-      if (hasStaffInfo) completedCount++;
-      totalCount++;
     }
 
     const completionPercentage = Math.round((completedCount / totalCount) * 100);

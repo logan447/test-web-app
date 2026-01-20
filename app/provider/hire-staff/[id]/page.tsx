@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import AuthModal from '@/components/Auth/AuthModal';
@@ -28,7 +29,7 @@ type Caregiver = {
 };
 
 export default function CaregiverHireDetailPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -41,16 +42,24 @@ export default function CaregiverHireDetailPage() {
 
   // Determine back link based on where user came from
   const fromSaved = searchParams.get('from') === 'saved';
-  const backHref = fromSaved ? '/provider/saved' : '/provider/hire-staff';
+  const backHref = fromSaved ? '/provider/saved-families' : '/provider/hire-staff';
   const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {
-    if (!session) {
+    // Wait for session to load
+    if (status === 'loading') return;
+
+    // Only show auth modal if definitively unauthenticated
+    if (status === 'unauthenticated') {
       setAuthModalOpen(true);
       return;
     }
+
+    // Session is authenticated but data might still be loading
+    if (!session) return;
+
     fetchCaregiver();
-  }, [session, router, params.id]);
+  }, [session, status, router, params.id]);
 
   const fetchCaregiver = async () => {
     try {
@@ -143,7 +152,7 @@ export default function CaregiverHireDetailPage() {
       if (response.ok) {
         showToast.success('Hiring request sent!');
         setRequestMessage('');
-        router.push('/provider/hiring-requests');
+        router.push('/provider/my-candidates');
       } else {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
@@ -197,6 +206,7 @@ export default function CaregiverHireDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
@@ -218,6 +228,7 @@ export default function CaregiverHireDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb currentPage={caregiver.name} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}

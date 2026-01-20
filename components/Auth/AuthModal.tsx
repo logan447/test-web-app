@@ -1,23 +1,33 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultView?: "login" | "signup";
+  intent?: "provider" | "family"; // For provider-targeted signup flows
 }
 
-export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent }: AuthModalProps) {
   const router = useRouter();
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   // All users default to FAMILY role on signup
   const role = "FAMILY";
+
+  // Sync view state when modal opens or defaultView changes
+  useEffect(() => {
+    if (isOpen) {
+      setView(defaultView);
+      setError("");
+    }
+  }, [isOpen, defaultView]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,18 +51,20 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
         return;
       }
 
-      // Fetch user role from our API
-      const userResponse = await fetch(`/api/user/role?email=${encodeURIComponent(email)}`);
-      const userData = await userResponse.json();
+      // Fetch session to get activeMode from database (Manual Ch 1.2)
+      // Mode was restored from DB during authorize callback
+      const session = await getSession();
+      const isProviderMode = session?.user?.activeMode === "PROVIDER";
 
-      // Close modal and redirect based on user role
+      // Close modal and redirect based on activeMode (database is source of truth)
+      // Manual Ch 2.2: FAMILY mode → "/" (Find Providers), PROVIDER mode → "/provider/find-families"
+      // Use window.location.href for full page reload to avoid white-screen rendering bug
       onClose();
-      if (userData?.role === "FAMILY") {
-        router.push("/");
+      if (isProviderMode) {
+        window.location.href = "/provider/find-families";
       } else {
-        router.push("/dashboard");
+        window.location.href = "/";
       }
-      router.refresh();
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
@@ -71,6 +83,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
       name: formData.get("name") as string,
       phone: formData.get("phone") as string,
       role,
+      intent: intent || undefined, // Pass intent for mode initialization
     };
 
     try {
@@ -102,14 +115,18 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup" }: A
         return;
       }
 
-      // Close modal and redirect based on user role
+      // Close modal and trigger onboarding wizard (per Manual Ch 3)
+      // The overlay will appear on the destination page
       onClose();
-      if (role === "FAMILY") {
-        router.push("/");
+      if (result.activeMode === "PROVIDER") {
+        // Provider intent: trigger wizard with provider intent, redirect to provider mode landing
+        triggerOnboardingAfterSignup("provider");
+        window.location.href = "/provider/find-families";
       } else {
-        router.push("/dashboard");
+        // Family intent: trigger wizard with family intent, skip to family fields
+        triggerOnboardingAfterSignup("family");
+        window.location.href = "/";
       }
-      router.refresh();
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);

@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { UserMode } from "@prisma/client";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, role, phone } = await req.json();
+    const body = await req.json();
+    const { name, email, password, role, phone, intent } = body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -21,6 +23,13 @@ export async function POST(req: Request) {
     // Hash password
     const hashedPassword = await hash(password, 12);
 
+    // Determine initial activeMode based on intent (Manual Ch 1.1)
+    // - intent=provider → PROVIDER mode (from /for-providers CTA, "Claim this page", etc.)
+    // - no intent or any other value → FAMILY mode (default)
+    const initialMode: UserMode = intent === 'provider' ? 'PROVIDER' : 'FAMILY';
+
+    console.log('SIGNUP DEBUG: Creating user:', email, 'intent:', intent, 'initialMode:', initialMode);
+
     // Create user
     const user = await prisma.user.create({
       data: {
@@ -29,12 +38,16 @@ export async function POST(req: Request) {
         passwordHash: hashedPassword,
         role,
         phone: phone || null,
-        activeMode: 'FAMILY', // Explicitly set default mode
+        activeMode: initialMode, // Set based on intent param
       },
     });
 
     return NextResponse.json(
-      { message: "User created successfully", userId: user.id },
+      {
+        message: "User created successfully",
+        userId: user.id,
+        activeMode: initialMode, // Return the mode so client can redirect appropriately
+      },
       { status: 201 }
     );
   } catch (error) {

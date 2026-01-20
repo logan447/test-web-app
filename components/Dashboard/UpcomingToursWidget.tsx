@@ -153,7 +153,7 @@ export default function UpcomingToursWidget() {
         {tours.map((tour) => (
           <Link
             key={tour.id}
-            href={`/dashboard/requests/${tour.request.id}`}
+            href={`/dashboard/my-providers/${tour.request.id}`}
             className="block hover:bg-gray-50 rounded-lg p-3 border border-gray-200 transition-colors"
           >
             <div className="flex gap-4">
@@ -220,7 +220,7 @@ export default function UpcomingToursWidget() {
 
       <div className="p-4 bg-gray-50 border-t border-gray-200">
         <Link
-          href="/dashboard/requests"
+          href="/dashboard/my-providers"
           className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center gap-1"
         >
           View all requests

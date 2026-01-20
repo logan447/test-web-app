@@ -7,8 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "postinstall": "prisma generate",
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "db:seed:test": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-test.ts",
+    "db:seed:test:verify": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-test.ts verify",
+    "db:seed:test:reset": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-test.ts reset"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -34,17 +41,22 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.18.0",
     "eslint-config-next": "^15.1.0",
+    "jsdom": "^27.4.0",
     "postcss": "^8.4.49",
     "prisma": "^6.2.0",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.0.17"
   }
 }

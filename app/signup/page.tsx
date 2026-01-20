@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Read intent from URL query params (e.g., /signup?intent=provider)
+  const intent = searchParams.get("intent");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,7 +26,8 @@ export default function SignupPage() {
       password: formData.get("password") as string,
       name: formData.get("name") as string,
       phone: formData.get("phone") as string,
-      role: "FAMILY" as const, // All users start in family mode
+      role: "FAMILY" as const,
+      intent: intent || undefined, // Pass intent to API for mode initialization
     };
 
     try {
@@ -53,9 +59,17 @@ export default function SignupPage() {
         return;
       }
 
-      // Always redirect to browse providers page (family mode default)
-      router.push("/providers");
-      router.refresh();
+      // Trigger onboarding wizard after signup (per Manual Ch 3)
+      // The overlay will appear on the destination page
+      if (result.activeMode === "PROVIDER") {
+        // Provider intent: trigger wizard with provider intent, redirect to provider mode landing
+        triggerOnboardingAfterSignup("provider");
+        window.location.href = "/provider/find-families";
+      } else {
+        // Family intent: trigger wizard with family intent, skip to family fields
+        triggerOnboardingAfterSignup("family");
+        window.location.href = "/";
+      }
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
@@ -155,5 +169,18 @@ export default function SignupPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+// Wrap in Suspense for useSearchParams() (Next.js 15 requirement)
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }

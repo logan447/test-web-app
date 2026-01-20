@@ -27,6 +27,13 @@ export async function GET(req: Request) {
     // Sort option
     const sortByParam = searchParams.get("sortBy");
 
+    // Pagination parameters
+    const pageParam = searchParams.get("page");
+    const limitParam = searchParams.get("limit");
+    const page = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
+    const limit = limitParam ? Math.min(50, Math.max(1, parseInt(limitParam))) : 20;
+    const skip = (page - 1) * limit;
+
     const where: any = {
       active: true,
     };
@@ -148,45 +155,63 @@ export async function GET(req: Request) {
       }
     }
 
-    const providers = await prisma.provider.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        providerType: true,
-        description: true,
-        city: true,
-        state: true,
-        zipCode: true,
-        address: true,
-        phone: true,
-        email: true,
-        website: true,
-        careTypesOffered: true,
-        licensed: true,
-        insuranceVerified: true,
-        backgroundChecked: true,
-        certifications: true,
-        averageRating: true,
-        reviewCount: true,
-        priceMin: true,
-        priceMax: true,
-        availableSpots: true,
-        totalCapacity: true,
-        photos: true,
-        coverPhoto: true,
-        latitude: true,
-        longitude: true,
-        verified: true,
-        hasMemoryCare: true,
-        hasRespiteCare: true,
-        hasHospiceCare: true,
-      },
-      orderBy,
-      take: 50,
-    });
+    // Get total count and providers in parallel
+    const [total, providers] = await Promise.all([
+      prisma.provider.count({ where }),
+      prisma.provider.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          providerType: true,
+          description: true,
+          city: true,
+          state: true,
+          zipCode: true,
+          address: true,
+          phone: true,
+          email: true,
+          website: true,
+          careTypesOffered: true,
+          licensed: true,
+          insuranceVerified: true,
+          backgroundChecked: true,
+          certifications: true,
+          averageRating: true,
+          reviewCount: true,
+          priceMin: true,
+          priceMax: true,
+          availableSpots: true,
+          totalCapacity: true,
+          photos: true,
+          coverPhoto: true,
+          latitude: true,
+          longitude: true,
+          verified: true,
+          hasMemoryCare: true,
+          hasRespiteCare: true,
+          hasHospiceCare: true,
+          claimed: true,
+        },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+    ]);
 
-    return NextResponse.json(providers);
+    const totalPages = Math.ceil(total / limit);
+    const hasMore = page < totalPages;
+
+    return NextResponse.json({
+      providers,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasMore,
+      },
+    });
   } catch (error) {
     console.error("Error fetching providers:", error);
     return NextResponse.json(

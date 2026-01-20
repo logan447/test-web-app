@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
+import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
+import { useProviderIdentity } from "@/hooks/useProviderIdentity";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -29,10 +32,9 @@ interface ProviderProfile {
   providerType: string;
 }
 
-function ProviderDashboardPageContent() {
+export default function ProviderDashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [stats, setStats] = useState<DashboardStats>({
     pendingRequests: 0,
     activeConversations: 0,
@@ -44,33 +46,31 @@ function ProviderDashboardPageContent() {
   const [filterType, setFilterType] = useState<string>("all");
   const [providerProfile, setProviderProfile] = useState<ProviderProfile | null>(null);
 
-  // Read mode from URL parameter
-  const mode = searchParams.get('mode');
+  // Read mode from session (database is source of truth per Manual Ch 2)
+  const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
-  // Helper to preserve mode in URLs
-  const withMode = (url: string) => {
-    const modeParam = mode || 'provider';
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}mode=${modeParam}`;
-  };
+  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
+  const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
+    checkMode: true,
+  });
 
   useEffect(() => {
-    if (status === "loading") return;
+    // Wait for session to fully load
+    if (status === "loading" || identityLoading) return;
 
-    if (!session) {
+    // Only redirect to login if session status is definitively unauthenticated
+    // This prevents race conditions on hard refresh
+    if (status === "unauthenticated") {
       router.push("/login");
       return;
     }
 
-    // If mode is family or missing, redirect to family dashboard
-    if (mode !== 'provider') {
-      router.push('/dashboard?mode=family');
-      return;
-    }
+    // Session is authenticated but data might still be loading
+    if (!session) return;
 
-    // Fetch dashboard data
+    // Fetch dashboard data (no mode-based redirect - let user see page regardless of mode)
     fetchDashboardData();
-  }, [session, status, router, mode]);
+  }, [session, status, router, identityLoading]);
 
   const fetchDashboardData = async () => {
     try {
@@ -83,7 +83,14 @@ function ProviderDashboardPageContent() {
 
       if (statsRes.ok) {
         const data = await statsRes.json();
-        setStats(data.stats);
+        // Merge with defaults to ensure all stats have values
+        setStats(prev => ({
+          ...prev,
+          pendingRequests: data.stats?.pendingRequests ?? 0,
+          activeConversations: data.stats?.activeConversations ?? 0,
+          totalRequests: data.stats?.totalRequests ?? 0,
+          acceptedRequests: data.stats?.acceptedRequests ?? 0,
+        }));
       }
 
       if (activitiesRes.ok) {
@@ -107,6 +114,7 @@ function ProviderDashboardPageContent() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-10 bg-gray-200 rounded w-1/3 mb-8"></div>
@@ -179,19 +187,23 @@ function ProviderDashboardPageContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
             {isIndependentCaregiver ? "Caregiver Dashboard" : "Provider Dashboard"}
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-lg text-gray-600">
             {isIndependentCaregiver
               ? "Find families and organizations seeking caregivers"
               : "Connect with families who need your services"}
           </p>
         </div>
+
+        {/* Gentle nudge for onboarding (Manual Ch 8) */}
+        {needsOnboarding && <OnboardingPrompt context="dashboard" />}
 
         {/* Profile Completion Widget */}
         <div className="mb-8">
@@ -225,7 +237,7 @@ function ProviderDashboardPageContent() {
               </div>
             </div>
             <Link
-              href={withMode("/provider/requests")}
+              href="/provider/find-families"
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View requests →
@@ -257,7 +269,7 @@ function ProviderDashboardPageContent() {
               </div>
             </div>
             <Link
-              href={withMode("/dashboard/requests")}
+              href="/dashboard/my-providers"
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View messages →
@@ -289,7 +301,7 @@ function ProviderDashboardPageContent() {
               </div>
             </div>
             <Link
-              href={withMode("/dashboard/requests")}
+              href="/dashboard/my-providers"
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View all →
@@ -321,7 +333,7 @@ function ProviderDashboardPageContent() {
               </div>
             </div>
             <Link
-              href={withMode("/dashboard/requests")}
+              href="/dashboard/my-providers"
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View history →
@@ -336,7 +348,7 @@ function ProviderDashboardPageContent() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
-              href={withMode("/dashboard/provider-profile")}
+              href="/dashboard/provider-profile"
               className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
             >
               <div className="bg-blue-100 p-3 rounded-lg mr-4">
@@ -363,7 +375,7 @@ function ProviderDashboardPageContent() {
             {/* Conditional second action based on provider type */}
             {isIndependentCaregiver ? (
               <Link
-                href={withMode("/caregiver/browse-organizations")}
+                href="/caregiver/browse-organizations"
                 className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
               >
                 <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -388,7 +400,7 @@ function ProviderDashboardPageContent() {
               </Link>
             ) : isHomeCareFacility ? (
               <Link
-                href={withMode("/provider/hire-staff")}
+                href="/provider/hire-staff"
                 className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
               >
                 <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -413,7 +425,7 @@ function ProviderDashboardPageContent() {
               </Link>
             ) : (
               <Link
-                href={withMode("/provider/requests")}
+                href="/provider/find-families"
                 className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
               >
                 <div className="bg-green-100 p-3 rounded-lg mr-4">
@@ -439,7 +451,7 @@ function ProviderDashboardPageContent() {
             )}
 
             <Link
-              href={withMode("/dashboard/requests")}
+              href="/dashboard/my-providers"
               className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
             >
               <div className="bg-purple-100 p-3 rounded-lg mr-4">
@@ -463,7 +475,7 @@ function ProviderDashboardPageContent() {
               </div>
             </Link>
             <Link
-              href={withMode("/dashboard/requests")}
+              href="/dashboard/my-providers"
               className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
             >
               <div className="bg-orange-100 p-3 rounded-lg mr-4">
@@ -553,7 +565,7 @@ function ProviderDashboardPageContent() {
                 {filteredActivities.map((activity) => (
                   <Link
                     key={activity.id}
-                    href={activity.relatedId ? withMode(`/dashboard/requests/${activity.relatedId}`) : "#"}
+                    href={activity.relatedId ? `/dashboard/my-providers/${activity.relatedId}` : "#"}
                     className={`flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition ${
                       activity.isUnread ? "bg-blue-50" : "bg-white border border-gray-100"
                     }`}
@@ -605,14 +617,14 @@ function ProviderDashboardPageContent() {
                 </p>
                 {isIndependentCaregiver ? (
                   <Link
-                    href={withMode("/caregiver/browse-organizations")}
+                    href="/caregiver/browse-organizations"
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Browse organizations to get started →
                   </Link>
                 ) : (
                   <Link
-                    href={withMode("/provider/requests")}
+                    href="/provider/find-families"
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Find families to get started →
@@ -627,19 +639,3 @@ function ProviderDashboardPageContent() {
   );
 }
 
-export default function ProviderDashboardPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
-            <div className="h-10 bg-gray-200 rounded w-1/3 mb-8"></div>
-          </div>
-        </main>
-      </div>
-    }>
-      <ProviderDashboardPageContent />
-    </Suspense>
-  );
-}

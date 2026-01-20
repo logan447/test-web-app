@@ -4,6 +4,7 @@ import ProfilePhotoUpload from "./ProfilePhotoUpload";
 
 interface AboutLovedOneData {
   profilePhoto?: string | null;
+  showProfilePhoto?: boolean;
   lovedOneName?: string;
   ageRange?: string;
   gender?: string;
@@ -81,6 +82,28 @@ export default function AboutLovedOneSection({
         currentPhoto={data.profilePhoto}
         onPhotoChange={(photo) => onDataChange("profilePhoto", photo)}
       />
+
+      {/* Photo Visibility Toggle */}
+      {data.profilePhoto && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <label className="flex items-start space-x-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={data.showProfilePhoto || false}
+              onChange={(e) => onDataChange("showProfilePhoto", e.target.checked)}
+              className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            />
+            <div className="flex-1">
+              <span className="block text-sm font-medium text-gray-900">
+                Show photo on my public profile
+              </span>
+              <p className="text-sm text-gray-600 mt-1">
+                Adding a photo helps providers connect with your family and can increase responses by up to 40%. Your photo will only be visible to care providers browsing requests.
+              </p>
+            </div>
+          </label>
+        </div>
+      )}
 
       {/* Name Field */}
       <div>
