@@ -60,16 +60,10 @@ export default function SavedFamilyProfilesPage() {
     // Session is authenticated but data might still be loading
     if (!session) return;
 
-    // If mode is family, redirect to family saved page
-    if (!isProviderMode) {
-      router.push('/dashboard/saved');
-      return;
-    }
-
-    // Fetch data (even if no identity - show empty states with prompt)
+    // Fetch data (no mode-based redirect - let user see page regardless of mode)
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, status, router, isProviderMode, identityLoading]);
+  }, [session, status, router, identityLoading]);
 
   const fetchSavedProfiles = async () => {
     try {

@@ -68,15 +68,9 @@ export default function ProviderDashboardPage() {
     // Session is authenticated but data might still be loading
     if (!session) return;
 
-    // If mode is family, redirect to family dashboard
-    if (!isProviderMode) {
-      router.push('/dashboard');
-      return;
-    }
-
-    // Fetch dashboard data (even if no identity - show empty states)
+    // Fetch dashboard data (no mode-based redirect - let user see page regardless of mode)
     fetchDashboardData();
-  }, [session, status, router, isProviderMode, identityLoading]);
+  }, [session, status, router, identityLoading]);
 
   const fetchDashboardData = async () => {
     try {

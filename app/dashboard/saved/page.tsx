@@ -53,15 +53,10 @@ export default function SavedProvidersPage() {
       return;
     }
 
-    // Redirect provider mode to their saved families page
-    if (isProviderMode) {
-      router.push('/provider/saved-families');
-      return;
-    }
-
+    // Fetch data (no mode-based redirect - let user see page regardless of mode)
     fetchSavedProviders();
     fetchSentRequests();
-  }, [session, status, router, isProviderMode]);
+  }, [session, status, router]);
 
   const fetchSavedProviders = async () => {
     try {
