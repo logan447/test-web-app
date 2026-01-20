@@ -1,8 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
@@ -31,9 +31,10 @@ type Caregiver = {
   reviewCount?: number;
 };
 
-export default function HireStaffPage() {
+function HireStaffPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestedCaregiverIds, setRequestedCaregiverIds] = useState<Map<string, string>>(new Map());
@@ -61,14 +62,16 @@ export default function HireStaffPage() {
     if (!session) return;
 
     // If mode is family, redirect to family homepage
-    if (!isProviderMode) {
+    // Skip redirect if mode_switched param present (mode switch in progress)
+    const modeSwitching = searchParams.get('mode_switched') === 'PROVIDER';
+    if (!isProviderMode && !modeSwitching) {
       router.push('/');
       return;
     }
 
     // Fetch data (even if no identity - show empty states with prompt)
     checkProviderType();
-  }, [session, status, router, isProviderMode, identityLoading]);
+  }, [session, status, router, isProviderMode, identityLoading, searchParams]);
 
   const checkProviderType = async () => {
     try {
@@ -254,5 +257,22 @@ export default function HireStaffPage() {
       <Breadcrumb />
       {renderContent()}
     </div>
+  );
+}
+
+// Wrap in Suspense for useSearchParams() compatibility
+export default function HireStaffPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <Breadcrumb />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ProfileCardsSkeleton />
+        </div>
+      </div>
+    }>
+      <HireStaffPageContent />
+    </Suspense>
   );
 }
