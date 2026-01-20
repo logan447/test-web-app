@@ -12,7 +12,8 @@ interface BreadcrumbItem {
 const SEGMENT_LABELS: Record<string, string> = {
   // Dashboard routes
   dashboard: "Dashboard",
-  requests: "Requests",
+  requests: "My Providers",
+  "my-providers": "My Providers",
   saved: "Saved",
   "care-profile": "Care Profile",
   "care-profiles": "Care Profiles",

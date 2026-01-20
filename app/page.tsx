@@ -502,7 +502,7 @@ export default function Home() {
                 <div className="grid md:grid-cols-2 gap-6">
                   {providers.map((provider) => {
                     const requestId = requestedProviderIds.get(provider.id);
-                    const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
+                    const linkHref = requestId ? `/dashboard/my-providers/${requestId}` : `/providers/${provider.id}`;
 
                     return (
                       <EnhancedProviderCard

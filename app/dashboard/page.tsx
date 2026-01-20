@@ -235,7 +235,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <Link
-              href="/dashboard/requests"
+              href="/dashboard/my-providers"
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View all requests →
@@ -267,7 +267,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <Link
-              href="/dashboard/requests"
+              href="/dashboard/my-providers"
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               View messages →
@@ -305,7 +305,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <Link
-              href={isFamily ? "/dashboard/saved" : "/dashboard/requests"}
+              href={isFamily ? "/dashboard/saved" : "/dashboard/my-providers"}
               className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
             >
               {isFamily ? "View saved →" : "View all →"}
@@ -400,7 +400,7 @@ export default function DashboardPage() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/requests"
+                  href="/dashboard/my-providers"
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-orange-100 p-3 rounded-lg mr-4">
@@ -479,7 +479,7 @@ export default function DashboardPage() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/requests"
+                  href="/dashboard/my-providers"
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-purple-100 p-3 rounded-lg mr-4">
@@ -505,7 +505,7 @@ export default function DashboardPage() {
                   </div>
                 </Link>
                 <Link
-                  href="/dashboard/requests"
+                  href="/dashboard/my-providers"
                   className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
                 >
                   <div className="bg-orange-100 p-3 rounded-lg mr-4">
@@ -605,7 +605,7 @@ export default function DashboardPage() {
                 {filteredActivities.map((activity) => (
                   <Link
                     key={activity.id}
-                    href={activity.relatedId ? `/dashboard/requests/${activity.relatedId}` : "#"}
+                    href={activity.relatedId ? `/dashboard/my-providers/${activity.relatedId}` : "#"}
                     className={`flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition ${
                       activity.isUnread ? "bg-blue-50" : "bg-white border border-gray-100"
                     }`}

@@ -191,7 +191,7 @@ export default function BrowseOrganizationsPage() {
             {organizations.map((org) => {
               const requestId = requestedOrganizationIds.get(org.id);
               const linkHref = requestId
-                ? `/dashboard/requests/${requestId}`
+                ? `/dashboard/my-providers/${requestId}`
                 : `/caregiver/browse-organizations/${org.id}`;
 
               return (

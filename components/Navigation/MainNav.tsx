@@ -374,7 +374,7 @@ function MainNavContent() {
                           <Link href="/provider/saved-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Saved Families
                           </Link>
-                          <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/dashboard/my-providers" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -431,7 +431,7 @@ function MainNavContent() {
                       <Link href="/dashboard/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved Providers
                       </Link>
-                      <Link href="/dashboard/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/dashboard/my-providers" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <span>My Providers</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -665,7 +665,7 @@ function MainNavContent() {
                           <Link href="/provider/saved-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Saved Families
                           </Link>
-                          <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/dashboard/my-providers" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -722,7 +722,7 @@ function MainNavContent() {
                       <Link href="/dashboard/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved Providers
                       </Link>
-                      <Link href="/dashboard/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href="/dashboard/my-providers" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         <span>My Providers</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">

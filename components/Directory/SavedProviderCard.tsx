@@ -297,14 +297,14 @@ export default function SavedProviderCard({
             </Link>
             {hasRequest && requestId ? (
               <Link
-                href={`/dashboard/requests/${requestId}?from=saved`}
+                href={`/dashboard/my-providers/${requestId}?from=saved`}
                 className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 font-semibold text-center transition-all shadow-sm hover:shadow-md text-sm"
               >
                 View Request
               </Link>
             ) : (
               <Link
-                href={`/dashboard/requests/new?providerId=${saved.provider.id}`}
+                href={`/dashboard/my-providers/new?providerId=${saved.provider.id}`}
                 className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 font-semibold text-center transition-all shadow-sm hover:shadow-md text-sm"
               >
                 Request

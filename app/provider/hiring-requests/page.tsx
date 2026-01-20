@@ -179,7 +179,7 @@ export default function HiringRequestsPage() {
             {requests.map((request) => (
               <Link
                 key={request.id}
-                href={`/dashboard/requests/${request.id}`}
+                href={`/dashboard/my-providers/${request.id}`}
                 className="block bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6"
               >
                 <div className="flex justify-between items-start mb-4">

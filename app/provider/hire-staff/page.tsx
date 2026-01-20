@@ -194,7 +194,7 @@ export default function HireStaffPage() {
             {caregivers.map((caregiver) => {
               const requestId = requestedCaregiverIds.get(caregiver.id);
               const linkHref = requestId
-                ? `/dashboard/requests/${requestId}`
+                ? `/dashboard/my-providers/${requestId}`
                 : `/provider/hire-staff/${caregiver.id}`;
 
               return (
