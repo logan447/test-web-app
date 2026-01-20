@@ -198,10 +198,10 @@ export default function ProviderDashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
             {isIndependentCaregiver ? "Caregiver Dashboard" : "Provider Dashboard"}
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-lg text-gray-600">
             {isIndependentCaregiver
               ? "Find families and organizations seeking caregivers"
               : "Connect with families who need your services"}

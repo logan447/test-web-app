@@ -192,7 +192,16 @@ export default function RequestsPage() {
       <Breadcrumb />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">My Providers</h1>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {isFamily ? "My Providers" : "My Families"}
+          </h1>
+          <p className="text-lg text-gray-600">
+            {isFamily
+              ? "Manage your care provider connections and requests"
+              : "Manage your family care connections and requests"}
+          </p>
+        </div>
 
         <div className="mb-6 border-b border-gray-200">
           <nav className="flex space-x-8">
@@ -204,7 +213,7 @@ export default function RequestsPage() {
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
-              {isFamily ? "Received from Providers" : "Received from Families"}
+              {isFamily ? "Providers Reaching Out" : "Families Reaching Out"}
             </button>
             <button
               onClick={() => setActiveTab("sent")}
@@ -214,7 +223,7 @@ export default function RequestsPage() {
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
-              {isFamily ? "Sent to Providers" : "Sent to Families"}
+              {isFamily ? "Your Requests" : "Your Outreach"}
             </button>
           </nav>
         </div>
