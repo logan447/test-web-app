@@ -179,7 +179,7 @@ function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                I'm looking for care
+                I&apos;m looking for care
               </h3>
               <p className="text-sm text-gray-600 mt-1">
                 Find quality care providers for yourself or a loved one
@@ -205,7 +205,7 @@ function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                I'm a care provider
+                I&apos;m a care provider
               </h3>
               <p className="text-sm text-gray-600 mt-1">
                 Connect with families seeking care services
