@@ -7,6 +7,8 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import Tooltip from "@/components/UI/Tooltip";
+import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
+import { useProviderIdentity } from "@/hooks/useProviderIdentity";
 
 type ConsultRequest = {
   id: string;
@@ -15,6 +17,13 @@ type ConsultRequest = {
   createdAt: string;
   provider: {
     name: string;
+    city: string;
+    state: string;
+  };
+  familyProfile?: {
+    user: {
+      name: string;
+    };
     city: string;
     state: string;
   };
@@ -28,26 +37,32 @@ type ConsultRequest = {
 };
 
 /**
- * My Providers - Family-side engagement management
+ * My Families - Provider-side engagement management
  *
- * Shows providers that have an engagement relationship with this family:
- * - Providers the family requested/contacted
- * - Providers who reached out to the family
+ * Shows families that have an engagement relationship with this provider:
+ * - Families who submitted a request to the provider
+ * - Families the provider reached out to
  * - Active conversations, pending, accepted states
  *
  * This is an explicit route (not mode-aware) per Manual architecture principles.
- * For provider-side engagement management, see /provider/dashboard/my-families
  */
-export default function MyProvidersPage() {
+export default function MyFamiliesPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Default to "sent" for families (they send to providers)
-  const [activeTab, setActiveTab] = useState<"sent" | "received">("sent");
+  // Default to "received" for providers (families reaching out to them)
+  const [activeTab, setActiveTab] = useState<"sent" | "received">("received");
+
+  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
+  const { needsOnboarding, loading: identityLoading } = useProviderIdentity({
+    checkMode: true,
+  });
 
   useEffect(() => {
+    if (status === "loading" || identityLoading) return;
+
     if (status === "unauthenticated") {
       router.push("/login");
       return;
@@ -57,7 +72,7 @@ export default function MyProvidersPage() {
       fetchRequests();
       markAsViewed();
     }
-  }, [status, activeTab]);
+  }, [status, activeTab, identityLoading]);
 
   const markAsViewed = async () => {
     try {
@@ -141,6 +156,7 @@ export default function MyProvidersPage() {
   };
 
   const getCombinedBadgeText = (status: string, activeTab: string) => {
+    // Simplified, user-friendly status messages
     if (status === "PENDING") {
       return activeTab === "sent" ? "Waiting for reply" : "Needs your response";
     } else if (status === "ACCEPTED") {
@@ -159,7 +175,7 @@ export default function MyProvidersPage() {
         if (activeTab === "received") {
           return "This request is awaiting your response. Accept or decline to continue.";
         } else {
-          return "Waiting for the provider to respond to your request.";
+          return "Waiting for the family to respond to your outreach.";
         }
       case "ACCEPTED":
         return "Request accepted! Contact information is now unlocked. Continue the conversation in messages.";
@@ -172,7 +188,7 @@ export default function MyProvidersPage() {
     }
   };
 
-  if (loading || status === "loading") {
+  if (loading || status === "loading" || identityLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
@@ -188,12 +204,17 @@ export default function MyProvidersPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            My Providers
+            My Families
           </h1>
           <p className="text-lg text-gray-600">
-            Manage your care provider connections and requests
+            Manage your family care connections and requests
           </p>
         </div>
+
+        {/* Onboarding prompt for incomplete profiles */}
+        {needsOnboarding && (
+          <OnboardingPrompt context="requests" />
+        )}
 
         <div className="mb-6 border-b border-gray-200">
           <nav className="flex space-x-8">
@@ -205,7 +226,7 @@ export default function MyProvidersPage() {
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
-              Providers Reaching Out
+              Families Reaching Out
             </button>
             <button
               onClick={() => setActiveTab("sent")}
@@ -215,7 +236,7 @@ export default function MyProvidersPage() {
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
-              Your Requests
+              Your Outreach
             </button>
           </nav>
         </div>
@@ -237,20 +258,30 @@ export default function MyProvidersPage() {
             </svg>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {activeTab === "sent"
-                ? "No requests sent yet"
+                ? "No outreach sent yet"
                 : "No requests received yet"}
             </h3>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              {activeTab === "sent"
-                ? "Browse providers and send a consultation request to get started."
-                : "Providers you've connected with will appear here when they reach out."}
+              {activeTab === "received"
+                ? needsOnboarding
+                  ? "Complete your provider profile to appear in family searches and start receiving care requests."
+                  : "Families looking for care providers will appear here when they reach out to you."
+                : "Browse family care requests and reach out to families who need your services."}
             </p>
-            {activeTab === "sent" && (
+            {activeTab === "received" && needsOnboarding && (
               <Link
-                href="/"
+                href="/provider/onboarding"
                 className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium"
               >
-                Browse Providers
+                Complete Your Profile
+              </Link>
+            )}
+            {activeTab === "sent" && (
+              <Link
+                href="/provider/find-families"
+                className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium"
+              >
+                Browse Family Requests
               </Link>
             )}
           </div>
@@ -261,14 +292,16 @@ export default function MyProvidersPage() {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1 pr-4">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {request.provider.name}
+                      {request.familyProfile?.user.name || "Family"}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {request.provider.city}, {request.provider.state}
+                      {request.familyProfile
+                        ? `${request.familyProfile.city}, ${request.familyProfile.state}`
+                        : ""}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       {activeTab === "sent"
-                        ? `To: ${request.provider.name}`
+                        ? `To: ${request.familyProfile?.user.name || "Family"}`
                         : `From: ${request.sender.name}`} •{" "}
                       {new Date(request.createdAt).toLocaleDateString()}
                     </p>
@@ -311,7 +344,7 @@ export default function MyProvidersPage() {
                     </>
                   )}
                   <Link
-                    href={`/dashboard/my-providers/${request.id}`}
+                    href={`/provider/dashboard/my-families/${request.id}`}
                     className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-sm"
                   >
                     View Request
