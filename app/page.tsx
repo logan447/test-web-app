@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import MainNav from "@/components/Navigation/MainNav";
@@ -17,6 +17,7 @@ import EmptyState from "@/components/Directory/EmptyState";
 import ErrorState from "@/components/Directory/ErrorState";
 import TrustFooter from "@/components/Directory/TrustFooter";
 import ScrollToTop from "@/components/Directory/ScrollToTop";
+import OnboardingWizardOverlay from "@/components/Onboarding/OnboardingWizardOverlay";
 
 // Dynamic import for MapView to avoid SSR issues
 const MapView = dynamic(() => import("@/components/Directory/MapView"), {
@@ -60,8 +61,10 @@ type Provider = {
   hasHospiceCare: boolean;
 };
 
-export default function Home() {
+// Inner component that uses useSearchParams (requires Suspense boundary)
+function HomeContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +75,9 @@ export default function Home() {
   const [providerType, setProviderType] = useState("");
   const [careType, setCareType] = useState("");
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
+
+  // URL-parameter based onboarding: ?onboarding=true triggers the wizard overlay
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Advanced filters
   const [priceMin, setPriceMin] = useState<number>(0);
@@ -96,6 +102,21 @@ export default function Home() {
 
   // Track if user has interacted with directory (to hide category cards after interaction)
   const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Check URL param for onboarding trigger
+  useEffect(() => {
+    const onboardingParam = searchParams.get('onboarding');
+    if (onboardingParam === 'true') {
+      setShowOnboarding(true);
+    }
+  }, [searchParams]);
+
+  // Handle onboarding completion - remove URL param and close overlay
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    // Remove the onboarding param from URL without full page reload
+    router.replace('/', { scroll: false });
+  };
 
   useEffect(() => {
     fetchProviders();
@@ -553,6 +574,34 @@ export default function Home() {
 
       {/* Scroll to Top Button */}
       <ScrollToTop />
+
+      {/* URL-parameter triggered onboarding overlay for new family/generic signups */}
+      <OnboardingWizardOverlay
+        isOpen={showOnboarding}
+        onClose={handleOnboardingComplete}
+        initialIntent={null}
+        onComplete={handleOnboardingComplete}
+      />
     </div>
+  );
+}
+
+// Wrapper with Suspense boundary (required for useSearchParams in Next.js App Router)
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid md:grid-cols-2 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <ProviderCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }

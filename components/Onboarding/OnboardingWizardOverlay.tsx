@@ -870,17 +870,18 @@ export default function OnboardingWizardOverlay({
         break;
 
       case "complete":
-        // Close and redirect to appropriate destination
+        // Mark onboarding complete in database (single source of truth)
+        try {
+          await fetch("/api/user/onboarding-complete", { method: "POST" });
+        } catch (error) {
+          console.error("Failed to mark onboarding complete:", error);
+          // Continue anyway - don't block user from using the app
+        }
+
+        // Notify parent and close
+        // Parent page handles URL param removal and any navigation
         onComplete?.(data);
         onClose();
-
-        if (data.intent === "family") {
-          router.push("/");
-        } else {
-          // Provider users go to Find Families page to start connecting
-          // Use router.push for client-side navigation (no full page reload)
-          router.push("/provider/find-families");
-        }
         break;
     }
   }, [currentStep, data, onClose, onComplete, router, update]);

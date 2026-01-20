@@ -1,10 +1,8 @@
 "use client";
 
-import { Fragment, useState, useEffect, useRef } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { signIn, getSession } from "next-auth/react";
-import OnboardingWizardOverlay from "@/components/Onboarding/OnboardingWizardOverlay";
-import type { OnboardingIntent } from "@/components/Onboarding/OnboardingWizardOverlay";
+import { signIn } from "next-auth/react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -13,32 +11,31 @@ interface AuthModalProps {
   intent?: "provider" | "family"; // For provider-targeted signup flows
 }
 
+/**
+ * AuthModal - Handles login and signup.
+ *
+ * After signup, redirects to destination page with ?onboarding=true URL param.
+ * The destination page is responsible for showing the onboarding overlay.
+ *
+ * This unified approach ensures:
+ * - Single source of truth (URL param)
+ * - No race conditions with modal state
+ * - Consistent behavior across all entry points
+ * - Database-backed onboarding completion status
+ */
 export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent }: AuthModalProps) {
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Onboarding state - wizard opens immediately after signup, BEFORE any redirect
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingIntent, setOnboardingIntent] = useState<OnboardingIntent>(null);
-
-  // Guard to prevent useEffect from resetting state during onboarding
-  const onboardingInitiatedRef = useRef(false);
-
   // All users default to FAMILY role on signup
   const role = "FAMILY";
 
-  // Sync view state when modal opens fresh (not during onboarding)
+  // Sync view state when modal opens
   useEffect(() => {
-    if (isOpen && !onboardingInitiatedRef.current) {
+    if (isOpen) {
       setView(defaultView);
       setError("");
-      setShowOnboarding(false);
-      setOnboardingIntent(null);
-    }
-    // Reset the guard when modal fully closes
-    if (!isOpen) {
-      onboardingInitiatedRef.current = false;
     }
   }, [isOpen, defaultView]);
 
@@ -64,16 +61,10 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Fetch session to get activeMode from database (Manual Ch 1.2)
-      // Mode was restored from DB during authorize callback
-      const session = await getSession();
-      const isProviderMode = session?.user?.activeMode === "PROVIDER";
-
-      // Close modal and redirect based on activeMode (database is source of truth)
-      // Manual Ch 2.2: FAMILY mode → "/" (Find Providers), PROVIDER mode → "/provider/find-families"
-      // Use window.location.href for full page reload to avoid white-screen rendering bug
+      // Close modal and redirect based on intent
+      // For login, don't show onboarding (they've already completed it or can do it later)
       onClose();
-      if (isProviderMode) {
+      if (intent === "provider") {
         window.location.href = "/provider/find-families";
       } else {
         window.location.href = "/";
@@ -128,21 +119,17 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Onboarding approach depends on intent:
-      // - Provider intent: redirect to Find Families with URL param (overlay on destination page)
-      // - Family/generic intent: show inline wizard before redirect
-      setLoading(false);
+      // UNIFIED APPROACH: All signups redirect to destination with ?onboarding=true
+      // The destination page reads the URL param and shows the onboarding overlay
+      // Database tracks completion status to prevent re-showing
+      onClose();
 
       if (intent === "provider") {
-        // Provider signup: close modal and redirect with onboarding URL param
-        // The Find Families page will read the param and show the overlay
-        onClose();
+        // Provider signup → Find Families page with onboarding overlay
         window.location.href = "/provider/find-families?onboarding=true";
       } else {
-        // Family/generic signup: show inline wizard, then redirect after completion
-        onboardingInitiatedRef.current = true;
-        setOnboardingIntent(null); // null = show intent selection step
-        setShowOnboarding(true);
+        // Family/generic signup → Homepage with onboarding overlay
+        window.location.href = "/?onboarding=true";
       }
 
     } catch (error) {
@@ -150,32 +137,6 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       setLoading(false);
     }
   };
-
-  // Handle onboarding completion - NOW we redirect
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false);
-    onClose();
-
-    // Single source of truth for routing after onboarding
-    if (onboardingIntent === "provider") {
-      window.location.href = "/provider/find-families";
-    } else {
-      window.location.href = "/";
-    }
-  };
-
-  // If showing onboarding, render the wizard overlay instead of the auth form
-  // The wizard takes over the entire modal
-  if (showOnboarding) {
-    return (
-      <OnboardingWizardOverlay
-        isOpen={true}
-        onClose={handleOnboardingComplete}
-        initialIntent={onboardingIntent}
-        onComplete={handleOnboardingComplete}
-      />
-    );
-  }
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
