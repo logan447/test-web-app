@@ -25,12 +25,14 @@ import OnboardingWizardOverlay from "./OnboardingWizardOverlay";
  * ```
  */
 export default function OnboardingTrigger() {
+  // Note: autoOpen removed - trigger mechanism from signup is sufficient
+  // autoOpen caused race condition where wizard opened before trigger intent was set
   const {
     isOpen,
     close,
     initialIntent,
     initialProviderSubtype,
-  } = useOnboardingWizard({ autoOpen: true });
+  } = useOnboardingWizard();
 
   return (
     <OnboardingWizardOverlay
