@@ -142,7 +142,7 @@ function getStepTitle(step: WizardStep): string {
 interface StepProps {
   data: OnboardingData;
   onUpdate: (updates: Partial<OnboardingData>) => void;
-  onNext: (selectedValue?: { intent?: OnboardingIntent; providerSubtype?: ProviderSubtype }) => void;
+  onNext: (selectedValue?: Partial<OnboardingData>) => void;
   onBack?: () => void;
   onSkip: () => void;
 }
@@ -328,12 +328,14 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
     e.preventDefault();
     // Compose location for display/storage
     const familyLocation = `${localData.familyCity}, ${localData.familyState}`;
-    onUpdate({
+    const formData = {
       familyName: localData.familyName,
       familyLocation,
       familyCareType: localData.familyCareType,
-    });
-    onNext();
+    };
+    onUpdate(formData);
+    // Pass form data directly to avoid stale closure
+    onNext(formData);
   };
 
   const isValid = localData.familyName && localData.familyCity && localData.familyState && localData.familyCareType;
@@ -450,7 +452,8 @@ function ProviderOrgFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepP
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdate(localData);
-    onNext();
+    // Pass form data directly to avoid stale closure
+    onNext(localData);
   };
 
   const isValid = localData.orgName && localData.orgLocation && localData.orgProviderType;
@@ -559,7 +562,8 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdate(localData);
-    onNext();
+    // Pass form data directly to avoid stale closure
+    onNext(localData);
   };
 
   const isValid =
@@ -751,7 +755,7 @@ export default function OnboardingWizardOverlay({
     setData((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const handleNext = useCallback(async (selectedValue?: { intent?: OnboardingIntent; providerSubtype?: ProviderSubtype }) => {
+  const handleNext = useCallback(async (selectedValue?: Partial<OnboardingData>) => {
     switch (currentStep) {
       case "intent":
         // Use passed intent to avoid stale closure, fallback to state
@@ -777,8 +781,13 @@ export default function OnboardingWizardOverlay({
         // Save family profile data to FamilyProfile via API
         setIsSubmitting(true);
         try {
+          // Use passed data to avoid stale closure, fallback to state
+          const familyName = selectedValue?.familyName ?? data.familyName;
+          const familyLocation = selectedValue?.familyLocation ?? data.familyLocation;
+          const familyCareType = selectedValue?.familyCareType ?? data.familyCareType;
+
           // Parse location into city and state
-          const [city, state] = (data.familyLocation || "").split(",").map(s => s.trim());
+          const [city, state] = (familyLocation || "").split(",").map(s => s.trim());
 
           // First check if profile exists
           const checkResponse = await fetch("/api/family-profiles/me");
@@ -786,9 +795,9 @@ export default function OnboardingWizardOverlay({
 
           // Prepare profile data
           const profileData = {
-            lovedOneName: data.familyName,
-            careTypes: data.familyCareType ? [data.familyCareType] : [],
-            location: data.familyLocation || "",
+            lovedOneName: familyName,
+            careTypes: familyCareType ? [familyCareType] : [],
+            location: familyLocation || "",
             city: city || "",
             state: state || "",
             zipCode: "", // Can be filled in later
