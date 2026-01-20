@@ -427,6 +427,13 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
+                          <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Hire Care Staff
+                          </Link>
+                          <div className="border-t border-gray-200 my-1"></div>
+                          <Link href="/provider/onboarding" className="block px-4 py-2 text-sm text-primary-600 hover:bg-gray-100 font-medium">
+                            Become a Caregiver
+                          </Link>
                           <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Provider Dashboard
                           </Link>
@@ -728,6 +735,13 @@ function MainNavContent() {
                                 {unreadCount > 9 ? '9+' : unreadCount}
                               </span>
                             )}
+                          </Link>
+                          <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Hire Care Staff
+                          </Link>
+                          <div className="border-t border-gray-200 my-2"></div>
+                          <Link href="/provider/onboarding" className="block px-3 py-2 text-primary-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
+                            Become a Caregiver
                           </Link>
                           <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Provider Dashboard

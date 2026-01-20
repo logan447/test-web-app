@@ -5,7 +5,7 @@ import { useState } from "react";
 
 interface OnboardingPromptProps {
   // Optional: Customize the message for the specific context
-  context?: "dashboard" | "requests" | "saved" | "default";
+  context?: "dashboard" | "requests" | "saved" | "hire" | "default";
   // Optional: Allow dismissal (remembers in session)
   dismissible?: boolean;
 }
@@ -41,6 +41,11 @@ export default function OnboardingPrompt({
       title: "Connect with families you've saved",
       description:
         "Complete your provider profile to reach out to families and offer your services.",
+    },
+    hire: {
+      title: "Complete your organization profile",
+      description:
+        "Set up your organization profile to contact caregivers and start hiring.",
     },
     default: {
       title: "Set up your provider profile",

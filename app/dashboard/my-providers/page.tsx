@@ -221,17 +221,55 @@ export default function RequestsPage() {
 
         {requests.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-600 mb-4">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-300 mb-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {activeTab === "sent"
-                ? "You haven't sent any requests yet."
-                : "No requests yet."}
+                ? "No requests sent yet"
+                : "No requests received yet"}
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              {isFamily
+                ? activeTab === "sent"
+                  ? "Browse providers and send a consultation request to get started."
+                  : "Providers you've connected with will appear here."
+                : activeTab === "received"
+                  ? "Complete your provider profile to appear in family searches and start receiving care requests."
+                  : "Browse family care requests and reach out to families who need your services."}
             </p>
             {isFamily && activeTab === "sent" && (
               <Link
-                href="/providers"
-                className="inline-block bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700"
+                href="/"
+                className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium"
               >
                 Browse Providers
+              </Link>
+            )}
+            {!isFamily && activeTab === "received" && (
+              <Link
+                href="/provider/dashboard"
+                className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium"
+              >
+                Complete Your Profile
+              </Link>
+            )}
+            {!isFamily && activeTab === "sent" && (
+              <Link
+                href="/provider/find-families"
+                className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium"
+              >
+                Browse Family Requests
               </Link>
             )}
           </div>
