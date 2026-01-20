@@ -150,20 +150,25 @@ export function useOnboardingWizard(
   } | null>(null);
 
   // Computed: should the wizard be open?
-  // Only show when authenticated AND (has stored state OR manual open) AND user hasn't closed
   const isAuthenticated = status === "authenticated";
+  const isAuthLoading = status === "loading";
   const hasStoredOpen = storedState.shouldOpen && !userClosed;
   const hasManualOpen = !!(manualOpen?.isOpen) && !userClosed;
 
-  const isOpen: boolean = isAuthenticated && (hasStoredOpen || hasManualOpen);
+  // For trigger-based opens (hasStoredOpen), open immediately without waiting for auth.
+  // The signup flow ensures user is authenticated before redirect, so the trigger
+  // is only set for authenticated users. Waiting for auth causes the "delayed appearance".
+  // For manual opens and other cases, still require authentication.
+  const isOpen: boolean = hasStoredOpen || (isAuthenticated && hasManualOpen);
 
   // Determine intent/providerSubtype (manual takes precedence)
   const intent = manualOpen?.intent ?? storedState.intent ?? options.initialIntent ?? null;
   const providerSubtype =
     manualOpen?.providerSubtype ?? storedState.providerSubtype ?? options.initialProviderSubtype ?? null;
 
-  // Still loading if auth status is loading AND we have something that might open
-  const isLoading: boolean = status === "loading" && (storedState.shouldOpen || !!options.autoOpen);
+  // Only loading for manual open cases where we need auth confirmation
+  // Trigger-based opens don't need to wait
+  const isLoading: boolean = isAuthLoading && !hasStoredOpen && !!options.autoOpen;
 
   // Check if user needs onboarding
   const needsOnboarding = isAuthenticated && !hasCompletedOnboarding();

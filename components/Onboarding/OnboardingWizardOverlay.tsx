@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState, useEffect, useCallback } from "react";
+import { Fragment, useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -712,42 +712,46 @@ export default function OnboardingWizardOverlay({
   const { data: session, update } = useSession();
   const router = useRouter();
 
+  // Compute initial step based on intent/providerSubtype
+  const computeInitialStep = (intent: OnboardingIntent, subtype: ProviderSubtype): WizardStep => {
+    if (intent === "family") return "family-fields";
+    if (intent === "provider" && subtype === "organization") return "provider-org-fields";
+    if (intent === "provider" && subtype === "individual") return "provider-individual-fields";
+    if (intent === "provider") return "provider-subtype";
+    return "intent";
+  };
+
   const [data, setData] = useState<OnboardingData>({
     intent: initialIntent || null,
     providerSubtype: initialProviderSubtype || null,
   });
 
-  const [currentStep, setCurrentStep] = useState<WizardStep>(() => {
-    if (initialIntent === "family") return "family-fields";
-    if (initialIntent === "provider" && initialProviderSubtype === "organization")
-      return "provider-org-fields";
-    if (initialIntent === "provider" && initialProviderSubtype === "individual")
-      return "provider-individual-fields";
-    if (initialIntent === "provider") return "provider-subtype";
-    return "intent";
-  });
+  const [currentStep, setCurrentStep] = useState<WizardStep>(() =>
+    computeInitialStep(initialIntent || null, initialProviderSubtype || null)
+  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset state when overlay opens
+  // Track whether we've initialized for THIS open session
+  // This prevents the step from resetting mid-flow when isOpen toggles due to session updates
+  const hasInitializedRef = useRef(false);
+
+  // Initialize state ONCE when wizard opens, not on every dependency change
+  // This is critical: the session update during provider-org-fields step can cause
+  // useSession to re-render, which might toggle isOpen, which would previously
+  // reset the wizard back to step 1. Now we only initialize once per open.
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !hasInitializedRef.current) {
+      // First time opening - initialize state
       setData({
         intent: initialIntent || null,
         providerSubtype: initialProviderSubtype || null,
       });
-
-      if (initialIntent === "family") {
-        setCurrentStep("family-fields");
-      } else if (initialIntent === "provider" && initialProviderSubtype === "organization") {
-        setCurrentStep("provider-org-fields");
-      } else if (initialIntent === "provider" && initialProviderSubtype === "individual") {
-        setCurrentStep("provider-individual-fields");
-      } else if (initialIntent === "provider") {
-        setCurrentStep("provider-subtype");
-      } else {
-        setCurrentStep("intent");
-      }
+      setCurrentStep(computeInitialStep(initialIntent || null, initialProviderSubtype || null));
+      hasInitializedRef.current = true;
+    } else if (!isOpen && hasInitializedRef.current) {
+      // Wizard closed - reset the flag so next open will reinitialize
+      hasInitializedRef.current = false;
     }
   }, [isOpen, initialIntent, initialProviderSubtype]);
 
@@ -840,15 +844,26 @@ export default function OnboardingWizardOverlay({
           });
 
           if (!response.ok) {
-            throw new Error("Failed to create provider identity");
+            // Check if identity already exists (400 error)
+            // This can happen if user retries or there was a partial completion
+            const errorData = await response.json().catch(() => ({}));
+            if (response.status === 400 && errorData.error?.includes("already exists")) {
+              // Identity exists - that's fine, continue to complete
+              console.log("Provider identity already exists, continuing to complete");
+            } else {
+              throw new Error(errorData.error || "Failed to create provider identity");
+            }
           }
 
-          // Update session to provider mode
+          // Update session to provider mode (safe to call even if already in provider mode)
           await update({ activeMode: "PROVIDER" });
 
           setCurrentStep("complete");
         } catch (error) {
           console.error("Error creating provider identity:", error);
+          // Still advance to complete on error - user can fix profile later
+          // This prevents getting stuck in a loop
+          setCurrentStep("complete");
         } finally {
           setIsSubmitting(false);
         }
