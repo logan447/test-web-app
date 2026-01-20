@@ -128,14 +128,22 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // NEW APPROACH: Show onboarding wizard immediately, BEFORE any redirect
-      // This eliminates the need for sessionStorage triggers and SSR hydration issues
+      // Onboarding approach depends on intent:
+      // - Provider intent: redirect to Find Families with URL param (overlay on destination page)
+      // - Family/generic intent: show inline wizard before redirect
       setLoading(false);
-      // Only pass initialIntent if explicitly provided via props (e.g., from For Providers CTA)
-      // Otherwise, let the wizard show the intent selection step by passing null
-      onboardingInitiatedRef.current = true; // Guard against useEffect resetting state
-      setOnboardingIntent(intent === "provider" ? "provider" : null);
-      setShowOnboarding(true);
+
+      if (intent === "provider") {
+        // Provider signup: close modal and redirect with onboarding URL param
+        // The Find Families page will read the param and show the overlay
+        onClose();
+        window.location.href = "/provider/find-families?onboarding=true";
+      } else {
+        // Family/generic signup: show inline wizard, then redirect after completion
+        onboardingInitiatedRef.current = true;
+        setOnboardingIntent(null); // null = show intent selection step
+        setShowOnboarding(true);
+      }
 
     } catch (error) {
       setError("Something went wrong");

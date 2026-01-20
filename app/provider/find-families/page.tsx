@@ -1,8 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import { showToast } from '@/lib/toast';
@@ -12,6 +12,7 @@ import EnhancedFamilyCard from '@/components/Directory/EnhancedFamilyCard';
 import FamilyFiltersBar, { FamilyFilters } from '@/components/Directory/FamilyFiltersBar';
 import ScrollToTop from '@/components/Directory/ScrollToTop';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
+import OnboardingWizardOverlay from '@/components/Onboarding/OnboardingWizardOverlay';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type FamilyProfile = {
@@ -33,9 +34,11 @@ type FamilyProfile = {
   isSaved?: boolean;
 };
 
-export default function ProviderRequestsPage() {
+// Inner component that uses useSearchParams (requires Suspense boundary)
+function ProviderRequestsPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
@@ -44,6 +47,9 @@ export default function ProviderRequestsPage() {
   const [selectedProfileForUnlock, setSelectedProfileForUnlock] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('newest');
 
+  // URL-parameter based onboarding: ?onboarding=true triggers the wizard overlay
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
   // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
@@ -51,6 +57,21 @@ export default function ProviderRequestsPage() {
   const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
+
+  // Check URL param for onboarding trigger (runs once on mount)
+  useEffect(() => {
+    const onboardingParam = searchParams.get('onboarding');
+    if (onboardingParam === 'true') {
+      setShowOnboarding(true);
+    }
+  }, [searchParams]);
+
+  // Handle onboarding completion - remove URL param and close overlay
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    // Remove the onboarding param from URL without full page reload
+    router.replace('/provider/find-families', { scroll: false });
+  };
 
   // Filters
   const [filters, setFilters] = useState<FamilyFilters>({
@@ -427,7 +448,31 @@ export default function ProviderRequestsPage() {
         onClose={() => setPaywallOpen(false)}
         onUpgrade={handleUpgradeSubscription}
       />
+      {/* URL-parameter triggered onboarding overlay for new provider signups */}
+      <OnboardingWizardOverlay
+        isOpen={showOnboarding}
+        onClose={handleOnboardingComplete}
+        initialIntent="provider"
+        onComplete={handleOnboardingComplete}
+      />
     </div>
+  );
+}
+
+// Wrapper with Suspense boundary (required for useSearchParams in Next.js App Router)
+export default function ProviderRequestsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <Breadcrumb />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ProfileCardsSkeleton count={3} />
+        </div>
+      </div>
+    }>
+      <ProviderRequestsPageContent />
+    </Suspense>
   );
 }
 
