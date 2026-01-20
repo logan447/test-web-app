@@ -83,7 +83,7 @@ export default function TrustFooter() {
     ],
     resources: [
       { label: "Find Care", href: "/" },
-      { label: "Become a Provider", href: "/providers/signup" },
+      { label: "Become a Provider", href: "/for-providers" },
       { label: "Care Guides", href: "/guides" },
       { label: "Blog", href: "/blog" },
     ],

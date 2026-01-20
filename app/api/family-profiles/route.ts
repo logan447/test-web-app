@@ -17,6 +17,7 @@ export async function GET(req: Request) {
 
     const where: any = {
       isPublic: true, // Only show public profiles in Browse Care Requests
+      hideFromSearch: false, // Respect privacy setting
     };
 
     if (city) {
@@ -33,16 +34,43 @@ export async function GET(req: Request) {
       };
     }
 
+    // Select only non-identifying fields for browse view
+    // Per visibility rules: family identity/contact hidden until engagement ACCEPTED
     const profiles = await prisma.familyProfile.findMany({
       where,
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-            phone: true,
-          },
-        },
+      select: {
+        id: true,
+        // Location (always visible)
+        city: true,
+        state: true,
+        zipCode: true,
+        location: true,
+        // Care needs (visible)
+        careTypes: true,
+        careLevel: true,
+        medicalConditions: true,
+        mobilityStatus: true,
+        dailyLivingAssistance: true,
+        additionalNeeds: true,
+        // Care recipient info (non-identifying)
+        ageRange: true,
+        relationship: true,
+        livingSituation: true,
+        // Budget & timeline (visible)
+        budgetMin: true,
+        budgetMax: true,
+        budgetFlexibility: true,
+        careUrgency: true,
+        preferredStartDate: true,
+        careDuration: true,
+        timeline: true,
+        // Description (visible)
+        description: true,
+        // Metadata
+        createdAt: true,
+        // Photo visibility controlled by user setting
+        profilePhoto: true,
+        showProfilePhoto: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -50,7 +78,16 @@ export async function GET(req: Request) {
       take: 50,
     });
 
-    return NextResponse.json(profiles);
+    // Process profiles to conditionally include photo based on user preference
+    const processedProfiles = profiles.map(profile => ({
+      ...profile,
+      // Only include photo if user opted in
+      profilePhoto: profile.showProfilePhoto ? profile.profilePhoto : null,
+      // Remove the setting from response
+      showProfilePhoto: undefined,
+    }));
+
+    return NextResponse.json(processedProfiles);
   } catch (error) {
     console.error("Error fetching family profiles:", error);
     return NextResponse.json(

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import AuthModal from "@/components/Auth/AuthModal";
 import PhotoGallery from "@/components/Gallery/PhotoGallery";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
@@ -16,6 +17,7 @@ import LocationSection from "@/components/Provider/LocationSection";
 import SpecialtyCareSection from "@/components/Provider/SpecialtyCareSection";
 import ProviderCTASection from "@/components/Provider/ProviderCTASection";
 import EnhancedContactModal, { ContactFormData } from "@/components/Provider/EnhancedContactModal";
+import ClaimProviderModal from "@/components/Provider/ClaimProviderModal";
 import ProviderDetailSkeleton from "@/components/Loading/ProviderDetailSkeleton";
 import { showToast } from "@/lib/toast";
 
@@ -24,8 +26,8 @@ type Provider = {
   name: string;
   providerType: ProviderType;
   description: string | null;
-  email: string;
-  phone: string;
+  email: string | null;
+  phone: string | null;
   website: string | null;
   address: string;
   city: string;
@@ -71,26 +73,24 @@ type Provider = {
   hasRespiteCare: boolean;
   hasHospiceCare: boolean;
   specialtyPrograms: string[];
+  claimed?: boolean;
+  contactRevealed?: boolean;
 };
 
 export default function ProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authIntent, setAuthIntent] = useState<"family" | "provider">("family");
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactReason, setContactReason] = useState("Ask a question");
-
-  // Determine back link based on where user came from
-  const fromSaved = searchParams.get('from') === 'saved';
-  const backHref = fromSaved ? '/dashboard/saved' : '/providers';
-  const backText = fromSaved ? '← Back to Saved Providers' : '← Back to Browse Providers';
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
 
   useEffect(() => {
     fetchProvider();
@@ -131,6 +131,7 @@ export default function ProviderProfilePage() {
 
   const handleSaveToggle = async () => {
     if (!session?.user) {
+      setAuthIntent("family");
       setAuthModalOpen(true);
       return;
     }
@@ -174,6 +175,7 @@ export default function ProviderProfilePage() {
 
   const handleWriteReview = () => {
     if (!session?.user) {
+      setAuthIntent("family");
       setAuthModalOpen(true);
       return;
     }
@@ -185,8 +187,24 @@ export default function ProviderProfilePage() {
     fetchProvider();
   };
 
+  const handleClaimClick = () => {
+    if (!session?.user) {
+      setAuthIntent("provider");
+      setAuthModalOpen(true);
+      return;
+    }
+    setClaimModalOpen(true);
+  };
+
+  const handleClaimSuccess = () => {
+    // Refresh provider data and redirect to provider dashboard
+    showToast.success('Provider claimed successfully!');
+    router.push('/dashboard/provider-profile');
+  };
+
   const handleOpenRequestForm = (reason: string) => {
     if (!session?.user) {
+      setAuthIntent("family");
       setAuthModalOpen(true);
       return;
     }
@@ -213,8 +231,16 @@ export default function ProviderProfilePage() {
         throw new Error(data.error || 'Failed to send request');
       }
 
-      showToast.success('Request sent successfully!');
+      const createdRequest = await response.json();
       setContactModalOpen(false);
+
+      // Show success message and redirect to engagement detail page (per Sprint 2 task 2.0.3)
+      showToast.success('Request sent! Redirecting to your conversation...');
+
+      // Redirect to the engagement detail page after a short delay for the toast to show
+      setTimeout(() => {
+        router.push(`/dashboard/my-providers/${createdRequest.id}`);
+      }, 500);
     } catch (error: any) {
       showToast.error(error.message || 'Failed to send request');
       throw error;
@@ -231,6 +257,7 @@ export default function ProviderProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <ProviderDetailSkeleton />
       </div>
     );
@@ -243,19 +270,10 @@ export default function ProviderProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb currentPage={provider.name} />
 
       {/* Provider Profile */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link
-          href={backHref}
-          className="text-primary-600 hover:text-primary-700 mb-6 inline-flex items-center gap-2 font-medium transition-smooth"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          {backText}
-        </Link>
-
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           {/* Main content - 2/3 width */}
           <div className="lg:col-span-2 space-y-6">
@@ -272,6 +290,21 @@ export default function ProviderProfilePage() {
                   📍 {provider.address}, {provider.city}, {provider.state} {provider.zipCode}
                 </p>
               </div>
+              {/* Save Button - visible for all users */}
+              <button
+                onClick={handleSaveToggle}
+                disabled={saving}
+                className={`flex-shrink-0 p-3 rounded-full transition-colors ${
+                  isSaved
+                    ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                } disabled:opacity-50`}
+                title={isSaved ? 'Remove from saved' : 'Save provider'}
+              >
+                <svg className={`w-6 h-6 ${isSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill={isSaved ? 'currentColor' : 'none'}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
             </div>
 
             {/* Trust Badges & Availability */}
@@ -333,8 +366,56 @@ export default function ProviderProfilePage() {
                   Waitlist available
                 </span>
               )}
+
+              {provider.claimed === true && (
+                <span className="bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Claimed
+                </span>
+              )}
+
+              {provider.claimed === false && (
+                <span className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  Unclaimed Profile
+                </span>
+              )}
             </div>
           </div>
+
+          {/* Claim This Listing Banner - for unclaimed providers */}
+          {provider.claimed === false && (
+            <div className="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-200 rounded-xl p-5 mb-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900">Is this your business?</h3>
+                    <p className="text-sm text-gray-600 mt-0.5">
+                      Claim this listing to manage your profile, respond to inquiries, and connect with families.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClaimClick}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm whitespace-nowrap flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Claim This Listing
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Photo Gallery */}
           {(provider.photos.length > 0 || provider.coverPhoto) && (
@@ -467,27 +548,48 @@ export default function ProviderProfilePage() {
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
-              <div className="space-y-2">
-                <p className="text-gray-700">
-                  <span className="font-medium">Phone:</span> {provider.phone}
-                </p>
-                <p className="text-gray-700">
-                  <span className="font-medium">Email:</span> {provider.email}
-                </p>
-                {provider.website && (
-                  <p className="text-gray-700">
-                    <span className="font-medium">Website:</span>{" "}
-                    <a
-                      href={provider.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary-600 hover:underline"
-                    >
-                      {provider.website}
-                    </a>
-                  </p>
-                )}
-              </div>
+              {/* Show contact info if revealed (organizations always, individual caregivers after acceptance) */}
+              {provider.contactRevealed !== false ? (
+                <div className="space-y-2">
+                  {provider.phone && (
+                    <p className="text-gray-700">
+                      <span className="font-medium">Phone:</span> {provider.phone}
+                    </p>
+                  )}
+                  {provider.email && (
+                    <p className="text-gray-700">
+                      <span className="font-medium">Email:</span> {provider.email}
+                    </p>
+                  )}
+                  {provider.website && (
+                    <p className="text-gray-700">
+                      <span className="font-medium">Website:</span>{" "}
+                      <a
+                        href={provider.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:underline"
+                      >
+                        {provider.website}
+                      </a>
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-gray-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Contact info protected</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Send a consultation request to connect with this caregiver. Contact details will be shared once they accept.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -525,28 +627,6 @@ export default function ProviderProfilePage() {
             onWriteReview={handleWriteReview}
           />
 
-          {/* Call to Action - Enhanced */}
-          <div className="border-t pt-6">
-            <div className="flex gap-4 items-start">
-              {/* Save Button */}
-              {session?.user?.role === "FAMILY" && (
-                <button
-                  onClick={handleSaveToggle}
-                  disabled={saving}
-                  className={`px-6 py-3 rounded-md font-medium transition-colors flex items-center gap-2 ${
-                    isSaved
-                      ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  } disabled:opacity-50`}
-                >
-                  <svg className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill={isSaved ? 'currentColor' : 'none'}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                  {saving ? 'Saving...' : (isSaved ? 'Saved' : 'Save Provider')}
-                </button>
-              )}
-            </div>
-          </div>
         </div>
         </div>
 
@@ -570,7 +650,8 @@ export default function ProviderProfilePage() {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        defaultView="login"
+        defaultView="signup"
+        intent={authIntent}
       />
 
       {/* Review Modal */}
@@ -590,6 +671,15 @@ export default function ProviderProfilePage() {
         providerName={provider.name}
         defaultReason={contactReason}
         onSubmit={handleContactSubmit}
+      />
+
+      {/* Claim Provider Modal */}
+      <ClaimProviderModal
+        isOpen={claimModalOpen}
+        onClose={() => setClaimModalOpen(false)}
+        providerId={provider.id}
+        providerName={provider.name}
+        onClaimSuccess={handleClaimSuccess}
       />
     </div>
   );

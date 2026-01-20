@@ -4,10 +4,12 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
-import AuthModal from '@/components/Auth/AuthModal';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import CaregiverCard from '@/components/Directory/CaregiverCard';
+import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
+import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type Caregiver = {
   id: string;
@@ -30,22 +32,43 @@ type Caregiver = {
 };
 
 export default function HireStaffPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
   const [loading, setLoading] = useState(true);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [requestedCaregiverIds, setRequestedCaregiverIds] = useState<Map<string, string>>(new Map());
+  const [isIndependentCaregiver, setIsIndependentCaregiver] = useState(false);
+
+  // Read mode from session (database is source of truth per Manual Ch 2)
+  const isProviderMode = session?.user?.activeMode === 'PROVIDER';
+
+  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
+  const { needsOnboarding, loading: identityLoading } = useProviderIdentity({
+    checkMode: true,
+  });
 
   useEffect(() => {
-    if (!session) {
-      setAuthModalOpen(true);
+    // Wait for session to load
+    if (status === 'loading' || identityLoading) return;
+
+    // Redirect to login if unauthenticated (middleware also handles this)
+    if (status === 'unauthenticated') {
+      router.push('/login');
       return;
     }
 
-    // Check if user has organization-type provider profile
+    // Session is authenticated but data might still be loading
+    if (!session) return;
+
+    // If mode is family, redirect to family homepage
+    if (!isProviderMode) {
+      router.push('/');
+      return;
+    }
+
+    // Fetch data (even if no identity - show empty states with prompt)
     checkProviderType();
-  }, [session]);
+  }, [session, status, router, isProviderMode, identityLoading]);
 
   const checkProviderType = async () => {
     try {
@@ -53,20 +76,15 @@ export default function HireStaffPage() {
       if (response.ok) {
         const provider = await response.json();
         if (provider.providerType === 'INDEPENDENT_CAREGIVER') {
-          // Redirect if user is an independent caregiver, not an organization
-          router.push('/provider/requests');
-          return;
+          setIsIndependentCaregiver(true);
         }
-        // User has organization profile, fetch caregivers
-        fetchCaregivers();
-        fetchSentRequests();
-      } else {
-        // No provider profile, redirect to create one
-        router.push('/dashboard/provider-profile');
       }
+      // Fetch caregivers regardless of profile status
+      fetchCaregivers();
+      fetchSentRequests();
     } catch (err) {
       console.error('Error checking provider type:', err);
-      setLoading(false);
+      fetchCaregivers();
     }
   };
 
@@ -75,7 +93,8 @@ export default function HireStaffPage() {
       const response = await fetch('/api/providers?availableForOrganizations=true');
       if (response.ok) {
         const data = await response.json();
-        setCaregivers(data);
+        // API returns { providers: [], pagination: {} } - extract the array
+        setCaregivers(data.providers || []);
       }
     } catch (err) {
       console.error('Error fetching caregivers:', err);
@@ -117,38 +136,57 @@ export default function HireStaffPage() {
     }
   };
 
+  // Don't render until session is available (let middleware handle auth redirects)
   if (!session) {
     return null;
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
+  // Render content based on loading state
+  const renderContent = () => {
+    if (loading) {
+      return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
             <p className="text-lg text-gray-600">
-              Browse independent caregivers available for employment by your organization
+              Browse independent caregivers available for employment
             </p>
           </div>
           <ProfileCardsSkeleton count={6} />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <MainNav />
-
+    return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
           <p className="text-lg text-gray-600">
-            Browse independent caregivers available for employment by your organization
+            Browse independent caregivers available for employment
           </p>
         </div>
+
+        {/* Gentle nudge for onboarding (Manual Ch 8) */}
+        {needsOnboarding && <OnboardingPrompt context="hire" />}
+
+        {/* Info banner for independent caregivers */}
+        {isIndependentCaregiver && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-6 h-6 text-blue-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="font-medium text-blue-900">Looking to work with organizations?</p>
+                <p className="text-sm text-blue-700 mt-1">
+                  As an independent caregiver, organizations can find and contact you through your profile.
+                  Make sure your profile is complete and shows you&apos;re available for organization employment.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Results Count */}
         {caregivers.length > 0 && (
@@ -159,6 +197,7 @@ export default function HireStaffPage() {
           </div>
         )}
 
+        {/* Results */}
         {caregivers.length === 0 ? (
           <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
             <svg
@@ -174,17 +213,24 @@ export default function HireStaffPage() {
                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
               />
             </svg>
-            <h3 className="mt-4 text-xl font-semibold text-gray-900">No caregivers available</h3>
-            <p className="mt-2 text-gray-600">
-              There are currently no independent caregivers available for hire in your area.
+            <h3 className="mt-4 text-xl font-semibold text-gray-900">No caregivers available yet</h3>
+            <p className="mt-2 text-gray-600 max-w-md mx-auto">
+              Independent caregivers who are available for organization employment will appear here.
+              Check back soon as more caregivers join the platform.
             </p>
+            <Link
+              href="/provider/find-families"
+              className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+            >
+              Browse Family Requests Instead
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {caregivers.map((caregiver) => {
               const requestId = requestedCaregiverIds.get(caregiver.id);
               const linkHref = requestId
-                ? `/dashboard/requests/${requestId}`
+                ? `/dashboard/my-providers/${requestId}`
                 : `/provider/hire-staff/${caregiver.id}`;
 
               return (
@@ -199,15 +245,14 @@ export default function HireStaffPage() {
           </div>
         )}
       </div>
+    );
+  };
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => {
-          setAuthModalOpen(false);
-          router.push('/');
-        }}
-        defaultView="login"
-      />
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <MainNav />
+      <Breadcrumb />
+      {renderContent()}
     </div>
   );
 }

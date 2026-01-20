@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import AuthModal from '@/components/Auth/AuthModal';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
@@ -53,7 +54,7 @@ export default function BrowseOrganizationsPage() {
         const provider = await response.json();
         if (provider.providerType !== 'INDEPENDENT_CAREGIVER') {
           // Redirect if user is not an independent caregiver
-          router.push('/provider/requests');
+          router.push('/provider/find-families');
           return;
         }
         // User is independent caregiver, fetch organizations
@@ -129,6 +130,7 @@ export default function BrowseOrganizationsPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Care Organizations</h1>
@@ -145,6 +147,7 @@ export default function BrowseOrganizationsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -188,7 +191,7 @@ export default function BrowseOrganizationsPage() {
             {organizations.map((org) => {
               const requestId = requestedOrganizationIds.get(org.id);
               const linkHref = requestId
-                ? `/dashboard/requests/${requestId}`
+                ? `/dashboard/my-providers/${requestId}`
                 : `/caregiver/browse-organizations/${org.id}`;
 
               return (

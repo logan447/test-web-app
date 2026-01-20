@@ -8,6 +8,7 @@ import { CareType } from "@prisma/client";
 const careProfileSchema = z.object({
   // About loved one (Sprint 2)
   profilePhoto: z.string().optional().nullable(),
+  showProfilePhoto: z.boolean().optional(),
   lovedOneName: z.string().optional().nullable(),
   ageRange: z.string().optional().nullable(),
   gender: z.string().optional().nullable(),
@@ -43,8 +44,8 @@ const careProfileSchema = z.object({
   tourPreference: z.string().optional().nullable(),
   communicationFrequency: z.string().optional().nullable(),
   additionalContactNotes: z.string().optional().nullable(),
-  budgetMin: z.number().optional(),
-  budgetMax: z.number().optional(),
+  budgetMin: z.number().optional().nullable(),
+  budgetMax: z.number().optional().nullable(),
   // Enhanced budget & timeline (Sprint 5)
   budgetFlexibility: z.string().optional().nullable(),
   paymentMethods: z.array(z.string()).optional(),
@@ -54,9 +55,9 @@ const careProfileSchema = z.object({
   preferredStartDate: z.string().optional().nullable(),
   careDuration: z.string().optional().nullable(),
   scheduleFlexibility: z.string().optional().nullable(),
-  timeline: z.string().optional(),
-  insurance: z.string().optional(),
-  description: z.string().optional(),
+  timeline: z.string().optional().nullable(),
+  insurance: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
   // Review & privacy settings (Sprint 7)
   profileVisibility: z.string().optional().nullable(),
   shareWithVerifiedOnly: z.boolean().optional(),

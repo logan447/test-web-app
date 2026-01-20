@@ -43,7 +43,7 @@ export function isFamilyMode(session: Session | null): boolean {
  * Get landing page URL based on mode
  */
 export function getModeLandingPage(mode: UserMode): string {
-  return mode === 'PROVIDER' ? '/provider/requests' : '/';
+  return mode === 'PROVIDER' ? '/provider/find-families' : '/';
 }
 
 /**

@@ -1,8 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Olera logo - stylized "O" with care symbol -->
-  <circle cx="50" cy="50" r="45" fill="#2563eb" stroke="#1e40af" stroke-width="2"/>
-  <circle cx="50" cy="50" r="35" fill="white"/>
-  <circle cx="50" cy="50" r="25" fill="#2563eb"/>
-  <!-- Heart symbol in center -->
-  <path d="M50 40 Q45 35, 40 40 Q35 45, 40 50 L50 60 L60 50 Q65 45, 60 40 Q55 35, 50 40 Z" fill="white"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!--
+    Olera Favicon
+    Teal bird mark matching brand identity
+
+    @see public/bird-logo.svg for full logo
+    @see docs/ui-style-guide.md
+  -->
+
+  <!-- Main bird shape -->
+  <path
+    d="M6 26 Q2 22, 6 16 Q10 10, 18 6 Q22 4, 26 6 Q22 10, 16 14 Q10 18, 8 24 Q7 26, 6 26 Z"
+    fill="#0D9488"
+  />
+
+  <!-- Wing accent -->
+  <path
+    d="M14 10 Q18 8, 22 10 Q18 12, 14 12 Q12 11, 14 10 Z"
+    fill="#0F766E"
+  />
 </svg>

@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import AuthModal from '@/components/Auth/AuthModal';
@@ -43,7 +44,7 @@ export default function OrganizationDetailPage() {
 
   // Determine back link
   const fromSaved = searchParams.get('from') === 'saved';
-  const backHref = fromSaved ? '/provider/saved' : '/caregiver/browse-organizations';
+  const backHref = fromSaved ? '/provider/saved-families' : '/caregiver/browse-organizations';
   const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {
@@ -172,7 +173,7 @@ export default function OrganizationDetailPage() {
       if (response.ok) {
         showToast.success('Employment request sent!');
         setRequestMessage('');
-        router.push('/provider/hiring-requests');
+        router.push('/provider/my-candidates');
       } else {
         console.error('Failed to send request:', {
           status: response.status,
@@ -239,6 +240,7 @@ export default function OrganizationDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
@@ -260,6 +262,7 @@ export default function OrganizationDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb currentPage={organization.name} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}

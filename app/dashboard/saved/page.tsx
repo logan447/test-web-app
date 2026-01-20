@@ -1,9 +1,10 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
@@ -34,39 +35,28 @@ type SavedProvider = {
   createdAt: string;
 };
 
-function SavedProvidersContent() {
-  const { data: session } = useSession();
+export default function SavedProvidersPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [providers, setProviders] = useState<SavedProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestedProviderIds, setRequestedProviderIds] = useState<Map<string, string>>(new Map());
 
-  // Read mode from URL parameter (source of truth)
-  const mode = searchParams.get('mode');
-  const isProviderMode = mode === 'provider';
+  // Read mode from session (database is source of truth per Manual Ch 2)
+  const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
   useEffect(() => {
+    if (status === 'loading') return;
+
     if (!session) {
       router.push('/login');
       return;
     }
 
-    // Add default mode if missing
-    if (!mode) {
-      router.push('/dashboard/saved?mode=family');
-      return;
-    }
-
-    // Redirect provider mode to their saved families page
-    if (isProviderMode) {
-      router.push('/provider/saved?mode=provider');
-      return;
-    }
-
+    // Fetch data (no mode-based redirect - let user see page regardless of mode)
     fetchSavedProviders();
     fetchSentRequests();
-  }, [session, router, mode]);
+  }, [session, status, router]);
 
   const fetchSavedProviders = async () => {
     try {
@@ -131,6 +121,7 @@ function SavedProvidersContent() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
+        <Breadcrumb />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Saved Providers</h1>
@@ -147,6 +138,7 @@ function SavedProvidersContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -219,17 +211,3 @@ function SavedProvidersContent() {
   );
 }
 
-export default function SavedProviders() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ProfileCardsSkeleton />
-        </div>
-      </div>
-    }>
-      <SavedProvidersContent />
-    </Suspense>
-  );
-}

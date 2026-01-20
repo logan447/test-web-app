@@ -88,6 +88,15 @@ export default function Home() {
   // View toggle (list/map)
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProviders, setTotalProviders] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Track if user has interacted with directory (to hide category cards after interaction)
+  const [hasInteracted, setHasInteracted] = useState(false);
+
   useEffect(() => {
     fetchProviders();
     if (session) {
@@ -95,8 +104,13 @@ export default function Home() {
     }
   }, [session]);
 
-  const fetchProviders = async () => {
-    setLoading(true);
+  const fetchProviders = async (page = 1, append = false) => {
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+      setCurrentPage(1);
+    }
     setError(false);
     try {
       const params = new URLSearchParams();
@@ -118,25 +132,45 @@ export default function Home() {
       // Sort option
       if (sortBy) params.append("sortBy", sortBy);
 
+      // Pagination
+      params.append("page", page.toString());
+      params.append("limit", "20");
+
       const response = await fetch(`/api/providers?${params.toString()}`);
       const data = await response.json();
 
       // Handle API errors gracefully
-      if (response.ok && Array.isArray(data)) {
-        setProviders(data);
+      if (response.ok && data.providers) {
+        if (append) {
+          setProviders(prev => [...prev, ...data.providers]);
+        } else {
+          setProviders(data.providers);
+        }
+        setTotalProviders(data.pagination.total);
+        setHasMore(data.pagination.hasMore);
+        setCurrentPage(data.pagination.page);
         setError(false);
       } else {
         console.error("Failed to fetch providers:", data);
-        setProviders([]);
+        if (!append) {
+          setProviders([]);
+        }
         setError(true);
       }
     } catch (error) {
       console.error("Error fetching providers:", error);
-      setProviders([]);
+      if (!append) {
+        setProviders([]);
+      }
       setError(true);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  };
+
+  const handleLoadMore = () => {
+    fetchProviders(currentPage + 1, true);
   };
 
   const fetchSentRequests = async () => {
@@ -160,6 +194,7 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setHasInteracted(true);
     fetchProviders();
   };
 
@@ -209,6 +244,7 @@ export default function Home() {
     setInsurance([]);
     setLanguages([]);
     setSortBy("newest");
+    setHasInteracted(true); // Prevent category cards from showing after clear
     setTimeout(() => fetchProviders(), 0);
   };
 
@@ -274,11 +310,11 @@ export default function Home() {
         initialCity={city}
         initialState={state}
         initialCareType={careType}
-        totalProviders={1000}
+        totalProviders={totalProviders || 1000}
       />
 
-      {/* Category Cards */}
-      {!loading && providers.length === 0 && !search && !city && !state && !providerType && !careType && (
+      {/* Category Cards - Only show on initial load, never after user interaction */}
+      {!loading && !hasInteracted && providers.length === 0 && !search && !city && !state && !providerType && !careType && (
         <CategoryCards onCategoryClick={handleCategoryClick} />
       )}
 
@@ -419,7 +455,7 @@ export default function Home() {
             {/* Results Header - Only show when there are results */}
             {!loading && !error && providers.length > 0 && (
               <ResultsHeader
-                count={providers.length}
+                count={totalProviders}
                 sortBy={sortBy}
                 onSortChange={handleSortChange}
                 viewMode={viewMode}
@@ -462,21 +498,51 @@ export default function Home() {
             ) : viewMode === "map" ? (
               <MapView providers={providers} />
             ) : (
-              <div className="grid md:grid-cols-2 gap-6">
-                {providers.map((provider) => {
-                  const requestId = requestedProviderIds.get(provider.id);
-                  const linkHref = requestId ? `/dashboard/requests/${requestId}` : `/providers/${provider.id}`;
+              <>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {providers.map((provider) => {
+                    const requestId = requestedProviderIds.get(provider.id);
+                    const linkHref = requestId ? `/dashboard/my-providers/${requestId}` : `/providers/${provider.id}`;
 
-                  return (
-                    <EnhancedProviderCard
-                      key={provider.id}
-                      provider={provider}
-                      linkHref={linkHref}
-                      hasRequestSent={!!requestId}
-                    />
-                  );
-                })}
-              </div>
+                    return (
+                      <EnhancedProviderCard
+                        key={provider.id}
+                        provider={provider}
+                        linkHref={linkHref}
+                        hasRequestSent={!!requestId}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Load More Button */}
+                {hasMore && (
+                  <div className="flex justify-center mt-8">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-smooth font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {loadingMore ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          Load More Providers
+                          <span className="text-gray-500 text-sm">
+                            ({providers.length} of {totalProviders})
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

@@ -69,55 +69,112 @@ enum SubscriptionStatus {
   PAST_DUE
 }
 
+// ============================================
+// SPRINT 2: Payment & Engagement Enums
+// ============================================
+
+// Payment modes accepted by providers (per user request)
+enum PaymentMode {
+  PRIVATE_PAY
+  MEDICARE
+  MEDICAID
+  LONG_TERM_CARE_INSURANCE
+  VA_BENEFITS
+  STATE_WAIVER_PROGRAM
+}
+
+// Engagement types per Manual Ch 15 - context-specific
+enum EngagementType {
+  TOUR          // Facility visit (facility providers)
+  CONSULTATION  // Service discussion (home care orgs)
+  INTERVIEW     // Individual caregiver interview (families → caregivers)
+  INQUIRY       // General question
+  OUTREACH      // Provider reaching out to family
+}
+
+// Engagement status workflow per Manual Ch 15.3
+enum EngagementStatus {
+  PENDING       // Awaiting response from recipient
+  ACCEPTED      // Recipient agreed to engage
+  ACTIVE        // Ongoing conversation/scheduling
+  COMPLETED     // Engagement concluded successfully
+  DECLINED      // Recipient declined
+  CANCELLED     // Initiator withdrew
+}
+
+// Scheduled event types - generalized from tours
+enum ScheduledEventType {
+  TOUR          // Facility tour (facility providers)
+  CONSULTATION  // Consultation call/meeting (home care orgs)
+  INTERVIEW     // Interview (individual caregivers)
+}
+
+// Hiring engagement types per Manual Ch 20
+enum HiringEngagementType {
+  HIRING_INTERVIEW  // Org invites caregiver to interview
+  APPLICATION       // Caregiver applies to org
+  HIRING_INQUIRY    // Job-related question
+}
+
+// Hiring engagement status per Manual Ch 20.6
+enum HiringEngagementStatus {
+  PENDING       // Awaiting response
+  ACCEPTED      // Interest confirmed
+  INTERVIEWING  // Interview scheduled/in progress
+  HIRED         // Employment confirmed
+  DECLINED      // Other party declined
+  WITHDRAWN     // Initiator withdrew
+}
+
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  passwordHash  String
-  role          UserRole  @default(FAMILY)  // Keep for backwards compatibility
-  activeMode    UserMode  @default(FAMILY)  // New: current active mode
-  name          String
-  phone         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(FAMILY) // Keep for backwards compatibility
+  activeMode   UserMode @default(FAMILY) // New: current active mode
+  name         String
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Real-time presence
-  lastSeen      DateTime? // Last activity timestamp for online/offline status
+  lastSeen DateTime? // Last activity timestamp for online/offline status
 
   // Relationships
-  familyProfile        FamilyProfile?
-  provider             Provider?
-  providerIdentity     ProviderIdentity?  // New: gate for provider features
-  sentRequests         ConsultRequest[] @relation("RequestSender")
-  savedFamilyProfiles  SavedFamilyProfile[]
-  subscription         Subscription?
-  contactViews         ContactView[]
-  reviews              Review[]
+  familyProfile       FamilyProfile?
+  provider            Provider?
+  providerIdentity    ProviderIdentity? // New: gate for provider features
+  sentRequests        ConsultRequest[]     @relation("RequestSender")
+  savedFamilyProfiles SavedFamilyProfile[]
+  subscription        Subscription?
+  contactViews        ContactView[]
+  reviews             Review[]
 }
 
 model ProviderIdentity {
-  id                String       @id @default(cuid())
-  userId            String       @unique
-  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Provider profile reference
-  providerId        String?      @unique  // Links to Provider model if claimed/created
+  providerId String? @unique // Links to Provider model if claimed/created
 
   // Identity type
-  type              String       @default("ORGANIZATION") // ORGANIZATION or INDIVIDUAL
+  type String @default("ORGANIZATION") // ORGANIZATION or INDIVIDUAL
 
   // Onboarding status
-  onboardingComplete Boolean     @default(false)
+  onboardingComplete Boolean @default(false)
 
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
 
 model FamilyProfile {
-  id            String    @id @default(cuid())
-  userId        String    @unique
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // About loved one (Sprint 2)
   profilePhoto    String?
@@ -128,45 +185,45 @@ model FamilyProfile {
   relationship    String?
 
   // Care needs assessment (Sprint 3)
-  careLevel              String?
-  medicalConditions      String[]   @default([])
-  mobilityStatus         String?
-  dailyLivingAssistance  String[]   @default([])
-  additionalNeeds        String?
+  careLevel             String?
+  medicalConditions     String[] @default([])
+  mobilityStatus        String?
+  dailyLivingAssistance String[] @default([])
+  additionalNeeds       String?
 
   // Personality & preferences (Sprint 4)
-  personalityTraits       String[]   @default([])
-  hobbiesInterests        String[]   @default([])
-  communicationPreferences String[]  @default([])
-  culturalBackground      String?
-  religiousPreferences    String?
-  languagePreferences     String[]   @default([])
-  petPreferences          String?
+  personalityTraits        String[] @default([])
+  hobbiesInterests         String[] @default([])
+  communicationPreferences String[] @default([])
+  culturalBackground       String?
+  religiousPreferences     String?
+  languagePreferences      String[] @default([])
+  petPreferences           String?
 
   // Care needs
-  careTypes     CareType[]
-  location      String
-  city          String
-  state         String
-  zipCode       String
+  careTypes CareType[]
+  location  String
+  city      String
+  state     String
+  zipCode   String
 
   // Location & contact preferences (Sprint 6)
-  careSettingPreference     String?
-  proximityImportance       String?
-  proximityDetails          String?
-  neighborhoodPreferences   String?
-  preferredContactMethods   String[]   @default([])
-  bestTimeToContact         String[]   @default([])
-  tourPreference            String?
-  communicationFrequency    String?
-  additionalContactNotes    String?
+  careSettingPreference   String?
+  proximityImportance     String?
+  proximityDetails        String?
+  neighborhoodPreferences String?
+  preferredContactMethods String[] @default([])
+  bestTimeToContact       String[] @default([])
+  tourPreference          String?
+  communicationFrequency  String?
+  additionalContactNotes  String?
 
-  budgetMin     Int?
-  budgetMax     Int?
+  budgetMin Int?
+  budgetMax Int?
 
   // Enhanced budget & timeline (Sprint 5)
   budgetFlexibility         String?
-  paymentMethods            String[]   @default([])
+  paymentMethods            String[] @default([])
   budgetIncludes            String?
   financialAssistanceNeeded String?
   careUrgency               String?
@@ -175,261 +232,277 @@ model FamilyProfile {
   scheduleFlexibility       String?
 
   // Additional details
-  timeline      String?
-  insurance     String?
-  description   String?
+  timeline    String?
+  insurance   String?
+  description String?
 
   // Review & privacy settings (Sprint 7)
-  profileVisibility        String?    @default("limited")  // public, limited, private
-  shareWithVerifiedOnly    Boolean    @default(true)
-  allowDirectMessages      Boolean    @default(true)
-  showContactInfo          Boolean    @default(false)
-  showFullName             Boolean    @default(false)
-  hideFromSearch           Boolean    @default(false)
-  profileNotes             String?
+  profileVisibility     String? @default("limited") // public, limited, private
+  shareWithVerifiedOnly Boolean @default(true)
+  allowDirectMessages   Boolean @default(true)
+  showContactInfo       Boolean @default(false)
+  showFullName          Boolean @default(false)
+  showProfilePhoto      Boolean @default(false) // Family photo visibility toggle (opt-in with nudge)
+  hideFromSearch        Boolean @default(false)
+  profileNotes          String?
 
-  // Visibility
-  isPublic      Boolean   @default(false) // Whether profile is visible to all providers
+  // Visibility & Completion
+  isPublic             Boolean @default(false) // Whether profile is visible to all providers
+  completionPercentage Int     @default(0)     // Profile completion for UX feedback (0-100)
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
   savedProviders   SavedProvider[]
-  receivedRequests ConsultRequest[] @relation("RequestReceiver")
+  receivedRequests ConsultRequest[]     @relation("RequestReceiver")
   savedByProviders SavedFamilyProfile[] @relation("SavedByProviders")
   contactViews     ContactView[]
+  engagements      Engagement[]         // Sprint 2: Family ↔ Provider engagements
 }
 
 model Provider {
-  id              String         @id @default(cuid())
-  userId          String?        @unique
-  user            User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String  @id @default(cuid())
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Basic info
-  name            String
-  providerType    ProviderType
-  description     String?
+  name         String
+  providerType ProviderType
+  description  String?
 
   // Contact
-  email           String
-  phone           String
-  website         String?
+  email   String
+  phone   String
+  website String?
 
   // Location
-  address         String
-  city            String
-  state           String
-  zipCode         String
-  serviceRadius   Int?           // miles
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  serviceRadius Int? // miles
 
   // Services
   careTypesOffered CareType[]
 
   // Details
-  licensed        Boolean        @default(false)
+  licensed        Boolean @default(false)
   licenseNumber   String?
   yearsInBusiness Int?
   capacity        Int?
 
   // Trust & Verification
-  certifications       String[]       @default([])  // Array of certifications (e.g., "Medicare Certified", "Joint Commission Accredited") (legacy)
-  insuranceVerified    Boolean        @default(false)
-  backgroundChecked    Boolean        @default(false)
+  certifications    String[] @default([]) // Array of certifications (e.g., "Medicare Certified", "Joint Commission Accredited") (legacy)
+  insuranceVerified Boolean  @default(false)
+  backgroundChecked Boolean  @default(false)
 
   // Enhanced Certifications & Licensing (Sprint 7)
-  certificateUrls      String[]       @default([])  // URLs of uploaded certificates (licenses, accreditations, insurance)
-  accreditations       String[]       @default([])  // Accreditation IDs (joint_commission, carf, alfa, etc.)
-  awardsJson           String?        // JSON array of awards {name, year, description}
+  certificateUrls String[] @default([]) // URLs of uploaded certificates (licenses, accreditations, insurance)
+  accreditations  String[] @default([]) // Accreditation IDs (joint_commission, carf, alfa, etc.)
+  awardsJson      String? // JSON array of awards {name, year, description}
 
   // Capacity & Availability
-  totalCapacity        Int?           // Total number of residents/clients the facility can accommodate
-  availableSpots       Int?           // Current number of available spots/beds
-  waitlistAvailable    Boolean        @default(false)
+  totalCapacity     Int? // Total number of residents/clients the facility can accommodate
+  availableSpots    Int? // Current number of available spots/beds
+  waitlistAvailable Boolean @default(false)
 
   // Pricing (Basic - kept for backward compatibility)
-  priceMin        Int?           // Minimum monthly price in dollars (legacy)
-  priceMax        Int?           // Maximum monthly price in dollars (legacy)
-  priceDescription String?       // What's included in the base price (legacy)
-  paymentOptions  String[]       // Array of payment methods accepted (e.g., "Private Pay", "Medicare", "Medicaid")
+  priceMin         Int? // Minimum monthly price in dollars (legacy)
+  priceMax         Int? // Maximum monthly price in dollars (legacy)
+  priceDescription String? // What's included in the base price (legacy)
+  paymentOptions   String[] // Array of payment methods accepted (legacy - kept for backward compatibility)
+
+  // Sprint 2: Structured Payment Modes
+  paymentModesAccepted  PaymentMode[] // Structured payment options (Private Pay, Medicare, Medicaid, etc.)
+  stateWaiverPrograms   String[]      @default([]) // State-specific waiver program names
+  insuranceNetworks     String[]      @default([]) // Insurance network affiliations
 
   // Enhanced Pricing Structure (Sprint 4)
-  privateRoomMin        Int?     // Private room minimum monthly rate
-  privateRoomMax        Int?     // Private room maximum monthly rate
-  semiPrivateRoomMin    Int?     // Semi-private room minimum monthly rate
-  semiPrivateRoomMax    Int?     // Semi-private room maximum monthly rate
-  includedServices      String[] @default([])  // Services included in base rate
-  additionalServicesJson String? // JSON string of additional a-la-carte services
-  communityFee          Int?     // One-time community fee
-  securityDeposit       Int?     // Security deposit amount
-  applicationFee        Int?     // Application processing fee
-  acceptsFinancialAssistance Boolean @default(false)  // Accepts insurance/assistance
-  financialAssistanceTypes String[] @default([])  // Types of assistance accepted
-  offersPaymentPlans    Boolean  @default(false)  // Offers flexible payment plans
-  paymentPlanDetails    String?  // Description of payment plan options
+  privateRoomMin             Int? // Private room minimum monthly rate
+  privateRoomMax             Int? // Private room maximum monthly rate
+  semiPrivateRoomMin         Int? // Semi-private room minimum monthly rate
+  semiPrivateRoomMax         Int? // Semi-private room maximum monthly rate
+  includedServices           String[] @default([]) // Services included in base rate
+  additionalServicesJson     String? // JSON string of additional a-la-carte services
+  communityFee               Int? // One-time community fee
+  securityDeposit            Int? // Security deposit amount
+  applicationFee             Int? // Application processing fee
+  acceptsFinancialAssistance Boolean  @default(false) // Accepts insurance/assistance
+  financialAssistanceTypes   String[] @default([]) // Types of assistance accepted
+  offersPaymentPlans         Boolean  @default(false) // Offers flexible payment plans
+  paymentPlanDetails         String? // Description of payment plan options
 
   // Photos
-  photos          String[]       // Array of photo URLs
-  coverPhoto      String?        // Main hero image URL
+  photos     String[] // Array of photo URLs
+  coverPhoto String? // Main hero image URL
 
   // Reviews & Ratings
-  averageRating   Float?         // Average rating from all reviews (1-5)
-  reviewCount     Int            @default(0)
+  averageRating Float? // Average rating from all reviews (1-5)
+  reviewCount   Int    @default(0)
 
   // Amenities & Services
-  roomFeatures      String[]     @default([])  // Room amenities (private bath, WiFi, etc.)
-  commonAreas       String[]     @default([])  // Shared spaces (library, garden, etc.)
-  medicalServices   String[]     @default([])  // Healthcare services (24/7 RN, PT, etc.)
-  activitiesOffered String[]     @default([])  // Activities (arts, music, exercise, etc.)
-  dietaryOptions    String[]     @default([])  // Meal options (vegetarian, diabetic-friendly, etc.)
+  roomFeatures      String[] @default([]) // Room amenities (private bath, WiFi, etc.)
+  commonAreas       String[] @default([]) // Shared spaces (library, garden, etc.)
+  medicalServices   String[] @default([]) // Healthcare services (24/7 RN, PT, etc.)
+  activitiesOffered String[] @default([]) // Activities (arts, music, exercise, etc.)
+  dietaryOptions    String[] @default([]) // Meal options (vegetarian, diabetic-friendly, etc.)
 
   // Enhanced Amenities & Features (Sprint 5)
-  safetySecurityFeatures String[] @default([])  // Safety features (24/7 monitoring, secured entries, etc.)
-  medicalAmenities       String[] @default([])  // Medical amenities (exam room, therapy room, nurse station, etc.)
+  safetySecurityFeatures String[] @default([]) // Safety features (24/7 monitoring, secured entries, etc.)
+  medicalAmenities       String[] @default([]) // Medical amenities (exam room, therapy room, nurse station, etc.)
 
   // Staff & Care Information
-  staffToResidentRatio     String?   // e.g., "1:5" or "1:8" (legacy - kept for backward compatibility)
-  hasRNOnSite              Boolean   @default(false)  // Registered Nurse on-site (legacy)
-  hasLVNOnSite             Boolean   @default(false)  // Licensed Vocational Nurse on-site (legacy)
-  allStaffBackgroundChecked Boolean  @default(false)  // All staff background checked (legacy)
-  visitingDoctorFrequency  String?   // e.g., "Weekly", "Bi-weekly", "Monthly"
-  caregiverTraining        String[]  @default([])    // Training certifications (CPR, First Aid, etc.) (legacy)
-  languagesSpoken          String[]  @default([])    // Languages staff can speak
+  staffToResidentRatio      String? // e.g., "1:5" or "1:8" (legacy - kept for backward compatibility)
+  hasRNOnSite               Boolean  @default(false) // Registered Nurse on-site (legacy)
+  hasLVNOnSite              Boolean  @default(false) // Licensed Vocational Nurse on-site (legacy)
+  allStaffBackgroundChecked Boolean  @default(false) // All staff background checked (legacy)
+  visitingDoctorFrequency   String? // e.g., "Weekly", "Bi-weekly", "Monthly"
+  caregiverTraining         String[] @default([]) // Training certifications (CPR, First Aid, etc.) (legacy)
+  languagesSpoken           String[] @default([]) // Languages staff can speak
 
   // Enhanced Staff Information (Sprint 6)
-  daytimeStaffRatio        String?   // Daytime (6am-2pm) staff-to-resident ratio e.g., "1:5"
-  eveningStaffRatio        String?   // Evening (2pm-10pm) staff-to-resident ratio e.g., "1:6"
-  nightStaffRatio          String?   // Night (10pm-6am) staff-to-resident ratio e.g., "1:8"
-  staffCredentials         String[]  @default([])    // Staff credentials (rn, lvn, cna, memory_care_specialist, etc.)
-  staffTrainingDescription String?   // Detailed description of staff training programs
-  hasOnCallPhysician       Boolean   @default(false) // 24/7 on-call physician available
-  hasPharmacyPartnership   Boolean   @default(false) // Partnership with pharmacy for medication management
+  daytimeStaffRatio        String? // Daytime (6am-2pm) staff-to-resident ratio e.g., "1:5"
+  eveningStaffRatio        String? // Evening (2pm-10pm) staff-to-resident ratio e.g., "1:6"
+  nightStaffRatio          String? // Night (10pm-6am) staff-to-resident ratio e.g., "1:8"
+  staffCredentials         String[] @default([]) // Staff credentials (rn, lvn, cna, memory_care_specialist, etc.)
+  staffTrainingDescription String? // Detailed description of staff training programs
+  hasOnCallPhysician       Boolean  @default(false) // 24/7 on-call physician available
+  hasPharmacyPartnership   Boolean  @default(false) // Partnership with pharmacy for medication management
 
   // Location & Neighborhood
-  latitude              Float?    // Geographic latitude for map display
-  longitude             Float?    // Geographic longitude for map display
+  latitude                Float? // Geographic latitude for map display
+  longitude               Float? // Geographic longitude for map display
   neighborhoodDescription String? // Description of the neighborhood/area
-  nearbyAmenities       String[]  @default([])  // Nearby amenities (e.g., "Hospital - 0.5 miles", "Park - 0.2 miles")
+  nearbyAmenities         String[] @default([]) // Nearby amenities (e.g., "Hospital - 0.5 miles", "Park - 0.2 miles")
 
   // Specialty Care & Programs (legacy - kept for backward compatibility)
-  hasMemoryCare    Boolean   @default(false)  // Offers memory care/dementia care (legacy)
-  hasRespiteCare   Boolean   @default(false)  // Offers respite/temporary care (legacy)
-  hasHospiceCare   Boolean   @default(false)  // Offers hospice/end-of-life care (legacy)
-  specialtyPrograms String[] @default([])     // Special programs (legacy)
+  hasMemoryCare     Boolean  @default(false) // Offers memory care/dementia care (legacy)
+  hasRespiteCare    Boolean  @default(false) // Offers respite/temporary care (legacy)
+  hasHospiceCare    Boolean  @default(false) // Offers hospice/end-of-life care (legacy)
+  specialtyPrograms String[] @default([]) // Special programs (legacy)
 
   // Enhanced Specialty Programs & Policies (Sprint 8)
-  specialtyProgramsJson String?        // JSON array of specialty programs {id, name, description}
-  petPolicy             String?        // "allowed", "service_only", "not_allowed"
-  petPolicyDetails      String?        // Pet restrictions and requirements
-  visitorPolicy         String?        // Visitor policy description
-  smokingPolicy         String?        // "non_smoking", "designated_areas", "allowed"
-  hasTrialPeriod        Boolean        @default(false)  // Offers trial period for new residents
-  trialPeriodDuration   String?        // Trial period duration (e.g., "7_days", "30_days")
+  specialtyProgramsJson String? // JSON array of specialty programs {id, name, description}
+  petPolicy             String? // "allowed", "service_only", "not_allowed"
+  petPolicyDetails      String? // Pet restrictions and requirements
+  visitorPolicy         String? // Visitor policy description
+  smokingPolicy         String? // "non_smoking", "designated_areas", "allowed"
+  hasTrialPeriod        Boolean @default(false) // Offers trial period for new residents
+  trialPeriodDuration   String? // Trial period duration (e.g., "7_days", "30_days")
 
   // Detailed Services (Sprint 3)
-  detailedMedicalServices      String[] @default([])  // Medical services (nursing_24_7, medication_management, etc.)
-  detailedPersonalCareServices String[] @default([])  // Personal care (bathing, dressing, grooming, etc.)
-  detailedDailyLivingServices  String[] @default([])  // Daily living (meals, housekeeping, transportation, etc.)
-  detailedMemoryCareServices   String[] @default([])  // Memory care services (secure_environment, cognitive_activities, etc.)
-  detailedSocialRecServices    String[] @default([])  // Social & recreation (group_activities, exercise, arts_crafts, etc.)
+  detailedMedicalServices      String[] @default([]) // Medical services (nursing_24_7, medication_management, etc.)
+  detailedPersonalCareServices String[] @default([]) // Personal care (bathing, dressing, grooming, etc.)
+  detailedDailyLivingServices  String[] @default([]) // Daily living (meals, housekeeping, transportation, etc.)
+  detailedMemoryCareServices   String[] @default([]) // Memory care services (secure_environment, cognitive_activities, etc.)
+  detailedSocialRecServices    String[] @default([]) // Social & recreation (group_activities, exercise, arts_crafts, etc.)
 
   // Enhanced About Us, Meet the Team & Virtual Tours (Sprint 9)
-  establishedYear       String?  // Year facility was established
-  facilityHistory       String?  // Facility founding story and background
-  missionStatement      String?  // Facility mission statement
-  whatMakesUsUnique     String?  // What makes the facility unique
-  teamMembersJson       String?  // JSON array of team members {id, role, name, photoUrl, bio}
-  virtualTourUrl        String?  // Virtual tour or video URL (YouTube, Vimeo, or custom)
-  virtualTourType       String?  // "youtube", "vimeo", or "custom"
-  brochureUrl           String?  // URL to facility brochure PDF
-  floorPlanUrls         String[] @default([])  // URLs to floor plan images/PDFs
+  establishedYear   String? // Year facility was established
+  facilityHistory   String? // Facility founding story and background
+  missionStatement  String? // Facility mission statement
+  whatMakesUsUnique String? // What makes the facility unique
+  teamMembersJson   String? // JSON array of team members {id, role, name, photoUrl, bio}
+  virtualTourUrl    String? // Virtual tour or video URL (YouTube, Vimeo, or custom)
+  virtualTourType   String? // "youtube", "vimeo", or "custom"
+  brochureUrl       String? // URL to facility brochure PDF
+  floorPlanUrls     String[] @default([]) // URLs to floor plan images/PDFs
 
   // Status
-  claimed         Boolean        @default(false)
-  verified        Boolean        @default(false)
-  active          Boolean        @default(true)
+  claimed  Boolean @default(false)
+  verified Boolean @default(false)
+  active   Boolean @default(true)
+
+  // Sprint 2: Profile Visibility & Completion
+  isVisible             Boolean @default(false) // Controlled by visibility gate (requires required fields)
+  completionPercentage  Int     @default(0)     // Profile completion for UX feedback (0-100)
+  visibilityUnlockedAt  DateTime?               // When visibility was first unlocked
 
   // Availability (for individual caregivers)
-  availableForFamilies      Boolean  @default(true)   // Available for direct hire by families
-  availableForOrganizations Boolean  @default(false)  // Available for hire by care organizations
+  availableForFamilies      Boolean @default(true) // Available for direct hire by families
+  availableForOrganizations Boolean @default(false) // Available for hire by care organizations
 
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
   savedBy         SavedProvider[]
   consultRequests ConsultRequest[]
   reviews         Review[]
+  engagements     Engagement[]           // Sprint 2: Family ↔ Provider engagements
+  hiringAsOrg     HiringEngagement[]     @relation("HiringOrganization") // Sprint 2: Org hiring caregivers
+  hiringAsCaregiver HiringEngagement[] @relation("HiringCaregiver")      // Sprint 2: Caregiver seeking work
 
   @@index([city, state])
   @@index([providerType])
 }
 
 model SavedProvider {
-  id              String         @id @default(cuid())
+  id              String        @id @default(cuid())
   familyProfileId String
-  familyProfile   FamilyProfile  @relation(fields: [familyProfileId], references: [id], onDelete: Cascade)
+  familyProfile   FamilyProfile @relation(fields: [familyProfileId], references: [id], onDelete: Cascade)
   providerId      String
-  provider        Provider       @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  provider        Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
   notes           String?
-  createdAt       DateTime       @default(now())
+  createdAt       DateTime      @default(now())
 
   @@unique([familyProfileId, providerId])
 }
 
 model SavedFamilyProfile {
-  id              String         @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   familyProfileId String
-  familyProfile   FamilyProfile  @relation("SavedByProviders", fields: [familyProfileId], references: [id], onDelete: Cascade)
+  familyProfile   FamilyProfile @relation("SavedByProviders", fields: [familyProfileId], references: [id], onDelete: Cascade)
   notes           String?
-  createdAt       DateTime       @default(now())
+  createdAt       DateTime      @default(now())
 
   @@unique([userId, familyProfileId])
   @@index([userId])
 }
 
 model ConsultRequest {
-  id              String               @id @default(cuid())
+  id String @id @default(cuid())
 
   // Sender (can be family or provider)
-  senderId        String
-  sender          User                 @relation("RequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId String
+  sender   User   @relation("RequestSender", fields: [senderId], references: [id], onDelete: Cascade)
 
   // Receiver (family profile)
   familyProfileId String
-  familyProfile   FamilyProfile        @relation("RequestReceiver", fields: [familyProfileId], references: [id], onDelete: Cascade)
+  familyProfile   FamilyProfile @relation("RequestReceiver", fields: [familyProfileId], references: [id], onDelete: Cascade)
 
   // Provider
-  providerId      String
-  provider        Provider             @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
   // Request details
-  message         String
-  status          ConsultRequestStatus @default(PENDING)
-  requestType     RequestType          @default(CONSULTATION) // CONSULTATION or HIRING
+  message     String
+  status      ConsultRequestStatus @default(PENDING)
+  requestType RequestType          @default(CONSULTATION) // CONSULTATION or HIRING
 
   // Enhanced booking flow (Sprint 8)
-  contactReason          String?   // "Schedule a tour", "Request pricing", "Ask a question", "Request immediate placement"
-  preferredContactMethod String?   // "Phone", "Email", "Either"
+  contactReason          String? // "Schedule a tour", "Request pricing", "Ask a question", "Request immediate placement"
+  preferredContactMethod String? // "Phone", "Email", "Either"
   preferredTourDate      DateTime? // Preferred date/time for facility tour
 
   // Real-time messaging features (Sprint 2)
-  typingUserId           String?   // User ID of person currently typing (if any)
-  typingUpdatedAt        DateTime? // Last time typing status was updated
+  typingUserId    String? // User ID of person currently typing (if any)
+  typingUpdatedAt DateTime? // Last time typing status was updated
 
   // Notification tracking
-  viewedByReceiver Boolean             @default(false)
+  viewedByReceiver Boolean @default(false)
 
   // Notification preferences (Sprint 9)
-  notificationSettings Json?           // { muted: boolean, muteUntil: Date, emailNotifications: boolean }
+  notificationSettings Json? // { muted: boolean, muteUntil: Date, emailNotifications: boolean }
 
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
-  messages        Message[]
+  messages         Message[]
   tourAppointments TourAppointment[]
 
   @@index([familyProfileId])
@@ -439,65 +512,65 @@ model ConsultRequest {
 }
 
 model Message {
-  id                String         @id @default(cuid())
-  consultRequestId  String
-  consultRequest    ConsultRequest @relation(fields: [consultRequestId], references: [id], onDelete: Cascade)
+  id               String         @id @default(cuid())
+  consultRequestId String
+  consultRequest   ConsultRequest @relation(fields: [consultRequestId], references: [id], onDelete: Cascade)
 
-  senderId          String
-  content           String
+  senderId String
+  content  String
 
-  createdAt         DateTime       @default(now())
-  read              Boolean        @default(false) // Legacy field - kept for backward compatibility
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false) // Legacy field - kept for backward compatibility
 
   // Read receipts & message status (Sprint 3)
-  status            String         @default("SENT") // SENT, DELIVERED, READ
-  deliveredAt       DateTime?      // When message was delivered to recipient
-  readAt            DateTime?      // When message was read by recipient
+  status      String    @default("SENT") // SENT, DELIVERED, READ
+  deliveredAt DateTime? // When message was delivered to recipient
+  readAt      DateTime? // When message was read by recipient
 
   // File attachments & media sharing (Sprint 4)
-  attachments       Json           @default("[]") // [{url: string, type: string, name: string, size: number}]
+  attachments Json @default("[]") // [{url: string, type: string, name: string, size: number}]
 
   @@index([consultRequestId])
 }
 
 model TourAppointment {
-  id            String         @id @default(cuid())
-  requestId     String
-  request       ConsultRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  proposedBy    String         // userId who proposed
-  proposedDate  DateTime
-  proposedTime  String
-  status        String         @default("PROPOSED") // PROPOSED, ACCEPTED, DECLINED, COMPLETED, CANCELLED
-  notes         String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id           String         @id @default(cuid())
+  requestId    String
+  request      ConsultRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  proposedBy   String // userId who proposed
+  proposedDate DateTime
+  proposedTime String
+  status       String         @default("PROPOSED") // PROPOSED, ACCEPTED, DECLINED, COMPLETED, CANCELLED
+  notes        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   @@index([requestId])
   @@index([status])
 }
 
 model Subscription {
-  id                   String             @id @default(cuid())
-  userId               String             @unique
-  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Subscription details
-  tier                 SubscriptionTier   @default(FREE)
-  status               SubscriptionStatus @default(ACTIVE)
+  tier   SubscriptionTier   @default(FREE)
+  status SubscriptionStatus @default(ACTIVE)
 
   // Payment info (for future Stripe integration)
   stripeCustomerId     String?
   stripeSubscriptionId String?
 
   // Access tracking
-  contactViewsUsed     Int                @default(0)
-  contactViewsLimit    Int?               // NULL = unlimited
+  contactViewsUsed  Int  @default(0)
+  contactViewsLimit Int? // NULL = unlimited
 
   // Dates
-  currentPeriodStart   DateTime           @default(now())
-  currentPeriodEnd     DateTime
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  currentPeriodStart DateTime @default(now())
+  currentPeriodEnd   DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -517,31 +590,216 @@ model ContactView {
 }
 
 model Review {
-  id              String    @id @default(cuid())
-  providerId      String
-  provider        Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Review content
-  rating          Int       // 1-5 stars
-  title           String?   // Optional review title
-  content         String    // Review text
+  rating  Int // 1-5 stars
+  title   String? // Optional review title
+  content String // Review text
 
   // Reviewer context
-  relationship    String?   // e.g., "Daughter of resident", "Son looking for care"
-  lengthOfStay    String?   // e.g., "6 months", "2 years"
+  relationship String? // e.g., "Daughter of resident", "Son looking for care"
+  lengthOfStay String? // e.g., "6 months", "2 years"
 
   // Engagement
-  helpfulCount    Int       @default(0) // Number of users who found this helpful
+  helpfulCount Int @default(0) // Number of users who found this helpful
 
   // Moderation
-  approved        Boolean   @default(true)  // For future moderation
+  approved Boolean @default(true) // For future moderation
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  @@unique([providerId, userId]) // One review per user per provider
   @@index([providerId])
   @@index([userId])
-  @@unique([providerId, userId]) // One review per user per provider
+}
+
+// ============================================
+// SPRINT 2: Engagement System
+// Per Manual Ch 15 - unified engagement for family ↔ provider
+// ============================================
+
+model Engagement {
+  id String @id @default(cuid())
+
+  // Parties - explicit, not inferred (per Manual)
+  familyProfileId String
+  familyProfile   FamilyProfile @relation(fields: [familyProfileId], references: [id], onDelete: Cascade)
+  providerId      String
+  provider        Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Initiator (can be family user or provider user)
+  initiatedByUserId String
+  initiatedByRole   String // FAMILY or PROVIDER - who started the engagement
+
+  // Engagement details - explicit fields
+  type          EngagementType   // TOUR, CONSULTATION, INTERVIEW, INQUIRY, OUTREACH
+  status        EngagementStatus @default(PENDING)
+  contactReason String?          // Specific reason (e.g., "Request pricing", "Schedule tour")
+
+  // Contact preferences
+  preferredContactMethod String? // "phone", "email", "video"
+  initialMessage         String? // First message when creating engagement
+
+  // Notification tracking
+  viewedByFamily   Boolean @default(false)
+  viewedByProvider Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  scheduledEvents  ScheduledEvent[]
+  engagementMessages EngagementMessage[]
+
+  @@index([familyProfileId])
+  @@index([providerId])
+  @@index([status])
+  @@index([type])
+}
+
+// ============================================
+// SPRINT 2: Hiring Engagement System
+// Per Manual Ch 20 - organization ↔ individual caregiver
+// ============================================
+
+model HiringEngagement {
+  id String @id @default(cuid())
+
+  // Parties - organization and individual caregiver (both are Providers)
+  organizationId String   // Provider with type != INDEPENDENT_CAREGIVER
+  organization   Provider @relation("HiringOrganization", fields: [organizationId], references: [id], onDelete: Cascade)
+  caregiverId    String   // Provider with type = INDEPENDENT_CAREGIVER
+  caregiver      Provider @relation("HiringCaregiver", fields: [caregiverId], references: [id], onDelete: Cascade)
+
+  // Initiator
+  initiatedByProviderId String
+  initiatedByRole       String // ORGANIZATION or CAREGIVER
+
+  // Engagement details
+  type   HiringEngagementType   // HIRING_INTERVIEW, APPLICATION, HIRING_INQUIRY
+  status HiringEngagementStatus @default(PENDING)
+
+  // Additional context
+  positionTitle     String? // Job position being discussed
+  expectedPayMin    Int?    // Hourly rate range
+  expectedPayMax    Int?
+  scheduleType      String? // FULL_TIME, PART_TIME, PER_DIEM
+  initialMessage    String?
+
+  // Notification tracking
+  viewedByOrganization Boolean @default(false)
+  viewedByCaregiver    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  scheduledEvents  ScheduledEvent[]
+  hiringMessages   HiringMessage[]
+
+  @@index([organizationId])
+  @@index([caregiverId])
+  @@index([status])
+  @@index([type])
+}
+
+// ============================================
+// SPRINT 2: Scheduled Events
+// Generalized from TourAppointment per user requirement
+// Supports tours, consultations, and interviews
+// ============================================
+
+model ScheduledEvent {
+  id String @id @default(cuid())
+
+  // Can be linked to either engagement type (one will be null)
+  engagementId       String?
+  engagement         Engagement?       @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  hiringEngagementId String?
+  hiringEngagement   HiringEngagement? @relation(fields: [hiringEngagementId], references: [id], onDelete: Cascade)
+
+  // Event details
+  eventType     ScheduledEventType // TOUR, CONSULTATION, INTERVIEW
+  proposedBy    String             // userId who proposed
+  scheduledDate DateTime
+  scheduledTime String             // e.g., "10:00 AM", "2:30 PM"
+  durationMinutes Int @default(60) // Default 1 hour
+
+  // Location/format
+  location      String?  // Physical address or "Video Call"
+  isVideoCall   Boolean  @default(false)
+  videoCallUrl  String?  // Generated video call link
+
+  // Status
+  status String @default("PROPOSED") // PROPOSED, ACCEPTED, DECLINED, COMPLETED, CANCELLED, RESCHEDULED
+
+  // Additional info
+  notes              String?
+  cancellationReason String?
+
+  // Calendar integration (Sprint 2/3)
+  calendarEventId String? // External calendar ID if synced
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([engagementId])
+  @@index([hiringEngagementId])
+  @@index([status])
+  @@index([scheduledDate])
+}
+
+// ============================================
+// SPRINT 2: Messages within Engagements
+// Per Manual Ch 16 - messaging within engagement context
+// ============================================
+
+model EngagementMessage {
+  id           String     @id @default(cuid())
+  engagementId String
+  engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+
+  senderId String
+  content  String
+
+  // Message status
+  status      String    @default("SENT") // SENT, DELIVERED, READ
+  deliveredAt DateTime?
+  readAt      DateTime?
+
+  // Attachments
+  attachments Json @default("[]") // [{url, type, name, size}]
+
+  createdAt DateTime @default(now())
+
+  @@index([engagementId])
+  @@index([senderId])
+}
+
+model HiringMessage {
+  id                 String           @id @default(cuid())
+  hiringEngagementId String
+  hiringEngagement   HiringEngagement @relation(fields: [hiringEngagementId], references: [id], onDelete: Cascade)
+
+  senderId String
+  content  String
+
+  // Message status
+  status      String    @default("SENT") // SENT, DELIVERED, READ
+  deliveredAt DateTime?
+  readAt      DateTime?
+
+  // Attachments
+  attachments Json @default("[]") // [{url, type, name, size}]
+
+  createdAt DateTime @default(now())
+
+  @@index([hiringEngagementId])
+  @@index([senderId])
 }
