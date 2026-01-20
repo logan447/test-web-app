@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
 import { useOnboardingWizard, triggerOnboardingAfterSignup } from "@/hooks/useOnboardingWizard";
 import OnboardingWizardOverlay from "./OnboardingWizardOverlay";
 
 /**
  * Component that listens for onboarding triggers and renders the wizard overlay.
  * Add this to your root layout to enable onboarding across the app.
+ *
+ * Architecture: Uses synchronous state initialization to avoid the
+ * "flash" of the wizard opening after mount. The wizard is not rendered
+ * at all during the loading state, so the first visible render shows
+ * the correct open/closed state.
  *
  * Usage in layout.tsx:
  * ```tsx
@@ -25,14 +29,19 @@ import OnboardingWizardOverlay from "./OnboardingWizardOverlay";
  * ```
  */
 export default function OnboardingTrigger() {
-  // Note: autoOpen removed - trigger mechanism from signup is sufficient
-  // autoOpen caused race condition where wizard opened before trigger intent was set
   const {
     isOpen,
+    isLoading,
     close,
     initialIntent,
     initialProviderSubtype,
   } = useOnboardingWizard();
+
+  // Don't render during loading to avoid flash
+  // The overlay will render in its correct state once auth is determined
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <OnboardingWizardOverlay
