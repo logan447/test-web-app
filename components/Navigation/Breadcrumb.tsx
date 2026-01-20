@@ -23,8 +23,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   // Provider routes
   provider: "Provider",
   hire: "Hire",
-  "hire-staff": "Hire Staff",
-  "hiring-requests": "Hiring Requests",
+  "hire-staff": "Hire Care Staff",
+  "hiring-requests": "My Candidates",
   onboarding: "Onboarding",
 
   // Care type routes

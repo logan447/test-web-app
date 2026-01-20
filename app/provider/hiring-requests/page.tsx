@@ -104,9 +104,10 @@ export default function HiringRequestsPage() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
         <Breadcrumb />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="h-10 bg-gray-200 rounded w-1/4 mb-2"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/2 mb-8"></div>
             <div className="h-64 bg-gray-200 rounded"></div>
           </div>
         </div>
@@ -122,8 +123,13 @@ export default function HiringRequestsPage() {
       <MainNav />
       <Breadcrumb />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Hiring Requests</h1>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Candidates</h1>
+          <p className="text-lg text-gray-600">
+            Manage your hiring conversations with independent caregivers
+          </p>
+        </div>
 
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-6">
@@ -136,7 +142,7 @@ export default function HiringRequestsPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
-              Received ({receivedRequests.length})
+              Interested in You ({receivedRequests.length})
             </button>
             <button
               onClick={() => setActiveTab('sent')}
@@ -146,7 +152,7 @@ export default function HiringRequestsPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
-              Sent ({sentRequests.length})
+              Your Outreach ({sentRequests.length})
             </button>
           </nav>
         </div>
@@ -155,7 +161,7 @@ export default function HiringRequestsPage() {
         {requests.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-12 w-12 text-gray-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -163,16 +169,24 @@ export default function HiringRequestsPage() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                strokeWidth={1.5}
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
               />
             </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No hiring requests</h3>
-            <p className="mt-2 text-sm text-gray-500">
+            <h3 className="mt-4 text-lg font-semibold text-gray-900">
+              {activeTab === 'received' ? 'No candidates yet' : 'No outreach sent yet'}
+            </h3>
+            <p className="mt-2 text-gray-600 max-w-md mx-auto">
               {activeTab === 'received'
-                ? 'You haven\'t received any hiring requests yet.'
-                : 'You haven\'t sent any hiring requests yet.'}
+                ? 'Caregivers who are interested in working with your organization will appear here.'
+                : 'Browse available caregivers and reach out to start a conversation.'}
             </p>
+            <Link
+              href="/provider/hire-staff"
+              className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+            >
+              Browse Caregivers
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">

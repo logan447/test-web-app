@@ -139,8 +139,53 @@ export default function HireStaffPage() {
     }
   };
 
-  if (!session) {
-    return null;
+  // Show loading state first (before session check)
+  if (status === 'loading' || identityLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <Breadcrumb />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
+            <p className="text-lg text-gray-600">
+              Browse independent caregivers available for employment by your organization
+            </p>
+          </div>
+          <ProfileCardsSkeleton count={6} />
+        </div>
+      </div>
+    );
+  }
+
+  // Handle unauthenticated users - show page with auth modal
+  if (status === 'unauthenticated' || !session) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <Breadcrumb />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Hire Care Staff</h1>
+            <p className="text-lg text-gray-600">
+              Browse independent caregivers available for employment by your organization
+            </p>
+          </div>
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
+            <h3 className="text-xl font-semibold text-gray-900">Sign in to continue</h3>
+            <p className="mt-2 text-gray-600">Please sign in to access the hiring marketplace.</p>
+          </div>
+        </div>
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => {
+            setAuthModalOpen(false);
+            router.push('/');
+          }}
+          defaultView="login"
+        />
+      </div>
+    );
   }
 
   if (loading) {
