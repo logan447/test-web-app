@@ -14,14 +14,12 @@ interface AuthModalProps {
 /**
  * AuthModal - Handles login and signup.
  *
- * After signup, redirects to destination page with ?onboarding=true URL param.
- * The destination page is responsible for showing the onboarding overlay.
- *
- * This unified approach ensures:
- * - Single source of truth (URL param)
- * - No race conditions with modal state
- * - Consistent behavior across all entry points
- * - Database-backed onboarding completion status
+ * After signup, redirects to dedicated /onboarding page.
+ * This is the simplest possible architecture:
+ * - Signup → /onboarding?intent=X → Destination
+ * - No overlays on complex pages
+ * - No race conditions
+ * - Single source of truth (URL)
  */
 export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent }: AuthModalProps) {
   const [view, setView] = useState<"login" | "signup">(defaultView);
@@ -119,17 +117,14 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // UNIFIED APPROACH: All signups redirect to destination with ?onboarding=true
-      // The destination page reads the URL param and shows the onboarding overlay
-      // Database tracks completion status to prevent re-showing
+      // SIMPLE APPROACH: All signups redirect to dedicated onboarding page
+      // No overlays on complex pages, no race conditions
       onClose();
 
       if (intent === "provider") {
-        // Provider signup → Find Families page with onboarding overlay
-        window.location.href = "/provider/find-families?onboarding=true";
+        window.location.href = "/onboarding?intent=provider";
       } else {
-        // Family/generic signup → Homepage with onboarding overlay
-        window.location.href = "/?onboarding=true";
+        window.location.href = "/onboarding";
       }
 
     } catch (error) {
