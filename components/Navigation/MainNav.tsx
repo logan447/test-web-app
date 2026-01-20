@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
@@ -92,8 +92,10 @@ const OTHER_CATEGORIES = [
 ];
 
 function MainNavContent() {
-  const { data: session, update: updateSession } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openOtherSubdropdown, setOpenOtherSubdropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -103,6 +105,24 @@ function MainNavContent() {
   const [switchingMode, setSwitchingMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [providerType, setProviderType] = useState<string | null>(null);
+
+  // Handle mode switch completion - refresh session and show toast
+  useEffect(() => {
+    const modeSwitched = searchParams.get('mode_switched');
+    if (modeSwitched && status === 'authenticated') {
+      // Refresh the session to get the updated mode from the JWT
+      updateSession().then(() => {
+        // Show the toast
+        const modeLabel = modeSwitched === 'PROVIDER' ? 'Provider' : 'Family';
+        showToast.success(`Switched to ${modeLabel} mode`);
+
+        // Remove the query parameter from URL without reload
+        const url = new URL(window.location.href);
+        url.searchParams.delete('mode_switched');
+        window.history.replaceState({}, '', url.toString());
+      });
+    }
+  }, [searchParams, status, updateSession]);
 
   // Fetch provider type
   useEffect(() => {
@@ -146,19 +166,6 @@ function MainNavContent() {
     return () => clearInterval(interval);
   }, [session]);
 
-  // Show mode switch toast after navigation (stored in sessionStorage before hard nav)
-  useEffect(() => {
-    const modeSwitchData = sessionStorage.getItem('modeSwitch');
-    if (modeSwitchData) {
-      try {
-        const { message } = JSON.parse(modeSwitchData);
-        showToast.success(message);
-      } catch (e) {
-        console.error('Error parsing mode switch data:', e);
-      }
-      sessionStorage.removeItem('modeSwitch');
-    }
-  }, []);
 
   // Mode switching handler - updates DB and session (Manual Ch 2)
   // Database is the single source of truth for mode
@@ -181,21 +188,17 @@ function MainNavContent() {
 
       const result = await response.json();
 
-      // Step 2: Update JWT token with new mode (critical for session consistency)
-      await updateSession({ activeMode: newMode });
-
-      // Step 3: Store toast message in sessionStorage to show after navigation
-      // (Hard navigation interrupts React, so toast won't show otherwise)
-      sessionStorage.setItem('modeSwitch', JSON.stringify({
-        mode: newMode,
-        message: `Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`
-      }));
-
-      // Step 4: Hard navigation to landing page
-      // This prevents race conditions with page-level useEffects that redirect based on mode
-      // Provider mode -> Find Families (/provider/find-families)
-      // Family mode -> Find Providers (/)
-      window.location.href = result.data.landingPage;
+      // Step 2: Hard navigation to landing page with mode_switched query param
+      // The query param tells the landing page to:
+      // 1. Refresh the session to get updated JWT
+      // 2. Show the success toast
+      // This approach is robust because:
+      // - Query params survive hard navigation (unlike React state)
+      // - No race conditions with page useEffects
+      // - Single source of truth for mode switch notification
+      const landingUrl = new URL(result.data.landingPage, window.location.origin);
+      landingUrl.searchParams.set('mode_switched', newMode);
+      window.location.href = landingUrl.toString();
 
     } catch (error) {
       console.error('MODE SWITCH ERROR:', error);
@@ -876,5 +879,25 @@ function MainNavContent() {
   );
 }
 
-// Export component directly (no Suspense needed - mode comes from session)
-export default MainNavContent;
+// Wrap in Suspense for useSearchParams() compatibility with static generation
+function MainNavFallback() {
+  return (
+    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <span className="text-2xl font-bold text-gray-900">Olera</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+export default function MainNav() {
+  return (
+    <Suspense fallback={<MainNavFallback />}>
+      <MainNavContent />
+    </Suspense>
+  );
+}
