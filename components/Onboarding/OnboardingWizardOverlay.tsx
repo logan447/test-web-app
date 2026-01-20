@@ -692,7 +692,7 @@ function CompleteStep({ data, onNext }: StepProps) {
         onClick={() => onNext()}
         className="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
       >
-        {data.intent === "family" ? "Start Exploring" : "Go to Dashboard"}
+        {data.intent === "family" ? "Start Exploring" : "Start Finding Families"}
       </button>
     </div>
   );
@@ -877,9 +877,9 @@ export default function OnboardingWizardOverlay({
         if (data.intent === "family") {
           router.push("/");
         } else {
-          // Provider users go to provider dashboard (My Families)
+          // Provider users go to Find Families page to start connecting
           // Use router.push for client-side navigation (no full page reload)
-          router.push("/provider/dashboard/my-families");
+          router.push("/provider/find-families");
         }
         break;
     }

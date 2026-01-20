@@ -3,8 +3,8 @@
 import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { signIn, getSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
+import OnboardingWizardOverlay from "@/components/Onboarding/OnboardingWizardOverlay";
+import type { OnboardingIntent } from "@/components/Onboarding/OnboardingWizardOverlay";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -14,10 +14,14 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent }: AuthModalProps) {
-  const router = useRouter();
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Onboarding state - wizard opens immediately after signup, BEFORE any redirect
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingIntent, setOnboardingIntent] = useState<OnboardingIntent>(null);
+
   // All users default to FAMILY role on signup
   const role = "FAMILY";
 
@@ -26,6 +30,8 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
     if (isOpen) {
       setView(defaultView);
       setError("");
+      setShowOnboarding(false);
+      setOnboardingIntent(null);
     }
   }, [isOpen, defaultView]);
 
@@ -115,23 +121,43 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Close modal and trigger onboarding wizard (per Manual Ch 3)
-      // The overlay will appear on the destination page
-      onClose();
-      if (result.activeMode === "PROVIDER") {
-        // Provider intent: trigger wizard with provider intent, redirect to provider mode landing
-        triggerOnboardingAfterSignup("provider");
-        window.location.href = "/provider/find-families";
-      } else {
-        // Family intent: trigger wizard with family intent, skip to family fields
-        triggerOnboardingAfterSignup("family");
-        window.location.href = "/";
-      }
+      // NEW APPROACH: Show onboarding wizard immediately, BEFORE any redirect
+      // This eliminates the need for sessionStorage triggers and SSR hydration issues
+      setLoading(false);
+      setOnboardingIntent(result.activeMode === "PROVIDER" ? "provider" : "family");
+      setShowOnboarding(true);
+
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
     }
   };
+
+  // Handle onboarding completion - NOW we redirect
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    onClose();
+
+    // Single source of truth for routing after onboarding
+    if (onboardingIntent === "provider") {
+      window.location.href = "/provider/find-families";
+    } else {
+      window.location.href = "/";
+    }
+  };
+
+  // If showing onboarding, render the wizard overlay instead of the auth form
+  // The wizard takes over the entire modal
+  if (showOnboarding) {
+    return (
+      <OnboardingWizardOverlay
+        isOpen={true}
+        onClose={handleOnboardingComplete}
+        initialIntent={onboardingIntent}
+        onComplete={handleOnboardingComplete}
+      />
+    );
+  }
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
