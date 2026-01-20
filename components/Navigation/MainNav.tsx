@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
+import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
 
 const MAIN_CATEGORIES = [
   {
@@ -174,7 +175,13 @@ function MainNavContent() {
       // Step 3: Show success message
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
-      // Step 4: Navigate to landing page (soft navigation preserves session)
+      // Step 4: If switching to provider mode without a provider profile,
+      // trigger onboarding wizard (per Manual Ch 3)
+      if (newMode === 'PROVIDER' && !providerType) {
+        triggerOnboardingAfterSignup('provider');
+      }
+
+      // Step 5: Navigate to landing page (soft navigation preserves session)
       router.push(result.data.landingPage);
 
     } catch (error) {

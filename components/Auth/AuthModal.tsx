@@ -4,6 +4,7 @@ import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -114,14 +115,16 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Close modal and redirect based on activeMode from signup response
-      // Use window.location.href for full page reload to ensure clean state
+      // Close modal and trigger onboarding wizard (per Manual Ch 3)
+      // The overlay will appear on the destination page
       onClose();
       if (result.activeMode === "PROVIDER") {
-        // Provider mode → Onboarding wizard (per Manual Ch 3)
-        window.location.href = "/provider/onboarding";
+        // Provider intent: trigger wizard with provider intent, redirect to provider mode landing
+        triggerOnboardingAfterSignup("provider");
+        window.location.href = "/provider/find-families";
       } else {
-        // Family mode → browse providers (family onboarding wizard is Sprint 2)
+        // Family intent: trigger wizard (ask family vs provider), redirect to homepage
+        triggerOnboardingAfterSignup(null); // null = ask family vs provider
         window.location.href = "/";
       }
     } catch (error) {

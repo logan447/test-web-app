@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
 
 function SignupForm() {
   const router = useRouter();
@@ -58,13 +59,15 @@ function SignupForm() {
         return;
       }
 
-      // Redirect based on activeMode from signup response
-      // Use window.location.href for full page reload to ensure clean state
-      // PROVIDER mode → Onboarding wizard (per Manual Ch 3)
-      // FAMILY mode → homepage (family onboarding wizard is Sprint 2)
+      // Trigger onboarding wizard after signup (per Manual Ch 3)
+      // The overlay will appear on the destination page
       if (result.activeMode === "PROVIDER") {
-        window.location.href = "/provider/onboarding";
+        // Provider intent: trigger wizard with provider intent, redirect to provider mode landing
+        triggerOnboardingAfterSignup("provider");
+        window.location.href = "/provider/find-families";
       } else {
+        // Family intent: trigger wizard with family intent (or ask), redirect to homepage
+        triggerOnboardingAfterSignup(null); // null = ask family vs provider
         window.location.href = "/";
       }
     } catch (error) {
