@@ -69,6 +69,63 @@ enum SubscriptionStatus {
   PAST_DUE
 }
 
+// ============================================
+// SPRINT 2: Payment & Engagement Enums
+// ============================================
+
+// Payment modes accepted by providers (per user request)
+enum PaymentMode {
+  PRIVATE_PAY
+  MEDICARE
+  MEDICAID
+  LONG_TERM_CARE_INSURANCE
+  VA_BENEFITS
+  STATE_WAIVER_PROGRAM
+}
+
+// Engagement types per Manual Ch 15 - context-specific
+enum EngagementType {
+  TOUR          // Facility visit (facility providers)
+  CONSULTATION  // Service discussion (home care orgs)
+  INTERVIEW     // Individual caregiver interview (families → caregivers)
+  INQUIRY       // General question
+  OUTREACH      // Provider reaching out to family
+}
+
+// Engagement status workflow per Manual Ch 15.3
+enum EngagementStatus {
+  PENDING       // Awaiting response from recipient
+  ACCEPTED      // Recipient agreed to engage
+  ACTIVE        // Ongoing conversation/scheduling
+  COMPLETED     // Engagement concluded successfully
+  DECLINED      // Recipient declined
+  CANCELLED     // Initiator withdrew
+}
+
+// Scheduled event types - generalized from tours
+enum ScheduledEventType {
+  TOUR          // Facility tour (facility providers)
+  CONSULTATION  // Consultation call/meeting (home care orgs)
+  INTERVIEW     // Interview (individual caregivers)
+}
+
+// Hiring engagement types per Manual Ch 20
+enum HiringEngagementType {
+  HIRING_INTERVIEW  // Org invites caregiver to interview
+  APPLICATION       // Caregiver applies to org
+  HIRING_INQUIRY    // Job-related question
+}
+
+// Hiring engagement status per Manual Ch 20.6
+enum HiringEngagementStatus {
+  PENDING       // Awaiting response
+  ACCEPTED      // Interest confirmed
+  INTERVIEWING  // Interview scheduled/in progress
+  HIRED         // Employment confirmed
+  DECLINED      // Other party declined
+  WITHDRAWN     // Initiator withdrew
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -201,6 +258,7 @@ model FamilyProfile {
   receivedRequests ConsultRequest[]     @relation("RequestReceiver")
   savedByProviders SavedFamilyProfile[] @relation("SavedByProviders")
   contactViews     ContactView[]
+  engagements      Engagement[]         // Sprint 2: Family ↔ Provider engagements
 }
 
 model Provider {
@@ -253,7 +311,12 @@ model Provider {
   priceMin         Int? // Minimum monthly price in dollars (legacy)
   priceMax         Int? // Maximum monthly price in dollars (legacy)
   priceDescription String? // What's included in the base price (legacy)
-  paymentOptions   String[] // Array of payment methods accepted (e.g., "Private Pay", "Medicare", "Medicaid")
+  paymentOptions   String[] // Array of payment methods accepted (legacy - kept for backward compatibility)
+
+  // Sprint 2: Structured Payment Modes
+  paymentModesAccepted  PaymentMode[] // Structured payment options (Private Pay, Medicare, Medicaid, etc.)
+  stateWaiverPrograms   String[]      @default([]) // State-specific waiver program names
+  insuranceNetworks     String[]      @default([]) // Insurance network affiliations
 
   // Enhanced Pricing Structure (Sprint 4)
   privateRoomMin             Int? // Private room minimum monthly rate
@@ -351,6 +414,11 @@ model Provider {
   verified Boolean @default(false)
   active   Boolean @default(true)
 
+  // Sprint 2: Profile Visibility & Completion
+  isVisible             Boolean @default(false) // Controlled by visibility gate (requires required fields)
+  completionPercentage  Int     @default(0)     // Profile completion for UX feedback (0-100)
+  visibilityUnlockedAt  DateTime?               // When visibility was first unlocked
+
   // Availability (for individual caregivers)
   availableForFamilies      Boolean @default(true) // Available for direct hire by families
   availableForOrganizations Boolean @default(false) // Available for hire by care organizations
@@ -362,6 +430,9 @@ model Provider {
   savedBy         SavedProvider[]
   consultRequests ConsultRequest[]
   reviews         Review[]
+  engagements     Engagement[]           // Sprint 2: Family ↔ Provider engagements
+  hiringAsOrg     HiringEngagement[]     @relation("HiringOrganization") // Sprint 2: Org hiring caregivers
+  hiringAsCaregiver HiringEngagement[] @relation("HiringCaregiver")      // Sprint 2: Caregiver seeking work
 
   @@index([city, state])
   @@index([providerType])
@@ -546,4 +617,189 @@ model Review {
   @@unique([providerId, userId]) // One review per user per provider
   @@index([providerId])
   @@index([userId])
+}
+
+// ============================================
+// SPRINT 2: Engagement System
+// Per Manual Ch 15 - unified engagement for family ↔ provider
+// ============================================
+
+model Engagement {
+  id String @id @default(cuid())
+
+  // Parties - explicit, not inferred (per Manual)
+  familyProfileId String
+  familyProfile   FamilyProfile @relation(fields: [familyProfileId], references: [id], onDelete: Cascade)
+  providerId      String
+  provider        Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Initiator (can be family user or provider user)
+  initiatedByUserId String
+  initiatedByRole   String // FAMILY or PROVIDER - who started the engagement
+
+  // Engagement details - explicit fields
+  type          EngagementType   // TOUR, CONSULTATION, INTERVIEW, INQUIRY, OUTREACH
+  status        EngagementStatus @default(PENDING)
+  contactReason String?          // Specific reason (e.g., "Request pricing", "Schedule tour")
+
+  // Contact preferences
+  preferredContactMethod String? // "phone", "email", "video"
+  initialMessage         String? // First message when creating engagement
+
+  // Notification tracking
+  viewedByFamily   Boolean @default(false)
+  viewedByProvider Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  scheduledEvents  ScheduledEvent[]
+  engagementMessages EngagementMessage[]
+
+  @@index([familyProfileId])
+  @@index([providerId])
+  @@index([status])
+  @@index([type])
+}
+
+// ============================================
+// SPRINT 2: Hiring Engagement System
+// Per Manual Ch 20 - organization ↔ individual caregiver
+// ============================================
+
+model HiringEngagement {
+  id String @id @default(cuid())
+
+  // Parties - organization and individual caregiver (both are Providers)
+  organizationId String   // Provider with type != INDEPENDENT_CAREGIVER
+  organization   Provider @relation("HiringOrganization", fields: [organizationId], references: [id], onDelete: Cascade)
+  caregiverId    String   // Provider with type = INDEPENDENT_CAREGIVER
+  caregiver      Provider @relation("HiringCaregiver", fields: [caregiverId], references: [id], onDelete: Cascade)
+
+  // Initiator
+  initiatedByProviderId String
+  initiatedByRole       String // ORGANIZATION or CAREGIVER
+
+  // Engagement details
+  type   HiringEngagementType   // HIRING_INTERVIEW, APPLICATION, HIRING_INQUIRY
+  status HiringEngagementStatus @default(PENDING)
+
+  // Additional context
+  positionTitle     String? // Job position being discussed
+  expectedPayMin    Int?    // Hourly rate range
+  expectedPayMax    Int?
+  scheduleType      String? // FULL_TIME, PART_TIME, PER_DIEM
+  initialMessage    String?
+
+  // Notification tracking
+  viewedByOrganization Boolean @default(false)
+  viewedByCaregiver    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  scheduledEvents  ScheduledEvent[]
+  hiringMessages   HiringMessage[]
+
+  @@index([organizationId])
+  @@index([caregiverId])
+  @@index([status])
+  @@index([type])
+}
+
+// ============================================
+// SPRINT 2: Scheduled Events
+// Generalized from TourAppointment per user requirement
+// Supports tours, consultations, and interviews
+// ============================================
+
+model ScheduledEvent {
+  id String @id @default(cuid())
+
+  // Can be linked to either engagement type (one will be null)
+  engagementId       String?
+  engagement         Engagement?       @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  hiringEngagementId String?
+  hiringEngagement   HiringEngagement? @relation(fields: [hiringEngagementId], references: [id], onDelete: Cascade)
+
+  // Event details
+  eventType     ScheduledEventType // TOUR, CONSULTATION, INTERVIEW
+  proposedBy    String             // userId who proposed
+  scheduledDate DateTime
+  scheduledTime String             // e.g., "10:00 AM", "2:30 PM"
+  durationMinutes Int @default(60) // Default 1 hour
+
+  // Location/format
+  location      String?  // Physical address or "Video Call"
+  isVideoCall   Boolean  @default(false)
+  videoCallUrl  String?  // Generated video call link
+
+  // Status
+  status String @default("PROPOSED") // PROPOSED, ACCEPTED, DECLINED, COMPLETED, CANCELLED, RESCHEDULED
+
+  // Additional info
+  notes              String?
+  cancellationReason String?
+
+  // Calendar integration (Sprint 2/3)
+  calendarEventId String? // External calendar ID if synced
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([engagementId])
+  @@index([hiringEngagementId])
+  @@index([status])
+  @@index([scheduledDate])
+}
+
+// ============================================
+// SPRINT 2: Messages within Engagements
+// Per Manual Ch 16 - messaging within engagement context
+// ============================================
+
+model EngagementMessage {
+  id           String     @id @default(cuid())
+  engagementId String
+  engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+
+  senderId String
+  content  String
+
+  // Message status
+  status      String    @default("SENT") // SENT, DELIVERED, READ
+  deliveredAt DateTime?
+  readAt      DateTime?
+
+  // Attachments
+  attachments Json @default("[]") // [{url, type, name, size}]
+
+  createdAt DateTime @default(now())
+
+  @@index([engagementId])
+  @@index([senderId])
+}
+
+model HiringMessage {
+  id                 String           @id @default(cuid())
+  hiringEngagementId String
+  hiringEngagement   HiringEngagement @relation(fields: [hiringEngagementId], references: [id], onDelete: Cascade)
+
+  senderId String
+  content  String
+
+  // Message status
+  status      String    @default("SENT") // SENT, DELIVERED, READ
+  deliveredAt DateTime?
+  readAt      DateTime?
+
+  // Attachments
+  attachments Json @default("[]") // [{url, type, name, size}]
+
+  createdAt DateTime @default(now())
+
+  @@index([hiringEngagementId])
+  @@index([senderId])
 }
