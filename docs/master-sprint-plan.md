@@ -1,7 +1,7 @@
 # Olera Platform — Master Sprint Plan
 
-> **Version**: 1.2 — Sprint 0 Complete
-> **Last Updated**: January 19, 2026
+> **Version**: 1.3 — Sprint 1 Complete
+> **Last Updated**: January 20, 2026
 > **Purpose**: Execution-focused roadmap translating the Master Platform Manual into clear build tasks and sprint sequences.
 
 ## Planning Approach
@@ -24,7 +24,7 @@
 
 ## Implementation Status Audit
 
-> Based on codebase analysis against Master Platform Manual (January 17, 2026)
+> Based on codebase analysis against Master Platform Manual (January 20, 2026 — Sprint 1 Complete)
 
 ### Legend
 - ✅ **Built** — Core functionality works
@@ -35,24 +35,24 @@
 
 | Part | Chapter | Status | Key Issues |
 |------|---------|--------|------------|
-| **I: Foundation** | 1. Auth | ✅ Built | Login, signup, password working |
-| | 2. Mode System | 🟡 Partial | Uses URL param; needs DB-driven mode |
-| | 3. Onboarding | 🟡 Partial | Provider onboarding exists; needs completion |
-| | 4. UI/Design | ✅ Built | TailwindCSS, design tokens working |
-| | 5. Navigation | 🟡 Partial | MainNav works; no dropdowns, footer, breadcrumbs |
-| **II: Profiles** | 6. Family Profiles | 🟡 Partial | Schema complete; UI needs polish |
-| | 7. Provider Profiles | 🟡 Partial | Comprehensive schema; UI incomplete |
-| | 8. Provider Identity | 🟡 Partial | Model exists; gating flow incomplete |
-| **III: Discovery** | 9. Directory & Search | ✅ Built | Basic search working |
+| **I: Foundation** | 1. Auth | ✅ Built | Login, signup, password, intent routing working |
+| | 2. Mode System | ✅ Built | DB-driven mode, persistence verified (Sprint 0-1) |
+| | 3. Onboarding | 🟡 Partial | Provider onboarding works; family wizard deferred to Sprint 2 |
+| | 4. UI/Design | ✅ Built | TailwindCSS, design tokens, footer working |
+| | 5. Navigation | ✅ Built | MainNav, breadcrumbs, footer all implemented (Sprint 0-1) |
+| **II: Profiles** | 6. Family Profiles | ✅ Built | Simplified form working; completion tracking deferred |
+| | 7. Provider Profiles | 🟡 Partial | Detail display complete; editing is Sprint 2 |
+| | 8. Provider Identity | ✅ Built | Gating via gentle nudges working (Sprint 0-1) |
+| **III: Discovery** | 9. Directory & Search | ✅ Built | Filters, pagination, unclaimed badges (Sprint 1) |
 | | 10. Provider Claiming | 🟡 Partial | Model exists; verification flow incomplete |
 | | 11. Matching | ⬜ Not Built | No matching algorithm |
-| **IV: Experience** | 12. Family Dashboard | 🟡 Partial | Exists; needs polish and completion |
-| | 13. Provider Dashboard | 🟡 Partial | Exists; needs polish and completion |
+| **IV: Experience** | 12. Family Dashboard | ✅ Built | Care profile, My Providers, Saved (Sprint 1) |
+| | 13. Provider Dashboard | 🟡 Partial | Find Families works; profile editing is Sprint 2 |
 | | 14. Settings | ✅ Built | Account settings working |
-| **V: Engagement** | 15. Engagements | 🟡 Partial | ConsultRequest model; UI partial |
-| | 16. Messaging | 🟡 Partial | Message model + components; needs completion |
+| **V: Engagement** | 15. Engagements | 🟡 Partial | Contact initiation works (Sprint 1); response flow is Sprint 2 |
+| | 16. Messaging | 🟡 Partial | Message model exists; full messaging is Sprint 2-3 |
 | | 17. Scheduling | 🟡 Partial | TourAppointment model; UI incomplete |
-| | 18. Saved/Favorites | ✅ Built | Working |
+| | 18. Saved/Favorites | ✅ Built | Save/unsave providers, list view (Sprint 1) |
 | | 19. Notifications | ⬜ Not Built | No delivery infrastructure |
 | **VI: Hiring** | 20. Hiring Marketplace | 🟡 Partial | Routes exist; flow incomplete |
 | **VII: Monetization** | 21. Subscriptions | ⬜ Not Built | Model exists; no Stripe integration |
@@ -456,54 +456,91 @@ Based on Sprint 0 findings, Sprint 1 should prioritize:
 
 ## Sprint 1 Completion Record
 
-> **Completion Date**: January 19, 2026
-> **Status**: ✅ Complete (with documented deferrals to Sprint 2)
+> **Completion Date**: January 20, 2026
+> **Status**: ✅ Complete — Family Discovery Journey verified end-to-end
+> **Auditor**: Human (6 walkthroughs completed)
+
+### Sprint 1 Goal Achievement
+
+**Goal**: A family user can browse the provider directory, view provider details, save favorites, and initiate contact.
+
+**Result**: ✅ ACHIEVED — All core flows verified working through human audit.
 
 ### What Was Built
 
-| Feature | Implementation | Notes |
-|---------|----------------|-------|
-| Provider directory with filters | `app/page.tsx` | Type, care type, location filters + pagination |
-| Provider detail page | `app/providers/[id]/page.tsx` | All sections, save button, contact CTA |
-| Saved providers | `app/dashboard/saved/page.tsx` | List, remove, empty state |
-| Contact initiation | `EnhancedContactModal` | Creates ConsultRequest |
-| Family profile form | `app/dashboard/care-profile/page.tsx` | Multi-section form |
-| Family identity gating | `app/api/family-profiles/[id]/route.ts` | Hidden until ACCEPTED engagement |
-| Individual caregiver contact gating | `app/api/providers/[id]/route.ts` | Hidden until ACCEPTED engagement |
-| Unclaimed badge | `EnhancedProviderCard`, `SavedProviderCard`, detail page | Shows when `claimed === false` |
-| Photo visibility toggle | `AboutLovedOneSection.tsx` | Opt-in with nudge message |
+| Feature | Implementation | Verification |
+|---------|----------------|--------------|
+| Provider directory with filters | `app/page.tsx` | ✅ Type, care type, location filters + Load More pagination |
+| Provider detail page | `app/providers/[id]/page.tsx` | ✅ All sections render, save button works, contact CTA works |
+| Saved providers | `app/dashboard/saved/page.tsx` | ✅ List, remove, empty state with CTA |
+| Contact initiation | `EnhancedContactModal` | ✅ Creates ConsultRequest, validation works |
+| Care profile form | `app/dashboard/care-profile/page.tsx` | ✅ Simplified to ~15 core fields, saves correctly |
+| Footer component | `components/Footer/Footer.tsx` | ✅ Global footer on all pages via root layout |
+| Family identity gating | `app/api/family-profiles/[id]/route.ts` | ✅ Hidden until ACCEPTED engagement |
+| Individual caregiver contact gating | `app/api/providers/[id]/route.ts` | ✅ Hidden until ACCEPTED engagement |
+| Unclaimed badge | `EnhancedProviderCard`, detail page | ✅ Shows when `claimed === false` |
+| Photo visibility toggle | `AboutLovedOneSection.tsx` | ✅ Opt-in with nudge message |
+| Route renaming | `/dashboard/my-providers` | ✅ Old routes redirect for backward compatibility |
+
+### Bugs Fixed During Sprint 1
+
+| Bug | Root Cause | Fix Applied | Commit |
+|-----|------------|-------------|--------|
+| Breadcrumb showed "Requests" | SEGMENT_LABELS mapping | Updated to "My Providers" | `d6eda80` |
+| Provider signup went to find-families | Intent not passed through redirect chain | Fixed routing in AuthModal | `55b574e` |
+| Mode switch race conditions | JWT update before redirect | Robust query param approach | `220ced6`, `06618d2` |
+| Care Profile save validation | Required field handling | Fixed validation logic | `f6090e1` |
+| Provider detail missing badges | Badge not in component | Added unclaimed badge | `7279359` |
+| Directory no pagination | Infinite scroll missing | Added "Load More" pattern | `89f034b` |
+| Hire Care Staff page crash | Component pattern mismatch | Fixed to match find-families | `d5fd693` |
+
+### Human Audit Results (January 20, 2026)
+
+| Walkthrough | Test Coverage | Result | Notes |
+|-------------|---------------|--------|-------|
+| **W1: Family Profile** | Care profile form editing, section completion | ✅ PASS | Simplified form saves correctly |
+| **W2: Provider Directory** | Filters, pagination, empty states | ✅ PASS | Load More works, filters functional |
+| **W3: Provider Detail** | Full profile view, save toggle, unclaimed badge | ✅ PASS | All sections render correctly |
+| **W4: Saved Providers** | List view, remove action, empty state | ✅ PASS | Empty state has helpful CTA |
+| **W5: Contact Initiation** | Modal, form validation, request creation | ✅ PASS | ConsultRequest created successfully |
+| **W6: End-to-End** | Complete family journey (signup → contact) | ✅ PASS | Full flow works without errors |
 
 ### Explicit Deferrals to Sprint 2
 
-| Item | Reason | Sprint 2 Task |
-|------|--------|---------------|
-| Persistent `completionPercentage` field | Schema change; UI approximates this | Add to 2.2 Profile Editing |
-| Visibility threshold enforcement (40%) | Logic gap; manual `isPublic` toggle works for demo | New task: 2.2.1 |
-| Redirect after contact submission | UX polish; user can navigate manually | Add to Sprint 3 (Engagement) |
+| Item | Reason | Impact | Sprint 2 Task |
+|------|--------|--------|---------------|
+| Persistent `completionPercentage` field | Schema change needed | Low — UI shows checklist | 2.2.1 |
+| Visibility threshold enforcement (40%) | Logic complexity | Low — manual `isPublic` works | 2.2.1 |
+| Post-contact redirect to engagement | UX polish | Low — user can navigate manually | 2.2.2 or Sprint 3 |
+| Family onboarding wizard | New flow needed | Medium — families land on homepage | 2.2.3 |
+| Provider profile editing | Sprint 2 scope | N/A — planned for Sprint 2 | 2.2 |
 
-### Planning Notes (Captured for Sprint 2)
+### Key Decisions Made During Sprint 1
 
-**Task 1.1 — Care Profile Scope & Visibility**
-- Current form has ~80 fields; consider reducing to immediately meaningful fields
-- Avoid "lagging" or low-value fields at this stage
-- Sprint 2 must implement:
-  - Profile completion tracking (persistent `completionPercentage`)
-  - Completion threshold below which profiles are NOT visible to providers
-  - Clear strategy: threshold met → can toggle `isPublic`; threshold not met → `isPublic` stays false
+| Decision | Rationale | Impact |
+|----------|-----------|--------|
+| Simplified care profile to ~15 fields | Original ~80 fields overwhelming for demo | Better UX, faster completion |
+| Route renamed to `/dashboard/my-providers` | Family-centric naming per Manual Ch 12 | Clearer navigation, old routes redirect |
+| Mode switch landing to discovery pages | Discovery-first, not dashboard-first | FAMILY → `/`, PROVIDER → `/provider/find-families` |
+| Contact info hidden until ACCEPTED | Privacy protection per Manual Ch 15.3.1 | Protects individual caregivers |
 
-**Task 1.5 — Engagement Detail Redirect**
-- Redirect after contact submission is important for coherent user journey
-- Deferred to Sprint 2 or Sprint 3 (Engagement & Scheduling)
-- Implementation: After successful `ConsultRequest` creation, `router.push(/dashboard/requests/[id])`
+### Commits (Sprint 1 — from footer to final audit)
 
-**Evidence-Based Gaps Accepted**
-- Profile completion logic → Sprint 2
-- Visibility thresholds → Sprint 2
-- Contact initiation redirect → Sprint 2/3
+Key commits in chronological order:
+- `808b2ea` Add global footer to all pages via root layout
+- `89f034b` Add pagination to provider directory
+- `7279359` Implement visibility rules and unclaimed badges
+- `75be01a` Add photo visibility toggle to family care profile
+- `3477c3b` Simplify Care Profile form to core demo fields
+- `76f0afd` Rename /dashboard/requests to /dashboard/my-providers
+- `3cf329c` Complete Walkthrough 5 fixes: breadcrumbs, navigation
+- `d6eda80` Apply UI consistency and breadcrumb audit
+- `06618d2` Revert to Sprint 0 mode switching approach - fix regression
+- `55b574e` Sprint 1 audit fixes: breadcrumb label, provider signup routing
 
-### Sprint 2 Scope Additions (from Sprint 1 deferrals)
+### Sprint 2 Scope (from Sprint 1 Deferrals + Manual Requirements)
 
-Add these to Sprint 2 tasks:
+The following tasks are queued for Sprint 2 based on Sprint 1 deferrals and the Provider Response Journey goal:
 
 ```markdown
 #### 2.2.1 Profile Completion Enforcement (from Sprint 1)
@@ -514,7 +551,7 @@ Add these to Sprint 2 tasks:
 - [ ] Test: Family cannot toggle visibility until threshold met
 
 #### 2.2.2 Contact Submission Redirect (from Sprint 1)
-- [ ] After successful ConsultRequest creation, redirect to `/dashboard/requests/[id]`
+- [ ] After successful ConsultRequest creation, redirect to `/dashboard/my-providers/[id]`
 - [ ] Show success message on the engagement detail page
 
 #### 2.2.3 Family Onboarding Wizard (from Sprint 1 Audit)
@@ -526,9 +563,8 @@ Add these to Sprint 2 tasks:
 - [ ] Test: New family signup → onboarding wizard → homepage
 
 #### 2.2.4 Provider Intent Signup Routing (Verification)
-- [ ] Verify: `/signup?intent=provider` → provider onboarding wizard at `/provider/onboarding`
-- [ ] Verify: `/for-providers` CTA signup → provider onboarding wizard
-- [ ] This should already be working; verify and document
+- [x] Verify: `/signup?intent=provider` → provider onboarding → `/provider/find-families` ✅ Working
+- [x] Verify: `/for-providers` CTA signup → provider onboarding → `/provider/find-families` ✅ Working
 ```
 
 ---
@@ -839,11 +875,16 @@ A family user can browse the provider directory, view provider details, save fav
 
 ## Sprint 2: Provider Response Journey
 
+> **Status**: 📋 Ready for execution (Sprint 1 complete, dependencies satisfied)
+> **Prerequisite**: Sprint 1 ✅ Complete
+
 ### Goal
 A provider can view incoming requests, respond to families, and manage their profile.
 
 ### Chapters Covered
-- Ch 7: Provider Profiles
+- Ch 3: Onboarding (family wizard — deferred from Sprint 1)
+- Ch 6: Family Profiles (completion tracking — deferred from Sprint 1)
+- Ch 7: Provider Profiles (editing)
 - Ch 10: Provider Claiming
 - Ch 13: Provider Dashboard
 - Ch 15: Engagements (response flow)
@@ -851,51 +892,105 @@ A provider can view incoming requests, respond to families, and manage their pro
 
 ### Tasks
 
+#### 2.0 Sprint 1 Deferrals (MUST COMPLETE FIRST)
+
+**2.0.1 Family Onboarding Wizard** (from Sprint 1 audit)
+- [ ] Create family onboarding wizard at `/onboarding` or modal flow
+- [ ] Trigger on first-time family signup ONLY (not sign-in)
+- [ ] Collect minimum required fields: loved one name, location (city/state), primary care type needed
+- [ ] Allow skip/exit at any point (per Manual Ch 3.6)
+- [ ] On completion or skip, redirect to homepage `/` (browse providers)
+- [ ] Test: New family signup → onboarding wizard → homepage
+
+**2.0.2 Profile Completion Enforcement** (from Sprint 1)
+- [ ] Add `completionPercentage Int @default(0)` to FamilyProfile schema
+- [ ] Calculate and persist percentage on profile save
+- [ ] Enforce: `isPublic` cannot be true if completionPercentage < 40
+- [ ] UI: Show "Complete X more fields to make your profile visible" prompt
+- [ ] Test: Family cannot toggle visibility until threshold met
+
+**2.0.3 Contact Submission Redirect** (from Sprint 1)
+- [ ] After successful ConsultRequest creation, redirect to `/dashboard/my-providers/[id]`
+- [ ] Show success message on the engagement detail page
+- [ ] Alternative: defer to Sprint 3 if not blocking
+
 #### 2.1 Provider Dashboard (Ch 13)
 - [ ] Verify `/provider/dashboard` shows summary widgets
 - [ ] Display: pending requests count, recent messages, profile completion
 - [ ] Add quick links to: requests, profile editing, saved families
 
 #### 2.2 Provider Profile Editing (Ch 7)
-- [ ] Build comprehensive profile editor at `/dashboard/provider-profile`
+- [ ] Build comprehensive profile editor at `/provider/dashboard` (or `/provider/profile`)
 - [ ] Sections: Basic Info, Services, Amenities, Photos, Pricing
 - [ ] Photo upload using existing upload infrastructure
 - [ ] Cover photo selection
 - [ ] Profile completion percentage indicator
 
 #### 2.3 Incoming Requests (Ch 15)
-- [ ] Verify `/provider/requests` lists all ConsultRequests for this provider
+- [ ] Verify `/provider/my-families` (formerly `/provider/requests`) lists all ConsultRequests
 - [ ] Show request card: family name (or anonymized), message preview, date
 - [ ] Filter by status: Pending, Accepted, Completed
-- [ ] Request detail page: `/provider/requests/[id]`
+- [ ] Request detail page: `/provider/my-families/[id]`
 
 #### 2.4 Request Response (Ch 15 + 16)
 - [ ] Accept/Decline actions on request detail page
-- [ ] On Accept: reveal family contact info (if subscription allows)
+- [ ] On Accept: reveal family contact info (per visibility rules from Sprint 1)
 - [ ] Basic reply form that creates a Message
 - [ ] Show message thread on request detail page
 
 #### 2.5 Provider Claiming (Ch 10) — Basic
-- [ ] If provider is unclaimed, show "Claim this listing" on detail page
+- [ ] If provider is unclaimed, show "Claim this listing" CTA on detail page
 - [ ] Claim request flow: verify ownership (demo: simple confirmation)
 - [ ] Link `ProviderIdentity.providerId` to `Provider.id` on claim
-- [ ] Update provider detail page to show "Claimed" state
+- [ ] Update provider detail page to show "Claimed" badge (replaces "Unclaimed")
 
 ### Dependencies
-- Sprint 1 complete (family can initiate contact)
+- Sprint 1 complete ✅ (family can initiate contact)
 
 ### Acceptance Criteria
+- [ ] Family onboarding wizard captures minimum required fields
+- [ ] Profile completion tracking persists and enforces visibility threshold
 - [ ] Provider sees incoming requests on dashboard
 - [ ] Provider can accept/decline requests
 - [ ] Provider can send reply message
 - [ ] Provider can edit their profile
 - [ ] Unclaimed provider can be claimed by user
 
+### Definition of Done — Testable Outcomes
+
+| Test | How to Verify | Expected Result |
+|------|---------------|-----------------|
+| Family onboarding | Sign up as new family | Onboarding wizard appears, can skip/complete |
+| Profile completion | Save partial family profile | `completionPercentage` updates, visibility toggle respects threshold |
+| Provider dashboard | Log in as provider | Summary widgets show request counts |
+| Incoming requests | Provider views requests | List shows family requests with status |
+| Accept request | Provider clicks Accept | Status changes, family info revealed |
+| Reply to request | Provider sends message | Message appears in thread |
+| Provider profile edit | Edit provider profile | Changes persist, completion % updates |
+| Claim provider | Click "Claim this listing" | Provider linked to user, badge changes |
+
 ### Tech Debt Notes
 - **Demo acceptable**: Claiming verification is simple confirmation (no document upload)
 - **Demo acceptable**: Basic messaging (no real-time, no read receipts yet)
+- **Demo acceptable**: Family wizard can be modal or page — optimize for conversion
 - **Must be solid**: Request status transitions must be correct
 - **Must be solid**: Provider-User linking via ProviderIdentity
+- **Must be solid**: Profile completion calculation must be deterministic
+
+### Risks & Dependencies
+
+| Risk | Mitigation |
+|------|------------|
+| Schema migration for `completionPercentage` | Run migration in dev/staging before production |
+| Family wizard may increase signup friction | Allow skip at any point; measure completion rate |
+| Provider claiming requires verification | Demo uses simple confirmation; production adds document upload |
+
+### Estimated Scope
+
+Based on Sprint 0-1 velocity, Sprint 2 contains approximately:
+- 3 deferred items from Sprint 1 (2.0.1, 2.0.2, 2.0.3)
+- 5 new tasks (2.1, 2.2, 2.3, 2.4, 2.5)
+- ~40 files affected (based on Sprint 1 pattern)
 
 ---
 

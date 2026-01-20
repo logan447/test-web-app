@@ -1,7 +1,7 @@
 # Olera Platform — Master Systems Manual
 
-> **Version**: 1.1 — Sprint 0 Complete
-> **Last Reviewed**: January 19, 2026
+> **Version**: 1.2 — Sprint 1 Complete
+> **Last Reviewed**: January 20, 2026
 
 > **Purpose**: This document serves as the source of truth for all platform systems. It will be iteratively refined as we work through each chapter, answer key questions, and make architectural decisions.
 >
@@ -28,7 +28,7 @@
 
 ## Review Progress
 
-**Last Updated**: January 19, 2026 (Sprint 0 Audit Complete)
+**Last Updated**: January 20, 2026 (Sprint 1 Audit Complete)
 
 | Status | Count | Chapters |
 |--------|-------|----------|
@@ -101,6 +101,96 @@ See Sprint Plan for full deferral list. Key items:
 - Remove forced onboarding redirect (use gentle nudges)
 - Footer implementation
 - Route renaming per Manual specifications
+
+---
+
+## Sprint 1 Completion Summary
+
+> **Completion Date**: January 20, 2026
+> **Status**: ✅ Complete — Family Discovery Journey functional end-to-end
+
+### What Was Built
+
+Sprint 1 delivered the complete family discovery journey: families can browse providers, view detailed profiles, save favorites, and initiate contact. Comprehensive human audits verified all critical flows.
+
+| Feature | Status | Implementation Notes |
+|---------|--------|---------------------|
+| Provider Directory with Filters | ✅ Built | Type, care type, location filters + Load More pagination |
+| Provider Detail Page | ✅ Built | About, Services, Amenities, Photos, Reviews, Contact CTA |
+| Saved Providers | ✅ Built | Save/unsave toggle, list view with empty states |
+| Contact Initiation (EnhancedContactModal) | ✅ Built | Creates ConsultRequest, validates fields |
+| Care Profile Form | ✅ Simplified | Reduced from ~80 fields to core demo fields |
+| Footer Component | ✅ Built | Global footer on all pages via root layout |
+| Unclaimed Badge | ✅ Built | Displayed on provider cards and detail pages |
+| Photo Visibility Toggle | ✅ Built | Family opt-in with nudge message |
+| Identity/Contact Gating | ✅ Built | Hidden until ACCEPTED engagement |
+
+### Bugs Fixed During Sprint 1
+
+| Bug | Impact | Fix Applied |
+|-----|--------|-------------|
+| Breadcrumb showed "Requests" instead of "My Providers" | Confusing navigation | Updated SEGMENT_LABELS mapping |
+| Provider signup went to find-families instead of onboarding | Broken intent flow | Fixed routing in AuthModal and signup page |
+| Mode switch caused race conditions | Inconsistent state | Implemented robust query param approach with state management |
+| Care Profile save validation errors | Form unusable | Fixed field validation and required field handling |
+| Provider detail page missing unclaimed badge | Incomplete trust signals | Added badge component to detail page |
+| Directory had no pagination | Poor UX for large datasets | Added "Load More" infinite scroll pattern |
+
+### Route Changes Applied
+
+| Old Route | New Route | Rationale |
+|-----------|-----------|-----------|
+| `/dashboard/requests` | `/dashboard/my-providers` | Family-centric naming (per Manual Ch 12) |
+| `/dashboard/requests/[id]` | `/dashboard/my-providers/[id]` | Consistency |
+| `/provider/requests` | `/provider/find-families` | Completed in Sprint 0 |
+
+**Backward Compatibility**: All old routes redirect to new routes to prevent broken links.
+
+### Key Behavioral Clarifications
+
+The following behaviors were established and verified during Sprint 1 walkthroughs:
+
+| Behavior | Current State | Manual Alignment |
+|----------|---------------|------------------|
+| Family post-signup landing | Homepage (`/`) | ✅ Correct — discovery-first |
+| Provider post-signup landing | `/provider/onboarding` | ✅ Correct — wizard flow |
+| Mode switch landing (→FAMILY) | Homepage (`/`) | ✅ Correct |
+| Mode switch landing (→PROVIDER) | `/provider/find-families` | ✅ Correct |
+| Provider contact info visibility | Hidden until ACCEPTED | ✅ Correct (individual caregivers) |
+| Family identity visibility | Hidden until ACCEPTED | ✅ Correct |
+| Unclaimed provider badge | Shows when `claimed === false` | ✅ Correct |
+
+### Known Limitations (Current Behavior)
+
+These are documented behaviors that differ from the ideal/production specification:
+
+| Limitation | Current Behavior | Manual Specification | Deferred To |
+|------------|------------------|---------------------|-------------|
+| Profile completion tracking | No persistent `completionPercentage` field | Should track completion % | Sprint 2 |
+| Visibility threshold enforcement | Manual `isPublic` toggle only | 40% threshold for visibility | Sprint 2 |
+| Post-contact redirect | Stays on provider page | Should redirect to engagement detail | Sprint 2/3 |
+| Family onboarding wizard | No wizard (goes to homepage) | Should show onboarding wizard | Sprint 2 |
+| Care profile form scope | Simplified to ~15 fields | Full ~80 field form exists but is overwhelming | Evaluate in Sprint 2 |
+
+### Platform-Wide Implications for Future Sprints
+
+| Implication | Affected Sprints | Notes |
+|-------------|------------------|-------|
+| Route naming convention established | All | `/dashboard/my-providers` pattern for family, `/provider/find-families` for provider |
+| Contact gating pattern established | Sprint 2+ | Use `engagement.status === 'ACCEPTED'` to reveal contact info |
+| Empty state pattern established | All | Helpful message + CTA button + link to relevant action |
+| Form simplification principle | Sprint 2+ | Prefer fewer, high-value fields over exhaustive forms |
+
+### Human Audit Results (January 20, 2026)
+
+| Walkthrough | Description | Result | Notes |
+|-------------|-------------|--------|-------|
+| W1: Family Profile | Care profile form editing | ✅ PASS | Simplified form saves correctly |
+| W2: Provider Directory | Filters and pagination | ✅ PASS | Load More works, filters functional |
+| W3: Provider Detail | Full profile view and save | ✅ PASS | All sections render, save toggles correctly |
+| W4: Saved Providers | List and remove | ✅ PASS | Empty state displays correctly |
+| W5: Contact Initiation | Modal and request creation | ✅ PASS | ConsultRequest created, validation works |
+| W6: End-to-End | Complete family journey | ✅ PASS | Signup → Profile → Browse → Save → Contact works |
 
 ---
 
@@ -1612,7 +1702,7 @@ Accessibility is a design requirement, not an audit afterthought.
 | 6.5 Location & Contact Preferences | ✅ | Fields exist |
 | 6.6 Budget & Timeline | ✅ | Fields exist |
 | 6.7 Privacy/Visibility Settings | ✅ | `profileVisibility`, etc. |
-| 6.8 Profile Completion Tracking | 🟡 | May exist but unclear |
+| 6.8 Profile Completion Tracking | 🟡 | UI shows checklist; no persistent `completionPercentage` field (deferred to Sprint 2) |
 | 6.9 Multiple Care Profiles per Account | 🟡 | Schema supports single profile per user currently |
 
 ### Key Questions
