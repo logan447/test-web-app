@@ -144,9 +144,9 @@ export function useOnboardingWizard(
   // Only show when authenticated AND (has stored state OR manual open) AND user hasn't closed
   const isAuthenticated = status === "authenticated";
   const hasStoredOpen = storedState.shouldOpen && !userClosed;
-  const hasManualOpen = manualOpen?.isOpen && !userClosed;
+  const hasManualOpen = !!(manualOpen?.isOpen) && !userClosed;
 
-  const isOpen = isAuthenticated && (hasStoredOpen || hasManualOpen);
+  const isOpen: boolean = isAuthenticated && (hasStoredOpen || hasManualOpen);
 
   // Determine intent/providerSubtype (manual takes precedence)
   const intent = manualOpen?.intent ?? storedState.intent ?? options.initialIntent ?? null;
@@ -154,7 +154,7 @@ export function useOnboardingWizard(
     manualOpen?.providerSubtype ?? storedState.providerSubtype ?? options.initialProviderSubtype ?? null;
 
   // Still loading if auth status is loading AND we have something that might open
-  const isLoading = status === "loading" && (storedState.shouldOpen || options.autoOpen);
+  const isLoading: boolean = status === "loading" && (storedState.shouldOpen || !!options.autoOpen);
 
   // Check if user needs onboarding
   const needsOnboarding = isAuthenticated && !hasCompletedOnboarding();
