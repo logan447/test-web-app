@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 
-// Redirect from old /dashboard/requests/[id] to new /dashboard/my-providers/[id]
-export default function RequestDetailRedirect() {
+// Inner component that uses useSearchParams
+function RedirectContent() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -16,9 +16,17 @@ export default function RequestDetailRedirect() {
     router.replace(redirectUrl);
   }, [router, params, searchParams]);
 
+  return null;
+}
+
+// Redirect from old /dashboard/requests/[id] to new /dashboard/my-providers/[id]
+export default function RequestDetailRedirect() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <p className="text-gray-600">Redirecting...</p>
+      <Suspense fallback={null}>
+        <RedirectContent />
+      </Suspense>
     </div>
   );
 }
