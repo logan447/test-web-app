@@ -920,7 +920,9 @@ export default function OnboardingWizardOverlay({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      {/* onClose={() => {}} prevents backdrop click and Escape from closing
+          User can still close via X button or Skip - those call onClose explicitly */}
+      <Dialog as="div" className="relative z-50" onClose={() => {}}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
