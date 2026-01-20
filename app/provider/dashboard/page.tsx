@@ -89,7 +89,14 @@ export default function ProviderDashboardPage() {
 
       if (statsRes.ok) {
         const data = await statsRes.json();
-        setStats(data.stats);
+        // Merge with defaults to ensure all stats have values
+        setStats(prev => ({
+          ...prev,
+          pendingRequests: data.stats?.pendingRequests ?? 0,
+          activeConversations: data.stats?.activeConversations ?? 0,
+          totalRequests: data.stats?.totalRequests ?? 0,
+          acceptedRequests: data.stats?.acceptedRequests ?? 0,
+        }));
       }
 
       if (activitiesRes.ok) {

@@ -137,17 +137,6 @@ export default function SavedFamilyProfilesPage() {
         <Breadcrumb />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
-              <Link
-                href="/provider/find-families"
-                className="text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back to Browse
-              </Link>
-            </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Saved Care Requests</h1>
             <p className="text-lg text-gray-600">
               Family profiles you&apos;ve saved for follow-up
@@ -167,17 +156,6 @@ export default function SavedFamilyProfilesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Link
-              href="/provider/find-families"
-              className="text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Browse
-            </Link>
-          </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Saved Care Requests</h1>
           <p className="text-lg text-gray-600">
             Family profiles you&apos;ve saved for follow-up

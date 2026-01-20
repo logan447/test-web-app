@@ -87,10 +87,9 @@ export default function FamilyProfileDetail() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
-  // Determine back link based on where user came from
+  // Determine cancel link based on where user came from
   const fromSaved = searchParams.get('from') === 'saved';
   const backHref = fromSaved ? '/provider/saved-families' : '/provider/find-families';
-  const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {
     // Wait for session to load
@@ -221,7 +220,7 @@ export default function FamilyProfileDetail() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
         <Breadcrumb />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
             <div className="bg-white shadow rounded-lg p-6">
@@ -244,20 +243,7 @@ export default function FamilyProfileDetail() {
       <MainNav />
       <Breadcrumb currentPage={`Request in ${profile.city}`} />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
-        <div className="mb-6">
-          <Link
-            href={backHref}
-            className="text-primary-600 hover:text-primary-700 flex items-center gap-1"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            {backText}
-          </Link>
-        </div>
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <div className="flex justify-between items-start mb-4">

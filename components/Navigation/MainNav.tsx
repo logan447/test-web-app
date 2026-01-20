@@ -383,7 +383,7 @@ function MainNavContent() {
                             )}
                           </Link>
                           <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            My Provider Profile
+                            Provider Dashboard
                           </Link>
 
                           {/* Hiring section divider */}
@@ -412,12 +412,23 @@ function MainNavContent() {
                         </>
                       ) : (
                         <>
-                          {/* No provider profile */}
+                          {/* No provider profile - still show full navigation */}
                           <Link href="/provider/find-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
+                          <Link href="/provider/saved-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Saved Families
+                          </Link>
+                          <Link href="/dashboard/my-providers" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <span>My Families</span>
+                            {unreadCount > 0 && (
+                              <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                              </span>
+                            )}
+                          </Link>
                           <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            My Provider Profile
+                            Provider Dashboard
                           </Link>
                         </>
                       )}
@@ -674,7 +685,7 @@ function MainNavContent() {
                             )}
                           </Link>
                           <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            My Provider Profile
+                            Provider Dashboard
                           </Link>
 
                           {/* Hiring section divider */}
@@ -703,12 +714,23 @@ function MainNavContent() {
                         </>
                       ) : (
                         <>
-                          {/* No provider profile */}
+                          {/* No provider profile - still show full navigation */}
                           <Link href="/provider/find-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
+                          <Link href="/provider/saved-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            Saved Families
+                          </Link>
+                          <Link href="/dashboard/my-providers" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                            <span>My Families</span>
+                            {unreadCount > 0 && (
+                              <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                              </span>
+                            )}
+                          </Link>
                           <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            My Provider Profile
+                            Provider Dashboard
                           </Link>
                         </>
                       )}
