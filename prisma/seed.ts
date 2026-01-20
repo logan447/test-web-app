@@ -1234,6 +1234,72 @@ async function main() {
   console.log('✅ Created 6 individual caregiver accounts with profiles\n');
 
   // ============================================================================
+  // UNCLAIMED PROVIDERS (for claiming flow testing)
+  // ============================================================================
+  console.log('🏢 Creating unclaimed providers for claiming flow tests...');
+
+  // Unclaimed Provider 1: Bay Area Senior Living (Assisted Living)
+  const unclaimedProvider1 = await prisma.provider.create({
+    data: {
+      name: 'Bay Area Senior Living',
+      providerType: 'ASSISTED_LIVING',
+      description: 'A welcoming community for seniors in the heart of San Jose. We offer personalized care plans, engaging activities, and a warm, home-like environment. Our dedicated staff is committed to enhancing the quality of life for each resident.',
+      city: 'San Jose',
+      state: 'CA',
+      zipCode: '95110',
+      address: '456 Care Center Drive',
+      phone: '(408) 555-0199',
+      email: 'info@bayareasenior.example.com',
+      website: 'https://bayareasenior.example.com',
+      careTypes: ['PERSONAL_CARE', 'COMPANION_CARE', 'RESPITE_CARE'],
+      paymentModes: ['PRIVATE_PAY', 'LONG_TERM_CARE_INSURANCE'],
+      amenities: ['Restaurant-style dining', 'Fitness center', 'Garden areas', 'Library', 'Beauty salon'],
+      coverPhoto: 'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800',
+      photos: [
+        'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800',
+        'https://images.unsplash.com/photo-1559599238-308793637427?w=800',
+      ],
+      rating: 4.3,
+      reviewCount: 12,
+      claimed: false, // KEY: Unclaimed for testing
+      verified: false,
+      active: true,
+      latitude: 37.3382,
+      longitude: -121.8863,
+      // No userId - not linked to any user
+    },
+  });
+
+  // Unclaimed Provider 2: Coastal Memory Care (Memory Care)
+  const unclaimedProvider2 = await prisma.provider.create({
+    data: {
+      name: 'Coastal Memory Care',
+      providerType: 'MEMORY_CARE',
+      description: 'Specialized memory care services in a secure, nurturing environment. Our innovative programs are designed specifically for residents with Alzheimers and other forms of dementia.',
+      city: 'Santa Monica',
+      state: 'CA',
+      zipCode: '90401',
+      address: '789 Ocean View Boulevard',
+      phone: '(310) 555-0288',
+      email: 'care@coastalmemory.example.com',
+      careTypes: ['MEMORY_CARE', 'SKILLED_NURSING'],
+      paymentModes: ['PRIVATE_PAY', 'MEDICAID'],
+      amenities: ['Secured outdoor space', 'Memory enhancement programs', 'Family support groups', '24-hour nursing'],
+      coverPhoto: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800',
+      rating: 4.6,
+      reviewCount: 8,
+      claimed: false, // KEY: Unclaimed for testing
+      verified: false,
+      active: true,
+      latitude: 34.0195,
+      longitude: -118.4912,
+      // No userId - not linked to any user
+    },
+  });
+
+  console.log('✅ Created 2 unclaimed providers for claiming flow tests\n');
+
+  // ============================================================================
   // ENGAGEMENT DATA
   // ============================================================================
   console.log('💬 Creating engagement data (consultation requests, messages, tours)...\n');
