@@ -870,14 +870,16 @@ export default function OnboardingWizardOverlay({
         break;
 
       case "complete":
-        // Close and redirect
+        // Close and redirect to appropriate destination
         onComplete?.(data);
         onClose();
 
         if (data.intent === "family") {
           router.push("/");
         } else {
-          window.location.href = "/provider/find-families";
+          // Provider users go to provider dashboard (My Families)
+          // Use router.push for client-side navigation (no full page reload)
+          router.push("/provider/dashboard/my-families");
         }
         break;
     }
