@@ -111,12 +111,17 @@ function MainNavContent() {
     const modeSwitched = searchParams.get('mode_switched');
     if (modeSwitched && status === 'authenticated') {
       // Refresh the session to get the updated mode from the JWT
-      updateSession().then(() => {
-        // Show the toast
-        const modeLabel = modeSwitched === 'PROVIDER' ? 'Provider' : 'Family';
-        showToast.success(`Switched to ${modeLabel} mode`);
+      updateSession().then((updatedSession) => {
+        // Only show toast if the mode actually matches (prevents stale URL issues)
+        // If someone bookmarks/shares URL with ?mode_switched=PROVIDER but they're
+        // in FAMILY mode, we don't show a misleading toast
+        const actualMode = updatedSession?.user?.activeMode;
+        if (actualMode === modeSwitched) {
+          const modeLabel = modeSwitched === 'PROVIDER' ? 'Provider' : 'Family';
+          showToast.success(`Switched to ${modeLabel} mode`);
+        }
 
-        // Remove the query parameter from URL without reload
+        // Always clean up the query parameter
         const url = new URL(window.location.href);
         url.searchParams.delete('mode_switched');
         window.history.replaceState({}, '', url.toString());
