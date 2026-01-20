@@ -30,7 +30,7 @@ export default function OnboardingTrigger() {
     close,
     initialIntent,
     initialProviderSubtype,
-  } = useOnboardingWizard();
+  } = useOnboardingWizard({ autoOpen: true });
 
   return (
     <OnboardingWizardOverlay
