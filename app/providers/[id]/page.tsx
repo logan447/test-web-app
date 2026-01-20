@@ -210,8 +210,16 @@ export default function ProviderProfilePage() {
         throw new Error(data.error || 'Failed to send request');
       }
 
-      showToast.success('Request sent successfully!');
+      const createdRequest = await response.json();
       setContactModalOpen(false);
+
+      // Show success message and redirect to engagement detail page (per Sprint 2 task 2.0.3)
+      showToast.success('Request sent! Redirecting to your conversation...');
+
+      // Redirect to the engagement detail page after a short delay for the toast to show
+      setTimeout(() => {
+        router.push(`/dashboard/my-providers/${createdRequest.id}`);
+      }, 500);
     } catch (error: any) {
       showToast.error(error.message || 'Failed to send request');
       throw error;

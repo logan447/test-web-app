@@ -123,8 +123,8 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         triggerOnboardingAfterSignup("provider");
         window.location.href = "/provider/find-families";
       } else {
-        // Family intent: trigger wizard (ask family vs provider), redirect to homepage
-        triggerOnboardingAfterSignup(null); // null = ask family vs provider
+        // Family intent: trigger wizard with family intent, skip to family fields
+        triggerOnboardingAfterSignup("family");
         window.location.href = "/";
       }
     } catch (error) {

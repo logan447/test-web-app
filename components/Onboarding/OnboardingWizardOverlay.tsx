@@ -65,14 +65,13 @@ interface OnboardingWizardOverlayProps {
 // ============================================================================
 
 const CARE_TYPES = [
-  "Assisted Living",
-  "Memory Care",
-  "Skilled Nursing",
-  "In-Home Care",
-  "Independent Living",
-  "Adult Day Care",
-  "Hospice Care",
-  "Respite Care",
+  { value: "PERSONAL_CARE", label: "Personal Care" },
+  { value: "COMPANION_CARE", label: "Companion Care" },
+  { value: "SKILLED_NURSING", label: "Skilled Nursing" },
+  { value: "MEMORY_CARE", label: "Memory Care" },
+  { value: "HOSPICE_CARE", label: "Hospice Care" },
+  { value: "RESPITE_CARE", label: "Respite Care" },
+  { value: "LIVE_IN_CARE", label: "Live-In Care" },
 ];
 
 const PROVIDER_TYPES = [
@@ -319,17 +318,24 @@ function ProviderSubtypeStep({ data, onUpdate, onNext, onBack, onSkip }: StepPro
 function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps) {
   const [localData, setLocalData] = useState({
     familyName: data.familyName || "",
-    familyLocation: data.familyLocation || "",
+    familyCity: "",
+    familyState: "",
     familyCareType: data.familyCareType || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdate(localData);
+    // Compose location for display/storage
+    const familyLocation = `${localData.familyCity}, ${localData.familyState}`;
+    onUpdate({
+      familyName: localData.familyName,
+      familyLocation,
+      familyCareType: localData.familyCareType,
+    });
     onNext();
   };
 
-  const isValid = localData.familyName && localData.familyLocation && localData.familyCareType;
+  const isValid = localData.familyName && localData.familyCity && localData.familyState && localData.familyCareType;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -352,18 +358,33 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
           />
         </div>
 
-        <div>
-          <label htmlFor="familyLocation" className="block text-sm font-medium text-gray-700 mb-1">
-            Where are you looking for care?
-          </label>
-          <input
-            id="familyLocation"
-            type="text"
-            placeholder="City, State (e.g., Austin, TX)"
-            value={localData.familyLocation}
-            onChange={(e) => setLocalData({ ...localData, familyLocation: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="familyCity" className="block text-sm font-medium text-gray-700 mb-1">
+              City
+            </label>
+            <input
+              id="familyCity"
+              type="text"
+              placeholder="Austin"
+              value={localData.familyCity}
+              onChange={(e) => setLocalData({ ...localData, familyCity: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label htmlFor="familyState" className="block text-sm font-medium text-gray-700 mb-1">
+              State
+            </label>
+            <input
+              id="familyState"
+              type="text"
+              placeholder="TX"
+              value={localData.familyState}
+              onChange={(e) => setLocalData({ ...localData, familyState: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
         </div>
 
         <div>
@@ -378,8 +399,8 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
           >
             <option value="">Select care type...</option>
             {CARE_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
+              <option key={type.value} value={type.value}>
+                {type.label}
               </option>
             ))}
           </select>
@@ -748,11 +769,43 @@ export default function OnboardingWizardOverlay({
         break;
 
       case "family-fields":
-        // Save family profile data
+        // Save family profile data to FamilyProfile via API
         setIsSubmitting(true);
         try {
-          // TODO: Save to FamilyProfile via API
-          // For now, just mark complete
+          // Parse location into city and state
+          const [city, state] = (data.familyLocation || "").split(",").map(s => s.trim());
+
+          // First check if profile exists
+          const checkResponse = await fetch("/api/family-profiles/me");
+          const profileExists = checkResponse.ok;
+
+          // Prepare profile data
+          const profileData = {
+            lovedOneName: data.familyName,
+            careTypes: data.familyCareType ? [data.familyCareType] : [],
+            location: data.familyLocation || "",
+            city: city || "",
+            state: state || "",
+            zipCode: "", // Can be filled in later
+          };
+
+          // Create or update profile
+          const response = await fetch("/api/family-profiles/me", {
+            method: profileExists ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(profileData),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to save family profile:", errorData);
+            // Continue anyway - profile can be completed later
+          }
+
+          setCurrentStep("complete");
+        } catch (error) {
+          console.error("Error saving family profile:", error);
+          // Continue to complete step even on error - user can fill details later
           setCurrentStep("complete");
         } finally {
           setIsSubmitting(false);

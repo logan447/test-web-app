@@ -189,8 +189,9 @@ model FamilyProfile {
   hideFromSearch        Boolean @default(false)
   profileNotes          String?
 
-  // Visibility
-  isPublic Boolean @default(false) // Whether profile is visible to all providers
+  // Visibility & Completion
+  isPublic             Boolean @default(false) // Whether profile is visible to all providers
+  completionPercentage Int     @default(0)     // Profile completion for UX feedback (0-100)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
