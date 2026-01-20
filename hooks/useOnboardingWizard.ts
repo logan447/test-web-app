@@ -54,7 +54,16 @@ function getStoredWizardState(): {
     return { shouldOpen: false, intent: null, providerSubtype: null };
   }
 
-  // Check for active state first (persisted open wizard)
+  // CRITICAL: If onboarding has been completed, never re-open
+  // This is the primary circuit breaker that prevents re-triggering
+  if (sessionStorage.getItem(ONBOARDING_SHOWN_KEY) === "true") {
+    // Clean up any stale keys that might exist
+    sessionStorage.removeItem(ONBOARDING_ACTIVE_KEY);
+    sessionStorage.removeItem(ONBOARDING_TRIGGER_KEY);
+    return { shouldOpen: false, intent: null, providerSubtype: null };
+  }
+
+  // Check for active state (persisted open wizard mid-flow)
   const activeState = sessionStorage.getItem(ONBOARDING_ACTIVE_KEY);
   if (activeState) {
     try {
