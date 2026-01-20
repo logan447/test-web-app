@@ -365,7 +365,7 @@ All accounts use password: `test1234!`
 
 | Walkthrough | Pass | Fail | Blocked | Notes |
 |-------------|------|------|---------|-------|
-| 0A: Family Sign-Up | | | | |
+| 0A: Family Sign-Up | ✅ | | | All 9 steps pass after bug fixes |
 | 0B: Provider Org Sign-Up | | | | |
 | 0C: Caregiver Sign-Up | | | | |
 | W1: Family Find Care | | | | |
@@ -388,15 +388,18 @@ All accounts use password: `test1234!`
 
 ### Issues Found
 
-| ID | Walkthrough | Step | Severity | Description | Screenshot |
-|----|-------------|------|----------|-------------|------------|
-| | | | | | |
+| ID | Walkthrough | Step | Severity | Description | Status |
+|----|-------------|------|----------|-------------|--------|
+| BUG-001 | 0A | 0A.4-0A.6 | High | Onboarding wizard not appearing after signup (duplicate OnboardingTrigger) | Fixed: commit 63cf9fd |
+| BUG-002 | 0A | 0A.6 | High | Wizard step 1 not advancing (stale closure in IntentStep) | Fixed: commit ef36d61 |
+| BUG-003 | 0A | 0A.9 | High | Onboarding data not persisting to Care Profile (stale closure in FamilyFieldsStep) | Fixed: commit 4b79bc1 |
 
 ### Deferrals Recommended
 
 | Item | Reason | Recommended Sprint |
 |------|--------|-------------------|
-| | | |
+| Visibility toggle in onboarding wizard | UX polish, not blocking; manual recommends addressing visibility during onboarding | Sprint 3 |
+| Post-onboarding orientation/next-steps | UX polish, not blocking; helps reduce post-onboarding ambiguity per manual | Sprint 3 |
 
 ---
 
