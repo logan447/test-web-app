@@ -60,11 +60,9 @@ export default function HireStaffPage() {
     // Session is authenticated but data might still be loading
     if (!session) return;
 
-    // If mode is family, redirect to family homepage
-    if (!isProviderMode) {
-      router.push('/');
-      return;
-    }
+    // Note: No mode-based redirect per Manual Ch 2 (explicit routes).
+    // This is a provider-specific page, but accessible to any authenticated user.
+    // OnboardingPrompt below handles incomplete profiles with gentle nudges.
 
     // Fetch data (even if no identity - show empty states with prompt)
     checkProviderType();

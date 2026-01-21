@@ -163,7 +163,7 @@ export default function RequestDetailPage() {
         // Mark messages as read after fetching
         markMessagesAsRead();
       } else {
-        router.push("/dashboard/my-providers");
+        router.push("/provider/dashboard/my-families");
       }
     } catch (err) {
       console.error("Error fetching request:", err);
@@ -689,8 +689,8 @@ export default function RequestDetailPage() {
     return null;
   }
 
-  // Family-side view: always show provider info (isFamily = true means we're the family)
-  const isFamily = true;
+  // Provider-side view: always show family info (isFamily = false means we're the provider)
+  const isFamily = false;
   const isSender = request.sender.id === session?.user?.id;
 
   return (

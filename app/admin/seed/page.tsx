@@ -319,13 +319,28 @@ export default function SeedAdminPage() {
               <tbody>
                 <tr className="border-b">
                   <td className="py-2 px-3 font-medium">family@test.olera.com</td>
-                  <td className="py-2 px-3">Testing family/search flows</td>
+                  <td className="py-2 px-3">Testing family flows (public profile)</td>
                   <td className="py-2 px-3">✓ FamilyProfile</td>
                 </tr>
                 <tr className="border-b">
+                  <td className="py-2 px-3 font-medium">family2@test.olera.com</td>
+                  <td className="py-2 px-3">Testing private family profile</td>
+                  <td className="py-2 px-3">✓ FamilyProfile (private)</td>
+                </tr>
+                <tr className="border-b">
                   <td className="py-2 px-3 font-medium">provider@test.olera.com</td>
-                  <td className="py-2 px-3">Testing provider flows</td>
-                  <td className="py-2 px-3">✓ ProviderIdentity</td>
+                  <td className="py-2 px-3">Testing organization provider flows</td>
+                  <td className="py-2 px-3">✓ ProviderIdentity (Org)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-2 px-3 font-medium">caregiver@test.olera.com</td>
+                  <td className="py-2 px-3">Testing individual caregiver flows</td>
+                  <td className="py-2 px-3">✓ ProviderIdentity (Individual)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-2 px-3 font-medium">dual@test.olera.com</td>
+                  <td className="py-2 px-3">Mode switching without overlay</td>
+                  <td className="py-2 px-3">✓ Both profiles</td>
                 </tr>
                 <tr className="border-b">
                   <td className="py-2 px-3 font-medium">newuser@test.olera.com</td>
@@ -334,12 +349,27 @@ export default function SeedAdminPage() {
                 </tr>
                 <tr className="border-b">
                   <td className="py-2 px-3 font-medium">admin@test.olera.com</td>
-                  <td className="py-2 px-3">Testing admin features</td>
+                  <td className="py-2 px-3">Admin access to seed UI</td>
                   <td className="py-2 px-3">✗ None</td>
                 </tr>
               </tbody>
             </table>
           </div>
+
+          <h3 className="text-md font-semibold text-gray-900 mt-6 mb-3">Seeded Engagements</h3>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>• family → provider: ACCEPTED ConsultRequest (family engagement)</li>
+            <li>• family2 → caregiver: PENDING HiringRequest (family hiring caregiver)</li>
+          </ul>
+          <p className="text-xs text-gray-500 mt-2 italic">
+            Note: Provider-to-provider hiring (org → caregiver, caregiver → org) must be tested manually
+            due to schema limitations.
+          </p>
+
+          <h3 className="text-md font-semibold text-gray-900 mt-6 mb-3">Unclaimed Provider</h3>
+          <p className="text-sm text-gray-600">
+            &quot;Golden Years Residence (Unclaimed)&quot; - For testing the claiming flow
+          </p>
         </div>
       </div>
     </div>

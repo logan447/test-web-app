@@ -18,6 +18,8 @@ type HiringRequest = {
     id: string;
     name: string;
     providerType: string;
+    city?: string;
+    state?: string;
   };
   familyProfile: {
     user: {
@@ -34,16 +36,16 @@ type HiringRequest = {
 };
 
 /**
- * My Candidates - For organizations to manage hiring engagements with caregivers
+ * My Opportunities - For independent caregivers to manage job engagements
  *
- * Shows caregiver candidates that have an engagement relationship with this organization:
- * - Caregivers who applied to the organization
- * - Caregivers the organization reached out to
+ * Shows job opportunities (hiring requests) where:
+ * - Organizations reached out to the caregiver
+ * - Caregiver applied to organizations
  * - Active conversations, pending, accepted states
  *
  * This page is accessible without a complete profile (shows empty state with prompt).
  */
-export default function HiringRequestsPage() {
+export default function MyOpportunitiesPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [receivedRequests, setReceivedRequests] = useState<HiringRequest[]>([]);
@@ -108,7 +110,6 @@ export default function HiringRequestsPage() {
   };
 
   const getCombinedBadgeText = (status: string, activeTab: string) => {
-    // Simplified, user-friendly status messages for hiring/employment
     if (status === 'PENDING') {
       return activeTab === 'sent' ? 'Waiting for reply' : 'Needs your response';
     } else if (status === 'ACCEPTED') {
@@ -144,11 +145,11 @@ export default function HiringRequestsPage() {
       <MainNav />
       <Breadcrumb />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Candidates</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Opportunities</h1>
           <p className="text-lg text-gray-600">
-            Manage your hiring conversations with independent caregivers
+            Manage your job opportunities and conversations with care organizations
           </p>
         </div>
 
@@ -158,36 +159,46 @@ export default function HiringRequestsPage() {
         )}
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8">
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="flex space-x-8">
             <button
               onClick={() => setActiveTab('received')}
-              className={`${
+              className={`pb-4 border-b-2 font-medium ${
                 activeTab === 'received'
                   ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
             >
-              Interested in You ({receivedRequests.length})
+              Organizations Reaching Out
+              {receivedRequests.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-primary-100 text-primary-700">
+                  {receivedRequests.length}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setActiveTab('sent')}
-              className={`${
+              className={`pb-4 border-b-2 font-medium ${
                 activeTab === 'sent'
                   ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
             >
-              Your Outreach ({sentRequests.length})
+              Your Applications
+              {sentRequests.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+                  {sentRequests.length}
+                </span>
+              )}
             </button>
           </nav>
         </div>
 
-        {/* Requests List */}
+        {/* Content */}
         {requests.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <svg
-              className="mx-auto h-12 w-12 text-gray-300"
+              className="mx-auto h-12 w-12 text-gray-300 mb-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -196,55 +207,68 @@ export default function HiringRequestsPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={1.5}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-            <h3 className="mt-4 text-lg font-semibold text-gray-900">
-              {activeTab === 'received' ? 'No candidates yet' : 'No outreach sent yet'}
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {activeTab === 'sent'
+                ? 'No applications sent yet'
+                : 'No opportunities received yet'}
             </h3>
-            <p className="mt-2 text-gray-600 max-w-md mx-auto">
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
               {activeTab === 'received'
                 ? needsOnboarding
-                  ? 'Complete your organization profile to be discovered by caregivers looking for positions.'
-                  : 'Caregivers who are interested in working with your organization will appear here.'
-                : 'Browse available caregivers and reach out to start a conversation.'}
+                  ? 'Complete your caregiver profile to be discovered by organizations looking to hire.'
+                  : 'Organizations looking for caregivers will appear here when they reach out.'
+                : 'Browse organizations and apply to positions that interest you.'}
             </p>
-            {activeTab === 'received' && needsOnboarding ? (
+            {activeTab === 'received' && needsOnboarding && (
               <Link
                 href="/provider/onboarding"
-                className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+                className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium"
               >
                 Complete Your Profile
               </Link>
-            ) : (
+            )}
+            {activeTab === 'sent' && (
               <Link
-                href="/provider/hire-staff"
-                className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+                href="/provider/find-organizations"
+                className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium"
               >
-                Browse Caregivers
+                Browse Organizations
               </Link>
             )}
           </div>
         ) : (
           <div className="space-y-4">
             {requests.map((request) => (
-              <Link
-                key={request.id}
-                href={`/provider/my-candidates/${request.id}`}
-                className="block bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6"
-              >
+              <div key={request.id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {activeTab === 'received'
-                        ? `From: ${request.sender.name}`
-                        : `To: ${request.provider.name}`}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {request.provider.name}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {new Date(request.createdAt).toLocaleDateString()}
+                      {request.provider.providerType?.split('_').join(' ')}
+                      {request.provider.city && request.provider.state &&
+                        ` • ${request.provider.city}, ${request.provider.state}`}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {activeTab === 'sent'
+                        ? `Applied on ${new Date(request.createdAt).toLocaleDateString()}`
+                        : `Received on ${new Date(request.createdAt).toLocaleDateString()}`}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
+                    {request._count && request._count.messages > 0 && (
+                      <div className="flex items-center gap-1 bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                        <span>{request._count.messages} new</span>
+                      </div>
+                    )}
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
                       {getCombinedBadgeText(request.status, activeTab)}
                     </span>
@@ -253,24 +277,27 @@ export default function HiringRequestsPage() {
 
                 <p className="text-gray-700 mb-4 line-clamp-2">{request.message}</p>
 
-                {request._count.messages > 0 && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                      />
-                    </svg>
-                    {request._count.messages > 1 ? `${request._count.messages} unread messages` : `${request._count.messages} unread message`}
-                  </div>
-                )}
-              </Link>
+                <div className="flex gap-2">
+                  <Link
+                    href={`/provider/my-opportunities/${request.id}`}
+                    className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 text-sm font-medium"
+                  >
+                    View Details
+                  </Link>
+                  {request.status === 'PENDING' && activeTab === 'received' && (
+                    <button
+                      onClick={() => {/* Handle quick response */}}
+                      className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-sm"
+                    >
+                      Respond
+                    </button>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

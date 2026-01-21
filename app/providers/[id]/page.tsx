@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
-import AuthModal from "@/components/Auth/AuthModal";
+import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
 import PhotoGallery from "@/components/Gallery/PhotoGallery";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
 import ReviewModal from "@/components/Reviews/ReviewModal";
@@ -77,9 +77,18 @@ type Provider = {
   contactRevealed?: boolean;
 };
 
+// Type for active engagement
+type ActiveEngagement = {
+  id: string;
+  status: string;
+  createdAt: string;
+  providerName: string;
+} | null;
+
 export default function ProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,17 +96,98 @@ export default function ProviderProfilePage() {
   const [saving, setSaving] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authIntent, setAuthIntent] = useState<"family" | "provider">("family");
+  const [pendingAction, setPendingAction] = useState<PendingAction | undefined>(undefined);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactReason, setContactReason] = useState("Ask a question");
   const [claimModalOpen, setClaimModalOpen] = useState(false);
+  const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
+  const [checkingEngagement, setCheckingEngagement] = useState(false);
+  const [creatingEngagement, setCreatingEngagement] = useState(false);
 
   useEffect(() => {
     fetchProvider();
     if (session?.user?.role === "FAMILY") {
       checkIfSaved();
+      checkActiveEngagement();
     }
   }, [session]);
+
+  // Check for pending review actions after onboarding completes
+  // Note: 'contact' and 'save' actions are now handled by GlobalOnboardingOverlay
+  // which creates engagements/saves directly and redirects appropriately.
+  // This effect only handles 'review' actions which still need the modal.
+  useEffect(() => {
+    if (!session?.user || !provider) return;
+
+    // Check sessionStorage for review action
+    const storedAction = sessionStorage.getItem('pendingOnboardingAction');
+    if (!storedAction) return;
+
+    let action: PendingAction | null = null;
+    try {
+      action = JSON.parse(storedAction) as PendingAction;
+      sessionStorage.removeItem('pendingOnboardingAction');
+    } catch (e) {
+      console.error('Failed to parse pending action:', e);
+      sessionStorage.removeItem('pendingOnboardingAction');
+      return;
+    }
+
+    // Only handle review actions here
+    if (!action || action.providerId !== params.id || action.type !== 'review') return;
+
+    // Open review modal after a brief delay
+    setTimeout(() => {
+      setReviewModalOpen(true);
+    }, 300);
+  }, [session, provider, params.id]);
+
+  // Listen for onboardingComplete event for review actions only
+  // Note: This event is only dispatched for 'review' actions now
+  useEffect(() => {
+    const handleOnboardingComplete = (event: CustomEvent<PendingAction>) => {
+      const action = event.detail;
+      if (!action || action.providerId !== params.id) return;
+
+      // Clear sessionStorage since we're handling it via event
+      sessionStorage.removeItem('pendingOnboardingAction');
+
+      // Only handle review actions (contact/save are handled by GlobalOnboardingOverlay)
+      if (action.type === 'review') {
+        setReviewModalOpen(true);
+      }
+    };
+
+    window.addEventListener('onboardingComplete', handleOnboardingComplete as EventListener);
+    return () => {
+      window.removeEventListener('onboardingComplete', handleOnboardingComplete as EventListener);
+    };
+  }, [params.id]);
+
+  // Save handler specifically for post-onboarding (doesn't open auth modal)
+  const handleSaveAfterOnboarding = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/saved-providers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ providerId: params.id }),
+      });
+
+      if (response.ok) {
+        setIsSaved(true);
+        showToast.success('Provider saved');
+      } else {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to save');
+      }
+    } catch (error: any) {
+      showToast.error(error.message || 'Failed to save provider');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const fetchProvider = async () => {
     try {
@@ -129,9 +219,32 @@ export default function ProviderProfilePage() {
     }
   };
 
+  // Check if user has an active engagement with this provider
+  const checkActiveEngagement = async () => {
+    if (!params.id) return;
+
+    setCheckingEngagement(true);
+    try {
+      const response = await fetch(`/api/engagements/check?providerId=${params.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setActiveEngagement(data.activeEngagement);
+      }
+    } catch (error) {
+      console.error('Error checking engagement:', error);
+    } finally {
+      setCheckingEngagement(false);
+    }
+  };
+
   const handleSaveToggle = async () => {
     if (!session?.user) {
       setAuthIntent("family");
+      setPendingAction({
+        type: 'save',
+        providerId: params.id as string,
+        providerName: provider?.name,
+      });
       setAuthModalOpen(true);
       return;
     }
@@ -176,6 +289,11 @@ export default function ProviderProfilePage() {
   const handleWriteReview = () => {
     if (!session?.user) {
       setAuthIntent("family");
+      setPendingAction({
+        type: 'review',
+        providerId: params.id as string,
+        providerName: provider?.name,
+      });
       setAuthModalOpen(true);
       return;
     }
@@ -202,14 +320,99 @@ export default function ProviderProfilePage() {
     router.push('/dashboard/provider-profile');
   };
 
-  const handleOpenRequestForm = (reason: string) => {
+  // Profile-as-request model: handleOpenRequestForm
+  // - Active engagement exists → redirect to it
+  // - Logged in + profile complete → create engagement instantly
+  // - Logged in + profile incomplete → trigger onboarding
+  // - Logged out → show auth modal
+  const handleOpenRequestForm = async (reason: string) => {
+    // If active engagement exists, redirect to it
+    if (activeEngagement) {
+      showToast.success(`You already have an active conversation with ${provider?.name}`);
+      router.push(`/dashboard/my-providers/${activeEngagement.id}`);
+      return;
+    }
+
+    // If not logged in, show auth modal (will flow through onboarding)
     if (!session?.user) {
       setAuthIntent("family");
+      setPendingAction({
+        type: 'contact',
+        providerId: params.id as string,
+        providerName: provider?.name,
+        contactReason: reason,
+      });
       setAuthModalOpen(true);
       return;
     }
-    setContactReason(reason);
-    setContactModalOpen(true);
+
+    // User is logged in - check profile completeness
+    setCreatingEngagement(true);
+    try {
+      // Check if family profile exists and is complete
+      const profileResponse = await fetch('/api/family-profiles/me');
+
+      if (!profileResponse.ok) {
+        // No profile - trigger onboarding
+        triggerOnboardingWithAction(reason);
+        return;
+      }
+
+      const profile = await profileResponse.json();
+
+      // Check MVP fields: lovedOneName, city/state, careTypes
+      const hasName = profile.lovedOneName && profile.lovedOneName.trim().length > 0;
+      const hasLocation = (profile.city && profile.city.trim().length > 0) ||
+                         (profile.state && profile.state.trim().length > 0);
+      const hasCareTypes = profile.careTypes && profile.careTypes.length > 0;
+
+      if (!hasName || !hasLocation || !hasCareTypes) {
+        // Profile incomplete - trigger onboarding
+        triggerOnboardingWithAction(reason);
+        return;
+      }
+
+      // Profile complete - create engagement instantly
+      const response = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          providerId: params.id,
+          contactReason: reason,
+          message: null, // User can add details on engagement page
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create engagement');
+      }
+
+      const engagement = await response.json();
+
+      showToast.success(`Connected with ${provider?.name}!`);
+      router.push(`/dashboard/my-providers/${engagement.id}`);
+    } catch (error: any) {
+      console.error('Error creating engagement:', error);
+      showToast.error(error.message || 'Something went wrong');
+    } finally {
+      setCreatingEngagement(false);
+    }
+  };
+
+  // Helper to trigger onboarding with pending action
+  const triggerOnboardingWithAction = (reason: string) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('onboarding', 'true');
+    params.set('intent', 'family');
+    params.set('action', 'contact');
+    params.set('actionProviderId', provider?.id || '');
+    params.set('actionProviderName', provider?.name || '');
+    params.set('actionContactReason', reason);
+
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    router.push(newUrl);
+    router.refresh();
   };
 
   const handleContactSubmit = async (formData: ContactFormData) => {
@@ -234,10 +437,17 @@ export default function ProviderProfilePage() {
       const createdRequest = await response.json();
       setContactModalOpen(false);
 
-      // Show success message and redirect to engagement detail page (per Sprint 2 task 2.0.3)
-      showToast.success('Request sent! Redirecting to your conversation...');
+      // Show contextual success message based on the action type
+      const successMessages: Record<string, string> = {
+        'Ask a question': 'Question sent!',
+        'Request consultation': 'Consultation requested!',
+        'Request interview': 'Interview requested!',
+        'Schedule a tour': 'Tour request sent!',
+      };
+      const baseMessage = successMessages[formData.contactReason] || 'Request sent!';
+      showToast.success(`${baseMessage} Redirecting to your conversation...`);
 
-      // Redirect to the engagement detail page after a short delay for the toast to show
+      // Redirect to the engagement detail page (the specific request thread)
       setTimeout(() => {
         router.push(`/dashboard/my-providers/${createdRequest.id}`);
       }, 500);
@@ -640,6 +850,8 @@ export default function ProviderProfilePage() {
               phone={provider.phone}
               hasPricing={!!(provider.priceMin || provider.priceMax)}
               onOpenRequestForm={handleOpenRequestForm}
+              activeEngagement={activeEngagement}
+              isLoading={checkingEngagement || creatingEngagement}
             />
           </div>
         </div>
@@ -649,9 +861,13 @@ export default function ProviderProfilePage() {
       {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+        onClose={() => {
+          setAuthModalOpen(false);
+          setPendingAction(undefined);
+        }}
         defaultView="signup"
         intent={authIntent}
+        pendingAction={pendingAction}
       />
 
       {/* Review Modal */}

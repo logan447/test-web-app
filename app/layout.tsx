@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import Footer from "@/components/Navigation/Footer";
-import { OnboardingTrigger } from "@/components/Onboarding";
 
 // Font configuration per Manual Ch 4.2.1
 // Inter is specified in globals.css and tailwind.config.ts as the primary font
@@ -95,7 +94,6 @@ export default function RootLayout({
         <Providers>
           <div className="flex-1">{children}</div>
           <Footer />
-          <OnboardingTrigger />
         </Providers>
       </body>
     </html>

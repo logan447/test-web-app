@@ -8,18 +8,22 @@ import { hash } from 'bcryptjs';
  * Test account configuration
  * These are the canonical test accounts for auditing and demos
  *
- * Sprint 1 Audit Coverage:
+ * Sprint 2 Audit Coverage:
  * - family: Family with public profile (for provider browse)
  * - family2: Family with private profile (for gating test)
  * - provider: Organization provider (contact always visible)
  * - caregiver: Individual caregiver (contact gated until ACCEPTED)
- * - unclaimed: Unclaimed provider listing (for badge test)
- * - newuser: Fresh user (no profile)
+ * - dual: User with BOTH family and provider profiles (mode switching without overlay)
+ * - newuser: Fresh user (no profiles - for onboarding/empty states)
  * - admin: Admin access
+ *
+ * Additional seeded data:
+ * - Unclaimed provider listing (for claiming flow)
+ * - Engagement scenarios (PENDING, ACCEPTED, HIRING)
  */
 const TEST_ACCOUNTS = {
   domain: '@test.olera.com',
-  password: 'Test1234!',
+  password: 'test1234!',
   accounts: [
     {
       key: 'family',
@@ -55,6 +59,15 @@ const TEST_ACCOUNTS = {
       role: 'PROVIDER' as const,
       activeMode: 'PROVIDER' as const,
       createFamilyProfile: false,
+      createProviderIdentity: true,
+    },
+    {
+      key: 'dual',
+      email: 'dual@test.olera.com',
+      name: 'Test Dual Profile User',
+      role: 'FAMILY' as const,
+      activeMode: 'FAMILY' as const,
+      createFamilyProfile: true,
       createProviderIdentity: true,
     },
     {
@@ -202,9 +215,17 @@ export async function POST(req: Request) {
       if (account.createProviderIdentity) {
         // Determine provider type based on account key
         const isCaregiver = account.key === 'caregiver';
-        const providerEmail = isCaregiver
-          ? 'caregiver-listing@test.olera.com'
-          : 'provider-listing@test.olera.com';
+        const isDual = account.key === 'dual';
+
+        // Each account type gets a unique provider email
+        let providerEmail: string;
+        if (isCaregiver) {
+          providerEmail = 'caregiver-listing@test.olera.com';
+        } else if (isDual) {
+          providerEmail = 'dual-provider-listing@test.olera.com';
+        } else {
+          providerEmail = 'provider-listing@test.olera.com';
+        }
 
         let provider = await prisma.provider.findFirst({
           where: { email: providerEmail },
@@ -231,6 +252,31 @@ export async function POST(req: Request) {
                 yearsInBusiness: 8,
                 backgroundChecked: true,
                 claimed: true,
+                active: true,
+              },
+            });
+          } else if (isDual) {
+            // Create organization for dual profile user
+            provider = await prisma.provider.create({
+              data: {
+                userId: user.id,
+                name: 'Dual User Home Care Agency',
+                providerType: 'HOME_CARE',
+                description: 'A home care agency operated by a user who also has a family profile. Used for testing mode switching without onboarding overlays.',
+                email: providerEmail,
+                phone: '(555) 555-5555',
+                website: 'https://dualhomecare.test',
+                address: '456 Dual Street',
+                city: 'San Diego',
+                state: 'CA',
+                zipCode: '92103',
+                serviceRadius: 20,
+                careTypesOffered: ['PERSONAL_CARE', 'COMPANION_CARE'],
+                licensed: true,
+                licenseNumber: 'CA-HCA-99999',
+                yearsInBusiness: 5,
+                claimed: true,
+                verified: true,
                 active: true,
               },
             });
@@ -393,6 +439,11 @@ export async function POST(req: Request) {
         }
       }
     }
+
+    // Note: Provider-to-provider hiring requests (org → caregiver, caregiver → org) cannot be
+    // seeded because ConsultRequest schema requires familyProfileId. These flows must be tested
+    // manually using the seeded accounts. This is a known schema limitation that may be addressed
+    // in a future sprint.
 
     console.log(`[SEED] Test accounts seeded by ${session.user.email}`);
 

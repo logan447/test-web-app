@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState, useEffect, useCallback } from "react";
+import { Fragment, useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,14 @@ import { useRouter } from "next/navigation";
 
 export type OnboardingIntent = "family" | "provider" | null;
 export type ProviderSubtype = "organization" | "individual" | null;
+
+// Context for actions that triggered signup (for contextual handoff)
+export interface PendingActionContext {
+  type: 'save' | 'review' | 'contact';
+  providerId: string;
+  providerName?: string;
+  contactReason?: string;
+}
 
 export type WizardStep =
   | "intent" // Ask: family or provider?
@@ -54,6 +62,11 @@ interface OnboardingWizardOverlayProps {
    * Use when claiming a provider listing (always organization)
    */
   initialProviderSubtype?: ProviderSubtype;
+  /**
+   * Pending action that triggered signup (for contextual handoff).
+   * When present, wizard shows context-aware messaging.
+   */
+  pendingAction?: PendingActionContext;
   /**
    * Callback when wizard completes successfully
    */
@@ -142,16 +155,17 @@ function getStepTitle(step: WizardStep): string {
 interface StepProps {
   data: OnboardingData;
   onUpdate: (updates: Partial<OnboardingData>) => void;
-  onNext: () => void;
+  onNext: (selectedValue?: Partial<OnboardingData>) => void;
   onBack?: () => void;
   onSkip: () => void;
+  pendingAction?: PendingActionContext;
 }
 
 function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
   const handleSelect = (intent: OnboardingIntent) => {
     onUpdate({ intent });
-    // Auto-advance after selection
-    setTimeout(onNext, 150);
+    // Auto-advance after selection - pass intent directly to avoid stale closure
+    setTimeout(() => onNext({ intent }), 150);
   };
 
   return (
@@ -230,7 +244,8 @@ function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
 function ProviderSubtypeStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps) {
   const handleSelect = (subtype: ProviderSubtype) => {
     onUpdate({ providerSubtype: subtype });
-    setTimeout(onNext, 150);
+    // Auto-advance after selection - pass subtype directly to avoid stale closure
+    setTimeout(() => onNext({ providerSubtype: subtype }), 150);
   };
 
   return (
@@ -327,12 +342,14 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
     e.preventDefault();
     // Compose location for display/storage
     const familyLocation = `${localData.familyCity}, ${localData.familyState}`;
-    onUpdate({
+    const formData = {
       familyName: localData.familyName,
       familyLocation,
       familyCareType: localData.familyCareType,
-    });
-    onNext();
+    };
+    onUpdate(formData);
+    // Pass form data directly to avoid stale closure
+    onNext(formData);
   };
 
   const isValid = localData.familyName && localData.familyCity && localData.familyState && localData.familyCareType;
@@ -449,7 +466,8 @@ function ProviderOrgFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepP
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdate(localData);
-    onNext();
+    // Pass form data directly to avoid stale closure
+    onNext(localData);
   };
 
   const isValid = localData.orgName && localData.orgLocation && localData.orgProviderType;
@@ -558,7 +576,8 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdate(localData);
-    onNext();
+    // Pass form data directly to avoid stale closure
+    onNext(localData);
   };
 
   const isValid =
@@ -656,8 +675,45 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
   );
 }
 
-function CompleteStep({ data, onNext }: StepProps) {
+function CompleteStep({ data, onNext, pendingAction }: StepProps) {
+  const [countdown, setCountdown] = useState(3);
+  const hasTriggeredRef = useRef(false);
+
+  // Auto-redirect after countdown
+  useEffect(() => {
+    if (hasTriggeredRef.current) return;
+
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          if (!hasTriggeredRef.current) {
+            hasTriggeredRef.current = true;
+            onNext();
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [onNext]);
+
   const getMessage = () => {
+    // Contextual message when there's a pending action (engagement will be created)
+    if (pendingAction) {
+      if (pendingAction.type === 'contact') {
+        return `Your profile has been shared with ${pendingAction.providerName}. Redirecting to your conversation...`;
+      }
+      if (pendingAction.type === 'save') {
+        return `Saving ${pendingAction.providerName} to your list...`;
+      }
+      if (pendingAction.type === 'review') {
+        return `Opening review form for ${pendingAction.providerName}...`;
+      }
+    }
+    // Default messages with redirect indication
     if (data.intent === "family") {
       return "You're ready to start exploring care providers in your area.";
     }
@@ -665,6 +721,16 @@ function CompleteStep({ data, onNext }: StepProps) {
       return "Your organization profile is set up. Families can now find you.";
     }
     return "Your caregiver profile is set up. Families can now find you.";
+  };
+
+  const getRedirectText = () => {
+    if (pendingAction) {
+      return "Redirecting to your conversation...";
+    }
+    if (data.intent === "provider") {
+      return "Redirecting to find families...";
+    }
+    return "Redirecting...";
   };
 
   return (
@@ -677,17 +743,29 @@ function CompleteStep({ data, onNext }: StepProps) {
 
       <div>
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Welcome to Olera!
+          {pendingAction ? "You're connected!" : "Welcome to Olera!"}
         </h3>
         <p className="text-gray-600">{getMessage()}</p>
       </div>
 
+      {/* Auto-redirect indicator */}
+      <div className="flex flex-col items-center gap-2">
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+        <p className="text-sm text-gray-500">{getRedirectText()}</p>
+      </div>
+
+      {/* Skip waiting button */}
       <button
         type="button"
-        onClick={onNext}
-        className="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+        onClick={() => {
+          if (!hasTriggeredRef.current) {
+            hasTriggeredRef.current = true;
+            onNext();
+          }
+        }}
+        className="text-sm text-primary-600 hover:text-primary-700 font-medium"
       >
-        {data.intent === "family" ? "Start Exploring" : "Go to Dashboard"}
+        Continue now
       </button>
     </div>
   );
@@ -702,47 +780,52 @@ export default function OnboardingWizardOverlay({
   onClose,
   initialIntent,
   initialProviderSubtype,
+  pendingAction,
   onComplete,
 }: OnboardingWizardOverlayProps) {
   const { data: session, update } = useSession();
   const router = useRouter();
+
+  // Compute initial step based on intent/providerSubtype
+  const computeInitialStep = (intent: OnboardingIntent, subtype: ProviderSubtype): WizardStep => {
+    if (intent === "family") return "family-fields";
+    if (intent === "provider" && subtype === "organization") return "provider-org-fields";
+    if (intent === "provider" && subtype === "individual") return "provider-individual-fields";
+    if (intent === "provider") return "provider-subtype";
+    return "intent";
+  };
 
   const [data, setData] = useState<OnboardingData>({
     intent: initialIntent || null,
     providerSubtype: initialProviderSubtype || null,
   });
 
-  const [currentStep, setCurrentStep] = useState<WizardStep>(() => {
-    if (initialIntent === "family") return "family-fields";
-    if (initialIntent === "provider" && initialProviderSubtype === "organization")
-      return "provider-org-fields";
-    if (initialIntent === "provider" && initialProviderSubtype === "individual")
-      return "provider-individual-fields";
-    if (initialIntent === "provider") return "provider-subtype";
-    return "intent";
-  });
+  const [currentStep, setCurrentStep] = useState<WizardStep>(() =>
+    computeInitialStep(initialIntent || null, initialProviderSubtype || null)
+  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset state when overlay opens
+  // Track whether we've initialized for THIS open session
+  // This prevents the step from resetting mid-flow when isOpen toggles due to session updates
+  const hasInitializedRef = useRef(false);
+
+  // Initialize state ONCE when wizard opens, not on every dependency change
+  // This is critical: the session update during provider-org-fields step can cause
+  // useSession to re-render, which might toggle isOpen, which would previously
+  // reset the wizard back to step 1. Now we only initialize once per open.
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !hasInitializedRef.current) {
+      // First time opening - initialize state
       setData({
         intent: initialIntent || null,
         providerSubtype: initialProviderSubtype || null,
       });
-
-      if (initialIntent === "family") {
-        setCurrentStep("family-fields");
-      } else if (initialIntent === "provider" && initialProviderSubtype === "organization") {
-        setCurrentStep("provider-org-fields");
-      } else if (initialIntent === "provider" && initialProviderSubtype === "individual") {
-        setCurrentStep("provider-individual-fields");
-      } else if (initialIntent === "provider") {
-        setCurrentStep("provider-subtype");
-      } else {
-        setCurrentStep("intent");
-      }
+      setCurrentStep(computeInitialStep(initialIntent || null, initialProviderSubtype || null));
+      hasInitializedRef.current = true;
+    } else if (!isOpen && hasInitializedRef.current) {
+      // Wizard closed - reset the flag so next open will reinitialize
+      hasInitializedRef.current = false;
     }
   }, [isOpen, initialIntent, initialProviderSubtype]);
 
@@ -750,20 +833,24 @@ export default function OnboardingWizardOverlay({
     setData((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const handleNext = useCallback(async () => {
+  const handleNext = useCallback(async (selectedValue?: Partial<OnboardingData>) => {
     switch (currentStep) {
       case "intent":
-        if (data.intent === "family") {
+        // Use passed intent to avoid stale closure, fallback to state
+        const selectedIntent = selectedValue?.intent ?? data.intent;
+        if (selectedIntent === "family") {
           setCurrentStep("family-fields");
-        } else if (data.intent === "provider") {
+        } else if (selectedIntent === "provider") {
           setCurrentStep("provider-subtype");
         }
         break;
 
       case "provider-subtype":
-        if (data.providerSubtype === "organization") {
+        // Use passed subtype to avoid stale closure, fallback to state
+        const selectedSubtype = selectedValue?.providerSubtype ?? data.providerSubtype;
+        if (selectedSubtype === "organization") {
           setCurrentStep("provider-org-fields");
-        } else if (data.providerSubtype === "individual") {
+        } else if (selectedSubtype === "individual") {
           setCurrentStep("provider-individual-fields");
         }
         break;
@@ -772,8 +859,13 @@ export default function OnboardingWizardOverlay({
         // Save family profile data to FamilyProfile via API
         setIsSubmitting(true);
         try {
+          // Use passed data to avoid stale closure, fallback to state
+          const familyName = selectedValue?.familyName ?? data.familyName;
+          const familyLocation = selectedValue?.familyLocation ?? data.familyLocation;
+          const familyCareType = selectedValue?.familyCareType ?? data.familyCareType;
+
           // Parse location into city and state
-          const [city, state] = (data.familyLocation || "").split(",").map(s => s.trim());
+          const [city, state] = (familyLocation || "").split(",").map(s => s.trim());
 
           // First check if profile exists
           const checkResponse = await fetch("/api/family-profiles/me");
@@ -781,9 +873,9 @@ export default function OnboardingWizardOverlay({
 
           // Prepare profile data
           const profileData = {
-            lovedOneName: data.familyName,
-            careTypes: data.familyCareType ? [data.familyCareType] : [],
-            location: data.familyLocation || "",
+            lovedOneName: familyName,
+            careTypes: familyCareType ? [familyCareType] : [],
+            location: familyLocation || "",
             city: city || "",
             state: state || "",
             zipCode: "", // Can be filled in later
@@ -826,30 +918,44 @@ export default function OnboardingWizardOverlay({
           });
 
           if (!response.ok) {
-            throw new Error("Failed to create provider identity");
+            // Check if identity already exists (400 error)
+            // This can happen if user retries or there was a partial completion
+            const errorData = await response.json().catch(() => ({}));
+            if (response.status === 400 && errorData.error?.includes("already exists")) {
+              // Identity exists - that's fine, continue to complete
+              console.log("Provider identity already exists, continuing to complete");
+            } else {
+              throw new Error(errorData.error || "Failed to create provider identity");
+            }
           }
 
-          // Update session to provider mode
+          // Update session to provider mode (safe to call even if already in provider mode)
           await update({ activeMode: "PROVIDER" });
 
           setCurrentStep("complete");
         } catch (error) {
           console.error("Error creating provider identity:", error);
+          // Still advance to complete on error - user can fix profile later
+          // This prevents getting stuck in a loop
+          setCurrentStep("complete");
         } finally {
           setIsSubmitting(false);
         }
         break;
 
       case "complete":
-        // Close and redirect
+        // Mark onboarding complete in database (single source of truth)
+        try {
+          await fetch("/api/user/onboarding-complete", { method: "POST" });
+        } catch (error) {
+          console.error("Failed to mark onboarding complete:", error);
+          // Continue anyway - don't block user from using the app
+        }
+
+        // Notify parent and close
+        // Parent page handles URL param removal and any navigation
         onComplete?.(data);
         onClose();
-
-        if (data.intent === "family") {
-          router.push("/");
-        } else {
-          window.location.href = "/provider/find-families";
-        }
         break;
     }
   }, [currentStep, data, onClose, onComplete, router, update]);
@@ -883,6 +989,7 @@ export default function OnboardingWizardOverlay({
     onNext: handleNext,
     onBack: currentStep !== "intent" && !initialIntent ? handleBack : undefined,
     onSkip: handleSkip,
+    pendingAction,
   };
 
   const renderStep = () => {
@@ -906,7 +1013,9 @@ export default function OnboardingWizardOverlay({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      {/* onClose={() => {}} prevents backdrop click and Escape from closing
+          User can still close via X button or Skip - those call onClose explicitly */}
+      <Dialog as="div" className="relative z-50" onClose={() => {}}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -916,7 +1025,7 @@ export default function OnboardingWizardOverlay({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="fixed inset-0 bg-black bg-opacity-50" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -941,6 +1050,23 @@ export default function OnboardingWizardOverlay({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
+
+                {/* Contextual Banner - shows when user has a pending action */}
+                {pendingAction && currentStep !== "complete" && (
+                  <div className="bg-primary-50 border border-primary-200 rounded-lg px-4 py-3 mb-4">
+                    <p className="text-sm text-primary-800 text-center">
+                      {pendingAction.type === 'contact' && (
+                        <>Complete your profile to {pendingAction.contactReason?.toLowerCase() || 'contact'} <strong>{pendingAction.providerName}</strong></>
+                      )}
+                      {pendingAction.type === 'save' && (
+                        <>Complete your profile to save <strong>{pendingAction.providerName}</strong></>
+                      )}
+                      {pendingAction.type === 'review' && (
+                        <>Complete your profile to review <strong>{pendingAction.providerName}</strong></>
+                      )}
+                    </p>
+                  </div>
+                )}
 
                 {/* Step Indicator */}
                 {currentStep !== "complete" && (

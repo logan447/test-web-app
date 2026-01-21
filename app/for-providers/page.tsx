@@ -1,22 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import AuthModal from "@/components/Auth/AuthModal";
 
-export default function ForProvidersPage() {
-  const { data: session } = useSession();
+function ForProvidersContent() {
+  const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
+  const [hasRedirected, setHasRedirected] = useState(false);
 
-  // If already logged in, redirect to provider mode
-  if (session) {
-    router.push("/provider/find-families");
-    return null;
+  // Check if we're in onboarding flow - use both hook and direct URL check
+  // to handle any edge cases during navigation
+  const isOnboardingFromHook = searchParams.get('onboarding') === 'true';
+  const isOnboardingFromUrl = typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('onboarding') === 'true';
+  const isOnboarding = isOnboardingFromHook || isOnboardingFromUrl;
+
+  // If already logged in and NOT in onboarding, redirect to provider mode
+  // CRITICAL: Only redirect when session is DEFINITIVELY authenticated (not loading)
+  // This prevents race conditions where session updates before URL params
+  useEffect(() => {
+    // Never redirect if onboarding param exists anywhere in URL
+    if (isOnboarding) return;
+
+    // Wait for session to be definitively loaded
+    if (status !== 'authenticated') return;
+
+    // Don't double-redirect
+    if (hasRedirected) return;
+
+    // Small delay for defense-in-depth against URL propagation timing
+    const timer = setTimeout(() => {
+      if (session && !hasRedirected) {
+        setHasRedirected(true);
+        router.push("/provider/find-families");
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [status, session, isOnboarding, hasRedirected, router]);
+
+  // Show loading state while redirecting
+  if (session && !isOnboarding && hasRedirected) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to your dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -373,5 +412,18 @@ export default function ForProvidersPage() {
         intent="provider"
       />
     </div>
+  );
+}
+
+// Wrap in Suspense for useSearchParams() compatibility with static generation
+export default function ForProvidersPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    }>
+      <ForProvidersContent />
+    </Suspense>
   );
 }

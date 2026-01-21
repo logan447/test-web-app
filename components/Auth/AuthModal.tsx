@@ -2,26 +2,42 @@
 
 import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
+
+// Context for actions that triggered the signup (for contextual handoff)
+export interface PendingAction {
+  type: 'save' | 'review' | 'contact';
+  providerId: string;
+  providerName?: string;
+  contactReason?: string;
+}
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultView?: "login" | "signup";
   intent?: "provider" | "family"; // For provider-targeted signup flows
+  pendingAction?: PendingAction; // Action that triggered signup (for contextual handoff)
 }
 
-export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent }: AuthModalProps) {
+/**
+ * AuthModal - Handles login and signup.
+ *
+ * After signup, redirects to destination page with ?onboarding=true param.
+ * GlobalOnboardingOverlay (in Providers) reads this param and shows the overlay.
+ * This works on ANY page, independent of page-level state.
+ */
+export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent, pendingAction }: AuthModalProps) {
   const router = useRouter();
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   // All users default to FAMILY role on signup
   const role = "FAMILY";
 
-  // Sync view state when modal opens or defaultView changes
+  // Sync view state when modal opens
   useEffect(() => {
     if (isOpen) {
       setView(defaultView);
@@ -51,20 +67,16 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Fetch session to get activeMode from database (Manual Ch 1.2)
-      // Mode was restored from DB during authorize callback
-      const session = await getSession();
-      const isProviderMode = session?.user?.activeMode === "PROVIDER";
-
-      // Close modal and redirect based on activeMode (database is source of truth)
-      // Manual Ch 2.2: FAMILY mode → "/" (Find Providers), PROVIDER mode → "/provider/find-families"
-      // Use window.location.href for full page reload to avoid white-screen rendering bug
+      // Close modal and redirect based on intent
+      // For login, don't show onboarding (they've already completed it or can do it later)
       onClose();
-      if (isProviderMode) {
-        window.location.href = "/provider/find-families";
-      } else {
-        window.location.href = "/";
-      }
+
+      // Use client-side navigation to avoid full page reload
+      const destination = intent === "provider" ? "/provider/find-families" : "/";
+      setTimeout(() => {
+        router.push(destination);
+        router.refresh(); // Refresh server components to pick up new session
+      }, 50);
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
@@ -115,18 +127,42 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Close modal and trigger onboarding wizard (per Manual Ch 3)
-      // The overlay will appear on the destination page
-      onClose();
-      if (result.activeMode === "PROVIDER") {
-        // Provider intent: trigger wizard with provider intent, redirect to provider mode landing
-        triggerOnboardingAfterSignup("provider");
-        window.location.href = "/provider/find-families";
-      } else {
-        // Family intent: trigger wizard with family intent, skip to family fields
-        triggerOnboardingAfterSignup("family");
-        window.location.href = "/";
+      // Build search params for onboarding
+      // GlobalOnboardingOverlay reads these and shows the overlay
+      const params = new URLSearchParams();
+      params.set('onboarding', 'true');
+
+      // Set intent param so wizard knows which flow to show
+      if (intent === "provider") {
+        params.set('intent', 'provider');
+      } else if (intent === "family") {
+        params.set('intent', 'family');
       }
+      // If intent is undefined (home page), omit param so wizard shows intent question
+
+      // Include pending action context for contextual handoff after onboarding
+      if (pendingAction) {
+        params.set('action', pendingAction.type);
+        params.set('actionProviderId', pendingAction.providerId);
+        if (pendingAction.providerName) {
+          params.set('actionProviderName', pendingAction.providerName);
+        }
+        if (pendingAction.contactReason) {
+          params.set('actionContactReason', pendingAction.contactReason);
+        }
+      }
+
+      // CRITICAL: Use window.location.href for synchronous navigation
+      // This eliminates race conditions between session update and URL params.
+      // With router.push, the session hook can update before URL params propagate,
+      // causing redirect guards to fire prematurely. Full page load ensures:
+      // 1. URL has params BEFORE any React components render
+      // 2. Session is re-read fresh from cookie
+      // 3. No race between useSession() and useSearchParams()
+      const newPath = `${window.location.pathname}?${params.toString()}`;
+      onClose();
+      window.location.href = newPath;
+
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);

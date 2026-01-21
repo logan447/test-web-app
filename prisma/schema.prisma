@@ -137,6 +137,9 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Onboarding status (single source of truth for wizard completion)
+  onboardingCompletedAt DateTime? // null = not completed, timestamp when wizard finished
+
   // Real-time presence
   lastSeen DateTime? // Last activity timestamp for online/offline status
 
