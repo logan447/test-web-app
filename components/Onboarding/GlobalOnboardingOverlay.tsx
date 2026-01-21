@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import OnboardingWizardOverlay from './OnboardingWizardOverlay';
 import type { OnboardingIntent, PendingActionContext } from './OnboardingWizardOverlay';
+import { showToast } from '@/lib/toast';
 
 /**
  * GlobalOnboardingOverlay - URL-triggered onboarding that works on ANY page.
@@ -13,9 +14,14 @@ import type { OnboardingIntent, PendingActionContext } from './OnboardingWizardO
  * It reads ?onboarding=true from the URL and shows the wizard overlay.
  *
  * After completion:
- * - Marks onboarding complete in database
- * - Removes ?onboarding param from URL
- * - User sees the page they were already on
+ * - For provider intent: redirects to /provider/find-families
+ * - For family intent with pending action: creates engagement and redirects
+ * - Otherwise: cleans up URL params
+ *
+ * Profile-as-Request Model:
+ * When a user completes onboarding with a pending action (contact/consult/tour),
+ * we automatically create an engagement by sharing their profile with the provider.
+ * No separate contact form is needed.
  *
  * Usage: Add to Providers.tsx (renders on all pages)
  */
@@ -32,6 +38,7 @@ export default function GlobalOnboardingOverlay() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [intent, setIntent] = useState<OnboardingIntent>(null);
   const [pendingAction, setPendingAction] = useState<PendingActionContext | undefined>(undefined);
+  const [isCreatingEngagement, setIsCreatingEngagement] = useState(false);
 
   // Check URL params for onboarding trigger
   useEffect(() => {
@@ -78,40 +85,82 @@ export default function GlobalOnboardingOverlay() {
   }, [searchParams, status]);
 
   // Handle onboarding completion
-  const handleComplete = () => {
+  const handleComplete = async () => {
     setShowOnboarding(false);
 
     // Provider intent: redirect to provider home base (find-families)
-    // Session is already refreshed after signup, so just navigate
     if (intent === 'provider') {
       router.push('/provider/find-families');
       return;
     }
 
-    // Family intent with pending action: trigger action execution seamlessly
-    // Option B: No page reload - dispatch event so page can open modal immediately
-    if (pendingAction) {
-      // Store action in sessionStorage as backup (in case event is missed)
+    // Family intent with pending action: create engagement (profile-as-request model)
+    // The profile itself becomes the request - no separate form needed
+    if (pendingAction && pendingAction.type === 'contact') {
+      setIsCreatingEngagement(true);
+
+      try {
+        // Create engagement by sharing profile with provider
+        const response = await fetch('/api/requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            providerId: pendingAction.providerId,
+            contactReason: pendingAction.contactReason || 'Request consultation',
+            // Message is optional - user can add details on engagement page
+            message: null,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to create engagement');
+        }
+
+        const engagement = await response.json();
+
+        // Clean up URL params
+        cleanupUrlParams();
+
+        // Show success and redirect to engagement page
+        showToast.success(`Connected with ${pendingAction.providerName}!`);
+        router.push(`/dashboard/my-providers/${engagement.id}`);
+        return;
+      } catch (error) {
+        console.error('Failed to create engagement:', error);
+        showToast.error('Something went wrong. Please try again.');
+
+        // Clean up URL and stay on page - user can retry via CTA
+        cleanupUrlParams();
+        return;
+      } finally {
+        setIsCreatingEngagement(false);
+      }
+    }
+
+    // Handle save action (no engagement needed)
+    if (pendingAction && pendingAction.type === 'save') {
+      try {
+        await fetch('/api/saved-providers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ providerId: pendingAction.providerId }),
+        });
+        showToast.success(`Saved ${pendingAction.providerName}`);
+      } catch (error) {
+        console.error('Failed to save provider:', error);
+      }
+      cleanupUrlParams();
+      return;
+    }
+
+    // Handle review action - still needs the review modal (different model)
+    if (pendingAction && pendingAction.type === 'review') {
+      // Store in sessionStorage so provider page can open review modal
       sessionStorage.setItem('pendingOnboardingAction', JSON.stringify(pendingAction));
+      cleanupUrlParams();
 
-      // Clean up URL params
-      const newParams = new URLSearchParams(searchParams.toString());
-      newParams.delete('onboarding');
-      newParams.delete('intent');
-      newParams.delete('action');
-      newParams.delete('actionProviderId');
-      newParams.delete('actionProviderName');
-      newParams.delete('actionContactReason');
-
-      const newUrl = newParams.toString()
-        ? `${pathname}?${newParams.toString()}`
-        : pathname;
-
-      // Use router.replace (no reload) + dispatch custom event for seamless transition
-      router.replace(newUrl, { scroll: false });
-
-      // Dispatch custom event so provider page can open contact form immediately
-      // Wait for overlay close animation (200ms) + buffer before opening next modal
+      // Dispatch event for provider page to open review modal
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('onboardingComplete', {
           detail: pendingAction
@@ -120,7 +169,12 @@ export default function GlobalOnboardingOverlay() {
       return;
     }
 
-    // Default: just clean up all params
+    // Default: just clean up params
+    cleanupUrlParams();
+  };
+
+  // Helper to clean up URL params
+  const cleanupUrlParams = () => {
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.delete('onboarding');
     newParams.delete('intent');

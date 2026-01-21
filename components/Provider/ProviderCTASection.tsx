@@ -1,8 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ProviderType } from "@prisma/client";
 import { getProviderCTAs } from "@/lib/providerUtils";
+
+// Type for active engagement
+type ActiveEngagement = {
+  id: string;
+  status: string;
+  createdAt: string;
+  providerName: string;
+} | null;
 
 interface ProviderCTASectionProps {
   providerId: string;
@@ -11,6 +20,8 @@ interface ProviderCTASectionProps {
   phone: string | null;
   hasPricing: boolean;
   onOpenRequestForm: (reason: string) => void;
+  activeEngagement?: ActiveEngagement;
+  isLoading?: boolean;
 }
 
 export default function ProviderCTASection({
@@ -20,7 +31,10 @@ export default function ProviderCTASection({
   phone,
   hasPricing,
   onOpenRequestForm,
+  activeEngagement,
+  isLoading = false,
 }: ProviderCTASectionProps) {
+  const router = useRouter();
   const [isSticky, setIsSticky] = useState(false);
   const ctas = getProviderCTAs(providerType);
 
@@ -70,31 +84,72 @@ export default function ProviderCTASection({
     }
   };
 
+  // Render active engagement state
+  const renderActiveEngagementState = () => (
+    <div className="text-center">
+      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+        <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        You're Connected!
+      </h3>
+      <p className="text-sm text-gray-600 mb-4">
+        You have an active conversation with {providerName}
+      </p>
+      <button
+        onClick={() => router.push(`/dashboard/my-providers/${activeEngagement?.id}`)}
+        className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+      >
+        <div className="flex items-center justify-center gap-2">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          <span>Go to Conversation</span>
+        </div>
+      </button>
+    </div>
+  );
+
+  // Render loading state
+  const renderLoadingState = () => (
+    <div className="flex items-center justify-center py-6">
+      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+    </div>
+  );
+
   return (
     <>
       {/* Desktop CTA Section - Always visible */}
       <div className="hidden lg:block bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Ready to Learn More?
-        </h3>
+        {isLoading ? (
+          renderLoadingState()
+        ) : activeEngagement ? (
+          renderActiveEngagementState()
+        ) : (
+          <>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Ready to Learn More?
+            </h3>
 
-        {/* Primary CTA - Context-aware */}
-        <button
-          onClick={() => onOpenRequestForm(ctas.primary)}
-          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors mb-3"
-        >
-          <div className="flex items-center justify-center gap-2">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            {/* Primary CTA - Context-aware */}
+            <button
+              onClick={() => onOpenRequestForm(ctas.primary)}
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors mb-3"
             >
-              {getPrimaryIcon()}
-            </svg>
-            <span>{ctas.primary}</span>
-          </div>
-        </button>
+              <div className="flex items-center justify-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  {getPrimaryIcon()}
+                </svg>
+                <span>{ctas.primary}</span>
+              </div>
+            </button>
 
         {/* Secondary CTA - Send Request */}
         <button
@@ -167,13 +222,28 @@ export default function ProviderCTASection({
           </a>
         )}
 
-        <p className="text-xs text-gray-500 text-center mt-4">
-          Response time: Usually within 24 hours
-        </p>
+            <p className="text-xs text-gray-500 text-center mt-4">
+              Response time: Usually within 24 hours
+            </p>
+          </>
+        )}
       </div>
 
       {/* Mobile Sticky CTA Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-4 z-50">
+        {activeEngagement ? (
+          <button
+            onClick={() => router.push(`/dashboard/my-providers/${activeEngagement.id}`)}
+            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+          >
+            <div className="flex items-center justify-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              <span>Go to Conversation</span>
+            </div>
+          </button>
+        ) : (
         <div className="flex gap-2">
           {/* Primary - Context-aware */}
           <button
@@ -241,6 +311,7 @@ export default function ProviderCTASection({
             </div>
           </button>
         </div>
+        )}
       </div>
 
       {/* Mobile spacer to prevent content from being hidden behind sticky bar */}

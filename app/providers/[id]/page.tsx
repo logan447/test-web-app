@@ -77,6 +77,14 @@ type Provider = {
   contactRevealed?: boolean;
 };
 
+// Type for active engagement
+type ActiveEngagement = {
+  id: string;
+  status: string;
+  createdAt: string;
+  providerName: string;
+} | null;
+
 export default function ProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
@@ -93,77 +101,50 @@ export default function ProviderProfilePage() {
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactReason, setContactReason] = useState("Ask a question");
   const [claimModalOpen, setClaimModalOpen] = useState(false);
+  const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
+  const [checkingEngagement, setCheckingEngagement] = useState(false);
+  const [creatingEngagement, setCreatingEngagement] = useState(false);
 
   useEffect(() => {
     fetchProvider();
     if (session?.user?.role === "FAMILY") {
       checkIfSaved();
+      checkActiveEngagement();
     }
   }, [session]);
 
-  // Check for pending actions after onboarding completes
-  // Actions can come from URL params (preferred) or sessionStorage (fallback)
+  // Check for pending review actions after onboarding completes
+  // Note: 'contact' and 'save' actions are now handled by GlobalOnboardingOverlay
+  // which creates engagements/saves directly and redirects appropriately.
+  // This effect only handles 'review' actions which still need the modal.
   useEffect(() => {
     if (!session?.user || !provider) return;
 
-    // First check URL params for action (set by GlobalOnboardingOverlay after completion)
-    const actionType = searchParams.get('action');
-    const actionProviderId = searchParams.get('actionProviderId');
+    // Check sessionStorage for review action
+    const storedAction = sessionStorage.getItem('pendingOnboardingAction');
+    if (!storedAction) return;
 
     let action: PendingAction | null = null;
-
-    if (actionType && actionProviderId) {
-      // Action from URL params
-      action = {
-        type: actionType as 'save' | 'review' | 'contact',
-        providerId: actionProviderId,
-        providerName: searchParams.get('actionProviderName') || undefined,
-        contactReason: searchParams.get('actionContactReason') || undefined,
-      };
-
-      // Clean up URL params immediately
-      const newParams = new URLSearchParams(searchParams.toString());
-      newParams.delete('action');
-      newParams.delete('actionProviderId');
-      newParams.delete('actionProviderName');
-      newParams.delete('actionContactReason');
-      const newUrl = newParams.toString()
-        ? `${window.location.pathname}?${newParams.toString()}`
-        : window.location.pathname;
-      router.replace(newUrl, { scroll: false });
-    } else {
-      // Fallback: check sessionStorage
-      const storedAction = sessionStorage.getItem('pendingOnboardingAction');
-      if (storedAction) {
-        try {
-          action = JSON.parse(storedAction) as PendingAction;
-          sessionStorage.removeItem('pendingOnboardingAction');
-        } catch (e) {
-          console.error('Failed to parse pending action:', e);
-          sessionStorage.removeItem('pendingOnboardingAction');
-          return;
-        }
-      }
+    try {
+      action = JSON.parse(storedAction) as PendingAction;
+      sessionStorage.removeItem('pendingOnboardingAction');
+    } catch (e) {
+      console.error('Failed to parse pending action:', e);
+      sessionStorage.removeItem('pendingOnboardingAction');
+      return;
     }
 
-    // Execute the action if found and for this provider
-    if (!action || action.providerId !== params.id) return;
+    // Only handle review actions here
+    if (!action || action.providerId !== params.id || action.type !== 'review') return;
 
-    // Execute after a brief delay to let the page settle
+    // Open review modal after a brief delay
     setTimeout(() => {
-      if (action!.type === 'save') {
-        handleSaveAfterOnboarding();
-      } else if (action!.type === 'review') {
-        setReviewModalOpen(true);
-      } else if (action!.type === 'contact') {
-        setContactReason(action!.contactReason || 'Ask a question');
-        setContactModalOpen(true);
-      }
+      setReviewModalOpen(true);
     }, 300);
-  }, [session, provider, params.id, searchParams, router]);
+  }, [session, provider, params.id]);
 
-  // Listen for onboardingComplete event for seamless transition (Option B)
-  // This allows opening the contact modal immediately after onboarding without page reload
+  // Listen for onboardingComplete event for review actions only
+  // Note: This event is only dispatched for 'review' actions now
   useEffect(() => {
     const handleOnboardingComplete = (event: CustomEvent<PendingAction>) => {
       const action = event.detail;
@@ -172,14 +153,9 @@ export default function ProviderProfilePage() {
       // Clear sessionStorage since we're handling it via event
       sessionStorage.removeItem('pendingOnboardingAction');
 
-      // Execute the action immediately
-      if (action.type === 'save') {
-        handleSaveAfterOnboarding();
-      } else if (action.type === 'review') {
+      // Only handle review actions (contact/save are handled by GlobalOnboardingOverlay)
+      if (action.type === 'review') {
         setReviewModalOpen(true);
-      } else if (action.type === 'contact') {
-        setContactReason(action.contactReason || 'Ask a question');
-        setContactModalOpen(true);
       }
     };
 
@@ -240,6 +216,24 @@ export default function ProviderProfilePage() {
       }
     } catch (error) {
       console.error('Error checking saved status:', error);
+    }
+  };
+
+  // Check if user has an active engagement with this provider
+  const checkActiveEngagement = async () => {
+    if (!params.id) return;
+
+    setCheckingEngagement(true);
+    try {
+      const response = await fetch(`/api/engagements/check?providerId=${params.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setActiveEngagement(data.activeEngagement);
+      }
+    } catch (error) {
+      console.error('Error checking engagement:', error);
+    } finally {
+      setCheckingEngagement(false);
     }
   };
 
@@ -326,7 +320,20 @@ export default function ProviderProfilePage() {
     router.push('/dashboard/provider-profile');
   };
 
-  const handleOpenRequestForm = (reason: string) => {
+  // Profile-as-request model: handleOpenRequestForm
+  // - Active engagement exists → redirect to it
+  // - Logged in + profile complete → create engagement instantly
+  // - Logged in + profile incomplete → trigger onboarding
+  // - Logged out → show auth modal
+  const handleOpenRequestForm = async (reason: string) => {
+    // If active engagement exists, redirect to it
+    if (activeEngagement) {
+      showToast.info(`You already have an active conversation with ${provider?.name}`);
+      router.push(`/dashboard/my-providers/${activeEngagement.id}`);
+      return;
+    }
+
+    // If not logged in, show auth modal (will flow through onboarding)
     if (!session?.user) {
       setAuthIntent("family");
       setPendingAction({
@@ -338,8 +345,74 @@ export default function ProviderProfilePage() {
       setAuthModalOpen(true);
       return;
     }
-    setContactReason(reason);
-    setContactModalOpen(true);
+
+    // User is logged in - check profile completeness
+    setCreatingEngagement(true);
+    try {
+      // Check if family profile exists and is complete
+      const profileResponse = await fetch('/api/family-profile');
+
+      if (!profileResponse.ok) {
+        // No profile - trigger onboarding
+        triggerOnboardingWithAction(reason);
+        return;
+      }
+
+      const profile = await profileResponse.json();
+
+      // Check MVP fields: lovedOneName, city/state, careTypes
+      const hasName = profile.lovedOneName && profile.lovedOneName.trim().length > 0;
+      const hasLocation = (profile.city && profile.city.trim().length > 0) ||
+                         (profile.state && profile.state.trim().length > 0);
+      const hasCareTypes = profile.careTypes && profile.careTypes.length > 0;
+
+      if (!hasName || !hasLocation || !hasCareTypes) {
+        // Profile incomplete - trigger onboarding
+        triggerOnboardingWithAction(reason);
+        return;
+      }
+
+      // Profile complete - create engagement instantly
+      const response = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          providerId: params.id,
+          contactReason: reason,
+          message: null, // User can add details on engagement page
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create engagement');
+      }
+
+      const engagement = await response.json();
+
+      showToast.success(`Connected with ${provider?.name}!`);
+      router.push(`/dashboard/my-providers/${engagement.id}`);
+    } catch (error: any) {
+      console.error('Error creating engagement:', error);
+      showToast.error(error.message || 'Something went wrong');
+    } finally {
+      setCreatingEngagement(false);
+    }
+  };
+
+  // Helper to trigger onboarding with pending action
+  const triggerOnboardingWithAction = (reason: string) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('onboarding', 'true');
+    params.set('intent', 'family');
+    params.set('action', 'contact');
+    params.set('actionProviderId', provider?.id || '');
+    params.set('actionProviderName', provider?.name || '');
+    params.set('actionContactReason', reason);
+
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    router.push(newUrl);
+    router.refresh();
   };
 
   const handleContactSubmit = async (formData: ContactFormData) => {
@@ -777,6 +850,8 @@ export default function ProviderProfilePage() {
               phone={provider.phone}
               hasPricing={!!(provider.priceMin || provider.priceMax)}
               onOpenRequestForm={handleOpenRequestForm}
+              activeEngagement={activeEngagement}
+              isLoading={checkingEngagement || creatingEngagement}
             />
           </div>
         </div>

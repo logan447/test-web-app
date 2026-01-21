@@ -676,20 +676,44 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
 }
 
 function CompleteStep({ data, onNext, pendingAction }: StepProps) {
+  const [countdown, setCountdown] = useState(3);
+  const hasTriggeredRef = useRef(false);
+
+  // Auto-redirect after countdown
+  useEffect(() => {
+    if (hasTriggeredRef.current) return;
+
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          if (!hasTriggeredRef.current) {
+            hasTriggeredRef.current = true;
+            onNext();
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [onNext]);
+
   const getMessage = () => {
-    // Contextual message when there's a pending action
+    // Contextual message when there's a pending action (engagement will be created)
     if (pendingAction) {
       if (pendingAction.type === 'contact') {
-        return `You're all set! Click below to continue with your request to ${pendingAction.providerName}.`;
+        return `Your profile has been shared with ${pendingAction.providerName}. Redirecting to your conversation...`;
       }
       if (pendingAction.type === 'save') {
-        return `You're all set! Click below to save ${pendingAction.providerName} to your list.`;
+        return `Saving ${pendingAction.providerName} to your list...`;
       }
       if (pendingAction.type === 'review') {
-        return `You're all set! Click below to write your review for ${pendingAction.providerName}.`;
+        return `Opening review form for ${pendingAction.providerName}...`;
       }
     }
-    // Default messages
+    // Default messages with redirect indication
     if (data.intent === "family") {
       return "You're ready to start exploring care providers in your area.";
     }
@@ -699,19 +723,14 @@ function CompleteStep({ data, onNext, pendingAction }: StepProps) {
     return "Your caregiver profile is set up. Families can now find you.";
   };
 
-  const getButtonText = () => {
+  const getRedirectText = () => {
     if (pendingAction) {
-      if (pendingAction.type === 'contact') {
-        return `Continue to ${pendingAction.contactReason || 'Contact'}`;
-      }
-      if (pendingAction.type === 'save') {
-        return 'Save Provider';
-      }
-      if (pendingAction.type === 'review') {
-        return 'Write Review';
-      }
+      return "Redirecting to your conversation...";
     }
-    return data.intent === "family" ? "Start Exploring" : "Start Finding Families";
+    if (data.intent === "provider") {
+      return "Redirecting to find families...";
+    }
+    return "Redirecting...";
   };
 
   return (
@@ -724,17 +743,29 @@ function CompleteStep({ data, onNext, pendingAction }: StepProps) {
 
       <div>
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Welcome to Olera!
+          {pendingAction ? "You're connected!" : "Welcome to Olera!"}
         </h3>
         <p className="text-gray-600">{getMessage()}</p>
       </div>
 
+      {/* Auto-redirect indicator */}
+      <div className="flex flex-col items-center gap-2">
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+        <p className="text-sm text-gray-500">{getRedirectText()}</p>
+      </div>
+
+      {/* Skip waiting button */}
       <button
         type="button"
-        onClick={() => onNext()}
-        className="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+        onClick={() => {
+          if (!hasTriggeredRef.current) {
+            hasTriggeredRef.current = true;
+            onNext();
+          }
+        }}
+        className="text-sm text-primary-600 hover:text-primary-700 font-medium"
       >
-        {getButtonText()}
+        Continue now
       </button>
     </div>
   );
