@@ -379,7 +379,7 @@ export default function ProviderProfilePage() {
         body: JSON.stringify({
           providerId: params.id,
           contactReason: reason,
-          message: null, // User can add details on engagement page
+          message: '', // Message is required in schema - user can add details on engagement page
         }),
       });
 
