@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import AuthModal from "@/components/Auth/AuthModal";
@@ -10,13 +10,25 @@ import AuthModal from "@/components/Auth/AuthModal";
 export default function ForProvidersPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
 
-  // If already logged in, redirect to provider mode
-  if (session) {
+  // Check if we're in onboarding flow - don't redirect, let onboarding complete
+  const isOnboarding = searchParams.get('onboarding') === 'true';
+
+  // If already logged in and NOT in onboarding, redirect to provider mode
+  if (session && !isOnboarding) {
     router.push("/provider/find-families");
-    return null;
+    // Show loading state instead of blank screen while redirecting
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to your dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
