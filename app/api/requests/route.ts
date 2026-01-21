@@ -235,8 +235,14 @@ export async function POST(req: Request) {
       preferredTourDate
     });
 
-    const activeMode = session.user.activeMode || 'FAMILY';
-    console.log('[REQUEST API] Active mode:', activeMode);
+    // IMPORTANT: Read activeMode from database instead of session
+    // Session might be stale after a recent mode switch (race condition)
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { activeMode: true }
+    });
+    const activeMode = user?.activeMode || 'FAMILY';
+    console.log('[REQUEST API] Active mode (from DB):', activeMode);
 
     // Validate that user has a family profile if they're a family member
     if (activeMode === "FAMILY") {
@@ -295,9 +301,33 @@ export async function POST(req: Request) {
 
       console.log('[REQUEST API] Subscription active, proceeding with request');
 
+      // Determine the familyProfileId to use
+      // For provider-to-family requests, it's passed in the body
+      // For family-type requests from users who just switched from provider mode,
+      // we need to look up their family profile
+      let resolvedFamilyProfileId = familyProfileId;
+
+      if (!resolvedFamilyProfileId) {
+        // No familyProfileId provided - check if user has a family profile
+        const userFamilyProfile = await prisma.familyProfile.findUnique({
+          where: { userId: session.user.id },
+        });
+
+        if (userFamilyProfile) {
+          console.log('[REQUEST API] No familyProfileId in body, using user\'s family profile:', userFamilyProfile.id);
+          resolvedFamilyProfileId = userFamilyProfile.id;
+        } else {
+          console.log('[REQUEST API] No familyProfileId and user has no family profile');
+          return NextResponse.json(
+            { error: "Please create a care profile first to contact providers" },
+            { status: 400 }
+          );
+        }
+      }
+
       console.log('[REQUEST API] Creating request with data:', {
         senderId: session.user.id,
-        familyProfileId,
+        familyProfileId: resolvedFamilyProfileId,
         providerId,
         status: "PENDING",
         requestType: requestType || "CONSULTATION"
@@ -306,7 +336,7 @@ export async function POST(req: Request) {
       const request = await prisma.consultRequest.create({
         data: {
           senderId: session.user.id,
-          familyProfileId,
+          familyProfileId: resolvedFamilyProfileId,
           providerId,
           message,
           status: "PENDING",
