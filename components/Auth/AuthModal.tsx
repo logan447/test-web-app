@@ -14,12 +14,9 @@ interface AuthModalProps {
 /**
  * AuthModal - Handles login and signup.
  *
- * After signup, redirects to dedicated /onboarding page.
- * This is the simplest possible architecture:
- * - Signup → /onboarding?intent=X → Destination
- * - No overlays on complex pages
- * - No race conditions
- * - Single source of truth (URL)
+ * After signup, redirects to destination page with ?onboarding=true param.
+ * GlobalOnboardingOverlay (in Providers) reads this param and shows the overlay.
+ * This works on ANY page, independent of page-level state.
  */
 export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent }: AuthModalProps) {
   const [view, setView] = useState<"login" | "signup">(defaultView);
@@ -117,14 +114,14 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // SIMPLE APPROACH: All signups redirect to dedicated onboarding page
-      // No overlays on complex pages, no race conditions
+      // Redirect to destination page with onboarding params
+      // GlobalOnboardingOverlay (in Providers) reads these and shows the overlay
       onClose();
 
       if (intent === "provider") {
-        window.location.href = "/onboarding?intent=provider";
+        window.location.href = "/provider/find-families?onboarding=true&intent=provider";
       } else {
-        window.location.href = "/onboarding";
+        window.location.href = "/?onboarding=true";
       }
 
     } catch (error) {
