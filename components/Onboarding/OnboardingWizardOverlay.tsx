@@ -12,6 +12,14 @@ import { useRouter } from "next/navigation";
 export type OnboardingIntent = "family" | "provider" | null;
 export type ProviderSubtype = "organization" | "individual" | null;
 
+// Context for actions that triggered signup (for contextual handoff)
+export interface PendingActionContext {
+  type: 'save' | 'review' | 'contact';
+  providerId: string;
+  providerName?: string;
+  contactReason?: string;
+}
+
 export type WizardStep =
   | "intent" // Ask: family or provider?
   | "provider-subtype" // Ask: organization or individual?
@@ -54,6 +62,11 @@ interface OnboardingWizardOverlayProps {
    * Use when claiming a provider listing (always organization)
    */
   initialProviderSubtype?: ProviderSubtype;
+  /**
+   * Pending action that triggered signup (for contextual handoff).
+   * When present, wizard shows context-aware messaging.
+   */
+  pendingAction?: PendingActionContext;
   /**
    * Callback when wizard completes successfully
    */
@@ -145,6 +158,7 @@ interface StepProps {
   onNext: (selectedValue?: Partial<OnboardingData>) => void;
   onBack?: () => void;
   onSkip: () => void;
+  pendingAction?: PendingActionContext;
 }
 
 function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
@@ -661,8 +675,21 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
   );
 }
 
-function CompleteStep({ data, onNext }: StepProps) {
+function CompleteStep({ data, onNext, pendingAction }: StepProps) {
   const getMessage = () => {
+    // Contextual message when there's a pending action
+    if (pendingAction) {
+      if (pendingAction.type === 'contact') {
+        return `You're all set! Click below to continue with your request to ${pendingAction.providerName}.`;
+      }
+      if (pendingAction.type === 'save') {
+        return `You're all set! Click below to save ${pendingAction.providerName} to your list.`;
+      }
+      if (pendingAction.type === 'review') {
+        return `You're all set! Click below to write your review for ${pendingAction.providerName}.`;
+      }
+    }
+    // Default messages
     if (data.intent === "family") {
       return "You're ready to start exploring care providers in your area.";
     }
@@ -670,6 +697,21 @@ function CompleteStep({ data, onNext }: StepProps) {
       return "Your organization profile is set up. Families can now find you.";
     }
     return "Your caregiver profile is set up. Families can now find you.";
+  };
+
+  const getButtonText = () => {
+    if (pendingAction) {
+      if (pendingAction.type === 'contact') {
+        return `Continue to ${pendingAction.contactReason || 'Contact'}`;
+      }
+      if (pendingAction.type === 'save') {
+        return 'Save Provider';
+      }
+      if (pendingAction.type === 'review') {
+        return 'Write Review';
+      }
+    }
+    return data.intent === "family" ? "Start Exploring" : "Start Finding Families";
   };
 
   return (
@@ -692,7 +734,7 @@ function CompleteStep({ data, onNext }: StepProps) {
         onClick={() => onNext()}
         className="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
       >
-        {data.intent === "family" ? "Start Exploring" : "Start Finding Families"}
+        {getButtonText()}
       </button>
     </div>
   );
@@ -707,6 +749,7 @@ export default function OnboardingWizardOverlay({
   onClose,
   initialIntent,
   initialProviderSubtype,
+  pendingAction,
   onComplete,
 }: OnboardingWizardOverlayProps) {
   const { data: session, update } = useSession();
@@ -915,6 +958,7 @@ export default function OnboardingWizardOverlay({
     onNext: handleNext,
     onBack: currentStep !== "intent" && !initialIntent ? handleBack : undefined,
     onSkip: handleSkip,
+    pendingAction,
   };
 
   const renderStep = () => {
@@ -975,6 +1019,23 @@ export default function OnboardingWizardOverlay({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
+
+                {/* Contextual Banner - shows when user has a pending action */}
+                {pendingAction && currentStep !== "complete" && (
+                  <div className="bg-primary-50 border border-primary-200 rounded-lg px-4 py-3 mb-4">
+                    <p className="text-sm text-primary-800 text-center">
+                      {pendingAction.type === 'contact' && (
+                        <>Complete your profile to {pendingAction.contactReason?.toLowerCase() || 'contact'} <strong>{pendingAction.providerName}</strong></>
+                      )}
+                      {pendingAction.type === 'save' && (
+                        <>Complete your profile to save <strong>{pendingAction.providerName}</strong></>
+                      )}
+                      {pendingAction.type === 'review' && (
+                        <>Complete your profile to review <strong>{pendingAction.providerName}</strong></>
+                      )}
+                    </p>
+                  </div>
+                )}
 
                 {/* Step Indicator */}
                 {currentStep !== "complete" && (

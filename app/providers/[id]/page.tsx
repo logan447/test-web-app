@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
-import AuthModal from "@/components/Auth/AuthModal";
+import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
 import PhotoGallery from "@/components/Gallery/PhotoGallery";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
 import ReviewModal from "@/components/Reviews/ReviewModal";
@@ -87,6 +87,7 @@ export default function ProviderProfilePage() {
   const [saving, setSaving] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authIntent, setAuthIntent] = useState<"family" | "provider">("family");
+  const [pendingAction, setPendingAction] = useState<PendingAction | undefined>(undefined);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactReason, setContactReason] = useState("Ask a question");
@@ -98,6 +99,62 @@ export default function ProviderProfilePage() {
       checkIfSaved();
     }
   }, [session]);
+
+  // Check for pending actions after onboarding completes
+  useEffect(() => {
+    if (!session?.user || !provider) return;
+
+    const storedAction = sessionStorage.getItem('pendingOnboardingAction');
+    if (!storedAction) return;
+
+    try {
+      const action = JSON.parse(storedAction) as PendingAction;
+      // Only execute if action is for this provider
+      if (action.providerId !== params.id) return;
+
+      // Clear the stored action immediately to prevent re-execution
+      sessionStorage.removeItem('pendingOnboardingAction');
+
+      // Execute the action after a brief delay to let the page settle
+      setTimeout(() => {
+        if (action.type === 'save') {
+          handleSaveAfterOnboarding();
+        } else if (action.type === 'review') {
+          setReviewModalOpen(true);
+        } else if (action.type === 'contact') {
+          setContactReason(action.contactReason || 'Ask a question');
+          setContactModalOpen(true);
+        }
+      }, 300);
+    } catch (e) {
+      console.error('Failed to parse pending action:', e);
+      sessionStorage.removeItem('pendingOnboardingAction');
+    }
+  }, [session, provider, params.id]);
+
+  // Save handler specifically for post-onboarding (doesn't open auth modal)
+  const handleSaveAfterOnboarding = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/saved-providers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ providerId: params.id }),
+      });
+
+      if (response.ok) {
+        setIsSaved(true);
+        showToast.success('Provider saved');
+      } else {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to save');
+      }
+    } catch (error: any) {
+      showToast.error(error.message || 'Failed to save provider');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const fetchProvider = async () => {
     try {
@@ -132,6 +189,11 @@ export default function ProviderProfilePage() {
   const handleSaveToggle = async () => {
     if (!session?.user) {
       setAuthIntent("family");
+      setPendingAction({
+        type: 'save',
+        providerId: params.id as string,
+        providerName: provider?.name,
+      });
       setAuthModalOpen(true);
       return;
     }
@@ -176,6 +238,11 @@ export default function ProviderProfilePage() {
   const handleWriteReview = () => {
     if (!session?.user) {
       setAuthIntent("family");
+      setPendingAction({
+        type: 'review',
+        providerId: params.id as string,
+        providerName: provider?.name,
+      });
       setAuthModalOpen(true);
       return;
     }
@@ -205,6 +272,12 @@ export default function ProviderProfilePage() {
   const handleOpenRequestForm = (reason: string) => {
     if (!session?.user) {
       setAuthIntent("family");
+      setPendingAction({
+        type: 'contact',
+        providerId: params.id as string,
+        providerName: provider?.name,
+        contactReason: reason,
+      });
       setAuthModalOpen(true);
       return;
     }
@@ -649,9 +722,13 @@ export default function ProviderProfilePage() {
       {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+        onClose={() => {
+          setAuthModalOpen(false);
+          setPendingAction(undefined);
+        }}
         defaultView="signup"
         intent={authIntent}
+        pendingAction={pendingAction}
       />
 
       {/* Review Modal */}

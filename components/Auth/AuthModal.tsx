@@ -4,11 +4,20 @@ import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { signIn } from "next-auth/react";
 
+// Context for actions that triggered the signup (for contextual handoff)
+export interface PendingAction {
+  type: 'save' | 'review' | 'contact';
+  providerId: string;
+  providerName?: string;
+  contactReason?: string;
+}
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultView?: "login" | "signup";
   intent?: "provider" | "family"; // For provider-targeted signup flows
+  pendingAction?: PendingAction; // Action that triggered signup (for contextual handoff)
 }
 
 /**
@@ -18,7 +27,7 @@ interface AuthModalProps {
  * GlobalOnboardingOverlay (in Providers) reads this param and shows the overlay.
  * This works on ANY page, independent of page-level state.
  */
-export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent, pendingAction }: AuthModalProps) {
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -122,11 +131,26 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         // Provider signup: redirect to provider home base with onboarding
         window.location.href = "/provider/find-families?onboarding=true&intent=provider";
       } else {
-        // Family signup: stay on current page, add onboarding params
+        // Non-provider signup: stay on current page, add onboarding params
         // This preserves context (e.g., user was on a provider detail page)
         const currentUrl = new URL(window.location.href);
         currentUrl.searchParams.set('onboarding', 'true');
-        currentUrl.searchParams.set('intent', 'family');
+        // Only set intent=family if explicitly specified
+        // When intent is undefined (home page), omit param so wizard shows intent question
+        if (intent === "family") {
+          currentUrl.searchParams.set('intent', 'family');
+        }
+        // Include pending action context for contextual handoff after onboarding
+        if (pendingAction) {
+          currentUrl.searchParams.set('action', pendingAction.type);
+          currentUrl.searchParams.set('actionProviderId', pendingAction.providerId);
+          if (pendingAction.providerName) {
+            currentUrl.searchParams.set('actionProviderName', pendingAction.providerName);
+          }
+          if (pendingAction.contactReason) {
+            currentUrl.searchParams.set('actionContactReason', pendingAction.contactReason);
+          }
+        }
         window.location.href = currentUrl.toString();
       }
 

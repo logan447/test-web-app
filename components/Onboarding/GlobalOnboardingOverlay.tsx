@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import OnboardingWizardOverlay from './OnboardingWizardOverlay';
-import type { OnboardingIntent } from './OnboardingWizardOverlay';
+import type { OnboardingIntent, PendingActionContext } from './OnboardingWizardOverlay';
 
 /**
  * GlobalOnboardingOverlay - URL-triggered onboarding that works on ANY page.
@@ -31,6 +31,7 @@ export default function GlobalOnboardingOverlay() {
 
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [intent, setIntent] = useState<OnboardingIntent>(null);
+  const [pendingAction, setPendingAction] = useState<PendingActionContext | undefined>(undefined);
 
   // Check URL params for onboarding trigger
   useEffect(() => {
@@ -49,6 +50,18 @@ export default function GlobalOnboardingOverlay() {
         null;
       setIntent(resolvedIntent);
 
+      // Read pending action context (for contextual handoff)
+      const actionType = searchParams.get('action');
+      const actionProviderId = searchParams.get('actionProviderId');
+      if (actionType && actionProviderId) {
+        setPendingAction({
+          type: actionType as 'save' | 'review' | 'contact',
+          providerId: actionProviderId,
+          providerName: searchParams.get('actionProviderName') || undefined,
+          contactReason: searchParams.get('actionContactReason') || undefined,
+        });
+      }
+
       // Show overlay immediately if not unauthenticated
       // During 'loading' status, we still show because user likely just signed up
       if (status !== 'unauthenticated') {
@@ -66,12 +79,22 @@ export default function GlobalOnboardingOverlay() {
 
   // Handle onboarding completion
   const handleComplete = () => {
+    // If there's a pending action, store it in sessionStorage for the page to execute
+    if (pendingAction) {
+      sessionStorage.setItem('pendingOnboardingAction', JSON.stringify(pendingAction));
+    }
+
     setShowOnboarding(false);
 
     // Remove onboarding params from URL without full page reload
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.delete('onboarding');
     newParams.delete('intent');
+    // Also clean up action context params
+    newParams.delete('action');
+    newParams.delete('actionProviderId');
+    newParams.delete('actionProviderName');
+    newParams.delete('actionContactReason');
 
     const newUrl = newParams.toString()
       ? `${pathname}?${newParams.toString()}`
@@ -90,6 +113,7 @@ export default function GlobalOnboardingOverlay() {
       isOpen={true}
       onClose={handleComplete}
       initialIntent={intent}
+      pendingAction={pendingAction}
       onComplete={handleComplete}
     />
   );
