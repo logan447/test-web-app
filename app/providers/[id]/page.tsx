@@ -110,6 +110,57 @@ export default function ProviderProfilePage() {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [pendingContactReason, setPendingContactReason] = useState<string | null>(null);
 
+  // Mode-awareness state
+  const [hasProviderIdentity, setHasProviderIdentity] = useState(false);
+  const [switchingMode, setSwitchingMode] = useState(false);
+
+  // Derived mode state
+  const currentMode = session?.user?.activeMode || 'FAMILY';
+  const isProviderMode = currentMode === 'PROVIDER';
+  const isIndependentCaregiver = provider?.providerType === 'INDEPENDENT_CAREGIVER';
+
+  // Check if user has provider identity (for mode switch eligibility)
+  useEffect(() => {
+    if (!session?.user) return;
+
+    const checkProviderIdentity = async () => {
+      try {
+        const response = await fetch('/api/provider-identity');
+        if (response.ok) {
+          const data = await response.json();
+          setHasProviderIdentity(data.hasIdentity);
+        }
+      } catch (error) {
+        console.error('Error checking provider identity:', error);
+      }
+    };
+
+    checkProviderIdentity();
+  }, [session?.user]);
+
+  // Handle mode switch
+  const handleSwitchMode = async (targetMode: 'FAMILY' | 'PROVIDER') => {
+    setSwitchingMode(true);
+    try {
+      const response = await fetch('/api/user/mode', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: targetMode }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to switch mode');
+      }
+
+      // Refresh the page to get updated session
+      window.location.reload();
+    } catch (error) {
+      console.error('Error switching mode:', error);
+      showToast.error('Failed to switch mode. Please try again.');
+      setSwitchingMode(false);
+    }
+  };
+
   useEffect(() => {
     fetchProvider();
     if (session?.user?.role === "FAMILY") {
@@ -971,15 +1022,67 @@ export default function ProviderProfilePage() {
                       </p>
                     </div>
 
-                    {/* Profile sharing notice */}
-                    <div className="flex items-start gap-3 text-sm text-gray-600">
-                      <svg className="w-5 h-5 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p>
-                        Your care profile will be shared with <span className="font-medium">{provider.name}</span> so they can better understand your needs and respond to your request.
-                      </p>
-                    </div>
+                    {/* Mode mismatch warning: Provider mode trying to contact for care */}
+                    {isProviderMode && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm text-amber-800">
+                              You&apos;re currently browsing as a <span className="font-semibold">Provider</span>.
+                              To contact this provider for care services, switch to Family mode.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => handleSwitchMode('FAMILY')}
+                              disabled={switchingMode}
+                              className="mt-2 text-sm font-medium text-amber-700 hover:text-amber-800 underline disabled:opacity-50"
+                            >
+                              {switchingMode ? 'Switching...' : 'Switch to Family Mode'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hiring suggestion: Family mode looking at independent caregiver with provider identity */}
+                    {!isProviderMode && isIndependentCaregiver && hasProviderIdentity && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm text-blue-800">
+                              Looking to <span className="font-semibold">hire</span> this caregiver for your organization?
+                              Switch to Provider mode to send a hiring request.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => handleSwitchMode('PROVIDER')}
+                              disabled={switchingMode}
+                              className="mt-2 text-sm font-medium text-blue-700 hover:text-blue-800 underline disabled:opacity-50"
+                            >
+                              {switchingMode ? 'Switching...' : 'Switch to Provider Mode'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Profile sharing notice (only show if not in provider mode - they can't proceed anyway) */}
+                    {!isProviderMode && (
+                      <div className="flex items-start gap-3 text-sm text-gray-600">
+                        <svg className="w-5 h-5 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p>
+                          Your care profile will be shared with <span className="font-medium">{provider.name}</span> so they can better understand your needs and respond to your request.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-6 flex gap-3">
@@ -997,7 +1100,7 @@ export default function ProviderProfilePage() {
                       type="button"
                       className="flex-1 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
                       onClick={handleConfirmEngagement}
-                      disabled={creatingEngagement}
+                      disabled={creatingEngagement || isProviderMode}
                     >
                       {creatingEngagement ? (
                         <span className="flex items-center justify-center gap-2">
@@ -1007,6 +1110,8 @@ export default function ProviderProfilePage() {
                           </svg>
                           Connecting...
                         </span>
+                      ) : isProviderMode ? (
+                        "Switch Mode First"
                       ) : (
                         "Connect & Share Profile"
                       )}
