@@ -79,18 +79,38 @@ export default function GlobalOnboardingOverlay() {
 
   // Handle onboarding completion
   const handleComplete = () => {
-    // If there's a pending action, store it in sessionStorage for the page to execute
-    if (pendingAction) {
-      sessionStorage.setItem('pendingOnboardingAction', JSON.stringify(pendingAction));
-    }
-
     setShowOnboarding(false);
 
-    // Remove onboarding params from URL without full page reload
+    // Provider intent: redirect to provider home base (find-families)
+    if (intent === 'provider') {
+      window.location.href = '/provider/find-families';
+      return;
+    }
+
+    // Family intent with pending action: trigger action execution
+    if (pendingAction) {
+      // Store action in sessionStorage as backup
+      sessionStorage.setItem('pendingOnboardingAction', JSON.stringify(pendingAction));
+
+      // Remove only onboarding param, keep action params so page can detect them
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete('onboarding');
+      newParams.delete('intent');
+      // Keep action params - page will clean them up after execution
+
+      const newUrl = newParams.toString()
+        ? `${pathname}?${newParams.toString()}`
+        : pathname;
+
+      // Use full page reload to ensure useEffect runs fresh
+      window.location.href = newUrl;
+      return;
+    }
+
+    // Default: just clean up all params
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.delete('onboarding');
     newParams.delete('intent');
-    // Also clean up action context params
     newParams.delete('action');
     newParams.delete('actionProviderId');
     newParams.delete('actionProviderName');

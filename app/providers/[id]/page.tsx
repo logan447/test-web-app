@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
@@ -80,6 +80,7 @@ type Provider = {
 export default function ProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,36 +102,65 @@ export default function ProviderProfilePage() {
   }, [session]);
 
   // Check for pending actions after onboarding completes
+  // Actions can come from URL params (preferred) or sessionStorage (fallback)
   useEffect(() => {
     if (!session?.user || !provider) return;
 
-    const storedAction = sessionStorage.getItem('pendingOnboardingAction');
-    if (!storedAction) return;
+    // First check URL params for action (set by GlobalOnboardingOverlay after completion)
+    const actionType = searchParams.get('action');
+    const actionProviderId = searchParams.get('actionProviderId');
 
-    try {
-      const action = JSON.parse(storedAction) as PendingAction;
-      // Only execute if action is for this provider
-      if (action.providerId !== params.id) return;
+    let action: PendingAction | null = null;
 
-      // Clear the stored action immediately to prevent re-execution
-      sessionStorage.removeItem('pendingOnboardingAction');
+    if (actionType && actionProviderId) {
+      // Action from URL params
+      action = {
+        type: actionType as 'save' | 'review' | 'contact',
+        providerId: actionProviderId,
+        providerName: searchParams.get('actionProviderName') || undefined,
+        contactReason: searchParams.get('actionContactReason') || undefined,
+      };
 
-      // Execute the action after a brief delay to let the page settle
-      setTimeout(() => {
-        if (action.type === 'save') {
-          handleSaveAfterOnboarding();
-        } else if (action.type === 'review') {
-          setReviewModalOpen(true);
-        } else if (action.type === 'contact') {
-          setContactReason(action.contactReason || 'Ask a question');
-          setContactModalOpen(true);
+      // Clean up URL params immediately
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete('action');
+      newParams.delete('actionProviderId');
+      newParams.delete('actionProviderName');
+      newParams.delete('actionContactReason');
+      const newUrl = newParams.toString()
+        ? `${window.location.pathname}?${newParams.toString()}`
+        : window.location.pathname;
+      router.replace(newUrl, { scroll: false });
+    } else {
+      // Fallback: check sessionStorage
+      const storedAction = sessionStorage.getItem('pendingOnboardingAction');
+      if (storedAction) {
+        try {
+          action = JSON.parse(storedAction) as PendingAction;
+          sessionStorage.removeItem('pendingOnboardingAction');
+        } catch (e) {
+          console.error('Failed to parse pending action:', e);
+          sessionStorage.removeItem('pendingOnboardingAction');
+          return;
         }
-      }, 300);
-    } catch (e) {
-      console.error('Failed to parse pending action:', e);
-      sessionStorage.removeItem('pendingOnboardingAction');
+      }
     }
-  }, [session, provider, params.id]);
+
+    // Execute the action if found and for this provider
+    if (!action || action.providerId !== params.id) return;
+
+    // Execute after a brief delay to let the page settle
+    setTimeout(() => {
+      if (action!.type === 'save') {
+        handleSaveAfterOnboarding();
+      } else if (action!.type === 'review') {
+        setReviewModalOpen(true);
+      } else if (action!.type === 'contact') {
+        setContactReason(action!.contactReason || 'Ask a question');
+        setContactModalOpen(true);
+      }
+    }, 300);
+  }, [session, provider, params.id, searchParams, router]);
 
   // Save handler specifically for post-onboarding (doesn't open auth modal)
   const handleSaveAfterOnboarding = async () => {
