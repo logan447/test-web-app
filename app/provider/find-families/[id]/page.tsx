@@ -89,6 +89,8 @@ export default function FamilyProfileDetail() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [switchingMode, setSwitchingMode] = useState(false);
+  const [checkingProvider, setCheckingProvider] = useState(false);
+  const [providerProfile, setProviderProfile] = useState<{ id: string } | null>(null);
 
   // Check if user is in Family mode (should be in Provider mode for this flow)
   const isFamilyMode = session?.user?.activeMode === 'FAMILY';
@@ -130,14 +132,33 @@ export default function FamilyProfileDetail() {
     }
   };
 
-  // Show confirmation modal before sending
-  const handleSendRequest = (e: React.FormEvent) => {
+  // Show confirmation modal before sending (with provider profile validation)
+  const handleSendRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!requestMessage.trim()) {
       showToast.error('Please enter a message');
       return;
     }
-    setConfirmModalOpen(true);
+
+    // Check for provider profile BEFORE showing confirmation modal
+    setCheckingProvider(true);
+    try {
+      const providerResponse = await fetch('/api/providers/me');
+      if (!providerResponse.ok) {
+        // No provider profile exists - user cannot send requests to families
+        showToast.error('You need a provider profile to contact families');
+        router.push('/dashboard/provider-profile');
+        return;
+      }
+      const providerData = await providerResponse.json();
+      setProviderProfile(providerData);
+      setConfirmModalOpen(true);
+    } catch (error) {
+      console.error('Error checking provider profile:', error);
+      showToast.error('Failed to verify provider profile');
+    } finally {
+      setCheckingProvider(false);
+    }
   };
 
   // Actually send the request after confirmation
@@ -145,21 +166,20 @@ export default function FamilyProfileDetail() {
     setConfirmModalOpen(false);
     setSending(true);
     try {
-      // First, get the provider associated with this user
-      const providerResponse = await fetch('/api/providers/me');
-      if (!providerResponse.ok) {
-        showToast.error('Please create a provider profile first');
+      // Provider profile was already validated in handleSendRequest
+      if (!providerProfile) {
+        showToast.error('Provider profile not found');
+        router.push('/dashboard/provider-profile');
         setSending(false);
         return;
       }
-      const providerData = await providerResponse.json();
 
       const response = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           familyProfileId: profile?.id,
-          providerId: providerData.id,
+          providerId: providerProfile.id,
           message: requestMessage,
         }),
       });
@@ -659,10 +679,10 @@ export default function FamilyProfileDetail() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={sending}
+                disabled={sending || checkingProvider}
                 className="bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 disabled:opacity-50 font-medium"
               >
-                {sending ? 'Sending...' : 'Send Request'}
+                {checkingProvider ? 'Verifying...' : sending ? 'Sending...' : 'Send Request'}
               </button>
               <Link
                 href={backHref}
