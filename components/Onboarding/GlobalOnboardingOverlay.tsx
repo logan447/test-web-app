@@ -111,58 +111,66 @@ export default function GlobalOnboardingOverlay() {
       setIsCreatingEngagement(true);
 
       try {
-        // Retry logic for transient failures (e.g., profile just created, DB transaction not yet committed)
-        // Increased retries and delay to handle slower database commits
-        let retries = 5;
-        let response: Response | null = null;
-        let lastError: string | null = null;
-        const retryDelays = [500, 1000, 1500, 2000, 2500]; // Increasing delays
+        console.log('[GlobalOnboarding] Starting engagement creation flow');
+        console.log('[GlobalOnboarding] Pending action:', JSON.stringify(pendingAction));
 
-        while (retries > 0) {
-          console.log(`[GlobalOnboarding] Attempting engagement creation, ${retries} retries left`);
-
-          response = await fetch('/api/requests', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              providerId: pendingAction.providerId,
-              contactReason: pendingAction.contactReason || 'Request consultation',
-              // Message is optional - user can add details on engagement page
-              message: null,
-            }),
-          });
-
-          if (response.ok) {
-            console.log('[GlobalOnboarding] Engagement created successfully');
-            break;
-          }
-
-          // Parse error to decide if we should retry
-          const errorData = await response.json().catch(() => ({}));
-          lastError = errorData.error || 'Failed to create engagement';
-          console.log(`[GlobalOnboarding] Engagement creation failed: ${lastError}, status: ${response.status}`);
-
-          // If profile not found, wait briefly for DB transaction to commit and retry
-          // This handles the case where onboarding just created the profile
-          if (lastError?.includes('profile') || response.status === 400) {
-            retries--;
-            if (retries > 0) {
-              const delay = retryDelays[5 - retries - 1] || 2000;
-              console.log(`[GlobalOnboarding] Retrying in ${delay}ms... (${retries} retries left)`);
-              await new Promise(r => setTimeout(r, delay));
-            }
+        // Step 1: Verify family profile exists before attempting engagement creation
+        // This helps diagnose if the issue is profile not existing vs other errors
+        console.log('[GlobalOnboarding] Step 1: Verifying family profile exists...');
+        const profileCheckResponse = await fetch('/api/family-profiles/me');
+        if (!profileCheckResponse.ok) {
+          const profileStatus = profileCheckResponse.status;
+          console.error(`[GlobalOnboarding] Profile check failed with status ${profileStatus}`);
+          if (profileStatus === 401) {
+            throw new Error('Session expired. Please refresh and try again.');
+          } else if (profileStatus === 404) {
+            throw new Error('Family profile not found. Please complete onboarding again.');
           } else {
-            // Non-retryable error, break immediately
-            console.log('[GlobalOnboarding] Non-retryable error, stopping retries');
-            break;
+            throw new Error(`Profile check failed: status ${profileStatus}`);
           }
         }
+        const profileData = await profileCheckResponse.json();
+        console.log('[GlobalOnboarding] Profile verified:', { id: profileData.id, userId: profileData.userId });
 
-        if (!response?.ok) {
-          throw new Error(lastError || 'Failed to create engagement after retries');
+        // Step 2: Create engagement
+        console.log('[GlobalOnboarding] Step 2: Creating engagement...');
+        console.log('[GlobalOnboarding] Provider ID:', pendingAction.providerId);
+
+        const response = await fetch('/api/requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            providerId: pendingAction.providerId,
+            contactReason: pendingAction.contactReason || 'Request consultation',
+            // Message is required in schema - use empty string, user can add details later
+            message: '',
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('[GlobalOnboarding] Engagement creation failed:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData.error,
+            details: errorData.details,
+            fullResponse: errorData
+          });
+
+          // Provide specific error message based on error type
+          if (response.status === 401) {
+            throw new Error('Session expired. Please refresh the page and try again.');
+          } else if (response.status === 400) {
+            throw new Error(errorData.error || 'Invalid request. Please try again.');
+          } else if (response.status === 500) {
+            throw new Error(errorData.details || errorData.error || 'Server error. Please try again.');
+          } else {
+            throw new Error(errorData.error || `Request failed with status ${response.status}`);
+          }
         }
 
         const engagement = await response.json();
+        console.log('[GlobalOnboarding] Engagement created successfully:', { id: engagement.id });
 
         // Validate engagement has an ID before redirecting
         if (!engagement?.id) {
@@ -177,8 +185,9 @@ export default function GlobalOnboardingOverlay() {
         router.push(`/dashboard/my-providers/${engagement.id}`);
         return;
       } catch (error: any) {
-        console.error('Failed to create engagement:', error);
-        showToast.error('Unable to connect right now. Please try again from the provider page.');
+        console.error('[GlobalOnboarding] Failed to create engagement:', error.message);
+        // Show the actual error message instead of generic one
+        showToast.error(error.message || 'Unable to connect right now. Please try again from the provider page.');
 
         // Clean up URL and stay on page - user can retry via CTA
         cleanupUrlParams();
