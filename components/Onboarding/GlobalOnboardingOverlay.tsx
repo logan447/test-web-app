@@ -82,9 +82,9 @@ export default function GlobalOnboardingOverlay() {
     setShowOnboarding(false);
 
     // Provider intent: redirect to provider home base (find-families)
+    // Session is already refreshed after signup, so just navigate
     if (intent === 'provider') {
       router.push('/provider/find-families');
-      router.refresh();
       return;
     }
 

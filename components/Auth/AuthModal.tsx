@@ -70,11 +70,13 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       // Close modal and redirect based on intent
       // For login, don't show onboarding (they've already completed it or can do it later)
       onClose();
-      if (intent === "provider") {
-        window.location.href = "/provider/find-families";
-      } else {
-        window.location.href = "/";
-      }
+
+      // Use client-side navigation to avoid full page reload
+      const destination = intent === "provider" ? "/provider/find-families" : "/";
+      setTimeout(() => {
+        router.push(destination);
+        router.refresh(); // Refresh server components to pick up new session
+      }, 50);
     } catch (error) {
       setError("Something went wrong");
       setLoading(false);
