@@ -328,7 +328,7 @@ export default function ProviderProfilePage() {
   const handleOpenRequestForm = async (reason: string) => {
     // If active engagement exists, redirect to it
     if (activeEngagement) {
-      showToast.info(`You already have an active conversation with ${provider?.name}`);
+      showToast.success(`You already have an active conversation with ${provider?.name}`);
       router.push(`/dashboard/my-providers/${activeEngagement.id}`);
       return;
     }
