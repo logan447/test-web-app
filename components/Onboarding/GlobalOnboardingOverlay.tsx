@@ -101,11 +101,15 @@ export default function GlobalOnboardingOverlay() {
 
       try {
         // Retry logic for transient failures (e.g., profile just created, DB transaction not yet committed)
-        let retries = 3;
+        // Increased retries and delay to handle slower database commits
+        let retries = 5;
         let response: Response | null = null;
         let lastError: string | null = null;
+        const retryDelays = [500, 1000, 1500, 2000, 2500]; // Increasing delays
 
         while (retries > 0) {
+          console.log(`[GlobalOnboarding] Attempting engagement creation, ${retries} retries left`);
+
           response = await fetch('/api/requests', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -118,23 +122,27 @@ export default function GlobalOnboardingOverlay() {
           });
 
           if (response.ok) {
+            console.log('[GlobalOnboarding] Engagement created successfully');
             break;
           }
 
           // Parse error to decide if we should retry
           const errorData = await response.json().catch(() => ({}));
           lastError = errorData.error || 'Failed to create engagement';
+          console.log(`[GlobalOnboarding] Engagement creation failed: ${lastError}, status: ${response.status}`);
 
           // If profile not found, wait briefly for DB transaction to commit and retry
           // This handles the case where onboarding just created the profile
           if (lastError?.includes('profile') || response.status === 400) {
             retries--;
             if (retries > 0) {
-              console.log(`Engagement creation failed (${lastError}), retrying in 500ms... (${retries} retries left)`);
-              await new Promise(r => setTimeout(r, 500));
+              const delay = retryDelays[5 - retries - 1] || 2000;
+              console.log(`[GlobalOnboarding] Retrying in ${delay}ms... (${retries} retries left)`);
+              await new Promise(r => setTimeout(r, delay));
             }
           } else {
             // Non-retryable error, break immediately
+            console.log('[GlobalOnboarding] Non-retryable error, stopping retries');
             break;
           }
         }

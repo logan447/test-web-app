@@ -337,19 +337,71 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
     familyState: "",
     familyCareType: data.familyCareType || "",
   });
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Compose location for display/storage
-    const familyLocation = `${localData.familyCity}, ${localData.familyState}`;
-    const formData = {
-      familyName: localData.familyName,
-      familyLocation,
-      familyCareType: localData.familyCareType,
-    };
-    onUpdate(formData);
-    // Pass form data directly to avoid stale closure
-    onNext(formData);
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Compose location for display/storage
+      const familyLocation = `${localData.familyCity}, ${localData.familyState}`;
+      const formData = {
+        familyName: localData.familyName,
+        familyLocation,
+        familyCareType: localData.familyCareType,
+      };
+      onUpdate(formData);
+
+      // Create family profile HERE instead of in handleNext
+      // This ensures we block on failure and show proper error
+      const profileData = {
+        lovedOneName: localData.familyName,
+        careTypes: localData.familyCareType ? [localData.familyCareType] : [],
+        location: familyLocation,
+        city: localData.familyCity,
+        state: localData.familyState,
+        zipCode: "",
+      };
+
+      // Check if profile already exists
+      const checkResponse = await fetch("/api/family-profiles/me");
+      const profileExists = checkResponse.ok;
+
+      // Create or update profile
+      const response = await fetch("/api/family-profiles/me", {
+        method: profileExists ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("[Onboarding] Failed to save family profile:", errorData);
+
+        // Show user-friendly error
+        if (response.status === 401) {
+          setError("Session expired. Please refresh and try again.");
+        } else if (errorData.error) {
+          setError(errorData.error);
+        } else {
+          setError("Unable to save your profile. Please try again.");
+        }
+        return;
+      }
+
+      console.log("[Onboarding] Family profile saved successfully");
+
+      // Profile saved successfully - now advance to complete step
+      onNext(formData);
+    } catch (err) {
+      console.error("[Onboarding] Error saving family profile:", err);
+      setError("Unable to save your profile. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isValid = localData.familyName && localData.familyCity && localData.familyState && localData.familyCareType;
@@ -359,6 +411,13 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
       <p className="text-gray-600 text-center">
         Tell us a bit about your care search so we can help you find the right providers.
       </p>
+
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+          <p className="text-sm text-red-800">{error}</p>
+        </div>
+      )}
 
       <div className="space-y-4">
         <div>
@@ -429,17 +488,28 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
           <button
             type="button"
             onClick={onBack}
-            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            disabled={isSubmitting}
+            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             Back
           </button>
         )}
         <button
           type="submit"
-          disabled={!isValid}
+          disabled={!isValid || isSubmitting}
           className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Continue
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Saving...
+            </span>
+          ) : (
+            "Continue"
+          )}
         </button>
       </div>
 
@@ -447,7 +517,8 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
         <button
           type="button"
           onClick={onSkip}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          disabled={isSubmitting}
+          className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
         >
           Skip for now
         </button>
@@ -856,52 +927,9 @@ export default function OnboardingWizardOverlay({
         break;
 
       case "family-fields":
-        // Save family profile data to FamilyProfile via API
-        setIsSubmitting(true);
-        try {
-          // Use passed data to avoid stale closure, fallback to state
-          const familyName = selectedValue?.familyName ?? data.familyName;
-          const familyLocation = selectedValue?.familyLocation ?? data.familyLocation;
-          const familyCareType = selectedValue?.familyCareType ?? data.familyCareType;
-
-          // Parse location into city and state
-          const [city, state] = (familyLocation || "").split(",").map(s => s.trim());
-
-          // First check if profile exists
-          const checkResponse = await fetch("/api/family-profiles/me");
-          const profileExists = checkResponse.ok;
-
-          // Prepare profile data
-          const profileData = {
-            lovedOneName: familyName,
-            careTypes: familyCareType ? [familyCareType] : [],
-            location: familyLocation || "",
-            city: city || "",
-            state: state || "",
-            zipCode: "", // Can be filled in later
-          };
-
-          // Create or update profile
-          const response = await fetch("/api/family-profiles/me", {
-            method: profileExists ? "PUT" : "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(profileData),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Failed to save family profile:", errorData);
-            // Continue anyway - profile can be completed later
-          }
-
-          setCurrentStep("complete");
-        } catch (error) {
-          console.error("Error saving family profile:", error);
-          // Continue to complete step even on error - user can fill details later
-          setCurrentStep("complete");
-        } finally {
-          setIsSubmitting(false);
-        }
+        // Profile creation is now handled in FamilyFieldsStep with proper error handling
+        // This case is only reached after profile is successfully saved
+        setCurrentStep("complete");
         break;
 
       case "provider-org-fields":
