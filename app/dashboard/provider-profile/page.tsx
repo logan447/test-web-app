@@ -233,7 +233,6 @@ export default function ProviderProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [editing, setEditing] = useState(false);
   const [selectedCareTypes, setSelectedCareTypes] = useState<string[]>([]);
   const [careServicesData, setCareServicesData] = useState<CareServicesData>({
     careTypes: [],
@@ -497,9 +496,6 @@ export default function ProviderProfilePage() {
         setHasRespiteCare(data.hasRespiteCare || false);
         setHasHospiceCare(data.hasHospiceCare || false);
         setSpecialtyPrograms(data.specialtyPrograms || []);
-        setEditing(false);
-      } else if (response.status === 404) {
-        setEditing(true);
       }
     } catch (err) {
       console.error("Error fetching provider:", err);
@@ -896,16 +892,8 @@ export default function ProviderProfilePage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">
-            {provider ? "My Provider Profile" : "Create Provider Profile"}
+            {provider ? "Edit Provider Profile" : "Create Provider Profile"}
           </h1>
-          {provider && !editing && (
-            <button
-              onClick={() => setEditing(true)}
-              className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
-            >
-              Edit Profile
-            </button>
-          )}
         </div>
 
         {error && (
@@ -914,241 +902,24 @@ export default function ProviderProfilePage() {
           </div>
         )}
 
-        {!editing && provider ? (
-          <div className="bg-white rounded-lg shadow p-6 space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Name</h3>
-              <p className="text-lg text-gray-900">{provider.name}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Provider Type</h3>
-              <p className="text-lg text-gray-900">
-                {PROVIDER_TYPES.find((t) => t.value === provider.providerType)?.label}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Description</h3>
-              <p className="text-gray-900">{provider.description}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Care Types Offered</h3>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {provider.careTypesOffered.map((type) => (
-                  <span
-                    key={type}
-                    className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm"
-                  >
-                    {formatCareType(type)}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Location</h3>
-              <p className="text-gray-900">
-                {provider.address}<br />
-                {provider.city}, {provider.state} {provider.zipCode}
-              </p>
-            </div>
-            {provider.serviceRadius && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Service Radius</h3>
-                <p className="text-gray-900">{provider.serviceRadius} miles</p>
-              </div>
-            )}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Phone</h3>
-                <p className="text-gray-900">{provider.phone}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                <p className="text-gray-900">{provider.email}</p>
-              </div>
-            </div>
-            {provider.website && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Website</h3>
-                <a
-                  href={provider.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary-600 hover:text-primary-700"
-                >
-                  {provider.website}
-                </a>
-              </div>
-            )}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Years in Business</h3>
-                <p className="text-gray-900">{provider.yearsInBusiness}</p>
-              </div>
-              {provider.capacity && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Capacity</h3>
-                  <p className="text-gray-900">{provider.capacity} clients</p>
-                </div>
-              )}
-            </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Licensed</h3>
-                <p className="text-gray-900">{provider.licensed ? "Yes" : "No"}</p>
-              </div>
-              {provider.licenseNumber && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">License Number</h3>
-                  <p className="text-gray-900">{provider.licenseNumber}</p>
-                </div>
-              )}
-            </div>
-            {(provider.priceMin || provider.priceMax || provider.priceDescription || provider.paymentOptions.length > 0) && (
-              <div className="border-t pt-4 mt-4">
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Pricing & Payment</h3>
-                {(provider.priceMin || provider.priceMax) && (
-                  <div className="mb-3">
-                    <p className="text-lg font-semibold text-gray-900">
-                      {provider.priceMin && provider.priceMax ? (
-                        `$${provider.priceMin.toLocaleString()} - $${provider.priceMax.toLocaleString()}/month`
-                      ) : provider.priceMin ? (
-                        `Starting from $${provider.priceMin.toLocaleString()}/month`
-                      ) : (
-                        `Up to $${provider.priceMax?.toLocaleString()}/month`
-                      )}
-                    </p>
-                  </div>
-                )}
-                {provider.priceDescription && (
-                  <div className="mb-3">
-                    <p className="text-sm text-gray-600">{provider.priceDescription}</p>
-                  </div>
-                )}
-                {provider.paymentOptions.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 mb-2">Payment options accepted:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {provider.paymentOptions.map((option) => (
-                        <span
-                          key={option}
-                          className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-xs"
-                        >
-                          {option}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-            {(provider.certifications.length > 0 || provider.insuranceVerified || provider.backgroundChecked) && (
-              <div className="border-t pt-4 mt-4">
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Trust & Verification</h3>
-                <div className="space-y-2">
-                  {provider.certifications.length > 0 && (
-                    <div>
-                      <p className="text-xs font-medium text-gray-500 mb-2">Certifications:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {provider.certifications.map((cert) => (
-                          <span
-                            key={cert}
-                            className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs"
-                          >
-                            {cert}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex flex-wrap gap-3 mt-2">
-                    {provider.insuranceVerified && (
-                      <span className="text-xs text-gray-700 flex items-center gap-1">
-                        <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        Insurance Verified
-                      </span>
-                    )}
-                    {provider.backgroundChecked && (
-                      <span className="text-xs text-gray-700 flex items-center gap-1">
-                        <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        Background Checked
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-            {(provider.totalCapacity || provider.availableSpots !== null) && (
-              <div className="border-t pt-4 mt-4">
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Capacity & Availability</h3>
-                <div className="space-y-2">
-                  {provider.totalCapacity && (
-                    <p className="text-sm text-gray-700">
-                      <span className="font-medium">Total Capacity:</span> {provider.totalCapacity} {provider.totalCapacity === 1 ? 'spot' : 'spots'}
-                    </p>
-                  )}
-                  {provider.availableSpots !== null && (
-                    <p className="text-sm text-gray-700">
-                      <span className="font-medium">Currently Available:</span> {provider.availableSpots} {provider.availableSpots === 1 ? 'spot' : 'spots'}
-                    </p>
-                  )}
-                  {provider.waitlistAvailable && (
-                    <p className="text-sm text-gray-700 flex items-center gap-1">
-                      <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
-                      Waitlist available
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-            {provider.providerType === "INDEPENDENT_CAREGIVER" && (
-              <div className="border-t pt-4 mt-4">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Availability</h3>
-                <div className="space-y-1">
-                  {provider.availableForFamilies && (
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Available for direct hire by families
-                    </div>
-                  )}
-                  {provider.availableForOrganizations && (
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Available for hire by care organizations
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Left: Form */}
+          <div className="lg:col-span-2 order-2 lg:order-1">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Business/Provider Name *
+            </label>
+            <input
+              name="name"
+              type="text"
+              required
+              defaultValue={provider?.name}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
           </div>
-        ) : (
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Left: Form */}
-            <div className="lg:col-span-2 order-2 lg:order-1">
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Business/Provider Name *
-              </label>
-              <input
-                name="name"
-                type="text"
-                required
-                defaultValue={provider?.name}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
 
-            <div>
+          <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Provider Type *
               </label>
@@ -1870,18 +1641,12 @@ export default function ProviderProfilePage() {
               >
                 {saving ? "Saving..." : provider ? "Update Profile" : "Create Profile"}
               </button>
-              {provider && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditing(false);
-                    setError("");
-                  }}
-                  className="bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 font-medium"
-                >
-                  Cancel
-                </button>
-              )}
+              <Link
+                href="/provider/dashboard"
+                className="bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 font-medium inline-flex items-center"
+              >
+                Back to Dashboard
+              </Link>
             </div>
           </form>
             </div>
@@ -1892,7 +1657,6 @@ export default function ProviderProfilePage() {
               <ProviderProfileCompleteness items={completenessItems} />
             </div>
           </div>
-        )}
       </main>
     </div>
   );
