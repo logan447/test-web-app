@@ -8,7 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import AuthModal from "@/components/Auth/AuthModal";
 
 function ForProvidersContent() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -16,20 +16,35 @@ function ForProvidersContent() {
   const [hasRedirected, setHasRedirected] = useState(false);
 
   // Check if we're in onboarding flow - use both hook and direct URL check
-  // to handle race conditions during router.push + router.refresh transitions
+  // to handle any edge cases during navigation
   const isOnboardingFromHook = searchParams.get('onboarding') === 'true';
   const isOnboardingFromUrl = typeof window !== 'undefined' &&
     new URLSearchParams(window.location.search).get('onboarding') === 'true';
   const isOnboarding = isOnboardingFromHook || isOnboardingFromUrl;
 
   // If already logged in and NOT in onboarding, redirect to provider mode
-  // Use useEffect to handle redirect to avoid calling router.push during render
+  // CRITICAL: Only redirect when session is DEFINITIVELY authenticated (not loading)
+  // This prevents race conditions where session updates before URL params
   useEffect(() => {
-    if (session && !isOnboarding && !hasRedirected) {
-      setHasRedirected(true);
-      router.push("/provider/find-families");
-    }
-  }, [session, isOnboarding, hasRedirected, router]);
+    // Never redirect if onboarding param exists anywhere in URL
+    if (isOnboarding) return;
+
+    // Wait for session to be definitively loaded
+    if (status !== 'authenticated') return;
+
+    // Don't double-redirect
+    if (hasRedirected) return;
+
+    // Small delay for defense-in-depth against URL propagation timing
+    const timer = setTimeout(() => {
+      if (session && !hasRedirected) {
+        setHasRedirected(true);
+        router.push("/provider/find-families");
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [status, session, isOnboarding, hasRedirected, router]);
 
   // Show loading state while redirecting
   if (session && !isOnboarding && hasRedirected) {

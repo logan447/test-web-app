@@ -350,7 +350,7 @@ export default function ProviderProfilePage() {
     setCreatingEngagement(true);
     try {
       // Check if family profile exists and is complete
-      const profileResponse = await fetch('/api/family-profile');
+      const profileResponse = await fetch('/api/family-profiles/me');
 
       if (!profileResponse.ok) {
         // No profile - trigger onboarding

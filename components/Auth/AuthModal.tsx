@@ -127,12 +127,9 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Add onboarding params to current URL and refresh
-      // GlobalOnboardingOverlay (in Providers) reads these and shows the overlay
-      onClose();
-
       // Build search params for onboarding
-      const params = new URLSearchParams(window.location.search);
+      // GlobalOnboardingOverlay reads these and shows the overlay
+      const params = new URLSearchParams();
       params.set('onboarding', 'true');
 
       // Set intent param so wizard knows which flow to show
@@ -155,13 +152,16 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         }
       }
 
-      // Use client-side navigation (no full page reload)
-      // Small delay to ensure session cookie is established
+      // CRITICAL: Use window.location.href for synchronous navigation
+      // This eliminates race conditions between session update and URL params.
+      // With router.push, the session hook can update before URL params propagate,
+      // causing redirect guards to fire prematurely. Full page load ensures:
+      // 1. URL has params BEFORE any React components render
+      // 2. Session is re-read fresh from cookie
+      // 3. No race between useSession() and useSearchParams()
       const newPath = `${window.location.pathname}?${params.toString()}`;
-      setTimeout(() => {
-        router.push(newPath);
-        router.refresh(); // Refresh server components to pick up new session
-      }, 50);
+      onClose();
+      window.location.href = newPath;
 
     } catch (error) {
       setError("Something went wrong");

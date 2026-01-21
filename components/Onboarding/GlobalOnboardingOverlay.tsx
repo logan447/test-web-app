@@ -100,24 +100,55 @@ export default function GlobalOnboardingOverlay() {
       setIsCreatingEngagement(true);
 
       try {
-        // Create engagement by sharing profile with provider
-        const response = await fetch('/api/requests', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            providerId: pendingAction.providerId,
-            contactReason: pendingAction.contactReason || 'Request consultation',
-            // Message is optional - user can add details on engagement page
-            message: null,
-          }),
-        });
+        // Retry logic for transient failures (e.g., profile just created, DB transaction not yet committed)
+        let retries = 3;
+        let response: Response | null = null;
+        let lastError: string | null = null;
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to create engagement');
+        while (retries > 0) {
+          response = await fetch('/api/requests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              providerId: pendingAction.providerId,
+              contactReason: pendingAction.contactReason || 'Request consultation',
+              // Message is optional - user can add details on engagement page
+              message: null,
+            }),
+          });
+
+          if (response.ok) {
+            break;
+          }
+
+          // Parse error to decide if we should retry
+          const errorData = await response.json().catch(() => ({}));
+          lastError = errorData.error || 'Failed to create engagement';
+
+          // If profile not found, wait briefly for DB transaction to commit and retry
+          // This handles the case where onboarding just created the profile
+          if (lastError.includes('profile') || response.status === 400) {
+            retries--;
+            if (retries > 0) {
+              console.log(`Engagement creation failed (${lastError}), retrying in 500ms... (${retries} retries left)`);
+              await new Promise(r => setTimeout(r, 500));
+            }
+          } else {
+            // Non-retryable error, break immediately
+            break;
+          }
+        }
+
+        if (!response?.ok) {
+          throw new Error(lastError || 'Failed to create engagement after retries');
         }
 
         const engagement = await response.json();
+
+        // Validate engagement has an ID before redirecting
+        if (!engagement?.id) {
+          throw new Error('Engagement created but missing ID');
+        }
 
         // Clean up URL params
         cleanupUrlParams();
@@ -126,9 +157,9 @@ export default function GlobalOnboardingOverlay() {
         showToast.success(`Connected with ${pendingAction.providerName}!`);
         router.push(`/dashboard/my-providers/${engagement.id}`);
         return;
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to create engagement:', error);
-        showToast.error('Something went wrong. Please try again.');
+        showToast.error('Unable to connect right now. Please try again from the provider page.');
 
         // Clean up URL and stay on page - user can retry via CTA
         cleanupUrlParams();
