@@ -3,6 +3,7 @@
 import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 // Context for actions that triggered the signup (for contextual handoff)
 export interface PendingAction {
@@ -28,6 +29,7 @@ interface AuthModalProps {
  * This works on ANY page, independent of page-level state.
  */
 export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent, pendingAction }: AuthModalProps) {
+  const router = useRouter();
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -123,40 +125,41 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Redirect to destination page with onboarding params
+      // Add onboarding params to current URL and refresh
       // GlobalOnboardingOverlay (in Providers) reads these and shows the overlay
       onClose();
 
-      // SIMPLIFIED APPROACH: Always stay on current page with onboarding params
-      // This avoids timing issues with protected routes and middleware
-      // After onboarding completes, the wizard handles the final redirect
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.set('onboarding', 'true');
+      // Build search params for onboarding
+      const params = new URLSearchParams(window.location.search);
+      params.set('onboarding', 'true');
 
       // Set intent param so wizard knows which flow to show
       if (intent === "provider") {
-        currentUrl.searchParams.set('intent', 'provider');
+        params.set('intent', 'provider');
       } else if (intent === "family") {
-        currentUrl.searchParams.set('intent', 'family');
+        params.set('intent', 'family');
       }
       // If intent is undefined (home page), omit param so wizard shows intent question
 
       // Include pending action context for contextual handoff after onboarding
       if (pendingAction) {
-        currentUrl.searchParams.set('action', pendingAction.type);
-        currentUrl.searchParams.set('actionProviderId', pendingAction.providerId);
+        params.set('action', pendingAction.type);
+        params.set('actionProviderId', pendingAction.providerId);
         if (pendingAction.providerName) {
-          currentUrl.searchParams.set('actionProviderName', pendingAction.providerName);
+          params.set('actionProviderName', pendingAction.providerName);
         }
         if (pendingAction.contactReason) {
-          currentUrl.searchParams.set('actionContactReason', pendingAction.contactReason);
+          params.set('actionContactReason', pendingAction.contactReason);
         }
       }
 
-      // Small delay before redirect to ensure session cookie is fully established
+      // Use client-side navigation (no full page reload)
+      // Small delay to ensure session cookie is established
+      const newPath = `${window.location.pathname}?${params.toString()}`;
       setTimeout(() => {
-        window.location.href = currentUrl.toString();
-      }, 100);
+        router.push(newPath);
+        router.refresh(); // Refresh server components to pick up new session
+      }, 50);
 
     } catch (error) {
       setError("Something went wrong");

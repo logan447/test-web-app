@@ -83,27 +83,40 @@ export default function GlobalOnboardingOverlay() {
 
     // Provider intent: redirect to provider home base (find-families)
     if (intent === 'provider') {
-      window.location.href = '/provider/find-families';
+      router.push('/provider/find-families');
+      router.refresh();
       return;
     }
 
-    // Family intent with pending action: trigger action execution
+    // Family intent with pending action: trigger action execution seamlessly
+    // Option B: No page reload - dispatch event so page can open modal immediately
     if (pendingAction) {
-      // Store action in sessionStorage as backup
+      // Store action in sessionStorage as backup (in case event is missed)
       sessionStorage.setItem('pendingOnboardingAction', JSON.stringify(pendingAction));
 
-      // Remove only onboarding param, keep action params so page can detect them
+      // Clean up URL params
       const newParams = new URLSearchParams(searchParams.toString());
       newParams.delete('onboarding');
       newParams.delete('intent');
-      // Keep action params - page will clean them up after execution
+      newParams.delete('action');
+      newParams.delete('actionProviderId');
+      newParams.delete('actionProviderName');
+      newParams.delete('actionContactReason');
 
       const newUrl = newParams.toString()
         ? `${pathname}?${newParams.toString()}`
         : pathname;
 
-      // Use full page reload to ensure useEffect runs fresh
-      window.location.href = newUrl;
+      // Use router.replace (no reload) + dispatch custom event for seamless transition
+      router.replace(newUrl, { scroll: false });
+
+      // Dispatch custom event so provider page can open contact form immediately
+      // Small delay to ensure URL is updated first
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('onboardingComplete', {
+          detail: pendingAction
+        }));
+      }, 100);
       return;
     }
 

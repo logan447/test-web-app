@@ -162,6 +162,33 @@ export default function ProviderProfilePage() {
     }, 300);
   }, [session, provider, params.id, searchParams, router]);
 
+  // Listen for onboardingComplete event for seamless transition (Option B)
+  // This allows opening the contact modal immediately after onboarding without page reload
+  useEffect(() => {
+    const handleOnboardingComplete = (event: CustomEvent<PendingAction>) => {
+      const action = event.detail;
+      if (!action || action.providerId !== params.id) return;
+
+      // Clear sessionStorage since we're handling it via event
+      sessionStorage.removeItem('pendingOnboardingAction');
+
+      // Execute the action immediately
+      if (action.type === 'save') {
+        handleSaveAfterOnboarding();
+      } else if (action.type === 'review') {
+        setReviewModalOpen(true);
+      } else if (action.type === 'contact') {
+        setContactReason(action.contactReason || 'Ask a question');
+        setContactModalOpen(true);
+      }
+    };
+
+    window.addEventListener('onboardingComplete', handleOnboardingComplete as EventListener);
+    return () => {
+      window.removeEventListener('onboardingComplete', handleOnboardingComplete as EventListener);
+    };
+  }, [params.id]);
+
   // Save handler specifically for post-onboarding (doesn't open auth modal)
   const handleSaveAfterOnboarding = async () => {
     setSaving(true);
