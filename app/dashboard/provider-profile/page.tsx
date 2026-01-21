@@ -733,27 +733,43 @@ export default function ProviderProfilePage() {
   };
 
   // Calculate profile completeness
+  // Tier 1 (Required for Visibility): name, providerType, city, state, careTypesOffered
+  // Tier 2 (Encouraged): description, address, zipCode, phone, email, paymentModesAccepted
   const completenessItems = [
     {
-      label: "Basic Information (Name, Type, Description)",
-      completed: !!(provider?.name && providerType && provider?.description),
+      label: "Business Name",
+      completed: !!provider?.name,
       required: true,
     },
     {
-      label: "Care Types & Services",
-      completed: careServicesData.careTypes.length > 0 && (
-        careServicesData.medicalServices.length > 0 ||
-        careServicesData.personalCareServices.length > 0 ||
-        careServicesData.dailyLivingServices.length > 0 ||
-        careServicesData.memoryCareServices.length > 0 ||
-        careServicesData.socialRecreationServices.length > 0
-      ),
+      label: "Provider Type",
+      completed: !!providerType,
       required: true,
     },
     {
-      label: "Location & Contact Info",
-      completed: !!(provider?.address && provider?.city && provider?.state && provider?.zipCode && provider?.phone && provider?.email),
+      label: "Location (City & State)",
+      completed: !!(provider?.city && provider?.state),
       required: true,
+    },
+    {
+      label: "Care Types Offered",
+      completed: careServicesData.careTypes.length > 0,
+      required: true,
+    },
+    {
+      label: "Description",
+      completed: !!provider?.description,
+      required: false,
+    },
+    {
+      label: "Full Address & ZIP Code",
+      completed: !!(provider?.address && provider?.zipCode),
+      required: false,
+    },
+    {
+      label: "Contact Info (Phone & Email)",
+      completed: !!(provider?.phone && provider?.email),
+      required: false,
     },
     {
       label: "Photos Added (at least 1)",
@@ -941,16 +957,16 @@ export default function ProviderProfilePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description *
+                Description
               </label>
               <textarea
                 name="description"
-                required
                 rows={4}
                 defaultValue={provider?.description}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 placeholder="Describe your services and what makes you unique..."
               />
+              <p className="text-sm text-gray-500 mt-1">Recommended for better visibility</p>
             </div>
 
             {/* Care Types & Services Section (Sprint 3) */}
@@ -967,12 +983,11 @@ export default function ProviderProfilePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Street Address *
+                Street Address
               </label>
               <input
                 name="address"
                 type="text"
-                required
                 defaultValue={provider?.address}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
@@ -1006,12 +1021,11 @@ export default function ProviderProfilePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ZIP Code *
+                  ZIP Code
                 </label>
                 <input
                   name="zipCode"
                   type="text"
-                  required
                   defaultValue={provider?.zipCode}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -1038,24 +1052,22 @@ export default function ProviderProfilePage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone *
+                  Phone
                 </label>
                 <input
                   name="phone"
                   type="tel"
-                  required
                   defaultValue={provider?.phone}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email *
+                  Email
                 </label>
                 <input
                   name="email"
                   type="email"
-                  required
                   defaultValue={provider?.email}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -1078,13 +1090,12 @@ export default function ProviderProfilePage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Years in Business *
+                  Years in Business
                 </label>
                 <input
                   name="yearsInBusiness"
                   type="number"
                   min="0"
-                  required
                   defaultValue={provider?.yearsInBusiness}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
