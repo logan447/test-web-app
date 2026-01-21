@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import AuthModal from "@/components/Auth/AuthModal";
 
-export default function ForProvidersPage() {
+function ForProvidersContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -385,5 +385,18 @@ export default function ForProvidersPage() {
         intent="provider"
       />
     </div>
+  );
+}
+
+// Wrap in Suspense for useSearchParams() compatibility with static generation
+export default function ForProvidersPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    }>
+      <ForProvidersContent />
+    </Suspense>
   );
 }
