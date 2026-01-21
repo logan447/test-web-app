@@ -35,6 +35,10 @@ export default function GlobalOnboardingOverlay() {
   // This prevents hiding the overlay if conditions change mid-session
   const hasTriggeredRef = useRef(false);
 
+  // Track if handleComplete has already been called to prevent double execution
+  // This can happen because OnboardingWizardOverlay calls both onComplete and onClose
+  const isCompletingRef = useRef(false);
+
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [intent, setIntent] = useState<OnboardingIntent>(null);
   const [pendingAction, setPendingAction] = useState<PendingActionContext | undefined>(undefined);
@@ -86,6 +90,13 @@ export default function GlobalOnboardingOverlay() {
 
   // Handle onboarding completion
   const handleComplete = async () => {
+    // Prevent double execution - OnboardingWizardOverlay calls both onComplete and onClose
+    if (isCompletingRef.current) {
+      console.log('[GlobalOnboarding] handleComplete already running, skipping duplicate call');
+      return;
+    }
+    isCompletingRef.current = true;
+
     setShowOnboarding(false);
 
     // Provider intent: redirect to provider home base (find-families)
