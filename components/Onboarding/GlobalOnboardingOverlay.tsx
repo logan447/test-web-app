@@ -127,7 +127,7 @@ export default function GlobalOnboardingOverlay() {
 
           // If profile not found, wait briefly for DB transaction to commit and retry
           // This handles the case where onboarding just created the profile
-          if (lastError.includes('profile') || response.status === 400) {
+          if (lastError?.includes('profile') || response.status === 400) {
             retries--;
             if (retries > 0) {
               console.log(`Engagement creation failed (${lastError}), retrying in 500ms... (${retries} retries left)`);
