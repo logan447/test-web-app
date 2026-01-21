@@ -157,7 +157,8 @@ export default function FamilyProfileDetail() {
       if (response.ok) {
         showToast.success('Consultation request sent!');
         setRequestMessage('');
-        router.push('/dashboard/my-providers');
+        // Redirect to the engagement page for this request
+        router.push(`/provider/dashboard/my-families/${data.id}`);
       } else {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
