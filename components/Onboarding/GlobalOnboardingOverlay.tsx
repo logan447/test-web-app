@@ -111,12 +111,12 @@ export default function GlobalOnboardingOverlay() {
       router.replace(newUrl, { scroll: false });
 
       // Dispatch custom event so provider page can open contact form immediately
-      // Small delay to ensure URL is updated first
+      // Wait for overlay close animation (200ms) + buffer before opening next modal
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('onboardingComplete', {
           detail: pendingAction
         }));
-      }, 100);
+      }, 300);
       return;
     }
 

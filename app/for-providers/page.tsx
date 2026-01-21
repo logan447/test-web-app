@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -13,14 +13,26 @@ function ForProvidersContent() {
   const searchParams = useSearchParams();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
+  const [hasRedirected, setHasRedirected] = useState(false);
 
-  // Check if we're in onboarding flow - don't redirect, let onboarding complete
-  const isOnboarding = searchParams.get('onboarding') === 'true';
+  // Check if we're in onboarding flow - use both hook and direct URL check
+  // to handle race conditions during router.push + router.refresh transitions
+  const isOnboardingFromHook = searchParams.get('onboarding') === 'true';
+  const isOnboardingFromUrl = typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('onboarding') === 'true';
+  const isOnboarding = isOnboardingFromHook || isOnboardingFromUrl;
 
   // If already logged in and NOT in onboarding, redirect to provider mode
-  if (session && !isOnboarding) {
-    router.push("/provider/find-families");
-    // Show loading state instead of blank screen while redirecting
+  // Use useEffect to handle redirect to avoid calling router.push during render
+  useEffect(() => {
+    if (session && !isOnboarding && !hasRedirected) {
+      setHasRedirected(true);
+      router.push("/provider/find-families");
+    }
+  }, [session, isOnboarding, hasRedirected, router]);
+
+  // Show loading state while redirecting
+  if (session && !isOnboarding && hasRedirected) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
