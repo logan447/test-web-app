@@ -90,7 +90,7 @@ export default function ProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
@@ -142,6 +142,7 @@ export default function ProviderProfilePage() {
   const handleSwitchMode = async (targetMode: 'FAMILY' | 'PROVIDER') => {
     setSwitchingMode(true);
     try {
+      // Step 1: Update mode in database
       const response = await fetch('/api/user/mode', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -152,11 +153,22 @@ export default function ProviderProfilePage() {
         throw new Error('Failed to switch mode');
       }
 
-      // Refresh the page to get updated session
-      window.location.reload();
+      // Step 2: Update NextAuth session with new mode
+      await updateSession({ activeMode: targetMode });
+
+      // Step 3: Close modal and show success
+      setConfirmModalOpen(false);
+      setPendingContactReason(null);
+      showToast.success(`Switched to ${targetMode === 'FAMILY' ? 'Family' : 'Provider'} mode`);
+
+      // Small delay then refresh to ensure UI reflects new mode
+      setTimeout(() => {
+        router.refresh();
+      }, 100);
     } catch (error) {
       console.error('Error switching mode:', error);
       showToast.error('Failed to switch mode. Please try again.');
+    } finally {
       setSwitchingMode(false);
     }
   };
