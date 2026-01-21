@@ -29,9 +29,11 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/admin');
 
   // Not logged in - redirect to login for protected routes with returnUrl
+  // IMPORTANT: Preserve full URL including query params (for onboarding flow, etc.)
   if (!token && isProtectedRoute) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('returnUrl', pathname);
+    const fullPath = pathname + request.nextUrl.search; // Include query params
+    loginUrl.searchParams.set('returnUrl', fullPath);
     return NextResponse.redirect(loginUrl);
   }
 

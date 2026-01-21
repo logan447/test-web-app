@@ -127,9 +127,11 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       // GlobalOnboardingOverlay (in Providers) reads these and shows the overlay
       onClose();
 
+      // Build the redirect URL
+      let redirectUrl: string;
       if (intent === "provider") {
         // Provider signup: redirect to provider home base with onboarding
-        window.location.href = "/provider/find-families?onboarding=true&intent=provider";
+        redirectUrl = "/provider/find-families?onboarding=true&intent=provider";
       } else {
         // Non-provider signup: stay on current page, add onboarding params
         // This preserves context (e.g., user was on a provider detail page)
@@ -151,8 +153,14 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
             currentUrl.searchParams.set('actionContactReason', pendingAction.contactReason);
           }
         }
-        window.location.href = currentUrl.toString();
+        redirectUrl = currentUrl.toString();
       }
+
+      // Small delay before redirect to ensure session cookie is fully established
+      // This is especially important for protected routes that go through middleware
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 100);
 
     } catch (error) {
       setError("Something went wrong");
