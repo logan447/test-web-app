@@ -1,8 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import { showToast } from '@/lib/toast';
@@ -33,9 +33,10 @@ type FamilyProfile = {
   isSaved?: boolean;
 };
 
-export default function ProviderRequestsPage() {
+function ProviderRequestsPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
@@ -43,6 +44,10 @@ export default function ProviderRequestsPage() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [selectedProfileForUnlock, setSelectedProfileForUnlock] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('newest');
+
+  // Check if onboarding is in progress (GlobalOnboardingOverlay handles this)
+  // Don't redirect during onboarding - let the overlay complete first
+  const isOnboarding = searchParams.get('onboarding') === 'true';
 
   // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
@@ -74,8 +79,9 @@ export default function ProviderRequestsPage() {
     // Session is authenticated but data might still be loading
     if (!session) return;
 
-    // If mode is family, redirect to family homepage
-    if (!isProviderMode) {
+    // IMPORTANT: Don't redirect if onboarding is in progress
+    // GlobalOnboardingOverlay will handle onboarding, and mode will be set after completion
+    if (!isProviderMode && !isOnboarding) {
       router.push('/');
       return;
     }
@@ -84,7 +90,7 @@ export default function ProviderRequestsPage() {
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
-  }, [session, status, router, isProviderMode, identityLoading]);
+  }, [session, status, router, isProviderMode, identityLoading, isOnboarding]);
 
   const fetchProfiles = async () => {
     try {
@@ -428,5 +434,22 @@ export default function ProviderRequestsPage() {
         onUpgrade={handleUpgradeSubscription}
       />
     </div>
+  );
+}
+
+// Wrapper with Suspense (required for useSearchParams)
+export default function ProviderRequestsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <Breadcrumb />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ProfileCardsSkeleton count={3} />
+        </div>
+      </div>
+    }>
+      <ProviderRequestsPageContent />
+    </Suspense>
   );
 }
