@@ -33,7 +33,10 @@ export default function GlobalOnboardingOverlay() {
     const onboardingParam = searchParams.get('onboarding');
     const intentParam = searchParams.get('intent');
 
-    if (onboardingParam === 'true' && status === 'authenticated') {
+    // Show overlay if URL has onboarding param and user is NOT explicitly unauthenticated
+    // We use !== 'unauthenticated' instead of === 'authenticated' because after a fresh
+    // signup redirect, status might still be 'loading' even though user IS authenticated
+    if (onboardingParam === 'true' && status !== 'unauthenticated') {
       setIntent(intentParam === 'provider' ? 'provider' : null);
       setShowOnboarding(true);
     }
