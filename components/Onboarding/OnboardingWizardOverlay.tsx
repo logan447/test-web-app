@@ -98,6 +98,18 @@ const PROVIDER_TYPES = [
   "Continuing Care Retirement Community",
 ];
 
+// Map display names to ProviderType enum values
+const PROVIDER_TYPE_MAP: Record<string, string> = {
+  "Assisted Living Facility": "ASSISTED_LIVING",
+  "Memory Care Community": "MEMORY_CARE",
+  "Skilled Nursing Facility": "NURSING_HOME",
+  "Home Care Agency": "HOME_CARE",
+  "Adult Day Center": "HOME_CARE", // No specific enum, closest match
+  "Hospice Provider": "HOSPICE",
+  "Independent Living Community": "INDEPENDENT_LIVING",
+  "Continuing Care Retirement Community": "ASSISTED_LIVING", // No specific enum, closest match
+};
+
 const CAREGIVER_SERVICES = [
   "Personal Care",
   "Companionship",
@@ -934,10 +946,11 @@ export default function OnboardingWizardOverlay({
 
       case "provider-org-fields":
       case "provider-individual-fields":
-        // Create provider identity
+        // Create provider identity AND provider profile
         setIsSubmitting(true);
         try {
-          const response = await fetch("/api/provider-identity", {
+          // Step 1: Create ProviderIdentity (backward compatibility)
+          const identityResponse = await fetch("/api/provider-identity", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -945,26 +958,73 @@ export default function OnboardingWizardOverlay({
             }),
           });
 
-          if (!response.ok) {
-            // Check if identity already exists (400 error)
-            // This can happen if user retries or there was a partial completion
-            const errorData = await response.json().catch(() => ({}));
-            if (response.status === 400 && errorData.error?.includes("already exists")) {
-              // Identity exists - that's fine, continue to complete
-              console.log("Provider identity already exists, continuing to complete");
+          if (!identityResponse.ok) {
+            const errorData = await identityResponse.json().catch(() => ({}));
+            if (identityResponse.status === 400 && errorData.error?.includes("already exists")) {
+              console.log("[Onboarding] Provider identity already exists, continuing");
             } else {
               throw new Error(errorData.error || "Failed to create provider identity");
             }
           }
 
-          // Update session to provider mode (safe to call even if already in provider mode)
+          // Step 2: Create Provider profile with onboarding data
+          // Use passed data to avoid stale closure
+          const orgName = selectedValue?.orgName ?? data.orgName;
+          const orgLocation = selectedValue?.orgLocation ?? data.orgLocation;
+          const orgProviderType = selectedValue?.orgProviderType ?? data.orgProviderType;
+          const caregiverName = selectedValue?.caregiverName ?? data.caregiverName;
+          const caregiverLocation = selectedValue?.caregiverLocation ?? data.caregiverLocation;
+          const caregiverServices = selectedValue?.caregiverServices ?? data.caregiverServices;
+
+          // Parse location into city and state
+          const locationStr = data.providerSubtype === "organization" ? orgLocation : caregiverLocation;
+          const [city, state] = (locationStr || "").split(",").map(s => s.trim());
+
+          // Determine provider type
+          let providerType: string;
+          if (data.providerSubtype === "individual") {
+            providerType = "INDEPENDENT_CAREGIVER";
+          } else {
+            providerType = PROVIDER_TYPE_MAP[orgProviderType || ""] || "HOME_CARE";
+          }
+
+          // Build provider data
+          const providerData = {
+            name: data.providerSubtype === "organization" ? orgName : caregiverName,
+            providerType,
+            city: city || "",
+            state: state || "",
+            careTypesOffered: caregiverServices || [],
+          };
+
+          console.log("[Onboarding] Creating provider profile:", providerData);
+
+          const providerResponse = await fetch("/api/providers/me", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(providerData),
+          });
+
+          if (!providerResponse.ok) {
+            const errorData = await providerResponse.json().catch(() => ({}));
+            if (providerResponse.status === 400 && errorData.error?.includes("already exists")) {
+              console.log("[Onboarding] Provider profile already exists, continuing");
+            } else {
+              console.error("[Onboarding] Failed to create provider profile:", errorData);
+              // Don't throw - allow user to continue even if profile creation fails
+              // They can complete their profile later in provider dashboard
+            }
+          } else {
+            console.log("[Onboarding] Provider profile created successfully");
+          }
+
+          // Step 3: Update session to provider mode
           await update({ activeMode: "PROVIDER" });
 
           setCurrentStep("complete");
         } catch (error) {
-          console.error("Error creating provider identity:", error);
+          console.error("[Onboarding] Error during provider onboarding:", error);
           // Still advance to complete on error - user can fix profile later
-          // This prevents getting stuck in a loop
           setCurrentStep("complete");
         } finally {
           setIsSubmitting(false);

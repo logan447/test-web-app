@@ -269,21 +269,21 @@ model Provider {
   userId String? @unique
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Basic info
+  // Basic info (required for visibility)
   name         String
   providerType ProviderType
   description  String?
 
-  // Contact
-  email   String
-  phone   String
+  // Contact (optional - can be added after onboarding)
+  email   String?
+  phone   String?
   website String?
 
-  // Location
-  address       String
+  // Location (city/state required for matching, others optional)
+  address       String?
   city          String
   state         String
-  zipCode       String
+  zipCode       String?
   serviceRadius Int? // miles
 
   // Services
