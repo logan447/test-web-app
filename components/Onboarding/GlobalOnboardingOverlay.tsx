@@ -29,7 +29,7 @@ export default function GlobalOnboardingOverlay() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
 
   // Track if we've ever triggered showing the overlay for this URL
   // This prevents hiding the overlay if conditions change mid-session
@@ -132,8 +132,30 @@ export default function GlobalOnboardingOverlay() {
         const profileData = await profileCheckResponse.json();
         console.log('[GlobalOnboarding] Profile verified:', { id: profileData.id, userId: profileData.userId });
 
-        // Step 2: Create engagement
-        console.log('[GlobalOnboarding] Step 2: Creating engagement...');
+        // Step 2: Ensure user is in Family mode before creating engagement
+        // This handles the edge case where a provider completed family onboarding
+        // but is still in provider mode
+        const currentMode = session?.user?.activeMode || 'FAMILY';
+        if (currentMode === 'PROVIDER') {
+          console.log('[GlobalOnboarding] Step 2: User in Provider mode, switching to Family mode...');
+          const modeResponse = await fetch('/api/user/mode', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'FAMILY' }),
+          });
+
+          if (!modeResponse.ok) {
+            console.error('[GlobalOnboarding] Failed to switch mode');
+            throw new Error('Failed to switch to Family mode. Please try again.');
+          }
+
+          // Update the session so subsequent API calls use the new mode
+          await updateSession({ activeMode: 'FAMILY' });
+          console.log('[GlobalOnboarding] Mode switched to Family');
+        }
+
+        // Step 3: Create engagement
+        console.log('[GlobalOnboarding] Step 3: Creating engagement...');
         console.log('[GlobalOnboarding] Provider ID:', pendingAction.providerId);
 
         const response = await fetch('/api/requests', {

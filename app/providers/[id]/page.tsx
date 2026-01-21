@@ -156,15 +156,49 @@ export default function ProviderProfilePage() {
       // Step 2: Update NextAuth session with new mode
       await updateSession({ activeMode: targetMode });
 
-      // Step 3: Close modal and show success
-      setConfirmModalOpen(false);
-      setPendingContactReason(null);
+      // Step 3: Show success message
       showToast.success(`Switched to ${targetMode === 'FAMILY' ? 'Family' : 'Provider'} mode`);
 
-      // Small delay then refresh to ensure UI reflects new mode
-      setTimeout(() => {
-        router.refresh();
-      }, 100);
+      // Step 4: If switching to Family mode and we have a pending contact action,
+      // close modal and re-trigger the CTA flow to check for family profile
+      if (targetMode === 'FAMILY' && pendingContactReason) {
+        const savedReason = pendingContactReason;
+        setConfirmModalOpen(false);
+        setPendingContactReason(null);
+
+        // Small delay to let the session update propagate, then re-check profile
+        setTimeout(async () => {
+          // Check if family profile exists
+          const profileResponse = await fetch('/api/family-profiles/me');
+          if (!profileResponse.ok) {
+            // No profile - trigger onboarding
+            triggerOnboardingWithAction(savedReason);
+          } else {
+            const profile = await profileResponse.json();
+            // Check MVP fields
+            const hasName = profile.lovedOneName && profile.lovedOneName.trim().length > 0;
+            const hasLocation = (profile.city && profile.city.trim().length > 0) ||
+                               (profile.state && profile.state.trim().length > 0);
+            const hasCareTypes = profile.careTypes && profile.careTypes.length > 0;
+
+            if (!hasName || !hasLocation || !hasCareTypes) {
+              // Profile incomplete - trigger onboarding
+              triggerOnboardingWithAction(savedReason);
+            } else {
+              // Profile complete - show confirmation modal again (now they can proceed)
+              setPendingContactReason(savedReason);
+              setConfirmModalOpen(true);
+            }
+          }
+        }, 200);
+      } else {
+        // Just close modal and refresh
+        setConfirmModalOpen(false);
+        setPendingContactReason(null);
+        setTimeout(() => {
+          router.refresh();
+        }, 100);
+      }
     } catch (error) {
       console.error('Error switching mode:', error);
       showToast.error('Failed to switch mode. Please try again.');
@@ -414,7 +448,16 @@ export default function ProviderProfilePage() {
       return;
     }
 
-    // User is logged in - check profile completeness
+    // User is logged in - check mode first
+    // If user is in Provider mode, show confirmation modal with mode switch prompt
+    // instead of triggering family onboarding
+    if (isProviderMode) {
+      setPendingContactReason(reason);
+      setConfirmModalOpen(true);
+      return;
+    }
+
+    // User is in Family mode - check profile completeness
     setCreatingEngagement(true);
     try {
       // Check if family profile exists and is complete
