@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import OnboardingWizardOverlay from './OnboardingWizardOverlay';
@@ -25,6 +25,10 @@ export default function GlobalOnboardingOverlay() {
   const searchParams = useSearchParams();
   const { status } = useSession();
 
+  // Track if we've ever triggered showing the overlay for this URL
+  // This prevents hiding the overlay if conditions change mid-session
+  const hasTriggeredRef = useRef(false);
+
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [intent, setIntent] = useState<OnboardingIntent>(null);
 
@@ -33,12 +37,23 @@ export default function GlobalOnboardingOverlay() {
     const onboardingParam = searchParams.get('onboarding');
     const intentParam = searchParams.get('intent');
 
-    // Show overlay if URL has onboarding param and user is NOT explicitly unauthenticated
-    // We use !== 'unauthenticated' instead of === 'authenticated' because after a fresh
-    // signup redirect, status might still be 'loading' even though user IS authenticated
-    if (onboardingParam === 'true' && status !== 'unauthenticated') {
+    // If we have the onboarding param in URL and haven't triggered yet
+    if (onboardingParam === 'true' && !hasTriggeredRef.current) {
+      // Set intent immediately
       setIntent(intentParam === 'provider' ? 'provider' : null);
-      setShowOnboarding(true);
+
+      // Show overlay immediately if not unauthenticated
+      // During 'loading' status, we still show because user likely just signed up
+      if (status !== 'unauthenticated') {
+        hasTriggeredRef.current = true;
+        setShowOnboarding(true);
+      }
+    }
+
+    // If status becomes definitively unauthenticated and we haven't triggered,
+    // don't show the overlay (user is logged out)
+    if (status === 'unauthenticated' && !hasTriggeredRef.current) {
+      setShowOnboarding(false);
     }
   }, [searchParams, status]);
 

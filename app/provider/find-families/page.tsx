@@ -47,7 +47,9 @@ function ProviderRequestsPageContent() {
 
   // Check if onboarding is in progress (GlobalOnboardingOverlay handles this)
   // Don't redirect during onboarding - let the overlay complete first
-  const isOnboarding = searchParams.get('onboarding') === 'true';
+  // NOTE: Check this BEFORE any other conditions to ensure overlay has a chance to show
+  const onboardingParam = searchParams.get('onboarding');
+  const isOnboarding = onboardingParam === 'true';
 
   // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
@@ -68,6 +70,19 @@ function ProviderRequestsPageContent() {
   });
 
   useEffect(() => {
+    // CRITICAL: If onboarding is in progress, skip ALL redirects
+    // GlobalOnboardingOverlay will handle the wizard, and mode will be set after completion
+    // We still fetch data so the page is ready when onboarding completes
+    if (isOnboarding) {
+      // Only fetch data if we have some session (even loading)
+      if (status !== 'unauthenticated') {
+        fetchProfiles();
+        fetchSavedProfiles();
+        fetchSentRequests();
+      }
+      return;
+    }
+
     if (status === 'loading' || identityLoading) return;
 
     // Only redirect to login if session status is definitively unauthenticated
@@ -79,9 +94,8 @@ function ProviderRequestsPageContent() {
     // Session is authenticated but data might still be loading
     if (!session) return;
 
-    // IMPORTANT: Don't redirect if onboarding is in progress
-    // GlobalOnboardingOverlay will handle onboarding, and mode will be set after completion
-    if (!isProviderMode && !isOnboarding) {
+    // Redirect non-provider users to home (only when NOT onboarding)
+    if (!isProviderMode) {
       router.push('/');
       return;
     }
