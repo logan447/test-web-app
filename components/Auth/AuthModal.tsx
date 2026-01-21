@@ -119,9 +119,15 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       onClose();
 
       if (intent === "provider") {
+        // Provider signup: redirect to provider home base with onboarding
         window.location.href = "/provider/find-families?onboarding=true&intent=provider";
       } else {
-        window.location.href = "/?onboarding=true";
+        // Family signup: stay on current page, add onboarding params
+        // This preserves context (e.g., user was on a provider detail page)
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('onboarding', 'true');
+        currentUrl.searchParams.set('intent', 'family');
+        window.location.href = currentUrl.toString();
       }
 
     } catch (error) {

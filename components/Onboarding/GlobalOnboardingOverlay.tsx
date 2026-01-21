@@ -39,8 +39,15 @@ export default function GlobalOnboardingOverlay() {
 
     // If we have the onboarding param in URL and haven't triggered yet
     if (onboardingParam === 'true' && !hasTriggeredRef.current) {
-      // Set intent immediately
-      setIntent(intentParam === 'provider' ? 'provider' : null);
+      // Set intent from URL param - determines which wizard step to start on
+      // - 'provider' → provider subtype selection
+      // - 'family' → family fields (skip intent question)
+      // - null → show intent question first
+      const resolvedIntent: OnboardingIntent =
+        intentParam === 'provider' ? 'provider' :
+        intentParam === 'family' ? 'family' :
+        null;
+      setIntent(resolvedIntent);
 
       // Show overlay immediately if not unauthenticated
       // During 'loading' status, we still show because user likely just signed up
