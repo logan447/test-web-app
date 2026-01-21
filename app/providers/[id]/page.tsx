@@ -307,10 +307,17 @@ export default function ProviderProfilePage() {
       const createdRequest = await response.json();
       setContactModalOpen(false);
 
-      // Show success message and redirect to engagement detail page (per Sprint 2 task 2.0.3)
-      showToast.success('Request sent! Redirecting to your conversation...');
+      // Show contextual success message based on the action type
+      const successMessages: Record<string, string> = {
+        'Ask a question': 'Question sent!',
+        'Request consultation': 'Consultation requested!',
+        'Request interview': 'Interview requested!',
+        'Schedule a tour': 'Tour request sent!',
+      };
+      const baseMessage = successMessages[formData.contactReason] || 'Request sent!';
+      showToast.success(`${baseMessage} Redirecting to your conversation...`);
 
-      // Redirect to the engagement detail page after a short delay for the toast to show
+      // Redirect to the engagement detail page (the specific request thread)
       setTimeout(() => {
         router.push(`/dashboard/my-providers/${createdRequest.id}`);
       }, 500);
