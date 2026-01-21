@@ -93,7 +93,7 @@ export default function ProviderCTASection({
         </svg>
       </div>
       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        You're Connected!
+        You&apos;re Connected!
       </h3>
       <p className="text-sm text-gray-600 mb-4">
         You have an active conversation with {providerName}
