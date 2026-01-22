@@ -187,12 +187,12 @@ export default function ProviderProfileEditPage() {
   });
 
   const [careServicesData, setCareServicesData] = useState<CareServicesData>({
-    careTypesOffered: [],
-    detailedMedicalServices: [],
-    detailedPersonalCareServices: [],
-    detailedDailyLivingServices: [],
-    detailedMemoryCareServices: [],
-    detailedSocialRecServices: [],
+    careTypes: [],
+    medicalServices: [],
+    personalCareServices: [],
+    dailyLivingServices: [],
+    memoryCareServices: [],
+    socialRecreationServices: [],
   });
 
   const [pricingData, setPricingData] = useState<PricingStructureData>({
@@ -338,12 +338,13 @@ export default function ProviderProfileEditPage() {
     });
 
     setCareServicesData({
-      careTypesOffered: data.careTypesOffered || [],
-      detailedMedicalServices: (data.detailedMedicalServices as string[]) || [],
-      detailedPersonalCareServices: (data.detailedPersonalCareServices as string[]) || [],
-      detailedDailyLivingServices: (data.detailedDailyLivingServices as string[]) || [],
-      detailedMemoryCareServices: (data.detailedMemoryCareServices as string[]) || [],
-      detailedSocialRecServices: (data.detailedSocialRecServices as string[]) || [],
+      // Map from API field names to component field names
+      careTypes: data.careTypesOffered || [],
+      medicalServices: (data.detailedMedicalServices as string[]) || [],
+      personalCareServices: (data.detailedPersonalCareServices as string[]) || [],
+      dailyLivingServices: (data.detailedDailyLivingServices as string[]) || [],
+      memoryCareServices: (data.detailedMemoryCareServices as string[]) || [],
+      socialRecreationServices: (data.detailedSocialRecServices as string[]) || [],
     });
 
     setPricingData({
@@ -468,13 +469,13 @@ export default function ProviderProfileEditPage() {
       missionStatement: aboutUsData.missionStatement || null,
       whatMakesUsUnique: aboutUsData.whatMakesUsUnique || null,
 
-      // Services
-      careTypesOffered: careServicesData.careTypesOffered,
-      detailedMedicalServices: careServicesData.detailedMedicalServices,
-      detailedPersonalCareServices: careServicesData.detailedPersonalCareServices,
-      detailedDailyLivingServices: careServicesData.detailedDailyLivingServices,
-      detailedMemoryCareServices: careServicesData.detailedMemoryCareServices,
-      detailedSocialRecServices: careServicesData.detailedSocialRecServices,
+      // Services - map from component field names to API field names
+      careTypesOffered: careServicesData.careTypes,
+      detailedMedicalServices: careServicesData.medicalServices,
+      detailedPersonalCareServices: careServicesData.personalCareServices,
+      detailedDailyLivingServices: careServicesData.dailyLivingServices,
+      detailedMemoryCareServices: careServicesData.memoryCareServices,
+      detailedSocialRecServices: careServicesData.socialRecreationServices,
 
       // Pricing
       priceMin: pricingData.priceMin ? parseFloat(pricingData.priceMin) : null,
@@ -893,7 +894,7 @@ export default function ProviderProfileEditPage() {
                 description="Types of care you provide"
                 isExpanded={expandedSections.includes("services")}
                 onToggle={() => toggleSection("services")}
-                badge={careServicesData.careTypesOffered.length > 0 ? "complete" : "required"}
+                badge={careServicesData.careTypes.length > 0 ? "complete" : "required"}
               >
                 <CareServicesSection
                   data={careServicesData}
