@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
-import { openOnboardingOverlay, triggerOnboardingAfterSignup } from "@/components/Onboarding";
-import type { ProviderSubtype } from "@/components/Onboarding";
 
 const MAIN_CATEGORIES = [
   {
@@ -96,6 +94,8 @@ const OTHER_CATEGORIES = [
 function MainNavContent() {
   const { data: session, update: updateSession } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openOtherSubdropdown, setOpenOtherSubdropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -179,7 +179,9 @@ function MainNavContent() {
       // Step 4: If switching to provider mode without a provider profile,
       // trigger onboarding wizard (per Manual Ch 3)
       if (newMode === 'PROVIDER' && !providerType) {
-        triggerOnboardingAfterSignup('provider');
+        // Navigate to landing page with onboarding trigger
+        router.push(`${result.data.landingPage}?onboarding=true&intent=provider`);
+        return;
       }
 
       // Step 5: Navigate to landing page (soft navigation preserves session)
@@ -198,15 +200,21 @@ function MainNavContent() {
   const isProviderMode = currentMode === 'PROVIDER';
 
   /**
-   * Trigger provider onboarding overlay for existing users.
-   * Uses custom event to open overlay immediately on current page.
+   * Trigger provider onboarding overlay by navigating to current page with URL params.
+   * GlobalOnboardingOverlay reads these params and shows the wizard.
    * @param subtype - Optional provider subtype to skip subtype selection step
    *   - 'individual': For "Become a Caregiver" button (skip to individual flow)
    *   - null/undefined: For "Complete Profile" (let wizard ask subtype if unknown)
    */
-  const triggerProviderOnboarding = (subtype?: ProviderSubtype) => {
-    // Open overlay immediately via custom event
-    openOnboardingOverlay('provider', subtype || undefined);
+  const triggerProviderOnboarding = (subtype?: 'individual' | 'organization') => {
+    // Build URL with onboarding params
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('onboarding', 'true');
+    params.set('intent', 'provider');
+    if (subtype) {
+      params.set('providerSubtype', subtype);
+    }
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
@@ -936,5 +944,29 @@ function MainNavContent() {
   );
 }
 
-// Export component directly
-export default MainNavContent;
+// Fallback component for Suspense
+function MainNavFallback() {
+  return (
+    <nav className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-20">
+          <div className="flex items-center">
+            <div className="h-8 w-24 bg-gray-200 animate-pulse rounded"></div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="h-8 w-20 bg-gray-200 animate-pulse rounded"></div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// Default export wraps the component in Suspense to handle useSearchParams
+export default function MainNav() {
+  return (
+    <Suspense fallback={<MainNavFallback />}>
+      <MainNavContent />
+    </Suspense>
+  );
+}

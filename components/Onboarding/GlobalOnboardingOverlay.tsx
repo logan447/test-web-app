@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import OnboardingWizardOverlay from './OnboardingWizardOverlay';
-import type { OnboardingIntent, PendingActionContext } from './OnboardingWizardOverlay';
+import type { OnboardingIntent, ProviderSubtype, PendingActionContext } from './OnboardingWizardOverlay';
 import { showToast } from '@/lib/toast';
 
 /**
@@ -41,6 +41,7 @@ export default function GlobalOnboardingOverlay() {
 
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [intent, setIntent] = useState<OnboardingIntent>(null);
+  const [providerSubtype, setProviderSubtype] = useState<ProviderSubtype>(null);
   const [pendingAction, setPendingAction] = useState<PendingActionContext | undefined>(undefined);
   const [isCreatingEngagement, setIsCreatingEngagement] = useState(false);
 
@@ -48,11 +49,12 @@ export default function GlobalOnboardingOverlay() {
   useEffect(() => {
     const onboardingParam = searchParams.get('onboarding');
     const intentParam = searchParams.get('intent');
+    const providerSubtypeParam = searchParams.get('providerSubtype');
 
     // If we have the onboarding param in URL and haven't triggered yet
     if (onboardingParam === 'true' && !hasTriggeredRef.current) {
       // Set intent from URL param - determines which wizard step to start on
-      // - 'provider' → provider subtype selection
+      // - 'provider' → provider subtype selection (or skip if providerSubtype provided)
       // - 'family' → family fields (skip intent question)
       // - null → show intent question first
       const resolvedIntent: OnboardingIntent =
@@ -60,6 +62,15 @@ export default function GlobalOnboardingOverlay() {
         intentParam === 'family' ? 'family' :
         null;
       setIntent(resolvedIntent);
+
+      // Set provider subtype if provided (skips subtype selection step)
+      // - 'individual' → skip to individual caregiver fields
+      // - 'organization' → skip to organization fields
+      const resolvedSubtype: ProviderSubtype =
+        providerSubtypeParam === 'individual' ? 'individual' :
+        providerSubtypeParam === 'organization' ? 'organization' :
+        null;
+      setProviderSubtype(resolvedSubtype);
 
       // Read pending action context (for contextual handoff)
       const actionType = searchParams.get('action');
@@ -259,6 +270,7 @@ export default function GlobalOnboardingOverlay() {
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.delete('onboarding');
     newParams.delete('intent');
+    newParams.delete('providerSubtype');
     newParams.delete('action');
     newParams.delete('actionProviderId');
     newParams.delete('actionProviderName');
@@ -281,6 +293,7 @@ export default function GlobalOnboardingOverlay() {
       isOpen={true}
       onClose={handleComplete}
       initialIntent={intent}
+      initialProviderSubtype={providerSubtype}
       pendingAction={pendingAction}
       onComplete={handleComplete}
     />

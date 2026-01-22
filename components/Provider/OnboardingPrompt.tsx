@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 interface OnboardingPromptProps {
   // Optional: Customize the message for the specific context
@@ -18,11 +18,21 @@ interface OnboardingPromptProps {
  * - User can dismiss and continue exploring
  * - Provides clear value proposition for completing onboarding
  */
-export default function OnboardingPrompt({
+function OnboardingPromptInner({
   context = "default",
   dismissible = true,
 }: OnboardingPromptProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [dismissed, setDismissed] = useState(false);
+
+  const handleCompleteProfile = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('onboarding', 'true');
+    params.set('intent', 'provider');
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   if (dismissed) return null;
 
@@ -63,12 +73,12 @@ export default function OnboardingPrompt({
           <h3 className="text-sm font-semibold text-primary-800">{title}</h3>
           <p className="mt-1 text-sm text-primary-700">{description}</p>
           <div className="mt-3 flex gap-3">
-            <Link
-              href="/provider/profile/edit"
+            <button
+              onClick={handleCompleteProfile}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Complete Profile
-            </Link>
+            </button>
             {dismissible && (
               <button
                 type="button"
@@ -98,5 +108,14 @@ export default function OnboardingPrompt({
         )}
       </div>
     </div>
+  );
+}
+
+// Default export wraps the component in Suspense to handle useSearchParams
+export default function OnboardingPrompt(props: OnboardingPromptProps) {
+  return (
+    <Suspense fallback={null}>
+      <OnboardingPromptInner {...props} />
+    </Suspense>
   );
 }

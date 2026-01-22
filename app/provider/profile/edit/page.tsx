@@ -3,24 +3,19 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
-
-// Key used by onboarding system to track if wizard was shown
-const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
 
 /**
  * Provider Profile Edit Page
  *
  * This page acts as a trigger point for the onboarding wizard.
- * It sets the sessionStorage trigger and navigates to /provider/profile
- * where the OnboardingTrigger in the root layout will display the overlay.
+ * It redirects to /provider/profile with URL params that trigger
+ * GlobalOnboardingOverlay to display the wizard.
  *
  * Flow:
  * 1. User visits /provider/profile/edit
- * 2. Page clears "shown" flag and sets onboarding trigger
- * 3. Page navigates to /provider/profile
- * 4. OnboardingTrigger reads trigger from sessionStorage
- * 5. Wizard overlay appears on top of profile dashboard
+ * 2. Page redirects to /provider/profile?onboarding=true&intent=provider
+ * 3. GlobalOnboardingOverlay reads URL params and shows wizard
+ * 4. Wizard overlay appears on top of profile dashboard
  */
 export default function ProviderProfileEditPage() {
   const router = useRouter();
@@ -43,18 +38,9 @@ export default function ProviderProfileEditPage() {
     // Set trigger and navigate
     hasTriggered.current = true;
 
-    // Clear the "shown" flag so wizard can reopen for editing
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem(ONBOARDING_SHOWN_KEY);
-    }
-
-    // Set the onboarding trigger - no subtype passed, wizard will ask if unknown
-    // or use existing provider type from profile
-    triggerOnboardingAfterSignup("provider");
-
-    // Navigate to profile page where overlay will appear
+    // Navigate to profile page with URL params that trigger GlobalOnboardingOverlay
     // Using replace() so back button doesn't return to this loading page
-    router.replace("/provider/profile");
+    router.replace("/provider/profile?onboarding=true&intent=provider");
   }, [status, router]);
 
   // Brief loading state while redirecting

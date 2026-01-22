@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import { openOnboardingOverlay } from "@/components/Onboarding";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 interface CompletionItem {
   label: string;
@@ -19,7 +19,21 @@ interface ProfileCompletionData {
   mode: "FAMILY" | "PROVIDER";
 }
 
-export default function ProfileCompletionWidget() {
+// Loading fallback for Suspense boundary
+function ProfileCompletionSkeleton() {
+  return (
+    <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-lg shadow p-6 animate-pulse">
+      <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+    </div>
+  );
+}
+
+// Inner component that uses useSearchParams
+function ProfileCompletionWidgetInner() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<ProfileCompletionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -29,12 +43,14 @@ export default function ProfileCompletionWidget() {
   }, []);
 
   /**
-   * Trigger provider onboarding overlay.
-   * No subtype passed - wizard will ask if not already known.
+   * Trigger provider onboarding overlay by navigating to current page with URL params.
+   * GlobalOnboardingOverlay reads these params and shows the wizard.
    */
   const handleCompleteProviderProfile = () => {
-    // Open overlay immediately via custom event
-    openOnboardingOverlay('provider');
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('onboarding', 'true');
+    params.set('intent', 'provider');
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const fetchCompletion = async () => {
@@ -244,5 +260,14 @@ export default function ProfileCompletionWidget() {
         )}
       </div>
     </div>
+  );
+}
+
+// Default export wraps the component in Suspense to handle useSearchParams
+export default function ProfileCompletionWidget() {
+  return (
+    <Suspense fallback={<ProfileCompletionSkeleton />}>
+      <ProfileCompletionWidgetInner />
+    </Suspense>
   );
 }
