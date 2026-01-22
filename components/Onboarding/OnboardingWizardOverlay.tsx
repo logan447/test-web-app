@@ -24,8 +24,10 @@ export type WizardStep =
   | "intent" // Ask: family or provider?
   | "provider-subtype" // Ask: organization or individual?
   | "family-fields" // Collect: name, location, care type
+  | "family-visibility" // Confirm: family profile visibility
   | "provider-org-fields" // Collect: org name, location, provider type
   | "provider-individual-fields" // Collect: name, location, services
+  | "provider-visibility" // Confirm: provider profile visibility
   | "complete"; // Done
 
 export interface OnboardingData {
@@ -47,6 +49,12 @@ export interface OnboardingData {
   caregiverName?: string;
   caregiverLocation?: string;
   caregiverServices?: string[];
+
+  // Visibility settings
+  isVisible?: boolean;
+  isPublic?: boolean; // For family profiles
+  availableForFamilies?: boolean; // For individual caregivers
+  availableForOrganizations?: boolean; // For individual caregivers
 }
 
 interface OnboardingWizardOverlayProps {
@@ -98,15 +106,26 @@ const PROVIDER_TYPES = [
   "Continuing Care Retirement Community",
 ];
 
+// Map display names to ProviderType enum values
+const PROVIDER_TYPE_MAP: Record<string, string> = {
+  "Assisted Living Facility": "ASSISTED_LIVING",
+  "Memory Care Community": "MEMORY_CARE",
+  "Skilled Nursing Facility": "NURSING_HOME",
+  "Home Care Agency": "HOME_CARE",
+  "Adult Day Center": "HOME_CARE", // No specific enum, closest match
+  "Hospice Provider": "HOSPICE",
+  "Independent Living Community": "INDEPENDENT_LIVING",
+  "Continuing Care Retirement Community": "ASSISTED_LIVING", // No specific enum, closest match
+};
+
 const CAREGIVER_SERVICES = [
-  "Personal Care",
-  "Companionship",
-  "Meal Preparation",
-  "Medication Reminders",
-  "Light Housekeeping",
-  "Transportation",
-  "Dementia Care",
-  "Respite Care",
+  { label: "Personal Care", value: "PERSONAL_CARE" },
+  { label: "Companionship", value: "COMPANION_CARE" },
+  { label: "Skilled Nursing", value: "SKILLED_NURSING" },
+  { label: "Memory Care", value: "MEMORY_CARE" },
+  { label: "Hospice Care", value: "HOSPICE_CARE" },
+  { label: "Respite Care", value: "RESPITE_CARE" },
+  { label: "Live-In Care", value: "LIVE_IN_CARE" },
 ];
 
 // ============================================================================
@@ -117,16 +136,18 @@ function getStepNumber(step: WizardStep, data: OnboardingData): number {
   if (step === "intent") return 1;
   if (step === "provider-subtype") return 2;
   if (step === "family-fields") return 2;
+  if (step === "family-visibility") return 3;
   if (step === "provider-org-fields") return 3;
   if (step === "provider-individual-fields") return 3;
-  if (step === "complete") return data.intent === "family" ? 3 : 4;
+  if (step === "provider-visibility") return 4;
+  if (step === "complete") return data.intent === "family" ? 4 : 5;
   return 1;
 }
 
 function getTotalSteps(data: OnboardingData): number {
-  if (data.intent === "family") return 2; // intent + fields
-  if (data.intent === "provider") return 3; // intent + subtype + fields
-  return 2; // default
+  if (data.intent === "family") return 3; // intent + fields + visibility
+  if (data.intent === "provider") return 4; // intent + subtype + fields + visibility
+  return 3; // default
 }
 
 function getStepTitle(step: WizardStep): string {
@@ -137,10 +158,14 @@ function getStepTitle(step: WizardStep): string {
       return "Tell us about yourself";
     case "family-fields":
       return "About your care search";
+    case "family-visibility":
+      return "Profile visibility";
     case "provider-org-fields":
       return "About your organization";
     case "provider-individual-fields":
       return "About your services";
+    case "provider-visibility":
+      return "Profile visibility";
     case "complete":
       return "You're all set!";
     default:
@@ -337,19 +362,71 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
     familyState: "",
     familyCareType: data.familyCareType || "",
   });
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Compose location for display/storage
-    const familyLocation = `${localData.familyCity}, ${localData.familyState}`;
-    const formData = {
-      familyName: localData.familyName,
-      familyLocation,
-      familyCareType: localData.familyCareType,
-    };
-    onUpdate(formData);
-    // Pass form data directly to avoid stale closure
-    onNext(formData);
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Compose location for display/storage
+      const familyLocation = `${localData.familyCity}, ${localData.familyState}`;
+      const formData = {
+        familyName: localData.familyName,
+        familyLocation,
+        familyCareType: localData.familyCareType,
+      };
+      onUpdate(formData);
+
+      // Create family profile HERE instead of in handleNext
+      // This ensures we block on failure and show proper error
+      const profileData = {
+        lovedOneName: localData.familyName,
+        careTypes: localData.familyCareType ? [localData.familyCareType] : [],
+        location: familyLocation,
+        city: localData.familyCity,
+        state: localData.familyState,
+        zipCode: "",
+      };
+
+      // Check if profile already exists
+      const checkResponse = await fetch("/api/family-profiles/me");
+      const profileExists = checkResponse.ok;
+
+      // Create or update profile
+      const response = await fetch("/api/family-profiles/me", {
+        method: profileExists ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("[Onboarding] Failed to save family profile:", errorData);
+
+        // Show user-friendly error
+        if (response.status === 401) {
+          setError("Session expired. Please refresh and try again.");
+        } else if (errorData.error) {
+          setError(errorData.error);
+        } else {
+          setError("Unable to save your profile. Please try again.");
+        }
+        return;
+      }
+
+      console.log("[Onboarding] Family profile saved successfully");
+
+      // Profile saved successfully - now advance to complete step
+      onNext(formData);
+    } catch (err) {
+      console.error("[Onboarding] Error saving family profile:", err);
+      setError("Unable to save your profile. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isValid = localData.familyName && localData.familyCity && localData.familyState && localData.familyCareType;
@@ -359,6 +436,13 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
       <p className="text-gray-600 text-center">
         Tell us a bit about your care search so we can help you find the right providers.
       </p>
+
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+          <p className="text-sm text-red-800">{error}</p>
+        </div>
+      )}
 
       <div className="space-y-4">
         <div>
@@ -429,17 +513,28 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
           <button
             type="button"
             onClick={onBack}
-            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            disabled={isSubmitting}
+            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             Back
           </button>
         )}
         <button
           type="submit"
-          disabled={!isValid}
+          disabled={!isValid || isSubmitting}
           className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Continue
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Saving...
+            </span>
+          ) : (
+            "Continue"
+          )}
         </button>
       </div>
 
@@ -447,7 +542,8 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
         <button
           type="button"
           onClick={onSkip}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          disabled={isSubmitting}
+          className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
         >
           Skip for now
         </button>
@@ -566,10 +662,10 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
     caregiverServices: data.caregiverServices || [] as string[],
   });
 
-  const handleServiceToggle = (service: string) => {
-    const services = localData.caregiverServices.includes(service)
-      ? localData.caregiverServices.filter((s) => s !== service)
-      : [...localData.caregiverServices, service];
+  const handleServiceToggle = (serviceValue: string) => {
+    const services = localData.caregiverServices.includes(serviceValue)
+      ? localData.caregiverServices.filter((s) => s !== serviceValue)
+      : [...localData.caregiverServices, serviceValue];
     setLocalData({ ...localData, caregiverServices: services });
   };
 
@@ -627,16 +723,16 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
           <div className="grid grid-cols-2 gap-2">
             {CAREGIVER_SERVICES.map((service) => (
               <button
-                key={service}
+                key={service.value}
                 type="button"
-                onClick={() => handleServiceToggle(service)}
+                onClick={() => handleServiceToggle(service.value)}
                 className={`p-3 text-sm rounded-lg border-2 transition-all ${
-                  localData.caregiverServices.includes(service)
+                  localData.caregiverServices.includes(service.value)
                     ? "border-primary-600 bg-primary-50 text-primary-700"
                     : "border-gray-200 hover:border-gray-300"
                 }`}
               >
-                {service}
+                {service.label}
               </button>
             ))}
           </div>
@@ -669,6 +765,205 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
           className="text-sm text-gray-500 hover:text-gray-700"
         >
           Skip for now
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function FamilyVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
+  const [isPublic, setIsPublic] = useState(data.isPublic ?? true);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdate({ isPublic });
+    onNext({ isPublic });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <p className="text-gray-600 text-center">
+        Choose who can discover your care profile on Olera.
+      </p>
+
+      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+          />
+          <div>
+            <span className="font-medium text-gray-900">Make my profile visible to providers</span>
+            <p className="text-sm text-gray-600 mt-1">
+              Care providers can find your profile and reach out to offer their services. You control who you respond to.
+            </p>
+          </div>
+        </label>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+        <p className="text-sm text-blue-800">
+          <strong>Privacy first:</strong> Your contact info is never shared until you choose to connect with a provider.
+        </p>
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Back
+          </button>
+        )}
+        <button
+          type="submit"
+          className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+        >
+          Continue
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
+  // For organizations: visibleToFamilies = main visibility, hiringCaregivers = availableForOrganizations
+  // For individuals: availableForFamilies and availableForOrganizations are the two options
+  const [visibleToFamilies, setVisibleToFamilies] = useState(data.isVisible ?? true);
+  const [hiringCaregivers, setHiringCaregivers] = useState(data.availableForOrganizations ?? true);
+  const [availableForFamilies, setAvailableForFamilies] = useState(data.availableForFamilies ?? true);
+  const [availableForOrganizations, setAvailableForOrganizations] = useState(data.availableForOrganizations ?? true);
+
+  const isIndividual = data.providerSubtype === "individual";
+  const isOrganization = data.providerSubtype === "organization";
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    let visibilityData;
+
+    if (isIndividual) {
+      // For individuals: isVisible is true if either option is checked
+      visibilityData = {
+        isVisible: availableForFamilies || availableForOrganizations,
+        availableForFamilies,
+        availableForOrganizations,
+      };
+    } else {
+      // For organizations: isVisible = visibleToFamilies, availableForOrganizations = hiringCaregivers
+      visibilityData = {
+        isVisible: visibleToFamilies,
+        availableForFamilies: true,
+        availableForOrganizations: hiringCaregivers,
+      };
+    }
+
+    onUpdate(visibilityData);
+    onNext(visibilityData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <p className="text-gray-600 text-center">
+        {isIndividual
+          ? "Choose who can find and contact you on Olera."
+          : "Choose who can discover your organization on Olera."}
+      </p>
+
+      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+        {/* Organization options - two equal-level checkboxes */}
+        {isOrganization && (
+          <>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={visibleToFamilies}
+                onChange={(e) => setVisibleToFamilies(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">Make our profile visible to families</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Families searching for care can find and contact you
+                </p>
+              </div>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hiringCaregivers}
+                onChange={(e) => setHiringCaregivers(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">We&apos;re hiring caregivers</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Individual caregivers seeking employment can find and contact you
+                </p>
+              </div>
+            </label>
+          </>
+        )}
+
+        {/* Individual caregiver options - two equal-level checkboxes */}
+        {isIndividual && (
+          <>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={availableForFamilies}
+                onChange={(e) => setAvailableForFamilies(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">Families seeking direct hire</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Families can contact you directly about care needs
+                </p>
+              </div>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={availableForOrganizations}
+                onChange={(e) => setAvailableForOrganizations(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">Care organizations hiring staff</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Agencies and facilities can contact you about employment
+                </p>
+              </div>
+            </label>
+          </>
+        )}
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+        <p className="text-sm text-blue-800">
+          <strong>You&apos;re in control:</strong> You can change these settings anytime from your profile.
+        </p>
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Back
+          </button>
+        )}
+        <button
+          type="submit"
+          className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+        >
+          Continue
         </button>
       </div>
     </form>
@@ -856,60 +1151,38 @@ export default function OnboardingWizardOverlay({
         break;
 
       case "family-fields":
-        // Save family profile data to FamilyProfile via API
+        // Profile creation is now handled in FamilyFieldsStep with proper error handling
+        // This case is only reached after profile is successfully saved
+        setCurrentStep("family-visibility");
+        break;
+
+      case "family-visibility":
+        // Update the family profile with visibility settings
         setIsSubmitting(true);
         try {
-          // Use passed data to avoid stale closure, fallback to state
-          const familyName = selectedValue?.familyName ?? data.familyName;
-          const familyLocation = selectedValue?.familyLocation ?? data.familyLocation;
-          const familyCareType = selectedValue?.familyCareType ?? data.familyCareType;
-
-          // Parse location into city and state
-          const [city, state] = (familyLocation || "").split(",").map(s => s.trim());
-
-          // First check if profile exists
-          const checkResponse = await fetch("/api/family-profiles/me");
-          const profileExists = checkResponse.ok;
-
-          // Prepare profile data
-          const profileData = {
-            lovedOneName: familyName,
-            careTypes: familyCareType ? [familyCareType] : [],
-            location: familyLocation || "",
-            city: city || "",
-            state: state || "",
-            zipCode: "", // Can be filled in later
-          };
-
-          // Create or update profile
-          const response = await fetch("/api/family-profiles/me", {
-            method: profileExists ? "PUT" : "POST",
+          const isPublic = selectedValue?.isPublic ?? data.isPublic ?? true;
+          await fetch("/api/family-profiles/me", {
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(profileData),
+            body: JSON.stringify({ isPublic }),
           });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Failed to save family profile:", errorData);
-            // Continue anyway - profile can be completed later
-          }
-
-          setCurrentStep("complete");
+          console.log("[Onboarding] Family visibility saved:", { isPublic });
         } catch (error) {
-          console.error("Error saving family profile:", error);
-          // Continue to complete step even on error - user can fill details later
-          setCurrentStep("complete");
+          console.error("[Onboarding] Failed to save family visibility:", error);
+          // Continue anyway - user can update later
         } finally {
           setIsSubmitting(false);
         }
+        setCurrentStep("complete");
         break;
 
       case "provider-org-fields":
       case "provider-individual-fields":
-        // Create provider identity
+        // Create provider identity AND provider profile
         setIsSubmitting(true);
         try {
-          const response = await fetch("/api/provider-identity", {
+          // Step 1: Create ProviderIdentity (backward compatibility)
+          const identityResponse = await fetch("/api/provider-identity", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -917,30 +1190,109 @@ export default function OnboardingWizardOverlay({
             }),
           });
 
-          if (!response.ok) {
-            // Check if identity already exists (400 error)
-            // This can happen if user retries or there was a partial completion
-            const errorData = await response.json().catch(() => ({}));
-            if (response.status === 400 && errorData.error?.includes("already exists")) {
-              // Identity exists - that's fine, continue to complete
-              console.log("Provider identity already exists, continuing to complete");
+          if (!identityResponse.ok) {
+            const errorData = await identityResponse.json().catch(() => ({}));
+            if (identityResponse.status === 400 && errorData.error?.includes("already exists")) {
+              console.log("[Onboarding] Provider identity already exists, continuing");
             } else {
               throw new Error(errorData.error || "Failed to create provider identity");
             }
           }
 
-          // Update session to provider mode (safe to call even if already in provider mode)
+          // Step 2: Create Provider profile with onboarding data
+          // Use passed data to avoid stale closure
+          const orgName = selectedValue?.orgName ?? data.orgName;
+          const orgLocation = selectedValue?.orgLocation ?? data.orgLocation;
+          const orgProviderType = selectedValue?.orgProviderType ?? data.orgProviderType;
+          const caregiverName = selectedValue?.caregiverName ?? data.caregiverName;
+          const caregiverLocation = selectedValue?.caregiverLocation ?? data.caregiverLocation;
+          const caregiverServices = selectedValue?.caregiverServices ?? data.caregiverServices;
+
+          // Parse location into city and state
+          const locationStr = data.providerSubtype === "organization" ? orgLocation : caregiverLocation;
+          const [city, state] = (locationStr || "").split(",").map(s => s.trim());
+
+          // Determine provider type
+          let providerType: string;
+          if (data.providerSubtype === "individual") {
+            providerType = "INDEPENDENT_CAREGIVER";
+          } else {
+            providerType = PROVIDER_TYPE_MAP[orgProviderType || ""] || "HOME_CARE";
+          }
+
+          // Build provider data
+          const providerData = {
+            name: data.providerSubtype === "organization" ? orgName : caregiverName,
+            providerType,
+            city: city || "",
+            state: state || "",
+            careTypesOffered: caregiverServices || [],
+          };
+
+          console.log("[Onboarding] Creating provider profile:", providerData);
+
+          const providerResponse = await fetch("/api/providers/me", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(providerData),
+          });
+
+          if (!providerResponse.ok) {
+            const errorData = await providerResponse.json().catch(() => ({}));
+            if (providerResponse.status === 400 && errorData.error?.includes("already exists")) {
+              console.log("[Onboarding] Provider profile already exists, continuing");
+            } else {
+              console.error("[Onboarding] Failed to create provider profile:", errorData);
+              // Don't throw - allow user to continue even if profile creation fails
+              // They can complete their profile later in provider dashboard
+            }
+          } else {
+            console.log("[Onboarding] Provider profile created successfully");
+          }
+
+          // Step 3: Update session to provider mode
           await update({ activeMode: "PROVIDER" });
 
-          setCurrentStep("complete");
+          setCurrentStep("provider-visibility");
         } catch (error) {
-          console.error("Error creating provider identity:", error);
-          // Still advance to complete on error - user can fix profile later
-          // This prevents getting stuck in a loop
-          setCurrentStep("complete");
+          console.error("[Onboarding] Error during provider onboarding:", error);
+          // Still advance to visibility step - user can fix profile later
+          setCurrentStep("provider-visibility");
         } finally {
           setIsSubmitting(false);
         }
+        break;
+
+      case "provider-visibility":
+        // Update the provider profile with visibility settings
+        setIsSubmitting(true);
+        try {
+          const isVisible = selectedValue?.isVisible ?? data.isVisible ?? true;
+          const availableForFamilies = selectedValue?.availableForFamilies ?? data.availableForFamilies ?? true;
+          const availableForOrganizations = selectedValue?.availableForOrganizations ?? data.availableForOrganizations ?? false;
+
+          // Try to get existing provider to update
+          const meResponse = await fetch("/api/providers/me");
+          if (meResponse.ok) {
+            const provider = await meResponse.json();
+            await fetch(`/api/providers/${provider.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                isVisible,
+                availableForFamilies,
+                availableForOrganizations,
+              }),
+            });
+            console.log("[Onboarding] Provider visibility saved:", { isVisible, availableForFamilies, availableForOrganizations });
+          }
+        } catch (error) {
+          console.error("[Onboarding] Failed to save provider visibility:", error);
+          // Continue anyway - user can update later
+        } finally {
+          setIsSubmitting(false);
+        }
+        setCurrentStep("complete");
         break;
 
       case "complete":
@@ -968,12 +1320,22 @@ export default function OnboardingWizardOverlay({
       case "family-fields":
         setCurrentStep("intent");
         break;
+      case "family-visibility":
+        setCurrentStep("family-fields");
+        break;
       case "provider-org-fields":
       case "provider-individual-fields":
         setCurrentStep("provider-subtype");
         break;
+      case "provider-visibility":
+        if (data.providerSubtype === "organization") {
+          setCurrentStep("provider-org-fields");
+        } else {
+          setCurrentStep("provider-individual-fields");
+        }
+        break;
     }
-  }, [currentStep]);
+  }, [currentStep, data.providerSubtype]);
 
   const handleSkip = useCallback(() => {
     onClose();
@@ -1000,10 +1362,14 @@ export default function OnboardingWizardOverlay({
         return <ProviderSubtypeStep {...stepProps} />;
       case "family-fields":
         return <FamilyFieldsStep {...stepProps} />;
+      case "family-visibility":
+        return <FamilyVisibilityStep {...stepProps} />;
       case "provider-org-fields":
         return <ProviderOrgFieldsStep {...stepProps} />;
       case "provider-individual-fields":
         return <ProviderIndividualFieldsStep {...stepProps} />;
+      case "provider-visibility":
+        return <ProviderVisibilityStep {...stepProps} />;
       case "complete":
         return <CompleteStep {...stepProps} />;
       default:

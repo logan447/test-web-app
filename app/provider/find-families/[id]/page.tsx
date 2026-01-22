@@ -2,7 +2,8 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
 import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
@@ -76,7 +77,7 @@ type FamilyProfile = {
 };
 
 export default function FamilyProfileDetail() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -86,6 +87,13 @@ export default function FamilyProfileDetail() {
   const [sending, setSending] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [switchingMode, setSwitchingMode] = useState(false);
+  const [checkingProvider, setCheckingProvider] = useState(false);
+  const [providerProfile, setProviderProfile] = useState<{ id: string } | null>(null);
+
+  // Check if user is in Family mode (should be in Provider mode for this flow)
+  const isFamilyMode = session?.user?.activeMode === 'FAMILY';
 
   // Determine cancel link based on where user came from
   const fromSaved = searchParams.get('from') === 'saved';
@@ -124,6 +132,7 @@ export default function FamilyProfileDetail() {
     }
   };
 
+  // Show confirmation modal before sending (with provider profile validation)
   const handleSendRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!requestMessage.trim()) {
@@ -131,23 +140,46 @@ export default function FamilyProfileDetail() {
       return;
     }
 
-    setSending(true);
+    // Check for provider profile BEFORE showing confirmation modal
+    setCheckingProvider(true);
     try {
-      // First, get the provider associated with this user
       const providerResponse = await fetch('/api/providers/me');
       if (!providerResponse.ok) {
-        showToast.error('Please create a provider profile first');
-        setSending(false);
+        // No provider profile exists - user cannot send requests to families
+        showToast.error('You need a provider profile to contact families');
+        router.push('/dashboard/provider-profile');
         return;
       }
       const providerData = await providerResponse.json();
+      setProviderProfile(providerData);
+      setConfirmModalOpen(true);
+    } catch (error) {
+      console.error('Error checking provider profile:', error);
+      showToast.error('Failed to verify provider profile');
+    } finally {
+      setCheckingProvider(false);
+    }
+  };
+
+  // Actually send the request after confirmation
+  const handleConfirmSendRequest = async () => {
+    setConfirmModalOpen(false);
+    setSending(true);
+    try {
+      // Provider profile was already validated in handleSendRequest
+      if (!providerProfile) {
+        showToast.error('Provider profile not found');
+        router.push('/dashboard/provider-profile');
+        setSending(false);
+        return;
+      }
 
       const response = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           familyProfileId: profile?.id,
-          providerId: providerData.id,
+          providerId: providerProfile.id,
           message: requestMessage,
         }),
       });
@@ -157,7 +189,8 @@ export default function FamilyProfileDetail() {
       if (response.ok) {
         showToast.success('Consultation request sent!');
         setRequestMessage('');
-        router.push('/dashboard/my-providers');
+        // Redirect to the engagement page for this request
+        router.push(`/provider/dashboard/my-families/${data.id}`);
       } else {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
@@ -194,6 +227,51 @@ export default function FamilyProfileDetail() {
     } catch (err: any) {
       console.error('Error activating membership:', err);
       throw err;
+    }
+  };
+
+  // Handle mode switch for users in Family mode
+  const handleSwitchMode = async () => {
+    setSwitchingMode(true);
+    try {
+      // Step 1: Update mode in database
+      const response = await fetch('/api/user/mode', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'PROVIDER' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to switch mode');
+      }
+
+      // Step 2: Update NextAuth session with new mode
+      await updateSession({ activeMode: 'PROVIDER' });
+
+      // Step 3: Show success message
+      showToast.success('Switched to Provider mode');
+
+      // Step 4: Check if user has a provider profile, if not redirect to create one
+      const providerCheck = await fetch('/api/providers/me');
+      if (!providerCheck.ok) {
+        // No provider profile - redirect to provider profile creation
+        showToast.success('Please complete your provider profile to contact families');
+        setConfirmModalOpen(false);
+        router.push('/dashboard/provider-profile');
+        return;
+      }
+
+      // User has provider profile - they can now proceed
+      // Close and reopen modal to refresh state
+      setConfirmModalOpen(false);
+      setTimeout(() => {
+        setConfirmModalOpen(true);
+      }, 100);
+    } catch (error) {
+      console.error('Error switching mode:', error);
+      showToast.error('Failed to switch mode. Please try again.');
+    } finally {
+      setSwitchingMode(false);
     }
   };
 
@@ -601,10 +679,10 @@ export default function FamilyProfileDetail() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={sending}
+                disabled={sending || checkingProvider}
                 className="bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 disabled:opacity-50 font-medium"
               >
-                {sending ? 'Sending...' : 'Send Request'}
+                {checkingProvider ? 'Verifying...' : sending ? 'Sending...' : 'Send Request'}
               </button>
               <Link
                 href={backHref}
@@ -632,6 +710,124 @@ export default function FamilyProfileDetail() {
         }}
         defaultView="login"
       />
+
+      {/* Confirmation Modal */}
+      <Transition appear show={confirmModalOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setConfirmModalOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-50" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-semibold text-gray-900 text-center"
+                  >
+                    Connect with this family?
+                  </Dialog.Title>
+
+                  <div className="mt-4 space-y-4">
+                    {/* Mode switch prompt for Family mode users */}
+                    {isFamilyMode && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <div>
+                            <p className="text-sm font-medium text-amber-800">You&apos;re in Family mode</p>
+                            <p className="text-sm text-amber-700 mt-1">
+                              To contact families as a provider, please switch to Provider mode.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSwitchMode}
+                          disabled={switchingMode}
+                          className="mt-3 w-full px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          {switchingMode ? 'Switching...' : 'Switch to Provider Mode'}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Action summary */}
+                    <div className="bg-primary-50 rounded-lg p-4">
+                      <p className="text-sm text-primary-800 text-center">
+                        <span className="font-medium">Send consultation request</span>
+                      </p>
+                    </div>
+
+                    {/* Profile sharing notice */}
+                    <div className="flex items-start gap-3 text-sm text-gray-600">
+                      <svg className="w-5 h-5 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p>
+                        Your provider profile will be shared with this family so they can learn about your services and respond to your request.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex gap-3">
+                    <button
+                      type="button"
+                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setConfirmModalOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="flex-1 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+                      onClick={handleConfirmSendRequest}
+                      disabled={sending || isFamilyMode}
+                    >
+                      {sending ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Sending...
+                        </span>
+                      ) : isFamilyMode ? (
+                        'Switch Mode First'
+                      ) : (
+                        'Send Request'
+                      )}
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 }

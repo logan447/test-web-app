@@ -191,6 +191,87 @@ export async function POST(req: Request) {
   }
 }
 
+/**
+ * PATCH /api/family-profiles/me
+ * Partial update for family profile (used by onboarding visibility step)
+ */
+export async function PATCH(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+
+    // Get existing profile
+    const existingProfile = await prisma.familyProfile.findUnique({
+      where: { userId: session.user.id },
+    });
+
+    if (!existingProfile) {
+      return NextResponse.json(
+        { error: "Family profile not found" },
+        { status: 404 }
+      );
+    }
+
+    // Build update data - only include defined fields
+    const updateData: Record<string, unknown> = {};
+
+    if (body.isPublic !== undefined) {
+      // Validate visibility if trying to enable
+      if (body.isPublic) {
+        const visibilityError = validateVisibilityChange(existingProfile, true);
+        if (visibilityError) {
+          return NextResponse.json(
+            { error: visibilityError },
+            { status: 400 }
+          );
+        }
+      }
+      updateData.isPublic = body.isPublic;
+    }
+
+    // Allow other common partial updates
+    if (body.lovedOneName !== undefined) updateData.lovedOneName = body.lovedOneName;
+    if (body.city !== undefined) updateData.city = body.city;
+    if (body.state !== undefined) updateData.state = body.state;
+    if (body.careTypes !== undefined) updateData.careTypes = body.careTypes;
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.timeline !== undefined) updateData.timeline = body.timeline;
+    if (body.budgetMin !== undefined) updateData.budgetMin = body.budgetMin;
+    if (body.budgetMax !== undefined) updateData.budgetMax = body.budgetMax;
+
+    // Recalculate completion percentage if substantive fields changed
+    if (Object.keys(updateData).length > 0) {
+      const mergedData = { ...existingProfile, ...updateData };
+      updateData.completionPercentage = calculateCompletionPercentage(mergedData);
+    }
+
+    const profile = await prisma.familyProfile.update({
+      where: { userId: session.user.id },
+      data: updateData,
+    });
+
+    // Return with additional computed fields
+    const missingCardMinimumFields = getMissingCardMinimumFields(profile);
+
+    return NextResponse.json({
+      ...profile,
+      missingCardMinimumFields,
+      canEnableVisibility: missingCardMinimumFields.length === 0,
+    });
+  } catch (error) {
+    console.error("Error updating family profile:", error);
+    return NextResponse.json(
+      { error: "Failed to update family profile" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);

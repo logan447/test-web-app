@@ -12,29 +12,20 @@ import { ProviderType, PaymentMode } from '@prisma/client';
 // ============================================
 // Tier 1: Required Fields (Visibility Gate)
 // These MUST be complete for the profile to be visible
+// Minimal viable profile for onboarding - optimized for quick setup
 // ============================================
 
 export const PROVIDER_TIER1_FIELDS = {
   // Core identity - required for all provider types
   name: 'Organization/Facility Name',
   providerType: 'Provider Type',
-  description: 'Description',
 
-  // Location - required for all
-  address: 'Street Address',
+  // Location - city/state required for matching
   city: 'City',
   state: 'State',
-  zipCode: 'ZIP Code',
 
-  // Contact - required for all
-  phone: 'Phone Number',
-  email: 'Email Address',
-
-  // Services - required for all
+  // Services - required for matching
   careTypesOffered: 'Care Types Offered',
-
-  // Payment - required per user request
-  paymentModesAccepted: 'Payment Methods Accepted',
 } as const;
 
 // ============================================
@@ -43,6 +34,14 @@ export const PROVIDER_TIER1_FIELDS = {
 // ============================================
 
 export const PROVIDER_TIER2_FIELDS = {
+  // Profile enhancement (moved from Tier 1 for easier onboarding)
+  description: 'Description',
+  address: 'Street Address',
+  zipCode: 'ZIP Code',
+  phone: 'Phone Number',
+  email: 'Email Address',
+  paymentModesAccepted: 'Payment Methods Accepted',
+
   // Pricing transparency
   priceMin: 'Minimum Price',
   priceMax: 'Maximum Price',
@@ -79,7 +78,7 @@ export const PROVIDER_PROFILE_SECTIONS = {
       description: 'Description',
       website: 'Website',
     },
-    required: ['name', 'providerType', 'description'],
+    required: ['name', 'providerType'], // description moved to optional
   },
   location: {
     label: 'Location',
@@ -93,7 +92,7 @@ export const PROVIDER_PROFILE_SECTIONS = {
       latitude: 'Map Location',
       longitude: 'Map Location',
     },
-    required: ['address', 'city', 'state', 'zipCode'],
+    required: ['city', 'state'], // address/zipCode moved to optional
   },
   contact: {
     label: 'Contact Information',
@@ -103,7 +102,7 @@ export const PROVIDER_PROFILE_SECTIONS = {
       email: 'Email Address',
       website: 'Website',
     },
-    required: ['phone', 'email'],
+    required: [], // phone/email moved to optional for easier onboarding
   },
   services: {
     label: 'Services Offered',
@@ -128,7 +127,7 @@ export const PROVIDER_PROFILE_SECTIONS = {
       stateWaiverPrograms: 'State Waiver Programs',
       acceptsFinancialAssistance: 'Financial Assistance',
     },
-    required: ['paymentModesAccepted'],
+    required: [], // paymentModesAccepted moved to optional
   },
   photos: {
     label: 'Photos & Media',
@@ -376,19 +375,13 @@ function getNextAction(
 ): { label: string; section: string } | null {
   // If visibility not met, prioritize first missing required field
   if (!meetsVisibility && missingRequired.length > 0) {
-    // Map the missing label back to a section
+    // Map the missing label back to a section (updated for minimal viable profile)
     const fieldToSection: Record<string, string> = {
       'Organization/Facility Name': 'basicInfo',
       'Provider Type': 'basicInfo',
-      'Description': 'basicInfo',
-      'Street Address': 'location',
       'City': 'location',
       'State': 'location',
-      'ZIP Code': 'location',
-      'Phone Number': 'contact',
-      'Email Address': 'contact',
       'Care Types Offered': 'services',
-      'Payment Methods Accepted': 'payment',
     };
 
     const section = fieldToSection[missingRequired[0]] || 'basicInfo';

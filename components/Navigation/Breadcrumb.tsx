@@ -9,28 +9,35 @@ interface BreadcrumbItem {
 }
 
 // Route segment to display label mapping
+// Labels should closely match URL segments (readable version of the path)
 const SEGMENT_LABELS: Record<string, string> = {
-  // Dashboard routes (family mode)
-  dashboard: "My Dashboard",
+  // Main sections
+  dashboard: "Dashboard",
+  provider: "Provider",
+  providers: "Providers",
+  caregiver: "Caregiver",
+  settings: "Settings",
+  onboarding: "Onboarding",
+
+  // Dashboard sub-routes
   requests: "Requests",
   "my-providers": "My Providers",
-  saved: "Saved",
   "saved-providers": "Saved Providers",
   "care-profile": "Care Profile",
   "care-profiles": "Care Profiles",
   "provider-profile": "Provider Profile",
-  settings: "Settings",
 
-  // Provider routes
-  provider: "Provider Dashboard",
+  // Provider sub-routes
   "find-families": "Find Families",
   "saved-families": "Saved Families",
   "my-families": "My Families",
-  "hire-staff": "Hire Care Staff",
+  "hire-staff": "Hire Staff",
   "my-candidates": "My Candidates",
   "find-organizations": "Find Organizations",
   "my-opportunities": "My Opportunities",
-  onboarding: "Onboarding",
+
+  // Caregiver sub-routes
+  "browse-organizations": "Browse Organizations",
 
   // Care type routes
   "home-care": "Home Care",
@@ -41,23 +48,14 @@ const SEGMENT_LABELS: Record<string, string> = {
   hospice: "Hospice",
   rehabilitation: "Rehabilitation",
 
-  // Provider directory
-  providers: "Providers",
-
   // Common
   new: "New",
   edit: "Edit",
+  saved: "Saved",
 };
 
 // Routes that should not show breadcrumbs
 const HIDDEN_ROUTES = ["/", "/login", "/signup", "/for-providers"];
-
-// Redundant segment combinations to skip (when parent + child represent same level)
-// Format: { parent: child[] } - skip the parent when followed by any of these children
-const REDUNDANT_SEGMENTS: Record<string, string[]> = {
-  provider: ["dashboard"], // /provider/dashboard -> skip "provider", show "Dashboard" as "Provider Dashboard"
-  dashboard: ["provider-profile"], // /dashboard/provider-profile -> skip "dashboard" as redundant
-};
 
 // Build breadcrumb items from pathname
 function buildBreadcrumbs(pathname: string): BreadcrumbItem[] {
@@ -75,15 +73,7 @@ function buildBreadcrumbs(pathname: string): BreadcrumbItem[] {
     const segment = segments[i];
     currentPath += `/${segment}`;
 
-    // Check for redundant segment combinations
-    const nextSegment = segments[i + 1];
-    if (nextSegment && REDUNDANT_SEGMENTS[segment]?.includes(nextSegment)) {
-      // Skip this segment as it's redundant with the next one
-      continue;
-    }
-
-    // IMPORTANT: Known segments should NEVER be skipped
-    // Only skip segments that look like IDs and are NOT in our label mapping
+    // Check if this is a known segment
     const isKnownSegment = !!SEGMENT_LABELS[segment];
 
     if (!isKnownSegment) {
@@ -97,21 +87,11 @@ function buildBreadcrumbs(pathname: string): BreadcrumbItem[] {
       }
     }
 
-    // Check if previous segment was skipped due to redundancy - use combined label
-    const prevSegment = segments[i - 1];
-    let label: string;
-    if (prevSegment && REDUNDANT_SEGMENTS[prevSegment]?.includes(segment)) {
-      // Use a combined label for clarity (e.g., "Provider Dashboard" instead of just "Dashboard")
-      const prevLabel = SEGMENT_LABELS[prevSegment] || prevSegment;
-      const currentLabel = SEGMENT_LABELS[segment] || segment;
-      label = `${prevLabel} ${currentLabel}`;
-    } else {
-      // Get label from mapping or capitalize the segment
-      label = SEGMENT_LABELS[segment] || segment
-        .split("-")
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    }
+    // Get label from mapping or format the segment
+    const label = SEGMENT_LABELS[segment] || segment
+      .split("-")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
 
     breadcrumbs.push({
       label,

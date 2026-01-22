@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import Link from "next/link";
+import { Dialog, Transition } from "@headlessui/react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
@@ -89,7 +90,7 @@ export default function ProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
@@ -104,6 +105,107 @@ export default function ProviderProfilePage() {
   const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
   const [checkingEngagement, setCheckingEngagement] = useState(false);
   const [creatingEngagement, setCreatingEngagement] = useState(false);
+
+  // Confirmation modal state for existing users
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [pendingContactReason, setPendingContactReason] = useState<string | null>(null);
+
+  // Mode-awareness state
+  const [hasProviderIdentity, setHasProviderIdentity] = useState(false);
+  const [switchingMode, setSwitchingMode] = useState(false);
+
+  // Derived mode state
+  const currentMode = session?.user?.activeMode || 'FAMILY';
+  const isProviderMode = currentMode === 'PROVIDER';
+  const isIndependentCaregiver = provider?.providerType === 'INDEPENDENT_CAREGIVER';
+
+  // Check if user has provider identity (for mode switch eligibility)
+  useEffect(() => {
+    if (!session?.user) return;
+
+    const checkProviderIdentity = async () => {
+      try {
+        const response = await fetch('/api/provider-identity');
+        if (response.ok) {
+          const data = await response.json();
+          setHasProviderIdentity(data.hasIdentity);
+        }
+      } catch (error) {
+        console.error('Error checking provider identity:', error);
+      }
+    };
+
+    checkProviderIdentity();
+  }, [session?.user]);
+
+  // Handle mode switch
+  const handleSwitchMode = async (targetMode: 'FAMILY' | 'PROVIDER') => {
+    setSwitchingMode(true);
+    try {
+      // Step 1: Update mode in database
+      const response = await fetch('/api/user/mode', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: targetMode }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to switch mode');
+      }
+
+      // Step 2: Update NextAuth session with new mode
+      await updateSession({ activeMode: targetMode });
+
+      // Step 3: Show success message
+      showToast.success(`Switched to ${targetMode === 'FAMILY' ? 'Family' : 'Provider'} mode`);
+
+      // Step 4: If switching to Family mode and we have a pending contact action,
+      // close modal and re-trigger the CTA flow to check for family profile
+      if (targetMode === 'FAMILY' && pendingContactReason) {
+        const savedReason = pendingContactReason;
+        setConfirmModalOpen(false);
+        setPendingContactReason(null);
+
+        // Small delay to let the session update propagate, then re-check profile
+        setTimeout(async () => {
+          // Check if family profile exists
+          const profileResponse = await fetch('/api/family-profiles/me');
+          if (!profileResponse.ok) {
+            // No profile - trigger onboarding
+            triggerOnboardingWithAction(savedReason);
+          } else {
+            const profile = await profileResponse.json();
+            // Check MVP fields
+            const hasName = profile.lovedOneName && profile.lovedOneName.trim().length > 0;
+            const hasLocation = (profile.city && profile.city.trim().length > 0) ||
+                               (profile.state && profile.state.trim().length > 0);
+            const hasCareTypes = profile.careTypes && profile.careTypes.length > 0;
+
+            if (!hasName || !hasLocation || !hasCareTypes) {
+              // Profile incomplete - trigger onboarding
+              triggerOnboardingWithAction(savedReason);
+            } else {
+              // Profile complete - show confirmation modal again (now they can proceed)
+              setPendingContactReason(savedReason);
+              setConfirmModalOpen(true);
+            }
+          }
+        }, 200);
+      } else {
+        // Just close modal and refresh
+        setConfirmModalOpen(false);
+        setPendingContactReason(null);
+        setTimeout(() => {
+          router.refresh();
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error switching mode:', error);
+      showToast.error('Failed to switch mode. Please try again.');
+    } finally {
+      setSwitchingMode(false);
+    }
+  };
 
   useEffect(() => {
     fetchProvider();
@@ -346,7 +448,16 @@ export default function ProviderProfilePage() {
       return;
     }
 
-    // User is logged in - check profile completeness
+    // User is logged in - check mode first
+    // If user is in Provider mode, show confirmation modal with mode switch prompt
+    // instead of triggering family onboarding
+    if (isProviderMode) {
+      setPendingContactReason(reason);
+      setConfirmModalOpen(true);
+      return;
+    }
+
+    // User is in Family mode - check profile completeness
     setCreatingEngagement(true);
     try {
       // Check if family profile exists and is complete
@@ -372,14 +483,32 @@ export default function ProviderProfilePage() {
         return;
       }
 
-      // Profile complete - create engagement instantly
+      // Profile complete - show confirmation modal before creating engagement
+      setPendingContactReason(reason);
+      setConfirmModalOpen(true);
+    } catch (error: any) {
+      console.error('Error creating engagement:', error);
+      showToast.error(error.message || 'Something went wrong');
+    } finally {
+      setCreatingEngagement(false);
+    }
+  };
+
+  // Handle confirmed engagement creation (after user confirms in modal)
+  const handleConfirmEngagement = async () => {
+    if (!pendingContactReason) return;
+
+    setConfirmModalOpen(false);
+    setCreatingEngagement(true);
+
+    try {
       const response = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           providerId: params.id,
-          contactReason: reason,
-          message: null, // User can add details on engagement page
+          contactReason: pendingContactReason,
+          message: '', // Message is required in schema - user can add details on engagement page
         }),
       });
 
@@ -397,6 +526,7 @@ export default function ProviderProfilePage() {
       showToast.error(error.message || 'Something went wrong');
     } finally {
       setCreatingEngagement(false);
+      setPendingContactReason(null);
     }
   };
 
@@ -897,6 +1027,157 @@ export default function ProviderProfilePage() {
         providerName={provider.name}
         onClaimSuccess={handleClaimSuccess}
       />
+
+      {/* Engagement Confirmation Modal */}
+      <Transition appear show={confirmModalOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => {
+            setConfirmModalOpen(false);
+            setPendingContactReason(null);
+          }}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-50" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-semibold text-gray-900 text-center"
+                  >
+                    Connect with {provider.name}?
+                  </Dialog.Title>
+
+                  <div className="mt-4 space-y-4">
+                    {/* Action summary */}
+                    <div className="bg-primary-50 rounded-lg p-4">
+                      <p className="text-sm text-primary-800 text-center">
+                        <span className="font-medium">{pendingContactReason}</span>
+                      </p>
+                    </div>
+
+                    {/* Mode mismatch warning: Provider mode trying to contact for care */}
+                    {isProviderMode && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm text-amber-800">
+                              You&apos;re currently browsing as a <span className="font-semibold">Provider</span>.
+                              To contact this provider for care services, switch to Family mode.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => handleSwitchMode('FAMILY')}
+                              disabled={switchingMode}
+                              className="mt-2 text-sm font-medium text-amber-700 hover:text-amber-800 underline disabled:opacity-50"
+                            >
+                              {switchingMode ? 'Switching...' : 'Switch to Family Mode'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hiring suggestion: Family mode looking at independent caregiver with provider identity */}
+                    {!isProviderMode && isIndependentCaregiver && hasProviderIdentity && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm text-blue-800">
+                              Looking to <span className="font-semibold">hire</span> this caregiver for your organization?
+                              Switch to Provider mode to send a hiring request.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => handleSwitchMode('PROVIDER')}
+                              disabled={switchingMode}
+                              className="mt-2 text-sm font-medium text-blue-700 hover:text-blue-800 underline disabled:opacity-50"
+                            >
+                              {switchingMode ? 'Switching...' : 'Switch to Provider Mode'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Profile sharing notice (only show if not in provider mode - they can't proceed anyway) */}
+                    {!isProviderMode && (
+                      <div className="flex items-start gap-3 text-sm text-gray-600">
+                        <svg className="w-5 h-5 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p>
+                          Your care profile will be shared with <span className="font-medium">{provider.name}</span> so they can better understand your needs and respond to your request.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-6 flex gap-3">
+                    <button
+                      type="button"
+                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => {
+                        setConfirmModalOpen(false);
+                        setPendingContactReason(null);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="flex-1 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+                      onClick={handleConfirmEngagement}
+                      disabled={creatingEngagement || isProviderMode}
+                    >
+                      {creatingEngagement ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Connecting...
+                        </span>
+                      ) : isProviderMode ? (
+                        "Switch Mode First"
+                      ) : (
+                        "Connect & Share Profile"
+                      )}
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 }

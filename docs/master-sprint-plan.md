@@ -1,7 +1,7 @@
 # Olera Platform — Master Sprint Plan
 
-> **Version**: 1.3 — Sprint 1 Complete
-> **Last Updated**: January 20, 2026
+> **Version**: 1.4 — Sprint 2 In Progress
+> **Last Updated**: January 22, 2026
 > **Purpose**: Execution-focused roadmap translating the Master Platform Manual into clear build tasks and sprint sequences.
 
 ## Planning Approach
@@ -24,7 +24,7 @@
 
 ## Implementation Status Audit
 
-> Based on codebase analysis against Master Platform Manual (January 20, 2026 — Sprint 1 Complete)
+> Based on codebase analysis against Master Platform Manual (January 22, 2026 — Sprint 2 In Progress)
 
 ### Legend
 - ✅ **Built** — Core functionality works
@@ -37,11 +37,11 @@
 |------|---------|--------|------------|
 | **I: Foundation** | 1. Auth | ✅ Built | Login, signup, password, intent routing working |
 | | 2. Mode System | ✅ Built | DB-driven mode, persistence verified (Sprint 0-1) |
-| | 3. Onboarding | 🟡 Partial | Provider onboarding works; family wizard deferred to Sprint 2 |
+| | 3. Onboarding | ✅ Built | Family + Provider onboarding with visibility step (Sprint 2) |
 | | 4. UI/Design | ✅ Built | TailwindCSS, design tokens, footer working |
-| | 5. Navigation | ✅ Built | MainNav, breadcrumbs, footer all implemented (Sprint 0-1) |
-| **II: Profiles** | 6. Family Profiles | ✅ Built | Simplified form working; completion tracking deferred |
-| | 7. Provider Profiles | 🟡 Partial | Detail display complete; editing is Sprint 2 |
+| | 5. Navigation | ✅ Built | MainNav, breadcrumbs (simplified), footer (Sprint 0-2) |
+| **II: Profiles** | 6. Family Profiles | ✅ Built | Simplified form + visibility controls working (Sprint 2) |
+| | 7. Provider Profiles | ✅ Built | Streamlined editing with Two-Threshold Model (Sprint 2) |
 | | 8. Provider Identity | ✅ Built | Gating via gentle nudges working (Sprint 0-1) |
 | **III: Discovery** | 9. Directory & Search | ✅ Built | Filters, pagination, unclaimed badges (Sprint 1) |
 | | 10. Provider Claiming | 🟡 Partial | Model exists; verification flow incomplete |
@@ -570,6 +570,79 @@ The following tasks are queued for Sprint 2 based on Sprint 1 deferrals and the 
 - [x] Verify: `/signup?intent=provider` → provider onboarding → `/provider/find-families` ✅ Working
 - [x] Verify: `/for-providers` CTA signup → provider onboarding → `/provider/find-families` ✅ Working
 ```
+
+---
+
+## Sprint 2 Progress Record
+
+> **Last Updated**: January 22, 2026
+> **Status**: 🔄 In Progress
+
+### Completed Tasks
+
+#### 2.2 Provider Profile Editing (Ch 7) — OPTIMIZED
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Streamline provider profile to Two-Threshold Model | ✅ Complete | Reduced from ~1600 to ~627 lines |
+| Tier 1 Required Fields | ✅ Complete | name, providerType, city, state, careTypesOffered |
+| Tier 2 Optional Fields (provider-type specific) | ✅ Complete | Category-based: facility, home, individual |
+| Bundle size optimization | ✅ Complete | 30.5 kB → 5.08 kB |
+| Profile Visibility controls | ✅ Complete | isVisible, availableForFamilies, availableForOrganizations |
+
+#### 2.0.2 Profile Completion & Visibility Enforcement — IMPLEMENTED
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Visibility as final onboarding step | ✅ Complete | Added family-visibility and provider-visibility steps |
+| Opt-out model (defaults ON) | ✅ Complete | Visibility checkboxes default to checked |
+| PATCH handler for family profiles | ✅ Complete | `/api/family-profiles/me` now supports PATCH |
+| isVisible in provider PATCH | ✅ Complete | `/api/providers/[id]` PATCH handles isVisible |
+| Organization visibility options | ✅ Complete | "Visible to families" + "We're hiring caregivers" |
+| Individual caregiver visibility | ✅ Complete | "Families seeking direct hire" + "Care organizations hiring staff" |
+| UI alignment (flat checkboxes) | ✅ Complete | Removed nested structure, all options left-aligned |
+
+#### Individual Caregiver Onboarding — FIXED
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Fix CAREGIVER_SERVICES enum values | ✅ Complete | Was using human-readable strings, now uses CareType enum |
+| Provider profile creation during onboarding | ✅ Complete | Profiles now persist correctly |
+| Visibility data persistence | ✅ Complete | Settings save from onboarding to profile edit page |
+
+#### Navigation Polish
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Breadcrumb consistency | ✅ Complete | Labels now match URL segments directly |
+| Removed REDUNDANT_SEGMENTS logic | ✅ Complete | Eliminated semantic drift |
+
+### Commits (Sprint 2 — January 22, 2026)
+
+- `572b0aa` Fix individual caregiver onboarding data persistence
+- `342d52b` Fix visibility UI alignment and flatten checkbox structure
+- `d72f443` Fix visibility persistence and add organization visibility options
+- `61dc8da` Add visibility as final step in onboarding flow
+- `e7b20eb` Fix breadcrumbs and add visibility controls to provider profile
+
+### Key Files Modified
+
+| File | Changes |
+|------|---------|
+| `app/dashboard/provider-profile/page.tsx` | Streamlined to ~627 lines, added visibility controls |
+| `components/Onboarding/OnboardingWizardOverlay.tsx` | Added visibility steps, fixed CAREGIVER_SERVICES enum |
+| `components/Navigation/Breadcrumb.tsx` | Simplified to direct URL segment mapping |
+| `app/api/family-profiles/me/route.ts` | Added PATCH handler for visibility updates |
+| `app/api/providers/[id]/route.ts` | Added isVisible to PATCH handler |
+
+### Remaining Sprint 2 Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| 2.0.3 Contact submission redirect | ⬜ Pending | Redirect to engagement detail after ConsultRequest |
+| 2.3 Incoming requests list polish | ⬜ Pending | Provider view of family requests |
+| 2.4 Request response (Accept/Decline) | ⬜ Pending | Status transitions and messaging |
+| 2.5 Provider claiming (basic) | ⬜ Pending | Link unclaimed provider to user |
 
 ---
 
@@ -1589,4 +1662,4 @@ These items should be addressed throughout all sprints:
 
 ---
 
-*Last updated: January 19, 2026*
+*Last updated: January 22, 2026*
