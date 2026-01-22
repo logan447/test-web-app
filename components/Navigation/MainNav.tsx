@@ -307,7 +307,7 @@ function MainNavContent() {
               )}
             </div>
 
-            {session ? (
+            {session && (
               isProviderMode ? (
                 <Link
                   href="/provider/leads"
@@ -324,13 +324,6 @@ function MainNavContent() {
                   {switchingMode ? 'Switching...' : 'For Providers'}
                 </button>
               )
-            ) : (
-              <Link
-                href="/for-providers"
-                className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
-              >
-                For Providers
-              </Link>
             )}
           </div>
 
@@ -373,7 +366,7 @@ function MainNavContent() {
                             <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            Find Families
+                            Leads
                           </Link>
                           <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <span className="flex items-center gap-3">
@@ -438,7 +431,7 @@ function MainNavContent() {
                             <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            Find Families
+                            Leads
                           </Link>
                           <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <span className="flex items-center gap-3">
@@ -486,7 +479,7 @@ function MainNavContent() {
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        Find Providers
+                        Browse Providers
                       </Link>
                       <Link href="/saved" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -574,6 +567,12 @@ function MainNavContent() {
               </div>
             ) : (
               <>
+                <Link
+                  href="/for-providers"
+                  className="text-gray-700 hover:text-primary-600 font-medium text-sm"
+                >
+                  For Providers
+                </Link>
                 <button
                   onClick={() => {
                     setAuthModalView("login");
@@ -753,7 +752,7 @@ function MainNavContent() {
                         <>
                           {/* Has provider profile */}
                           <Link href="/provider/leads" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Find Families
+                            Leads
                           </Link>
                           <Link href="/provider/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             <span>Requests</span>
@@ -795,7 +794,7 @@ function MainNavContent() {
                         <>
                           {/* No provider profile - show navigation with onboarding prompt */}
                           <Link href="/provider/leads" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Find Families
+                            Leads
                           </Link>
                           <Link href="/provider/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             <span>Requests</span>
@@ -829,7 +828,7 @@ function MainNavContent() {
                     <>
                       {/* Family mode */}
                       <Link href="/" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Find Providers
+                        Browse Providers
                       </Link>
                       <Link href="/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved Providers

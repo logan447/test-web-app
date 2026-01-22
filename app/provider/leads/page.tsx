@@ -33,12 +33,27 @@ type FamilyProfile = {
   isSaved?: boolean;
 };
 
+type MatchedFamily = {
+  id: string;
+  userId: string;
+  user: { name: string | null };
+  city: string;
+  state: string;
+  careTypes: string[];
+  seniorName: string | null;
+  createdAt: string;
+  matchScore: number;
+  matchReasons: string[];
+};
+
 function ProviderLeadsPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
+  const [matchedFamilies, setMatchedFamilies] = useState<MatchedFamily[]>([]);
   const [loading, setLoading] = useState(true);
+  const [matchesLoading, setMatchesLoading] = useState(true);
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
   const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
   const [paywallOpen, setPaywallOpen] = useState(false);
@@ -79,6 +94,7 @@ function ProviderLeadsPageContent() {
         fetchProfiles();
         fetchSavedProfiles();
         fetchSentRequests();
+        fetchMatchedFamilies();
       }
       return;
     }
@@ -104,6 +120,7 @@ function ProviderLeadsPageContent() {
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
+    fetchMatchedFamilies();
   }, [session, status, router, isProviderMode, identityLoading, isOnboarding]);
 
   const fetchProfiles = async () => {
@@ -121,6 +138,21 @@ function ProviderLeadsPageContent() {
       console.error('Error fetching profiles:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMatchedFamilies = async () => {
+    try {
+      setMatchesLoading(true);
+      const response = await fetch('/api/provider/matches');
+      if (response.ok) {
+        const data = await response.json();
+        setMatchedFamilies(data);
+      }
+    } catch (err) {
+      console.error('Error fetching matched families:', err);
+    } finally {
+      setMatchesLoading(false);
     }
   };
 
@@ -316,9 +348,9 @@ function ProviderLeadsPageContent() {
       return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900">Find Families</h1>
+            <h1 className="text-4xl font-bold text-gray-900">Leads</h1>
             <p className="mt-2 text-lg text-gray-600">
-              Connect with families who need your help
+              Discover families who need your care services
             </p>
           </div>
           <div className="mb-6">
@@ -337,14 +369,117 @@ function ProviderLeadsPageContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Families</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Leads</h1>
           <p className="text-lg text-gray-600">
-            Connect with families who need your help
+            Discover families who need your care services
           </p>
         </div>
 
         {/* Gentle nudge for onboarding (Manual Ch 8) */}
         {needsOnboarding && <OnboardingPrompt context="requests" />}
+
+        {/* Matched Families Section - Algorithm-based matches */}
+        {hasIdentity && (
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full">
+                <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Matched Families</h2>
+                <p className="text-sm text-gray-600">Families that match your care services based on our algorithm</p>
+              </div>
+            </div>
+
+            {matchesLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                    <div className="h-20 bg-gray-200 rounded"></div>
+                  </div>
+                ))}
+              </div>
+            ) : matchedFamilies.length === 0 ? (
+              <div className="bg-gray-50 rounded-xl border border-gray-200 p-8 text-center">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <p className="mt-3 text-gray-600">No matched families yet. Complete your profile to improve matching.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {matchedFamilies.slice(0, 6).map((family) => (
+                  <div key={family.id} className="bg-white rounded-xl shadow-sm border border-emerald-100 p-5 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{family.user?.name || 'Anonymous Family'}</h3>
+                        <p className="text-sm text-gray-600">{family.city}, {family.state}</p>
+                      </div>
+                      <div className="flex items-center gap-1 bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-sm font-medium">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {family.matchScore}% match
+                      </div>
+                    </div>
+
+                    {family.seniorName && (
+                      <p className="text-sm text-gray-600 mb-2">Care for: {family.seniorName}</p>
+                    )}
+
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {family.careTypes.slice(0, 3).map((type) => (
+                        <span key={type} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
+                          {type.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="space-y-1 mb-4">
+                      {family.matchReasons.slice(0, 2).map((reason, idx) => (
+                        <div key={idx} className="flex items-center gap-1 text-xs text-emerald-600">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          {reason}
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        // If not saved, save and potentially open request flow
+                        if (!savedProfileIds.has(family.id)) {
+                          handleToggleSave(family.id);
+                        }
+                        showToast.success('Added to saved families');
+                      }}
+                      className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                        savedProfileIds.has(family.id)
+                          ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-primary-600 text-white hover:bg-primary-700'
+                      }`}
+                    >
+                      {savedProfileIds.has(family.id) ? 'Saved' : 'Save Lead'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Divider */}
+        {hasIdentity && matchedFamilies.length > 0 && (
+          <div className="border-b border-gray-200 mb-8"></div>
+        )}
+
+        {/* All Care Requests Section */}
+        <h2 className="text-xl font-bold text-gray-900 mb-4">All Care Requests</h2>
 
         {/* Filters */}
         <div className="mb-6">

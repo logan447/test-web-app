@@ -206,16 +206,6 @@ export default function BenefitsPage() {
         <MainNav />
 
         <main className="flex-grow flex flex-col items-center justify-center px-4 py-12">
-          {/* Close button */}
-          <button
-            onClick={() => router.push("/care-profile")}
-            className="absolute top-24 left-6 p-3 rounded-full bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
           {/* Greeting text */}
           <div className="text-center mb-12 max-w-lg">
             <h1 className="text-2xl md:text-3xl font-medium text-white leading-relaxed">
@@ -247,17 +237,25 @@ export default function BenefitsPage() {
           </div>
 
           {/* Coming soon notice */}
-          <p className="text-cyan-400 text-sm mb-4">
+          <p className="text-cyan-400 text-sm mb-6">
             Voice input coming soon
           </p>
 
-          {/* Form fallback link */}
-          <button
-            onClick={() => setPageState("form")}
-            className="text-cyan-400 hover:text-cyan-300 underline underline-offset-4 transition-colors"
-          >
-            or fill out the form instead
-          </button>
+          {/* Action buttons */}
+          <div className="flex flex-col gap-3 w-full max-w-xs">
+            <button
+              onClick={() => setPageState("form")}
+              className="w-full px-6 py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            >
+              Fill Out Form Instead
+            </button>
+            <button
+              onClick={() => router.push("/care-profile")}
+              className="w-full px-6 py-3 bg-transparent text-gray-400 rounded-lg font-medium hover:text-white transition-colors"
+            >
+              Skip for Now
+            </button>
+          </div>
         </main>
       </div>
     );

@@ -64,7 +64,7 @@ export default function OnboardingPrompt({
           <p className="mt-1 text-sm text-primary-700">{description}</p>
           <div className="mt-3 flex gap-3">
             <Link
-              href="/provider/onboarding"
+              href="/provider/profile/edit"
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Complete Profile
