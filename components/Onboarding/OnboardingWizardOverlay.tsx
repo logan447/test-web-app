@@ -119,14 +119,13 @@ const PROVIDER_TYPE_MAP: Record<string, string> = {
 };
 
 const CAREGIVER_SERVICES = [
-  "Personal Care",
-  "Companionship",
-  "Meal Preparation",
-  "Medication Reminders",
-  "Light Housekeeping",
-  "Transportation",
-  "Dementia Care",
-  "Respite Care",
+  { label: "Personal Care", value: "PERSONAL_CARE" },
+  { label: "Companionship", value: "COMPANION_CARE" },
+  { label: "Skilled Nursing", value: "SKILLED_NURSING" },
+  { label: "Memory Care", value: "MEMORY_CARE" },
+  { label: "Hospice Care", value: "HOSPICE_CARE" },
+  { label: "Respite Care", value: "RESPITE_CARE" },
+  { label: "Live-In Care", value: "LIVE_IN_CARE" },
 ];
 
 // ============================================================================
@@ -663,10 +662,10 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
     caregiverServices: data.caregiverServices || [] as string[],
   });
 
-  const handleServiceToggle = (service: string) => {
-    const services = localData.caregiverServices.includes(service)
-      ? localData.caregiverServices.filter((s) => s !== service)
-      : [...localData.caregiverServices, service];
+  const handleServiceToggle = (serviceValue: string) => {
+    const services = localData.caregiverServices.includes(serviceValue)
+      ? localData.caregiverServices.filter((s) => s !== serviceValue)
+      : [...localData.caregiverServices, serviceValue];
     setLocalData({ ...localData, caregiverServices: services });
   };
 
@@ -724,16 +723,16 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
           <div className="grid grid-cols-2 gap-2">
             {CAREGIVER_SERVICES.map((service) => (
               <button
-                key={service}
+                key={service.value}
                 type="button"
-                onClick={() => handleServiceToggle(service)}
+                onClick={() => handleServiceToggle(service.value)}
                 className={`p-3 text-sm rounded-lg border-2 transition-all ${
-                  localData.caregiverServices.includes(service)
+                  localData.caregiverServices.includes(service.value)
                     ? "border-primary-600 bg-primary-50 text-primary-700"
                     : "border-gray-200 hover:border-gray-300"
                 }`}
               >
-                {service}
+                {service.label}
               </button>
             ))}
           </div>
@@ -835,9 +834,9 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
   // For organizations: visibleToFamilies = main visibility, hiringCaregivers = availableForOrganizations
   // For individuals: availableForFamilies and availableForOrganizations are the two options
   const [visibleToFamilies, setVisibleToFamilies] = useState(data.isVisible ?? true);
-  const [hiringCaregivers, setHiringCaregivers] = useState(data.availableForOrganizations ?? false);
+  const [hiringCaregivers, setHiringCaregivers] = useState(data.availableForOrganizations ?? true);
   const [availableForFamilies, setAvailableForFamilies] = useState(data.availableForFamilies ?? true);
-  const [availableForOrganizations, setAvailableForOrganizations] = useState(data.availableForOrganizations ?? false);
+  const [availableForOrganizations, setAvailableForOrganizations] = useState(data.availableForOrganizations ?? true);
 
   const isIndividual = data.providerSubtype === "individual";
   const isOrganization = data.providerSubtype === "organization";
