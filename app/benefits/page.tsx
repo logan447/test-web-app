@@ -244,13 +244,13 @@ export default function BenefitsPage() {
           {/* Action buttons */}
           <div className="flex flex-col gap-3 w-full max-w-xs">
             <button
-              onClick={() => setPageState("form")}
+              onClick={() => router.push("/care-profile/edit")}
               className="w-full px-6 py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
             >
               Fill Out Form Instead
             </button>
             <button
-              onClick={() => router.push("/care-profile")}
+              onClick={() => router.push("/")}
               className="w-full px-6 py-3 bg-transparent text-gray-400 rounded-lg font-medium hover:text-white transition-colors"
             >
               Skip for Now

@@ -1,37 +1,50 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
-import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
+import { useOnboardingWizard } from "@/hooks/useOnboardingWizard";
+
+// Key used by onboarding system to track if wizard was shown
+const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
 
 /**
  * Provider Profile Edit Page
  *
- * This page triggers the onboarding wizard overlay for profile editing.
- * The overlay appears on top of the profile page, preserving context.
+ * This page directly triggers the onboarding wizard overlay for profile editing.
+ * It stays on this page (not redirecting) and opens the overlay.
  */
 export default function ProviderProfileEditPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { open, isOpen } = useOnboardingWizard();
+  const [hasTriggered, setHasTriggered] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login?redirect=/provider/profile/edit");
       return;
     }
 
-    // Redirect to profile page and trigger onboarding overlay
-    router.push("/provider/profile");
+    // Only trigger once
+    if (!hasTriggered && !isOpen) {
+      setHasTriggered(true);
+      // Clear the "shown" flag so edit mode can reopen the wizard
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem(ONBOARDING_SHOWN_KEY);
+      }
+      // Directly open the wizard with provider intent
+      open("provider");
+    }
+  }, [status, router, hasTriggered, isOpen, open]);
 
-    // Small delay to ensure navigation completes before triggering overlay
-    setTimeout(() => {
-      triggerOnboardingAfterSignup('provider');
-    }, 100);
-  }, [status, router]);
+  // Handle wizard close - go back to profile
+  const handleClose = () => {
+    router.push("/provider/profile");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,6 +53,12 @@ export default function ProviderProfileEditPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile editor...</p>
+          <button
+            onClick={handleClose}
+            className="mt-4 text-primary-600 hover:text-primary-700 underline"
+          >
+            Cancel and go back
+          </button>
         </div>
       </div>
     </div>

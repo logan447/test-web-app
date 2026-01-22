@@ -9,6 +9,22 @@ import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
 import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
 
+// Key used by onboarding system - must match hooks/useOnboardingWizard.ts
+const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
+
+/**
+ * Helper to trigger onboarding overlay for existing users.
+ * Clears the "shown" flag first so overlay can reopen.
+ */
+function triggerOnboardingForExistingUser(intent: 'provider' | 'family') {
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem(ONBOARDING_SHOWN_KEY);
+  }
+  triggerOnboardingAfterSignup(intent);
+  // Force a re-render by reloading current page
+  window.location.reload();
+}
+
 const MAIN_CATEGORIES = [
   {
     name: "Home Care",
@@ -461,7 +477,7 @@ function MainNavContent() {
                             Hire Care Staff
                           </Link>
                           <button
-                            onClick={() => triggerOnboardingAfterSignup('provider')}
+                            onClick={() => triggerOnboardingForExistingUser('provider')}
                             className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-primary-600 hover:bg-gray-100 font-medium"
                           >
                             <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -485,26 +501,20 @@ function MainNavContent() {
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
-                        Saved Providers
+                        Saved
                       </Link>
-                      <Link href="/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/matches" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <span className="flex items-center gap-3">
                           <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          My Providers
+                          Matches
                         </span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                             {unreadCount > 9 ? '9+' : unreadCount}
                           </span>
                         )}
-                      </Link>
-                      <Link href="/matches" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Matches
                       </Link>
                       <Link href="/care-profile" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -814,8 +824,8 @@ function MainNavContent() {
                           </Link>
                           <button
                             onClick={() => {
-                              triggerOnboardingAfterSignup('provider');
                               setMobileMenuOpen(false);
+                              triggerOnboardingForExistingUser('provider');
                             }}
                             className="block w-full text-left px-3 py-2 text-primary-600 font-medium"
                           >
@@ -831,18 +841,15 @@ function MainNavContent() {
                         Browse Providers
                       </Link>
                       <Link href="/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Saved Providers
+                        Saved
                       </Link>
-                      <Link href="/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        <span>My Providers</span>
+                      <Link href="/matches" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        <span>Matches</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                             {unreadCount > 9 ? '9+' : unreadCount}
                           </span>
                         )}
-                      </Link>
-                      <Link href="/matches" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        Matches
                       </Link>
                       <Link href="/care-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         My Care Profile
