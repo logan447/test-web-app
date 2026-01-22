@@ -64,11 +64,11 @@ function SignupForm() {
       if (result.activeMode === "PROVIDER") {
         // Provider intent: trigger wizard with provider intent, redirect to provider mode landing
         triggerOnboardingAfterSignup("provider");
-        window.location.href = "/provider/find-families";
+        window.location.href = "/provider/leads";
       } else {
         // Family intent: trigger wizard with family intent, skip to family fields
         triggerOnboardingAfterSignup("family");
-        window.location.href = "/";
+        window.location.href = "/care-profile";
       }
     } catch (error) {
       setError("Something went wrong");

@@ -54,7 +54,7 @@ export default function BrowseOrganizationsPage() {
         const provider = await response.json();
         if (provider.providerType !== 'INDEPENDENT_CAREGIVER') {
           // Redirect if user is not an independent caregiver
-          router.push('/provider/find-families');
+          router.push('/provider/leads');
           return;
         }
         // User is independent caregiver, fetch organizations
@@ -62,7 +62,7 @@ export default function BrowseOrganizationsPage() {
         fetchSentHiringRequests();
       } else {
         // No provider profile, redirect to create one
-        router.push('/dashboard/provider-profile');
+        router.push('/provider/profile');
       }
     } catch (err) {
       console.error('Error checking provider type:', err);
@@ -191,7 +191,7 @@ export default function BrowseOrganizationsPage() {
             {organizations.map((org) => {
               const requestId = requestedOrganizationIds.get(org.id);
               const linkHref = requestId
-                ? `/dashboard/my-providers/${requestId}`
+                ? `/provider/opportunities/${requestId}`
                 : `/caregiver/browse-organizations/${org.id}`;
 
               return (

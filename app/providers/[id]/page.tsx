@@ -417,9 +417,9 @@ export default function ProviderProfilePage() {
   };
 
   const handleClaimSuccess = () => {
-    // Refresh provider data and redirect to provider dashboard
+    // Refresh provider data and redirect to provider profile
     showToast.success('Provider claimed successfully!');
-    router.push('/dashboard/provider-profile');
+    router.push('/provider/profile');
   };
 
   // Profile-as-request model: handleOpenRequestForm
@@ -431,7 +431,7 @@ export default function ProviderProfilePage() {
     // If active engagement exists, redirect to it
     if (activeEngagement) {
       showToast.success(`You already have an active conversation with ${provider?.name}`);
-      router.push(`/dashboard/my-providers/${activeEngagement.id}`);
+      router.push(`/requests/${activeEngagement.id}`);
       return;
     }
 
@@ -520,7 +520,7 @@ export default function ProviderProfilePage() {
       const engagement = await response.json();
 
       showToast.success(`Connected with ${provider?.name}!`);
-      router.push(`/dashboard/my-providers/${engagement.id}`);
+      router.push(`/requests/${engagement.id}`);
     } catch (error: any) {
       console.error('Error creating engagement:', error);
       showToast.error(error.message || 'Something went wrong');
@@ -579,7 +579,7 @@ export default function ProviderProfilePage() {
 
       // Redirect to the engagement detail page (the specific request thread)
       setTimeout(() => {
-        router.push(`/dashboard/my-providers/${createdRequest.id}`);
+        router.push(`/requests/${createdRequest.id}`);
       }, 500);
     } catch (error: any) {
       showToast.error(error.message || 'Failed to send request');
@@ -707,7 +707,8 @@ export default function ProviderProfilePage() {
                 </span>
               )}
 
-              {provider.claimed === true && (
+              {/* Only show claimed/unclaimed badges for organizations, not independent caregivers */}
+              {!isIndependentCaregiver && provider.claimed === true && (
                 <span className="bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -716,7 +717,7 @@ export default function ProviderProfilePage() {
                 </span>
               )}
 
-              {provider.claimed === false && (
+              {!isIndependentCaregiver && provider.claimed === false && (
                 <span className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -727,8 +728,8 @@ export default function ProviderProfilePage() {
             </div>
           </div>
 
-          {/* Claim This Listing Banner - for unclaimed providers */}
-          {provider.claimed === false && (
+          {/* Claim This Listing Banner - for unclaimed organization providers only */}
+          {!isIndependentCaregiver && provider.claimed === false && (
             <div className="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-200 rounded-xl p-5 mb-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-3">

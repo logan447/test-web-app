@@ -1,6 +1,10 @@
 "use client";
 
-import { useOnboardingWizard, triggerOnboardingAfterSignup } from "@/hooks/useOnboardingWizard";
+import {
+  useOnboardingWizard,
+  triggerOnboardingAfterSignup,
+  openOnboardingOverlay,
+} from "@/hooks/useOnboardingWizard";
 import OnboardingWizardOverlay from "./OnboardingWizardOverlay";
 
 /**
@@ -53,5 +57,5 @@ export default function OnboardingTrigger() {
   );
 }
 
-// Re-export the trigger function for convenience
-export { triggerOnboardingAfterSignup };
+// Re-export the trigger functions for convenience
+export { triggerOnboardingAfterSignup, openOnboardingOverlay };

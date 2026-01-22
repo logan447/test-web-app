@@ -1341,7 +1341,7 @@ export default function OnboardingWizardOverlay({
     onClose();
     // Stay on current page or go to default
     if (data.intent === "provider") {
-      router.push("/provider/find-families");
+      router.push("/provider/leads");
     }
   }, [data.intent, onClose, router]);
 

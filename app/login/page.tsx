@@ -43,12 +43,12 @@ export default function LoginPage() {
 
       if (isProviderMode) {
         // Provider mode users go to Find Families page
-        console.log('LOGIN DEBUG: Redirecting to provider mode (Find Families page)');
-        window.location.href = "/provider/find-families";
+        console.log('LOGIN DEBUG: Redirecting to provider mode (Leads page)');
+        window.location.href = "/provider/leads";
       } else {
-        // Family mode users go to Find Providers homepage
-        console.log('LOGIN DEBUG: Redirecting to family mode (Find Providers page)');
-        window.location.href = "/";
+        // Family mode users go to Care Profile
+        console.log('LOGIN DEBUG: Redirecting to family mode (Care Profile)');
+        window.location.href = "/care-profile";
       }
     } catch (error) {
       setError("Something went wrong");

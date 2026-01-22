@@ -42,7 +42,7 @@ export default function CaregiverHireDetailPage() {
 
   // Determine back link based on where user came from
   const fromSaved = searchParams.get('from') === 'saved';
-  const backHref = fromSaved ? '/provider/saved-families' : '/provider/hire-staff';
+  const backHref = fromSaved ? '/provider/leads' : '/provider/hire-staff';
   const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {
@@ -152,7 +152,7 @@ export default function CaregiverHireDetailPage() {
       if (response.ok) {
         showToast.success('Hiring request sent!');
         setRequestMessage('');
-        router.push('/provider/my-candidates');
+        router.push('/provider/candidates');
       } else {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);

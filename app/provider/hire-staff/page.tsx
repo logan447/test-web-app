@@ -217,7 +217,7 @@ export default function HireStaffPage() {
               Check back soon as more caregivers join the platform.
             </p>
             <Link
-              href="/provider/find-families"
+              href="/provider/leads"
               className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
             >
               Browse Family Requests Instead
@@ -228,7 +228,7 @@ export default function HireStaffPage() {
             {caregivers.map((caregiver) => {
               const requestId = requestedCaregiverIds.get(caregiver.id);
               const linkHref = requestId
-                ? `/dashboard/my-providers/${requestId}`
+                ? `/provider/candidates/${requestId}`
                 : `/provider/hire-staff/${caregiver.id}`;
 
               return (

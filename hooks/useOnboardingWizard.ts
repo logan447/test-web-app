@@ -40,6 +40,16 @@ const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
 const ONBOARDING_TRIGGER_KEY = "olera_onboarding_trigger";
 // Key to persist wizard's open state across component remounts
 const ONBOARDING_ACTIVE_KEY = "olera_onboarding_active";
+// Custom event name for in-page onboarding triggers
+const ONBOARDING_OPEN_EVENT = "onboarding:open";
+
+/**
+ * Custom event detail for onboarding:open event
+ */
+interface OnboardingOpenEventDetail {
+  intent: OnboardingIntent;
+  providerSubtype: ProviderSubtype;
+}
 
 /**
  * Read wizard state from sessionStorage synchronously.
@@ -184,6 +194,43 @@ export function useOnboardingWizard(
     }
   }, [options.autoOpen, options.initialIntent, options.initialProviderSubtype, needsOnboarding, isOpen, userClosed]);
 
+  // Listen for custom onboarding:open events (for in-page triggers)
+  // This allows other components to trigger the overlay without navigation
+  useEffect(() => {
+    const handleOnboardingOpen = (event: Event) => {
+      const customEvent = event as CustomEvent<OnboardingOpenEventDetail>;
+      const { intent: eventIntent, providerSubtype: eventSubtype } = customEvent.detail;
+
+      // Clear the "shown" flag so overlay can open
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem(ONBOARDING_SHOWN_KEY);
+      }
+
+      setUserClosed(false);
+      setManualOpen({
+        isOpen: true,
+        intent: eventIntent || null,
+        providerSubtype: eventSubtype || null,
+      });
+
+      // Also persist to sessionStorage
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(
+          ONBOARDING_ACTIVE_KEY,
+          JSON.stringify({
+            intent: eventIntent || null,
+            providerSubtype: eventSubtype || null,
+          })
+        );
+      }
+    };
+
+    window.addEventListener(ONBOARDING_OPEN_EVENT, handleOnboardingOpen);
+    return () => {
+      window.removeEventListener(ONBOARDING_OPEN_EVENT, handleOnboardingOpen);
+    };
+  }, []);
+
   const open = useCallback(
     (newIntent?: OnboardingIntent, newProviderSubtype?: ProviderSubtype) => {
       setUserClosed(false);
@@ -247,6 +294,9 @@ function markOnboardingShown(): void {
 /**
  * Set a trigger to open onboarding wizard on next page load.
  * Use this after signup to trigger onboarding on the destination page.
+ *
+ * NOTE: This is for cross-page navigation (e.g., after signup redirect).
+ * For in-page triggers, use openOnboardingOverlay() instead.
  */
 export function triggerOnboardingAfterSignup(
   intent?: OnboardingIntent,
@@ -257,6 +307,36 @@ export function triggerOnboardingAfterSignup(
     ONBOARDING_TRIGGER_KEY,
     JSON.stringify({ intent, providerSubtype })
   );
+}
+
+/**
+ * Open the onboarding overlay immediately on the current page.
+ * Dispatches a custom event that OnboardingTrigger listens for.
+ *
+ * Use this for in-page triggers like:
+ * - "Become a Caregiver" button
+ * - "Complete Your Profile" button
+ *
+ * @param intent - The onboarding intent ('family' | 'provider')
+ * @param providerSubtype - Optional provider subtype ('organization' | 'individual')
+ */
+export function openOnboardingOverlay(
+  intent: OnboardingIntent,
+  providerSubtype?: ProviderSubtype
+): void {
+  if (typeof window === "undefined") return;
+
+  // Clear the "shown" flag so overlay can reopen
+  sessionStorage.removeItem(ONBOARDING_SHOWN_KEY);
+
+  // Dispatch custom event that OnboardingTrigger listens for
+  const event = new CustomEvent<OnboardingOpenEventDetail>(ONBOARDING_OPEN_EVENT, {
+    detail: {
+      intent: intent || null,
+      providerSubtype: providerSubtype || null,
+    },
+  });
+  window.dispatchEvent(event);
 }
 
 export default useOnboardingWizard;

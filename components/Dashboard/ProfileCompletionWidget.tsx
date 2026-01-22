@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 interface CompletionItem {
   label: string;
@@ -18,7 +19,21 @@ interface ProfileCompletionData {
   mode: "FAMILY" | "PROVIDER";
 }
 
-export default function ProfileCompletionWidget() {
+// Loading fallback for Suspense boundary
+function ProfileCompletionSkeleton() {
+  return (
+    <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-lg shadow p-6 animate-pulse">
+      <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+    </div>
+  );
+}
+
+// Inner component that uses useSearchParams
+function ProfileCompletionWidgetInner() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<ProfileCompletionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -26,6 +41,17 @@ export default function ProfileCompletionWidget() {
   useEffect(() => {
     fetchCompletion();
   }, []);
+
+  /**
+   * Trigger provider onboarding overlay by navigating to current page with URL params.
+   * GlobalOnboardingOverlay reads these params and shows the wizard.
+   */
+  const handleCompleteProviderProfile = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('onboarding', 'true');
+    params.set('intent', 'provider');
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const fetchCompletion = async () => {
     try {
@@ -55,7 +81,6 @@ export default function ProfileCompletionWidget() {
   }
 
   const isProvider = data.mode === "PROVIDER";
-  const profileUrl = isProvider ? "/dashboard/provider-profile" : "/dashboard/care-profile";
 
   const getProgressColor = () => {
     if (data.completionPercentage >= 80) return "bg-green-500";
@@ -129,12 +154,10 @@ export default function ProfileCompletionWidget() {
               </svg>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-900">
-                  Complete profiles get 3x more inquiries!
+                  Complete your profile to unlock more opportunities
                 </p>
                 <p className="text-xs text-gray-600 mt-1">
-                  Families are more likely to contact providers with complete,
-                  detailed profiles. Add photos, services, and certifications to
-                  stand out.
+                  A complete profile improves your visibility to families, enables better matching, and gives you access to the hiring marketplace.
                 </p>
               </div>
             </div>
@@ -220,13 +243,31 @@ export default function ProfileCompletionWidget() {
 
       {/* CTA Button */}
       <div className="px-6 pb-6 pt-2">
-        <Link
-          href={profileUrl}
-          className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
-        >
-          Complete Your Profile
-        </Link>
+        {isProvider ? (
+          <button
+            onClick={handleCompleteProviderProfile}
+            className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
+          >
+            Complete Your Profile
+          </button>
+        ) : (
+          <Link
+            href="/care-profile/edit"
+            className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
+          >
+            Complete Your Profile
+          </Link>
+        )}
       </div>
     </div>
+  );
+}
+
+// Default export wraps the component in Suspense to handle useSearchParams
+export default function ProfileCompletionWidget() {
+  return (
+    <Suspense fallback={<ProfileCompletionSkeleton />}>
+      <ProfileCompletionWidgetInner />
+    </Suspense>
   );
 }

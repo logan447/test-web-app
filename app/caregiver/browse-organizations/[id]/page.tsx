@@ -44,7 +44,7 @@ export default function OrganizationDetailPage() {
 
   // Determine back link
   const fromSaved = searchParams.get('from') === 'saved';
-  const backHref = fromSaved ? '/provider/saved-families' : '/caregiver/browse-organizations';
+  const backHref = fromSaved ? '/provider/organizations' : '/caregiver/browse-organizations';
   const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {
@@ -173,7 +173,7 @@ export default function OrganizationDetailPage() {
       if (response.ok) {
         showToast.success('Employment request sent!');
         setRequestMessage('');
-        router.push('/provider/my-candidates');
+        router.push('/provider/candidates');
       } else {
         console.error('Failed to send request:', {
           status: response.status,

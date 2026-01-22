@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 
 /**
  * Provider landing page - redirects to appropriate destination:
- * - If in provider mode → /provider/dashboard (shows onboarding prompt if needed)
- * - If not in provider mode → /dashboard
+ * - If in provider mode → /provider/leads (shows onboarding prompt if needed)
+ * - If not in provider mode → /care-profile
  *
  * Per Manual Ch 8: "Maximize visibility, gate by action" - no forced onboarding redirect
  */
@@ -31,13 +31,13 @@ export default function ProviderLandingPage() {
     const isProviderMode = session.user?.activeMode === "PROVIDER";
 
     if (!isProviderMode) {
-      // Not in provider mode, redirect to family dashboard
-      router.push("/dashboard");
+      // Not in provider mode, redirect to family care profile
+      router.push("/care-profile");
       return;
     }
 
-    // In provider mode - go to dashboard (which shows onboarding prompt if needed)
-    router.push("/provider/dashboard");
+    // In provider mode - go to leads page (which shows onboarding prompt if needed)
+    router.push("/provider/leads");
   }, [session, status, router]);
 
   // Show loading state while determining redirect
