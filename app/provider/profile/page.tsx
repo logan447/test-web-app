@@ -347,7 +347,7 @@ export default function ProviderProfilePage() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
-              href="/provider/onboarding"
+              href="/provider/profile/edit"
               className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
             >
               <div className="bg-blue-100 p-3 rounded-lg mr-4">

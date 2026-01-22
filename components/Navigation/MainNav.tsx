@@ -177,10 +177,9 @@ function MainNavContent() {
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
       // Step 4: If switching to provider mode without a provider profile,
-      // trigger onboarding wizard (per Manual Ch 3)
+      // redirect to edit page (which shows Quick Start modal for new providers)
       if (newMode === 'PROVIDER' && !providerType) {
-        // Navigate to landing page with onboarding trigger
-        router.push(`${result.data.landingPage}?onboarding=true&intent=provider`);
+        router.push('/provider/profile/edit');
         return;
       }
 
@@ -200,21 +199,18 @@ function MainNavContent() {
   const isProviderMode = currentMode === 'PROVIDER';
 
   /**
-   * Trigger provider onboarding overlay by navigating to current page with URL params.
-   * GlobalOnboardingOverlay reads these params and shows the wizard.
-   * @param subtype - Optional provider subtype to skip subtype selection step
-   *   - 'individual': For "Become a Caregiver" button (skip to individual flow)
-   *   - null/undefined: For "Complete Profile" (let wizard ask subtype if unknown)
+   * Navigate to provider profile edit page.
+   * The edit page will show the Quick Start modal for new providers.
+   * @param subtype - Optional provider subtype to pre-select in Quick Start
+   *   - 'individual': For "Become a Caregiver" button
+   *   - 'organization': For organizations
    */
   const triggerProviderOnboarding = (subtype?: 'individual' | 'organization') => {
-    // Build URL with onboarding params
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('onboarding', 'true');
-    params.set('intent', 'provider');
-    if (subtype) {
-      params.set('providerSubtype', subtype);
-    }
-    router.push(`${pathname}?${params.toString()}`);
+    // Navigate to edit page, optionally with subtype hint
+    const url = subtype
+      ? `/provider/profile/edit?subtype=${subtype}`
+      : '/provider/profile/edit';
+    router.push(url);
   };
 
   return (

@@ -224,7 +224,7 @@ export default function OpportunitiesPage() {
             </p>
             {activeTab === 'received' && needsOnboarding && (
               <Link
-                href="/provider/onboarding"
+                href="/provider/profile/edit"
                 className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 font-medium"
               >
                 Complete Your Profile

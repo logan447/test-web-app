@@ -1,19 +1,19 @@
 'use client';
 
 /**
- * Provider Onboarding Route Reconciliation (Manual Ch 3)
+ * Provider Onboarding Route - Redirect to Edit Page
  *
- * This route is DEPRECATED in favor of the shared onboarding wizard overlay.
- * It now redirects to /provider/leads and triggers the onboarding overlay.
+ * This route now redirects to the provider profile edit page.
+ * The edit page handles both new providers (via Quick Start modal)
+ * and existing providers (direct editing).
  *
- * Per Manual Ch 3 "Route Reconciliation":
- * - Direct navigation to /provider/onboarding → Redirect to /provider/leads + trigger overlay
+ * This redirect ensures backwards compatibility for any bookmarks
+ * or old links that point to /provider/onboarding.
  */
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { triggerOnboardingAfterSignup } from '@/components/Onboarding';
 
 export default function ProviderOnboarding() {
   const router = useRouter();
@@ -23,14 +23,14 @@ export default function ProviderOnboarding() {
     if (status === 'loading') return;
 
     if (status === 'unauthenticated') {
-      // Not logged in - redirect to login with return URL
-      router.push('/login?redirect=/provider/leads');
+      // Not logged in - redirect to login with return URL to edit page
+      router.push('/login?redirect=/provider/profile/edit');
       return;
     }
 
-    // Authenticated - trigger onboarding wizard and redirect to provider landing
-    triggerOnboardingAfterSignup('provider');
-    router.replace('/provider/leads');
+    // Authenticated - redirect to edit page
+    // The edit page will show Quick Start modal if needed
+    router.replace('/provider/profile/edit');
   }, [status, router]);
 
   // Show loading state while redirecting

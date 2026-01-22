@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 interface CompletionItem {
   label: string;
@@ -31,9 +30,6 @@ function ProfileCompletionSkeleton() {
 
 // Inner component that uses useSearchParams
 function ProfileCompletionWidgetInner() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [data, setData] = useState<ProfileCompletionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -41,17 +37,6 @@ function ProfileCompletionWidgetInner() {
   useEffect(() => {
     fetchCompletion();
   }, []);
-
-  /**
-   * Trigger provider onboarding overlay by navigating to current page with URL params.
-   * GlobalOnboardingOverlay reads these params and shows the wizard.
-   */
-  const handleCompleteProviderProfile = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('onboarding', 'true');
-    params.set('intent', 'provider');
-    router.push(`${pathname}?${params.toString()}`);
-  };
 
   const fetchCompletion = async () => {
     try {
@@ -243,21 +228,12 @@ function ProfileCompletionWidgetInner() {
 
       {/* CTA Button */}
       <div className="px-6 pb-6 pt-2">
-        {isProvider ? (
-          <button
-            onClick={handleCompleteProviderProfile}
-            className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
-          >
-            Complete Your Profile
-          </button>
-        ) : (
-          <Link
-            href="/care-profile/edit"
-            className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
-          >
-            Complete Your Profile
-          </Link>
-        )}
+        <Link
+          href={isProvider ? "/provider/profile/edit" : "/care-profile/edit"}
+          className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
+        >
+          Complete Your Profile
+        </Link>
       </div>
     </div>
   );

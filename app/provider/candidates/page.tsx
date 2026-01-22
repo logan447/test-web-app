@@ -211,7 +211,7 @@ export default function CandidatesPage() {
             </p>
             {activeTab === 'received' && needsOnboarding ? (
               <Link
-                href="/provider/onboarding"
+                href="/provider/profile/edit"
                 className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
               >
                 Complete Your Profile

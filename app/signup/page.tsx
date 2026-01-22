@@ -59,14 +59,12 @@ function SignupForm() {
         return;
       }
 
-      // Trigger onboarding wizard after signup (per Manual Ch 3)
-      // The overlay will appear on the destination page
+      // Redirect after signup
       if (result.activeMode === "PROVIDER") {
-        // Provider intent: trigger wizard with provider intent, redirect to provider mode landing
-        triggerOnboardingAfterSignup("provider");
-        window.location.href = "/provider/leads";
+        // Provider intent: redirect to edit page (Quick Start modal will show)
+        window.location.href = "/provider/profile/edit";
       } else {
-        // Family intent: trigger wizard with family intent, skip to family fields
+        // Family intent: trigger family onboarding wizard
         triggerOnboardingAfterSignup("family");
         window.location.href = "/care-profile";
       }

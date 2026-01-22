@@ -127,15 +127,21 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
         return;
       }
 
-      // Build search params for onboarding
-      // GlobalOnboardingOverlay reads these and shows the overlay
+      // Handle post-signup navigation based on intent
+      onClose();
+
+      // Provider intent: redirect to edit page (Quick Start modal will show)
+      if (intent === "provider") {
+        window.location.href = '/provider/profile/edit';
+        return;
+      }
+
+      // Family intent (or undefined): trigger family onboarding wizard
+      // Build search params for GlobalOnboardingOverlay
       const params = new URLSearchParams();
       params.set('onboarding', 'true');
 
-      // Set intent param so wizard knows which flow to show
-      if (intent === "provider") {
-        params.set('intent', 'provider');
-      } else if (intent === "family") {
+      if (intent === "family") {
         params.set('intent', 'family');
       }
       // If intent is undefined (home page), omit param so wizard shows intent question
@@ -154,13 +160,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
 
       // CRITICAL: Use window.location.href for synchronous navigation
       // This eliminates race conditions between session update and URL params.
-      // With router.push, the session hook can update before URL params propagate,
-      // causing redirect guards to fire prematurely. Full page load ensures:
-      // 1. URL has params BEFORE any React components render
-      // 2. Session is re-read fresh from cookie
-      // 3. No race between useSession() and useSearchParams()
       const newPath = `${window.location.pathname}?${params.toString()}`;
-      onClose();
       window.location.href = newPath;
 
     } catch (error) {
