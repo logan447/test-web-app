@@ -29,17 +29,29 @@ type FamilyProfile = {
 type Provider = {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   providerType: string;
   careTypesOffered: string[];
   city: string;
   state: string;
   zipCode: string;
-  coverPhoto?: string | null;
-  photos?: string[];
-  verified?: boolean;
-  backgroundChecked?: boolean;
-  insuranceVerified?: boolean;
+  coverPhoto: string | null;
+  photos: string[];
+  verified: boolean;
+  backgroundChecked: boolean;
+  insuranceVerified: boolean;
+  licensed: boolean;
+  certifications: string[];
+  averageRating: number | null;
+  reviewCount: number;
+  priceMin: number | null;
+  priceMax: number | null;
+  availableSpots: number | null;
+  totalCapacity: number | null;
+  hasMemoryCare: boolean;
+  hasRespiteCare: boolean;
+  hasHospiceCare: boolean;
+  claimed?: boolean;
   yearsInBusiness?: number;
   serviceRadius?: number | null;
 };
@@ -181,6 +193,10 @@ export default function MatchesPage() {
     }
     if (provider.insuranceVerified) {
       score += 5;
+    }
+    if (provider.licensed) {
+      score += 5;
+      reasons.push("Licensed");
     }
 
     // Experience

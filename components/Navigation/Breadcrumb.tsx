@@ -19,8 +19,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   settings: "Settings",
   onboarding: "Onboarding",
 
-  // Dashboard sub-routes
-  requests: "Requests",
+  // Dashboard sub-routes (Family mode)
   "my-providers": "My Providers",
   "saved-providers": "Saved Providers",
   "care-profile": "Care Profile",
@@ -29,7 +28,7 @@ const SEGMENT_LABELS: Record<string, string> = {
 
   // Provider sub-routes
   leads: "Find Families",
-  requests: "My Families",
+  requests: "My Connections",
   profile: "Provider Profile",
   "hire-staff": "Hire Staff",
   candidates: "My Candidates",
