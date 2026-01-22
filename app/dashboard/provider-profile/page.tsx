@@ -101,6 +101,9 @@ export default function ProviderProfilePage() {
   const [availableForFamilies, setAvailableForFamilies] = useState(true);
   const [availableForOrganizations, setAvailableForOrganizations] = useState(false);
 
+  // Form state - Visibility
+  const [isVisible, setIsVisible] = useState(true);
+
   // Computed category based on provider type
   const category = getProviderCategory(providerType);
 
@@ -136,6 +139,7 @@ export default function ProviderProfilePage() {
         setWaitlistAvailable(data.waitlistAvailable || false);
         setAvailableForFamilies(data.availableForFamilies ?? true);
         setAvailableForOrganizations(data.availableForOrganizations || false);
+        setIsVisible(data.isVisible ?? true);
       }
     } catch (err) {
       console.error("Error fetching provider:", err);
@@ -196,6 +200,7 @@ export default function ProviderProfilePage() {
       waitlistAvailable,
       availableForFamilies,
       availableForOrganizations,
+      isVisible,
     };
 
     try {
@@ -561,14 +566,46 @@ export default function ProviderProfilePage() {
                 </div>
               )}
 
-              {/* Availability Options - for independent caregivers only */}
-              {category === "individual" && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Availability</h2>
-                  <p className="text-sm text-gray-600 mb-4">
-                    How would you like to be available for work?
-                  </p>
-                  <div className="space-y-4">
+            </>
+          )}
+
+          {/* ================================================================
+              SECTION 3: PROFILE VISIBILITY
+              ================================================================ */}
+
+          {providerType && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile Visibility</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Control who can discover and contact you on Olera
+              </p>
+              <div className="space-y-4">
+                {/* Master visibility toggle */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isVisible}
+                    onChange={(e) => setIsVisible(e.target.checked)}
+                    className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <div>
+                    <span className="font-medium text-gray-900">
+                      {category === "individual"
+                        ? "Make my profile visible"
+                        : "Make our profile visible to families"}
+                    </span>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {category === "individual"
+                        ? "When enabled, families and organizations can discover your profile"
+                        : "When enabled, families searching for care can find and contact you"}
+                    </p>
+                  </div>
+                </label>
+
+                {/* Additional visibility options for independent caregivers */}
+                {category === "individual" && isVisible && (
+                  <div className="ml-6 pt-4 border-t border-gray-100 space-y-4">
+                    <p className="text-sm font-medium text-gray-700">Who can find you?</p>
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
@@ -577,7 +614,7 @@ export default function ProviderProfilePage() {
                         className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                       />
                       <div>
-                        <span className="font-medium text-gray-900">Available for direct hire by families</span>
+                        <span className="font-medium text-gray-900">Families seeking direct hire</span>
                         <p className="text-sm text-gray-600 mt-1">
                           Families can find you and send consultation requests directly
                         </p>
@@ -591,16 +628,16 @@ export default function ProviderProfilePage() {
                         className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                       />
                       <div>
-                        <span className="font-medium text-gray-900">Available for hire by care organizations</span>
+                        <span className="font-medium text-gray-900">Care organizations hiring staff</span>
                         <p className="text-sm text-gray-600 mt-1">
                           Care agencies and facilities can contact you about employment
                         </p>
                       </div>
                     </label>
                   </div>
-                </div>
-              )}
-            </>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Submit Buttons */}
