@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
+
+// Key used by onboarding system - must match hooks/useOnboardingWizard.ts
+const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
 
 interface CompletionItem {
   label: string;
@@ -19,6 +24,7 @@ interface ProfileCompletionData {
 }
 
 export default function ProfileCompletionWidget() {
+  const router = useRouter();
   const [data, setData] = useState<ProfileCompletionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -26,6 +32,19 @@ export default function ProfileCompletionWidget() {
   useEffect(() => {
     fetchCompletion();
   }, []);
+
+  /**
+   * Trigger provider onboarding overlay.
+   * No subtype passed - wizard will ask if not already known.
+   */
+  const handleCompleteProviderProfile = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem(ONBOARDING_SHOWN_KEY);
+    }
+    // No subtype - let wizard determine based on existing profile or ask user
+    triggerOnboardingAfterSignup('provider');
+    router.refresh();
+  };
 
   const fetchCompletion = async () => {
     try {
@@ -55,7 +74,6 @@ export default function ProfileCompletionWidget() {
   }
 
   const isProvider = data.mode === "PROVIDER";
-  const profileUrl = isProvider ? "/provider/profile/edit" : "/care-profile/edit";
 
   const getProgressColor = () => {
     if (data.completionPercentage >= 80) return "bg-green-500";
@@ -218,12 +236,21 @@ export default function ProfileCompletionWidget() {
 
       {/* CTA Button */}
       <div className="px-6 pb-6 pt-2">
-        <Link
-          href={profileUrl}
-          className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
-        >
-          Complete Your Profile
-        </Link>
+        {isProvider ? (
+          <button
+            onClick={handleCompleteProviderProfile}
+            className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
+          >
+            Complete Your Profile
+          </button>
+        ) : (
+          <Link
+            href="/care-profile/edit"
+            className="block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition shadow-md hover:shadow-lg"
+          >
+            Complete Your Profile
+          </Link>
+        )}
       </div>
     </div>
   );
