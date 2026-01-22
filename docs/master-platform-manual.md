@@ -1087,15 +1087,15 @@ The overlay appears over the **appropriate mode context** based on the entry poi
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 3.0 Module Overlay Architecture | ⬜ | Shared overlay component (Sprint 2) |
-| 3.1 Wizard Triggers | 🟡 | Multiple entry points, needs consolidation |
-| 3.2 Wizard Variants (Family / Caregiver / Org) | 🟡 | Exists but may need cleanup |
-| 3.3 Intent & Subtype Selection | 🟡 | "Get Started" + provider subtype question |
-| 3.4 Field Collection | 🟡 | Maps to FamilyProfile / Provider models |
-| 3.5 Visibility Settings | 🟡 | Toggles per user type |
-| 3.6 Early Exit & Partial Completion | 🟡 | Save-as-you-go, safe defaults |
-| 3.7 Post-Wizard Routing | 🟡 | New signup → dashboard; returning → stay |
-| 3.8 Profile Completion Integration | 🟡 | Contributes to completion % |
+| 3.0 Module Overlay Architecture | ✅ | `OnboardingWizardOverlay` component (Sprint 2) |
+| 3.1 Wizard Triggers | ✅ | Triggers on signup, mode switch, for-providers CTA |
+| 3.2 Wizard Variants (Family / Caregiver / Org) | ✅ | Family, provider-org, individual caregiver variants |
+| 3.3 Intent & Subtype Selection | ✅ | Family vs Provider → Organization vs Individual |
+| 3.4 Field Collection | ✅ | Maps to FamilyProfile / Provider models correctly |
+| 3.5 Visibility Settings | ✅ | Final step with opt-out model, flat UI, subtype-specific options (Sprint 2) |
+| 3.6 Early Exit & Partial Completion | ✅ | Can skip at any point, data saves on each step |
+| 3.7 Post-Wizard Routing | ✅ | Navigates to appropriate discovery page |
+| 3.8 Profile Completion Integration | ✅ | Profile created and persists to edit pages (Sprint 2) |
 | 3.9 Care Assessment Wizard | ⬜ | "Help Me Decide" flow for care type recommendations |
 | 3.10 Caregiver Job Seeker Onboarding | ⬜ | `/caregiver-jobs/` entry flow |
 
@@ -1870,9 +1870,11 @@ Completion % is for UX feedback only; visibility is binary based on profile card
 | 7.10 Specialty Programs | ✅ | Memory care, hospice, etc. |
 | 7.11 About / Team / Virtual Tour | ✅ | teamMembersJson, virtualTourUrl |
 | 7.12 Claimed vs Unclaimed Status | ✅ | `claimed` boolean |
-| 7.13 Profile Completion Tracking | 🟡 | `/api/dashboard/profile-completion` exists |
+| 7.13 Profile Completion Tracking | ✅ | Profile completion + visibility controls (Sprint 2) |
 | 7.14 Primary Care Type | ⬜ | Required field for canonical URL |
 | 7.15 "Looking for Work?" Section | ⬜ | Job seeker entry on provider pages |
+| 7.16 Provider Profile Editing | ✅ | Streamlined Two-Threshold Model: Tier 1 required, Tier 2 optional by category (Sprint 2) |
+| 7.17 Visibility Controls | ✅ | isVisible, availableForFamilies, availableForOrganizations with flat UI (Sprint 2) |
 
 ### Key Questions
 - [x] Which fields should be required vs optional per provider type? → **See Two-Threshold Model + below**
