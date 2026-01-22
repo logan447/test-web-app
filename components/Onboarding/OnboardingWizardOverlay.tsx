@@ -832,7 +832,10 @@ function FamilyVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
 }
 
 function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
-  const [isVisible, setIsVisible] = useState(data.isVisible ?? true);
+  // For organizations: visibleToFamilies = main visibility, hiringCaregivers = availableForOrganizations
+  // For individuals: availableForFamilies and availableForOrganizations are the two options
+  const [visibleToFamilies, setVisibleToFamilies] = useState(data.isVisible ?? true);
+  const [hiringCaregivers, setHiringCaregivers] = useState(data.availableForOrganizations ?? false);
   const [availableForFamilies, setAvailableForFamilies] = useState(data.availableForFamilies ?? true);
   const [availableForOrganizations, setAvailableForOrganizations] = useState(data.availableForOrganizations ?? false);
 
@@ -841,11 +844,24 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const visibilityData = {
-      isVisible,
-      availableForFamilies: isIndividual ? availableForFamilies : true,
-      availableForOrganizations: isIndividual ? availableForOrganizations : (isOrganization ? availableForOrganizations : false),
-    };
+    let visibilityData;
+
+    if (isIndividual) {
+      // For individuals: isVisible is true if either option is checked
+      visibilityData = {
+        isVisible: availableForFamilies || availableForOrganizations,
+        availableForFamilies,
+        availableForOrganizations,
+      };
+    } else {
+      // For organizations: isVisible = visibleToFamilies, availableForOrganizations = hiringCaregivers
+      visibilityData = {
+        isVisible: visibleToFamilies,
+        availableForFamilies: true,
+        availableForOrganizations: hiringCaregivers,
+      };
+    }
+
     onUpdate(visibilityData);
     onNext(visibilityData);
   };
@@ -859,33 +875,28 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
       </p>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={isVisible}
-            onChange={(e) => setIsVisible(e.target.checked)}
-            className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-          />
-          <div>
-            <span className="font-medium text-gray-900">
-              {isIndividual ? "Make my profile visible" : "Make our profile visible to families"}
-            </span>
-            <p className="text-sm text-gray-600 mt-1">
-              {isIndividual
-                ? "Families and organizations can discover your profile when searching for caregivers"
-                : "Families searching for care can find and contact you"}
-            </p>
-          </div>
-        </label>
-
-        {/* Additional options for organizations */}
-        {isOrganization && isVisible && (
-          <div className="ml-6 pt-4 border-t border-gray-200 space-y-4">
+        {/* Organization options - two equal-level checkboxes */}
+        {isOrganization && (
+          <>
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                checked={availableForOrganizations}
-                onChange={(e) => setAvailableForOrganizations(e.target.checked)}
+                checked={visibleToFamilies}
+                onChange={(e) => setVisibleToFamilies(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">Make our profile visible to families</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Families searching for care can find and contact you
+                </p>
+              </div>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hiringCaregivers}
+                onChange={(e) => setHiringCaregivers(e.target.checked)}
                 className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <div>
@@ -895,13 +906,12 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
                 </p>
               </div>
             </label>
-          </div>
+          </>
         )}
 
-        {/* Additional options for individual caregivers */}
-        {isIndividual && isVisible && (
-          <div className="ml-6 pt-4 border-t border-gray-200 space-y-4">
-            <p className="text-sm font-medium text-gray-700">Who can find you?</p>
+        {/* Individual caregiver options - two equal-level checkboxes */}
+        {isIndividual && (
+          <>
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -930,7 +940,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
                 </p>
               </div>
             </label>
-          </div>
+          </>
         )}
       </div>
 

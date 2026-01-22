@@ -580,31 +580,23 @@ export default function ProviderProfilePage() {
                 Control who can discover and contact you on Olera
               </p>
               <div className="space-y-4">
-                {/* Master visibility toggle */}
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isVisible}
-                    onChange={(e) => setIsVisible(e.target.checked)}
-                    className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <div>
-                    <span className="font-medium text-gray-900">
-                      {category === "individual"
-                        ? "Make my profile visible"
-                        : "Make our profile visible to families"}
-                    </span>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {category === "individual"
-                        ? "When enabled, families and organizations can discover your profile"
-                        : "When enabled, families searching for care can find and contact you"}
-                    </p>
-                  </div>
-                </label>
-
-                {/* Additional visibility options for organizations */}
-                {(category === "facility" || category === "home") && isVisible && (
-                  <div className="ml-6 pt-4 border-t border-gray-100 space-y-4">
+                {/* Organization visibility options - two equal-level checkboxes */}
+                {(category === "facility" || category === "home") && (
+                  <>
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isVisible}
+                        onChange={(e) => setIsVisible(e.target.checked)}
+                        className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">Make our profile visible to families</span>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Families searching for care can find and contact you
+                        </p>
+                      </div>
+                    </label>
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
@@ -619,18 +611,21 @@ export default function ProviderProfilePage() {
                         </p>
                       </div>
                     </label>
-                  </div>
+                  </>
                 )}
 
-                {/* Additional visibility options for independent caregivers */}
-                {category === "individual" && isVisible && (
-                  <div className="ml-6 pt-4 border-t border-gray-100 space-y-4">
-                    <p className="text-sm font-medium text-gray-700">Who can find you?</p>
+                {/* Individual caregiver visibility options - two equal-level checkboxes */}
+                {category === "individual" && (
+                  <>
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={availableForFamilies}
-                        onChange={(e) => setAvailableForFamilies(e.target.checked)}
+                        onChange={(e) => {
+                          setAvailableForFamilies(e.target.checked);
+                          // Update isVisible based on whether any option is checked
+                          setIsVisible(e.target.checked || availableForOrganizations);
+                        }}
                         className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                       />
                       <div>
@@ -644,7 +639,11 @@ export default function ProviderProfilePage() {
                       <input
                         type="checkbox"
                         checked={availableForOrganizations}
-                        onChange={(e) => setAvailableForOrganizations(e.target.checked)}
+                        onChange={(e) => {
+                          setAvailableForOrganizations(e.target.checked);
+                          // Update isVisible based on whether any option is checked
+                          setIsVisible(availableForFamilies || e.target.checked);
+                        }}
                         className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                       />
                       <div>
@@ -654,7 +653,7 @@ export default function ProviderProfilePage() {
                         </p>
                       </div>
                     </label>
-                  </div>
+                  </>
                 )}
               </div>
             </div>
