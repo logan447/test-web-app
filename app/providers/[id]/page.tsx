@@ -417,9 +417,9 @@ export default function ProviderProfilePage() {
   };
 
   const handleClaimSuccess = () => {
-    // Refresh provider data and redirect to provider dashboard
+    // Refresh provider data and redirect to provider profile
     showToast.success('Provider claimed successfully!');
-    router.push('/dashboard/provider-profile');
+    router.push('/provider/profile');
   };
 
   // Profile-as-request model: handleOpenRequestForm

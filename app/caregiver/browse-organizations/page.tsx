@@ -62,7 +62,7 @@ export default function BrowseOrganizationsPage() {
         fetchSentHiringRequests();
       } else {
         // No provider profile, redirect to create one
-        router.push('/dashboard/provider-profile');
+        router.push('/provider/profile');
       }
     } catch (err) {
       console.error('Error checking provider type:', err);

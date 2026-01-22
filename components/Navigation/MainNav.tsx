@@ -307,13 +307,6 @@ function MainNavContent() {
               )}
             </div>
 
-            <Link
-              href="/plan-care"
-              className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
-            >
-              Plan Care
-            </Link>
-
             {session ? (
               isProviderMode ? (
                 <Link
@@ -376,19 +369,30 @@ function MainNavContent() {
                       {providerType ? (
                         <>
                           {/* Has provider profile */}
-                          <Link href="/provider/leads" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/leads" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                             Find Families
                           </Link>
                           <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <span>My Families</span>
+                            <span className="flex items-center gap-3">
+                              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                              Requests
+                            </span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                                 {unreadCount > 9 ? '9+' : unreadCount}
                               </span>
                             )}
                           </Link>
-                          <Link href="/provider/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Provider Dashboard
+                          <Link href="/provider/profile" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            My Profile
                           </Link>
 
                           {/* Hiring section divider */}
@@ -397,19 +401,31 @@ function MainNavContent() {
                           {/* Hiring section - different for organizations vs caregivers */}
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
-                              <Link href="/provider/organizations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/organizations" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
                                 Find Organizations
                               </Link>
-                              <Link href="/provider/opportunities" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/opportunities" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
                                 My Opportunities
                               </Link>
                             </>
                           ) : (
                             <>
-                              <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/hire-staff" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
                                 Hire Care Staff
                               </Link>
-                              <Link href="/provider/candidates" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/candidates" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
                                 My Candidates
                               </Link>
                             </>
@@ -417,52 +433,97 @@ function MainNavContent() {
                         </>
                       ) : (
                         <>
-                          {/* No provider profile - still show full navigation */}
-                          {/* Primary provider nav */}
-                          <Link href="/provider/leads" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          {/* No provider profile - show navigation with onboarding prompt */}
+                          <Link href="/provider/leads" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                             Find Families
                           </Link>
                           <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <span>My Families</span>
+                            <span className="flex items-center gap-3">
+                              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                              Requests
+                            </span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                                 {unreadCount > 9 ? '9+' : unreadCount}
                               </span>
                             )}
                           </Link>
-                          <Link href="/provider/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Provider Dashboard
+                          <Link href="/provider/profile" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            My Profile
                           </Link>
                           {/* Secondary provider nav */}
                           <div className="border-t border-gray-200 my-1"></div>
-                          <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/hire-staff" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
                             Hire Care Staff
                           </Link>
-                          <Link href="/provider/onboarding" className="block px-4 py-2 text-sm text-primary-600 hover:bg-gray-100 font-medium">
+                          <button
+                            onClick={() => triggerOnboardingAfterSignup('provider')}
+                            className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-primary-600 hover:bg-gray-100 font-medium"
+                          >
+                            <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
                             Become a Caregiver
-                          </Link>
+                          </button>
                         </>
                       )}
                     </>
                   ) : (
                     <>
                       {/* Family mode */}
-                      <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                         Find Providers
                       </Link>
-                      <Link href="/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/saved" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
                         Saved Providers
                       </Link>
                       <Link href="/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <span>My Providers</span>
+                        <span className="flex items-center gap-3">
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          My Providers
+                        </span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                             {unreadCount > 9 ? '9+' : unreadCount}
                           </span>
                         )}
                       </Link>
-                      <Link href="/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/matches" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Matches
+                      </Link>
+                      <Link href="/care-profile" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                         My Care Profile
+                      </Link>
+                      <Link href="/benefits" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Benefits
                       </Link>
                     </>
                   )}
@@ -471,28 +532,41 @@ function MainNavContent() {
                       <button
                         onClick={() => handleModeSwitch('FAMILY')}
                         disabled={switchingMode}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                        className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
                       >
-                        {switchingMode ? 'Switching...' : 'For Families'}
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        {switchingMode ? 'Switching...' : 'Switch to Family Mode'}
                       </button>
                     ) : (
                       <button
                         onClick={() => handleModeSwitch('PROVIDER')}
                         disabled={switchingMode}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                        className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
                       >
-                        {switchingMode ? 'Switching...' : 'For Providers'}
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        {switchingMode ? 'Switching...' : 'Switch to Provider Mode'}
                       </button>
                     )}
-                    <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link href="/settings" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
                       Settings
                     </Link>
                   </div>
                   <div className="border-t border-gray-200">
                     <button
                       onClick={() => setSignOutModalOpen(true)}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
                       Log Out
                     </button>
                   </div>
@@ -629,9 +703,6 @@ function MainNavContent() {
               )}
             </div>
 
-            <Link href="/plan-care" className="block px-3 py-2 text-gray-700 font-medium">
-              Plan Care
-            </Link>
             {session ? (
               isProviderMode ? (
                 <Link
@@ -685,7 +756,7 @@ function MainNavContent() {
                             Find Families
                           </Link>
                           <Link href="/provider/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            <span>My Families</span>
+                            <span>Requests</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -693,7 +764,7 @@ function MainNavContent() {
                             )}
                           </Link>
                           <Link href="/provider/profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Provider Dashboard
+                            My Profile
                           </Link>
 
                           {/* Hiring section divider */}
@@ -722,13 +793,12 @@ function MainNavContent() {
                         </>
                       ) : (
                         <>
-                          {/* No provider profile - still show full navigation */}
-                          {/* Primary provider nav */}
+                          {/* No provider profile - show navigation with onboarding prompt */}
                           <Link href="/provider/leads" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
                           <Link href="/provider/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            <span>My Families</span>
+                            <span>Requests</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -736,16 +806,22 @@ function MainNavContent() {
                             )}
                           </Link>
                           <Link href="/provider/profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Provider Dashboard
+                            My Profile
                           </Link>
                           {/* Secondary provider nav */}
                           <div className="border-t border-gray-200 my-2"></div>
                           <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Hire Care Staff
                           </Link>
-                          <Link href="/provider/onboarding" className="block px-3 py-2 text-primary-600 font-medium" onClick={() => setMobileMenuOpen(false)}>
+                          <button
+                            onClick={() => {
+                              triggerOnboardingAfterSignup('provider');
+                              setMobileMenuOpen(false);
+                            }}
+                            className="block w-full text-left px-3 py-2 text-primary-600 font-medium"
+                          >
                             Become a Caregiver
-                          </Link>
+                          </button>
                         </>
                       )}
                     </>
@@ -766,8 +842,14 @@ function MainNavContent() {
                           </span>
                         )}
                       </Link>
+                      <Link href="/matches" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Matches
+                      </Link>
                       <Link href="/care-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         My Care Profile
+                      </Link>
+                      <Link href="/benefits" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        Benefits
                       </Link>
                     </>
                   )}
@@ -781,7 +863,7 @@ function MainNavContent() {
                       disabled={switchingMode}
                       className="block w-full text-left px-3 py-2 text-gray-700 disabled:opacity-50"
                     >
-                      {switchingMode ? 'Switching...' : 'For Families'}
+                      {switchingMode ? 'Switching...' : 'Switch to Family Mode'}
                     </button>
                   ) : (
                     <button
@@ -792,7 +874,7 @@ function MainNavContent() {
                       disabled={switchingMode}
                       className="block w-full text-left px-3 py-2 text-gray-700 disabled:opacity-50"
                     >
-                      {switchingMode ? 'Switching...' : 'For Providers'}
+                      {switchingMode ? 'Switching...' : 'Switch to Provider Mode'}
                     </button>
                   )}
                   <Link href="/settings" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>

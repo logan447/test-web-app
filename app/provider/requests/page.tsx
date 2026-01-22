@@ -36,6 +36,21 @@ type ConsultRequest = {
   };
 };
 
+type MatchedFamily = {
+  id: string;
+  userId: string;
+  user: {
+    name: string;
+  };
+  city: string;
+  state: string;
+  careTypes: string[];
+  seniorName?: string;
+  createdAt: string;
+  matchScore?: number;
+  matchReasons?: string[];
+};
+
 /**
  * Provider Requests - Provider-side engagement management
  *
@@ -50,7 +65,9 @@ export default function ProviderRequestsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [requests, setRequests] = useState<ConsultRequest[]>([]);
+  const [matchedFamilies, setMatchedFamilies] = useState<MatchedFamily[]>([]);
   const [loading, setLoading] = useState(true);
+  const [matchesLoading, setMatchesLoading] = useState(true);
 
   // Default to "received" for providers (families reaching out to them)
   const [activeTab, setActiveTab] = useState<"sent" | "received">("received");
@@ -70,6 +87,7 @@ export default function ProviderRequestsPage() {
 
     if (status === "authenticated") {
       fetchRequests();
+      fetchMatchedFamilies();
       markAsViewed();
     }
   }, [status, activeTab, identityLoading]);
@@ -97,6 +115,22 @@ export default function ProviderRequestsPage() {
       console.error("Error fetching requests:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMatchedFamilies = async () => {
+    setMatchesLoading(true);
+    try {
+      // Fetch family profiles that match this provider's care types
+      const response = await fetch('/api/provider/matches');
+      if (response.ok) {
+        const data = await response.json();
+        setMatchedFamilies(data);
+      }
+    } catch (err) {
+      console.error("Error fetching matched families:", err);
+    } finally {
+      setMatchesLoading(false);
     }
   };
 
@@ -204,16 +238,90 @@ export default function ProviderRequestsPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            My Families
+            Requests
           </h1>
           <p className="text-lg text-gray-600">
-            Manage your family care connections and requests
+            Manage your family connections and view matched families looking for care
           </p>
         </div>
 
         {/* Onboarding prompt for incomplete profiles */}
         {needsOnboarding && (
           <OnboardingPrompt context="requests" />
+        )}
+
+        {/* Matched Families Section */}
+        {!needsOnboarding && matchedFamilies.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Matched Families</h2>
+                <p className="text-sm text-gray-600">Families looking for care that match your services</p>
+              </div>
+              <Link
+                href="/provider/leads"
+                className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              >
+                View All Families →
+              </Link>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {matchedFamilies.slice(0, 3).map((family) => (
+                <div key={family.id} className="bg-white rounded-lg shadow p-5 border border-gray-100 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{family.user.name}</h3>
+                      <p className="text-sm text-gray-600">{family.city}, {family.state}</p>
+                    </div>
+                    {family.matchScore && (
+                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                        {family.matchScore}% match
+                      </span>
+                    )}
+                  </div>
+                  {family.careTypes && family.careTypes.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {family.careTypes.slice(0, 2).map((type) => (
+                        <span key={type} className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">
+                          {type.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')}
+                        </span>
+                      ))}
+                      {family.careTypes.length > 2 && (
+                        <span className="text-gray-500 text-xs">+{family.careTypes.length - 2} more</span>
+                      )}
+                    </div>
+                  )}
+                  {family.matchReasons && family.matchReasons.length > 0 && (
+                    <p className="text-xs text-gray-500 mb-3">{family.matchReasons[0]}</p>
+                  )}
+                  <Link
+                    href={`/provider/leads/${family.id}`}
+                    className="block w-full text-center bg-primary-600 text-white py-2 rounded-md hover:bg-primary-700 text-sm font-medium"
+                  >
+                    View Profile
+                  </Link>
+                </div>
+              ))}
+            </div>
+            {matchedFamilies.length > 3 && (
+              <div className="mt-4 text-center">
+                <Link
+                  href="/provider/leads"
+                  className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                >
+                  See {matchedFamilies.length - 3} more matched families →
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Empty state for matches when loading */}
+        {!needsOnboarding && matchesLoading && (
+          <div className="mb-8 bg-gray-50 rounded-lg p-6 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+          </div>
         )}
 
         <div className="mb-6 border-b border-gray-200">

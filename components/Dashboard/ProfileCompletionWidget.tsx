@@ -55,7 +55,7 @@ export default function ProfileCompletionWidget() {
   }
 
   const isProvider = data.mode === "PROVIDER";
-  const profileUrl = isProvider ? "/dashboard/provider-profile" : "/dashboard/care-profile";
+  const profileUrl = isProvider ? "/provider/profile" : "/care-profile/edit";
 
   const getProgressColor = () => {
     if (data.completionPercentage >= 80) return "bg-green-500";
@@ -129,12 +129,10 @@ export default function ProfileCompletionWidget() {
               </svg>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-900">
-                  Complete profiles get 3x more inquiries!
+                  Complete your profile to unlock more opportunities
                 </p>
                 <p className="text-xs text-gray-600 mt-1">
-                  Families are more likely to contact providers with complete,
-                  detailed profiles. Add photos, services, and certifications to
-                  stand out.
+                  A complete profile improves your visibility to families, enables better matching, and gives you access to the hiring marketplace.
                 </p>
               </div>
             </div>
