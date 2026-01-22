@@ -837,13 +837,14 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
   const [availableForOrganizations, setAvailableForOrganizations] = useState(data.availableForOrganizations ?? false);
 
   const isIndividual = data.providerSubtype === "individual";
+  const isOrganization = data.providerSubtype === "organization";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const visibilityData = {
       isVisible,
       availableForFamilies: isIndividual ? availableForFamilies : true,
-      availableForOrganizations: isIndividual ? availableForOrganizations : false,
+      availableForOrganizations: isIndividual ? availableForOrganizations : (isOrganization ? availableForOrganizations : false),
     };
     onUpdate(visibilityData);
     onNext(visibilityData);
@@ -854,7 +855,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
       <p className="text-gray-600 text-center">
         {isIndividual
           ? "Choose who can find and contact you on Olera."
-          : "Choose whether families can discover your organization on Olera."}
+          : "Choose who can discover your organization on Olera."}
       </p>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-4">
@@ -876,6 +877,26 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
             </p>
           </div>
         </label>
+
+        {/* Additional options for organizations */}
+        {isOrganization && isVisible && (
+          <div className="ml-6 pt-4 border-t border-gray-200 space-y-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={availableForOrganizations}
+                onChange={(e) => setAvailableForOrganizations(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">We&apos;re hiring caregivers</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Individual caregivers seeking employment can find and contact you
+                </p>
+              </div>
+            </label>
+          </div>
+        )}
 
         {/* Additional options for individual caregivers */}
         {isIndividual && isVisible && (

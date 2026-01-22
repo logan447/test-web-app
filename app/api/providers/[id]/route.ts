@@ -125,28 +125,32 @@ export async function PATCH(
       active,
       availableForFamilies,
       availableForOrganizations,
+      isVisible,
     } = body;
+
+    // Build update data - only include defined fields
+    const updateData: Record<string, unknown> = {};
+    if (name !== undefined) updateData.name = name;
+    if (providerType !== undefined) updateData.providerType = providerType;
+    if (description !== undefined) updateData.description = description;
+    if (careTypesOffered !== undefined) updateData.careTypesOffered = careTypesOffered;
+    if (address !== undefined) updateData.address = address;
+    if (city !== undefined) updateData.city = city;
+    if (state !== undefined) updateData.state = state;
+    if (zipCode !== undefined) updateData.zipCode = zipCode;
+    if (phone !== undefined) updateData.phone = phone;
+    if (email !== undefined) updateData.email = email;
+    if (website !== undefined) updateData.website = website;
+    if (yearsInBusiness !== undefined) updateData.yearsInBusiness = yearsInBusiness;
+    if (licenseNumber !== undefined) updateData.licenseNumber = licenseNumber;
+    if (active !== undefined) updateData.active = active;
+    if (availableForFamilies !== undefined) updateData.availableForFamilies = availableForFamilies;
+    if (availableForOrganizations !== undefined) updateData.availableForOrganizations = availableForOrganizations;
+    if (isVisible !== undefined) updateData.isVisible = isVisible;
 
     const provider = await prisma.provider.update({
       where: { id },
-      data: {
-        name,
-        providerType,
-        description,
-        careTypesOffered,
-        address,
-        city,
-        state,
-        zipCode,
-        phone,
-        email,
-        website,
-        yearsInBusiness,
-        licenseNumber,
-        active,
-        availableForFamilies,
-        availableForOrganizations,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(provider);

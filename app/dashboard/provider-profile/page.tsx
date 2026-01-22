@@ -602,6 +602,26 @@ export default function ProviderProfilePage() {
                   </div>
                 </label>
 
+                {/* Additional visibility options for organizations */}
+                {(category === "facility" || category === "home") && isVisible && (
+                  <div className="ml-6 pt-4 border-t border-gray-100 space-y-4">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={availableForOrganizations}
+                        onChange={(e) => setAvailableForOrganizations(e.target.checked)}
+                        className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">We&apos;re hiring caregivers</span>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Individual caregivers seeking employment can find and contact you
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
                 {/* Additional visibility options for independent caregivers */}
                 {category === "individual" && isVisible && (
                   <div className="ml-6 pt-4 border-t border-gray-100 space-y-4">
