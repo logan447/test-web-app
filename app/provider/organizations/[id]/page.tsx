@@ -10,9 +10,10 @@ import { showToast } from '@/lib/toast';
 import AuthModal from '@/components/Auth/AuthModal';
 import PaywallModal from '@/components/Paywall/PaywallModal';
 
-type Caregiver = {
+type Organization = {
   id: string;
   name: string;
+  providerType: string;
   description: string;
   careTypesOffered: string[];
   city: string;
@@ -26,58 +27,51 @@ type Caregiver = {
   licenseNumber: string | null;
   serviceRadius: number | null;
   website: string | null;
+  capacity: number | null;
 };
 
-export default function CaregiverHireDetailPage() {
-  const { data: session, status } = useSession();
+export default function OrganizationDetailPage() {
+  const { data: session } = useSession();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  const [caregiver, setCaregiver] = useState<Caregiver | null>(null);
+  const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
   const [requestMessage, setRequestMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
-  // Determine back link based on where user came from
+  // Determine back link
   const fromSaved = searchParams.get('from') === 'saved';
-  const backHref = fromSaved ? '/provider/leads' : '/provider/hire-staff';
+  const backHref = fromSaved ? '/provider/saved' : '/provider/organizations';
   const backText = fromSaved ? 'Back to Saved' : 'Back to Browse';
 
   useEffect(() => {
-    // Wait for session to load
-    if (status === 'loading') return;
-
-    // Only show auth modal if definitively unauthenticated
-    if (status === 'unauthenticated') {
+    if (!session) {
       setAuthModalOpen(true);
       return;
     }
+    fetchOrganization();
+  }, [session, router, params.id]);
 
-    // Session is authenticated but data might still be loading
-    if (!session) return;
-
-    fetchCaregiver();
-  }, [session, status, router, params.id]);
-
-  const fetchCaregiver = async () => {
+  const fetchOrganization = async () => {
     try {
       const response = await fetch(`/api/providers/${params.id}`);
       if (response.ok) {
         const data = await response.json();
-        // Verify it's an independent caregiver available for organizations
-        if (data.providerType !== 'INDEPENDENT_CAREGIVER' || !data.availableForOrganizations) {
-          router.push('/provider/hire-staff');
+        // Verify it's an organization (not an independent caregiver)
+        if (data.providerType === 'INDEPENDENT_CAREGIVER') {
+          router.push('/provider/organizations');
           return;
         }
-        setCaregiver(data);
+        setOrganization(data);
       } else {
-        router.push('/provider/hire-staff');
+        router.push('/provider/organizations');
       }
     } catch (err) {
-      console.error('Error fetching caregiver:', err);
-      router.push('/provider/hire-staff');
+      console.error('Error fetching organization:', err);
+      router.push('/provider/organizations');
     } finally {
       setLoading(false);
     }
@@ -92,33 +86,33 @@ export default function CaregiverHireDetailPage() {
 
     setSending(true);
     try {
-      // Get the organization's provider profile to create family profile for the request
-      const orgProviderResponse = await fetch('/api/providers/me');
-      if (!orgProviderResponse.ok) {
+      // Get the caregiver's provider profile
+      const caregiverProviderResponse = await fetch('/api/providers/me');
+      if (!caregiverProviderResponse.ok) {
         showToast.error('Please create a provider profile first');
         setSending(false);
         return;
       }
-      const orgProviderData = await orgProviderResponse.json();
+      const caregiverProviderData = await caregiverProviderResponse.json();
 
-      // Create or get family profile for the organization (reuse existing if present)
+      // Create or get family profile for the caregiver (reuse existing if present)
       let familyProfileId = null;
       const familyProfileResponse = await fetch('/api/family-profiles/me');
       if (familyProfileResponse.ok) {
         const familyProfileData = await familyProfileResponse.json();
         familyProfileId = familyProfileData.id;
       } else {
-        // Create minimal family profile for organization hiring
+        // Create minimal family profile for caregiver hiring request
         const createProfileResponse = await fetch('/api/family-profiles/me', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             careTypes: ['COMPANION_CARE'], // Default
-            location: orgProviderData.address,
-            city: orgProviderData.city,
-            state: orgProviderData.state,
-            zipCode: orgProviderData.zipCode,
-            description: `Hiring request from ${orgProviderData.name}`,
+            location: caregiverProviderData.address,
+            city: caregiverProviderData.city,
+            state: caregiverProviderData.state,
+            zipCode: caregiverProviderData.zipCode,
+            description: `Employment request from ${caregiverProviderData.name}`,
             isPublic: false,
           }),
         });
@@ -126,43 +120,77 @@ export default function CaregiverHireDetailPage() {
         if (createProfileResponse.ok) {
           const createdProfile = await createProfileResponse.json();
           familyProfileId = createdProfile.id;
+        } else {
+          const errorData = await createProfileResponse.json();
+          console.error('Failed to create family profile:', errorData);
+          showToast.error(errorData.error || 'Failed to prepare employment request');
+          setSending(false);
+          return;
         }
       }
 
       if (!familyProfileId) {
-        showToast.error('Failed to prepare hiring request');
+        showToast.error('Failed to prepare employment request');
         setSending(false);
         return;
       }
 
-      // Send hiring request (consultation request)
+      // Send hiring request to the organization
+      // Note: providerId is the organization's ID (params.id) because they are the one receiving the request
+      console.log('Sending hiring request with:', {
+        familyProfileId,
+        providerId: params.id,
+        message: requestMessage,
+        requestType: 'HIRING'
+      });
+
       const response = await fetch('/api/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           familyProfileId: familyProfileId,
-          providerId: caregiver?.id,
+          providerId: params.id as string, // Organization's provider ID (the one receiving the hiring request)
           message: requestMessage,
           requestType: 'HIRING',
         }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        showToast.error('Server error: ' + text.substring(0, 100));
+        setSending(false);
+        return;
+      }
+
       const data = await response.json();
 
       if (response.ok) {
-        showToast.success('Hiring request sent!');
+        showToast.success('Employment request sent!');
         setRequestMessage('');
         router.push('/provider/candidates');
       } else {
+        console.error('Failed to send request:', {
+          status: response.status,
+          data: data
+        });
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
         } else {
-          showToast.error(data.error || 'Failed to send request');
+          const errorMessage = data.details
+            ? `${data.error}: ${data.details}`
+            : (data.error || 'Failed to send request');
+          showToast.error(errorMessage);
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error sending request:', err);
-      showToast.error('Failed to send hiring request');
+      showToast.error(err.message || 'Failed to send employment request');
     } finally {
       setSending(false);
     }
@@ -198,6 +226,12 @@ export default function CaregiverHireDetailPage() {
     ).join(' ');
   };
 
+  const formatProviderType = (type: string) => {
+    return type.split('_').map(word =>
+      word.charAt(0) + word.slice(1).toLowerCase()
+    ).join(' ');
+  };
+
   if (!session) {
     return null;
   }
@@ -221,14 +255,14 @@ export default function CaregiverHireDetailPage() {
     );
   }
 
-  if (!caregiver) {
+  if (!organization) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
-      <Breadcrumb currentPage={caregiver.name} />
+      <Breadcrumb currentPage={organization.name} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
@@ -244,18 +278,21 @@ export default function CaregiverHireDetailPage() {
           </Link>
         </div>
 
-        {/* Caregiver Profile */}
+        {/* Organization Profile */}
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           <div className="flex justify-between items-start mb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {caregiver.name}
+                {organization.name}
               </h1>
+              <p className="text-lg text-primary-600 mb-1">
+                {formatProviderType(organization.providerType)}
+              </p>
               <p className="text-gray-600">
-                {caregiver.city}, {caregiver.state}
+                {organization.city}, {organization.state}
               </p>
             </div>
-            {caregiver.licensed && (
+            {organization.licensed && (
               <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
                 Licensed
               </span>
@@ -265,14 +302,14 @@ export default function CaregiverHireDetailPage() {
           {/* About */}
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">About</h2>
-            <p className="text-gray-700 whitespace-pre-line">{caregiver.description}</p>
+            <p className="text-gray-700 whitespace-pre-line">{organization.description}</p>
           </div>
 
-          {/* Care Types */}
+          {/* Services */}
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Care Types Offered</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Services Offered</h2>
             <div className="flex flex-wrap gap-2">
-              {caregiver.careTypesOffered.map((type) => (
+              {organization.careTypesOffered.map((type) => (
                 <span
                   key={type}
                   className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
@@ -286,19 +323,25 @@ export default function CaregiverHireDetailPage() {
           {/* Details */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Experience</h3>
-              <p className="text-gray-900">{caregiver.yearsInBusiness} years</p>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">Years in Business</h3>
+              <p className="text-gray-900">{organization.yearsInBusiness} years</p>
             </div>
-            {caregiver.serviceRadius && (
+            {organization.capacity && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Service Radius</h3>
-                <p className="text-gray-900">{caregiver.serviceRadius} miles</p>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Capacity</h3>
+                <p className="text-gray-900">{organization.capacity} clients</p>
               </div>
             )}
-            {caregiver.licensed && caregiver.licenseNumber && (
+            {organization.serviceRadius && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Service Radius</h3>
+                <p className="text-gray-900">{organization.serviceRadius} miles</p>
+              </div>
+            )}
+            {organization.licensed && organization.licenseNumber && (
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">License Number</h3>
-                <p className="text-gray-900">{caregiver.licenseNumber}</p>
+                <p className="text-gray-900">{organization.licenseNumber}</p>
               </div>
             )}
           </div>
@@ -310,30 +353,30 @@ export default function CaregiverHireDetailPage() {
               <div>
                 <p className="text-gray-600">Email:</p>
                 <p className="text-gray-900">
-                  <a href={`mailto:${caregiver.email}`} className="text-primary-600 hover:text-primary-700">
-                    {caregiver.email}
+                  <a href={`mailto:${organization.email}`} className="text-primary-600 hover:text-primary-700">
+                    {organization.email}
                   </a>
                 </p>
               </div>
               <div>
                 <p className="text-gray-600">Phone:</p>
                 <p className="text-gray-900">
-                  <a href={`tel:${caregiver.phone}`} className="text-primary-600 hover:text-primary-700">
-                    {caregiver.phone}
+                  <a href={`tel:${organization.phone}`} className="text-primary-600 hover:text-primary-700">
+                    {organization.phone}
                   </a>
                 </p>
               </div>
-              {caregiver.website && (
+              {organization.website && (
                 <div>
                   <p className="text-gray-600">Website:</p>
                   <p className="text-gray-900">
                     <a
-                      href={caregiver.website}
+                      href={organization.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary-600 hover:text-primary-700"
                     >
-                      {caregiver.website}
+                      {organization.website}
                     </a>
                   </p>
                 </div>
@@ -342,11 +385,11 @@ export default function CaregiverHireDetailPage() {
           </div>
         </div>
 
-        {/* Send Hiring Request */}
+        {/* Send Employment Request */}
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Send Hiring Request</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Request Employment Opportunity</h2>
           <p className="text-gray-600 mb-4">
-            Introduce your organization and describe the employment opportunity. Contact information will be shared once they accept your request.
+            Introduce yourself and express your interest in working for this organization. Contact information will be shared once they accept your request.
           </p>
           <form onSubmit={handleSendRequest}>
             <div className="mb-4">
@@ -358,7 +401,7 @@ export default function CaregiverHireDetailPage() {
                 onChange={(e) => setRequestMessage(e.target.value)}
                 rows={6}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Tell them about your organization and the position you're hiring for..."
+                placeholder="Tell them about your experience and why you'd like to work for their organization..."
                 required
               />
             </div>
@@ -368,7 +411,7 @@ export default function CaregiverHireDetailPage() {
                 disabled={sending}
                 className="bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 disabled:opacity-50 font-medium"
               >
-                {sending ? 'Sending...' : 'Send Hiring Request'}
+                {sending ? 'Sending...' : 'Send Request'}
               </button>
               <Link
                 href={backHref}
@@ -392,7 +435,7 @@ export default function CaregiverHireDetailPage() {
         isOpen={authModalOpen}
         onClose={() => {
           setAuthModalOpen(false);
-          router.push('/provider/hire-staff');
+          router.push('/provider/organizations');
         }}
         defaultView="login"
       />

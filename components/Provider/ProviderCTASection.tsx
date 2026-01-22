@@ -99,7 +99,7 @@ export default function ProviderCTASection({
         You have an active conversation with {providerName}
       </p>
       <button
-        onClick={() => router.push(`/dashboard/my-providers/${activeEngagement?.id}`)}
+        onClick={() => router.push(`/requests/${activeEngagement?.id}`)}
         className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
       >
         <div className="flex items-center justify-center gap-2">
@@ -233,7 +233,7 @@ export default function ProviderCTASection({
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-4 z-50">
         {activeEngagement ? (
           <button
-            onClick={() => router.push(`/dashboard/my-providers/${activeEngagement.id}`)}
+            onClick={() => router.push(`/requests/${activeEngagement.id}`)}
             className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
           >
             <div className="flex items-center justify-center gap-2">

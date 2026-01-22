@@ -9,6 +9,8 @@ import Link from 'next/link';
 import AuthModal from '@/components/Auth/AuthModal';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import OrganizationCard from '@/components/Directory/OrganizationCard';
+import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
+import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type Organization = {
   id: string;
@@ -29,23 +31,41 @@ type Organization = {
   insuranceVerified?: boolean;
 };
 
-export default function BrowseOrganizationsPage() {
-  const { data: session } = useSession();
+/**
+ * Organizations - For independent caregivers to browse organizations
+ *
+ * This page is accessible without a provider profile (per Manual Ch 8: Maximize visibility).
+ * Users without a profile will see the OnboardingPrompt but can still browse.
+ * Role gating (INDEPENDENT_CAREGIVER only) redirects non-caregivers to appropriate pages.
+ */
+export default function OrganizationsPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [requestedOrganizationIds, setRequestedOrganizationIds] = useState<Map<string, string>>(new Map());
+  const [isIndependentCaregiver, setIsIndependentCaregiver] = useState<boolean | null>(null);
+
+  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
+  const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
+    checkMode: true,
+  });
 
   useEffect(() => {
-    if (!session) {
+    if (status === 'loading' || identityLoading) return;
+
+    if (status === 'unauthenticated') {
       setAuthModalOpen(true);
+      setLoading(false);
       return;
     }
 
-    // Check if user is an independent caregiver
+    if (!session) return;
+
+    // Check provider type to determine if user should be here
     checkProviderType();
-  }, [session]);
+  }, [session, status, identityLoading]);
 
   const checkProviderType = async () => {
     try {
@@ -54,18 +74,24 @@ export default function BrowseOrganizationsPage() {
         const provider = await response.json();
         if (provider.providerType !== 'INDEPENDENT_CAREGIVER') {
           // Redirect if user is not an independent caregiver
+          // They should use /provider/hire-staff instead
           router.push('/provider/leads');
           return;
         }
+        setIsIndependentCaregiver(true);
         // User is independent caregiver, fetch organizations
         fetchOrganizations();
         fetchSentHiringRequests();
       } else {
-        // No provider profile, redirect to create one
-        router.push('/dashboard/provider-profile');
+        // No provider profile - still allow browsing (Manual Ch 8: Maximize visibility)
+        setIsIndependentCaregiver(null);
+        fetchOrganizations();
+        setLoading(false);
       }
     } catch (err) {
       console.error('Error checking provider type:', err);
+      // On error, still show the page
+      fetchOrganizations();
       setLoading(false);
     }
   };
@@ -122,8 +148,47 @@ export default function BrowseOrganizationsPage() {
     }
   };
 
+  if (status === 'loading' || identityLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <Breadcrumb />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Organizations</h1>
+            <p className="text-lg text-gray-600">
+              Find care organizations that may be hiring caregivers in your area
+            </p>
+          </div>
+          <ProfileCardsSkeleton count={6} />
+        </div>
+      </div>
+    );
+  }
+
   if (!session) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <Breadcrumb />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Organizations</h1>
+            <p className="text-lg text-gray-600">
+              Find care organizations that may be hiring caregivers in your area
+            </p>
+          </div>
+        </div>
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => {
+            setAuthModalOpen(false);
+            router.push('/');
+          }}
+          defaultView="login"
+        />
+      </div>
+    );
   }
 
   if (loading) {
@@ -133,7 +198,7 @@ export default function BrowseOrganizationsPage() {
         <Breadcrumb />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Care Organizations</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Organizations</h1>
             <p className="text-lg text-gray-600">
               Find care organizations that may be hiring caregivers in your area
             </p>
@@ -151,11 +216,16 @@ export default function BrowseOrganizationsPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Care Organizations</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Organizations</h1>
           <p className="text-lg text-gray-600">
             Find care organizations that may be hiring caregivers in your area
           </p>
         </div>
+
+        {/* Onboarding prompt for users without provider profile */}
+        {needsOnboarding && (
+          <OnboardingPrompt context="default" />
+        )}
 
         {/* Results Count */}
         {organizations.length > 0 && (
@@ -190,9 +260,10 @@ export default function BrowseOrganizationsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {organizations.map((org) => {
               const requestId = requestedOrganizationIds.get(org.id);
+              // Link to opportunities if already engaged, otherwise to org detail
               const linkHref = requestId
                 ? `/provider/opportunities/${requestId}`
-                : `/caregiver/browse-organizations/${org.id}`;
+                : `/provider/organizations/${org.id}`;
 
               return (
                 <OrganizationCard
@@ -206,15 +277,6 @@ export default function BrowseOrganizationsPage() {
           </div>
         )}
       </div>
-
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => {
-          setAuthModalOpen(false);
-          router.push('/');
-        }}
-        defaultView="login"
-      />
     </div>
   );
 }

@@ -317,7 +317,7 @@ function MainNavContent() {
             {session ? (
               isProviderMode ? (
                 <Link
-                  href="/provider/find-families"
+                  href="/provider/leads"
                   className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
                 >
                   Provider Mode
@@ -376,13 +376,10 @@ function MainNavContent() {
                       {providerType ? (
                         <>
                           {/* Has provider profile */}
-                          <Link href="/provider/find-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/leads" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
-                          <Link href="/provider/dashboard/saved-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Saved Families
-                          </Link>
-                          <Link href="/provider/dashboard/my-families" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -390,7 +387,7 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
-                          <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Provider Dashboard
                           </Link>
 
@@ -400,10 +397,10 @@ function MainNavContent() {
                           {/* Hiring section - different for organizations vs caregivers */}
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
-                              <Link href="/provider/find-organizations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/organizations" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Find Organizations
                               </Link>
-                              <Link href="/provider/my-opportunities" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/opportunities" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 My Opportunities
                               </Link>
                             </>
@@ -412,7 +409,7 @@ function MainNavContent() {
                               <Link href="/provider/hire-staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Hire Care Staff
                               </Link>
-                              <Link href="/provider/my-candidates" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                              <Link href="/provider/candidates" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 My Candidates
                               </Link>
                             </>
@@ -422,13 +419,10 @@ function MainNavContent() {
                         <>
                           {/* No provider profile - still show full navigation */}
                           {/* Primary provider nav */}
-                          <Link href="/provider/find-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/leads" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Find Families
                           </Link>
-                          <Link href="/provider/dashboard/saved-families" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Saved Families
-                          </Link>
-                          <Link href="/provider/dashboard/my-families" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -436,7 +430,7 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
-                          <Link href="/provider/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link href="/provider/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Provider Dashboard
                           </Link>
                           {/* Secondary provider nav */}
@@ -456,10 +450,10 @@ function MainNavContent() {
                       <Link href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Find Providers
                       </Link>
-                      <Link href="/dashboard/saved-providers" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Saved Providers
                       </Link>
-                      <Link href="/dashboard/my-providers" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/requests" className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <span>My Providers</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -467,8 +461,8 @@ function MainNavContent() {
                           </span>
                         )}
                       </Link>
-                      <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        My Dashboard
+                      <Link href="/care-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        My Care Profile
                       </Link>
                     </>
                   )}
@@ -641,7 +635,7 @@ function MainNavContent() {
             {session ? (
               isProviderMode ? (
                 <Link
-                  href="/provider/find-families"
+                  href="/provider/leads"
                   className="block px-3 py-2 text-gray-700 font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -687,13 +681,10 @@ function MainNavContent() {
                       {providerType ? (
                         <>
                           {/* Has provider profile */}
-                          <Link href="/provider/find-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/leads" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
-                          <Link href="/provider/dashboard/saved-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Saved Families
-                          </Link>
-                          <Link href="/provider/dashboard/my-families" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -701,7 +692,7 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
-                          <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Provider Dashboard
                           </Link>
 
@@ -711,10 +702,10 @@ function MainNavContent() {
                           {/* Hiring section - different for organizations vs caregivers */}
                           {providerType === 'INDEPENDENT_CAREGIVER' ? (
                             <>
-                              <Link href="/provider/find-organizations" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href="/provider/organizations" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 Find Organizations
                               </Link>
-                              <Link href="/provider/my-opportunities" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href="/provider/opportunities" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 My Opportunities
                               </Link>
                             </>
@@ -723,7 +714,7 @@ function MainNavContent() {
                               <Link href="/provider/hire-staff" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 Hire Care Staff
                               </Link>
-                              <Link href="/provider/my-candidates" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                              <Link href="/provider/candidates" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                                 My Candidates
                               </Link>
                             </>
@@ -733,13 +724,10 @@ function MainNavContent() {
                         <>
                           {/* No provider profile - still show full navigation */}
                           {/* Primary provider nav */}
-                          <Link href="/provider/find-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/leads" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Find Families
                           </Link>
-                          <Link href="/provider/dashboard/saved-families" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                            Saved Families
-                          </Link>
-                          <Link href="/provider/dashboard/my-families" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             <span>My Families</span>
                             {unreadCount > 0 && (
                               <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -747,7 +735,7 @@ function MainNavContent() {
                               </span>
                             )}
                           </Link>
-                          <Link href="/provider/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                          <Link href="/provider/profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                             Provider Dashboard
                           </Link>
                           {/* Secondary provider nav */}
@@ -767,10 +755,10 @@ function MainNavContent() {
                       <Link href="/" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Find Providers
                       </Link>
-                      <Link href="/dashboard/saved-providers" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href="/saved" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Saved Providers
                       </Link>
-                      <Link href="/dashboard/my-providers" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                      <Link href="/requests" className="flex items-center justify-between px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         <span>My Providers</span>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -778,8 +766,8 @@ function MainNavContent() {
                           </span>
                         )}
                       </Link>
-                      <Link href="/dashboard" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        My Dashboard
+                      <Link href="/care-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                        My Care Profile
                       </Link>
                     </>
                   )}

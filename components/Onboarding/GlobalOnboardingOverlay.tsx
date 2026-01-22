@@ -14,7 +14,7 @@ import { showToast } from '@/lib/toast';
  * It reads ?onboarding=true from the URL and shows the wizard overlay.
  *
  * After completion:
- * - For provider intent: redirects to /provider/find-families
+ * - For provider intent: redirects to /provider/leads
  * - For family intent with pending action: creates engagement and redirects
  * - Otherwise: cleans up URL params
  *
@@ -99,9 +99,9 @@ export default function GlobalOnboardingOverlay() {
 
     setShowOnboarding(false);
 
-    // Provider intent: redirect to provider home base (find-families)
+    // Provider intent: redirect to provider home base (leads)
     if (intent === 'provider') {
-      router.push('/provider/find-families');
+      router.push('/provider/leads');
       return;
     }
 
@@ -204,7 +204,7 @@ export default function GlobalOnboardingOverlay() {
 
         // Show success and redirect to engagement page
         showToast.success(`Connected with ${pendingAction.providerName}!`);
-        router.push(`/dashboard/my-providers/${engagement.id}`);
+        router.push(`/requests/${engagement.id}`);
         return;
       } catch (error: any) {
         console.error('[GlobalOnboarding] Failed to create engagement:', error.message);

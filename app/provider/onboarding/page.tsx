@@ -4,10 +4,10 @@
  * Provider Onboarding Route Reconciliation (Manual Ch 3)
  *
  * This route is DEPRECATED in favor of the shared onboarding wizard overlay.
- * It now redirects to /provider/find-families and triggers the onboarding overlay.
+ * It now redirects to /provider/leads and triggers the onboarding overlay.
  *
  * Per Manual Ch 3 "Route Reconciliation":
- * - Direct navigation to /provider/onboarding → Redirect to /provider/find-families + trigger overlay
+ * - Direct navigation to /provider/onboarding → Redirect to /provider/leads + trigger overlay
  */
 
 import { useEffect } from 'react';
@@ -24,13 +24,13 @@ export default function ProviderOnboarding() {
 
     if (status === 'unauthenticated') {
       // Not logged in - redirect to login with return URL
-      router.push('/login?redirect=/provider/find-families');
+      router.push('/login?redirect=/provider/leads');
       return;
     }
 
     // Authenticated - trigger onboarding wizard and redirect to provider landing
     triggerOnboardingAfterSignup('provider');
-    router.replace('/provider/find-families');
+    router.replace('/provider/leads');
   }, [status, router]);
 
   // Show loading state while redirecting

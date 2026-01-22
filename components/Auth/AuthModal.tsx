@@ -72,7 +72,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       onClose();
 
       // Use client-side navigation to avoid full page reload
-      const destination = intent === "provider" ? "/provider/find-families" : "/";
+      const destination = intent === "provider" ? "/provider/leads" : "/care-profile";
       setTimeout(() => {
         router.push(destination);
         router.refresh(); // Refresh server components to pick up new session

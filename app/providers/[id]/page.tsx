@@ -431,7 +431,7 @@ export default function ProviderProfilePage() {
     // If active engagement exists, redirect to it
     if (activeEngagement) {
       showToast.success(`You already have an active conversation with ${provider?.name}`);
-      router.push(`/dashboard/my-providers/${activeEngagement.id}`);
+      router.push(`/requests/${activeEngagement.id}`);
       return;
     }
 
@@ -520,7 +520,7 @@ export default function ProviderProfilePage() {
       const engagement = await response.json();
 
       showToast.success(`Connected with ${provider?.name}!`);
-      router.push(`/dashboard/my-providers/${engagement.id}`);
+      router.push(`/requests/${engagement.id}`);
     } catch (error: any) {
       console.error('Error creating engagement:', error);
       showToast.error(error.message || 'Something went wrong');
@@ -579,7 +579,7 @@ export default function ProviderProfilePage() {
 
       // Redirect to the engagement detail page (the specific request thread)
       setTimeout(() => {
-        router.push(`/dashboard/my-providers/${createdRequest.id}`);
+        router.push(`/requests/${createdRequest.id}`);
       }, 500);
     } catch (error: any) {
       showToast.error(error.message || 'Failed to send request');

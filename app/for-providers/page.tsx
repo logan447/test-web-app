@@ -39,7 +39,7 @@ function ForProvidersContent() {
     const timer = setTimeout(() => {
       if (session && !hasRedirected) {
         setHasRedirected(true);
-        router.push("/provider/find-families");
+        router.push("/provider/leads");
       }
     }, 100);
 
