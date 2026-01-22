@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
-
-// Key used by onboarding system - must match hooks/useOnboardingWizard.ts
-const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
+import { openOnboardingOverlay } from "@/components/Onboarding";
 
 interface CompletionItem {
   label: string;
@@ -24,7 +20,6 @@ interface ProfileCompletionData {
 }
 
 export default function ProfileCompletionWidget() {
-  const router = useRouter();
   const [data, setData] = useState<ProfileCompletionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -38,12 +33,8 @@ export default function ProfileCompletionWidget() {
    * No subtype passed - wizard will ask if not already known.
    */
   const handleCompleteProviderProfile = () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem(ONBOARDING_SHOWN_KEY);
-    }
-    // No subtype - let wizard determine based on existing profile or ask user
-    triggerOnboardingAfterSignup('provider');
-    router.refresh();
+    // Open overlay immediately via custom event
+    openOnboardingOverlay('provider');
   };
 
   const fetchCompletion = async () => {

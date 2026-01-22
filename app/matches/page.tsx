@@ -9,10 +9,10 @@ import Link from "next/link";
 import EnhancedProviderCard from "@/components/Directory/EnhancedProviderCard";
 
 /**
- * Matches Page - Combined view of Active Requests + Algorithmic Matches
+ * Matches Page - Combined view of Recommended Matches + Active Engagements
  *
- * Section 1: Active Requests - inbound + outbound requests between families and providers
- * Section 2: Recommended Matches - algorithm-based matches where no outreach has occurred
+ * Section 1: Recommended Matches - algorithm-based matches where no outreach has occurred
+ * Section 2: Active Matches - inbound + outbound engagements between families and providers
  */
 
 type FamilyProfile = {
@@ -285,7 +285,7 @@ export default function MatchesPage() {
             </p>
           </div>
 
-          {/* Active Requests section - show even without profile */}
+          {/* Active Matches section - show even without profile */}
           {activeRequests.length > 0 && (
             <div className="mb-10">
               <div className="flex items-center gap-3 mb-4">
@@ -295,7 +295,7 @@ export default function MatchesPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Active Requests</h2>
+                  <h2 className="text-xl font-bold text-gray-900">Active Matches</h2>
                   <p className="text-sm text-gray-600">Providers you&apos;re currently connected with</p>
                 </div>
               </div>
@@ -464,39 +464,14 @@ export default function MatchesPage() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Matches</h1>
           <p className="text-lg text-gray-600">
-            Your active requests and recommended providers
+            Your recommended providers and active connections
             {familyProfile.city && familyProfile.state && (
               <span> in {familyProfile.city}, {familyProfile.state}</span>
             )}
           </p>
         </div>
 
-        {/* Section 1: Active Requests */}
-        {activeRequests.length > 0 && (
-          <div className="mb-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
-                <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Active Requests</h2>
-                <p className="text-sm text-gray-600">
-                  {activeRequests.length} active conversation{activeRequests.length !== 1 ? 's' : ''} with providers
-                </p>
-              </div>
-            </div>
-            {renderActiveRequests()}
-          </div>
-        )}
-
-        {/* Divider if both sections have content */}
-        {activeRequests.length > 0 && matchedProviders.length > 0 && (
-          <div className="border-b border-gray-200 mb-10"></div>
-        )}
-
-        {/* Section 2: Recommended Matches */}
+        {/* Section 1: Recommended Matches (now first) */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full">
@@ -634,6 +609,31 @@ export default function MatchesPage() {
             </>
           )}
         </div>
+
+        {/* Divider if both sections have content */}
+        {activeRequests.length > 0 && matchedProviders.length > 0 && (
+          <div className="border-b border-gray-200 mb-10"></div>
+        )}
+
+        {/* Section 2: Active Matches (now second) */}
+        {activeRequests.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
+                <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Active Matches</h2>
+                <p className="text-sm text-gray-600">
+                  {activeRequests.length} active conversation{activeRequests.length !== 1 ? 's' : ''} with providers
+                </p>
+              </div>
+            </div>
+            {renderActiveRequests()}
+          </div>
+        )}
       </main>
     </div>
   );

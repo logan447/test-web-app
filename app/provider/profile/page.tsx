@@ -193,12 +193,11 @@ export default function ProviderProfilePage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {isIndependentCaregiver ? "Caregiver Dashboard" : "Provider Dashboard"}
+            Provider Profile
           </h1>
           <p className="text-lg text-gray-600">
-            {isIndependentCaregiver
-              ? "Find families and organizations seeking caregivers"
-              : "Connect with families who need your services"}
+            A complete profile improves your visibility to families and enables better matching.
+            {isIndependentCaregiver && " You'll also be discoverable by organizations looking to hire caregivers."}
           </p>
         </div>
 

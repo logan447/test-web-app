@@ -7,11 +7,8 @@ import { useRouter } from "next/navigation";
 import AuthModal from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import { showToast } from "@/lib/toast";
-import { triggerOnboardingAfterSignup } from "@/components/Onboarding";
+import { openOnboardingOverlay, triggerOnboardingAfterSignup } from "@/components/Onboarding";
 import type { ProviderSubtype } from "@/components/Onboarding";
-
-// Key used by onboarding system - must match hooks/useOnboardingWizard.ts
-const ONBOARDING_SHOWN_KEY = "olera_onboarding_shown";
 
 const MAIN_CATEGORIES = [
   {
@@ -202,18 +199,14 @@ function MainNavContent() {
 
   /**
    * Trigger provider onboarding overlay for existing users.
-   * Clears the "shown" flag and sets trigger, then refreshes to show overlay.
+   * Uses custom event to open overlay immediately on current page.
    * @param subtype - Optional provider subtype to skip subtype selection step
    *   - 'individual': For "Become a Caregiver" button (skip to individual flow)
    *   - null/undefined: For "Complete Profile" (let wizard ask subtype if unknown)
    */
   const triggerProviderOnboarding = (subtype?: ProviderSubtype) => {
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem(ONBOARDING_SHOWN_KEY);
-    }
-    triggerOnboardingAfterSignup('provider', subtype || undefined);
-    // Soft refresh - OnboardingTrigger will re-initialize and read the trigger
-    router.refresh();
+    // Open overlay immediately via custom event
+    openOnboardingOverlay('provider', subtype || undefined);
   };
 
   return (
@@ -524,7 +517,7 @@ function MainNavContent() {
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        My Care Profile
+                        Care Profile
                       </Link>
                       <Link href="/benefits" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -856,7 +849,7 @@ function MainNavContent() {
                         )}
                       </Link>
                       <Link href="/care-profile" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                        My Care Profile
+                        Care Profile
                       </Link>
                       <Link href="/benefits" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
                         Benefits
