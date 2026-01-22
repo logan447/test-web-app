@@ -24,8 +24,10 @@ export type WizardStep =
   | "intent" // Ask: family or provider?
   | "provider-subtype" // Ask: organization or individual?
   | "family-fields" // Collect: name, location, care type
+  | "family-visibility" // Confirm: family profile visibility
   | "provider-org-fields" // Collect: org name, location, provider type
   | "provider-individual-fields" // Collect: name, location, services
+  | "provider-visibility" // Confirm: provider profile visibility
   | "complete"; // Done
 
 export interface OnboardingData {
@@ -47,6 +49,12 @@ export interface OnboardingData {
   caregiverName?: string;
   caregiverLocation?: string;
   caregiverServices?: string[];
+
+  // Visibility settings
+  isVisible?: boolean;
+  isPublic?: boolean; // For family profiles
+  availableForFamilies?: boolean; // For individual caregivers
+  availableForOrganizations?: boolean; // For individual caregivers
 }
 
 interface OnboardingWizardOverlayProps {
@@ -129,16 +137,18 @@ function getStepNumber(step: WizardStep, data: OnboardingData): number {
   if (step === "intent") return 1;
   if (step === "provider-subtype") return 2;
   if (step === "family-fields") return 2;
+  if (step === "family-visibility") return 3;
   if (step === "provider-org-fields") return 3;
   if (step === "provider-individual-fields") return 3;
-  if (step === "complete") return data.intent === "family" ? 3 : 4;
+  if (step === "provider-visibility") return 4;
+  if (step === "complete") return data.intent === "family" ? 4 : 5;
   return 1;
 }
 
 function getTotalSteps(data: OnboardingData): number {
-  if (data.intent === "family") return 2; // intent + fields
-  if (data.intent === "provider") return 3; // intent + subtype + fields
-  return 2; // default
+  if (data.intent === "family") return 3; // intent + fields + visibility
+  if (data.intent === "provider") return 4; // intent + subtype + fields + visibility
+  return 3; // default
 }
 
 function getStepTitle(step: WizardStep): string {
@@ -149,10 +159,14 @@ function getStepTitle(step: WizardStep): string {
       return "Tell us about yourself";
     case "family-fields":
       return "About your care search";
+    case "family-visibility":
+      return "Profile visibility";
     case "provider-org-fields":
       return "About your organization";
     case "provider-individual-fields":
       return "About your services";
+    case "provider-visibility":
+      return "Profile visibility";
     case "complete":
       return "You're all set!";
     default:
@@ -758,6 +772,174 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
   );
 }
 
+function FamilyVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
+  const [isPublic, setIsPublic] = useState(data.isPublic ?? true);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdate({ isPublic });
+    onNext({ isPublic });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <p className="text-gray-600 text-center">
+        Choose who can discover your care profile on Olera.
+      </p>
+
+      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+          />
+          <div>
+            <span className="font-medium text-gray-900">Make my profile visible to providers</span>
+            <p className="text-sm text-gray-600 mt-1">
+              Care providers can find your profile and reach out to offer their services. You control who you respond to.
+            </p>
+          </div>
+        </label>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+        <p className="text-sm text-blue-800">
+          <strong>Privacy first:</strong> Your contact info is never shared until you choose to connect with a provider.
+        </p>
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Back
+          </button>
+        )}
+        <button
+          type="submit"
+          className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+        >
+          Continue
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
+  const [isVisible, setIsVisible] = useState(data.isVisible ?? true);
+  const [availableForFamilies, setAvailableForFamilies] = useState(data.availableForFamilies ?? true);
+  const [availableForOrganizations, setAvailableForOrganizations] = useState(data.availableForOrganizations ?? false);
+
+  const isIndividual = data.providerSubtype === "individual";
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const visibilityData = {
+      isVisible,
+      availableForFamilies: isIndividual ? availableForFamilies : true,
+      availableForOrganizations: isIndividual ? availableForOrganizations : false,
+    };
+    onUpdate(visibilityData);
+    onNext(visibilityData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <p className="text-gray-600 text-center">
+        {isIndividual
+          ? "Choose who can find and contact you on Olera."
+          : "Choose whether families can discover your organization on Olera."}
+      </p>
+
+      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isVisible}
+            onChange={(e) => setIsVisible(e.target.checked)}
+            className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+          />
+          <div>
+            <span className="font-medium text-gray-900">
+              {isIndividual ? "Make my profile visible" : "Make our profile visible to families"}
+            </span>
+            <p className="text-sm text-gray-600 mt-1">
+              {isIndividual
+                ? "Families and organizations can discover your profile when searching for caregivers"
+                : "Families searching for care can find and contact you"}
+            </p>
+          </div>
+        </label>
+
+        {/* Additional options for individual caregivers */}
+        {isIndividual && isVisible && (
+          <div className="ml-6 pt-4 border-t border-gray-200 space-y-4">
+            <p className="text-sm font-medium text-gray-700">Who can find you?</p>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={availableForFamilies}
+                onChange={(e) => setAvailableForFamilies(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">Families seeking direct hire</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Families can contact you directly about care needs
+                </p>
+              </div>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={availableForOrganizations}
+                onChange={(e) => setAvailableForOrganizations(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">Care organizations hiring staff</span>
+                <p className="text-sm text-gray-600 mt-1">
+                  Agencies and facilities can contact you about employment
+                </p>
+              </div>
+            </label>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+        <p className="text-sm text-blue-800">
+          <strong>You&apos;re in control:</strong> You can change these settings anytime from your profile.
+        </p>
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Back
+          </button>
+        )}
+        <button
+          type="submit"
+          className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+        >
+          Continue
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function CompleteStep({ data, onNext, pendingAction }: StepProps) {
   const [countdown, setCountdown] = useState(3);
   const hasTriggeredRef = useRef(false);
@@ -941,6 +1123,26 @@ export default function OnboardingWizardOverlay({
       case "family-fields":
         // Profile creation is now handled in FamilyFieldsStep with proper error handling
         // This case is only reached after profile is successfully saved
+        setCurrentStep("family-visibility");
+        break;
+
+      case "family-visibility":
+        // Update the family profile with visibility settings
+        setIsSubmitting(true);
+        try {
+          const isPublic = selectedValue?.isPublic ?? data.isPublic ?? true;
+          await fetch("/api/family-profiles/me", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isPublic }),
+          });
+          console.log("[Onboarding] Family visibility saved:", { isPublic });
+        } catch (error) {
+          console.error("[Onboarding] Failed to save family visibility:", error);
+          // Continue anyway - user can update later
+        } finally {
+          setIsSubmitting(false);
+        }
         setCurrentStep("complete");
         break;
 
@@ -1021,14 +1223,46 @@ export default function OnboardingWizardOverlay({
           // Step 3: Update session to provider mode
           await update({ activeMode: "PROVIDER" });
 
-          setCurrentStep("complete");
+          setCurrentStep("provider-visibility");
         } catch (error) {
           console.error("[Onboarding] Error during provider onboarding:", error);
-          // Still advance to complete on error - user can fix profile later
-          setCurrentStep("complete");
+          // Still advance to visibility step - user can fix profile later
+          setCurrentStep("provider-visibility");
         } finally {
           setIsSubmitting(false);
         }
+        break;
+
+      case "provider-visibility":
+        // Update the provider profile with visibility settings
+        setIsSubmitting(true);
+        try {
+          const isVisible = selectedValue?.isVisible ?? data.isVisible ?? true;
+          const availableForFamilies = selectedValue?.availableForFamilies ?? data.availableForFamilies ?? true;
+          const availableForOrganizations = selectedValue?.availableForOrganizations ?? data.availableForOrganizations ?? false;
+
+          // Try to get existing provider to update
+          const meResponse = await fetch("/api/providers/me");
+          if (meResponse.ok) {
+            const provider = await meResponse.json();
+            await fetch(`/api/providers/${provider.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                isVisible,
+                availableForFamilies,
+                availableForOrganizations,
+              }),
+            });
+            console.log("[Onboarding] Provider visibility saved:", { isVisible, availableForFamilies, availableForOrganizations });
+          }
+        } catch (error) {
+          console.error("[Onboarding] Failed to save provider visibility:", error);
+          // Continue anyway - user can update later
+        } finally {
+          setIsSubmitting(false);
+        }
+        setCurrentStep("complete");
         break;
 
       case "complete":
@@ -1056,12 +1290,22 @@ export default function OnboardingWizardOverlay({
       case "family-fields":
         setCurrentStep("intent");
         break;
+      case "family-visibility":
+        setCurrentStep("family-fields");
+        break;
       case "provider-org-fields":
       case "provider-individual-fields":
         setCurrentStep("provider-subtype");
         break;
+      case "provider-visibility":
+        if (data.providerSubtype === "organization") {
+          setCurrentStep("provider-org-fields");
+        } else {
+          setCurrentStep("provider-individual-fields");
+        }
+        break;
     }
-  }, [currentStep]);
+  }, [currentStep, data.providerSubtype]);
 
   const handleSkip = useCallback(() => {
     onClose();
@@ -1088,10 +1332,14 @@ export default function OnboardingWizardOverlay({
         return <ProviderSubtypeStep {...stepProps} />;
       case "family-fields":
         return <FamilyFieldsStep {...stepProps} />;
+      case "family-visibility":
+        return <FamilyVisibilityStep {...stepProps} />;
       case "provider-org-fields":
         return <ProviderOrgFieldsStep {...stepProps} />;
       case "provider-individual-fields":
         return <ProviderIndividualFieldsStep {...stepProps} />;
+      case "provider-visibility":
+        return <ProviderVisibilityStep {...stepProps} />;
       case "complete":
         return <CompleteStep {...stepProps} />;
       default:
