@@ -51,6 +51,14 @@ export default function GlobalOnboardingOverlay() {
     const intentParam = searchParams.get('intent');
     const providerSubtypeParam = searchParams.get('providerSubtype');
 
+    // If URL no longer has onboarding=true, reset the refs so user can trigger again
+    // This handles client-side navigation where the component instance persists
+    if (onboardingParam !== 'true') {
+      hasTriggeredRef.current = false;
+      isCompletingRef.current = false;
+      return;
+    }
+
     // If we have the onboarding param in URL and haven't triggered yet
     if (onboardingParam === 'true' && !hasTriggeredRef.current) {
       // Set intent from URL param - determines which wizard step to start on
