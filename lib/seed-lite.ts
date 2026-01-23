@@ -133,7 +133,7 @@ export async function seedLite(prisma: PrismaClient) {
     { name: 'Del Mar Active Living', type: 'INDEPENDENT_LIVING', email: 'info@delmaractive.com', care: ['COMPANION_CARE'], price: [2500, 4500], rating: 4.7 },
     { name: 'Home Instead San Diego', type: 'HOME_CARE', email: 'info@homeinsteadsd.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [24, 42], rating: 4.7 },
     { name: 'Golden Years Residence', type: 'ASSISTED_LIVING', email: 'info@goldenyears.com', care: ['PERSONAL_CARE'], price: [3500, 5000], rating: 4.5 },
-    { name: 'Bayview Hospice', type: 'HOSPICE', email: 'info@bayviewhospice.com', care: ['HOSPICE'], price: [0, 0], rating: 4.8 },
+    { name: 'Bayview Hospice', type: 'HOSPICE', email: 'info@bayviewhospice.com', care: ['HOSPICE_CARE'], price: [0, 0], rating: 4.8 },
     { name: 'Encinitas Life Plan', type: 'INDEPENDENT_LIVING', email: 'info@encinitaslifeplan.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [5000, 15000], rating: 4.9 },
   ];
 
