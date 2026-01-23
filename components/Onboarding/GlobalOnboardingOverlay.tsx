@@ -112,6 +112,7 @@ export default function GlobalOnboardingOverlay() {
 
     // Provider intent: redirect to provider home base (leads)
     if (intent === 'provider') {
+      showToast.success('Welcome! Start connecting with families who match your services.');
       router.push('/provider/leads');
       return;
     }
