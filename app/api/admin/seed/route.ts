@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { hash } from 'bcryptjs';
+import { main as runFullSeed } from '@/prisma/seed';
 
 /**
  * Test account configuration
@@ -127,7 +128,33 @@ export async function POST(req: Request) {
 
     // Parse options from request body
     const body = await req.json().catch(() => ({}));
-    const { reset = false } = body;
+    const { reset = false, mode = 'test' } = body;
+
+    // If mode is 'full', run the comprehensive MEGA seed from prisma/seed.ts
+    if (mode === 'full') {
+      console.log(`[SEED] Running FULL MEGA seed by ${session.user.email}...`);
+      await runFullSeed();
+      return NextResponse.json({
+        success: true,
+        data: {
+          message: 'Successfully ran FULL MEGA seed (90+ accounts)',
+          password: 'demo123',
+          summary: {
+            families: 36,
+            facilities: 36,
+            caregivers: 18,
+            unclaimed: 4,
+            total: 94,
+          },
+          instructions: [
+            'All demo accounts seeded with comprehensive data',
+            'Password for all demo accounts: demo123',
+            'Family accounts have profile photos visible on Leads page',
+            'All providers have multiple facility photos',
+          ],
+        },
+      });
+    }
 
     // Hash the test password
     const passwordHash = await hash(TEST_ACCOUNTS.password, 12);
