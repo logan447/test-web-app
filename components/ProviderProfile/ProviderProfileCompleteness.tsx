@@ -8,16 +8,27 @@ interface CompletenessItem {
 
 interface ProviderProfileCompletenessProps {
   items: CompletenessItem[];
+  // Pass completion data directly from API for consistency
+  completionPercentage?: number;
+  completedSections?: number;
+  totalSections?: number;
 }
 
-export default function ProviderProfileCompleteness({ items }: ProviderProfileCompletenessProps) {
-  const completedCount = items.filter(item => item.completed).length;
-  const totalCount = items.length;
-  const percentage = Math.round((completedCount / totalCount) * 100);
+export default function ProviderProfileCompleteness({
+  items,
+  completionPercentage,
+  completedSections,
+  totalSections,
+}: ProviderProfileCompletenessProps) {
+  // Use API data if provided, otherwise calculate from items
+  const completedCount = completedSections ?? items.filter(item => item.completed).length;
+  const totalCount = totalSections ?? items.length;
+  // Handle edge case of empty items (0/0 = NaN)
+  const percentage = completionPercentage ?? (totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0);
 
   const requiredItems = items.filter(item => item.required);
   const requiredCompleted = requiredItems.filter(item => item.completed).length;
-  const allRequiredComplete = requiredCompleted === requiredItems.length;
+  const allRequiredComplete = requiredItems.length === 0 || requiredCompleted === requiredItems.length;
 
   // Color based on completion percentage
   const getProgressColor = () => {

@@ -73,22 +73,26 @@ function CollapsibleSection({
   badge?: "required" | "complete" | "incomplete";
 }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
+    <div className={`bg-white rounded-xl shadow-sm border transition-all ${
+      isExpanded ? "border-primary-200 shadow-md" : "border-gray-200"
+    }`}>
       <button
         type="button"
         onClick={onToggle}
-        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+        className={`w-full px-5 py-4 flex items-center justify-between text-left transition-colors rounded-t-xl ${
+          isExpanded ? "bg-primary-50/50" : "hover:bg-gray-50"
+        }`}
       >
-        <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-base font-semibold text-gray-900">{title}</h3>
             {badge === "required" && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded">
+              <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full">
                 Required
               </span>
             )}
             {badge === "complete" && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded flex items-center gap-1">
+              <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full flex items-center gap-1">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
@@ -97,23 +101,31 @@ function CollapsibleSection({
             )}
           </div>
           {description && (
-            <p className="text-sm text-gray-500 mt-1">{description}</p>
+            <p className="text-sm text-gray-500 mt-0.5">{description}</p>
           )}
         </div>
-        <svg
-          className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <div className={`flex-shrink-0 ml-4 p-1 rounded-full transition-colors ${
+          isExpanded ? "bg-primary-100" : "bg-gray-100"
+        }`}>
+          <svg
+            className={`w-5 h-5 transition-transform duration-200 ${
+              isExpanded ? "rotate-180 text-primary-600" : "text-gray-500"
+            }`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </button>
-      {isExpanded && (
-        <div className="px-6 pb-6 border-t border-gray-100">
+      <div className={`overflow-hidden transition-all duration-200 ${
+        isExpanded ? "max-h-[5000px] opacity-100" : "max-h-0 opacity-0"
+      }`}>
+        <div className="px-5 pb-5 border-t border-gray-100">
           <div className="pt-4">{children}</div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -270,8 +282,19 @@ export default function ProviderProfileEditPage() {
         setProvider(data);
         populateFormFromProvider(data);
 
-        // Check if Quick Start needed (missing required fields)
-        if (data._completion && !data._completion.meetsVisibility) {
+        // Only show Quick Start for truly new providers who haven't completed initial setup
+        // Check if they have the key fields that onboarding sets (city, state, careTypesOffered)
+        const hasCompletedInitialSetup = !!(
+          data.city &&
+          data.state &&
+          data.careTypesOffered &&
+          data.careTypesOffered.length > 0
+        );
+
+        // Show Quick Start only if:
+        // 1. They haven't completed initial setup AND
+        // 2. They don't meet visibility requirements
+        if (!hasCompletedInitialSetup && data._completion && !data._completion.meetsVisibility) {
           setShowQuickStart(true);
         }
       } else if (res.status === 404) {
@@ -656,13 +679,14 @@ export default function ProviderProfileEditPage() {
   return (
     <>
       <MainNav />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Breadcrumb */}
-          <Breadcrumb />
 
+      {/* Breadcrumb - outside content container for full-width styling */}
+      <Breadcrumb />
+
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Page Header */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Edit Provider Profile</h1>
@@ -673,7 +697,7 @@ export default function ProviderProfileEditPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium shadow-sm"
               >
                 {saving ? (
                   <>
@@ -691,9 +715,9 @@ export default function ProviderProfileEditPage() {
           </div>
 
           {/* Main Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Form Sections */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-3">
               {/* Basic Information */}
               <CollapsibleSection
                 title="Basic Information"
@@ -990,7 +1014,12 @@ export default function ProviderProfileEditPage() {
             {/* Right Column - Sidebar */}
             <div className="space-y-6">
               {/* Profile Completeness */}
-              <ProviderProfileCompleteness items={getCompletionItems()} />
+              <ProviderProfileCompleteness
+                items={getCompletionItems()}
+                completionPercentage={provider?._completion?.completionPercentage}
+                completedSections={provider?._completion?.completedSections}
+                totalSections={provider?._completion?.totalSections}
+              />
 
               {/* Visibility Gate */}
               <VisibilityGateWidget
