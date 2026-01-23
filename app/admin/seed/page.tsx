@@ -67,7 +67,7 @@ export default function SeedAdminPage() {
     }
   };
 
-  const runSeed = async (reset: boolean = false) => {
+  const runSeed = async (reset: boolean = false, mode: 'test' | 'full' = 'test') => {
     setLoading(true);
     setResult(null);
     setError(null);
@@ -76,7 +76,7 @@ export default function SeedAdminPage() {
       const response = await fetch('/api/admin/seed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reset }),
+        body: JSON.stringify({ reset, mode }),
       });
 
       const data = await response.json();
@@ -261,22 +261,46 @@ export default function SeedAdminPage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
 
           <div className="space-y-4">
+            {/* Full Demo Seed - Primary action */}
+            <div className="p-4 border-2 border-primary-200 bg-primary-50 rounded-lg">
+              <button
+                onClick={() => runSeed(false, 'full')}
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-4 rounded-lg font-bold text-lg hover:from-primary-700 hover:to-primary-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition shadow-md"
+              >
+                {loading ? 'Seeding 90+ accounts...' : 'Full Demo Seed (90+ Accounts)'}
+              </button>
+              <p className="text-sm text-primary-700 mt-2 font-medium">
+                Creates comprehensive demo data with photos:
+              </p>
+              <ul className="text-xs text-primary-600 mt-1 space-y-0.5">
+                <li>- 36 family accounts (all with profile photos)</li>
+                <li>- 36 facility/organization accounts (5-10 photos each)</li>
+                <li>- 18 individual caregiver accounts (with photos)</li>
+                <li>- 30 consultation requests, tours, saved providers</li>
+                <li>- Password for all: <code className="bg-primary-100 px-1 rounded">demo123</code></li>
+              </ul>
+            </div>
+
+            <hr className="my-4" />
+            <p className="text-sm text-gray-500 font-medium">Test Accounts Only:</p>
+
             <div>
               <button
-                onClick={() => runSeed(false)}
+                onClick={() => runSeed(false, 'test')}
                 disabled={loading}
-                className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
               >
-                {loading ? 'Seeding...' : 'Seed Test Accounts'}
+                {loading ? 'Seeding...' : 'Seed Test Accounts (7 only)'}
               </button>
               <p className="text-xs text-gray-500 mt-1">
-                Creates or updates test accounts. Safe to run multiple times.
+                Creates the 7 test accounts shown above. Safe to run multiple times.
               </p>
             </div>
 
             <div>
               <button
-                onClick={() => runSeed(true)}
+                onClick={() => runSeed(true, 'test')}
                 disabled={loading}
                 className="w-full bg-yellow-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
               >
