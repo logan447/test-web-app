@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import MainNav from "@/components/Navigation/MainNav";
+import { ProviderCard } from "@/components/Cards";
 
 // Dynamically import map to avoid SSR issues
 const MapView = dynamic(() => import("@/components/Directory/MapView"), {
@@ -233,24 +234,6 @@ function BrowseContent() {
     router.replace(newUrl, { scroll: false });
   }, [location, providerType, careService, minRating, payment, sortBy, router]);
 
-  // Format functions
-  const formatProviderType = (type: string) => {
-    const found = PROVIDER_TYPES.find((t) => t.value === type);
-    if (found) return found.label;
-    return type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
-  };
-
-  const formatPrice = (min: number | null, max: number | null, type: string) => {
-    if (!min && !max) return null;
-    // Home care/caregivers show hourly, facilities show monthly
-    const isHourly = ["HOME_CARE", "HOME_HEALTH", "INDEPENDENT_CAREGIVER"].includes(type);
-    const suffix = isHourly ? "/hr" : "/mo";
-    if (min && max) return `$${min.toLocaleString()}-$${max.toLocaleString()}${suffix}`;
-    if (min) return `From $${min.toLocaleString()}${suffix}`;
-    if (max) return `Up to $${max.toLocaleString()}${suffix}`;
-    return null;
-  };
-
   // Clear all filters
   const clearFilters = () => {
     setLocation("");
@@ -404,97 +387,26 @@ function BrowseContent() {
               ) : providers.length > 0 ? (
                 <div className="space-y-4">
                   {providers.map((provider) => (
-                    <Link
+                    <ProviderCard
                       key={provider.id}
-                      href={`/providers/${provider.id}`}
-                      className="block bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all"
-                    >
-                      <div className="flex flex-col sm:flex-row">
-                        {/* Image */}
-                        <div className="relative sm:w-48 h-48 sm:h-auto shrink-0">
-                          {provider.coverPhoto || provider.photos?.[0] ? (
-                            <img
-                              src={provider.coverPhoto || provider.photos[0]}
-                              alt={provider.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                              <svg className="w-12 h-12 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                              </svg>
-                            </div>
-                          )}
-                          {/* Verified Badge */}
-                          {provider.claimed && (
-                            <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded-full">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                              Verified
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 p-4">
-                          {/* Location */}
-                          <p className="text-sm text-gray-500 mb-1">
-                            {provider.address ? `${provider.address}, ` : ""}{provider.city}, {provider.state}
-                          </p>
-
-                          {/* Name */}
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-primary-600">
-                            {provider.name}
-                          </h3>
-
-                          {/* Care Types */}
-                          <div className="flex flex-wrap gap-1.5 mb-3">
-                            <span className="px-2 py-0.5 bg-primary-100 text-primary-700 text-xs font-medium rounded">
-                              {formatProviderType(provider.providerType)}
-                            </span>
-                            {provider.careTypesOffered.slice(0, 2).map((care) => (
-                              <span key={care} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
-                                {care.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}
-                              </span>
-                            ))}
-                            {provider.careTypesOffered.length > 2 && (
-                              <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">
-                                +{provider.careTypesOffered.length - 2} more
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Description */}
-                          {provider.description && (
-                            <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                              {provider.description}
-                            </p>
-                          )}
-
-                          {/* Price and Rating Row */}
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-xs text-gray-500">Estimated Pricing</p>
-                              <p className="font-semibold text-gray-900">
-                                {formatPrice(provider.priceMin, provider.priceMax, provider.providerType) || "Contact for pricing"}
-                              </p>
-                            </div>
-                            {provider.averageRating && provider.averageRating > 0 && (
-                              <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">
-                                <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                                </svg>
-                                <span className="text-lg font-bold text-gray-900">{provider.averageRating.toFixed(1)}</span>
-                                {provider.reviewCount > 0 && (
-                                  <span className="text-sm text-gray-500">({provider.reviewCount})</span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
+                      provider={{
+                        id: provider.id,
+                        name: provider.name,
+                        providerType: provider.providerType,
+                        city: provider.city,
+                        state: provider.state,
+                        description: provider.description,
+                        careTypesOffered: provider.careTypesOffered,
+                        averageRating: provider.averageRating,
+                        reviewCount: provider.reviewCount,
+                        priceMin: provider.priceMin,
+                        priceMax: provider.priceMax,
+                        coverPhoto: provider.coverPhoto,
+                        photos: provider.photos,
+                        claimed: provider.claimed,
+                      }}
+                      variant="horizontal"
+                    />
                   ))}
                 </div>
               ) : (
