@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
 import ReviewModal from "@/components/Reviews/ReviewModal";
 import ClaimProviderModal from "@/components/Provider/ClaimProviderModal";
@@ -120,6 +121,7 @@ export default function ProviderDetailPage() {
   const [claimModalOpen, setClaimModalOpen] = useState(false);
   const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [activeSection, setActiveSection] = useState("rating");
 
   // Contact form state
   const [contactForm, setContactForm] = useState({
@@ -416,9 +418,36 @@ export default function ProviderDetailPage() {
 
                 <p className="text-gray-600 mb-3">{provider.address}, {provider.city} {provider.state}</p>
 
-                <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-full mb-6">
-                  {formatProviderType(provider.providerType)}
-                </span>
+                {/* Provider Type and Trust Badges */}
+                <div className="flex flex-wrap items-center gap-2 mb-6">
+                  <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-full">
+                    {formatProviderType(provider.providerType)}
+                  </span>
+                  {provider.claimed && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full">
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Verified
+                    </span>
+                  )}
+                  {provider.backgroundChecked && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-medium rounded-full">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      Background Checked
+                    </span>
+                  )}
+                  {provider.licensed && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Licensed
+                    </span>
+                  )}
+                </div>
 
                 {/* Pricing & Rating Cards */}
                 <div className="grid grid-cols-2 gap-4 mb-4">
@@ -478,6 +507,50 @@ export default function ProviderDetailPage() {
                   </p>
                 )}
               </div>
+            </div>
+
+            {/* Section Navigation - Sticky */}
+            <div className="sticky top-16 z-10 bg-white border-b border-gray-200 -mx-4 px-4 mb-8">
+              <nav className="flex items-center gap-1 overflow-x-auto py-3 scrollbar-hide">
+                {[
+                  { id: "rating", label: "Rating & Reviews" },
+                  ...(FACILITY_TYPES.includes(provider.providerType)
+                    ? [
+                        { id: "living-options", label: "Living Options" },
+                        { id: "life-here", label: "Life Here" },
+                        { id: "care-medical", label: "Care & Medical" },
+                      ]
+                    : HOME_CARE_TYPES.includes(provider.providerType)
+                    ? [
+                        { id: "caregivers", label: "Caregivers" },
+                        { id: "how-it-works", label: "How It Works" },
+                        { id: "services", label: "Services" },
+                      ]
+                    : [
+                        { id: "about", label: "About" },
+                        { id: "services", label: "Services" },
+                      ]),
+                  { id: "pricing", label: "Pricing" },
+                  { id: "location", label: "Location" },
+                ].map((section) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById(section.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      setActiveSection(section.id);
+                    }}
+                    className={`px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap transition-colors ${
+                      activeSection === section.id
+                        ? "bg-primary-600 text-white"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {section.label}
+                  </a>
+                ))}
+              </nav>
             </div>
 
             {/* All Sections - Scrollable Layout */}
@@ -1288,6 +1361,9 @@ export default function ProviderDetailPage() {
           router.push('/provider/profile');
         }}
       />
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

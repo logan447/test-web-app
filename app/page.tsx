@@ -5,6 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
+
+// Timeline/urgency options for search
+const URGENCY_OPTIONS = [
+  { value: "", label: "When do you need care?" },
+  { value: "immediate", label: "As soon as possible" },
+  { value: "1-2-weeks", label: "Within 1-2 weeks" },
+  { value: "1-3-months", label: "Within 1-3 months" },
+  { value: "researching", label: "Just researching" },
+];
 
 // Care Type Categories with proper icons
 const CARE_TYPES = [
@@ -104,17 +114,19 @@ const TESTIMONIALS = [
   },
 ];
 
-// Stats
+// Stats - More story-driven
 const STATS = [
-  { value: "500+", label: "Verified Providers" },
-  { value: "10,000+", label: "Families Helped" },
-  { value: "50+", label: "Texas Cities" },
-  { value: "4.8", label: "Average Rating", suffix: "★" },
+  { value: "500+", label: "Verified Providers", description: "Licensed & background-checked" },
+  { value: "10,000+", label: "Families Helped", description: "Found care they trust" },
+  { value: "50+", label: "Texas Cities", description: "And growing nationwide" },
+  { value: "4.8", label: "Average Rating", suffix: "★", description: "From real families" },
 ];
 
 export default function Home() {
   const router = useRouter();
   const [location, setLocation] = useState("");
+  const [careType, setCareType] = useState("");
+  const [urgency, setUrgency] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +139,12 @@ export default function Home() {
       } else {
         params.set("city", location);
       }
+    }
+    if (careType) {
+      params.set("type", careType);
+    }
+    if (urgency) {
+      params.set("urgency", urgency);
     }
     router.push(`/browse?${params.toString()}`);
   };
@@ -158,39 +176,75 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Find trusted care for{" "}
-              <span className="text-primary-600">your loved ones</span>
+              Find peace of mind for{" "}
+              <span className="text-primary-600">your family</span>
             </h1>
 
             <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-              We help families navigate senior care with confidence. Compare verified providers,
-              read real reviews, and connect with the right care options.
+              Navigate senior care with confidence. Compare verified providers, read real reviews,
+              and schedule tours — all in one place.
             </p>
 
-            {/* Search Form - Prominent and accessible */}
-            <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-8">
-              <div className="flex gap-3 flex-col sm:flex-row">
-                <div className="relative flex-1">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+            {/* Search Form - Enhanced Airbnb-style */}
+            <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-8">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
+                <div className="flex flex-col md:flex-row md:items-center md:divide-x divide-gray-200">
+                  {/* Location */}
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Where</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="City or zip code"
+                        className="w-full text-gray-900 placeholder-gray-400 focus:outline-none text-base"
+                      />
+                    </div>
                   </div>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Enter city or zip code"
-                    className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 text-lg shadow-sm bg-white"
-                  />
+
+                  {/* Care Type */}
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Care Type</label>
+                    <select
+                      value={careType}
+                      onChange={(e) => setCareType(e.target.value)}
+                      className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer"
+                    >
+                      <option value="">Any type</option>
+                      {CARE_TYPES.map((type) => (
+                        <option key={type.id} value={type.slug}>{type.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Urgency */}
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">When</label>
+                    <select
+                      value={urgency}
+                      onChange={(e) => setUrgency(e.target.value)}
+                      className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer"
+                    >
+                      {URGENCY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Search Button */}
+                  <div className="px-2 py-2 md:py-0">
+                    <button
+                      type="submit"
+                      className="w-full md:w-auto px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <span>Search</span>
+                    </button>
+                  </div>
                 </div>
-                <button
-                  type="submit"
-                  className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 whitespace-nowrap"
-                >
-                  Find Care
-                </button>
               </div>
             </form>
 
@@ -328,14 +382,14 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+          <div className="grid md:grid-cols-4 gap-6 lg:gap-8">
             {[
               {
                 step: "1",
                 title: "Share your needs",
-                description: "Tell us about your loved one's care requirements, preferences, and location. Our matching helps narrow down the best options.",
+                description: "Tell us about your loved one's care requirements, preferences, and location.",
                 icon: (
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 ),
@@ -343,9 +397,9 @@ export default function Home() {
               {
                 step: "2",
                 title: "Compare options",
-                description: "Browse verified providers with photos, reviews, pricing, and availability. Every provider is checked for licensing and credentials.",
+                description: "Browse verified providers with photos, reviews, pricing, and availability.",
                 icon: (
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                   </svg>
                 ),
@@ -353,23 +407,33 @@ export default function Home() {
               {
                 step: "3",
                 title: "Connect directly",
-                description: "Reach out to schedule tours, ask questions, and find the perfect match. We're with you every step of the way.",
+                description: "Reach out to ask questions, request information, and start conversations.",
                 icon: (
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                ),
+              },
+              {
+                step: "4",
+                title: "Schedule & visit",
+                description: "Book tours and consultations that sync directly to your calendar.",
+                icon: (
+                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 ),
               },
             ].map((item) => (
               <div key={item.step} className="relative text-center">
-                <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 mx-auto mb-6">
+                <div className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 mx-auto mb-4">
                   {item.icon}
                 </div>
-                <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-2 w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1 w-7 h-7 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{item.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
@@ -499,72 +563,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid md:grid-cols-5 gap-8 mb-12">
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <Image
-                  src="/bird-logo.svg"
-                  alt="Olera"
-                  width={32}
-                  height={32}
-                  className="w-8 h-8"
-                />
-                <span className="text-2xl font-bold text-white">Olera</span>
-              </div>
-              <p className="text-sm leading-relaxed mb-4">
-                Helping families find quality senior care with confidence.
-                We believe every family deserves access to compassionate,
-                qualified care for their loved ones.
-              </p>
-              <div className="flex gap-4">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="LinkedIn">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">For Families</h4>
-              <ul className="space-y-3 text-sm">
-                <li><Link href="/browse" className="hover:text-white transition-colors">Find Care</Link></li>
-                <li><Link href="/browse?type=ASSISTED_LIVING" className="hover:text-white transition-colors">Assisted Living</Link></li>
-                <li><Link href="/browse?type=MEMORY_CARE" className="hover:text-white transition-colors">Memory Care</Link></li>
-                <li><Link href="/browse?type=HOME_CARE" className="hover:text-white transition-colors">Home Care</Link></li>
-                <li><Link href="/care-profile" className="hover:text-white transition-colors">Create Care Profile</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">For Providers</h4>
-              <ul className="space-y-3 text-sm">
-                <li><Link href="/for-providers" className="hover:text-white transition-colors">Why Olera</Link></li>
-                <li><Link href="/signup?intent=provider" className="hover:text-white transition-colors">List Your Services</Link></li>
-                <li><Link href="/provider/leads" className="hover:text-white transition-colors">Provider Dashboard</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Company</h4>
-              <ul className="space-y-3 text-sm">
-                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm">© {new Date().getFullYear()} Olera. All rights reserved.</p>
-            <p className="text-xs text-gray-500">Made with care in Texas</p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer - Using unified component */}
+      <Footer variant="dark" />
     </>
   );
 }

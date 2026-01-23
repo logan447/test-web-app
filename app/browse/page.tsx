@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import { ProviderCard } from "@/components/Cards";
 import FilterBar, { FilterConfig } from "@/components/Layout/FilterBar";
 
@@ -100,6 +101,15 @@ const SORT_OPTIONS = [
   { value: "price_low", label: "Price: Low to High" },
   { value: "price_high", label: "Price: High to Low" },
   { value: "newest", label: "Newest" },
+];
+
+// Quick filter chips for common searches (using existing filter fields)
+const QUICK_FILTERS: Array<{ id: string; label: string; filter: Record<string, string> }> = [
+  { id: "top_rated", label: "Top Rated (4.5+)", filter: { rating: "4.5" } },
+  { id: "memory", label: "Memory Care", filter: { providerType: "MEMORY_CARE" } },
+  { id: "home", label: "In-Home Care", filter: { providerType: "HOME_CARE" } },
+  { id: "assisted", label: "Assisted Living", filter: { providerType: "ASSISTED_LIVING" } },
+  { id: "nursing", label: "Nursing Home", filter: { providerType: "NURSING_HOME" } },
 ];
 
 // View mode type
@@ -241,17 +251,19 @@ function BrowseContent() {
 
         {/* Results Header */}
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-              {location && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Showing care providers near {location}
-                </p>
-              )}
-            </div>
+          <div className="flex flex-col gap-4">
+            {/* Title Row */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+                {location && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Showing care providers near {location}
+                  </p>
+                )}
+              </div>
 
-            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
               {/* View Toggle */}
               <div className="hidden sm:flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                 <button
@@ -294,7 +306,96 @@ function BrowseContent() {
                 </svg>
                 {showMap ? "Hide Map" : "Show Map"}
               </button>
+              </div>
             </div>
+
+            {/* Quick Filter Chips */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-gray-500 mr-1">Quick filters:</span>
+              {QUICK_FILTERS.map((quickFilter) => {
+                const isActive = Object.entries(quickFilter.filter).some(
+                  ([key, value]) => filterValues[key] === value
+                );
+                return (
+                  <button
+                    key={quickFilter.id}
+                    onClick={() => {
+                      if (isActive) {
+                        // Remove the filter
+                        const newValues = { ...filterValues };
+                        Object.keys(quickFilter.filter).forEach((key) => {
+                          newValues[key] = "";
+                        });
+                        setFilterValues(newValues);
+                      } else {
+                        // Apply the filter
+                        setFilterValues({
+                          ...filterValues,
+                          ...quickFilter.filter,
+                        });
+                      }
+                    }}
+                    className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+                      isActive
+                        ? "bg-primary-600 text-white"
+                        : "bg-white border border-gray-300 text-gray-700 hover:border-primary-300 hover:text-primary-600"
+                    }`}
+                  >
+                    {quickFilter.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Active Filters Display */}
+            {hasActiveFilters && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-gray-500">Active:</span>
+                {location && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    </svg>
+                    {location}
+                    <button
+                      onClick={() => setLocation("")}
+                      className="ml-1 hover:text-primary-900"
+                    >
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                )}
+                {Object.entries(filterValues).map(([key, value]) => {
+                  if (!value) return null;
+                  const config = FILTER_CONFIGS.find((c) => c.id === key);
+                  const option = config?.options.find((o) => o.value === value);
+                  return (
+                    <span
+                      key={key}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full"
+                    >
+                      {option?.label || value}
+                      <button
+                        onClick={() => handleFilterChange(key, "")}
+                        className="ml-1 hover:text-primary-900"
+                      >
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  );
+                })}
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -461,6 +562,9 @@ function BrowseContent() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </>
   );
 }

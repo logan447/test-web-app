@@ -88,6 +88,61 @@ export default {
           100: '#FEF7ED',
           200: '#FDF2E1',
         },
+
+        // Provider Type Colors (for visual distinction)
+        providerType: {
+          facility: {
+            DEFAULT: '#2563EB', // blue-600
+            light: '#DBEAFE',   // blue-100
+            dark: '#1D4ED8',    // blue-700
+          },
+          homeCare: {
+            DEFAULT: '#059669', // emerald-600
+            light: '#D1FAE5',   // emerald-100
+            dark: '#047857',    // emerald-700
+          },
+          caregiver: {
+            DEFAULT: '#7C3AED', // violet-600
+            light: '#EDE9FE',   // violet-100
+            dark: '#6D28D9',    // violet-700
+          },
+        },
+
+        // Request/Engagement Status Colors
+        status: {
+          pending: {
+            DEFAULT: '#F59E0B', // amber-500
+            light: '#FEF3C7',   // amber-100
+            text: '#92400E',    // amber-800
+          },
+          accepted: {
+            DEFAULT: '#10B981', // emerald-500
+            light: '#D1FAE5',   // emerald-100
+            text: '#065F46',    // emerald-800
+          },
+          declined: {
+            DEFAULT: '#EF4444', // red-500
+            light: '#FEE2E2',   // red-100
+            text: '#991B1B',    // red-800
+          },
+          completed: {
+            DEFAULT: '#3B82F6', // blue-500
+            light: '#DBEAFE',   // blue-100
+            text: '#1E40AF',    // blue-800
+          },
+          scheduled: {
+            DEFAULT: '#8B5CF6', // violet-500
+            light: '#EDE9FE',   // violet-100
+            text: '#5B21B6',    // violet-800
+          },
+        },
+
+        // Match score colors
+        match: {
+          high: '#10B981',      // emerald-500 (80%+)
+          medium: '#F59E0B',    // amber-500 (60-79%)
+          low: '#6B7280',       // gray-500 (<60%)
+        },
       },
 
       // Typography (Manual Ch 4.2.1)
@@ -107,6 +162,16 @@ export default {
       boxShadow: {
         'card': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
         'card-hover': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+        'elevated': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        'floating': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+      },
+
+      // Section spacing (consistent vertical rhythm)
+      spacing: {
+        'section': '5rem',        // 80px - desktop sections
+        'section-sm': '3rem',     // 48px - mobile sections
+        'card-padding': '1.5rem', // 24px - standard card padding
+        'card-padding-sm': '1rem', // 16px - compact card padding
       },
 
       // Custom animations

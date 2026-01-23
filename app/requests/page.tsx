@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Tooltip from "@/components/UI/Tooltip";
 
 type ConsultRequest = {
@@ -423,6 +424,9 @@ export default function RequestsPage() {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }
