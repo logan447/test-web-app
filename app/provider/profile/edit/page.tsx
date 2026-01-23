@@ -637,7 +637,12 @@ export default function ProviderProfileEditPage() {
         setProvider(updatedProvider);
         populateFormFromProvider(updatedProvider);
         setShowQuickStart(false);
-        showToast.success("Profile setup complete!");
+        showToast.success("Profile setup complete! Redirecting to find families...");
+
+        // Redirect to provider leads page after successful onboarding
+        setTimeout(() => {
+          router.push("/provider/leads");
+        }, 500);
       } else {
         const error = await res.json();
         showToast.error(error.message || "Failed to save");
