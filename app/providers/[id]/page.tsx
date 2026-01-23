@@ -712,322 +712,363 @@ export default function ProviderProfilePage() {
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           {/* Main content - 2/3 width */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 fade-in">
 
-            {/* Certifications & Additional Badges */}
-            {(Array.isArray(provider.certifications) && provider.certifications.length > 0) ||
-             (provider.availableSpots === 0 && provider.totalCapacity) ||
-             (provider.waitlistAvailable && provider.availableSpots === 0) ||
-             (!isIndependentCaregiver && provider.claimed !== undefined) ? (
-              <div className="flex flex-wrap gap-2 mb-6">
-                {Array.isArray(provider.certifications) && provider.certifications.map((cert) => (
-                  <span
-                    key={cert}
-                    className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium"
-                  >
-                    {cert}
-                  </span>
-                ))}
-
-                {provider.availableSpots === 0 && provider.totalCapacity && (
-                  <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium">
-                    Currently at capacity
-                  </span>
-                )}
-
-                {provider.waitlistAvailable && provider.availableSpots === 0 && (
-                  <span className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium">
-                    Waitlist available
-                  </span>
-                )}
-
-                {!isIndependentCaregiver && provider.claimed === true && (
-                  <span className="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Verified Profile
-                  </span>
-                )}
-
-                {!isIndependentCaregiver && provider.claimed === false && (
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                    Unclaimed Profile
-                  </span>
-                )}
-              </div>
-            ) : null}
-
-          {/* Claim This Listing Banner - for unclaimed organization providers only */}
-          {!isIndependentCaregiver && provider.claimed === false && (
-            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5 mb-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-gray-900">Is this your business?</h3>
-                    <p className="text-sm text-gray-600 mt-0.5">
-                      Claim this listing to manage your profile, respond to inquiries, and connect with families.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleClaimClick}
-                  className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium text-sm whitespace-nowrap flex items-center justify-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Claim This Listing
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Photo Gallery */}
-          {(provider.photos.length > 0 || provider.coverPhoto) && (
-            <PhotoGallery
-              photos={provider.photos}
-              coverPhoto={provider.coverPhoto}
-              providerName={provider.name}
-            />
-          )}
-
-          {/* Description */}
-          {provider.description && (
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">About</h2>
-              <p className="text-gray-700 whitespace-pre-line">{provider.description}</p>
-            </div>
-          )}
-
-          {/* Pricing */}
-          {(provider.priceMin || provider.priceMax || provider.priceDescription || provider.paymentOptions.length > 0) && (
-            <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">Pricing & Payment</h2>
-
-              {/* Price Range */}
-              {(provider.priceMin || provider.priceMax) && (
-                <div className="mb-4">
-                  <p className="text-2xl font-bold text-emerald-700">
-                    {provider.priceMin && provider.priceMax ? (
-                      `$${provider.priceMin.toLocaleString()} - $${provider.priceMax.toLocaleString()}/month`
-                    ) : provider.priceMin ? (
-                      `Starting from $${provider.priceMin.toLocaleString()}/month`
-                    ) : (
-                      `Up to $${provider.priceMax?.toLocaleString()}/month`
-                    )}
-                  </p>
-                </div>
-              )}
-
-              {/* Price Description */}
-              {provider.priceDescription && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-1">What&apos;s included:</p>
-                  <p className="text-gray-600">{provider.priceDescription}</p>
-                </div>
-              )}
-
-              {/* Payment Options */}
-              {Array.isArray(provider.paymentOptions) && provider.paymentOptions.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Payment options accepted:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.paymentOptions.map((option) => (
-                      <span
-                        key={option}
-                        className="bg-white text-emerald-700 px-3 py-1 rounded-full text-sm border border-emerald-300"
-                      >
-                        {option}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Contact for Pricing fallback */}
-              {!provider.priceMin && !provider.priceMax && (
-                <p className="text-gray-700 italic">Contact for pricing information</p>
-              )}
-            </div>
-          )}
-
-          {/* Care Types */}
-          {Array.isArray(provider.careTypesOffered) && provider.careTypesOffered.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">Care Services Offered</h2>
-              <div className="flex flex-wrap gap-2">
-                {provider.careTypesOffered.map((care) => (
-                  <span
-                    key={care}
-                    className="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-sm font-medium"
-                  >
-                    {formatProviderType(care)}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Amenities Section */}
-          <AmenitiesSection
-            roomFeatures={provider.roomFeatures}
-            commonAreas={provider.commonAreas}
-            medicalServices={provider.medicalServices}
-            activitiesOffered={provider.activitiesOffered}
-            dietaryOptions={provider.dietaryOptions}
-          />
-
-          {/* Staff Section */}
-          <StaffSection
-            staffToResidentRatio={provider.staffToResidentRatio}
-            hasRNOnSite={provider.hasRNOnSite}
-            hasLVNOnSite={provider.hasLVNOnSite}
-            allStaffBackgroundChecked={provider.allStaffBackgroundChecked}
-            visitingDoctorFrequency={provider.visitingDoctorFrequency}
-            caregiverTraining={provider.caregiverTraining}
-            languagesSpoken={provider.languagesSpoken}
-          />
-
-          {/* Location Section */}
-          <LocationSection
-            address={provider.address}
-            city={provider.city}
-            state={provider.state}
-            zipCode={provider.zipCode}
-            latitude={provider.latitude}
-            longitude={provider.longitude}
-            neighborhoodDescription={provider.neighborhoodDescription}
-            nearbyAmenities={provider.nearbyAmenities}
-          />
-
-          {/* Specialty Care Section */}
-          <SpecialtyCareSection
-            hasMemoryCare={provider.hasMemoryCare}
-            hasRespiteCare={provider.hasRespiteCare}
-            hasHospiceCare={provider.hasHospiceCare}
-            specialtyPrograms={provider.specialtyPrograms}
-            languagesSpoken={provider.languagesSpoken}
-          />
-
-          {/* Details Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
-              {/* Show contact info if revealed (organizations always, individual caregivers after acceptance) */}
-              {provider.contactRevealed !== false ? (
-                <div className="space-y-3">
-                  {provider.phone && (
-                    <p className="text-gray-700 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                      <span className="font-medium">{provider.phone}</span>
-                    </p>
-                  )}
-                  {provider.email && (
-                    <p className="text-gray-700 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <span className="font-medium">{provider.email}</span>
-                    </p>
-                  )}
-                  {provider.website && (
-                    <p className="text-gray-700 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                      </svg>
-                      <a
-                        href={provider.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-emerald-600 hover:text-emerald-700 hover:underline font-medium"
-                      >
-                        {provider.website}
-                      </a>
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            {/* Claim This Listing Banner - for unclaimed organization providers only */}
+            {!isIndependentCaregiver && provider.claimed === false && (
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-gray-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+                    <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Contact info protected</p>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Send a consultation request to connect with this caregiver. Contact details will be shared once they accept.
+                      <h3 className="text-base font-semibold text-gray-900">Is this your business?</h3>
+                      <p className="text-sm text-gray-600 mt-0.5">
+                        Claim this listing to manage your profile, respond to inquiries, and connect with families.
                       </p>
                     </div>
                   </div>
+                  <button
+                    onClick={handleClaimClick}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium text-sm whitespace-nowrap flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Claim This Listing
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Additional Details</h3>
-              <div className="space-y-2">
-                {provider.yearsInBusiness && (
-                  <p className="text-gray-700">
-                    <span className="font-medium">Years in Business:</span> {provider.yearsInBusiness}
-                  </p>
-                )}
-                {provider.capacity && (
-                  <p className="text-gray-700">
-                    <span className="font-medium">Capacity:</span> {provider.capacity} patients/residents
-                  </p>
-                )}
-                {provider.serviceRadius && (
-                  <p className="text-gray-700">
-                    <span className="font-medium">Service Radius:</span> {provider.serviceRadius} miles
-                  </p>
-                )}
-                {provider.licenseNumber && (
-                  <p className="text-gray-700">
-                    <span className="font-medium">License #:</span> {provider.licenseNumber}
-                  </p>
+            {/* Photo Gallery Card */}
+            {(provider.photos.length > 0 || provider.coverPhoto) && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <PhotoGallery
+                  photos={provider.photos}
+                  coverPhoto={provider.coverPhoto}
+                  providerName={provider.name}
+                />
+              </div>
+            )}
+
+            {/* About Card */}
+            {provider.description && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-emerald-100 rounded-xl">
+                    <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">About</h2>
+                </div>
+                <p className="text-gray-700 whitespace-pre-line leading-relaxed">{provider.description}</p>
+
+                {/* Certifications & Badges */}
+                {((Array.isArray(provider.certifications) && provider.certifications.length > 0) ||
+                  (provider.availableSpots === 0 && provider.totalCapacity) ||
+                  (provider.waitlistAvailable && provider.availableSpots === 0) ||
+                  (!isIndependentCaregiver && provider.claimed !== undefined)) && (
+                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+                    {Array.isArray(provider.certifications) && provider.certifications.map((cert) => (
+                      <span
+                        key={cert}
+                        className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium"
+                      >
+                        {cert}
+                      </span>
+                    ))}
+                    {provider.availableSpots === 0 && provider.totalCapacity && (
+                      <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium">
+                        Currently at capacity
+                      </span>
+                    )}
+                    {provider.waitlistAvailable && provider.availableSpots === 0 && (
+                      <span className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium">
+                        Waitlist available
+                      </span>
+                    )}
+                    {!isIndependentCaregiver && provider.claimed === true && (
+                      <span className="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Verified Profile
+                      </span>
+                    )}
+                    {!isIndependentCaregiver && provider.claimed === false && (
+                      <span className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                        Unclaimed Profile
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
+            )}
+
+            {/* Pricing Card */}
+            {(provider.priceMin || provider.priceMax || provider.priceDescription || provider.paymentOptions.length > 0) && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-emerald-100 rounded-xl">
+                    <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">Pricing & Payment</h2>
+                </div>
+
+                {/* Price Range */}
+                {(provider.priceMin || provider.priceMax) && (
+                  <div className="bg-emerald-50 rounded-xl p-4 mb-4">
+                    <p className="text-3xl font-bold text-emerald-700">
+                      {provider.priceMin && provider.priceMax ? (
+                        `$${provider.priceMin.toLocaleString()} - $${provider.priceMax.toLocaleString()}`
+                      ) : provider.priceMin ? (
+                        `From $${provider.priceMin.toLocaleString()}`
+                      ) : (
+                        `Up to $${provider.priceMax?.toLocaleString()}`
+                      )}
+                      <span className="text-lg font-medium text-emerald-600">/month</span>
+                    </p>
+                  </div>
+                )}
+
+                {/* Price Description */}
+                {provider.priceDescription && (
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-gray-700 mb-1">What&apos;s included:</p>
+                    <p className="text-gray-600">{provider.priceDescription}</p>
+                  </div>
+                )}
+
+                {/* Payment Options */}
+                {Array.isArray(provider.paymentOptions) && provider.paymentOptions.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Payment options accepted:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {provider.paymentOptions.map((option) => (
+                        <span
+                          key={option}
+                          className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium"
+                        >
+                          {option}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact for Pricing fallback */}
+                {!provider.priceMin && !provider.priceMax && (
+                  <p className="text-gray-600 italic">Contact for pricing information</p>
+                )}
+              </div>
+            )}
+
+            {/* Care Types Card */}
+            {Array.isArray(provider.careTypesOffered) && provider.careTypesOffered.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-blue-100 rounded-xl">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">Care Services Offered</h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {provider.careTypesOffered.map((care) => (
+                    <span
+                      key={care}
+                      className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-sm font-medium"
+                    >
+                      {formatProviderType(care)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Amenities Section */}
+            <AmenitiesSection
+              roomFeatures={provider.roomFeatures}
+              commonAreas={provider.commonAreas}
+              medicalServices={provider.medicalServices}
+              activitiesOffered={provider.activitiesOffered}
+              dietaryOptions={provider.dietaryOptions}
+            />
+
+            {/* Staff Section */}
+            <StaffSection
+              staffToResidentRatio={provider.staffToResidentRatio}
+              hasRNOnSite={provider.hasRNOnSite}
+              hasLVNOnSite={provider.hasLVNOnSite}
+              allStaffBackgroundChecked={provider.allStaffBackgroundChecked}
+              visitingDoctorFrequency={provider.visitingDoctorFrequency}
+              caregiverTraining={provider.caregiverTraining}
+              languagesSpoken={provider.languagesSpoken}
+            />
+
+            {/* Location Section */}
+            <LocationSection
+              address={provider.address}
+              city={provider.city}
+              state={provider.state}
+              zipCode={provider.zipCode}
+              latitude={provider.latitude}
+              longitude={provider.longitude}
+              neighborhoodDescription={provider.neighborhoodDescription}
+              nearbyAmenities={provider.nearbyAmenities}
+            />
+
+            {/* Specialty Care Section */}
+            <SpecialtyCareSection
+              hasMemoryCare={provider.hasMemoryCare}
+              hasRespiteCare={provider.hasRespiteCare}
+              hasHospiceCare={provider.hasHospiceCare}
+              specialtyPrograms={provider.specialtyPrograms}
+              languagesSpoken={provider.languagesSpoken}
+            />
+
+            {/* Contact & Details Card */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-purple-100 rounded-xl">
+                      <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
+                  </div>
+                  {provider.contactRevealed !== false ? (
+                    <div className="space-y-3">
+                      {provider.phone && (
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <span className="font-medium text-gray-900">{provider.phone}</span>
+                        </div>
+                      )}
+                      {provider.email && (
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          <span className="font-medium text-gray-900">{provider.email}</span>
+                        </div>
+                      )}
+                      {provider.website && (
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                          </svg>
+                          <a
+                            href={provider.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-600 hover:text-emerald-700 hover:underline font-medium"
+                          >
+                            {provider.website}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <svg className="w-5 h-5 text-amber-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-amber-800">Contact info protected</p>
+                          <p className="text-sm text-amber-700 mt-1">
+                            Send a request to connect. Details shared upon acceptance.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-teal-100 rounded-xl">
+                      <svg className="w-5 h-5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">Additional Details</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {provider.yearsInBusiness && (
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span className="text-gray-600">Years in Business</span>
+                        <span className="font-semibold text-gray-900">{provider.yearsInBusiness}</span>
+                      </div>
+                    )}
+                    {provider.capacity && (
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span className="text-gray-600">Capacity</span>
+                        <span className="font-semibold text-gray-900">{provider.capacity}</span>
+                      </div>
+                    )}
+                    {provider.serviceRadius && (
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span className="text-gray-600">Service Radius</span>
+                        <span className="font-semibold text-gray-900">{provider.serviceRadius} miles</span>
+                      </div>
+                    )}
+                    {provider.licenseNumber && (
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span className="text-gray-600">License #</span>
+                        <span className="font-semibold text-gray-900">{provider.licenseNumber}</span>
+                      </div>
+                    )}
+                    {!provider.yearsInBusiness && !provider.capacity && !provider.serviceRadius && !provider.licenseNumber && (
+                      <p className="text-gray-500 text-sm italic">No additional details available</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <ReviewsSection
+                providerId={provider.id}
+                averageRating={provider.averageRating}
+                reviewCount={provider.reviewCount}
+                onWriteReview={handleWriteReview}
+              />
             </div>
           </div>
 
-          {/* Reviews Section */}
-          <ReviewsSection
-            providerId={provider.id}
-            averageRating={provider.averageRating}
-            reviewCount={provider.reviewCount}
-            onWriteReview={handleWriteReview}
-          />
-
-        </div>
-        </div>
-
-        {/* Sidebar - 1/3 width */}
-        <div className="lg:col-span-1 mt-6 lg:mt-0">
-          <div className="lg:sticky lg:top-24">
-            <ProviderCTASection
-              providerId={provider.id}
-              providerName={provider.name}
-              providerType={provider.providerType}
-              phone={provider.phone}
-              hasPricing={!!(provider.priceMin || provider.priceMax)}
-              onOpenRequestForm={handleOpenRequestForm}
-              activeEngagement={activeEngagement}
-              isLoading={checkingEngagement || creatingEngagement}
-            />
+          {/* Sidebar - 1/3 width */}
+          <div className="lg:col-span-1 mt-6 lg:mt-0">
+            <div className="lg:sticky lg:top-24">
+              <ProviderCTASection
+                providerId={provider.id}
+                providerName={provider.name}
+                providerType={provider.providerType}
+                phone={provider.phone}
+                hasPricing={!!(provider.priceMin || provider.priceMax)}
+                onOpenRequestForm={handleOpenRequestForm}
+                activeEngagement={activeEngagement}
+                isLoading={checkingEngagement || creatingEngagement}
+              />
+            </div>
           </div>
         </div>
-      </div>
       </main>
 
       {/* Auth Modal */}
