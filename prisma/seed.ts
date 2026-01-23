@@ -1,7 +1,12 @@
 import { PrismaClient, ProviderType, CareType, RequestType, ConsultRequestStatus } from '@prisma/client';
 import { hash } from 'bcryptjs';
 
-const prisma = new PrismaClient();
+// Create a local prisma client for CLI usage
+// When called from API, the shared client is passed as parameter
+const localPrisma = new PrismaClient();
+
+// Module-level variable to track which client to use
+let prisma: PrismaClient = localPrisma;
 
 // Curated Unsplash photo collections for realistic demo data
 const FAMILY_PHOTOS = [
@@ -119,19 +124,34 @@ const CA_LOCATIONS = [
   { city: 'Palm Springs', state: 'CA', zip: '92262', lat: 33.8303, lng: -116.5453 },
 ];
 
-async function main() {
+async function main(externalPrisma?: PrismaClient) {
+  // Use external prisma client if provided (for API usage), otherwise use local
+  if (externalPrisma) {
+    prisma = externalPrisma;
+  }
+
   console.log('🌱 Starting MEGA database seed (90+ accounts)...\n');
 
-  // Clear existing data
-  console.log('🗑️  Clearing existing data...');
+  // Get admin users to preserve
+  const adminUsers = await prisma.user.findMany({
+    where: { role: 'ADMIN' },
+    select: { id: true, email: true },
+  });
+  const adminIds = adminUsers.map(u => u.id);
+  console.log(`📌 Preserving ${adminUsers.length} admin user(s): ${adminUsers.map(u => u.email).join(', ')}`);
+
+  // Clear existing data (preserve admin users)
+  console.log('🗑️  Clearing existing demo data...');
   await prisma.message.deleteMany();
   await prisma.tourAppointment.deleteMany();
   await prisma.consultRequest.deleteMany();
   await prisma.savedProvider.deleteMany();
-  await prisma.familyProfile.deleteMany();
-  await prisma.provider.deleteMany();
-  await prisma.user.deleteMany();
-  console.log('✅ Existing data cleared\n');
+  await prisma.familyProfile.deleteMany({ where: { userId: { notIn: adminIds } } });
+  await prisma.providerIdentity.deleteMany({ where: { userId: { notIn: adminIds } } });
+  await prisma.provider.deleteMany({ where: { userId: { notIn: adminIds } } });
+  // Delete non-admin users only
+  await prisma.user.deleteMany({ where: { role: { not: 'ADMIN' } } });
+  console.log('✅ Existing demo data cleared (admin users preserved)\n');
 
   // Create demo password hash (password: "demo123")
   const demoPassword = await hash('demo123', 12);
@@ -578,7 +598,7 @@ async function main() {
 // Export main for use in API routes
 export { main };
 
-// Only run if this file is executed directly
+// Only run if this file is executed directly (CLI mode)
 if (require.main === module) {
   main()
     .catch((e) => {
@@ -586,6 +606,7 @@ if (require.main === module) {
       process.exit(1);
     })
     .finally(async () => {
-      await prisma.$disconnect();
+      // Only disconnect the local prisma client in CLI mode
+      await localPrisma.$disconnect();
     });
 }

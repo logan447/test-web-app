@@ -133,7 +133,7 @@ export async function POST(req: Request) {
     // If mode is 'full', run the comprehensive MEGA seed from prisma/seed.ts
     if (mode === 'full') {
       console.log(`[SEED] Running FULL MEGA seed by ${session.user.email}...`);
-      await runFullSeed();
+      await runFullSeed(prisma);
       return NextResponse.json({
         success: true,
         data: {
