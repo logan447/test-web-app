@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ProviderType } from "@prisma/client";
 
 /**
  * GET /api/caregiver/matches
@@ -31,19 +32,19 @@ export async function GET() {
     }
 
     // Only show matches for independent caregivers
-    if (caregiver.providerType !== "INDEPENDENT_CAREGIVER") {
+    if (caregiver.providerType !== ProviderType.INDEPENDENT_CAREGIVER) {
       return NextResponse.json([]);
     }
 
     // Find organizations that might be looking for caregivers
     // These are non-caregiver providers (facilities, agencies, etc.)
-    const organizationTypes = [
-      "ASSISTED_LIVING",
-      "MEMORY_CARE",
-      "HOME_CARE",
-      "NURSING_HOME",
-      "HOSPICE",
-      "RESPITE_CARE",
+    const organizationTypes: ProviderType[] = [
+      ProviderType.ASSISTED_LIVING,
+      ProviderType.MEMORY_CARE,
+      ProviderType.HOME_CARE,
+      ProviderType.NURSING_HOME,
+      ProviderType.HOSPICE,
+      ProviderType.RESPITE_CARE,
     ];
 
     const organizations = await prisma.provider.findMany({
