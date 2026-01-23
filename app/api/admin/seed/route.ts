@@ -137,13 +137,13 @@ export async function POST(req: Request) {
       return NextResponse.json({
         success: true,
         data: {
-          message: 'Successfully seeded 30 demo accounts',
+          message: 'Successfully seeded 90 demo accounts',
           password: 'demo123',
           summary: {
-            families: 12,
-            facilities: 12,
-            caregivers: 6,
-            total: 30,
+            families: 36,
+            facilities: 36,
+            caregivers: 18,
+            total: 90,
           },
           instructions: [
             'All demo accounts seeded with comprehensive data',
