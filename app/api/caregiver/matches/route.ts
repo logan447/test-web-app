@@ -63,7 +63,6 @@ export async function GET() {
             subscription: true,
           },
         },
-        photos: true,
       },
       take: 20,
     });
@@ -114,7 +113,7 @@ export async function GET() {
         state: org.state,
         description: org.description,
         coverPhoto: org.coverPhoto,
-        photos: org.photos.map(p => p.url),
+        photos: org.photos || [],
         isHiring: hasSubscription,
         matchScore,
         matchReasons,
