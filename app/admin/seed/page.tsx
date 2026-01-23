@@ -86,7 +86,10 @@ export default function SeedAdminPage() {
         // Refresh status
         await checkSeedStatus();
       } else {
-        setError(data.error?.message || 'Failed to seed');
+        // Show both message and details if available
+        const errorMsg = data.error?.message || 'Failed to seed';
+        const details = data.error?.details;
+        setError(details ? `${errorMsg}: ${details}` : errorMsg);
       }
     } catch (err) {
       setError('Failed to connect to API');
