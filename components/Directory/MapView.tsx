@@ -22,21 +22,23 @@ interface Provider {
   providerType: string;
   city: string;
   state: string;
-  address: string;
   latitude: number | null;
   longitude: number | null;
-  averageRating: number | null;
-  reviewCount: number;
-  priceMin: number | null;
-  priceMax: number | null;
-  verified: boolean;
+  // Optional fields for popup display
+  address?: string;
+  averageRating?: number | null;
+  reviewCount?: number;
+  priceMin?: number | null;
+  priceMax?: number | null;
+  verified?: boolean;
 }
 
 interface MapViewProps {
   providers: Provider[];
+  onMarkerClick?: (id: string) => void;
 }
 
-export default function MapView({ providers }: MapViewProps) {
+export default function MapView({ providers, onMarkerClick }: MapViewProps) {
   // Filter providers with valid coordinates
   const providersWithCoords = providers.filter(
     (p) => p.latitude !== null && p.longitude !== null
@@ -104,6 +106,9 @@ export default function MapView({ providers }: MapViewProps) {
             key={provider.id}
             position={[provider.latitude!, provider.longitude!]}
             icon={icon}
+            eventHandlers={{
+              click: () => onMarkerClick?.(provider.id),
+            }}
           >
             <Popup>
               <div className="p-2 min-w-[250px]">
@@ -123,12 +128,16 @@ export default function MapView({ providers }: MapViewProps) {
                 </p>
 
                 <p className="text-sm text-gray-600 mb-2">
-                  {provider.address}
-                  <br />
+                  {provider.address && (
+                    <>
+                      {provider.address}
+                      <br />
+                    </>
+                  )}
                   {provider.city}, {provider.state}
                 </p>
 
-                {provider.averageRating != null && provider.reviewCount > 0 && (
+                {provider.averageRating != null && (provider.reviewCount ?? 0) > 0 && (
                   <div className="flex items-center gap-1 mb-2">
                     <svg
                       className="w-4 h-4 text-yellow-400 fill-current"
