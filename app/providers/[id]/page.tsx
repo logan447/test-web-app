@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
@@ -120,7 +120,6 @@ export default function ProviderDetailPage() {
   const [claimModalOpen, setClaimModalOpen] = useState(false);
   const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  const [selectedTab, setSelectedTab] = useState(0);
 
   // Contact form state
   const [contactForm, setContactForm] = useState({
@@ -481,45 +480,15 @@ export default function ProviderDetailPage() {
               </div>
             </div>
 
-            {/* Tab Navigation - Type-specific tabs */}
+            {/* All Sections - Scrollable Layout */}
             {(() => {
               const isFacility = FACILITY_TYPES.includes(provider.providerType);
               const isHomeCare = HOME_CARE_TYPES.includes(provider.providerType);
 
-              // Determine tabs based on provider type
-              const getTabs = () => {
-                if (isFacility) {
-                  return ['Rating', 'Living Options', 'Life Here', 'Care & Medical', 'Pricing', 'Location'];
-                } else if (isHomeCare) {
-                  return ['Rating', 'Our Caregivers', 'How It Works', 'Services', 'Pricing', 'Location'];
-                }
-                return ['Rating', 'About', 'Services', 'Pricing', 'Location'];
-              };
-
-              const tabs = getTabs();
-
               return (
-                <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
-                  <TabList className="flex border-b border-gray-200 mb-6 overflow-x-auto">
-                    {tabs.map((tab) => (
-                      <Tab
-                        key={tab}
-                        className={({ selected }) =>
-                          `px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors focus:outline-none whitespace-nowrap ${
-                            selected
-                              ? 'border-primary-600 text-primary-600'
-                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                          }`
-                        }
-                      >
-                        {tab}
-                      </Tab>
-                    ))}
-                  </TabList>
-
-                  <TabPanels>
-                    {/* Rating Tab - Shared across all types */}
-                    <TabPanel className="space-y-6">
+                <div className="space-y-8">
+                  {/* Rating Section */}
+                  <section id="rating" className="space-y-6">
                       <div className="bg-white rounded-xl border border-gray-200 p-6">
                         <div className="flex items-start gap-4 mb-6">
                           <div className="w-16 h-16 bg-primary-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
@@ -581,43 +550,49 @@ export default function ProviderDetailPage() {
                           Post Your Question
                         </button>
                       </div>
-                    </TabPanel>
+                  </section>
 
-                    {/* Type-specific middle tabs */}
-                    {isFacility ? (
-                      <>
-                        {/* Living Options Tab */}
-                        <TabPanel>
-                          <FacilityTabs provider={provider} activeTab="living" />
-                        </TabPanel>
-                        {/* Life Here Tab */}
-                        <TabPanel>
-                          <FacilityTabs provider={provider} activeTab="life" />
-                        </TabPanel>
-                        {/* Care & Medical Tab */}
-                        <TabPanel>
-                          <FacilityTabs provider={provider} activeTab="care" />
-                        </TabPanel>
-                      </>
-                    ) : isHomeCare ? (
-                      <>
-                        {/* Our Caregivers Tab */}
-                        <TabPanel>
-                          <HomeCareAgencyTabs provider={provider} activeTab="caregivers" />
-                        </TabPanel>
-                        {/* How It Works Tab */}
-                        <TabPanel>
-                          <HomeCareAgencyTabs provider={provider} activeTab="how-it-works" />
-                        </TabPanel>
-                        {/* Services Tab */}
-                        <TabPanel>
-                          <HomeCareAgencyTabs provider={provider} activeTab="services" />
-                        </TabPanel>
-                      </>
-                    ) : (
-                      <>
-                        {/* About Tab - Default for caregivers */}
-                <TabPanel className="space-y-6">
+                  {/* Type-specific sections */}
+                  {isFacility ? (
+                    <>
+                      {/* Living Options Section */}
+                      <section id="living-options">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Living Options</h2>
+                        <FacilityTabs provider={provider} activeTab="living" />
+                      </section>
+                      {/* Life Here Section */}
+                      <section id="life-here">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Life Here</h2>
+                        <FacilityTabs provider={provider} activeTab="life" />
+                      </section>
+                      {/* Care & Medical Section */}
+                      <section id="care-medical">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Care & Medical</h2>
+                        <FacilityTabs provider={provider} activeTab="care" />
+                      </section>
+                    </>
+                  ) : isHomeCare ? (
+                    <>
+                      {/* Our Caregivers Section */}
+                      <section id="caregivers">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Our Caregivers</h2>
+                        <HomeCareAgencyTabs provider={provider} activeTab="caregivers" />
+                      </section>
+                      {/* How It Works Section */}
+                      <section id="how-it-works">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">How It Works</h2>
+                        <HomeCareAgencyTabs provider={provider} activeTab="how-it-works" />
+                      </section>
+                      {/* Services Section */}
+                      <section id="services">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Services</h2>
+                        <HomeCareAgencyTabs provider={provider} activeTab="services" />
+                      </section>
+                    </>
+                  ) : (
+                    <>
+                      {/* About Section - Default for caregivers */}
+                      <section id="about" className="space-y-6">
                   {/* Description Block */}
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">About {provider.name}</h2>
@@ -781,10 +756,11 @@ export default function ProviderDetailPage() {
                       </div>
                     </div>
                   )}
-                        </TabPanel>
+                      </section>
 
-                        {/* Services Tab - Default for caregivers */}
-                        <TabPanel className="space-y-6">
+                      {/* Services Section - Default for caregivers */}
+                      <section id="services" className="space-y-6">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Services</h2>
                           {/* Care Types */}
                           <div className="bg-white rounded-xl border border-gray-200 p-6">
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">Care Services</h2>
@@ -924,12 +900,13 @@ export default function ProviderDetailPage() {
                               )}
                             </div>
                           )}
-                        </TabPanel>
-                      </>
-                    )}
+                      </section>
+                    </>
+                  )}
 
-                    {/* Pricing Tab - Shared across all types */}
-                <TabPanel className="space-y-6">
+                  {/* Pricing Section - Shared across all types */}
+                  <section id="pricing" className="space-y-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Pricing</h2>
                   {/* Main Pricing Card */}
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Pricing Information</h2>
@@ -988,12 +965,12 @@ export default function ProviderDetailPage() {
                       </div>
                     )}
 
-                    <button
-                      onClick={() => setSelectedTab(0)}
-                      className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+                    <a
+                      href="#rating"
+                      className="block w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors text-center"
                     >
                       Request Detailed Pricing
-                    </button>
+                    </a>
                   </div>
 
                   {/* Availability Section */}
@@ -1044,10 +1021,11 @@ export default function ProviderDetailPage() {
                       </div>
                     </div>
                   </div>
-                </TabPanel>
+                  </section>
 
-                {/* Location Tab */}
-                <TabPanel className="space-y-6">
+                  {/* Location Section */}
+                  <section id="location" className="space-y-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Location</h2>
                   {/* Map Section */}
                   <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                     {/* Map Placeholder */}
@@ -1193,9 +1171,8 @@ export default function ProviderDetailPage() {
                       </div>
                     </div>
                   )}
-                    </TabPanel>
-                  </TabPanels>
-                </TabGroup>
+                  </section>
+                </div>
               );
             })()}
           </div>
