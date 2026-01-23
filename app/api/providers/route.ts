@@ -36,6 +36,7 @@ export async function GET(req: Request) {
 
     const where: any = {
       active: true,
+      isVisible: true,
     };
 
     if (search) {
