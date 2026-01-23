@@ -206,7 +206,7 @@ function BrowseContent() {
     setSortBy("");
   };
 
-  const hasActiveFilters = location || Object.values(filterValues).some((v) => v !== "");
+  const hasActiveFilters = Boolean(location) || Object.values(filterValues).some((v) => v !== "");
 
   // Providers with coordinates for map
   const mappableProviders = providers.filter((p) => p.latitude && p.longitude);
