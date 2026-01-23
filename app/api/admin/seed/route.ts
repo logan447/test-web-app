@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { hash } from 'bcryptjs';
-import { seedLite } from '@/prisma/seed-lite';
+import { seedLite } from '@/lib/seed-lite';
 
 /**
  * Test account configuration
