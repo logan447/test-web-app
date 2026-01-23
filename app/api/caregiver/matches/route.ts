@@ -44,7 +44,7 @@ export async function GET() {
       ProviderType.HOME_CARE,
       ProviderType.NURSING_HOME,
       ProviderType.HOSPICE,
-      ProviderType.RESPITE_CARE,
+      ProviderType.REHABILITATION,
     ];
 
     const organizations = await prisma.provider.findMany({
