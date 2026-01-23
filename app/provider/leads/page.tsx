@@ -3,10 +3,9 @@
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
 import MainNav from '@/components/Navigation/MainNav';
-import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import { showToast } from '@/lib/toast';
-import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import PaywallModal from '@/components/Paywall/PaywallModal';
 import EnhancedFamilyCard from '@/components/Directory/EnhancedFamilyCard';
 import FamilyFiltersBar, { FamilyFilters } from '@/components/Directory/FamilyFiltersBar';
@@ -57,24 +56,16 @@ function ProviderLeadsPageContent() {
   const [savedProfileIds, setSavedProfileIds] = useState<Set<string>>(new Set());
   const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const [selectedProfileForUnlock, setSelectedProfileForUnlock] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('newest');
 
-  // Check if onboarding is in progress (GlobalOnboardingOverlay handles this)
-  // Don't redirect during onboarding - let the overlay complete first
-  // NOTE: Check this BEFORE any other conditions to ensure overlay has a chance to show
   const onboardingParam = searchParams.get('onboarding');
   const isOnboarding = onboardingParam === 'true';
-
-  // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
 
-  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
   const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
 
-  // Filters
   const [filters, setFilters] = useState<FamilyFilters>({
     city: '',
     state: '',
@@ -85,11 +76,7 @@ function ProviderLeadsPageContent() {
   });
 
   useEffect(() => {
-    // CRITICAL: If onboarding is in progress, skip ALL redirects
-    // GlobalOnboardingOverlay will handle the wizard, and mode will be set after completion
-    // We still fetch data so the page is ready when onboarding completes
     if (isOnboarding) {
-      // Only fetch data if we have some session (even loading)
       if (status !== 'unauthenticated') {
         fetchProfiles();
         fetchSavedProfiles();
@@ -101,22 +88,18 @@ function ProviderLeadsPageContent() {
 
     if (status === 'loading' || identityLoading) return;
 
-    // Only redirect to login if session status is definitively unauthenticated
     if (status === 'unauthenticated') {
       router.push('/login');
       return;
     }
 
-    // Session is authenticated but data might still be loading
     if (!session) return;
 
-    // Redirect non-provider users to home (only when NOT onboarding)
     if (!isProviderMode) {
       router.push('/');
       return;
     }
 
-    // Fetch data (even if no identity - show empty states with prompt)
     fetchProfiles();
     fetchSavedProfiles();
     fetchSentRequests();
@@ -292,18 +275,15 @@ function ProviderLeadsPageContent() {
     }
   };
 
-  // Filter and sort profiles
   const getFilteredAndSortedProfiles = () => {
     let filtered = profiles.filter(profile => !requestedProfileIds.has(profile.id));
 
-    // Apply care type filter
     if (filters.careTypes.length > 0) {
       filtered = filtered.filter(profile =>
         profile.careTypes.some(type => filters.careTypes.includes(type))
       );
     }
 
-    // Apply budget filter
     filtered = filtered.filter(profile => {
       const profileMin = profile.budgetMin || 0;
       const profileMax = profile.budgetMax || Infinity;
@@ -313,12 +293,10 @@ function ProviderLeadsPageContent() {
       );
     });
 
-    // Apply timeline filter
     if (filters.timeline) {
       filtered = filtered.filter(profile => profile.timeline === filters.timeline);
     }
 
-    // Sort
     switch (sortBy) {
       case 'newest':
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -343,54 +321,110 @@ function ProviderLeadsPageContent() {
     return null;
   }
 
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900">Leads</h1>
-            <p className="mt-2 text-lg text-gray-600">
-              Discover families who need your care services
-            </p>
-          </div>
-          <div className="mb-6">
-            <div className="animate-pulse bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <div className="h-32 bg-gray-200 rounded"></div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+        <div className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
+          <div className="max-w-7xl mx-auto px-4 py-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-white/20 rounded w-1/4 mb-4"></div>
+              <div className="h-5 bg-white/20 rounded w-1/2"></div>
             </div>
           </div>
-          <ProfileCardsSkeleton count={3} />
         </div>
-      );
-    }
-
-    const filteredProfiles = getFilteredAndSortedProfiles();
-
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Leads</h1>
-          <p className="text-lg text-gray-600">
-            Discover families who need your care services
-          </p>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="animate-pulse bg-white rounded-xl p-6 shadow-sm">
+                <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
+                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Gentle nudge for onboarding (Manual Ch 8) */}
-        {needsOnboarding && <OnboardingPrompt context="requests" />}
+  const filteredProfiles = getFilteredAndSortedProfiles();
+  const activeRequestsCount = requestedProfileIds.size;
 
-        {/* Matched Families Section - Algorithm-based matches */}
-        {hasIdentity && (
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <MainNav />
+
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">Leads</h1>
+              <p className="text-primary-100 text-lg">
+                Discover families who need your care services
+              </p>
+            </div>
+            <Link
+              href="/provider/requests"
+              className="hidden md:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              View Requests
+            </Link>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+              <div className="text-3xl font-bold">{profiles.length}</div>
+              <div className="text-primary-100 text-sm">Available Leads</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+              <div className="text-3xl font-bold">{matchedFamilies.length}</div>
+              <div className="text-primary-100 text-sm">Matched Families</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+              <div className="text-3xl font-bold">{activeRequestsCount}</div>
+              <div className="text-primary-100 text-sm">In Progress</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Gentle nudge for onboarding */}
+        {needsOnboarding && (
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full">
-                <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <OnboardingPrompt context="requests" />
+          </div>
+        )}
+
+        {/* Matched Families Section */}
+        {hasIdentity && (
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-full">
+                  <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Matched Families</h2>
+                  <p className="text-sm text-gray-600">Families that match your care services</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Matched Families</h2>
-                <p className="text-sm text-gray-600">Families that match your care services based on our algorithm</p>
-              </div>
+              {matchedFamilies.length > 6 && (
+                <button className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center gap-1">
+                  View all
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
             </div>
 
             {matchesLoading ? (
@@ -404,11 +438,18 @@ function ProviderLeadsPageContent() {
                 ))}
               </div>
             ) : matchedFamilies.length === 0 ? (
-              <div className="bg-gray-50 rounded-xl border border-gray-200 p-8 text-center">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 p-8 text-center">
+                <svg className="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <p className="mt-3 text-gray-600">No matched families yet. Complete your profile to improve matching.</p>
+                <h3 className="font-semibold text-gray-900 mb-1">No matched families yet</h3>
+                <p className="text-gray-600 text-sm mb-4">Complete your profile to improve matching with families</p>
+                <Link
+                  href="/provider/profile/edit"
+                  className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors"
+                >
+                  Complete Profile
+                </Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -452,7 +493,6 @@ function ProviderLeadsPageContent() {
 
                     <button
                       onClick={() => {
-                        // If not saved, save and potentially open request flow
                         if (!savedProfileIds.has(family.id)) {
                           handleToggleSave(family.id);
                         }
@@ -479,7 +519,22 @@ function ProviderLeadsPageContent() {
         )}
 
         {/* All Care Requests Section */}
-        <h2 className="text-xl font-bold text-gray-900 mb-4">All Care Requests</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-900">All Care Requests</h2>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700">Sort:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="budget-high">Highest Budget</option>
+              <option value="budget-low">Lowest Budget</option>
+            </select>
+          </div>
+        </div>
 
         {/* Filters */}
         <div className="mb-6">
@@ -491,8 +546,8 @@ function ProviderLeadsPageContent() {
           />
         </div>
 
-        {/* Results Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
+        {/* Results Summary */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-lg font-semibold text-gray-900">
@@ -504,42 +559,39 @@ function ProviderLeadsPageContent() {
                   : `Filtered from ${profiles.length} total requests`}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">Sort by:</label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            {filteredProfiles.length !== profiles.length && (
+              <button
+                onClick={handleClearFilters}
+                className="text-sm font-medium text-primary-600 hover:text-primary-700"
               >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="budget-high">Highest Budget</option>
-                <option value="budget-low">Lowest Budget</option>
-              </select>
-            </div>
+                Clear filters
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Results */}
+        {/* Results Grid */}
         {filteredProfiles.length === 0 ? (
           <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
-            <svg
-              className="mx-auto h-16 w-16 text-gray-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <h3 className="mt-4 text-xl font-semibold text-gray-900">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+              <svg
+                className="h-8 w-8 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               No care requests found
             </h3>
-            <p className="mt-2 text-gray-600">
+            <p className="text-gray-600 mb-6">
               {profiles.length === 0
                 ? 'No families have posted care requests yet. Check back soon!'
                 : 'Try adjusting your search filters to see more results.'}
@@ -547,7 +599,7 @@ function ProviderLeadsPageContent() {
             {(filters.city || filters.state || filters.careTypes.length > 0) && (
               <button
                 onClick={handleClearFilters}
-                className="mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors"
+                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors"
               >
                 Clear All Filters
               </button>
@@ -568,14 +620,7 @@ function ProviderLeadsPageContent() {
           </div>
         )}
       </div>
-    );
-  };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <MainNav />
-      <Breadcrumb />
-      {renderContent()}
       <ScrollToTop />
       <PaywallModal
         isOpen={paywallOpen}
@@ -586,15 +631,29 @@ function ProviderLeadsPageContent() {
   );
 }
 
-// Wrapper with Suspense (required for useSearchParams)
 export default function ProviderLeadsPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <Breadcrumb />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ProfileCardsSkeleton count={3} />
+        <div className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
+          <div className="max-w-7xl mx-auto px-4 py-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-white/20 rounded w-1/4 mb-4"></div>
+              <div className="h-5 bg-white/20 rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="animate-pulse bg-white rounded-xl p-6 shadow-sm">
+                <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
+                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     }>
