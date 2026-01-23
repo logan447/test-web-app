@@ -196,41 +196,38 @@ export default function ProviderProfileEditPage() {
   });
 
   const [pricingData, setPricingData] = useState<PricingStructureData>({
-    priceMin: "",
-    priceMax: "",
-    priceDescription: "",
-    privateRoomMin: "",
-    privateRoomMax: "",
-    semiPrivateRoomMin: "",
-    semiPrivateRoomMax: "",
+    privateRoomMin: null,
+    privateRoomMax: null,
+    semiPrivateRoomMin: null,
+    semiPrivateRoomMax: null,
     includedServices: [],
     additionalServices: [],
-    communityFee: "",
-    securityDeposit: "",
-    applicationFee: "",
+    communityFee: null,
+    securityDeposit: null,
+    applicationFee: null,
+    acceptsFinancialAssistance: false,
+    financialAssistanceTypes: [],
+    offersPaymentPlans: false,
+    paymentPlanDetails: "",
   });
 
   const [amenitiesData, setAmenitiesData] = useState<AmenitiesFeaturesData>({
     roomFeatures: [],
     commonAreas: [],
-    medicalAmenities: [],
-    activitiesOffered: [],
-    dietaryOptions: [],
     safetySecurityFeatures: [],
+    medicalAmenities: [],
+    activitiesPrograms: [],
+    dietaryOptions: [],
   });
 
   const [staffData, setStaffData] = useState<StaffInformationData>({
-    staffToResidentRatio: "",
-    daytimeStaffRatio: "",
-    eveningStaffRatio: "",
-    nightStaffRatio: "",
-    staffCredentials: [],
+    daytimeRatio: "",
+    eveningRatio: "",
+    nightRatio: "",
+    credentials: [],
     staffTrainingDescription: "",
-    hasRNOnSite: false,
-    hasLVNOnSite: false,
     hasOnCallPhysician: false,
     hasPharmacyPartnership: false,
-    allStaffBackgroundChecked: false,
     visitingDoctorFrequency: "",
     languagesSpoken: [],
   });
@@ -238,24 +235,24 @@ export default function ProviderProfileEditPage() {
   const [certificationData, setCertificationData] = useState<CertificationsLicensingData>({
     licensed: false,
     licenseNumber: "",
-    certifications: [],
     certificateUrls: [],
     accreditations: [],
     awards: [],
-    insuranceVerified: false,
-    backgroundChecked: false,
   });
 
   const [specialtyData, setSpecialtyData] = useState<SpecialtyProgramsData>({
-    hasMemoryCare: false,
-    hasRespiteCare: false,
-    hasHospiceCare: false,
     specialtyPrograms: [],
+    petPolicy: "",
+    petPolicyDetails: "",
+    visitorPolicy: "",
+    smokingPolicy: "",
+    hasTrialPeriod: false,
+    trialPeriodDuration: "",
   });
 
   const [virtualTourData, setVirtualTourData] = useState<VirtualTourData>({
     virtualTourUrl: "",
-    virtualTourType: "none",
+    virtualTourType: "",
     brochureUrl: "",
     floorPlanUrls: [],
   });
@@ -348,41 +345,38 @@ export default function ProviderProfileEditPage() {
     });
 
     setPricingData({
-      priceMin: data.priceMin?.toString() || "",
-      priceMax: data.priceMax?.toString() || "",
-      priceDescription: (data.priceDescription as string) || "",
-      privateRoomMin: data.privateRoomMin?.toString() || "",
-      privateRoomMax: data.privateRoomMax?.toString() || "",
-      semiPrivateRoomMin: data.semiPrivateRoomMin?.toString() || "",
-      semiPrivateRoomMax: data.semiPrivateRoomMax?.toString() || "",
+      privateRoomMin: (data.privateRoomMin as number) || null,
+      privateRoomMax: (data.privateRoomMax as number) || null,
+      semiPrivateRoomMin: (data.semiPrivateRoomMin as number) || null,
+      semiPrivateRoomMax: (data.semiPrivateRoomMax as number) || null,
       includedServices: (data.includedServices as string[]) || [],
       additionalServices: data.additionalServicesJson ? JSON.parse(data.additionalServicesJson as string) : [],
-      communityFee: data.communityFee?.toString() || "",
-      securityDeposit: data.securityDeposit?.toString() || "",
-      applicationFee: data.applicationFee?.toString() || "",
+      communityFee: (data.communityFee as number) || null,
+      securityDeposit: (data.securityDeposit as number) || null,
+      applicationFee: (data.applicationFee as number) || null,
+      acceptsFinancialAssistance: (data.acceptsFinancialAssistance as boolean) || false,
+      financialAssistanceTypes: (data.financialAssistanceTypes as string[]) || [],
+      offersPaymentPlans: (data.offersPaymentPlans as boolean) || false,
+      paymentPlanDetails: (data.paymentPlanDetails as string) || "",
     });
 
     setAmenitiesData({
       roomFeatures: (data.roomFeatures as string[]) || [],
       commonAreas: (data.commonAreas as string[]) || [],
-      medicalAmenities: (data.medicalAmenities as string[]) || [],
-      activitiesOffered: (data.activitiesOffered as string[]) || [],
-      dietaryOptions: (data.dietaryOptions as string[]) || [],
       safetySecurityFeatures: (data.safetySecurityFeatures as string[]) || [],
+      medicalAmenities: (data.medicalAmenities as string[]) || [],
+      activitiesPrograms: (data.activitiesOffered as string[]) || [], // API uses activitiesOffered
+      dietaryOptions: (data.dietaryOptions as string[]) || [],
     });
 
     setStaffData({
-      staffToResidentRatio: (data.staffToResidentRatio as string) || "",
-      daytimeStaffRatio: (data.daytimeStaffRatio as string) || "",
-      eveningStaffRatio: (data.eveningStaffRatio as string) || "",
-      nightStaffRatio: (data.nightStaffRatio as string) || "",
-      staffCredentials: (data.staffCredentials as string[]) || [],
+      daytimeRatio: (data.daytimeStaffRatio as string) || "", // API uses daytimeStaffRatio
+      eveningRatio: (data.eveningStaffRatio as string) || "", // API uses eveningStaffRatio
+      nightRatio: (data.nightStaffRatio as string) || "", // API uses nightStaffRatio
+      credentials: (data.staffCredentials as string[]) || [], // API uses staffCredentials
       staffTrainingDescription: (data.staffTrainingDescription as string) || "",
-      hasRNOnSite: (data.hasRNOnSite as boolean) || false,
-      hasLVNOnSite: (data.hasLVNOnSite as boolean) || false,
       hasOnCallPhysician: (data.hasOnCallPhysician as boolean) || false,
       hasPharmacyPartnership: (data.hasPharmacyPartnership as boolean) || false,
-      allStaffBackgroundChecked: (data.allStaffBackgroundChecked as boolean) || false,
       visitingDoctorFrequency: (data.visitingDoctorFrequency as string) || "",
       languagesSpoken: (data.languagesSpoken as string[]) || [],
     });
@@ -390,24 +384,24 @@ export default function ProviderProfileEditPage() {
     setCertificationData({
       licensed: (data.licensed as boolean) || false,
       licenseNumber: (data.licenseNumber as string) || "",
-      certifications: (data.certifications as string[]) || [],
       certificateUrls: (data.certificateUrls as string[]) || [],
       accreditations: (data.accreditations as string[]) || [],
       awards: data.awardsJson ? JSON.parse(data.awardsJson as string) : [],
-      insuranceVerified: (data.insuranceVerified as boolean) || false,
-      backgroundChecked: (data.backgroundChecked as boolean) || false,
     });
 
     setSpecialtyData({
-      hasMemoryCare: (data.hasMemoryCare as boolean) || false,
-      hasRespiteCare: (data.hasRespiteCare as boolean) || false,
-      hasHospiceCare: (data.hasHospiceCare as boolean) || false,
       specialtyPrograms: data.specialtyProgramsJson ? JSON.parse(data.specialtyProgramsJson as string) : [],
+      petPolicy: (data.petPolicy as "allowed" | "service_only" | "not_allowed" | "") || "",
+      petPolicyDetails: (data.petPolicyDetails as string) || "",
+      visitorPolicy: (data.visitorPolicy as string) || "",
+      smokingPolicy: (data.smokingPolicy as "non_smoking" | "designated_areas" | "allowed" | "") || "",
+      hasTrialPeriod: (data.hasTrialPeriod as boolean) || false,
+      trialPeriodDuration: (data.trialPeriodDuration as string) || "",
     });
 
     setVirtualTourData({
       virtualTourUrl: (data.virtualTourUrl as string) || "",
-      virtualTourType: (data.virtualTourType as string) || "none",
+      virtualTourType: (data.virtualTourType as "youtube" | "vimeo" | "custom" | "") || "",
       brochureUrl: (data.brochureUrl as string) || "",
       floorPlanUrls: (data.floorPlanUrls as string[]) || [],
     });
@@ -477,58 +471,57 @@ export default function ProviderProfileEditPage() {
       detailedMemoryCareServices: careServicesData.memoryCareServices,
       detailedSocialRecServices: careServicesData.socialRecreationServices,
 
-      // Pricing
-      priceMin: pricingData.priceMin ? parseFloat(pricingData.priceMin) : null,
-      priceMax: pricingData.priceMax ? parseFloat(pricingData.priceMax) : null,
-      priceDescription: pricingData.priceDescription || null,
-      privateRoomMin: pricingData.privateRoomMin ? parseFloat(pricingData.privateRoomMin) : null,
-      privateRoomMax: pricingData.privateRoomMax ? parseFloat(pricingData.privateRoomMax) : null,
-      semiPrivateRoomMin: pricingData.semiPrivateRoomMin ? parseFloat(pricingData.semiPrivateRoomMin) : null,
-      semiPrivateRoomMax: pricingData.semiPrivateRoomMax ? parseFloat(pricingData.semiPrivateRoomMax) : null,
+      // Pricing - values are already number | null from the component
+      priceMin: pricingData.privateRoomMin, // Use privateRoomMin as the general priceMin
+      priceMax: pricingData.privateRoomMax, // Use privateRoomMax as the general priceMax
+      privateRoomMin: pricingData.privateRoomMin,
+      privateRoomMax: pricingData.privateRoomMax,
+      semiPrivateRoomMin: pricingData.semiPrivateRoomMin,
+      semiPrivateRoomMax: pricingData.semiPrivateRoomMax,
       includedServices: pricingData.includedServices,
       additionalServicesJson: pricingData.additionalServices.length > 0 ? JSON.stringify(pricingData.additionalServices) : null,
-      communityFee: pricingData.communityFee ? parseFloat(pricingData.communityFee) : null,
-      securityDeposit: pricingData.securityDeposit ? parseFloat(pricingData.securityDeposit) : null,
-      applicationFee: pricingData.applicationFee ? parseFloat(pricingData.applicationFee) : null,
+      communityFee: pricingData.communityFee,
+      securityDeposit: pricingData.securityDeposit,
+      applicationFee: pricingData.applicationFee,
+      acceptsFinancialAssistance: pricingData.acceptsFinancialAssistance,
+      financialAssistanceTypes: pricingData.financialAssistanceTypes,
+      offersPaymentPlans: pricingData.offersPaymentPlans,
+      paymentPlanDetails: pricingData.paymentPlanDetails || null,
 
-      // Amenities
+      // Amenities - map from component field names to API field names
       roomFeatures: amenitiesData.roomFeatures,
       commonAreas: amenitiesData.commonAreas,
       medicalAmenities: amenitiesData.medicalAmenities,
-      activitiesOffered: amenitiesData.activitiesOffered,
+      activitiesOffered: amenitiesData.activitiesPrograms, // Component uses activitiesPrograms
       dietaryOptions: amenitiesData.dietaryOptions,
       safetySecurityFeatures: amenitiesData.safetySecurityFeatures,
 
-      // Staff
-      staffToResidentRatio: staffData.staffToResidentRatio || null,
-      daytimeStaffRatio: staffData.daytimeStaffRatio || null,
-      eveningStaffRatio: staffData.eveningStaffRatio || null,
-      nightStaffRatio: staffData.nightStaffRatio || null,
-      staffCredentials: staffData.staffCredentials,
+      // Staff - map from component field names to API field names
+      daytimeStaffRatio: staffData.daytimeRatio || null, // Component uses daytimeRatio
+      eveningStaffRatio: staffData.eveningRatio || null, // Component uses eveningRatio
+      nightStaffRatio: staffData.nightRatio || null, // Component uses nightRatio
+      staffCredentials: staffData.credentials, // Component uses credentials
       staffTrainingDescription: staffData.staffTrainingDescription || null,
-      hasRNOnSite: staffData.hasRNOnSite,
-      hasLVNOnSite: staffData.hasLVNOnSite,
       hasOnCallPhysician: staffData.hasOnCallPhysician,
       hasPharmacyPartnership: staffData.hasPharmacyPartnership,
-      allStaffBackgroundChecked: staffData.allStaffBackgroundChecked,
       visitingDoctorFrequency: staffData.visitingDoctorFrequency || null,
       languagesSpoken: staffData.languagesSpoken,
 
       // Certifications
       licensed: certificationData.licensed,
       licenseNumber: certificationData.licenseNumber || null,
-      certifications: certificationData.certifications,
       certificateUrls: certificationData.certificateUrls,
       accreditations: certificationData.accreditations,
       awardsJson: certificationData.awards.length > 0 ? JSON.stringify(certificationData.awards) : null,
-      insuranceVerified: certificationData.insuranceVerified,
-      backgroundChecked: certificationData.backgroundChecked,
 
-      // Specialty
-      hasMemoryCare: specialtyData.hasMemoryCare,
-      hasRespiteCare: specialtyData.hasRespiteCare,
-      hasHospiceCare: specialtyData.hasHospiceCare,
+      // Specialty - map from component field names to API field names
       specialtyProgramsJson: specialtyData.specialtyPrograms.length > 0 ? JSON.stringify(specialtyData.specialtyPrograms) : null,
+      petPolicy: specialtyData.petPolicy || null,
+      petPolicyDetails: specialtyData.petPolicyDetails || null,
+      visitorPolicy: specialtyData.visitorPolicy || null,
+      smokingPolicy: specialtyData.smokingPolicy || null,
+      hasTrialPeriod: specialtyData.hasTrialPeriod,
+      trialPeriodDuration: specialtyData.trialPeriodDuration || null,
 
       // Virtual Tour
       virtualTourUrl: virtualTourData.virtualTourUrl || null,
