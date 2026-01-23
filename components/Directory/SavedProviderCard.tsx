@@ -291,6 +291,8 @@ export default function SavedProviderCard({
           <div className="flex gap-2">
             <Link
               href={`/providers/${saved.provider.id}?from=saved`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex-1 px-4 py-2.5 bg-white border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 font-semibold text-center transition-colors text-sm"
             >
               View Profile

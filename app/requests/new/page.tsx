@@ -156,6 +156,8 @@ function NewRequestContent() {
             </button>
             <Link
               href={`/providers/${providerId}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 font-medium inline-block"
             >
               Cancel

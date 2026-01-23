@@ -167,6 +167,8 @@ export default function MapView({ providers, onMarkerClick }: MapViewProps) {
 
                 <a
                   href={`/providers/${provider.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block w-full text-center bg-primary-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors text-sm"
                 >
                   View Details

@@ -300,6 +300,7 @@ export default function OpportunitiesPage() {
                     key={org.id}
                     href={`/providers/${org.id}`}
                     target="_blank"
+                    rel="noopener noreferrer"
                     className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-100"
                   >
                     {/* Image */}
