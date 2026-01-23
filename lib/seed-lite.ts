@@ -302,6 +302,7 @@ export async function seedLite(prisma: PrismaClient) {
               claimed: true,
               verified: true,
               active: true,
+              isVisible: true,
             },
           },
           providerIdentity: {
@@ -369,6 +370,7 @@ export async function seedLite(prisma: PrismaClient) {
               photos: [CAREGIVER_PHOTOS[i % CAREGIVER_PHOTOS.length]],
               claimed: true,
               active: true,
+              isVisible: true,
             },
           },
           providerIdentity: {
