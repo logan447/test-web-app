@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
-import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import AuthModal from '@/components/Auth/AuthModal';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
@@ -31,13 +30,6 @@ type Organization = {
   insuranceVerified?: boolean;
 };
 
-/**
- * Organizations - For independent caregivers to browse organizations
- *
- * This page is accessible without a provider profile (per Manual Ch 8: Maximize visibility).
- * Users without a profile will see the OnboardingPrompt but can still browse.
- * Role gating (INDEPENDENT_CAREGIVER only) redirects non-caregivers to appropriate pages.
- */
 export default function OrganizationsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -47,7 +39,6 @@ export default function OrganizationsPage() {
   const [requestedOrganizationIds, setRequestedOrganizationIds] = useState<Map<string, string>>(new Map());
   const [isIndependentCaregiver, setIsIndependentCaregiver] = useState<boolean | null>(null);
 
-  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
   const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
@@ -63,7 +54,6 @@ export default function OrganizationsPage() {
 
     if (!session) return;
 
-    // Check provider type to determine if user should be here
     checkProviderType();
   }, [session, status, identityLoading]);
 
@@ -73,24 +63,19 @@ export default function OrganizationsPage() {
       if (response.ok) {
         const provider = await response.json();
         if (provider.providerType !== 'INDEPENDENT_CAREGIVER') {
-          // Redirect if user is not an independent caregiver
-          // They should use /provider/hire-staff instead
           router.push('/provider/leads');
           return;
         }
         setIsIndependentCaregiver(true);
-        // User is independent caregiver, fetch organizations
         fetchOrganizations();
         fetchSentHiringRequests();
       } else {
-        // No provider profile - still allow browsing (Manual Ch 8: Maximize visibility)
         setIsIndependentCaregiver(null);
         fetchOrganizations();
         setLoading(false);
       }
     } catch (err) {
       console.error('Error checking provider type:', err);
-      // On error, still show the page
       fetchOrganizations();
       setLoading(false);
     }
@@ -98,11 +83,9 @@ export default function OrganizationsPage() {
 
   const fetchOrganizations = async () => {
     try {
-      // Fetch all organization-type providers (exclude independent caregivers)
       const response = await fetch('/api/providers');
       if (response.ok) {
         const allProviders = await response.json();
-        // Filter to only include organization types
         const orgs = allProviders.filter((p: Organization) =>
           p.providerType !== 'INDEPENDENT_CAREGIVER'
         );
@@ -148,18 +131,23 @@ export default function OrganizationsPage() {
     }
   };
 
+  const appliedCount = requestedOrganizationIds.size;
+  const verifiedCount = organizations.filter(o => o.verified || o.licensed).length;
+
   if (status === 'loading' || identityLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <Breadcrumb />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Organizations</h1>
-            <p className="text-lg text-gray-600">
-              Find care organizations that may be hiring caregivers in your area
-            </p>
+        {/* Skeleton Hero */}
+        <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="animate-pulse">
+              <div className="h-10 bg-white/20 rounded-lg w-1/3 mb-4"></div>
+              <div className="h-5 bg-white/20 rounded w-1/2"></div>
+            </div>
           </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ProfileCardsSkeleton count={6} />
         </div>
       </div>
@@ -170,11 +158,18 @@ export default function OrganizationsPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <Breadcrumb />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Organizations</h1>
-            <p className="text-lg text-gray-600">
+        {/* Hero Header */}
+        <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="bg-white/20 p-2 rounded-lg">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold">Find Organizations</h1>
+            </div>
+            <p className="text-indigo-100 text-lg">
               Find care organizations that may be hiring caregivers in your area
             </p>
           </div>
@@ -195,14 +190,16 @@ export default function OrganizationsPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <Breadcrumb />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Organizations</h1>
-            <p className="text-lg text-gray-600">
-              Find care organizations that may be hiring caregivers in your area
-            </p>
+        {/* Skeleton Hero */}
+        <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="animate-pulse">
+              <div className="h-10 bg-white/20 rounded-lg w-1/3 mb-4"></div>
+              <div className="h-5 bg-white/20 rounded w-1/2"></div>
+            </div>
           </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ProfileCardsSkeleton count={6} />
         </div>
       </div>
@@ -212,55 +209,110 @@ export default function OrganizationsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
-      <Breadcrumb />
+
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold">Find Organizations</h1>
+              </div>
+              <p className="text-indigo-100 text-lg">
+                Discover care organizations that may be hiring caregivers in your area
+              </p>
+            </div>
+            <Link
+              href="/provider/requests"
+              className="inline-flex items-center gap-2 bg-white text-indigo-700 px-6 py-3 rounded-xl font-semibold hover:bg-indigo-50 transition-colors shadow-lg"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              My Applications
+            </Link>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-4 mt-8 max-w-lg">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-3xl font-bold">{organizations.length}</div>
+              <div className="text-indigo-100 text-sm">Organizations</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-3xl font-bold">{verifiedCount}</div>
+              <div className="text-indigo-100 text-sm">Verified</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-3xl font-bold">{appliedCount}</div>
+              <div className="text-indigo-100 text-sm">Applied</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Organizations</h1>
-          <p className="text-lg text-gray-600">
-            Find care organizations that may be hiring caregivers in your area
-          </p>
-        </div>
-
-        {/* Onboarding prompt for users without provider profile */}
+        {/* Onboarding Prompt */}
         {needsOnboarding && (
-          <OnboardingPrompt context="default" />
-        )}
-
-        {/* Results Count */}
-        {organizations.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
-            <p className="text-lg font-semibold text-gray-900">
-              {organizations.length} Organization{organizations.length !== 1 ? 's' : ''}
-            </p>
+          <div className="mb-8">
+            <OnboardingPrompt context="default" />
           </div>
         )}
 
+        {/* Results Summary */}
+        {organizations.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-lg font-semibold text-gray-900">
+                  {organizations.length} Organization{organizations.length !== 1 ? 's' : ''}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Care facilities and agencies in your area
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Results */}
         {organizations.length === 0 ? (
           <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
-            <svg
-              className="mx-auto h-16 w-16 text-gray-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-              />
-            </svg>
-            <h3 className="mt-4 text-xl font-semibold text-gray-900">No organizations found</h3>
-            <p className="mt-2 text-gray-600">
-              There are currently no care organizations in your area.
+            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg
+                className="w-10 h-10 text-indigo-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">No organizations found</h3>
+            <p className="text-gray-600 max-w-md mx-auto mb-6">
+              There are currently no care organizations in your area. Check back soon as more organizations join the platform.
             </p>
+            <Link
+              href="/provider/profile/edit"
+              className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-xl hover:bg-primary-700 font-semibold transition-colors"
+            >
+              Complete Your Profile
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {organizations.map((org) => {
               const requestId = requestedOrganizationIds.get(org.id);
-              // Link to opportunities if already engaged, otherwise to org detail
               const linkHref = requestId
                 ? `/provider/opportunities/${requestId}`
                 : `/provider/organizations/${org.id}`;
