@@ -182,7 +182,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -196,24 +196,51 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-2xl transition-all">
+                {/* Close Button */}
+                <button
+                  onClick={onClose}
+                  className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+
+                {/* Logo */}
+                <div className="flex justify-center mb-6">
+                  <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg">
+                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </div>
+                </div>
+
                 <Dialog.Title
                   as="h3"
-                  className="text-2xl font-bold text-center text-gray-900 mb-6"
+                  className="text-2xl font-bold text-center text-gray-900 mb-2"
                 >
-                  {view === "login" ? "Sign in to Olera" : "Create your account"}
+                  {view === "login" ? "Welcome back" : "Create your account"}
                 </Dialog.Title>
+                <p className="text-center text-gray-500 mb-6">
+                  {view === "login"
+                    ? "Sign in to access your Olera account"
+                    : "Join Olera to find quality care"}
+                </p>
 
                 {error && (
-                  <div className="rounded-md bg-red-50 p-4 mb-4">
+                  <div className="rounded-xl bg-red-50 border border-red-200 p-4 mb-6 flex items-start gap-3">
+                    <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <p className="text-sm text-red-800">{error}</p>
                   </div>
                 )}
 
                 {view === "login" ? (
-                  <form onSubmit={handleLogin} className="space-y-4">
+                  <form onSubmit={handleLogin} className="space-y-5">
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                         Email address
                       </label>
                       <input
@@ -222,12 +249,13 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                         type="email"
                         autoComplete="email"
                         required
-                        className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        placeholder="you@example.com"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                         Password
                       </label>
                       <input
@@ -236,19 +264,30 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                         type="password"
                         autoComplete="current-password"
                         required
-                        className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        placeholder="••••••••"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                      className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-sm text-base font-semibold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      {loading ? "Signing in..." : "Sign in"}
+                      {loading ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Signing in...
+                        </>
+                      ) : (
+                        "Sign in"
+                      )}
                     </button>
 
-                    <p className="mt-4 text-center text-sm text-gray-600">
+                    <p className="text-center text-sm text-gray-600">
                       Don&apos;t have an account?{" "}
                       <button
                         type="button"
@@ -256,16 +295,16 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                           setView("signup");
                           setError("");
                         }}
-                        className="font-medium text-primary-600 hover:text-primary-500"
+                        className="font-semibold text-primary-600 hover:text-primary-500"
                       >
-                        Sign up
+                        Sign up free
                       </button>
                     </p>
                   </form>
                 ) : (
                   <form onSubmit={handleSignup} className="space-y-4">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                         Full Name
                       </label>
                       <input
@@ -273,12 +312,13 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                         name="name"
                         type="text"
                         required
-                        className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        placeholder="John Smith"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 mb-2">
                         Email address
                       </label>
                       <input
@@ -287,24 +327,26 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                         type="email"
                         autoComplete="email"
                         required
-                        className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        placeholder="you@example.com"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                        Phone Number (optional)
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number <span className="text-gray-400 font-normal">(optional)</span>
                       </label>
                       <input
                         id="phone"
                         name="phone"
                         type="tel"
-                        className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        placeholder="(555) 123-4567"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 mb-2">
                         Password
                       </label>
                       <input
@@ -314,20 +356,31 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                         autoComplete="new-password"
                         required
                         minLength={8}
-                        className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        placeholder="••••••••"
                       />
-                      <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+                      <p className="mt-2 text-xs text-gray-500">Must be at least 8 characters</p>
                     </div>
 
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                      className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-sm text-base font-semibold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      {loading ? "Creating account..." : "Create account"}
+                      {loading ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Creating account...
+                        </>
+                      ) : (
+                        "Create account"
+                      )}
                     </button>
 
-                    <p className="mt-4 text-center text-sm text-gray-600">
+                    <p className="text-center text-sm text-gray-600">
                       Already have an account?{" "}
                       <button
                         type="button"
@@ -335,13 +388,23 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                           setView("login");
                           setError("");
                         }}
-                        className="font-medium text-primary-600 hover:text-primary-500"
+                        className="font-semibold text-primary-600 hover:text-primary-500"
                       >
                         Sign in
                       </button>
                     </p>
                   </form>
                 )}
+
+                {/* Footer */}
+                <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+                  <p className="text-xs text-gray-500">
+                    By continuing, you agree to our{" "}
+                    <a href="/terms" className="text-primary-600 hover:underline">Terms</a>
+                    {" "}and{" "}
+                    <a href="/privacy" className="text-primary-600 hover:underline">Privacy Policy</a>
+                  </p>
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
