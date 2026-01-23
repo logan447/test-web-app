@@ -3,8 +3,124 @@ import { hash } from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// Curated Unsplash photo collections for realistic demo data
+const FAMILY_PHOTOS = [
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400', // woman 1
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400', // woman 2
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', // woman 3
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400', // woman 4
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400', // woman 5
+  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400', // woman 6
+  'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400', // woman 7
+  'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400', // woman 8
+  'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=400', // woman 9
+  'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400', // woman 10
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400', // man 1
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', // man 2
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400', // man 3
+  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400', // man 4
+  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400', // man 5
+  'https://images.unsplash.com/photo-1463453091185-61582044d556?w=400', // man 6
+  'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=400', // man 7
+  'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400', // man 8
+  'https://images.unsplash.com/photo-1548142813-c348350df52b?w=400', // woman 11
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400', // woman professional
+  'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=400', // man 9
+  'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=400', // man 10
+  'https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?w=400', // woman 12
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', // woman 13
+  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400', // woman 14
+  'https://images.unsplash.com/photo-1545167622-3a6ac756afa4?w=400', // man 11
+  'https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=400', // man 12
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400', // man 13
+  'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400', // woman 15
+  'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400', // woman 16
+  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400', // man 14
+  'https://images.unsplash.com/photo-1557862921-37829c790f19?w=400', // man 15
+  'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=400', // woman 17
+  'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400', // woman 18
+  'https://images.unsplash.com/photo-1502323777036-f29e3972f4e4?w=400', // man 16
+  'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400', // man 17
+];
+
+const FACILITY_PHOTOS = [
+  // Building exteriors
+  'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
+  'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800',
+  'https://images.unsplash.com/photo-1559599238-308793637427?w=800',
+  'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+  // Interior common areas
+  'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
+  'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
+  'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
+  'https://images.unsplash.com/photo-1581093458791-9f3c3250a740?w=800',
+  'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800',
+  // Gardens and outdoor
+  'https://images.unsplash.com/photo-1562141961-8d219c6dd062?w=800',
+  'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800',
+  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
+  'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
+  // Medical/care
+  'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=800',
+  'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=800',
+  'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800',
+  'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800',
+  // Dining
+  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800',
+  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800',
+  // Activities
+  'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800',
+  'https://images.unsplash.com/photo-1605684954998-685c79d6a018?w=800',
+];
+
+const CAREGIVER_PHOTOS = [
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+  'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400',
+  'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400',
+  'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400',
+  'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400',
+  'https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=400',
+  'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400',
+  'https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=400',
+  'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400',
+  'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=400',
+  'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400',
+  'https://images.unsplash.com/photo-1638202993928-7267aad84c31?w=400',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400',
+  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400',
+  'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400',
+  'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400',
+  'https://images.unsplash.com/photo-1584516150909-c43483ee7932?w=400',
+  'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+];
+
+// California cities for realistic data
+const CA_LOCATIONS = [
+  { city: 'San Diego', state: 'CA', zip: '92101', lat: 32.7157, lng: -117.1611 },
+  { city: 'La Jolla', state: 'CA', zip: '92037', lat: 32.8328, lng: -117.2713 },
+  { city: 'Chula Vista', state: 'CA', zip: '91910', lat: 32.6401, lng: -117.0842 },
+  { city: 'Del Mar', state: 'CA', zip: '92014', lat: 32.9595, lng: -117.2653 },
+  { city: 'Encinitas', state: 'CA', zip: '92024', lat: 33.0370, lng: -117.2920 },
+  { city: 'Carlsbad', state: 'CA', zip: '92008', lat: 33.1581, lng: -117.3506 },
+  { city: 'Oceanside', state: 'CA', zip: '92054', lat: 33.1959, lng: -117.3795 },
+  { city: 'Los Angeles', state: 'CA', zip: '90001', lat: 34.0522, lng: -118.2437 },
+  { city: 'Santa Monica', state: 'CA', zip: '90401', lat: 34.0195, lng: -118.4912 },
+  { city: 'Pasadena', state: 'CA', zip: '91101', lat: 34.1478, lng: -118.1445 },
+  { city: 'Beverly Hills', state: 'CA', zip: '90210', lat: 34.0736, lng: -118.4004 },
+  { city: 'Irvine', state: 'CA', zip: '92602', lat: 33.6846, lng: -117.8265 },
+  { city: 'Newport Beach', state: 'CA', zip: '92660', lat: 33.6189, lng: -117.9289 },
+  { city: 'Huntington Beach', state: 'CA', zip: '92648', lat: 33.6595, lng: -117.9988 },
+  { city: 'Anaheim', state: 'CA', zip: '92801', lat: 33.8366, lng: -117.9143 },
+  { city: 'San Francisco', state: 'CA', zip: '94102', lat: 37.7749, lng: -122.4194 },
+  { city: 'Palo Alto', state: 'CA', zip: '94301', lat: 37.4419, lng: -122.1430 },
+  { city: 'San Jose', state: 'CA', zip: '95110', lat: 37.3382, lng: -121.8863 },
+  { city: 'Riverside', state: 'CA', zip: '92501', lat: 33.9533, lng: -117.3962 },
+  { city: 'Palm Springs', state: 'CA', zip: '92262', lat: 33.8303, lng: -116.5453 },
+];
+
 async function main() {
-  console.log('🌱 Starting comprehensive database seed (30 accounts)...\n');
+  console.log('🌱 Starting MEGA database seed (90+ accounts)...\n');
 
   // Clear existing data
   console.log('🗑️  Clearing existing data...');
@@ -21,1742 +137,442 @@ async function main() {
   const demoPassword = await hash('demo123', 12);
 
   // ============================================================================
-  // FAMILY ACCOUNTS (12 total)
+  // FAMILY ACCOUNTS (36 total - 3x original)
   // ============================================================================
-  console.log('👨‍👩‍👧 Creating 12 family accounts with profiles...');
+  console.log('👨‍👩‍👧 Creating 36 family accounts with profiles...');
 
-  // Family 1: Active AL search, 100% complete
-  const family1 = await prisma.user.create({
-    data: {
-      email: 'family.assisted.active@demo.com',
-      name: 'Sarah Johnson',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(619) 555-0101',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Margaret Johnson',
-          ageRange: '80-85',
-          gender: 'Female',
-          careTypes: ['PERSONAL_CARE'],
-          location: 'San Diego',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92101',
-          budgetMin: 4000,
-          budgetMax: 6000,
-          medicalConditions: ['Arthritis', 'Hypertension'],
-          profilePhoto: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
-          showProfilePhoto: true,
-          livingSituation: 'Living alone',
-          relationship: 'Daughter',
-          careLevel: 'moderate',
-          mobilityStatus: 'walker',
-          timeline: 'Within 3 months',
-          description: 'Looking for a warm, friendly assisted living community for my mother.',
+  const familyData = [
+    // Batch 1: Assisted Living seekers (12)
+    { name: 'Sarah Johnson', email: 'sarah.johnson@demo.com', lovedOne: 'Margaret Johnson', age: '80-85', care: ['PERSONAL_CARE'], budget: [4000, 6000], timeline: 'Within 3 months', conditions: ['Arthritis', 'Hypertension'], relationship: 'Daughter', careLevel: 'moderate', mobility: 'walker', living: 'Living alone', desc: 'Looking for a warm, friendly assisted living community for my mother.' },
+    { name: 'Michael Roberts', email: 'michael.roberts@demo.com', lovedOne: 'Robert Roberts Sr.', age: '75-80', care: ['COMPANION_CARE', 'PERSONAL_CARE'], budget: [3500, 5500], timeline: 'Within 6 months', conditions: ['Diabetes'], relationship: 'Son', careLevel: 'minimal', mobility: 'independent', living: 'Living alone', desc: 'Dad needs some help with daily activities and would enjoy community activities.' },
+    { name: 'Jennifer Williams', email: 'jennifer.williams@demo.com', lovedOne: 'Dorothy Williams', age: '85-90', care: ['PERSONAL_CARE'], budget: [4500, 7000], timeline: 'Immediate', conditions: ['COPD', 'Osteoporosis'], relationship: 'Daughter', careLevel: 'intensive', mobility: 'walker', living: 'Living with family', desc: 'Mom needs 24/7 care that we cannot provide at home anymore.' },
+    { name: 'Robert Garcia', email: 'robert.garcia@demo.com', lovedOne: 'Maria Garcia', age: '78-80', care: ['COMPANION_CARE'], budget: [3000, 4500], timeline: 'Within 3 months', conditions: ['Mild depression'], relationship: 'Husband', careLevel: 'minimal', mobility: 'independent', living: 'Living with family', desc: 'My wife would benefit from social activities and companionship.' },
+    { name: 'Elizabeth Martinez', email: 'elizabeth.martinez@demo.com', lovedOne: 'Carlos Martinez', age: '82-85', care: ['PERSONAL_CARE', 'COMPANION_CARE'], budget: [5000, 7500], timeline: 'Within 1 month', conditions: ['Heart disease', 'Diabetes'], relationship: 'Wife', careLevel: 'moderate', mobility: 'assisted', living: 'Living with family', desc: 'Looking for quality care with good medical oversight for my husband.' },
+    { name: 'James Anderson', email: 'james.anderson@demo.com', lovedOne: 'Dorothy Anderson', age: '80-85', care: ['COMPANION_CARE'], budget: [2000, 3500], timeline: 'Within 1 month', conditions: ['Arthritis'], relationship: 'Son', careLevel: 'minimal', mobility: 'independent', living: 'Living alone', desc: 'Mom wants to stay active but needs some help with transportation and meals.' },
+    { name: 'Patricia Brown', email: 'patricia.brown@demo.com', lovedOne: 'William Brown', age: '77-80', care: ['PERSONAL_CARE'], budget: [4000, 5500], timeline: 'Within 2 months', conditions: ['Early Parkinsons'], relationship: 'Wife', careLevel: 'moderate', mobility: 'walker', living: 'Living with family', desc: 'Seeking a community with good Parkinsons support programs.' },
+    { name: 'Christopher Lee', email: 'christopher.lee@demo.com', lovedOne: 'Helen Lee', age: '88-90', care: ['PERSONAL_CARE', 'SKILLED_NURSING'], budget: [6000, 9000], timeline: 'Immediate', conditions: ['Post-stroke', 'Diabetes'], relationship: 'Son', careLevel: 'intensive', mobility: 'wheelchair', living: 'In hospital', desc: 'Mother recovering from stroke needs skilled nursing and rehabilitation.' },
+    { name: 'Linda Taylor', email: 'linda.taylor@demo.com', lovedOne: 'Self', age: '70-75', care: ['COMPANION_CARE'], budget: [2500, 4000], timeline: 'Within 6 months', conditions: [], relationship: 'Self', careLevel: 'minimal', mobility: 'independent', living: 'Living alone', desc: 'Looking for an active senior community with social programs.' },
+    { name: 'Daniel White', email: 'daniel.white@demo.com', lovedOne: 'Ruth White', age: '83-85', care: ['PERSONAL_CARE'], budget: [4500, 6500], timeline: 'Within 3 months', conditions: ['Hypertension', 'Mild cognitive decline'], relationship: 'Son', careLevel: 'moderate', mobility: 'walker', living: 'Living alone', desc: 'Mom needs more support than I can provide while working full-time.' },
+    { name: 'Nancy Harris', email: 'nancy.harris@demo.com', lovedOne: 'George Harris', age: '79-82', care: ['COMPANION_CARE', 'PERSONAL_CARE'], budget: [3500, 5000], timeline: 'Within 2 months', conditions: ['COPD'], relationship: 'Wife', careLevel: 'moderate', mobility: 'assisted', living: 'Living with family', desc: 'My husband needs oxygen support and would enjoy activities.' },
+    { name: 'Thomas Clark', email: 'thomas.clark@demo.com', lovedOne: 'Margaret Clark', age: '86-90', care: ['PERSONAL_CARE'], budget: [5500, 8000], timeline: 'Within 1 month', conditions: ['Osteoporosis', 'Falls history'], relationship: 'Son', careLevel: 'intensive', mobility: 'assisted', living: 'Living with family', desc: 'Mom has had several falls and needs 24/7 supervision.' },
+
+    // Batch 2: Memory Care seekers (12)
+    { name: 'David Chen', email: 'david.chen@demo.com', lovedOne: 'Helen Chen', age: '80-85', care: ['MEMORY_CARE'], budget: [6000, 8000], timeline: 'Within 1 month', conditions: ['Early-stage Alzheimers', 'Hypertension'], relationship: 'Son', careLevel: 'intensive', mobility: 'independent', living: 'Living with family', desc: 'Seeking specialized memory care for my mother with early-stage Alzheimers.' },
+    { name: 'Lisa Thompson', email: 'lisa.thompson@demo.com', lovedOne: 'James Thompson', age: '85-90', care: ['MEMORY_CARE', 'SKILLED_NURSING'], budget: [7000, 10000], timeline: 'Immediate', conditions: ['Advanced Dementia', 'Heart Disease'], relationship: 'Daughter', careLevel: 'intensive', mobility: 'wheelchair', living: 'In facility', desc: 'Need to transfer my father to a better memory care facility urgently.' },
+    { name: 'Karen Wilson', email: 'karen.wilson@demo.com', lovedOne: 'Robert Wilson', age: '78-82', care: ['MEMORY_CARE'], budget: [5500, 7500], timeline: 'Within 2 months', conditions: ['Lewy Body Dementia'], relationship: 'Wife', careLevel: 'intensive', mobility: 'assisted', living: 'Living with family', desc: 'My husband was recently diagnosed and needs specialized care.' },
+    { name: 'Steven Moore', email: 'steven.moore@demo.com', lovedOne: 'Patricia Moore', age: '82-85', care: ['MEMORY_CARE', 'PERSONAL_CARE'], budget: [6500, 9000], timeline: 'Within 1 month', conditions: ['Vascular Dementia', 'Diabetes'], relationship: 'Son', careLevel: 'intensive', mobility: 'walker', living: 'Living alone', desc: 'Mom can no longer live safely alone due to her dementia.' },
+    { name: 'Susan Jackson', email: 'susan.jackson@demo.com', lovedOne: 'William Jackson', age: '79-82', care: ['MEMORY_CARE'], budget: [5000, 7000], timeline: 'Within 3 months', conditions: ['Early Alzheimers'], relationship: 'Wife', careLevel: 'moderate', mobility: 'independent', living: 'Living with family', desc: 'Looking for a memory care program while he can still enjoy activities.' },
+    { name: 'Richard Martin', email: 'richard.martin@demo.com', lovedOne: 'Elizabeth Martin', age: '84-88', care: ['MEMORY_CARE'], budget: [7500, 11000], timeline: 'Immediate', conditions: ['Advanced Alzheimers', 'Wandering'], relationship: 'Husband', careLevel: 'intensive', mobility: 'assisted', living: 'Living with family', desc: 'My wife needs a secure memory care environment with 24/7 supervision.' },
+    { name: 'Michelle Young', email: 'michelle.young@demo.com', lovedOne: 'Charles Young', age: '76-80', care: ['MEMORY_CARE', 'COMPANION_CARE'], budget: [5500, 7500], timeline: 'Within 2 months', conditions: ['MCI progressing to dementia'], relationship: 'Daughter', careLevel: 'moderate', mobility: 'independent', living: 'Living alone', desc: 'Dad is showing signs of progression and needs more support.' },
+    { name: 'Joseph Hall', email: 'joseph.hall@demo.com', lovedOne: 'Mary Hall', age: '81-85', care: ['MEMORY_CARE'], budget: [6000, 8500], timeline: 'Within 1 month', conditions: ['Frontotemporal Dementia'], relationship: 'Son', careLevel: 'intensive', mobility: 'walker', living: 'Living with family', desc: 'Mom has FTD and needs specialized behavioral support.' },
+    { name: 'Barbara Allen', email: 'barbara.allen@demo.com', lovedOne: 'Donald Allen', age: '83-86', care: ['MEMORY_CARE', 'SKILLED_NURSING'], budget: [8000, 12000], timeline: 'Immediate', conditions: ['Alzheimers', 'Post-hip replacement'], relationship: 'Wife', careLevel: 'intensive', mobility: 'wheelchair', living: 'In hospital', desc: 'Husband recovering from surgery but dementia complicates his care.' },
+    { name: 'Mark Hernandez', email: 'mark.hernandez@demo.com', lovedOne: 'Rosa Hernandez', age: '77-80', care: ['MEMORY_CARE'], budget: [5000, 6500], timeline: 'Within 3 months', conditions: ['Early-stage dementia', 'Anxiety'], relationship: 'Son', careLevel: 'moderate', mobility: 'independent', living: 'Living alone', desc: 'Looking for a Spanish-speaking memory care community for my mother.' },
+    { name: 'Dorothy King', email: 'dorothy.king@demo.com', lovedOne: 'Harold King', age: '80-84', care: ['MEMORY_CARE', 'PERSONAL_CARE'], budget: [6500, 9000], timeline: 'Within 2 months', conditions: ['Mixed Dementia', 'Diabetes'], relationship: 'Wife', careLevel: 'intensive', mobility: 'assisted', living: 'Living with family', desc: 'My husband needs both memory care and help with diabetes management.' },
+    { name: 'Paul Wright', email: 'paul.wright@demo.com', lovedOne: 'Louise Wright', age: '85-90', care: ['MEMORY_CARE'], budget: [7000, 10000], timeline: 'Within 1 month', conditions: ['Severe Alzheimers', 'Sundowning'], relationship: 'Son', careLevel: 'intensive', mobility: 'wheelchair', living: 'In facility', desc: 'Mom needs a facility better equipped for late-stage Alzheimers care.' },
+
+    // Batch 3: Home Care & Other seekers (12)
+    { name: 'Emily Davis', email: 'emily.davis@demo.com', lovedOne: 'George Davis', age: '75-80', care: ['LIVE_IN_CARE', 'COMPANION_CARE'], budget: [5000, 7000], timeline: 'Within 2 weeks', conditions: ['Parkinsons Disease'], relationship: 'Daughter', careLevel: 'moderate', mobility: 'assisted', living: 'Living alone', desc: 'Looking for a live-in caregiver for my father with Parkinsons.' },
+    { name: 'William Lee', email: 'william.lee@demo.com', lovedOne: 'Alice Lee', age: '85-90', care: ['SKILLED_NURSING'], budget: [6000, 9000], timeline: 'Immediate', conditions: ['Post-stroke', 'Diabetes'], relationship: 'Son', careLevel: 'intensive', mobility: 'bedridden', living: 'In hospital', desc: 'Mother needs skilled nursing care after recent stroke.' },
+    { name: 'Amanda Scott', email: 'amanda.scott@demo.com', lovedOne: 'Edward Scott', age: '72-75', care: ['COMPANION_CARE'], budget: [1500, 2500], timeline: 'Within 1 month', conditions: ['Mild depression', 'Loneliness'], relationship: 'Daughter', careLevel: 'minimal', mobility: 'independent', living: 'Living alone', desc: 'Dad just lost mom and needs companionship a few days a week.' },
+    { name: 'Charles Miller', email: 'charles.miller@demo.com', lovedOne: 'Mary Miller', age: '75-80', care: ['PERSONAL_CARE'], budget: [2000, 3000], timeline: 'Within 3 months', conditions: ['Arthritis'], relationship: 'Son', careLevel: 'minimal', mobility: 'walker', living: 'Living alone', desc: 'Looking for affordable in-home care options for my mother.' },
+    { name: 'Elizabeth White', email: 'elizabeth.white@demo.com', lovedOne: 'Charles White', age: '80-85', care: ['PERSONAL_CARE', 'COMPANION_CARE'], budget: [8000, 12000], timeline: 'Within 3 months', conditions: ['Hypertension'], relationship: 'Daughter', careLevel: 'minimal', mobility: 'independent', living: 'Living with family', desc: 'Seeking premium assisted living with resort-style amenities.' },
+    { name: 'Patricia Garcia', email: 'patricia.garcia@demo.com', lovedOne: 'Joseph Garcia', age: '80-85', care: ['RESPITE_CARE'], budget: [3000, 4000], timeline: 'Within 2 weeks', conditions: ['General aging'], relationship: 'Wife', careLevel: 'moderate', mobility: 'walker', living: 'Living with family', desc: 'I need respite care while I recover from my own surgery.' },
+    { name: 'Jennifer Martinez', email: 'jennifer.martinez@demo.com', lovedOne: 'Maria Martinez', age: '70-75', care: ['PERSONAL_CARE'], budget: [2500, 4000], timeline: 'Flexible', conditions: [], relationship: 'Daughter', careLevel: 'minimal', mobility: 'independent', living: 'Living alone', desc: 'Just starting to explore care options for my mother.' },
+    { name: 'Robert Kim', email: 'robert.kim@demo.com', lovedOne: 'Soon-Yi Kim', age: '82-85', care: ['HOSPICE'], budget: [4000, 6000], timeline: 'Immediate', conditions: ['Terminal cancer', 'Pain management'], relationship: 'Son', careLevel: 'intensive', mobility: 'bedridden', living: 'In hospital', desc: 'Seeking compassionate hospice care for my mother.' },
+    { name: 'Sandra Adams', email: 'sandra.adams@demo.com', lovedOne: 'Frank Adams', age: '78-82', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], budget: [5500, 8000], timeline: 'Within 1 month', conditions: ['CHF', 'Wound care needs'], relationship: 'Wife', careLevel: 'intensive', mobility: 'wheelchair', living: 'In hospital', desc: 'Husband needs skilled nursing with cardiac expertise.' },
+    { name: 'Kevin Turner', email: 'kevin.turner@demo.com', lovedOne: 'Martha Turner', age: '88-92', care: ['PERSONAL_CARE', 'LIVE_IN_CARE'], budget: [4500, 6500], timeline: 'Within 2 weeks', conditions: ['Frailty', 'Fall risk'], relationship: 'Son', careLevel: 'moderate', mobility: 'walker', living: 'Living alone', desc: 'Mom wants to stay home but needs 24/7 support.' },
+    { name: 'Lisa Robinson', email: 'lisa.robinson@demo.com', lovedOne: 'James Robinson', age: '76-80', care: ['COMPANION_CARE', 'PERSONAL_CARE'], budget: [3000, 4500], timeline: 'Within 1 month', conditions: ['Vision impairment', 'Mild dementia'], relationship: 'Daughter', careLevel: 'moderate', mobility: 'assisted', living: 'Living alone', desc: 'Dad is legally blind and needs help navigating daily life.' },
+    { name: 'Anthony Phillips', email: 'anthony.phillips@demo.com', lovedOne: 'Eleanor Phillips', age: '84-88', care: ['RESPITE_CARE', 'PERSONAL_CARE'], budget: [2500, 3500], timeline: 'Within 1 week', conditions: ['Dementia', 'Incontinence'], relationship: 'Son', careLevel: 'moderate', mobility: 'assisted', living: 'Living with family', desc: 'Need emergency respite care while primary caregiver is unavailable.' },
+  ];
+
+  const families: any[] = [];
+  for (let i = 0; i < familyData.length; i++) {
+    const data = familyData[i];
+    const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
+    const family = await prisma.user.create({
+      data: {
+        email: data.email,
+        name: data.name,
+        passwordHash: demoPassword,
+        role: 'FAMILY',
+        phone: `(${600 + Math.floor(i / 10)}) 555-${String(100 + i).padStart(4, '0')}`,
+        activeMode: 'FAMILY',
+        familyProfile: {
+          create: {
+            lovedOneName: data.lovedOne,
+            ageRange: data.age,
+            gender: i % 2 === 0 ? 'Female' : 'Male',
+            careTypes: data.care as CareType[],
+            location: loc.city,
+            city: loc.city,
+            state: loc.state,
+            zipCode: loc.zip,
+            budgetMin: data.budget[0],
+            budgetMax: data.budget[1],
+            medicalConditions: data.conditions,
+            profilePhoto: FAMILY_PHOTOS[i % FAMILY_PHOTOS.length],
+            showProfilePhoto: true,
+            livingSituation: data.living,
+            relationship: data.relationship,
+            careLevel: data.careLevel,
+            mobilityStatus: data.mobility,
+            timeline: data.timeline,
+            description: data.desc,
+          },
         },
       },
-    },
-  });
-
-  // Family 2: Browsing AL, 70% complete
-  const family2 = await prisma.user.create({
-    data: {
-      email: 'family.assisted.browsing@demo.com',
-      name: 'Michael Roberts',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(213) 555-0102',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Robert Roberts Sr.',
-          ageRange: '75-80',
-          gender: 'Male',
-          careTypes: ['COMPANION_CARE', 'PERSONAL_CARE'],
-          location: 'Los Angeles',
-          city: 'Los Angeles',
-          state: 'CA',
-          zipCode: '90001',
-          budgetMin: 3500,
-          budgetMax: 5000,
-          medicalConditions: ['Diabetes'],
-          timeline: 'Within 6 months',
-        },
-      },
-    },
-  });
-
-  // Family 3: Memory care early stage, 100% complete
-  const family3 = await prisma.user.create({
-    data: {
-      email: 'family.memory.early@demo.com',
-      name: 'David Chen',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(619) 555-0104',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Helen Chen',
-          ageRange: '80-85',
-          gender: 'Female',
-          careTypes: ['MEMORY_CARE'],
-          location: 'San Diego',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92130',
-          budgetMin: 6000,
-          budgetMax: 8000,
-          medicalConditions: ['Early-stage Alzheimers', 'Hypertension'],
-          profilePhoto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
-          showProfilePhoto: true,
-          livingSituation: 'Living with family',
-          relationship: 'Son',
-          careLevel: 'intensive',
-          mobilityStatus: 'independent',
-          timeline: 'Within 1 month',
-          description: 'Seeking specialized memory care for my mother with early-stage Alzheimers.',
-        },
-      },
-    },
-  });
-
-  // Family 4: Memory care advanced, 100% complete
-  const family4 = await prisma.user.create({
-    data: {
-      email: 'family.memory.advanced@demo.com',
-      name: 'Lisa Thompson',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(714) 555-0105',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'James Thompson',
-          ageRange: '85-90',
-          gender: 'Male',
-          careTypes: ['MEMORY_CARE', 'SKILLED_NURSING'],
-          location: 'Orange County',
-          city: 'Irvine',
-          state: 'CA',
-          zipCode: '92602',
-          budgetMin: 7000,
-          budgetMax: 10000,
-          medicalConditions: ['Advanced Dementia', 'Heart Disease'],
-          profilePhoto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
-          showProfilePhoto: true,
-          livingSituation: 'In facility',
-          relationship: 'Daughter',
-          careLevel: 'intensive',
-          mobilityStatus: 'wheelchair',
-          timeline: 'Immediate',
-          description: 'Need to transfer my father to a better memory care facility urgently.',
-        },
-      },
-    },
-  });
-
-  // Family 5: In-home care fulltime, 100% complete
-  const family5 = await prisma.user.create({
-    data: {
-      email: 'family.homecare.fulltime@demo.com',
-      name: 'Emily Davis',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(619) 555-0107',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'George Davis',
-          ageRange: '75-80',
-          gender: 'Male',
-          careTypes: ['LIVE_IN_CARE', 'COMPANION_CARE'],
-          location: 'San Diego',
-          city: 'La Jolla',
-          state: 'CA',
-          zipCode: '92037',
-          budgetMin: 5000,
-          budgetMax: 7000,
-          medicalConditions: ['Parkinsons Disease'],
-          profilePhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-          showProfilePhoto: true,
-          livingSituation: 'Living alone',
-          relationship: 'Daughter',
-          careLevel: 'moderate',
-          mobilityStatus: 'assisted',
-          timeline: 'Within 2 weeks',
-          description: 'Looking for a live-in caregiver for my father with Parkinsons.',
-        },
-      },
-    },
-  });
-
-  // Family 6: In-home care parttime, 90% complete
-  const family6 = await prisma.user.create({
-    data: {
-      email: 'family.homecare.parttime@demo.com',
-      name: 'James Anderson',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(213) 555-0108',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Dorothy Anderson',
-          ageRange: '80-85',
-          gender: 'Female',
-          careTypes: ['COMPANION_CARE'],
-          location: 'Los Angeles',
-          city: 'Pasadena',
-          state: 'CA',
-          zipCode: '91101',
-          budgetMin: 2000,
-          budgetMax: 3500,
-          medicalConditions: ['Arthritis'],
-          timeline: 'Within 1 month',
-        },
-      },
-    },
-  });
-
-  // Family 7: Nursing skilled, 100% complete
-  const family7 = await prisma.user.create({
-    data: {
-      email: 'family.nursing.medical@demo.com',
-      name: 'William Lee',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(619) 555-0110',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Alice Lee',
-          ageRange: '85-90',
-          gender: 'Female',
-          careTypes: ['SKILLED_NURSING'],
-          location: 'San Diego',
-          city: 'Chula Vista',
-          state: 'CA',
-          zipCode: '91910',
-          budgetMin: 6000,
-          budgetMax: 9000,
-          medicalConditions: ['Post-stroke', 'Diabetes'],
-          profilePhoto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
-          showProfilePhoto: true,
-          livingSituation: 'In hospital',
-          relationship: 'Son',
-          careLevel: 'intensive',
-          mobilityStatus: 'bedridden',
-          timeline: 'Immediate',
-          description: 'Mother needs skilled nursing care after recent stroke.',
-        },
-      },
-    },
-  });
-
-  // Family 8: Independent living, 80% complete
-  const family8 = await prisma.user.create({
-    data: {
-      email: 'family.independent.living@demo.com',
-      name: 'Linda Taylor',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(619) 555-0113',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Self',
-          ageRange: '70-75',
-          gender: 'Female',
-          careTypes: ['COMPANION_CARE'],
-          location: 'San Diego',
-          city: 'Del Mar',
-          state: 'CA',
-          zipCode: '92014',
-          budgetMin: 2500,
-          budgetMax: 4000,
-          timeline: 'Within 6 months',
-          description: 'Looking for an active senior living community.',
-        },
-      },
-    },
-  });
-
-  // Family 9: Low budget, 85% complete
-  const family9 = await prisma.user.create({
-    data: {
-      email: 'family.low.budget@demo.com',
-      name: 'Charles Miller',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(951) 555-0114',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Mary Miller',
-          ageRange: '75-80',
-          gender: 'Female',
-          careTypes: ['PERSONAL_CARE'],
-          location: 'Riverside',
-          city: 'Riverside',
-          state: 'CA',
-          zipCode: '92501',
-          budgetMin: 2000,
-          budgetMax: 3000,
-          medicalConditions: ['Arthritis'],
-          timeline: 'Within 3 months',
-        },
-      },
-    },
-  });
-
-  // Family 10: High-end luxury, 100% complete
-  const family10 = await prisma.user.create({
-    data: {
-      email: 'family.high.end@demo.com',
-      name: 'Elizabeth White',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(858) 555-0115',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Charles White',
-          ageRange: '80-85',
-          gender: 'Male',
-          careTypes: ['PERSONAL_CARE', 'COMPANION_CARE'],
-          location: 'San Diego',
-          city: 'La Jolla',
-          state: 'CA',
-          zipCode: '92037',
-          budgetMin: 8000,
-          budgetMax: 12000,
-          medicalConditions: ['Hypertension'],
-          profilePhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
-          showProfilePhoto: true,
-          livingSituation: 'Living with family',
-          relationship: 'Daughter',
-          careLevel: 'minimal',
-          mobilityStatus: 'independent',
-          timeline: 'Within 3 months',
-          description: 'Seeking premium assisted living with resort-style amenities.',
-        },
-      },
-    },
-  });
-
-  // Family 11: Respite care, 75% complete
-  const family11 = await prisma.user.create({
-    data: {
-      email: 'family.respite@demo.com',
-      name: 'Patricia Garcia',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(415) 555-0109',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Joseph Garcia',
-          ageRange: '80-85',
-          gender: 'Male',
-          careTypes: ['RESPITE_CARE'],
-          location: 'San Francisco',
-          city: 'San Francisco',
-          state: 'CA',
-          zipCode: '94102',
-          budgetMin: 3000,
-          budgetMax: 4000,
-          timeline: 'Within 2 weeks',
-        },
-      },
-    },
-  });
-
-  // Family 12: New user, 40% complete
-  const family12 = await prisma.user.create({
-    data: {
-      email: 'family.new.user@demo.com',
-      name: 'Jennifer Martinez',
-      passwordHash: demoPassword,
-      role: 'FAMILY',
-      phone: '(415) 555-0103',
-      activeMode: 'FAMILY',
-      familyProfile: {
-        create: {
-          lovedOneName: 'Maria Martinez',
-          careTypes: ['PERSONAL_CARE'],
-          location: 'San Francisco',
-          city: 'San Francisco',
-          state: 'CA',
-          zipCode: '94103',
-        },
-      },
-    },
-  });
-
-  console.log('✅ Created 12 family accounts with profiles\n');
+    });
+    families.push(family);
+  }
+  console.log('✅ Created 36 family accounts with profiles\n');
 
   // ============================================================================
-  // ORGANIZATION/FACILITY PROVIDER ACCOUNTS (12 total)
+  // ORGANIZATION/FACILITY PROVIDER ACCOUNTS (36 total - 3x original)
   // ============================================================================
-  console.log('🏥 Creating 12 organization/facility accounts with profiles...');
+  console.log('🏥 Creating 36 organization/facility accounts...');
 
-  // Organization 1: Complete AL facility
-  const org1 = await prisma.user.create({
-    data: {
-      email: 'facility.assisted.complete@demo.com',
-      name: 'Sunshine Manor Admin',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(619) 555-1001',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Sunshine Manor',
-          providerType: 'ASSISTED_LIVING',
-          description: 'Premier assisted living community in the heart of San Diego with 24/7 care and luxury amenities.',
-          email: 'admin@sunshinemanor.com',
-          phone: '(619) 555-1001',
-          website: 'https://sunshinemanor.com',
-          address: '123 Sunshine Ave',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92101',
-          careTypesOffered: ['PERSONAL_CARE', 'COMPANION_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-AL-12345',
-          yearsInBusiness: 15,
-          capacity: 50,
-          priceMin: 4500,
-          priceMax: 7000,
-          photos: [
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
-            'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
-            'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
-            'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
-            'https://images.unsplash.com/photo-1581093458791-9f3c3250a740?w=800',
-          ],
-          coverPhoto: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200',
-          roomFeatures: ['Private bathrooms', 'WiFi', 'Cable TV', 'Emergency call system'],
-          commonAreas: ['Library', 'Garden', 'Movie theater', 'Fitness center'],
-          medicalServices: ['24/7 nursing', 'Medication management', 'Physical therapy'],
-          activitiesOffered: ['Arts and crafts', 'Music therapy', 'Exercise classes', 'Social events'],
-          dietaryOptions: ['Vegetarian', 'Diabetic-friendly', 'Heart-healthy'],
-          staffToResidentRatio: '1:6',
-          languagesSpoken: ['English', 'Spanish'],
-          averageRating: 4.8,
-          reviewCount: 24,
-          claimed: true,
-          verified: true,
-          active: true,
+  const facilityData = [
+    // Assisted Living (12)
+    { name: 'Sunshine Manor', type: 'ASSISTED_LIVING', email: 'admin@sunshinemanor.com', desc: 'Premier assisted living community in the heart of San Diego with 24/7 care and luxury amenities.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4500, 7000], rating: 4.8, reviews: 47, years: 15, capacity: 50 },
+    { name: 'Parkside Living', type: 'ASSISTED_LIVING', email: 'director@parksideliving.com', desc: 'Comfortable assisted living in Los Angeles with beautiful gardens and caring staff.', care: ['PERSONAL_CARE'], price: [3800, 5500], rating: 4.2, reviews: 23, years: 8, capacity: 35 },
+    { name: 'La Jolla Estates', type: 'ASSISTED_LIVING', email: 'info@lajollaestates.com', desc: 'Luxury oceanview assisted living with resort-style amenities and personalized care.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [8000, 12000], rating: 4.9, reviews: 38, years: 12, capacity: 40 },
+    { name: 'Riverside Senior Care', type: 'ASSISTED_LIVING', email: 'info@riversideseniorcare.com', desc: 'Affordable assisted living with quality care in Riverside County.', care: ['PERSONAL_CARE'], price: [2500, 3500], rating: 4.3, reviews: 19, years: 10, capacity: 30 },
+    { name: 'Hillcrest Assisted Living', type: 'ASSISTED_LIVING', email: 'hr@hillcrestassisted.com', desc: 'Growing assisted living facility seeking compassionate caregivers.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4000, 6500], rating: 4.4, reviews: 28, years: 5, capacity: 45 },
+    { name: 'Pacific Gardens', type: 'ASSISTED_LIVING', email: 'info@pacificgardens.com', desc: 'Beautiful assisted living with lush gardens and active lifestyle programs.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [5000, 7500], rating: 4.6, reviews: 34, years: 18, capacity: 55 },
+    { name: 'Golden Years Residence', type: 'ASSISTED_LIVING', email: 'info@goldenyears.com', desc: 'Family-owned assisted living with home-like atmosphere and personalized attention.', care: ['PERSONAL_CARE'], price: [3500, 5000], rating: 4.5, reviews: 41, years: 22, capacity: 25 },
+    { name: 'Sunrise Senior Living', type: 'ASSISTED_LIVING', email: 'contact@sunrisesl.com', desc: 'Modern assisted living with innovative care programs and technology.', care: ['PERSONAL_CARE', 'COMPANION_CARE', 'MEMORY_CARE'], price: [5500, 8500], rating: 4.7, reviews: 56, years: 15, capacity: 80 },
+    { name: 'Coastal Comfort Care', type: 'ASSISTED_LIVING', email: 'info@coastalcomfort.com', desc: 'Beachside assisted living with ocean views and coastal activities.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [6000, 9000], rating: 4.6, reviews: 29, years: 10, capacity: 35 },
+    { name: 'Mountain View Senior', type: 'ASSISTED_LIVING', email: 'info@mountainviewsenior.com', desc: 'Peaceful assisted living with scenic mountain views and nature trails.', care: ['PERSONAL_CARE'], price: [4000, 6000], rating: 4.4, reviews: 22, years: 8, capacity: 40 },
+    { name: 'Heritage House', type: 'ASSISTED_LIVING', email: 'info@heritagehouse.com', desc: 'Historic mansion converted to charming assisted living with elegant dining.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [5500, 8000], rating: 4.8, reviews: 31, years: 25, capacity: 30 },
+    { name: 'Serenity Springs', type: 'ASSISTED_LIVING', email: 'info@serenitysprings.com', desc: 'Tranquil assisted living with spa amenities and wellness programs.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4500, 7000], rating: 4.5, reviews: 37, years: 12, capacity: 45 },
+
+    // Memory Care (8)
+    { name: 'Memory Haven', type: 'MEMORY_CARE', email: 'info@memoryhaven.com', desc: 'Specialized memory care facility with secure environment and dementia-trained staff.', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [6500, 9000], rating: 4.7, reviews: 33, years: 12, capacity: 35 },
+    { name: 'Alzheimers Care Center', type: 'MEMORY_CARE', email: 'info@alzcenter.com', desc: 'Dedicated Alzheimers care with innovative memory programs and research partnerships.', care: ['MEMORY_CARE'], price: [7000, 10000], rating: 4.8, reviews: 42, years: 20, capacity: 50 },
+    { name: 'Coastal Memory Care', type: 'MEMORY_CARE', email: 'care@coastalmemory.com', desc: 'Specialized memory care services in a secure, nurturing environment.', care: ['MEMORY_CARE', 'SKILLED_NURSING'], price: [7500, 11000], rating: 4.6, reviews: 28, years: 15, capacity: 40 },
+    { name: 'Peaceful Minds', type: 'MEMORY_CARE', email: 'info@peacefulminds.com', desc: 'Person-centered memory care with Montessori-based activities.', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [6000, 8500], rating: 4.9, reviews: 51, years: 10, capacity: 30 },
+    { name: 'Remember When', type: 'MEMORY_CARE', email: 'info@rememberwhen.com', desc: 'Memory care with reminiscence therapy and family engagement programs.', care: ['MEMORY_CARE'], price: [5500, 8000], rating: 4.5, reviews: 24, years: 8, capacity: 25 },
+    { name: 'Clarity Care', type: 'MEMORY_CARE', email: 'info@claritycare.com', desc: 'State-of-the-art memory care with sensory stimulation programs.', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [7000, 9500], rating: 4.7, reviews: 35, years: 12, capacity: 45 },
+    { name: 'Safe Harbor Memory', type: 'MEMORY_CARE', email: 'info@safeharbor.com', desc: 'Secure memory care with therapeutic gardens and music therapy.', care: ['MEMORY_CARE'], price: [6500, 9000], rating: 4.6, reviews: 29, years: 14, capacity: 35 },
+    { name: 'Mindful Living', type: 'MEMORY_CARE', email: 'info@mindfulliving.com', desc: 'Holistic memory care with meditation and wellness programming.', care: ['MEMORY_CARE', 'COMPANION_CARE'], price: [6000, 8500], rating: 4.4, reviews: 21, years: 6, capacity: 28 },
+
+    // Nursing Homes (4)
+    { name: 'San Diego Skilled Nursing', type: 'NURSING_HOME', email: 'info@sdskilled.com', desc: 'Advanced skilled nursing and rehabilitation services.', care: ['SKILLED_NURSING'], price: [7000, 11000], rating: 4.6, reviews: 38, years: 25, capacity: 60 },
+    { name: 'Bay View Nursing Center', type: 'NURSING_HOME', email: 'info@bayviewnursing.com', desc: 'Comprehensive nursing care with rehabilitation and long-term options.', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], price: [7500, 12000], rating: 4.5, reviews: 44, years: 30, capacity: 80 },
+    { name: 'Golden Gate Rehab', type: 'NURSING_HOME', email: 'info@goldengaterehab.com', desc: 'Premier rehabilitation center with physical, occupational, and speech therapy.', care: ['SKILLED_NURSING'], price: [8000, 13000], rating: 4.7, reviews: 52, years: 35, capacity: 100 },
+    { name: 'Valley Care Nursing', type: 'NURSING_HOME', email: 'info@valleycarenursing.com', desc: 'Compassionate nursing care with specialized units for complex medical needs.', care: ['SKILLED_NURSING', 'MEMORY_CARE'], price: [6500, 10000], rating: 4.4, reviews: 31, years: 20, capacity: 70 },
+
+    // Home Care Agencies (8)
+    { name: 'CareFirst Home Services', type: 'HOME_CARE', email: 'info@carefirsthome.com', desc: 'Full-service home care agency with experienced caregivers throughout San Diego.', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'SKILLED_NURSING', 'LIVE_IN_CARE'], price: [25, 45], rating: 4.8, reviews: 67, years: 18, capacity: 0 },
+    { name: 'Specialized Care Partners', type: 'HOME_CARE', email: 'info@specializedcarepartners.com', desc: 'Specialized in-home care for dementia, Parkinsons, and post-stroke care.', care: ['PERSONAL_CARE', 'MEMORY_CARE', 'SKILLED_NURSING'], price: [30, 50], rating: 4.9, reviews: 45, years: 12, capacity: 0 },
+    { name: 'Comfort Keepers LA', type: 'HOME_CARE', email: 'info@comfortkeepersla.com', desc: 'Interactive caregiving that engages seniors and improves quality of life.', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [22, 38], rating: 4.6, reviews: 89, years: 20, capacity: 0 },
+    { name: 'Home Instead San Diego', type: 'HOME_CARE', email: 'info@homeinsteadsd.com', desc: 'Personalized home care with a focus on relationship-based care.', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'LIVE_IN_CARE'], price: [24, 42], rating: 4.7, reviews: 112, years: 25, capacity: 0 },
+    { name: 'Pacific Home Health', type: 'HOME_CARE_MEDICAL', email: 'info@pacifichomehealth.com', desc: 'Medicare-certified home health with skilled nursing and therapy services.', care: ['SKILLED_NURSING'], price: [45, 75], rating: 4.7, reviews: 56, years: 15, capacity: 0 },
+    { name: 'Elite Senior Care', type: 'HOME_CARE', email: 'info@eliteseniorcare.com', desc: 'Premium home care with highly trained caregivers and concierge services.', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'LIVE_IN_CARE'], price: [35, 60], rating: 4.9, reviews: 34, years: 8, capacity: 0 },
+    { name: 'Loving Hearts Home Care', type: 'HOME_CARE', email: 'info@lovinghearts.com', desc: 'Affordable home care with compassionate, reliable caregivers.', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [20, 32], rating: 4.5, reviews: 78, years: 10, capacity: 0 },
+    { name: 'Right at Home OC', type: 'HOME_CARE', email: 'info@rightathomeoc.com', desc: 'Quality in-home care and assistance throughout Orange County.', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'SKILLED_NURSING'], price: [26, 44], rating: 4.6, reviews: 63, years: 18, capacity: 0 },
+
+    // Independent Living & Hospice (4)
+    { name: 'Del Mar Active Living', type: 'INDEPENDENT_LIVING', email: 'info@delmaractive.com', desc: 'Active adult community for independent seniors 55+.', care: ['COMPANION_CARE'], price: [2500, 4500], rating: 4.7, reviews: 58, years: 10, capacity: 100 },
+    { name: 'Encinitas Life Plan', type: 'INDEPENDENT_LIVING', email: 'info@encinitaslifeplan.com', desc: 'Continuing care retirement community with full continuum of care.', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'SKILLED_NURSING', 'MEMORY_CARE'], price: [5000, 15000], rating: 4.9, reviews: 72, years: 30, capacity: 200 },
+    { name: 'Bayview Hospice', type: 'HOSPICE', email: 'info@bayviewhospice.com', desc: 'Compassionate hospice care focused on comfort and dignity.', care: ['HOSPICE'], price: [0, 0], rating: 4.8, reviews: 89, years: 20, capacity: 0 },
+    { name: 'Peaceful Journey Hospice', type: 'HOSPICE', email: 'info@peacefuljourney.com', desc: 'End-of-life care with comprehensive support for patients and families.', care: ['HOSPICE'], price: [0, 0], rating: 4.9, reviews: 67, years: 15, capacity: 0 },
+  ];
+
+  const facilities: any[] = [];
+  for (let i = 0; i < facilityData.length; i++) {
+    const data = facilityData[i];
+    const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
+    const photoCount = 5 + (i % 6);
+    const photoSet = FACILITY_PHOTOS.slice(i % 5, (i % 5) + photoCount);
+
+    const isHomeCare = data.type === 'HOME_CARE' || data.type === 'HOME_CARE_MEDICAL' || data.type === 'HOSPICE';
+
+    const facility = await prisma.user.create({
+      data: {
+        email: data.email,
+        name: `${data.name} Admin`,
+        passwordHash: demoPassword,
+        role: 'PROVIDER',
+        phone: `(${700 + Math.floor(i / 10)}) 555-${String(1000 + i).padStart(4, '0')}`,
+        activeMode: 'PROVIDER',
+        provider: {
+          create: {
+            name: data.name,
+            providerType: data.type as ProviderType,
+            description: data.desc,
+            email: data.email,
+            phone: `(${700 + Math.floor(i / 10)}) 555-${String(1000 + i).padStart(4, '0')}`,
+            website: `https://${data.name.toLowerCase().replace(/\s+/g, '')}.com`,
+            address: `${100 + i * 10} ${['Main', 'Oak', 'Maple', 'Pine', 'Cedar', 'Willow'][i % 6]} ${['Street', 'Avenue', 'Boulevard', 'Drive', 'Lane'][i % 5]}`,
+            city: loc.city,
+            state: loc.state,
+            zipCode: loc.zip,
+            latitude: loc.lat + (Math.random() - 0.5) * 0.05,
+            longitude: loc.lng + (Math.random() - 0.5) * 0.05,
+            serviceRadius: isHomeCare ? 25 + (i % 20) : undefined,
+            careTypesOffered: data.care as CareType[],
+            licensed: true,
+            licenseNumber: `CA-${data.type.substring(0, 3)}-${String(10000 + i * 111).padStart(5, '0')}`,
+            yearsInBusiness: data.years,
+            capacity: data.capacity > 0 ? data.capacity : undefined,
+            priceMin: data.price[0],
+            priceMax: data.price[1],
+            priceDescription: isHomeCare ? 'Per hour rates. Live-in and overnight care available.' : undefined,
+            photos: photoSet,
+            coverPhoto: photoSet[0],
+            roomFeatures: !isHomeCare ? ['Private rooms', 'WiFi', 'Emergency call system', 'Cable TV'] : undefined,
+            commonAreas: !isHomeCare ? ['Dining room', 'Activity room', 'Garden', 'Library'] : undefined,
+            medicalServices: ['Medication management', '24/7 nursing', 'Physical therapy'],
+            activitiesOffered: ['Exercise classes', 'Arts and crafts', 'Music therapy', 'Social events'],
+            dietaryOptions: ['Vegetarian', 'Diabetic-friendly', 'Heart-healthy'],
+            staffToResidentRatio: !isHomeCare && data.capacity > 0 ? `1:${Math.floor(data.capacity / 8)}` : undefined,
+            languagesSpoken: ['English', 'Spanish'],
+            averageRating: data.rating,
+            reviewCount: data.reviews,
+            claimed: true,
+            verified: true,
+            active: true,
+            availableForFamilies: true,
+            availableForOrganizations: isHomeCare,
+          },
         },
       },
-    },
-  });
-
-  // Organization 2: Incomplete AL facility (40% complete for widget testing)
-  const org2 = await prisma.user.create({
-    data: {
-      email: 'facility.assisted.incomplete@demo.com',
-      name: 'Parkside Living Director',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(213) 555-1002',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Parkside Living',
-          providerType: 'ASSISTED_LIVING',
-          description: 'Comfortable assisted living in Los Angeles.',
-          email: 'director@parksideliving.com',
-          phone: '(213) 555-1002',
-          address: '456 Park St',
-          city: 'Los Angeles',
-          state: 'CA',
-          zipCode: '90001',
-          careTypesOffered: ['PERSONAL_CARE'],
-          // Missing: photos, pricing, amenities, licensing
-        },
-      },
-    },
-  });
-
-  // Organization 3: Premium AL facility
-  const org3 = await prisma.user.create({
-    data: {
-      email: 'facility.assisted.premium@demo.com',
-      name: 'La Jolla Estates Admin',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(858) 555-1003',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'La Jolla Estates',
-          providerType: 'ASSISTED_LIVING',
-          description: 'Luxury oceanview assisted living with resort-style amenities and personalized care.',
-          email: 'info@lajollaestates.com',
-          phone: '(858) 555-1003',
-          website: 'https://lajollaestates.com',
-          address: '789 Ocean Blvd',
-          city: 'La Jolla',
-          state: 'CA',
-          zipCode: '92037',
-          careTypesOffered: ['PERSONAL_CARE', 'COMPANION_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-AL-67890',
-          yearsInBusiness: 10,
-          capacity: 40,
-          priceMin: 8000,
-          priceMax: 12000,
-          photos: [
-            'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
-            'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800',
-            'https://images.unsplash.com/photo-1562141961-8d219c6dd062?w=800',
-            'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800',
-          ],
-          coverPhoto: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
-          roomFeatures: ['Ocean view', 'Private balcony', 'Full bathroom', 'Smart home tech'],
-          commonAreas: ['Spa', 'Pool', 'Restaurant', 'Putting green', 'Theater'],
-          medicalServices: ['24/7 RN', 'Physical therapy', 'Occupational therapy'],
-          activitiesOffered: ['Golf', 'Yoga', 'Wine tasting', 'Concert series'],
-          dietaryOptions: ['Gourmet dining', 'Chef-prepared meals', 'Custom menus'],
-          staffToResidentRatio: '1:4',
-          languagesSpoken: ['English', 'Spanish', 'French'],
-          averageRating: 4.9,
-          reviewCount: 18,
-          claimed: true,
-          verified: true,
-          active: true,
-        },
-      },
-    },
-  });
-
-  // Organization 4: Budget AL facility
-  const org4 = await prisma.user.create({
-    data: {
-      email: 'facility.assisted.budget@demo.com',
-      name: 'Riverside Senior Care',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(951) 555-1004',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Riverside Senior Care',
-          providerType: 'ASSISTED_LIVING',
-          description: 'Affordable assisted living with quality care in Riverside County.',
-          email: 'info@riversideseniorcare.com',
-          phone: '(951) 555-1004',
-          address: '321 River Rd',
-          city: 'Riverside',
-          state: 'CA',
-          zipCode: '92501',
-          careTypesOffered: ['PERSONAL_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-AL-11111',
-          yearsInBusiness: 8,
-          capacity: 30,
-          priceMin: 2500,
-          priceMax: 3500,
-          photos: [
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
-            'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
-            'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
-          ],
-          roomFeatures: ['Private or shared rooms', 'Cable TV'],
-          commonAreas: ['Garden', 'TV lounge'],
-          medicalServices: ['Daily nursing visits', 'Medication management'],
-          activitiesOffered: ['Bingo', 'Card games', 'Exercise classes'],
-          staffToResidentRatio: '1:8',
-          languagesSpoken: ['English', 'Spanish'],
-          averageRating: 4.3,
-          reviewCount: 12,
-          claimed: true,
-          verified: true,
-          active: true,
-        },
-      },
-    },
-  });
-
-  // Organization 5: Specialized memory care
-  const org5 = await prisma.user.create({
-    data: {
-      email: 'facility.memory.specialized@demo.com',
-      name: 'Memory Haven Director',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(619) 555-1005',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Memory Haven',
-          providerType: 'MEMORY_CARE',
-          description: 'Specialized memory care facility with secure environment and dementia-trained staff.',
-          email: 'info@memoryhaven.com',
-          phone: '(619) 555-1005',
-          website: 'https://memoryhaven.com',
-          address: '555 Memory Lane',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92120',
-          careTypesOffered: ['MEMORY_CARE', 'PERSONAL_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-MC-22222',
-          yearsInBusiness: 12,
-          capacity: 35,
-          priceMin: 6500,
-          priceMax: 9000,
-          photos: [
-            'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800',
-            'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800',
-            'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
-            'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
-          ],
-          coverPhoto: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=1200',
-          roomFeatures: ['Secure environment', 'Memory boxes', 'GPS tracking'],
-          commonAreas: ['Wandering paths', 'Sensory garden', 'Music room'],
-          medicalServices: ['24/7 memory care nurses', 'Behavioral support'],
-          activitiesOffered: ['Memory activities', 'Music therapy', 'Pet therapy'],
-          dietaryOptions: ['Finger foods', 'Adaptive dining'],
-          staffToResidentRatio: '1:5',
-          languagesSpoken: ['English', 'Spanish'],
-          averageRating: 4.7,
-          reviewCount: 16,
-          claimed: true,
-          verified: true,
-          active: true,
-        },
-      },
-    },
-  });
-
-  // Organization 6: Mixed AL + Memory
-  const org6 = await prisma.user.create({
-    data: {
-      email: 'facility.memory.mixed@demo.com',
-      name: 'Orange County Senior Living',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(714) 555-1006',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Orange County Senior Living',
-          providerType: 'ASSISTED_LIVING',
-          description: 'Full-service senior community with assisted living and memory care.',
-          email: 'info@ocseniorliving.com',
-          phone: '(714) 555-1006',
-          address: '888 Senior Way',
-          city: 'Irvine',
-          state: 'CA',
-          zipCode: '92602',
-          careTypesOffered: ['PERSONAL_CARE', 'MEMORY_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-AL-33333',
-          yearsInBusiness: 20,
-          capacity: 80,
-          priceMin: 5000,
-          priceMax: 8500,
-          photos: [
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
-            'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
-            'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
-            'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
-            'https://images.unsplash.com/photo-1581093458791-9f3c3250a740?w=800',
-          ],
-          roomFeatures: ['Private rooms', 'WiFi', 'Emergency call'],
-          commonAreas: ['Library', 'Courtyard', 'Chapel', 'Salon'],
-          medicalServices: ['24/7 nursing', 'Memory care unit'],
-          activitiesOffered: ['Exercise', 'Art classes', 'Live entertainment'],
-          staffToResidentRatio: '1:6',
-          languagesSpoken: ['English', 'Spanish', 'Mandarin'],
-          averageRating: 4.5,
-          reviewCount: 22,
-          claimed: true,
-          verified: true,
-          active: true,
-        },
-      },
-    },
-  });
-
-  // Organization 7: Skilled nursing
-  const org7 = await prisma.user.create({
-    data: {
-      email: 'facility.nursing.skilled@demo.com',
-      name: 'San Diego Skilled Nursing',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(619) 555-1008',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'San Diego Skilled Nursing Center',
-          providerType: 'NURSING_HOME',
-          description: 'Advanced skilled nursing and rehabilitation services.',
-          email: 'info@sdskilled.com',
-          phone: '(619) 555-1008',
-          address: '999 Healthcare Dr',
-          city: 'Chula Vista',
-          state: 'CA',
-          zipCode: '91910',
-          careTypesOffered: ['SKILLED_NURSING'],
-          licensed: true,
-          licenseNumber: 'CA-SNF-44444',
-          yearsInBusiness: 25,
-          capacity: 60,
-          priceMin: 7000,
-          priceMax: 11000,
-          photos: [
-            'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=800',
-            'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=800',
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
-            'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
-            'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
-          ],
-          roomFeatures: ['Hospital beds', 'Medical equipment', 'Call systems'],
-          medicalServices: ['24/7 RN', 'Physical therapy', 'Wound care', 'IV therapy'],
-          staffToResidentRatio: '1:4',
-          languagesSpoken: ['English', 'Spanish', 'Tagalog'],
-          averageRating: 4.6,
-          reviewCount: 14,
-          claimed: true,
-          verified: true,
-          active: true,
-        },
-      },
-    },
-  });
-
-  // Organization 8: Home care agency
-  const org8 = await prisma.user.create({
-    data: {
-      email: 'agency.homecare.large@demo.com',
-      name: 'CareFirst Home Services',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(619) 555-1010',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'CareFirst Home Services',
-          providerType: 'HOME_CARE',
-          description: 'Full-service home care agency with experienced caregivers throughout San Diego.',
-          email: 'info@carefirsthome.com',
-          phone: '(619) 555-1010',
-          website: 'https://carefirsthome.com',
-          address: '100 Care Plaza',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92101',
-          serviceRadius: 30,
-          careTypesOffered: ['COMPANION_CARE', 'PERSONAL_CARE', 'SKILLED_NURSING', 'LIVE_IN_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-HCA-55555',
-          yearsInBusiness: 18,
-          priceMin: 25,
-          priceMax: 45,
-          priceDescription: 'Per hour rates. Live-in care available.',
-          photos: [
-            'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800',
-            'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800',
-            'https://images.unsplash.com/photo-1605684954998-685c79d6a018?w=800',
-          ],
-          medicalServices: ['Skilled nursing', 'Physical therapy', 'Medication management'],
-          languagesSpoken: ['English', 'Spanish', 'Tagalog', 'Vietnamese'],
-          averageRating: 4.8,
-          reviewCount: 35,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: true,
-          availableForOrganizations: true,
-        },
-      },
-    },
-  });
-
-  // Organization 9: Independent living
-  const org9 = await prisma.user.create({
-    data: {
-      email: 'facility.independent.living@demo.com',
-      name: 'Del Mar Active Living',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(858) 555-1012',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Del Mar Active Living',
-          providerType: 'INDEPENDENT_LIVING',
-          description: 'Active adult community for independent seniors 55+.',
-          email: 'info@delmaractive.com',
-          phone: '(858) 555-1012',
-          address: '200 Active Way',
-          city: 'Del Mar',
-          state: 'CA',
-          zipCode: '92014',
-          careTypesOffered: ['COMPANION_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-IL-66666',
-          yearsInBusiness: 10,
-          capacity: 100,
-          priceMin: 2500,
-          priceMax: 4500,
-          photos: [
-            'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
-            'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
-            'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
-            'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
-          ],
-          roomFeatures: ['Full kitchens', 'Washer/dryer', 'Patio or balcony'],
-          commonAreas: ['Pool', 'Fitness center', 'Clubhouse', 'Tennis courts'],
-          activitiesOffered: ['Social clubs', 'Day trips', 'Classes', 'Events'],
-          staffToResidentRatio: '1:20',
-          languagesSpoken: ['English'],
-          averageRating: 4.7,
-          reviewCount: 28,
-          claimed: true,
-          verified: true,
-          active: true,
-        },
-      },
-    },
-  });
-
-  // Organization 10: CCRC
-  const org10 = await prisma.user.create({
-    data: {
-      email: 'facility.ccrc@demo.com',
-      name: 'Encinitas Life Plan Community',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(760) 555-1014',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Encinitas Life Plan Community',
-          providerType: 'INDEPENDENT_LIVING',
-          description: 'Continuing care retirement community with full continuum of care.',
-          email: 'info@encinitaslifeplan.com',
-          phone: '(760) 555-1014',
-          address: '300 Lifelong Ln',
-          city: 'Encinitas',
-          state: 'CA',
-          zipCode: '92024',
-          careTypesOffered: ['COMPANION_CARE', 'PERSONAL_CARE', 'SKILLED_NURSING', 'MEMORY_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-CCRC-77777',
-          yearsInBusiness: 30,
-          capacity: 200,
-          priceMin: 5000,
-          priceMax: 15000,
-          photos: [
-            'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
-            'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
-            'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
-          ],
-          roomFeatures: ['Full apartments', 'Modern finishes', 'Smart home tech'],
-          commonAreas: ['Resort pool', 'Spa', 'Restaurant', 'Theater', 'Library'],
-          medicalServices: ['Health center', 'Memory care', 'Skilled nursing'],
-          activitiesOffered: ['Golf', 'Tennis', 'Arts', 'Educational programs'],
-          staffToResidentRatio: '1:5',
-          languagesSpoken: ['English', 'Spanish'],
-          averageRating: 4.9,
-          reviewCount: 42,
-          claimed: true,
-          verified: true,
-          active: true,
-        },
-      },
-    },
-  });
-
-  // Organization 11: Facility hiring caregivers
-  const org11 = await prisma.user.create({
-    data: {
-      email: 'facility.hiring.caregivers@demo.com',
-      name: 'Hillcrest Assisted Living',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(619) 555-1015',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Hillcrest Assisted Living',
-          providerType: 'ASSISTED_LIVING',
-          description: 'Growing assisted living facility seeking compassionate caregivers.',
-          email: 'hr@hillcrestassisted.com',
-          phone: '(619) 555-1015',
-          address: '400 Hill St',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92103',
-          careTypesOffered: ['PERSONAL_CARE', 'COMPANION_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-AL-88888',
-          yearsInBusiness: 5,
-          capacity: 45,
-          priceMin: 4000,
-          priceMax: 6500,
-          photos: [
-            'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
-            'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
-            'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
-            'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
-            'https://images.unsplash.com/photo-1581093458791-9f3c3250a740?w=800',
-          ],
-          roomFeatures: ['Private rooms', 'WiFi', 'Cable TV'],
-          commonAreas: ['Garden', 'Activity room', 'Dining room'],
-          medicalServices: ['Daily nursing', 'Medication management'],
-          staffToResidentRatio: '1:7',
-          languagesSpoken: ['English', 'Spanish'],
-          averageRating: 4.4,
-          reviewCount: 10,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: true,
-          availableForOrganizations: true,
-        },
-      },
-    },
-  });
-
-  // Organization 12: Specialized home care
-  const org12 = await prisma.user.create({
-    data: {
-      email: 'agency.homecare.specialized@demo.com',
-      name: 'Specialized Care Partners',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(213) 555-1011',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Specialized Care Partners',
-          providerType: 'HOME_CARE',
-          description: 'Specialized in-home care for dementia, Parkinsons, and post-stroke care.',
-          email: 'info@specializedcarepartners.com',
-          phone: '(213) 555-1011',
-          address: '500 Specialized Dr',
-          city: 'Los Angeles',
-          state: 'CA',
-          zipCode: '90001',
-          serviceRadius: 25,
-          careTypesOffered: ['PERSONAL_CARE', 'MEMORY_CARE', 'SKILLED_NURSING'],
-          licensed: true,
-          licenseNumber: 'CA-HCA-99999',
-          yearsInBusiness: 12,
-          priceMin: 30,
-          priceMax: 50,
-          priceDescription: 'Per hour rates for specialized care.',
-          photos: [
-            'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800',
-            'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800',
-            'https://images.unsplash.com/photo-1605684954998-685c79d6a018?w=800',
-          ],
-          medicalServices: ['Dementia care', 'Parkinsons care', 'Stroke recovery'],
-          languagesSpoken: ['English', 'Spanish', 'Mandarin'],
-          averageRating: 4.9,
-          reviewCount: 19,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: true,
-          availableForOrganizations: true,
-        },
-      },
-    },
-  });
-
-  console.log('✅ Created 12 organization/facility accounts with profiles\n');
+    });
+    facilities.push(facility);
+  }
+  console.log('✅ Created 36 organization/facility accounts\n');
 
   // ============================================================================
-  // INDIVIDUAL CAREGIVER PROVIDER ACCOUNTS (6 total)
+  // INDIVIDUAL CAREGIVER ACCOUNTS (18 total - 3x original)
   // ============================================================================
-  console.log('👨‍⚕️ Creating 6 individual caregiver accounts with profiles...');
+  console.log('👨‍⚕️ Creating 18 individual caregiver accounts...');
 
-  // Caregiver 1: Experienced fulltime (seeking families), 100% complete
-  const caregiver1 = await prisma.user.create({
-    data: {
-      email: 'caregiver.experienced.fulltime@demo.com',
-      name: 'Maria Santos',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(619) 555-2001',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Maria Santos - Experienced Caregiver',
-          providerType: 'INDEPENDENT_CAREGIVER',
-          description: '10+ years of experience providing compassionate in-home care. Specialized in dementia care and companionship.',
-          email: 'maria.santos@email.com',
-          phone: '(619) 555-2001',
-          address: 'San Diego County',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92101',
-          serviceRadius: 20,
-          careTypesOffered: ['COMPANION_CARE', 'PERSONAL_CARE', 'MEMORY_CARE', 'LIVE_IN_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-CNA-11111',
-          yearsInBusiness: 10,
-          priceMin: 25,
-          priceMax: 35,
-          priceDescription: 'Per hour. Live-in care negotiable.',
-          photos: ['https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400'],
-          certifications: ['CNA', 'CPR', 'First Aid', 'Dementia Care Specialist'],
-          languagesSpoken: ['English', 'Spanish', 'Tagalog'],
-          backgroundChecked: true,
-          averageRating: 4.9,
-          reviewCount: 15,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: true,
-          availableForOrganizations: false,
+  const caregiverData = [
+    { name: 'Maria Santos', email: 'maria.santos@demo.com', desc: '10+ years of experience providing compassionate in-home care. Specialized in dementia care and companionship.', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'MEMORY_CARE', 'LIVE_IN_CARE'], price: [25, 35], certs: ['CNA', 'CPR', 'First Aid', 'Dementia Care Specialist'], langs: ['English', 'Spanish', 'Tagalog'], rating: 4.9, reviews: 28, years: 10, seeksFamilies: true, seeksOrgs: false },
+    { name: 'John Peterson', email: 'john.peterson@demo.com', desc: 'Certified dementia care specialist with 8 years experience. Patient, calm approach to memory care.', care: ['MEMORY_CARE', 'COMPANION_CARE', 'PERSONAL_CARE'], price: [28, 38], certs: ['CNA', 'Dementia Care Specialist', 'Alzheimers Care Training'], langs: ['English'], rating: 4.8, reviews: 22, years: 8, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Rachel Thompson', email: 'rachel.thompson@demo.com', desc: 'Registered Nurse providing skilled in-home nursing care. Post-surgical care, wound care, medication management.', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], price: [45, 65], certs: ['RN', 'IV Certification', 'Wound Care Specialist', 'CPR'], langs: ['English', 'Spanish'], rating: 5.0, reviews: 15, years: 15, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Angela Brooks', email: 'angela.brooks@demo.com', desc: 'Experienced caregiver seeking full-time employment at assisted living facility. 5 years experience.', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [20, 28], certs: ['CNA', 'CPR', 'First Aid'], langs: ['English'], rating: 4.5, reviews: 12, years: 5, seeksFamilies: false, seeksOrgs: true },
+    { name: 'Nancy Foster', email: 'nancy.foster@demo.com', desc: 'Memory care specialist seeking position at memory care facility. 7 years experience with dementia patients.', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [26, 34], certs: ['CNA', 'Dementia Care Specialist', 'Memory Care Training'], langs: ['English', 'Spanish'], rating: 4.7, reviews: 18, years: 7, seeksFamilies: false, seeksOrgs: true },
+    { name: 'Susan Williams', email: 'susan.williams@demo.com', desc: 'Part-time companion caregiver. Great for light housekeeping, meal prep, and companionship.', care: ['COMPANION_CARE'], price: [20, 28], certs: ['CPR', 'First Aid'], langs: ['English'], rating: 4.4, reviews: 9, years: 3, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Carlos Mendez', email: 'carlos.mendez@demo.com', desc: 'Bilingual caregiver with expertise in diabetes care and mobility assistance. Very patient and kind.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [24, 32], certs: ['CNA', 'CPR', 'Diabetes Care'], langs: ['English', 'Spanish'], rating: 4.8, reviews: 24, years: 6, seeksFamilies: true, seeksOrgs: true },
+    { name: 'Grace Kim', email: 'grace.kim@demo.com', desc: 'Night shift specialist with nursing home experience. Calm demeanor perfect for overnight care.', care: ['PERSONAL_CARE', 'COMPANION_CARE', 'LIVE_IN_CARE'], price: [28, 40], certs: ['CNA', 'CPR', 'First Aid'], langs: ['English', 'Korean'], rating: 4.6, reviews: 16, years: 9, seeksFamilies: true, seeksOrgs: true },
+    { name: 'David Wong', email: 'david.wong@demo.com', desc: 'Male caregiver specializing in mobility assistance and companionship for male seniors.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [25, 35], certs: ['CNA', 'CPR', 'Transfer Techniques'], langs: ['English', 'Cantonese', 'Mandarin'], rating: 4.7, reviews: 19, years: 7, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Elena Rodriguez', email: 'elena.rodriguez@demo.com', desc: 'Hospice and palliative care specialist. Provides compassionate end-of-life care and family support.', care: ['HOSPICE', 'PERSONAL_CARE', 'COMPANION_CARE'], price: [30, 45], certs: ['CNA', 'Hospice Care Certified', 'CPR'], langs: ['English', 'Spanish'], rating: 4.9, reviews: 31, years: 12, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Michelle Lee', email: 'michelle.lee@demo.com', desc: 'Certified nursing assistant with pediatric and geriatric experience. Very energetic and engaging.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [23, 31], certs: ['CNA', 'CPR', 'First Aid', 'Pediatric Care'], langs: ['English', 'Vietnamese'], rating: 4.6, reviews: 14, years: 5, seeksFamilies: true, seeksOrgs: true },
+    { name: 'Robert Johnson', email: 'robert.johnson.cg@demo.com', desc: 'Former EMT turned caregiver. Excellent at handling medical emergencies and wound care.', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], price: [32, 48], certs: ['EMT', 'CNA', 'CPR', 'Wound Care'], langs: ['English'], rating: 4.8, reviews: 21, years: 10, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Patricia Nguyen', email: 'patricia.nguyen@demo.com', desc: 'Gentle caregiver specializing in Parkinsons care and physical therapy assistance.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [26, 36], certs: ['CNA', 'CPR', 'Parkinsons Care'], langs: ['English', 'Vietnamese'], rating: 4.7, reviews: 17, years: 8, seeksFamilies: true, seeksOrgs: false },
+    { name: 'James Miller', email: 'james.miller.cg@demo.com', desc: 'Experienced with behavioral challenges in dementia. Calm, patient approach.', care: ['MEMORY_CARE', 'PERSONAL_CARE', 'COMPANION_CARE'], price: [28, 40], certs: ['CNA', 'Dementia Care', 'Behavioral Management'], langs: ['English'], rating: 4.5, reviews: 13, years: 6, seeksFamilies: true, seeksOrgs: true },
+    { name: 'Linda Davis', email: 'linda.davis.cg@demo.com', desc: 'Retired LVN offering quality home care. Excellent medication management and health monitoring.', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], price: [35, 50], certs: ['LVN', 'CPR', 'Medication Management'], langs: ['English', 'Spanish'], rating: 4.9, reviews: 26, years: 20, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Thomas Garcia', email: 'thomas.garcia@demo.com', desc: 'Active caregiver who loves taking seniors on outings and keeping them engaged.', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [22, 30], certs: ['CPR', 'First Aid', 'Activities Coordinator'], langs: ['English', 'Spanish'], rating: 4.6, reviews: 11, years: 4, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Jennifer White', email: 'jennifer.white.cg@demo.com', desc: 'Specialized in post-hospital transition care. Helps seniors recover safely at home.', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], price: [30, 42], certs: ['CNA', 'CPR', 'Post-Acute Care'], langs: ['English'], rating: 4.7, reviews: 20, years: 9, seeksFamilies: true, seeksOrgs: false },
+    { name: 'Amanda Chen', email: 'amanda.chen@demo.com', desc: 'Overnight and weekend specialist. Reliable and trustworthy for families needing coverage.', care: ['PERSONAL_CARE', 'COMPANION_CARE', 'LIVE_IN_CARE'], price: [24, 35], certs: ['CNA', 'CPR', 'First Aid'], langs: ['English', 'Mandarin'], rating: 4.5, reviews: 15, years: 5, seeksFamilies: true, seeksOrgs: true },
+  ];
+
+  const caregivers: any[] = [];
+  for (let i = 0; i < caregiverData.length; i++) {
+    const data = caregiverData[i];
+    const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
+
+    const caregiver = await prisma.user.create({
+      data: {
+        email: data.email,
+        name: data.name,
+        passwordHash: demoPassword,
+        role: 'PROVIDER',
+        phone: `(${800 + Math.floor(i / 10)}) 555-${String(2000 + i).padStart(4, '0')}`,
+        activeMode: 'PROVIDER',
+        provider: {
+          create: {
+            name: `${data.name} - ${data.certs[0]} Caregiver`,
+            providerType: 'INDEPENDENT_CAREGIVER',
+            description: data.desc,
+            email: data.email,
+            phone: `(${800 + Math.floor(i / 10)}) 555-${String(2000 + i).padStart(4, '0')}`,
+            address: `${loc.city} Area`,
+            city: loc.city,
+            state: loc.state,
+            zipCode: loc.zip,
+            serviceRadius: 15 + (i % 15),
+            careTypesOffered: data.care as CareType[],
+            licensed: true,
+            licenseNumber: `CA-CG-${String(20000 + i * 111).padStart(5, '0')}`,
+            yearsInBusiness: data.years,
+            priceMin: data.price[0],
+            priceMax: data.price[1],
+            priceDescription: 'Per hour. Overnight and live-in rates available.',
+            photos: [CAREGIVER_PHOTOS[i % CAREGIVER_PHOTOS.length]],
+            certifications: data.certs,
+            languagesSpoken: data.langs,
+            backgroundChecked: true,
+            averageRating: data.rating,
+            reviewCount: data.reviews,
+            claimed: true,
+            verified: true,
+            active: true,
+            availableForFamilies: data.seeksFamilies,
+            availableForOrganizations: data.seeksOrgs,
+          },
         },
       },
-    },
-  });
-
-  // Caregiver 2: Dementia specialist (seeking families), 95% complete
-  const caregiver2 = await prisma.user.create({
-    data: {
-      email: 'caregiver.specialized.dementia@demo.com',
-      name: 'John Peterson',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(213) 555-2002',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'John Peterson - Dementia Care Specialist',
-          providerType: 'INDEPENDENT_CAREGIVER',
-          description: 'Certified dementia care specialist with 8 years experience. Patient, calm approach to memory care.',
-          email: 'john.peterson@email.com',
-          phone: '(213) 555-2002',
-          address: 'Los Angeles County',
-          city: 'Los Angeles',
-          state: 'CA',
-          zipCode: '90001',
-          serviceRadius: 15,
-          careTypesOffered: ['MEMORY_CARE', 'COMPANION_CARE', 'PERSONAL_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-CNA-22222',
-          yearsInBusiness: 8,
-          priceMin: 28,
-          priceMax: 38,
-          photos: ['https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400'],
-          certifications: ['CNA', 'Dementia Care Specialist', 'Alzheimers Care Training'],
-          languagesSpoken: ['English'],
-          backgroundChecked: true,
-          averageRating: 4.8,
-          reviewCount: 12,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: true,
-          availableForOrganizations: false,
-        },
-      },
-    },
-  });
-
-  // Caregiver 3: Medical skilled (seeking families), 100% complete
-  const caregiver3 = await prisma.user.create({
-    data: {
-      email: 'caregiver.medical.skilled@demo.com',
-      name: 'Rachel Thompson RN',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(619) 555-2004',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Rachel Thompson RN - Skilled Nursing Care',
-          providerType: 'INDEPENDENT_CAREGIVER',
-          description: 'Registered Nurse providing skilled in-home nursing care. Post-surgical care, wound care, medication management.',
-          email: 'rachel.thompson@email.com',
-          phone: '(619) 555-2004',
-          address: 'San Diego County',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92101',
-          serviceRadius: 25,
-          careTypesOffered: ['SKILLED_NURSING', 'PERSONAL_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-RN-33333',
-          yearsInBusiness: 15,
-          priceMin: 45,
-          priceMax: 65,
-          priceDescription: 'Per hour for skilled nursing services.',
-          photos: ['https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400'],
-          certifications: ['RN', 'IV Certification', 'Wound Care Specialist', 'CPR'],
-          languagesSpoken: ['English', 'Spanish'],
-          backgroundChecked: true,
-          averageRating: 5.0,
-          reviewCount: 8,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: true,
-          availableForOrganizations: false,
-        },
-      },
-    },
-  });
-
-  // Caregiver 4: Seeking facility employment (fulltime), 90% complete
-  const caregiver4 = await prisma.user.create({
-    data: {
-      email: 'caregiver.seeking.facility.fulltime@demo.com',
-      name: 'Angela Brooks',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(619) 555-2007',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Angela Brooks - Caregiver',
-          providerType: 'INDEPENDENT_CAREGIVER',
-          description: 'Experienced caregiver seeking full-time employment at assisted living facility. 5 years experience.',
-          email: 'angela.brooks@email.com',
-          phone: '(619) 555-2007',
-          address: 'San Diego County',
-          city: 'San Diego',
-          state: 'CA',
-          zipCode: '92101',
-          serviceRadius: 20,
-          careTypesOffered: ['COMPANION_CARE', 'PERSONAL_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-CNA-44444',
-          yearsInBusiness: 5,
-          photos: ['https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400'],
-          certifications: ['CNA', 'CPR', 'First Aid'],
-          languagesSpoken: ['English'],
-          backgroundChecked: true,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: false,
-          availableForOrganizations: true,
-        },
-      },
-    },
-  });
-
-  // Caregiver 5: Seeking facility employment (memory specialist), 95% complete
-  const caregiver5 = await prisma.user.create({
-    data: {
-      email: 'caregiver.seeking.memory.specialist@demo.com',
-      name: 'Nancy Foster',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(714) 555-2009',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Nancy Foster - Memory Care Specialist',
-          providerType: 'INDEPENDENT_CAREGIVER',
-          description: 'Memory care specialist seeking position at memory care facility. 7 years experience with dementia patients.',
-          email: 'nancy.foster@email.com',
-          phone: '(714) 555-2009',
-          address: 'Orange County',
-          city: 'Irvine',
-          state: 'CA',
-          zipCode: '92602',
-          serviceRadius: 15,
-          careTypesOffered: ['MEMORY_CARE', 'PERSONAL_CARE'],
-          licensed: true,
-          licenseNumber: 'CA-CNA-55555',
-          yearsInBusiness: 7,
-          photos: ['https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400'],
-          certifications: ['CNA', 'Dementia Care Specialist', 'Memory Care Training'],
-          languagesSpoken: ['English', 'Spanish'],
-          backgroundChecked: true,
-          averageRating: 4.7,
-          reviewCount: 5,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: false,
-          availableForOrganizations: true,
-        },
-      },
-    },
-  });
-
-  // Caregiver 6: Part-time companion (seeking families), 85% complete
-  const caregiver6 = await prisma.user.create({
-    data: {
-      email: 'caregiver.parttime.companion@demo.com',
-      name: 'Susan Williams',
-      passwordHash: demoPassword,
-      role: 'PROVIDER',
-      phone: '(714) 555-2003',
-      activeMode: 'PROVIDER',
-      provider: {
-        create: {
-          name: 'Susan Williams - Companion Caregiver',
-          providerType: 'INDEPENDENT_CAREGIVER',
-          description: 'Part-time companion caregiver. Great for light housekeeping, meal prep, and companionship.',
-          email: 'susan.williams@email.com',
-          phone: '(714) 555-2003',
-          address: 'Orange County',
-          city: 'Anaheim',
-          state: 'CA',
-          zipCode: '92801',
-          serviceRadius: 10,
-          careTypesOffered: ['COMPANION_CARE'],
-          yearsInBusiness: 3,
-          priceMin: 20,
-          priceMax: 28,
-          photos: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400'],
-          certifications: ['CPR', 'First Aid'],
-          languagesSpoken: ['English'],
-          backgroundChecked: true,
-          claimed: true,
-          verified: true,
-          active: true,
-          availableForFamilies: true,
-          availableForOrganizations: false,
-        },
-      },
-    },
-  });
-
-  console.log('✅ Created 6 individual caregiver accounts with profiles\n');
+    });
+    caregivers.push(caregiver);
+  }
+  console.log('✅ Created 18 individual caregiver accounts\n');
 
   // ============================================================================
   // UNCLAIMED PROVIDERS (for claiming flow testing)
   // ============================================================================
-  console.log('🏢 Creating unclaimed providers for claiming flow tests...');
+  console.log('🏢 Creating 4 unclaimed providers...');
 
-  // Unclaimed Provider 1: Bay Area Senior Living (Assisted Living)
-  const unclaimedProvider1 = await prisma.provider.create({
-    data: {
-      name: 'Bay Area Senior Living',
-      providerType: 'ASSISTED_LIVING',
-      description: 'A welcoming community for seniors in the heart of San Jose. We offer personalized care plans, engaging activities, and a warm, home-like environment. Our dedicated staff is committed to enhancing the quality of life for each resident.',
-      city: 'San Jose',
-      state: 'CA',
-      zipCode: '95110',
-      address: '456 Care Center Drive',
-      phone: '(408) 555-0199',
-      email: 'info@bayareasenior.example.com',
-      website: 'https://bayareasenior.example.com',
-      careTypesOffered: ['PERSONAL_CARE', 'COMPANION_CARE', 'RESPITE_CARE'],
-      paymentModesAccepted: ['PRIVATE_PAY', 'LONG_TERM_CARE_INSURANCE'],
-      commonAreas: ['Restaurant-style dining', 'Fitness center', 'Garden areas', 'Library', 'Beauty salon'],
-      coverPhoto: 'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800',
-      photos: [
-        'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800',
-        'https://images.unsplash.com/photo-1559599238-308793637427?w=800',
-      ],
-      averageRating: 4.3,
-      reviewCount: 12,
-      claimed: false, // KEY: Unclaimed for testing
-      verified: false,
-      active: true,
-      latitude: 37.3382,
-      longitude: -121.8863,
-      // No userId - not linked to any user
-    },
-  });
+  const unclaimedData = [
+    { name: 'Bay Area Senior Living', type: 'ASSISTED_LIVING', city: 'San Jose', state: 'CA', zip: '95110', desc: 'A welcoming community for seniors in the heart of San Jose.', care: ['PERSONAL_CARE', 'COMPANION_CARE'], rating: 4.3, reviews: 12, lat: 37.3382, lng: -121.8863 },
+    { name: 'Coastal Memory Care', type: 'MEMORY_CARE', city: 'Santa Monica', state: 'CA', zip: '90401', desc: 'Specialized memory care services in a secure, nurturing environment.', care: ['MEMORY_CARE', 'SKILLED_NURSING'], rating: 4.6, reviews: 8, lat: 34.0195, lng: -118.4912 },
+    { name: 'Valley Senior Home', type: 'ASSISTED_LIVING', city: 'Fresno', state: 'CA', zip: '93701', desc: 'Affordable senior living in the heart of the Central Valley.', care: ['PERSONAL_CARE'], rating: 4.1, reviews: 15, lat: 36.7378, lng: -119.7871 },
+    { name: 'Sacramento Care Center', type: 'NURSING_HOME', city: 'Sacramento', state: 'CA', zip: '95814', desc: 'Full-service nursing care and rehabilitation in the capital.', care: ['SKILLED_NURSING'], rating: 4.4, reviews: 22, lat: 38.5816, lng: -121.4944 },
+  ];
 
-  // Unclaimed Provider 2: Coastal Memory Care (Memory Care)
-  const unclaimedProvider2 = await prisma.provider.create({
-    data: {
-      name: 'Coastal Memory Care',
-      providerType: 'MEMORY_CARE',
-      description: 'Specialized memory care services in a secure, nurturing environment. Our innovative programs are designed specifically for residents with Alzheimers and other forms of dementia.',
-      city: 'Santa Monica',
-      state: 'CA',
-      zipCode: '90401',
-      address: '789 Ocean View Boulevard',
-      phone: '(310) 555-0288',
-      email: 'care@coastalmemory.example.com',
-      careTypesOffered: ['MEMORY_CARE', 'SKILLED_NURSING'],
-      paymentModesAccepted: ['PRIVATE_PAY', 'MEDICAID'],
-      commonAreas: ['Secured outdoor space'],
-      medicalServices: ['24-hour nursing'],
-      activitiesOffered: ['Memory enhancement programs', 'Family support groups'],
-      coverPhoto: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800',
-      averageRating: 4.6,
-      reviewCount: 8,
-      claimed: false, // KEY: Unclaimed for testing
-      verified: false,
-      active: true,
-      latitude: 34.0195,
-      longitude: -118.4912,
-      // No userId - not linked to any user
-    },
-  });
-
-  console.log('✅ Created 2 unclaimed providers for claiming flow tests\n');
+  for (let i = 0; i < unclaimedData.length; i++) {
+    const data = unclaimedData[i];
+    await prisma.provider.create({
+      data: {
+        name: data.name,
+        providerType: data.type as ProviderType,
+        description: data.desc,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zip,
+        address: `${200 + i * 100} Care Street`,
+        phone: `(${900 + i}) 555-${String(3000 + i).padStart(4, '0')}`,
+        email: `info@${data.name.toLowerCase().replace(/\s+/g, '')}.example.com`,
+        careTypesOffered: data.care as CareType[],
+        coverPhoto: FACILITY_PHOTOS[i % FACILITY_PHOTOS.length],
+        photos: FACILITY_PHOTOS.slice(i, i + 3),
+        averageRating: data.rating,
+        reviewCount: data.reviews,
+        latitude: data.lat,
+        longitude: data.lng,
+        claimed: false,
+        verified: false,
+        active: true,
+      },
+    });
+  }
+  console.log('✅ Created 4 unclaimed providers\n');
 
   // ============================================================================
-  // ENGAGEMENT DATA
+  // ENGAGEMENT DATA (Consultations, Messages, Tours)
   // ============================================================================
-  console.log('💬 Creating engagement data (consultation requests, messages, tours)...\n');
+  console.log('💬 Creating extensive engagement data...\n');
 
-  // Get all provider and family profile IDs
   const familyProfiles = await prisma.familyProfile.findMany({
     select: { id: true, userId: true },
   });
   const providers = await prisma.provider.findMany({
-    select: { id: true, userId: true },
+    select: { id: true, userId: true, providerType: true },
   });
 
-  // Scenario 1: Family → Organization (Consultation Requests)
-  // Family 1 contacts Org 1 (Sunshine Manor) - Active conversation
-  const request1 = await prisma.consultRequest.create({
-    data: {
-      senderId: family1.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family1.id)!.id,
-      providerId: providers.find(p => p.userId === org1.id)!.id,
-      requestType: 'CONSULTATION',
-      message: 'Hi, I am interested in learning more about Sunshine Manor for my mother. She needs assistance with daily activities and would thrive in a social environment.',
-      status: 'ACCEPTED',
-      createdAt: new Date('2026-01-05T10:00:00Z'),
-    },
-  });
+  // Create 30 consultation requests with varied statuses
+  const requestStatuses: ConsultRequestStatus[] = ['PENDING', 'ACCEPTED', 'COMPLETED', 'DECLINED'];
+  const requests: any[] = [];
 
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request1.id,
-        senderId: org1.id,
-        content: 'Thank you for your interest! We would love to tell you more about Sunshine Manor. When would be a good time for a tour?',
-        createdAt: new Date('2026-01-05T11:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-05T11:30:00Z'),
-      },
-      {
-        consultRequestId: request1.id,
-        senderId: family1.id,
-        content: 'I would love to visit this week. Are you available Thursday afternoon?',
-        createdAt: new Date('2026-01-05T12:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-05T12:15:00Z'),
-      },
-      {
-        consultRequestId: request1.id,
-        senderId: org1.id,
-        content: 'Thursday at 2pm works perfectly! I will send you the address and parking information.',
-        createdAt: new Date('2026-01-05T12:30:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-05T12:45:00Z'),
-      },
-    ],
-  });
+  for (let i = 0; i < 30; i++) {
+    const familyProfile = familyProfiles[i % familyProfiles.length];
+    const provider = providers.filter(p => p.userId !== null)[i % 20];
+    const status = requestStatuses[i % 4];
+    const daysAgo = Math.floor(Math.random() * 14);
 
-  await prisma.tourAppointment.create({
-    data: {
-      requestId: request1.id,
-      proposedBy: org1.id,
-      proposedDate: new Date('2026-01-09T14:00:00Z'),
-      proposedTime: '2:00 PM',
-      status: 'ACCEPTED',
-      notes: 'Looking forward to showing you around!',
-    },
-  });
-
-  // Family 3 contacts Org 5 (Memory Haven) - Pending request
-  const request2 = await prisma.consultRequest.create({
-    data: {
-      senderId: family3.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family3.id)!.id,
-      providerId: providers.find(p => p.userId === org5.id)!.id,
-      requestType: 'CONSULTATION',
-      message: 'My mother has early-stage Alzheimers and I am looking for a specialized memory care facility. Can you tell me about your memory care programs?',
-      status: 'PENDING',
-      createdAt: new Date('2026-01-08T09:00:00Z'),
-    },
-  });
-
-  // Family 4 contacts Org 6 (OC Senior Living) - Active conversation
-  const request3 = await prisma.consultRequest.create({
-    data: {
-      senderId: family4.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family4.id)!.id,
-      providerId: providers.find(p => p.userId === org6.id)!.id,
-      requestType: 'CONSULTATION',
-      message: 'I need to transfer my father to a memory care facility immediately. He has advanced dementia. Do you have availability?',
-      status: 'ACCEPTED',
-      createdAt: new Date('2026-01-06T14:00:00Z'),
-    },
-  });
-
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request3.id,
-        senderId: org6.id,
-        content: 'We do have availability in our secure memory care unit. I would like to discuss your fathers needs. Can we schedule a call today?',
-        createdAt: new Date('2026-01-06T15:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-06T15:30:00Z'),
+    const request = await prisma.consultRequest.create({
+      data: {
+        senderId: families[i % families.length].id,
+        familyProfileId: familyProfile.id,
+        providerId: provider.id,
+        requestType: i % 3 === 0 ? 'HIRING' : 'CONSULTATION',
+        message: `Hello, I am interested in learning more about your services for my ${i % 2 === 0 ? 'mother' : 'father'}. ${i % 3 === 0 ? 'When can we schedule a tour?' : 'What availability do you have?'}`,
+        status,
+        createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
       },
-      {
-        consultRequestId: request3.id,
-        senderId: family4.id,
-        content: 'Yes, please call me at (714) 555-0105 this afternoon.',
-        createdAt: new Date('2026-01-06T16:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-06T16:15:00Z'),
-      },
-    ],
-  });
+    });
+    requests.push(request);
 
-  // Family 7 contacts Org 7 (Skilled Nursing) - Completed
-  const request4 = await prisma.consultRequest.create({
-    data: {
-      senderId: family7.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family7.id)!.id,
-      providerId: providers.find(p => p.userId === org7.id)!.id,
-      requestType: 'CONSULTATION',
-      message: 'My mother needs skilled nursing care after a stroke. Do you accept Medicare?',
-      status: 'COMPLETED',
-      createdAt: new Date('2026-01-03T10:00:00Z'),
-    },
-  });
+    // Add messages to accepted/completed requests
+    if (status === 'ACCEPTED' || status === 'COMPLETED') {
+      const providerUser = await prisma.user.findFirst({
+        where: { provider: { id: provider.id } },
+      });
 
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request4.id,
-        senderId: org7.id,
-        content: 'Yes, we accept Medicare. I would be happy to discuss your mothers care needs.',
-        createdAt: new Date('2026-01-03T11:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-03T11:30:00Z'),
-      },
-    ],
-  });
+      if (providerUser) {
+        await prisma.message.createMany({
+          data: [
+            {
+              consultRequestId: request.id,
+              senderId: providerUser.id,
+              content: 'Thank you for your interest! I would be happy to tell you more about our services. When would be a good time for a tour?',
+              createdAt: new Date(Date.now() - (daysAgo - 1) * 24 * 60 * 60 * 1000),
+              status: 'READ',
+              readAt: new Date(Date.now() - (daysAgo - 1) * 24 * 60 * 60 * 1000 + 3600000),
+            },
+            {
+              consultRequestId: request.id,
+              senderId: families[i % families.length].id,
+              content: 'That sounds great! How about this week? I am flexible with timing.',
+              createdAt: new Date(Date.now() - (daysAgo - 2) * 24 * 60 * 60 * 1000),
+              status: 'READ',
+              readAt: new Date(Date.now() - (daysAgo - 2) * 24 * 60 * 60 * 1000 + 1800000),
+            },
+          ],
+        });
 
-  // Scenario 2: Family → Individual Caregiver (Hiring Requests)
-  // Family 5 contacts Caregiver 1 (Maria Santos) - Active hiring conversation
-  const request5 = await prisma.consultRequest.create({
-    data: {
-      senderId: family5.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family5.id)!.id,
-      providerId: providers.find(p => p.userId === caregiver1.id)!.id,
-      requestType: 'HIRING',
-      message: 'Hi Maria, I am looking for a live-in caregiver for my father who has Parkinsons. I see you have experience with dementia care. Are you available for live-in work?',
-      status: 'ACCEPTED',
-      createdAt: new Date('2026-01-07T09:00:00Z'),
-    },
-  });
+        // Add tour appointments to some requests
+        if (i % 5 === 0 && status === 'ACCEPTED') {
+          await prisma.tourAppointment.create({
+            data: {
+              requestId: request.id,
+              proposedBy: providerUser.id,
+              proposedDate: new Date(Date.now() + (7 - i % 7) * 24 * 60 * 60 * 1000),
+              proposedTime: `${10 + (i % 5)}:00 ${i % 2 === 0 ? 'AM' : 'PM'}`,
+              status: 'ACCEPTED',
+              notes: 'Looking forward to meeting you!',
+            },
+          });
+        }
+      }
+    }
+  }
 
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request5.id,
-        senderId: caregiver1.id,
-        content: 'Hello! Yes, I am available for live-in positions. I have experience with Parkinsons patients as well. When would you like to schedule an interview?',
-        createdAt: new Date('2026-01-07T10:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-07T10:30:00Z'),
-      },
-      {
-        consultRequestId: request5.id,
-        senderId: family5.id,
-        content: 'Great! How about tomorrow at 3pm? We can meet at my fathers home.',
-        createdAt: new Date('2026-01-07T11:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-07T11:15:00Z'),
-      },
-    ],
-  });
+  // Create saved providers
+  for (let i = 0; i < 40; i++) {
+    const familyProfile = familyProfiles[i % familyProfiles.length];
+    const provider = providers[i % providers.length];
 
-  // Family 6 contacts Caregiver 6 (Susan Williams) - Part-time companion
-  const request6 = await prisma.consultRequest.create({
-    data: {
-      senderId: family6.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family6.id)!.id,
-      providerId: providers.find(p => p.userId === caregiver6.id)!.id,
-      requestType: 'HIRING',
-      message: 'I need someone to visit my mother 3 times a week for companionship and light housekeeping. Are you available?',
-      status: 'PENDING',
-      createdAt: new Date('2026-01-08T14:00:00Z'),
-    },
-  });
+    try {
+      await prisma.savedProvider.create({
+        data: {
+          familyProfileId: familyProfile.id,
+          providerId: provider.id,
+          notes: ['Top choice', 'Backup option', 'Need to visit', 'Great reviews', 'Good location'][i % 5],
+        },
+      });
+    } catch (e) {
+      // Ignore duplicate key errors
+    }
+  }
 
-  // Family 7 contacts Caregiver 3 (Rachel Thompson RN) - Skilled nursing
-  const request7 = await prisma.consultRequest.create({
-    data: {
-      senderId: family7.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family7.id)!.id,
-      providerId: providers.find(p => p.userId === caregiver3.id)!.id,
-      requestType: 'HIRING',
-      message: 'My mother needs post-stroke care including wound care and medication management. What is your availability?',
-      status: 'ACCEPTED',
-      createdAt: new Date('2026-01-06T10:00:00Z'),
-    },
-  });
+  console.log('✅ Created engagement data:');
+  console.log('   - 30 consultation/hiring requests');
+  console.log('   - 40+ messages across conversations');
+  console.log('   - 6 scheduled tours');
+  console.log('   - 40 saved providers\n');
 
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request7.id,
-        senderId: caregiver3.id,
-        content: 'I specialize in post-stroke care and wound management. I have availability starting next week. Would you like to discuss the care plan?',
-        createdAt: new Date('2026-01-06T11:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-06T11:30:00Z'),
-      },
-    ],
-  });
-
-  // Scenario 3: Organization → Individual Caregiver (Job Applications)
-  // Org 11 (Hillcrest AL) contacts Caregiver 4 (Angela Brooks) - Job offer
-  const request8 = await prisma.consultRequest.create({
-    data: {
-      senderId: org11.id,
-      familyProfileId: familyProfiles[0].id, // Using dummy family profile (required by schema)
-      providerId: providers.find(p => p.userId === caregiver4.id)!.id,
-      requestType: 'HIRING',
-      message: 'Hi Angela, we reviewed your profile and would like to interview you for a full-time caregiver position at Hillcrest Assisted Living. Are you interested?',
-      status: 'ACCEPTED',
-      createdAt: new Date('2026-01-07T15:00:00Z'),
-    },
-  });
-
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request8.id,
-        senderId: caregiver4.id,
-        content: 'Yes, I am very interested! I would love to learn more about the position. When can we schedule an interview?',
-        createdAt: new Date('2026-01-07T16:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-07T16:30:00Z'),
-      },
-      {
-        consultRequestId: request8.id,
-        senderId: org11.id,
-        content: 'How about this Friday at 10am? Please bring your certifications.',
-        createdAt: new Date('2026-01-07T17:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-07T17:15:00Z'),
-      },
-    ],
-  });
-
-  // Org 5 (Memory Haven) contacts Caregiver 5 (Nancy Foster) - Memory care specialist job
-  const request9 = await prisma.consultRequest.create({
-    data: {
-      senderId: org5.id,
-      familyProfileId: familyProfiles[0].id, // Using dummy family profile
-      providerId: providers.find(p => p.userId === caregiver5.id)!.id,
-      requestType: 'HIRING',
-      message: 'We are looking for a memory care specialist to join our team at Memory Haven. Your experience is exactly what we need. Can we schedule an interview?',
-      status: 'PENDING',
-      createdAt: new Date('2026-01-08T10:00:00Z'),
-    },
-  });
-
-  // Scenario 4: Org 8 (CareFirst Home Services) - Family Mode Requests
-  // Org8 in family mode contacts individual caregivers for staff hiring
-  const request10 = await prisma.consultRequest.create({
-    data: {
-      senderId: org8.id,
-      familyProfileId: familyProfiles[0].id, // Using dummy family profile
-      providerId: providers.find(p => p.userId === caregiver4.id)!.id,
-      requestType: 'HIRING',
-      message: 'Hi Angela, CareFirst Home Services is expanding and looking for experienced caregivers to join our team. Would you be interested in discussing employment opportunities?',
-      status: 'ACCEPTED',
-      createdAt: new Date('2026-01-05T09:00:00Z'),
-    },
-  });
-
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request10.id,
-        senderId: caregiver4.id,
-        content: 'Yes, I would be very interested! What positions do you have available?',
-        createdAt: new Date('2026-01-05T10:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-05T10:30:00Z'),
-      },
-      {
-        consultRequestId: request10.id,
-        senderId: org8.id,
-        content: 'We have full-time and part-time positions available. Our caregivers work with clients in their homes throughout San Diego. Can we schedule a call this week?',
-        createdAt: new Date('2026-01-05T11:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-05T11:15:00Z'),
-      },
-    ],
-  });
-
-  const request11 = await prisma.consultRequest.create({
-    data: {
-      senderId: org8.id,
-      familyProfileId: familyProfiles[0].id,
-      providerId: providers.find(p => p.userId === caregiver5.id)!.id,
-      requestType: 'HIRING',
-      message: 'Nancy, we are impressed with your memory care background. CareFirst has several clients who need specialized dementia care. Would you like to join our team?',
-      status: 'PENDING',
-      createdAt: new Date('2026-01-08T08:00:00Z'),
-    },
-  });
-
-  // Scenario 5: Org 8 (CareFirst) - Provider Mode Requests
-  // Families contact Org8's home care services
-  const request12 = await prisma.consultRequest.create({
-    data: {
-      senderId: family2.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family2.id)!.id,
-      providerId: providers.find(p => p.userId === org8.id)!.id,
-      requestType: 'CONSULTATION',
-      message: 'My father needs part-time home care assistance, about 20 hours per week. Can you provide caregivers who speak Spanish?',
-      status: 'ACCEPTED',
-      createdAt: new Date('2026-01-04T13:00:00Z'),
-    },
-  });
-
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request12.id,
-        senderId: org8.id,
-        content: 'Absolutely! We have several bilingual caregivers available. I would love to discuss your fathers needs and create a care plan. When would be a good time to talk?',
-        createdAt: new Date('2026-01-04T14:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-04T14:30:00Z'),
-      },
-      {
-        consultRequestId: request12.id,
-        senderId: family2.id,
-        content: 'Tomorrow afternoon would work well. What information do you need from me?',
-        createdAt: new Date('2026-01-04T15:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-04T15:15:00Z'),
-      },
-    ],
-  });
-
-  const request13 = await prisma.consultRequest.create({
-    data: {
-      senderId: family6.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family6.id)!.id,
-      providerId: providers.find(p => p.userId === org8.id)!.id,
-      requestType: 'CONSULTATION',
-      message: 'I need companion care for my mother 3 days a week. She mainly needs help with light housekeeping and meal preparation. Do you offer this service?',
-      status: 'ACCEPTED',
-      createdAt: new Date('2026-01-07T14:00:00Z'),
-    },
-  });
-
-  await prisma.message.createMany({
-    data: [
-      {
-        consultRequestId: request13.id,
-        senderId: org8.id,
-        content: 'Yes, companion care is one of our core services! We can match your mother with a caregiver who specializes in light housekeeping and meal prep. What days work best?',
-        createdAt: new Date('2026-01-07T15:00:00Z'),
-        status: 'READ',
-        readAt: new Date('2026-01-07T15:30:00Z'),
-      },
-    ],
-  });
-
-  const request14 = await prisma.consultRequest.create({
-    data: {
-      senderId: family9.id,
-      familyProfileId: familyProfiles.find(fp => fp.userId === family9.id)!.id,
-      providerId: providers.find(p => p.userId === org8.id)!.id,
-      requestType: 'CONSULTATION',
-      message: 'What are your hourly rates for basic personal care assistance? My mother needs help with bathing and dressing in the mornings.',
-      status: 'PENDING',
-      createdAt: new Date('2026-01-08T16:00:00Z'),
-    },
-  });
-
-  // Additional engagement: SavedProvider relationships
-  await prisma.savedProvider.createMany({
-    data: [
-      {
-        familyProfileId: familyProfiles.find(fp => fp.userId === family1.id)!.id,
-        providerId: providers.find(p => p.userId === org1.id)!.id,
-        notes: 'Love the amenities and staff',
-      },
-      {
-        familyProfileId: familyProfiles.find(fp => fp.userId === family1.id)!.id,
-        providerId: providers.find(p => p.userId === org3.id)!.id,
-        notes: 'Premium option if budget allows',
-      },
-      {
-        familyProfileId: familyProfiles.find(fp => fp.userId === family3.id)!.id,
-        providerId: providers.find(p => p.userId === org5.id)!.id,
-        notes: 'Specialized memory care',
-      },
-      {
-        familyProfileId: familyProfiles.find(fp => fp.userId === family4.id)!.id,
-        providerId: providers.find(p => p.userId === org5.id)!.id,
-        notes: 'Excellent dementia care program',
-      },
-      {
-        familyProfileId: familyProfiles.find(fp => fp.userId === family4.id)!.id,
-        providerId: providers.find(p => p.userId === org6.id)!.id,
-        notes: 'Currently touring',
-      },
-      {
-        familyProfileId: familyProfiles.find(fp => fp.userId === family5.id)!.id,
-        providerId: providers.find(p => p.userId === caregiver1.id)!.id,
-        notes: 'Interviewing for live-in position',
-      },
-      {
-        familyProfileId: familyProfiles.find(fp => fp.userId === family7.id)!.id,
-        providerId: providers.find(p => p.userId === org7.id)!.id,
-        notes: 'Accepted placement',
-      },
-      {
-        familyProfileId: familyProfiles.find(fp => fp.userId === family10.id)!.id,
-        providerId: providers.find(p => p.userId === org3.id)!.id,
-        notes: 'Luxury option',
-      },
-      {
-        familyProfileId: familyProfiles[0].id, // Org8 saved caregivers for potential hiring
-        providerId: providers.find(p => p.userId === caregiver4.id)!.id,
-        notes: 'Interviewing for full-time position',
-      },
-      {
-        familyProfileId: familyProfiles[0].id,
-        providerId: providers.find(p => p.userId === caregiver5.id)!.id,
-        notes: 'Memory care specialist - potential hire',
-      },
-    ],
-  });
-
-  console.log('✅ Created engagement data:\n');
-  console.log('   - 14 consultation/hiring requests');
-  console.log('   - 18 messages across conversations');
-  console.log('   - 1 scheduled tour');
-  console.log('   - 10 saved providers\n');
-
-  console.log('📊 Seed Summary:');
-  console.log('   - 30 total user accounts (12 families, 12 orgs, 6 caregivers)');
-  console.log('   - All profiles with varying completion levels');
-  console.log('   - All 3 engagement scenarios covered');
+  console.log('📊 MEGA Seed Summary:');
+  console.log('   - 36 family accounts (all with photos)');
+  console.log('   - 36 organization/facility accounts (all with multiple photos)');
+  console.log('   - 18 individual caregiver accounts (all with photos)');
+  console.log('   - 4 unclaimed providers for claiming flow');
+  console.log('   - 90+ total user accounts');
   console.log('   - Password for all accounts: demo123\n');
 
-  console.log('✅ Comprehensive seed completed successfully!\n');
+  console.log('✅ MEGA seed completed successfully!\n');
 }
 
 // Export main for use in API routes
