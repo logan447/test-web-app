@@ -326,24 +326,6 @@ function MainNavContent() {
               )}
             </div>
 
-            {session && (
-              isProviderMode ? (
-                <Link
-                  href="/provider/leads"
-                  className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm"
-                >
-                  Provider Mode
-                </Link>
-              ) : (
-                <button
-                  onClick={() => handleModeSwitch('PROVIDER')}
-                  disabled={switchingMode}
-                  className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm disabled:opacity-50"
-                >
-                  {switchingMode ? 'Switching...' : 'For Providers'}
-                </button>
-              )
-            )}
           </div>
 
           {/* Right side - Auth */}
@@ -715,28 +697,7 @@ function MainNavContent() {
               )}
             </div>
 
-            {session ? (
-              isProviderMode ? (
-                <Link
-                  href="/provider/leads"
-                  className="block px-3 py-2 text-gray-700 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Provider Mode
-                </Link>
-              ) : (
-                <button
-                  onClick={() => {
-                    handleModeSwitch('PROVIDER');
-                    setMobileMenuOpen(false);
-                  }}
-                  disabled={switchingMode}
-                  className="block w-full text-left px-3 py-2 text-gray-700 font-medium disabled:opacity-50"
-                >
-                  {switchingMode ? 'Switching...' : 'For Providers'}
-                </button>
-              )
-            ) : (
+            {!session && (
               <Link href="/for-providers" className="block px-3 py-2 text-gray-700 font-medium">
                 For Providers
               </Link>
