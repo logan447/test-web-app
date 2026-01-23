@@ -7,7 +7,6 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
-import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
 import PhotoGallery from "@/components/Gallery/PhotoGallery";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
@@ -597,7 +596,21 @@ export default function ProviderProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <Breadcrumb />
+        {/* Skeleton Hero */}
+        <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="animate-pulse">
+              <div className="h-10 bg-white/20 rounded w-64 mb-3"></div>
+              <div className="h-6 bg-white/20 rounded w-40 mb-2"></div>
+              <div className="h-5 bg-white/20 rounded w-80 mb-6"></div>
+              <div className="flex gap-2">
+                <div className="h-8 bg-white/10 rounded-full w-24"></div>
+                <div className="h-8 bg-white/10 rounded-full w-28"></div>
+                <div className="h-8 bg-white/10 rounded-full w-32"></div>
+              </div>
+            </div>
+          </div>
+        </div>
         <ProviderDetailSkeleton />
       </div>
     );
@@ -610,131 +623,151 @@ export default function ProviderProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
-      <Breadcrumb currentPage={provider.name} />
 
-      {/* Provider Profile */}
+      {/* Hero Header with Gradient */}
+      <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="bg-white/20 backdrop-blur-sm text-white/90 px-3 py-1 rounded-full text-sm font-medium">
+                  {formatProviderType(provider.providerType)}
+                </span>
+                {provider.averageRating && (
+                  <span className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+                    <svg className="w-4 h-4 text-yellow-300 fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    {provider.averageRating.toFixed(1)} ({provider.reviewCount} reviews)
+                  </span>
+                )}
+              </div>
+              <h1 className="text-4xl font-bold mb-3">{provider.name}</h1>
+              <p className="text-xl text-emerald-100 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                {provider.city}, {provider.state}
+              </p>
+
+              {/* Trust Badges in Hero */}
+              <div className="flex flex-wrap gap-2 mt-6">
+                {provider.licensed && (
+                  <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Licensed
+                  </span>
+                )}
+                {provider.insuranceVerified && (
+                  <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Insured
+                  </span>
+                )}
+                {provider.backgroundChecked && (
+                  <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Background Checked
+                  </span>
+                )}
+                {provider.availableSpots !== null && provider.availableSpots > 0 && (
+                  <span className="bg-emerald-400/30 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    {provider.availableSpots} {provider.availableSpots === 1 ? 'spot' : 'spots'} available
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <button
+              onClick={handleSaveToggle}
+              disabled={saving}
+              className={`flex-shrink-0 p-3 rounded-full transition-colors ${
+                isSaved
+                  ? 'bg-white text-red-600 hover:bg-red-50'
+                  : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
+              } disabled:opacity-50`}
+              title={isSaved ? 'Remove from saved' : 'Save provider'}
+            >
+              <svg className={`w-6 h-6 ${isSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill={isSaved ? 'currentColor' : 'none'}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Provider Profile Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           {/* Main content - 2/3 width */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 fade-in">
-          {/* Header */}
-          <div className="border-b pb-6 mb-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{provider.name}</h1>
-                <p className="text-lg text-primary-600 mb-2">
-                  {formatProviderType(provider.providerType)}
-                </p>
-                <p className="text-gray-600">
-                  📍 {provider.address}, {provider.city}, {provider.state} {provider.zipCode}
-                </p>
+
+            {/* Certifications & Additional Badges */}
+            {(Array.isArray(provider.certifications) && provider.certifications.length > 0) ||
+             (provider.availableSpots === 0 && provider.totalCapacity) ||
+             (provider.waitlistAvailable && provider.availableSpots === 0) ||
+             (!isIndependentCaregiver && provider.claimed !== undefined) ? (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {Array.isArray(provider.certifications) && provider.certifications.map((cert) => (
+                  <span
+                    key={cert}
+                    className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium"
+                  >
+                    {cert}
+                  </span>
+                ))}
+
+                {provider.availableSpots === 0 && provider.totalCapacity && (
+                  <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium">
+                    Currently at capacity
+                  </span>
+                )}
+
+                {provider.waitlistAvailable && provider.availableSpots === 0 && (
+                  <span className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium">
+                    Waitlist available
+                  </span>
+                )}
+
+                {!isIndependentCaregiver && provider.claimed === true && (
+                  <span className="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Verified Profile
+                  </span>
+                )}
+
+                {!isIndependentCaregiver && provider.claimed === false && (
+                  <span className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    Unclaimed Profile
+                  </span>
+                )}
               </div>
-              {/* Save Button - visible for all users */}
-              <button
-                onClick={handleSaveToggle}
-                disabled={saving}
-                className={`flex-shrink-0 p-3 rounded-full transition-colors ${
-                  isSaved
-                    ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                } disabled:opacity-50`}
-                title={isSaved ? 'Remove from saved' : 'Save provider'}
-              >
-                <svg className={`w-6 h-6 ${isSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill={isSaved ? 'currentColor' : 'none'}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Trust Badges & Availability */}
-            <div className="flex flex-wrap gap-2">
-              {provider.licensed && (
-                <span className="bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  Licensed
-                </span>
-              )}
-
-              {provider.insuranceVerified && (
-                <span className="bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  Insured
-                </span>
-              )}
-
-              {provider.backgroundChecked && (
-                <span className="bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  Background Checked
-                </span>
-              )}
-
-              {Array.isArray(provider.certifications) && provider.certifications.map((cert) => (
-                <span
-                  key={cert}
-                  className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium"
-                >
-                  {cert}
-                </span>
-              ))}
-
-              {/* Availability Badge */}
-              {provider.availableSpots !== null && provider.availableSpots > 0 && (
-                <span className="bg-green-50 text-green-700 border border-green-300 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  {provider.availableSpots} {provider.availableSpots === 1 ? 'spot' : 'spots'} available
-                </span>
-              )}
-
-              {provider.availableSpots === 0 && provider.totalCapacity && (
-                <span className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium">
-                  Currently at capacity
-                </span>
-              )}
-
-              {provider.waitlistAvailable && provider.availableSpots === 0 && (
-                <span className="bg-orange-100 text-orange-800 px-3 py-1.5 rounded-full text-sm font-medium">
-                  Waitlist available
-                </span>
-              )}
-
-              {/* Only show claimed/unclaimed badges for organizations, not independent caregivers */}
-              {!isIndependentCaregiver && provider.claimed === true && (
-                <span className="bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  Claimed
-                </span>
-              )}
-
-              {!isIndependentCaregiver && provider.claimed === false && (
-                <span className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                  Unclaimed Profile
-                </span>
-              )}
-            </div>
-          </div>
+            ) : null}
 
           {/* Claim This Listing Banner - for unclaimed organization providers only */}
           {!isIndependentCaregiver && provider.claimed === false && (
-            <div className="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-200 rounded-xl p-5 mb-6">
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5 mb-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                   </div>
@@ -747,7 +780,7 @@ export default function ProviderProfilePage() {
                 </div>
                 <button
                   onClick={handleClaimClick}
-                  className="w-full sm:w-auto px-5 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm whitespace-nowrap flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium text-sm whitespace-nowrap flex items-center justify-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -777,13 +810,13 @@ export default function ProviderProfilePage() {
 
           {/* Pricing */}
           {(provider.priceMin || provider.priceMax || provider.priceDescription || provider.paymentOptions.length > 0) && (
-            <div className="mb-6 bg-primary-50 border border-primary-200 rounded-lg p-6">
+            <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Pricing & Payment</h2>
 
               {/* Price Range */}
               {(provider.priceMin || provider.priceMax) && (
                 <div className="mb-4">
-                  <p className="text-2xl font-bold text-primary-700">
+                  <p className="text-2xl font-bold text-emerald-700">
                     {provider.priceMin && provider.priceMax ? (
                       `$${provider.priceMin.toLocaleString()} - $${provider.priceMax.toLocaleString()}/month`
                     ) : provider.priceMin ? (
@@ -811,7 +844,7 @@ export default function ProviderProfilePage() {
                     {provider.paymentOptions.map((option) => (
                       <span
                         key={option}
-                        className="bg-white text-primary-700 px-3 py-1 rounded-full text-sm border border-primary-300"
+                        className="bg-white text-emerald-700 px-3 py-1 rounded-full text-sm border border-emerald-300"
                       >
                         {option}
                       </span>
@@ -835,7 +868,7 @@ export default function ProviderProfilePage() {
                 {provider.careTypesOffered.map((care) => (
                   <span
                     key={care}
-                    className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-sm"
+                    className="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-sm font-medium"
                   >
                     {formatProviderType(care)}
                   </span>
@@ -891,25 +924,33 @@ export default function ProviderProfilePage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
               {/* Show contact info if revealed (organizations always, individual caregivers after acceptance) */}
               {provider.contactRevealed !== false ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {provider.phone && (
-                    <p className="text-gray-700">
-                      <span className="font-medium">Phone:</span> {provider.phone}
+                    <p className="text-gray-700 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      <span className="font-medium">{provider.phone}</span>
                     </p>
                   )}
                   {provider.email && (
-                    <p className="text-gray-700">
-                      <span className="font-medium">Email:</span> {provider.email}
+                    <p className="text-gray-700 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span className="font-medium">{provider.email}</span>
                     </p>
                   )}
                   {provider.website && (
-                    <p className="text-gray-700">
-                      <span className="font-medium">Website:</span>{" "}
+                    <p className="text-gray-700 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                      </svg>
                       <a
                         href={provider.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary-600 hover:underline"
+                        className="text-emerald-600 hover:text-emerald-700 hover:underline font-medium"
                       >
                         {provider.website}
                       </a>
@@ -917,7 +958,7 @@ export default function ProviderProfilePage() {
                   )}
                 </div>
               ) : (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
                   <div className="flex items-start gap-3">
                     <svg className="w-5 h-5 text-gray-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -1144,7 +1185,7 @@ export default function ProviderProfilePage() {
                   <div className="mt-6 flex gap-3">
                     <button
                       type="button"
-                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => {
                         setConfirmModalOpen(false);
                         setPendingContactReason(null);
@@ -1154,7 +1195,7 @@ export default function ProviderProfilePage() {
                     </button>
                     <button
                       type="button"
-                      className="flex-1 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+                      className="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors disabled:opacity-50"
                       onClick={handleConfirmEngagement}
                       disabled={creatingEngagement || isProviderMode}
                     >
