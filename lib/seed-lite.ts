@@ -97,45 +97,41 @@ const CA_LOCATIONS = [
 ];
 
 export async function seedLite(prisma: PrismaClient) {
-  console.log('🌱 Starting FULL seed (90 accounts)...\n');
+  console.log('[SEED] 🌱 Starting FULL seed (90 accounts)...');
 
   // Preserve admin users
+  console.log('[SEED] Step 1: Finding admin users...');
   const adminUsers = await prisma.user.findMany({
     where: { role: 'ADMIN' },
     select: { id: true, email: true },
   });
   const adminIds = adminUsers.map(u => u.id);
-  console.log(`📌 Preserving ${adminUsers.length} admin user(s)`);
+  console.log(`[SEED] Found ${adminUsers.length} admin user(s) to preserve`);
 
   // Clear existing data - must delete in correct order due to foreign keys
-  // 1. Delete all message/event tables first
+  console.log('[SEED] Step 2: Clearing existing data...');
+
   await prisma.engagementMessage.deleteMany();
   await prisma.hiringMessage.deleteMany();
   await prisma.scheduledEvent.deleteMany();
   await prisma.message.deleteMany();
   await prisma.tourAppointment.deleteMany();
-
-  // 2. Delete engagement tables
   await prisma.engagement.deleteMany();
   await prisma.hiringEngagement.deleteMany();
   await prisma.consultRequest.deleteMany();
-
-  // 3. Delete saved/view tables
   await prisma.savedProvider.deleteMany();
   await prisma.savedFamilyProfile.deleteMany();
   await prisma.contactView.deleteMany();
   await prisma.review.deleteMany();
-
-  // 4. Delete profiles (filter by admin)
   await prisma.familyProfile.deleteMany({ where: { userId: { notIn: adminIds } } });
   await prisma.providerIdentity.deleteMany({ where: { userId: { notIn: adminIds } } });
   await prisma.provider.deleteMany({ where: { userId: { notIn: adminIds } } });
-
-  // 5. Delete non-admin users
   await prisma.user.deleteMany({ where: { role: { not: 'ADMIN' } } });
-  console.log('✅ Cleared existing data\n');
+  console.log('[SEED] ✅ Cleared existing data');
 
+  console.log('[SEED] Step 3: Hashing password...');
   const demoPassword = await hash('demo123', 12);
+  console.log('[SEED] ✅ Password hashed');
 
   // 36 Family accounts
   const familyData = [
