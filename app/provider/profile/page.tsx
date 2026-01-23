@@ -8,6 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
 import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
+import EngagementCalendar, { ScheduledEvent } from "@/components/Engagement/EngagementCalendar";
 import { useProviderIdentity } from "@/hooks/useProviderIdentity";
 
 interface DashboardStats {
@@ -34,6 +35,43 @@ interface ProviderProfile {
   state?: string;
 }
 
+interface AnalyticsData {
+  responseRate: number;
+  conversionRate: number;
+  profileViews: number;
+  weeklyTrend: { week: string; requests: number; accepted: number }[];
+  totalRequests: number;
+  acceptedRequests: number;
+  pendingRequests: number;
+  upcomingTours: number;
+  avgResponseTime: string | null;
+}
+
+interface MatchedFamily {
+  id: string;
+  userId: string;
+  user: { name: string | null };
+  city: string;
+  state: string;
+  careTypes: string[];
+  seniorName: string | null;
+  createdAt: string;
+  matchScore: number;
+  matchReasons: string[];
+}
+
+interface TourData {
+  id: string;
+  proposedDate: string;
+  proposedTime: string;
+  status: string;
+  request: {
+    id: string;
+    sender: { id: string; name: string };
+    familyProfile?: { id: string; lovedOneName?: string };
+  };
+}
+
 export default function ProviderProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -47,6 +85,9 @@ export default function ProviderProfilePage() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
   const [providerProfile, setProviderProfile] = useState<ProviderProfile | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [recentLeads, setRecentLeads] = useState<MatchedFamily[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<ScheduledEvent[]>([]);
 
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
   const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
@@ -69,10 +110,13 @@ export default function ProviderProfilePage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsRes, activitiesRes, profileRes] = await Promise.all([
+      const [statsRes, activitiesRes, profileRes, analyticsRes, leadsRes, toursRes] = await Promise.all([
         fetch("/api/dashboard/stats"),
         fetch("/api/dashboard/activity"),
         fetch("/api/providers/me"),
+        fetch("/api/provider/analytics"),
+        fetch("/api/provider/matches"),
+        fetch("/api/dashboard/tours"),
       ]);
 
       if (statsRes.ok) {
@@ -94,6 +138,34 @@ export default function ProviderProfilePage() {
       if (profileRes.ok) {
         const profile = await profileRes.json();
         setProviderProfile(profile);
+      }
+
+      if (analyticsRes.ok) {
+        const data = await analyticsRes.json();
+        setAnalytics(data);
+      }
+
+      if (leadsRes.ok) {
+        const data = await leadsRes.json();
+        setRecentLeads(Array.isArray(data) ? data.slice(0, 3) : []);
+      }
+
+      if (toursRes.ok) {
+        const data = await toursRes.json();
+        const tours: TourData[] = data.tours || [];
+        // Convert tours to calendar events
+        const events: ScheduledEvent[] = tours.map((tour) => ({
+          id: tour.id,
+          date: new Date(tour.proposedDate),
+          title: tour.request.familyProfile?.lovedOneName
+            ? `Tour with ${tour.request.familyProfile.lovedOneName}'s family`
+            : `Tour with ${tour.request.sender.name}`,
+          type: "tour" as const,
+          familyName: tour.request.sender.name,
+          familyProfileId: tour.request.familyProfile?.id,
+          engagementId: tour.request.id,
+        }));
+        setCalendarEvents(events);
       }
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
@@ -402,6 +474,201 @@ export default function ProviderProfilePage() {
           </div>
         </div>
 
+        {/* Analytics Insights Section */}
+        {analytics && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Performance Insights
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Response Rate */}
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    analytics.responseRate >= 80 ? 'bg-green-100 text-green-700' :
+                    analytics.responseRate >= 50 ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {analytics.responseRate >= 80 ? 'Excellent' : analytics.responseRate >= 50 ? 'Good' : 'Needs work'}
+                  </span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{analytics.responseRate}%</div>
+                <div className="text-sm text-gray-600">Response Rate</div>
+                <div className="mt-2 bg-gray-200 rounded-full h-1.5">
+                  <div
+                    className="bg-blue-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${analytics.responseRate}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Conversion Rate */}
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="bg-emerald-100 p-2 rounded-lg">
+                    <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    analytics.conversionRate >= 70 ? 'bg-green-100 text-green-700' :
+                    analytics.conversionRate >= 40 ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-gray-100 text-gray-700'
+                  }`}>
+                    {analytics.conversionRate >= 70 ? 'High' : analytics.conversionRate >= 40 ? 'Average' : 'Building'}
+                  </span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{analytics.conversionRate}%</div>
+                <div className="text-sm text-gray-600">Conversion Rate</div>
+                <div className="mt-2 bg-gray-200 rounded-full h-1.5">
+                  <div
+                    className="bg-emerald-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${analytics.conversionRate}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Profile Views */}
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="bg-purple-100 p-2 rounded-lg">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{analytics.profileViews}</div>
+                <div className="text-sm text-gray-600">Profile Views</div>
+                <div className="mt-2 text-xs text-gray-500">All time</div>
+              </div>
+
+              {/* Upcoming Tours */}
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="bg-orange-100 p-2 rounded-lg">
+                    <svg className="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-gray-900">{analytics.upcomingTours}</div>
+                <div className="text-sm text-gray-600">Scheduled Tours</div>
+                <div className="mt-2 text-xs text-gray-500">Upcoming</div>
+              </div>
+            </div>
+
+            {/* Weekly Trend Mini Chart */}
+            {analytics.weeklyTrend.length > 0 && (
+              <div className="mt-4 bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                <h3 className="font-semibold text-gray-900 mb-4">Request Activity (Last 4 Weeks)</h3>
+                <div className="flex items-end justify-between gap-2 h-24">
+                  {analytics.weeklyTrend.map((week, index) => (
+                    <div key={index} className="flex-1 flex flex-col items-center">
+                      <div className="w-full flex flex-col items-center gap-1 mb-2">
+                        <div
+                          className="w-full max-w-[40px] bg-emerald-200 rounded-t"
+                          style={{
+                            height: `${Math.max(week.accepted * 15, 4)}px`,
+                          }}
+                          title={`${week.accepted} accepted`}
+                        />
+                        <div
+                          className="w-full max-w-[40px] bg-emerald-600 rounded-t"
+                          style={{
+                            height: `${Math.max((week.requests - week.accepted) * 15, week.requests > 0 ? 4 : 0)}px`,
+                          }}
+                          title={`${week.requests - week.accepted} pending/other`}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500">{week.week}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-4 mt-4 text-xs text-gray-600">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 bg-emerald-600 rounded" />
+                    <span>Requests</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 bg-emerald-200 rounded" />
+                    <span>Accepted</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Recent Leads Section */}
+        {recentLeads.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">
+                Matching Families
+              </h2>
+              <Link
+                href="/provider/leads"
+                className="text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+              >
+                View all
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {recentLeads.map((lead) => (
+                <Link
+                  key={lead.id}
+                  href={`/provider/leads`}
+                  className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-emerald-200 transition-all"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="bg-emerald-100 text-emerald-700 w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                      {lead.user?.name?.charAt(0) || "?"}
+                    </div>
+                    <span className="text-xs font-medium bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
+                      {lead.matchScore}% match
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    {lead.seniorName ? `Care for ${lead.seniorName}` : lead.user?.name || "Family"}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {lead.city}, {lead.state}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {lead.careTypes.slice(0, 2).map((type) => (
+                      <span
+                        key={type}
+                        className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
+                      >
+                        {type.replace(/_/g, " ")}
+                      </span>
+                    ))}
+                    {lead.careTypes.length > 2 && (
+                      <span className="text-xs text-gray-500">
+                        +{lead.careTypes.length - 2} more
+                      </span>
+                    )}
+                  </div>
+                  {lead.matchReasons.length > 0 && (
+                    <p className="text-xs text-emerald-600 mt-2">
+                      {lead.matchReasons[0]}
+                    </p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content - Activity Feed */}
           <div className="lg:col-span-2">
@@ -524,8 +791,20 @@ export default function ProviderProfilePage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Upcoming Tours Widget */}
-            <UpcomingToursWidget />
+            {/* Engagement Calendar */}
+            {calendarEvents.length > 0 ? (
+              <EngagementCalendar
+                events={calendarEvents}
+                variant="compact"
+                onEventClick={(event) => {
+                  if (event.engagementId) {
+                    router.push(`/provider/requests/${event.engagementId}`);
+                  }
+                }}
+              />
+            ) : (
+              <UpcomingToursWidget />
+            )}
 
             {/* Tips Card */}
             <div className="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-xl p-6 border border-emerald-200">
