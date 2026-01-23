@@ -10,6 +10,8 @@ interface FamilyProfile {
     email: string;
     phone: string | null;
   };
+  profilePhoto?: string | null;
+  lovedOneName?: string | null;
   careTypes: string[];
   location: string;
   city: string;
@@ -73,15 +75,45 @@ export default function EnhancedFamilyCard({
     (Date.now() - new Date(profile.createdAt).getTime()) / (1000 * 60 * 60 * 24)
   );
 
+  // Get display name - first name only for privacy
+  const displayName = profile.user.name?.split(' ')[0] || 'Family';
+  const lovedOneDisplay = profile.lovedOneName
+    ? (profile.lovedOneName === 'Self' ? 'themselves' : profile.lovedOneName.split(' ')[0])
+    : null;
+
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
-      {/* Header with Location and Status */}
+      {/* Header with Photo, Location and Status */}
       <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-4 border-b border-primary-200">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
+        <div className="flex items-start gap-4">
+          {/* Profile Photo */}
+          <div className="flex-shrink-0">
+            {profile.profilePhoto && !imageError ? (
+              <img
+                src={profile.profilePhoto}
+                alt=""
+                className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center border-2 border-white shadow-md">
+                <span className="text-xl font-bold text-white">
+                  {displayName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-bold text-gray-900 truncate">
+                {displayName}{lovedOneDisplay ? ` seeking care for ${lovedOneDisplay}` : "'s Family"}
+              </h3>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
               <svg
-                className="w-5 h-5 text-primary-600"
+                className="w-4 h-4 text-primary-600 flex-shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -99,19 +131,18 @@ export default function EnhancedFamilyCard({
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              <h3 className="text-lg font-bold text-gray-900">
-                {profile.city}, {profile.state}
-              </h3>
+              <span>{profile.city}, {profile.state}</span>
+              <span className="text-gray-400">|</span>
+              <span>
+                {daysSincePosted === 0 ? "Today" : `${daysSincePosted}d ago`}
+              </span>
             </div>
-            <p className="text-sm text-gray-600">
-              Posted {daysSincePosted === 0 ? "today" : `${daysSincePosted} day${daysSincePosted > 1 ? "s" : ""} ago`}
-            </p>
           </div>
 
           {/* Save Button */}
           <button
             onClick={() => onToggleSave(profile.id)}
-            className="p-2 rounded-full hover:bg-white/50 transition-colors"
+            className="p-2 rounded-full hover:bg-white/50 transition-colors flex-shrink-0"
             title={isSaved ? "Remove from saved" : "Save for later"}
           >
             {isSaved ? (

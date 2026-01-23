@@ -20,6 +20,8 @@ type FamilyProfile = {
     email: string;
     phone: string | null;
   };
+  profilePhoto?: string | null;
+  lovedOneName?: string | null;
   careTypes: string[];
   location: string;
   city: string;

@@ -40,6 +40,14 @@ export async function GET(req: Request) {
       where,
       select: {
         id: true,
+        // User info for display
+        user: {
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
         // Location (always visible)
         city: true,
         state: true,
@@ -53,6 +61,7 @@ export async function GET(req: Request) {
         dailyLivingAssistance: true,
         additionalNeeds: true,
         // Care recipient info (non-identifying)
+        lovedOneName: true,
         ageRange: true,
         relationship: true,
         livingSituation: true,
