@@ -99,42 +99,61 @@ const CA_LOCATIONS = [
 export async function seedLite(prisma: PrismaClient) {
   console.log('[SEED] 🌱 Starting FULL seed (90 accounts)...');
 
-  // Preserve admin users
-  console.log('[SEED] Step 1: Finding admin users...');
-  const adminUsers = await prisma.user.findMany({
-    where: { role: 'ADMIN' },
-    select: { id: true, email: true },
-  });
-  const adminIds = adminUsers.map(u => u.id);
-  console.log(`[SEED] Found ${adminUsers.length} admin user(s) to preserve`);
+  try {
+    // Preserve admin users
+    console.log('[SEED] Step 1: Finding admin users...');
+    const adminUsers = await prisma.user.findMany({
+      where: { role: 'ADMIN' },
+      select: { id: true, email: true },
+    });
+    const adminIds = adminUsers.map(u => u.id);
+    console.log(`[SEED] Found ${adminUsers.length} admin user(s) to preserve`);
 
-  // Clear existing data - must delete in correct order due to foreign keys
-  console.log('[SEED] Step 2: Clearing existing data...');
+    // Clear existing data - must delete in correct order due to foreign keys
+    console.log('[SEED] Step 2: Clearing existing data...');
 
-  await prisma.engagementMessage.deleteMany();
-  await prisma.hiringMessage.deleteMany();
-  await prisma.scheduledEvent.deleteMany();
-  await prisma.message.deleteMany();
-  await prisma.tourAppointment.deleteMany();
-  await prisma.engagement.deleteMany();
-  await prisma.hiringEngagement.deleteMany();
-  await prisma.consultRequest.deleteMany();
-  await prisma.savedProvider.deleteMany();
-  await prisma.savedFamilyProfile.deleteMany();
-  await prisma.contactView.deleteMany();
-  await prisma.review.deleteMany();
-  await prisma.familyProfile.deleteMany({ where: { userId: { notIn: adminIds } } });
-  await prisma.providerIdentity.deleteMany({ where: { userId: { notIn: adminIds } } });
-  await prisma.provider.deleteMany({ where: { userId: { notIn: adminIds } } });
-  await prisma.user.deleteMany({ where: { role: { not: 'ADMIN' } } });
-  console.log('[SEED] ✅ Cleared existing data');
+    console.log('[SEED]   - Deleting engagementMessage...');
+    await prisma.engagementMessage.deleteMany();
+    console.log('[SEED]   - Deleting hiringMessage...');
+    await prisma.hiringMessage.deleteMany();
+    console.log('[SEED]   - Deleting scheduledEvent...');
+    await prisma.scheduledEvent.deleteMany();
+    console.log('[SEED]   - Deleting message...');
+    await prisma.message.deleteMany();
+    console.log('[SEED]   - Deleting tourAppointment...');
+    await prisma.tourAppointment.deleteMany();
+    console.log('[SEED]   - Deleting engagement...');
+    await prisma.engagement.deleteMany();
+    console.log('[SEED]   - Deleting hiringEngagement...');
+    await prisma.hiringEngagement.deleteMany();
+    console.log('[SEED]   - Deleting consultRequest...');
+    await prisma.consultRequest.deleteMany();
+    console.log('[SEED]   - Deleting savedProvider...');
+    await prisma.savedProvider.deleteMany();
+    console.log('[SEED]   - Deleting savedFamilyProfile...');
+    await prisma.savedFamilyProfile.deleteMany();
+    console.log('[SEED]   - Deleting contactView...');
+    await prisma.contactView.deleteMany();
+    console.log('[SEED]   - Deleting review...');
+    await prisma.review.deleteMany();
+    console.log('[SEED]   - Deleting subscription (non-admin)...');
+    await prisma.subscription.deleteMany({ where: { userId: { notIn: adminIds } } });
+    console.log('[SEED]   - Deleting familyProfile (non-admin)...');
+    await prisma.familyProfile.deleteMany({ where: { userId: { notIn: adminIds } } });
+    console.log('[SEED]   - Deleting providerIdentity (non-admin)...');
+    await prisma.providerIdentity.deleteMany({ where: { userId: { notIn: adminIds } } });
+    console.log('[SEED]   - Deleting provider (non-admin)...');
+    await prisma.provider.deleteMany({ where: { userId: { notIn: adminIds } } });
+    console.log('[SEED]   - Deleting users (non-admin)...');
+    await prisma.user.deleteMany({ where: { role: { not: 'ADMIN' } } });
+    console.log('[SEED] ✅ Cleared existing data');
 
-  console.log('[SEED] Step 3: Hashing password...');
-  const demoPassword = await hash('demo123', 12);
-  console.log('[SEED] ✅ Password hashed');
+    console.log('[SEED] Step 3: Hashing password...');
+    const demoPassword = await hash('demo123', 12);
+    console.log('[SEED] ✅ Password hashed');
 
-  // 36 Family accounts
-  const familyData = [
+    // 36 Family accounts
+    const familyData = [
     { name: 'Sarah Johnson', email: 'sarah.johnson@demo.com', lovedOne: 'Margaret', care: ['PERSONAL_CARE'], budget: [4000, 6000], timeline: 'Within 3 months' },
     { name: 'Michael Roberts', email: 'michael.roberts@demo.com', lovedOne: 'Robert Sr.', care: ['COMPANION_CARE'], budget: [3500, 5500], timeline: 'Within 6 months' },
     { name: 'David Chen', email: 'david.chen@demo.com', lovedOne: 'Helen', care: ['MEMORY_CARE'], budget: [6000, 8000], timeline: 'Within 1 month' },
@@ -171,42 +190,44 @@ export async function seedLite(prisma: PrismaClient) {
     { name: 'Donna Walker', email: 'donna.walker@demo.com', lovedOne: 'Raymond', care: ['PERSONAL_CARE', 'COMPANION_CARE'], budget: [4000, 6000], timeline: 'Within 3 months' },
     { name: 'Edward Hall', email: 'edward.hall@demo.com', lovedOne: 'Virginia', care: ['LIVE_IN_CARE'], budget: [5500, 7500], timeline: 'Within 2 weeks' },
     { name: 'Carol Young', email: 'carol.young@demo.com', lovedOne: 'Eugene', care: ['RESPITE_CARE'], budget: [3000, 4500], timeline: 'Within 1 month' },
-  ];
+    ];
 
-  for (let i = 0; i < familyData.length; i++) {
-    const data = familyData[i];
-    const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
-    await prisma.user.create({
-      data: {
-        email: data.email,
-        name: data.name,
-        passwordHash: demoPassword,
-        role: 'FAMILY',
-        activeMode: 'FAMILY',
-        familyProfile: {
-          create: {
-            lovedOneName: data.lovedOne,
-            ageRange: '75-85',
-            careTypes: data.care as CareType[],
-            location: loc.city,
-            city: loc.city,
-            state: loc.state,
-            zipCode: loc.zip,
-            budgetMin: data.budget[0],
-            budgetMax: data.budget[1],
-            timeline: data.timeline,
-            profilePhoto: FAMILY_PHOTOS[i % FAMILY_PHOTOS.length],
-            showProfilePhoto: true,
-            isPublic: true,
-            description: `Looking for quality care for ${data.lovedOne === 'Self' ? 'myself' : data.lovedOne}.`,
+    console.log('[SEED] Step 4: Creating 36 family accounts...');
+    for (let i = 0; i < familyData.length; i++) {
+      const data = familyData[i];
+      const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
+      await prisma.user.create({
+        data: {
+          email: data.email,
+          name: data.name,
+          passwordHash: demoPassword,
+          role: 'FAMILY',
+          activeMode: 'FAMILY',
+          familyProfile: {
+            create: {
+              lovedOneName: data.lovedOne,
+              ageRange: '75-85',
+              careTypes: data.care as CareType[],
+              location: loc.city,
+              city: loc.city,
+              state: loc.state,
+              zipCode: loc.zip,
+              budgetMin: data.budget[0],
+              budgetMax: data.budget[1],
+              timeline: data.timeline,
+              profilePhoto: FAMILY_PHOTOS[i % FAMILY_PHOTOS.length],
+              showProfilePhoto: true,
+              isPublic: true,
+              description: `Looking for quality care for ${data.lovedOne === 'Self' ? 'myself' : data.lovedOne}.`,
+            },
           },
         },
-      },
-    });
-  }
-  console.log('✅ Created 36 family accounts\n');
+      });
+    }
+    console.log('[SEED] ✅ Created 36 family accounts');
 
-  // 36 Facility accounts
+    // 36 Facility accounts
+    console.log('[SEED] Step 5: Creating 36 facility accounts...');
   const facilityData = [
     { name: 'Sunshine Manor', type: 'ASSISTED_LIVING', email: 'admin@sunshinemanor.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4500, 7000], rating: 4.8 },
     { name: 'Memory Haven', type: 'MEMORY_CARE', email: 'info@memoryhaven.com', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [6500, 9000], rating: 4.7 },
@@ -244,58 +265,59 @@ export async function seedLite(prisma: PrismaClient) {
     { name: 'Loving Hearts Home Care', type: 'HOME_CARE', email: 'info@lovinghearts.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [20, 32], rating: 4.5 },
     { name: 'Right at Home OC', type: 'HOME_CARE', email: 'info@rightathomeoc.com', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'SKILLED_NURSING'], price: [26, 44], rating: 4.6 },
     { name: 'Peaceful Journey Hospice', type: 'HOSPICE', email: 'info@peacefuljourney.com', care: ['HOSPICE_CARE'], price: [0, 0], rating: 4.9 },
-  ];
+    ];
 
-  for (let i = 0; i < facilityData.length; i++) {
-    const data = facilityData[i];
-    const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
-    const photos = FACILITY_PHOTOS.slice(i % 6, (i % 6) + 4);
+    for (let i = 0; i < facilityData.length; i++) {
+      const data = facilityData[i];
+      const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
+      const photos = FACILITY_PHOTOS.slice(i % 6, (i % 6) + 4);
 
-    await prisma.user.create({
-      data: {
-        email: data.email,
-        name: `${data.name} Admin`,
-        passwordHash: demoPassword,
-        role: 'PROVIDER',
-        activeMode: 'PROVIDER',
-        provider: {
-          create: {
-            name: data.name,
-            providerType: data.type as ProviderType,
-            description: `Quality ${data.type.toLowerCase().replace('_', ' ')} services in ${loc.city}.`,
-            email: data.email,
-            phone: `(${600 + i}) 555-${String(1000 + i).padStart(4, '0')}`,
-            address: `${100 + i * 10} Main Street`,
-            city: loc.city,
-            state: loc.state,
-            zipCode: loc.zip,
-            latitude: loc.lat + (Math.random() - 0.5) * 0.02,
-            longitude: loc.lng + (Math.random() - 0.5) * 0.02,
-            careTypesOffered: data.care as CareType[],
-            priceMin: data.price[0],
-            priceMax: data.price[1],
-            averageRating: data.rating,
-            reviewCount: 10 + i * 3,
-            photos: photos,
-            coverPhoto: photos[0],
-            claimed: true,
-            verified: true,
-            active: true,
+      await prisma.user.create({
+        data: {
+          email: data.email,
+          name: `${data.name} Admin`,
+          passwordHash: demoPassword,
+          role: 'PROVIDER',
+          activeMode: 'PROVIDER',
+          provider: {
+            create: {
+              name: data.name,
+              providerType: data.type as ProviderType,
+              description: `Quality ${data.type.toLowerCase().replace('_', ' ')} services in ${loc.city}.`,
+              email: data.email,
+              phone: `(${600 + i}) 555-${String(1000 + i).padStart(4, '0')}`,
+              address: `${100 + i * 10} Main Street`,
+              city: loc.city,
+              state: loc.state,
+              zipCode: loc.zip,
+              latitude: loc.lat + (Math.random() - 0.5) * 0.02,
+              longitude: loc.lng + (Math.random() - 0.5) * 0.02,
+              careTypesOffered: data.care as CareType[],
+              priceMin: data.price[0],
+              priceMax: data.price[1],
+              averageRating: data.rating,
+              reviewCount: 10 + i * 3,
+              photos: photos,
+              coverPhoto: photos[0],
+              claimed: true,
+              verified: true,
+              active: true,
+            },
+          },
+          providerIdentity: {
+            create: {
+              type: 'ORGANIZATION',
+              onboardingComplete: true,
+            },
           },
         },
-        providerIdentity: {
-          create: {
-            type: 'ORGANIZATION',
-            onboardingComplete: true,
-          },
-        },
-      },
-    });
-  }
-  console.log('✅ Created 36 facility accounts\n');
+      });
+    }
+    console.log('[SEED] ✅ Created 36 facility accounts');
 
-  // 18 Caregiver accounts
-  const caregiverData = [
+    // 18 Caregiver accounts
+    console.log('[SEED] Step 6: Creating 18 caregiver accounts...');
+    const caregiverData = [
     { name: 'Maria Santos', email: 'maria.santos@demo.com', specialty: 'Dementia/Live-in', care: ['MEMORY_CARE', 'LIVE_IN_CARE'], price: [28, 38], rating: 4.9 },
     { name: 'John Peterson', email: 'john.peterson@demo.com', specialty: 'Dementia Specialist', care: ['MEMORY_CARE'], price: [30, 42], rating: 4.8 },
     { name: 'Rachel Thompson', email: 'rachel.thompson@demo.com', specialty: 'Skilled Nursing (RN)', care: ['SKILLED_NURSING'], price: [45, 65], rating: 5.0 },
@@ -314,57 +336,61 @@ export async function seedLite(prisma: PrismaClient) {
     { name: 'Elizabeth Moore', email: 'elizabeth.moore@demo.com', specialty: 'Companion & Personal', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [23, 33], rating: 4.4 },
     { name: 'Christopher Lee', email: 'christopher.lee.cg@demo.com', specialty: 'Weekend Specialist', care: ['RESPITE_CARE', 'PERSONAL_CARE'], price: [26, 38], rating: 4.5 },
     { name: 'Amanda White', email: 'amanda.white@demo.com', specialty: 'Memory & Live-in', care: ['MEMORY_CARE', 'LIVE_IN_CARE'], price: [30, 42], rating: 4.8 },
-  ];
+    ];
 
-  for (let i = 0; i < caregiverData.length; i++) {
-    const data = caregiverData[i];
-    const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
+    for (let i = 0; i < caregiverData.length; i++) {
+      const data = caregiverData[i];
+      const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
 
-    await prisma.user.create({
-      data: {
-        email: data.email,
-        name: data.name,
-        passwordHash: demoPassword,
-        role: 'PROVIDER',
-        activeMode: 'PROVIDER',
-        provider: {
-          create: {
-            name: data.name,
-            providerType: 'INDEPENDENT_CAREGIVER',
-            description: `Experienced ${data.specialty} with excellent references.`,
-            email: data.email,
-            phone: `(${700 + i}) 555-${String(2000 + i).padStart(4, '0')}`,
-            address: `${loc.city} Area`,
-            city: loc.city,
-            state: loc.state,
-            zipCode: loc.zip,
-            serviceRadius: 15,
-            careTypesOffered: data.care as CareType[],
-            priceMin: data.price[0],
-            priceMax: data.price[1],
-            averageRating: data.rating,
-            reviewCount: 5 + i * 2,
-            photos: [CAREGIVER_PHOTOS[i % CAREGIVER_PHOTOS.length]],
-            claimed: true,
-            active: true,
+      await prisma.user.create({
+        data: {
+          email: data.email,
+          name: data.name,
+          passwordHash: demoPassword,
+          role: 'PROVIDER',
+          activeMode: 'PROVIDER',
+          provider: {
+            create: {
+              name: data.name,
+              providerType: 'INDEPENDENT_CAREGIVER',
+              description: `Experienced ${data.specialty} with excellent references.`,
+              email: data.email,
+              phone: `(${700 + i}) 555-${String(2000 + i).padStart(4, '0')}`,
+              address: `${loc.city} Area`,
+              city: loc.city,
+              state: loc.state,
+              zipCode: loc.zip,
+              serviceRadius: 15,
+              careTypesOffered: data.care as CareType[],
+              priceMin: data.price[0],
+              priceMax: data.price[1],
+              averageRating: data.rating,
+              reviewCount: 5 + i * 2,
+              photos: [CAREGIVER_PHOTOS[i % CAREGIVER_PHOTOS.length]],
+              claimed: true,
+              active: true,
+            },
+          },
+          providerIdentity: {
+            create: {
+              type: 'INDIVIDUAL',
+              onboardingComplete: true,
+            },
           },
         },
-        providerIdentity: {
-          create: {
-            type: 'INDIVIDUAL',
-            onboardingComplete: true,
-          },
-        },
-      },
-    });
+      });
+    }
+    console.log('[SEED] ✅ Created 18 caregiver accounts');
+
+    console.log('[SEED] 📊 FULL Seed Summary:');
+    console.log('[SEED]    - 36 family accounts');
+    console.log('[SEED]    - 36 facility accounts');
+    console.log('[SEED]    - 18 caregiver accounts');
+    console.log('[SEED]    - 90 total accounts');
+    console.log('[SEED]    - Password for all: demo123');
+    console.log('[SEED] ✅ FULL seed completed!');
+  } catch (error) {
+    console.error('[SEED] ❌ SEED FAILED:', error);
+    throw error; // Re-throw to surface to API route
   }
-  console.log('✅ Created 18 caregiver accounts\n');
-
-  console.log('📊 FULL Seed Summary:');
-  console.log('   - 36 family accounts');
-  console.log('   - 36 facility accounts');
-  console.log('   - 18 caregiver accounts');
-  console.log('   - 90 total accounts');
-  console.log('   - Password for all: demo123\n');
-  console.log('✅ FULL seed completed!\n');
 }
