@@ -1,7 +1,7 @@
 "use client";
 
-import { Fragment, useState, useEffect, useCallback, useRef } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -1378,12 +1378,11 @@ export default function OnboardingWizardOverlay({
   };
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
+    <Transition appear show={isOpen}>
       {/* onClose={() => {}} prevents backdrop click and Escape from closing
           User can still close via X button or Skip - those call onClose explicitly */}
       <Dialog as="div" className="relative z-50" onClose={() => {}}>
-        <Transition.Child
-          as={Fragment}
+        <TransitionChild
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
@@ -1392,12 +1391,11 @@ export default function OnboardingWizardOverlay({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-black bg-opacity-50" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
+            <TransitionChild
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
               enterTo="opacity-100 scale-100"
@@ -1405,7 +1403,7 @@ export default function OnboardingWizardOverlay({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-xl transition-all">
+              <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-xl transition-all">
                 {/* Close Button */}
                 <button
                   type="button"
@@ -1451,12 +1449,12 @@ export default function OnboardingWizardOverlay({
                 )}
 
                 {/* Title */}
-                <Dialog.Title
+                <DialogTitle
                   as="h2"
                   className="text-2xl font-bold text-center text-gray-900 mb-6"
                 >
                   {getStepTitle(currentStep)}
-                </Dialog.Title>
+                </DialogTitle>
 
                 {/* Loading Overlay */}
                 {isSubmitting && (
@@ -1467,8 +1465,8 @@ export default function OnboardingWizardOverlay({
 
                 {/* Step Content */}
                 {renderStep()}
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>

@@ -2,8 +2,8 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { useState, useEffect, Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { useState, useEffect } from 'react';
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import MainNav from '@/components/Navigation/MainNav';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
@@ -712,14 +712,13 @@ export default function FamilyProfileDetail() {
       />
 
       {/* Confirmation Modal */}
-      <Transition appear show={confirmModalOpen} as={Fragment}>
+      <Transition appear show={confirmModalOpen}>
         <Dialog
           as="div"
           className="relative z-50"
           onClose={() => setConfirmModalOpen(false)}
         >
-          <Transition.Child
-            as={Fragment}
+          <TransitionChild
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -728,12 +727,11 @@ export default function FamilyProfileDetail() {
             leaveTo="opacity-0"
           >
             <div className="fixed inset-0 bg-black bg-opacity-50" />
-          </Transition.Child>
+          </TransitionChild>
 
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
+              <TransitionChild
                 enter="ease-out duration-300"
                 enterFrom="opacity-0 scale-95"
                 enterTo="opacity-100 scale-100"
@@ -741,13 +739,13 @@ export default function FamilyProfileDetail() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
+                <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <DialogTitle
                     as="h3"
                     className="text-lg font-semibold text-gray-900 text-center"
                   >
                     Connect with this family?
-                  </Dialog.Title>
+                  </DialogTitle>
 
                   <div className="mt-4 space-y-4">
                     {/* Mode switch prompt for Family mode users */}
@@ -822,8 +820,8 @@ export default function FamilyProfileDetail() {
                       )}
                     </button>
                   </div>
-                </Dialog.Panel>
-              </Transition.Child>
+                </DialogPanel>
+              </TransitionChild>
             </div>
           </div>
         </Dialog>

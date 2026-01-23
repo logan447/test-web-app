@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Dialog, Transition, Tab } from "@headlessui/react";
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
@@ -476,8 +476,8 @@ export default function ProviderDetailPage() {
             </div>
 
             {/* Tab Navigation */}
-            <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
-              <Tab.List className="flex border-b border-gray-200 mb-6">
+            <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
+              <TabList className="flex border-b border-gray-200 mb-6">
                 {['Rating', 'About', 'Services', 'Pricing', 'Location'].map((tab) => (
                   <Tab
                     key={tab}
@@ -492,11 +492,11 @@ export default function ProviderDetailPage() {
                     {tab}
                   </Tab>
                 ))}
-              </Tab.List>
+              </TabList>
 
-              <Tab.Panels>
+              <TabPanels>
                 {/* Rating Tab */}
-                <Tab.Panel className="space-y-6">
+                <TabPanel className="space-y-6">
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <div className="flex items-start gap-4 mb-6">
                       <div className="w-16 h-16 bg-primary-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
@@ -558,10 +558,10 @@ export default function ProviderDetailPage() {
                       Post Your Question
                     </button>
                   </div>
-                </Tab.Panel>
+                </TabPanel>
 
                 {/* About Tab */}
-                <Tab.Panel>
+                <TabPanel>
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">About {provider.name}</h2>
                     {provider.description ? (
@@ -583,10 +583,10 @@ export default function ProviderDetailPage() {
                       </div>
                     )}
                   </div>
-                </Tab.Panel>
+                </TabPanel>
 
                 {/* Services Tab */}
-                <Tab.Panel>
+                <TabPanel>
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Services Offered</h2>
                     {provider.careTypesOffered?.length > 0 ? (
@@ -617,10 +617,10 @@ export default function ProviderDetailPage() {
                       </div>
                     )}
                   </div>
-                </Tab.Panel>
+                </TabPanel>
 
                 {/* Pricing Tab */}
-                <Tab.Panel>
+                <TabPanel>
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Pricing Information</h2>
 
@@ -657,10 +657,10 @@ export default function ProviderDetailPage() {
                       </div>
                     )}
                   </div>
-                </Tab.Panel>
+                </TabPanel>
 
                 {/* Location Tab */}
-                <Tab.Panel>
+                <TabPanel>
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Location</h2>
                     <div className="flex items-start gap-3 mb-4">
@@ -694,9 +694,9 @@ export default function ProviderDetailPage() {
                       </div>
                     )}
                   </div>
-                </Tab.Panel>
-              </Tab.Panels>
-            </Tab.Group>
+                </TabPanel>
+              </TabPanels>
+            </TabGroup>
           </div>
 
           {/* Right Column - Contact Form */}

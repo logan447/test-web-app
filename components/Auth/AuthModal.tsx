@@ -1,7 +1,7 @@
 "use client";
 
-import { Fragment, useState, useEffect } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { useState, useEffect } from "react";
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -171,10 +171,9 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
   };
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
+    <Transition appear show={isOpen}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
-          as={Fragment}
+        <TransitionChild
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
@@ -183,12 +182,11 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
+            <TransitionChild
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
               enterTo="opacity-100 scale-100"
@@ -196,7 +194,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-2xl transition-all">
+              <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-2xl transition-all">
                 {/* Close Button */}
                 <button
                   onClick={onClose}
@@ -216,12 +214,12 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                   </div>
                 </div>
 
-                <Dialog.Title
+                <DialogTitle
                   as="h3"
                   className="text-2xl font-bold text-center text-gray-900 mb-2"
                 >
                   {view === "login" ? "Welcome back" : "Create your account"}
-                </Dialog.Title>
+                </DialogTitle>
                 <p className="text-center text-gray-500 mb-6">
                   {view === "login"
                     ? "Sign in to access your Olera account"
@@ -405,8 +403,8 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                     <a href="/privacy" className="text-primary-600 hover:underline">Privacy Policy</a>
                   </p>
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>
