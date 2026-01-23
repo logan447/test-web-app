@@ -107,14 +107,31 @@ export async function seedLite(prisma: PrismaClient) {
   const adminIds = adminUsers.map(u => u.id);
   console.log(`📌 Preserving ${adminUsers.length} admin user(s)`);
 
-  // Clear existing data
+  // Clear existing data - must delete in correct order due to foreign keys
+  // 1. Delete all message/event tables first
+  await prisma.engagementMessage.deleteMany();
+  await prisma.hiringMessage.deleteMany();
+  await prisma.scheduledEvent.deleteMany();
   await prisma.message.deleteMany();
   await prisma.tourAppointment.deleteMany();
+
+  // 2. Delete engagement tables
+  await prisma.engagement.deleteMany();
+  await prisma.hiringEngagement.deleteMany();
   await prisma.consultRequest.deleteMany();
+
+  // 3. Delete saved/view tables
   await prisma.savedProvider.deleteMany();
+  await prisma.savedFamilyProfile.deleteMany();
+  await prisma.contactView.deleteMany();
+  await prisma.review.deleteMany();
+
+  // 4. Delete profiles (filter by admin)
   await prisma.familyProfile.deleteMany({ where: { userId: { notIn: adminIds } } });
   await prisma.providerIdentity.deleteMany({ where: { userId: { notIn: adminIds } } });
   await prisma.provider.deleteMany({ where: { userId: { notIn: adminIds } } });
+
+  // 5. Delete non-admin users
   await prisma.user.deleteMany({ where: { role: { not: 'ADMIN' } } });
   console.log('✅ Cleared existing data\n');
 
