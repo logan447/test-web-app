@@ -162,7 +162,18 @@ function BrowseContent() {
   const [showMap, setShowMap] = useState(true);
 
   // Filters - default to empty (show all)
-  const [location, setLocation] = useState(searchParams.get("location") || "");
+  // Support both "location" param and separate "city"/"state" params (from homepage)
+  const getInitialLocation = () => {
+    const locationParam = searchParams.get("location");
+    if (locationParam) return locationParam;
+
+    const city = searchParams.get("city");
+    const state = searchParams.get("state");
+    if (city && state) return `${city}, ${state}`;
+    if (city) return city;
+    return "";
+  };
+  const [location, setLocation] = useState(getInitialLocation());
   const [providerType, setProviderType] = useState(searchParams.get("type") || "");
   const [careService, setCareService] = useState(searchParams.get("care") || "");
   const [minRating, setMinRating] = useState(searchParams.get("rating") || "");
