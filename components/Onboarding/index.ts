@@ -10,3 +10,10 @@ export type {
   WizardStep,
   OnboardingData,
 } from "./OnboardingWizardOverlay";
+export { default as OnboardingWelcome } from "./OnboardingWelcome";
+export { default as OnboardingComplete } from "./OnboardingComplete";
+export {
+  default as StepProgress,
+  FAMILY_ONBOARDING_STEPS,
+  PROVIDER_ONBOARDING_STEPS,
+} from "./StepProgress";
