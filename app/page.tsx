@@ -302,6 +302,7 @@ export default function Home() {
                 <Link
                   key={provider.id}
                   href={`/providers/${provider.id}`}
+                  target="_blank"
                   className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all"
                 >
                   {/* Image */}

@@ -242,6 +242,7 @@ function BrowseContent() {
                 <Link
                   key={provider.id}
                   href={`/providers/${provider.id}`}
+                  target="_blank"
                   className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-100"
                 >
                   {/* Image */}
