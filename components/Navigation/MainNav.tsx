@@ -177,9 +177,9 @@ function MainNavContent() {
       showToast.success(`Switched to ${newMode === 'PROVIDER' ? 'Provider' : 'Family'} mode`);
 
       // Step 4: If switching to provider mode without a provider profile,
-      // redirect to edit page (which shows Quick Start modal for new providers)
+      // redirect to leads page with onboarding overlay
       if (newMode === 'PROVIDER' && !providerType) {
-        router.push('/provider/profile/edit');
+        router.push('/provider/leads?onboarding=true&intent=provider');
         return;
       }
 
@@ -199,18 +199,20 @@ function MainNavContent() {
   const isProviderMode = currentMode === 'PROVIDER';
 
   /**
-   * Navigate to provider profile edit page.
-   * The edit page will show the Quick Start modal for new providers.
-   * @param subtype - Optional provider subtype to pre-select in Quick Start
+   * Navigate to provider leads page with onboarding overlay.
+   * @param subtype - Optional provider subtype to pre-select in onboarding
    *   - 'individual': For "Become a Caregiver" button
    *   - 'organization': For organizations
    */
   const triggerProviderOnboarding = (subtype?: 'individual' | 'organization') => {
-    // Navigate to edit page, optionally with subtype hint
-    const url = subtype
-      ? `/provider/profile/edit?subtype=${subtype}`
-      : '/provider/profile/edit';
-    router.push(url);
+    // Navigate to leads page with onboarding overlay
+    const params = new URLSearchParams();
+    params.set('onboarding', 'true');
+    params.set('intent', 'provider');
+    if (subtype) {
+      params.set('providerSubtype', subtype);
+    }
+    router.push(`/provider/leads?${params.toString()}`);
   };
 
   return (

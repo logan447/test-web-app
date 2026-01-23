@@ -61,8 +61,8 @@ function SignupForm() {
 
       // Redirect after signup
       if (result.activeMode === "PROVIDER") {
-        // Provider intent: redirect to edit page (Quick Start modal will show)
-        window.location.href = "/provider/profile/edit";
+        // Provider intent: redirect to leads page with onboarding overlay
+        window.location.href = "/provider/leads?onboarding=true&intent=provider";
       } else {
         // Family intent: trigger family onboarding wizard
         triggerOnboardingAfterSignup("family");

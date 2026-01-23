@@ -130,17 +130,18 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       // Handle post-signup navigation based on intent
       onClose();
 
-      // Provider intent: redirect to edit page (Quick Start modal will show)
-      if (intent === "provider") {
-        window.location.href = '/provider/profile/edit';
-        return;
-      }
-
-      // Family intent (or undefined): trigger family onboarding wizard
       // Build search params for GlobalOnboardingOverlay
       const params = new URLSearchParams();
       params.set('onboarding', 'true');
 
+      // Provider intent: redirect to leads page with onboarding overlay
+      if (intent === "provider") {
+        params.set('intent', 'provider');
+        window.location.href = `/provider/leads?${params.toString()}`;
+        return;
+      }
+
+      // Family intent (or undefined): trigger family onboarding wizard
       if (intent === "family") {
         params.set('intent', 'family');
       }

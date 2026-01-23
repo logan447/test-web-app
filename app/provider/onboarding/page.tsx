@@ -1,11 +1,10 @@
 'use client';
 
 /**
- * Provider Onboarding Route - Redirect to Edit Page
+ * Provider Onboarding Route - Redirect to Leads Page with Onboarding
  *
- * This route now redirects to the provider profile edit page.
- * The edit page handles both new providers (via Quick Start modal)
- * and existing providers (direct editing).
+ * This route redirects to the provider leads page with onboarding overlay.
+ * New providers will see the onboarding wizard overlay on the leads page.
  *
  * This redirect ensures backwards compatibility for any bookmarks
  * or old links that point to /provider/onboarding.
@@ -23,14 +22,13 @@ export default function ProviderOnboarding() {
     if (status === 'loading') return;
 
     if (status === 'unauthenticated') {
-      // Not logged in - redirect to login with return URL to edit page
-      router.push('/login?redirect=/provider/profile/edit');
+      // Not logged in - redirect to login with return URL to leads with onboarding
+      router.push('/login?redirect=/provider/leads?onboarding=true&intent=provider');
       return;
     }
 
-    // Authenticated - redirect to edit page
-    // The edit page will show Quick Start modal if needed
-    router.replace('/provider/profile/edit');
+    // Authenticated - redirect to leads page with onboarding overlay
+    router.replace('/provider/leads?onboarding=true&intent=provider');
   }, [status, router]);
 
   // Show loading state while redirecting
