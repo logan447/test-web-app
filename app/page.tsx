@@ -248,7 +248,7 @@ export default function Home() {
               What type of care are you looking for?
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Every family's situation is unique. Explore options to find the right fit for your loved one.
+              Every family&apos;s situation is unique. Explore options to find the right fit for your loved one.
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6">
@@ -298,7 +298,7 @@ export default function Home() {
             Not sure where to start?
           </h2>
           <p className="text-gray-600 mb-8 text-lg leading-relaxed max-w-xl mx-auto">
-            Create a care profile and we'll match you with providers that fit your loved one's
+            Create a care profile and we&apos;ll match you with providers that fit your loved one&apos;s
             specific needs, budget, and location.
           </p>
           <Link
@@ -324,7 +324,7 @@ export default function Home() {
               How Olera works
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Finding the right care doesn't have to be overwhelming. We make it simple.
+              Finding the right care doesn&apos;t have to be overwhelming. We make it simple.
             </p>
           </div>
 
@@ -396,7 +396,7 @@ export default function Home() {
                   <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                 </svg>
                 <blockquote className="text-gray-700 mb-6 leading-relaxed">
-                  "{testimonial.quote}"
+                  &ldquo;{testimonial.quote}&rdquo;
                 </blockquote>
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">

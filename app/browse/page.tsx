@@ -401,7 +401,7 @@ function BrowseContent() {
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No providers found</h3>
                   <p className="text-gray-500 mb-2 max-w-md mx-auto">
-                    We couldn't find any care providers matching your criteria.
+                    We couldn&apos;t find any care providers matching your criteria.
                   </p>
                   <p className="text-sm text-gray-400 mb-6 max-w-md mx-auto">
                     Try adjusting your filters, searching for a different location, or broadening your search.
