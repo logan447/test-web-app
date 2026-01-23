@@ -42,14 +42,14 @@ export async function GET(
     if (request.senderId === currentUserId) {
       // Sender could be either family or provider
       // The other participant is whoever they're NOT
-      if (request.familyProfile.userId === currentUserId) {
+      if (request.familyProfile?.userId === currentUserId) {
         // Current user is family, other is provider
         otherUser = request.provider.user;
       } else {
         // Current user is provider (or sender), other is family
-        otherUser = request.familyProfile.user;
+        otherUser = request.familyProfile?.user;
       }
-    } else if (request.familyProfile.userId === currentUserId) {
+    } else if (request.familyProfile?.userId === currentUserId) {
       // Current user is family, other is sender (could be provider)
       otherUser = request.sender;
     } else if (request.provider.userId === currentUserId) {

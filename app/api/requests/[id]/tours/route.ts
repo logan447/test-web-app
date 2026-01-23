@@ -37,7 +37,7 @@ export async function GET(
       );
     }
 
-    const isFamilyUser = request.familyProfile.user?.id === session.user.id;
+    const isFamilyUser = request.familyProfile?.user?.id === session.user.id;
     const isProviderUser = request.provider.user?.id === session.user.id;
 
     if (!isFamilyUser && !isProviderUser) {
@@ -104,7 +104,7 @@ export async function POST(
       );
     }
 
-    const isFamilyUser = request.familyProfile.user?.id === session.user.id;
+    const isFamilyUser = request.familyProfile?.user?.id === session.user.id;
     const isProviderUser = request.provider.user?.id === session.user.id;
 
     if (!isFamilyUser && !isProviderUser) {

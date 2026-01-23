@@ -37,7 +37,7 @@ export async function POST(
     // Check if user is a participant (sender, family member, or provider)
     const isParticipant =
       request.senderId === session.user.id ||
-      request.familyProfile.userId === session.user.id ||
+      request.familyProfile?.userId === session.user.id ||
       request.provider.userId === session.user.id;
 
     if (!isParticipant) {

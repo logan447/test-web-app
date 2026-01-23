@@ -36,7 +36,7 @@ export async function PATCH(
     // Check if user is a participant
     const isParticipant =
       request.senderId === session.user.id ||
-      request.familyProfile.userId === session.user.id ||
+      request.familyProfile?.userId === session.user.id ||
       request.provider.userId === session.user.id;
 
     if (!isParticipant) {

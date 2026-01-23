@@ -301,14 +301,13 @@ export async function POST(req: Request) {
 
       console.log('[REQUEST API] Subscription active, proceeding with request');
 
-      // Determine the familyProfileId to use
-      // For provider-to-family requests, it's passed in the body
-      // For family-type requests from users who just switched from provider mode,
-      // we need to look up their family profile
+      // For HIRING requests (provider-to-provider), familyProfileId is optional
+      // For CONSULTATION requests, we need a familyProfileId
+      const isHiringRequest = requestType === 'HIRING';
       let resolvedFamilyProfileId = familyProfileId;
 
-      if (!resolvedFamilyProfileId) {
-        // No familyProfileId provided - check if user has a family profile
+      if (!isHiringRequest && !resolvedFamilyProfileId) {
+        // Non-hiring requests need a family profile
         const userFamilyProfile = await prisma.familyProfile.findUnique({
           where: { userId: session.user.id },
         });
@@ -325,10 +324,22 @@ export async function POST(req: Request) {
         }
       }
 
+      // For hiring requests, get the sender's provider info
+      let senderProviderId = null;
+      if (isHiringRequest) {
+        const senderProvider = await prisma.provider.findUnique({
+          where: { userId: session.user.id },
+        });
+        if (senderProvider) {
+          senderProviderId = senderProvider.id;
+        }
+      }
+
       console.log('[REQUEST API] Creating request with data:', {
         senderId: session.user.id,
         familyProfileId: resolvedFamilyProfileId,
         providerId,
+        senderProviderId,
         status: "PENDING",
         requestType: requestType || "CONSULTATION"
       });
@@ -336,8 +347,9 @@ export async function POST(req: Request) {
       const request = await prisma.consultRequest.create({
         data: {
           senderId: session.user.id,
-          familyProfileId: resolvedFamilyProfileId,
+          familyProfileId: resolvedFamilyProfileId || undefined,
           providerId,
+          senderProviderId: senderProviderId || undefined,
           message,
           status: "PENDING",
           requestType: requestType || "CONSULTATION",
@@ -345,7 +357,11 @@ export async function POST(req: Request) {
           preferredContactMethod: preferredContactMethod || null,
           preferredTourDate: preferredTourDate ? new Date(preferredTourDate) : null,
         },
-        include: { familyProfile: { include: { user: true } } },
+        include: {
+          familyProfile: { include: { user: true } },
+          provider: true,
+          senderProvider: true,
+        },
       });
 
       console.log('[REQUEST API] Request created successfully:', request.id);

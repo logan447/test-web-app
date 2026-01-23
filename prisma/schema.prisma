@@ -430,9 +430,10 @@ model Provider {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  savedBy         SavedProvider[]
-  consultRequests ConsultRequest[]
-  reviews         Review[]
+  savedBy             SavedProvider[]
+  consultRequests     ConsultRequest[]
+  sentHiringRequests  ConsultRequest[]   @relation("HiringRequestSender")
+  reviews             Review[]
   engagements     Engagement[]           // Sprint 2: Family ↔ Provider engagements
   hiringAsOrg     HiringEngagement[]     @relation("HiringOrganization") // Sprint 2: Org hiring caregivers
   hiringAsCaregiver HiringEngagement[] @relation("HiringCaregiver")      // Sprint 2: Caregiver seeking work
@@ -473,11 +474,15 @@ model ConsultRequest {
   senderId String
   sender   User   @relation("RequestSender", fields: [senderId], references: [id], onDelete: Cascade)
 
-  // Receiver (family profile)
-  familyProfileId String
-  familyProfile   FamilyProfile @relation("RequestReceiver", fields: [familyProfileId], references: [id], onDelete: Cascade)
+  // Sender's provider profile (for HIRING requests where org contacts caregiver)
+  senderProviderId String?
+  senderProvider   Provider? @relation("HiringRequestSender", fields: [senderProviderId], references: [id], onDelete: SetNull)
 
-  // Provider
+  // Receiver - family profile (optional for HIRING requests)
+  familyProfileId String?
+  familyProfile   FamilyProfile? @relation("RequestReceiver", fields: [familyProfileId], references: [id], onDelete: Cascade)
+
+  // Target provider (the provider being contacted)
   providerId String
   provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 

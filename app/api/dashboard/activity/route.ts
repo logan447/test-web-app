@@ -180,7 +180,7 @@ export async function GET() {
           id: `request-${request.id}`,
           type: "REQUEST",
           title: `New consultation request from ${request.sender.name}`,
-          description: `Status: ${request.status}${request.familyProfile.lovedOneName ? ` - For ${request.familyProfile.lovedOneName}` : ""}`,
+          description: `Status: ${request.status}${request.familyProfile?.lovedOneName ? ` - For ${request.familyProfile.lovedOneName}` : ""}`,
           timestamp: request.createdAt.toISOString(),
           relatedId: request.id,
           isUnread: request.status === "PENDING",
@@ -240,7 +240,7 @@ export async function GET() {
       });
 
       for (const tour of tours) {
-        const familyInfo = tour.request.familyProfile.lovedOneName
+        const familyInfo = tour.request.familyProfile?.lovedOneName
           ? ` for ${tour.request.familyProfile.lovedOneName}`
           : "";
 

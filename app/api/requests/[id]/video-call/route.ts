@@ -37,7 +37,7 @@ export async function POST(
     }
 
     // Check if user is authorized (either family or provider)
-    const isFamilyUser = request.familyProfile.user?.id === session.user.id;
+    const isFamilyUser = request.familyProfile?.user?.id === session.user.id;
     const isProviderUser = request.provider.user?.id === session.user.id;
 
     if (!isFamilyUser && !isProviderUser) {
