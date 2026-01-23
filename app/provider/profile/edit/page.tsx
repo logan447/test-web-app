@@ -219,6 +219,9 @@ export default function ProviderProfileEditPage() {
   if (!formData.state) missingFields.push("State");
   if (formData.careTypesOffered.length === 0) missingFields.push("Care Types");
 
+  // Determine if this is an individual caregiver
+  const isIndividualCaregiver = formData.providerType === "INDEPENDENT_CAREGIVER";
+
   if (loading) {
     return (
       <>
@@ -240,7 +243,12 @@ export default function ProviderProfileEditPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900">Your Profile</h1>
-            <p className="text-gray-500 mt-1">Help families find you by completing your profile</p>
+            <p className="text-gray-500 mt-1">
+              {isIndividualCaregiver
+                ? "Help families and organizations find you"
+                : "Help families find you by completing your profile"
+              }
+            </p>
           </div>
 
           {/* Visibility Card */}
@@ -258,12 +266,17 @@ export default function ProviderProfileEditPage() {
                     <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                   )}
                   <span className="font-medium text-gray-900">
-                    {provider?.isVisible ? "Visible to families" : "Hidden from search"}
+                    {provider?.isVisible
+                      ? (isIndividualCaregiver ? "Visible to families & organizations" : "Visible to families")
+                      : "Hidden from search"
+                    }
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
                   {provider?.isVisible
-                    ? "Families can find and contact you"
+                    ? (isIndividualCaregiver
+                        ? "Families and hiring organizations can find and contact you"
+                        : "Families can find and contact you")
                     : isComplete
                       ? "Toggle on to appear in search results"
                       : `Complete these fields: ${missingFields.join(", ")}`
@@ -292,14 +305,14 @@ export default function ProviderProfileEditPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Organization Name <span className="text-red-500">*</span>
+                    {isIndividualCaregiver ? "Your Name" : "Organization Name"} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Your organization name"
+                    placeholder={isIndividualCaregiver ? "Your full name" : "Your organization name"}
                   />
                 </div>
 
@@ -321,14 +334,17 @@ export default function ProviderProfileEditPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
+                    {isIndividualCaregiver ? "About You" : "Description"}
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Tell families about your services..."
+                    placeholder={isIndividualCaregiver
+                      ? "Tell families and organizations about your experience and skills..."
+                      : "Tell families about your services..."
+                    }
                   />
                 </div>
               </div>
