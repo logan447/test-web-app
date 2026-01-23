@@ -7,6 +7,8 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
+import EngagementCalendar, { ScheduledEvent } from "@/components/Engagement/EngagementCalendar";
+import { ProviderCard } from "@/components/Cards";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -25,6 +27,42 @@ interface Activity {
   isUnread: boolean;
 }
 
+interface SavedProvider {
+  id: string;
+  providerId: string;
+  createdAt: string;
+  provider: {
+    id: string;
+    name: string;
+    providerType: string;
+    city: string;
+    state: string;
+    description: string | null;
+    careTypesOffered: string[];
+    averageRating: number | null;
+    reviewCount: number;
+    priceMin: number | null;
+    priceMax: number | null;
+    coverPhoto: string | null;
+    photos: string[];
+    claimed: boolean;
+  };
+}
+
+interface TourData {
+  id: string;
+  proposedDate: string;
+  proposedTime: string;
+  status: string;
+  request: {
+    id: string;
+    provider: {
+      id: string;
+      name: string;
+    };
+  };
+}
+
 /**
  * Care Profile - Family-side overview and quick actions
  *
@@ -41,6 +79,8 @@ export default function CareProfilePage() {
     totalRequests: 0,
   });
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [savedProvidersList, setSavedProvidersList] = useState<SavedProvider[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<ScheduledEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
 
@@ -60,9 +100,11 @@ export default function CareProfilePage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsRes, activitiesRes] = await Promise.all([
+      const [statsRes, activitiesRes, savedRes, toursRes] = await Promise.all([
         fetch("/api/dashboard/stats"),
         fetch("/api/dashboard/activity"),
+        fetch("/api/saved-providers"),
+        fetch("/api/dashboard/tours"),
       ]);
 
       if (statsRes.ok) {
@@ -73,6 +115,27 @@ export default function CareProfilePage() {
       if (activitiesRes.ok) {
         const data = await activitiesRes.json();
         setActivities(data.activities || []);
+      }
+
+      if (savedRes.ok) {
+        const data = await savedRes.json();
+        setSavedProvidersList(Array.isArray(data) ? data.slice(0, 3) : []);
+      }
+
+      if (toursRes.ok) {
+        const data = await toursRes.json();
+        const tours: TourData[] = data.tours || [];
+        // Convert tours to calendar events
+        const events: ScheduledEvent[] = tours.map((tour) => ({
+          id: tour.id,
+          date: new Date(tour.proposedDate),
+          title: `Tour at ${tour.request.provider.name}`,
+          type: "tour" as const,
+          providerName: tour.request.provider.name,
+          providerId: tour.request.provider.id,
+          engagementId: tour.request.id,
+        }));
+        setCalendarEvents(events);
       }
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
@@ -169,9 +232,9 @@ export default function CareProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Header */}
+      {/* Hero Header - Cleaner design */}
       <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">
@@ -181,32 +244,43 @@ export default function CareProfilePage() {
                 Track your care search progress and manage provider connections
               </p>
             </div>
-            <Link
-              href="/care-profile/edit"
-              className="inline-flex items-center gap-2 bg-white text-primary-700 px-6 py-3 rounded-xl font-semibold hover:bg-primary-50 transition-colors shadow-lg"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit Care Profile
-            </Link>
+            <div className="flex gap-3">
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-5 py-3 rounded-xl font-medium hover:bg-white/20 transition-colors border border-white/20"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Find Providers
+              </Link>
+              <Link
+                href="/care-profile/edit"
+                className="inline-flex items-center gap-2 bg-white text-primary-700 px-5 py-3 rounded-xl font-semibold hover:bg-primary-50 transition-colors shadow-lg"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Profile
+              </Link>
+            </div>
           </div>
 
           {/* Quick Stats in Hero */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-            <Link href="/requests" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors">
+            <Link href="/requests" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors border border-white/10">
               <div className="text-3xl font-bold">{stats.pendingRequests}</div>
               <div className="text-primary-100 text-sm">Pending Requests</div>
             </Link>
-            <Link href="/requests" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors">
+            <Link href="/requests" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors border border-white/10">
               <div className="text-3xl font-bold">{stats.activeConversations}</div>
               <div className="text-primary-100 text-sm">Active Conversations</div>
             </Link>
-            <Link href="/saved" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors">
+            <Link href="/saved" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors border border-white/10">
               <div className="text-3xl font-bold">{stats.savedProviders}</div>
               <div className="text-primary-100 text-sm">Saved Providers</div>
             </Link>
-            <Link href="/matches" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors">
+            <Link href="/matches" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors border border-white/10">
               <div className="text-3xl font-bold">{stats.totalRequests}</div>
               <div className="text-primary-100 text-sm">Total Connections</div>
             </Link>
@@ -219,6 +293,50 @@ export default function CareProfilePage() {
         <div className="mb-8">
           <ProfileCompletionWidget />
         </div>
+
+        {/* Saved Providers Preview */}
+        {savedProvidersList.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">
+                Your Saved Providers
+              </h2>
+              <Link
+                href="/saved"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+              >
+                View all
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {savedProvidersList.map((saved) => (
+                <ProviderCard
+                  key={saved.id}
+                  provider={{
+                    id: saved.provider.id,
+                    name: saved.provider.name,
+                    providerType: saved.provider.providerType,
+                    city: saved.provider.city,
+                    state: saved.provider.state,
+                    description: saved.provider.description,
+                    careTypesOffered: saved.provider.careTypesOffered,
+                    averageRating: saved.provider.averageRating,
+                    reviewCount: saved.provider.reviewCount,
+                    priceMin: saved.provider.priceMin,
+                    priceMax: saved.provider.priceMax,
+                    coverPhoto: saved.provider.coverPhoto,
+                    photos: saved.provider.photos,
+                    claimed: saved.provider.claimed,
+                  }}
+                  variant="vertical"
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="mb-8">
@@ -335,7 +453,31 @@ export default function CareProfilePage() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content - Activity Feed */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Engagement Calendar */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Your Schedule
+                </h2>
+                <Link
+                  href="/requests"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                >
+                  Manage Tours
+                </Link>
+              </div>
+              <EngagementCalendar
+                events={calendarEvents}
+                variant="compact"
+                onEventClick={(event) => {
+                  if (event.engagementId) {
+                    router.push(`/requests/${event.engagementId}`);
+                  }
+                }}
+              />
+            </div>
+
             {/* Recent Activity with Filters */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100">
               <div className="p-6 border-b border-gray-100">
@@ -368,7 +510,7 @@ export default function CareProfilePage() {
               <div className="p-6">
                 {filteredActivities.length > 0 ? (
                   <div className="space-y-3">
-                    {filteredActivities.map((activity) => (
+                    {filteredActivities.slice(0, 5).map((activity) => (
                       <Link
                         key={activity.id}
                         href={activity.relatedId ? `/requests/${activity.relatedId}` : "#"}
@@ -445,6 +587,36 @@ export default function CareProfilePage() {
           <div className="space-y-6">
             {/* Upcoming Tours Widget */}
             <UpcomingToursWidget />
+
+            {/* Care Search Progress */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Your Care Search</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Providers Contacted</span>
+                  <span className="font-semibold text-gray-900">{stats.totalRequests}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Tours Scheduled</span>
+                  <span className="font-semibold text-gray-900">{calendarEvents.length}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Saved for Later</span>
+                  <span className="font-semibold text-gray-900">{stats.savedProviders}</span>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <Link
+                  href="/matches"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                >
+                  View recommended matches
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
 
             {/* Tips Card */}
             <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-6 border border-primary-200">
