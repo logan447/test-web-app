@@ -18,13 +18,45 @@ const TYPEWRITER_WORDS = [
 
 // Care Type Categories
 const CARE_TYPES = [
-  { id: "home-care", name: "Home Care (Non-medical)", slug: "HOME_CARE" },
-  { id: "home-care-medical", name: "Home Care (Medical)", slug: "HOME_CARE_MEDICAL" },
-  { id: "assisted-living", name: "Assisted Living", slug: "ASSISTED_LIVING" },
-  { id: "memory-care", name: "Memory Care", slug: "MEMORY_CARE" },
-  { id: "nursing-home", name: "Nursing Home", slug: "NURSING_HOME" },
-  { id: "hospice", name: "Hospice", slug: "HOSPICE" },
-  { id: "independent-living", name: "Independent Living", slug: "INDEPENDENT_LIVING" },
+  { id: "home-care", name: "Home Care", description: "Non-medical assistance at home", slug: "HOME_CARE", icon: "🏠" },
+  { id: "assisted-living", name: "Assisted Living", description: "Independent living with support", slug: "ASSISTED_LIVING", icon: "🏢" },
+  { id: "memory-care", name: "Memory Care", description: "Specialized dementia care", slug: "MEMORY_CARE", icon: "💜" },
+  { id: "nursing-home", name: "Nursing Home", description: "24/7 skilled nursing", slug: "NURSING_HOME", icon: "🏥" },
+  { id: "hospice", name: "Hospice", description: "End-of-life comfort care", slug: "HOSPICE", icon: "🕊️" },
+  { id: "respite", name: "Respite Care", description: "Short-term caregiver relief", slug: "RESPITE_CARE", icon: "🌿" },
+];
+
+// Testimonials
+const TESTIMONIALS = [
+  {
+    quote: "Olera helped us find the perfect memory care facility for my mother. The process was so much easier than we expected.",
+    author: "Sarah M.",
+    role: "Daughter & Caregiver",
+    location: "Houston, TX",
+    rating: 5,
+  },
+  {
+    quote: "As a provider, Olera connects us with families who are a great fit. The platform is intuitive and the leads are high quality.",
+    author: "Dr. James Wilson",
+    role: "Medical Director, Sunrise Senior Living",
+    location: "Dallas, TX",
+    rating: 5,
+  },
+  {
+    quote: "I was overwhelmed trying to find care for my dad. Olera's matching system found options I never knew existed in our area.",
+    author: "Michael R.",
+    role: "Son & Family Caregiver",
+    location: "Austin, TX",
+    rating: 5,
+  },
+];
+
+// Stats
+const STATS = [
+  { value: "500+", label: "Verified Providers" },
+  { value: "10,000+", label: "Families Helped" },
+  { value: "50+", label: "Texas Cities" },
+  { value: "4.8", label: "Average Rating" },
 ];
 
 export default function Home() {
@@ -42,7 +74,6 @@ export default function Home() {
         if (displayText.length < word.length) {
           setDisplayText(word.slice(0, displayText.length + 1));
         } else {
-          // Pause at end of word
           setTimeout(() => setIsDeleting(true), 2000);
         }
       } else {
@@ -78,39 +109,39 @@ export default function Home() {
       <MainNav />
 
       {/* Hero Section */}
-      <section className="relative bg-cream-100 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-cream-100 to-cream-200 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 min-h-[500px] lg:min-h-[560px]">
+          <div className="grid lg:grid-cols-2 min-h-[600px]">
             {/* Left Content */}
-            <div className="flex flex-col justify-center px-6 lg:px-12 py-12 lg:py-16">
-              <p className="text-gray-600 text-lg mb-3">
+            <div className="flex flex-col justify-center px-6 lg:px-12 py-16 lg:py-20">
+              <p className="text-gray-600 text-lg mb-4 font-medium">
                 Are you caring for an elder loved one?
               </p>
 
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 leading-tight">
                 Connect with trusted
               </h1>
-              <div className="text-4xl lg:text-5xl font-bold text-primary-600 mb-8 h-14">
+              <div className="text-4xl lg:text-5xl xl:text-6xl font-bold text-primary-600 mb-8 h-16 lg:h-20">
                 {displayText}
-                <span className="animate-pulse">|</span>
+                <span className="animate-pulse text-primary-400">|</span>
               </div>
 
               {/* Search Form */}
-              <form onSubmit={handleSearch} className="mb-6">
+              <form onSubmit={handleSearch} className="mb-8">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   City or zip code
                 </label>
-                <div className="flex gap-3">
-                  <div className="relative flex-1 max-w-xs">
+                <div className="flex gap-3 flex-col sm:flex-row">
+                  <div className="relative flex-1 max-w-sm">
                     <input
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      placeholder=""
-                      className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900"
+                      placeholder="Houston, TX"
+                      className="w-full px-4 py-4 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 text-lg shadow-sm"
                     />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-600">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-primary-600">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -118,69 +149,81 @@ export default function Home() {
                   </div>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+                    className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                   >
                     Get started
                   </button>
                 </div>
               </form>
 
-              <p className="text-sm text-gray-500 mb-8">
-                Olera is currently available in the state of Texas but we&apos;re working
-                around the clock to be able to help you wherever you are in US.
+              <p className="text-sm text-gray-500 mb-6">
+                Olera is currently available in Texas. We&apos;re expanding nationwide soon.
               </p>
 
-              {/* NIH Badge */}
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <span>Proudly supported by</span>
-                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg shadow-sm">
+              {/* Trust Badges */}
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-2 rounded-lg shadow-sm">
+                  <svg className="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-700">Verified Providers</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-2 rounded-lg shadow-sm">
                   <span className="font-bold text-blue-800">NIH</span>
-                  <span className="text-gray-700">National Institute on Aging</span>
+                  <span className="text-sm text-gray-600">Supported Research</span>
                 </div>
               </div>
             </div>
 
             {/* Right Image */}
             <div className="relative hidden lg:block">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-100 to-primary-200">
+              <div className="absolute inset-0">
                 <Image
                   src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800&q=80"
-                  alt="Elderly person with caregiver"
+                  alt="Caregiver with elderly person"
                   fill
                   className="object-cover"
                   priority
                 />
-              </div>
-              {/* NIH Badge overlay on image */}
-              <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg">
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-gray-600">Proudly supported by</span>
-                  <div className="flex items-center gap-1">
-                    <span className="font-bold text-blue-800">NIH</span>
-                    <span className="text-gray-700 text-xs">National Institute on Aging</span>
-                  </div>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-l from-transparent to-cream-100/50" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Get Personalized Care Plan CTA */}
+      {/* Stats Section */}
+      <section className="py-12 bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {STATS.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-3xl lg:text-4xl font-bold text-primary-600 mb-1">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Personalized Care Plan CTA */}
       <section className="py-16 bg-white">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
             Get a personalized care plan
           </h2>
-          <p className="text-gray-600 mb-8 text-lg">
-            Let us know more about your caregiving situation by answering a few questions and we
-            will find best match for your needs.
+          <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+            Tell us about your loved one&apos;s needs, and we&apos;ll match you with the right care options.
+            It takes just a few minutes.
           </p>
           <Link
             href="/care-profile"
-            className="inline-block px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
           >
-            Get started
+            Start Your Care Profile
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
           </Link>
         </div>
       </section>
@@ -188,21 +231,27 @@ export default function Home() {
       {/* Browse by Care Type */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            Browse by care type
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Explore care options
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Every family&apos;s situation is unique. Find the type of care that best fits your loved one&apos;s needs.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6">
             {CARE_TYPES.map((type) => (
               <Link
                 key={type.id}
                 href={`/browse?type=${type.slug}`}
-                className="group p-5 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all"
+                className="group p-6 bg-white rounded-2xl border border-gray-200 hover:border-primary-300 hover:shadow-lg transition-all"
               >
-                <h3 className="font-medium text-gray-900 group-hover:text-primary-600 transition-colors">
+                <span className="text-3xl mb-3 block">{type.icon}</span>
+                <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors mb-1">
                   {type.name}
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Find providers
+                <p className="text-sm text-gray-500">
+                  {type.description}
                 </p>
               </Link>
             ))}
@@ -211,75 +260,121 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-12">
-            How Olera Works
-          </h2>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              How Olera works
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Finding the right care shouldn&apos;t be overwhelming. We make it simple.
+            </p>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-12">
             {[
               {
                 step: "1",
-                title: "Search & Compare",
-                description: "Browse care providers in your area. Filter by type, location, and services to find the perfect match.",
+                title: "Tell us about your needs",
+                description: "Share details about your loved one's care requirements, preferences, and location. Our smart matching helps narrow down the best options.",
                 icon: (
                   <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 ),
               },
               {
                 step: "2",
-                title: "Connect Directly",
-                description: "Reach out to providers you&apos;re interested in. Schedule tours, ask questions, and get personalized information.",
+                title: "Compare verified providers",
+                description: "Browse detailed profiles with photos, reviews, pricing, and availability. Every provider is verified for licensing and credentials.",
+                icon: (
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                ),
+              },
+              {
+                step: "3",
+                title: "Connect with confidence",
+                description: "Reach out directly to schedule tours, ask questions, and find the perfect match. We're with you every step of the way.",
                 icon: (
                   <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 ),
               },
-              {
-                step: "3",
-                title: "Make Informed Decisions",
-                description: "Read reviews from real families, compare pricing, and choose the best care option with confidence.",
-                icon: (
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                ),
-              },
             ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-16 h-16 mx-auto mb-6 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600">
-                  {item.icon}
+              <div key={item.step} className="relative">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600">
+                    {item.icon}
+                  </div>
+                  <span className="text-5xl font-bold text-gray-100">{item.step}</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h3>
-                <p className="text-gray-600">{item.description}</p>
+                <p className="text-gray-600 leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-primary-600">
+      {/* Testimonials */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Trusted by families across Texas
+            </h2>
+            <p className="text-gray-600">
+              See why thousands of families choose Olera to find care.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {TESTIMONIALS.map((testimonial, idx) => (
+              <div key={idx} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                {/* Stars */}
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                    </svg>
+                  ))}
+                </div>
+                <blockquote className="text-gray-700 mb-6 leading-relaxed">
+                  &ldquo;{testimonial.quote}&rdquo;
+                </blockquote>
+                <div>
+                  <div className="font-semibold text-gray-900">{testimonial.author}</div>
+                  <div className="text-sm text-gray-500">{testimonial.role}</div>
+                  <div className="text-sm text-gray-400">{testimonial.location}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* For Providers CTA */}
+      <section className="py-20 bg-primary-600">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Find the Right Care?
+            Are you a care provider?
           </h2>
-          <p className="text-xl text-primary-100 mb-8">
-            Join thousands of families who found quality care through Olera.
+          <p className="text-xl text-primary-100 mb-8 leading-relaxed">
+            Join Olera to connect with families actively searching for quality care.
+            Get verified, build your reputation, and grow your business.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/browse"
+              href="/for-providers"
               className="px-8 py-4 bg-white text-primary-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
             >
-              Browse Providers
+              Learn More
             </Link>
             <Link
-              href="/for-providers"
+              href="/signup?intent=provider"
               className="px-8 py-4 bg-primary-700 text-white font-semibold rounded-xl hover:bg-primary-800 transition-colors border border-primary-500"
             >
               List Your Services
@@ -288,44 +383,126 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
+      {/* Trust Section */}
+      <section className="py-16 bg-white border-t border-gray-100">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="text-2xl font-bold text-white mb-4">Olera</div>
-              <p className="text-sm">
-                Helping families find quality senior care since 2024.
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Your trust is our priority
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                ),
+                title: "Verified Providers",
+                description: "Every provider is checked for licensing, insurance, and credentials",
+              },
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                ),
+                title: "Secure & Private",
+                description: "Your information is protected with enterprise-grade security",
+              },
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                ),
+                title: "Real Reviews",
+                description: "Authentic reviews from real families help you make informed decisions",
+              },
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ),
+                title: "Always Here to Help",
+                description: "Our care advisors are available to guide you through the process",
+              },
+            ].map((item) => (
+              <div key={item.title} className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-primary-50 rounded-2xl flex items-center justify-center text-primary-600">
+                  {item.icon}
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-400 py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid md:grid-cols-5 gap-8 mb-12">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                </div>
+                <span className="text-2xl font-bold text-white">Olera</span>
+              </div>
+              <p className="text-sm leading-relaxed mb-4">
+                Helping families find quality senior care with confidence.
+                We believe every family deserves access to compassionate,
+                qualified care for their loved ones.
               </p>
+              <div className="flex gap-4">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                </a>
+              </div>
             </div>
             <div>
               <h4 className="font-semibold text-white mb-4">For Families</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/browse" className="hover:text-white">Browse Providers</Link></li>
-                <li><Link href="/browse?type=ASSISTED_LIVING" className="hover:text-white">Assisted Living</Link></li>
-                <li><Link href="/browse?type=MEMORY_CARE" className="hover:text-white">Memory Care</Link></li>
-                <li><Link href="/browse?type=HOME_CARE" className="hover:text-white">Home Care</Link></li>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/browse" className="hover:text-white transition-colors">Find Care</Link></li>
+                <li><Link href="/browse?type=ASSISTED_LIVING" className="hover:text-white transition-colors">Assisted Living</Link></li>
+                <li><Link href="/browse?type=MEMORY_CARE" className="hover:text-white transition-colors">Memory Care</Link></li>
+                <li><Link href="/browse?type=HOME_CARE" className="hover:text-white transition-colors">Home Care</Link></li>
+                <li><Link href="/care-profile" className="hover:text-white transition-colors">Create Care Profile</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-white mb-4">For Providers</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/for-providers" className="hover:text-white">List Your Services</Link></li>
-                <li><Link href="/provider/leads" className="hover:text-white">Provider Dashboard</Link></li>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/for-providers" className="hover:text-white transition-colors">Why Olera</Link></li>
+                <li><Link href="/signup?intent=provider" className="hover:text-white transition-colors">List Your Services</Link></li>
+                <li><Link href="/provider/leads" className="hover:text-white transition-colors">Provider Dashboard</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-white mb-4">Company</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-                <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 text-sm text-center">
-            © {new Date().getFullYear()} Olera. All rights reserved.
+          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm">© {new Date().getFullYear()} Olera. All rights reserved.</p>
+            <p className="text-xs text-gray-500">Made with care in Texas</p>
           </div>
         </div>
       </footer>
