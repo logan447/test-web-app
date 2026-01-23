@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import OnboardingWizardOverlay from './OnboardingWizardOverlay';
-import type { OnboardingIntent, ProviderSubtype, PendingActionContext } from './OnboardingWizardOverlay';
+import type { OnboardingIntent, ProviderSubtype, PendingActionContext, OnboardingData } from './OnboardingWizardOverlay';
 import { showToast } from '@/lib/toast';
 
 /**
@@ -100,7 +100,9 @@ export default function GlobalOnboardingOverlay() {
   }, [searchParams, status]);
 
   // Handle onboarding completion
-  const handleComplete = async () => {
+  // Accepts data from wizard callback to get the FINAL intent selected during onboarding
+  // (not just the initial intent from URL params which may be null)
+  const handleComplete = async (wizardData?: OnboardingData) => {
     // Prevent double execution - OnboardingWizardOverlay calls both onComplete and onClose
     if (isCompletingRef.current) {
       console.log('[GlobalOnboarding] handleComplete already running, skipping duplicate call');
@@ -110,8 +112,12 @@ export default function GlobalOnboardingOverlay() {
 
     setShowOnboarding(false);
 
+    // Use wizard data intent if available (user selected during onboarding)
+    // Fall back to URL param intent (if pre-set)
+    const finalIntent = wizardData?.intent ?? intent;
+
     // Provider intent: redirect to provider home base (leads)
-    if (intent === 'provider') {
+    if (finalIntent === 'provider') {
       showToast.success('Welcome! Start connecting with families who match your services.');
       router.push('/provider/leads');
       return;
