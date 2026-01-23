@@ -268,16 +268,15 @@ export default function SeedAdminPage() {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-4 rounded-lg font-bold text-lg hover:from-primary-700 hover:to-primary-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition shadow-md"
               >
-                {loading ? 'Seeding 90+ accounts...' : 'Full Demo Seed (90+ Accounts)'}
+                {loading ? 'Seeding 30 accounts...' : 'Full Demo Seed (30 Accounts)'}
               </button>
               <p className="text-sm text-primary-700 mt-2 font-medium">
-                Creates comprehensive demo data with photos:
+                Creates demo data with photos:
               </p>
               <ul className="text-xs text-primary-600 mt-1 space-y-0.5">
-                <li>- 36 family accounts (all with profile photos)</li>
-                <li>- 36 facility/organization accounts (5-10 photos each)</li>
-                <li>- 18 individual caregiver accounts (with photos)</li>
-                <li>- 30 consultation requests, tours, saved providers</li>
+                <li>- 12 family accounts (with profile photos)</li>
+                <li>- 12 facility/organization accounts (with photos)</li>
+                <li>- 6 individual caregiver accounts (with photos)</li>
                 <li>- Password for all: <code className="bg-primary-100 px-1 rounded">demo123</code></li>
               </ul>
             </div>

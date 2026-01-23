@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { hash } from 'bcryptjs';
-import { main as runFullSeed } from '@/prisma/seed';
+import { seedLite } from '@/prisma/seed-lite';
 
 /**
  * Test account configuration
@@ -130,21 +130,20 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}));
     const { reset = false, mode = 'test' } = body;
 
-    // If mode is 'full', run the comprehensive MEGA seed from prisma/seed.ts
+    // If mode is 'full', run the lite seed (Vercel-compatible)
     if (mode === 'full') {
-      console.log(`[SEED] Running FULL MEGA seed by ${session.user.email}...`);
-      await runFullSeed(prisma);
+      console.log(`[SEED] Running LITE seed by ${session.user.email}...`);
+      await seedLite(prisma);
       return NextResponse.json({
         success: true,
         data: {
-          message: 'Successfully ran FULL MEGA seed (90+ accounts)',
+          message: 'Successfully seeded 30 demo accounts',
           password: 'demo123',
           summary: {
-            families: 36,
-            facilities: 36,
-            caregivers: 18,
-            unclaimed: 4,
-            total: 94,
+            families: 12,
+            facilities: 12,
+            caregivers: 6,
+            total: 30,
           },
           instructions: [
             'All demo accounts seeded with comprehensive data',
