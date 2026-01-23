@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
-import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
 import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
@@ -30,6 +29,9 @@ interface Activity {
 
 interface ProviderProfile {
   providerType: string;
+  name?: string;
+  city?: string;
+  state?: string;
 }
 
 export default function ProviderProfilePage() {
@@ -46,29 +48,21 @@ export default function ProviderProfilePage() {
   const [filterType, setFilterType] = useState<string>("all");
   const [providerProfile, setProviderProfile] = useState<ProviderProfile | null>(null);
 
-  // Read mode from session (database is source of truth per Manual Ch 2)
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
-
-  // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
   const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
 
   useEffect(() => {
-    // Wait for session to fully load
     if (status === "loading" || identityLoading) return;
 
-    // Only redirect to login if session status is definitively unauthenticated
-    // This prevents race conditions on hard refresh
     if (status === "unauthenticated") {
       router.push("/login");
       return;
     }
 
-    // Session is authenticated but data might still be loading
     if (!session) return;
 
-    // Fetch dashboard data (no mode-based redirect - let user see page regardless of mode)
     fetchDashboardData();
   }, [session, status, router, identityLoading]);
 
@@ -83,7 +77,6 @@ export default function ProviderProfilePage() {
 
       if (statsRes.ok) {
         const data = await statsRes.json();
-        // Merge with defaults to ensure all stats have values
         setStats(prev => ({
           ...prev,
           pendingRequests: data.stats?.pendingRequests ?? 0,
@@ -109,20 +102,26 @@ export default function ProviderProfilePage() {
     }
   };
 
-  // Show loading state
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <Breadcrumb />
+        {/* Skeleton Hero */}
+        <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="animate-pulse">
+              <div className="h-10 bg-white/20 rounded-lg w-1/3 mb-4"></div>
+              <div className="h-5 bg-white/20 rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
-            <div className="h-10 bg-gray-200 rounded w-1/3 mb-8"></div>
             <div className="grid md:grid-cols-4 gap-6 mb-8">
-              <div className="h-32 bg-gray-200 rounded"></div>
-              <div className="h-32 bg-gray-200 rounded"></div>
-              <div className="h-32 bg-gray-200 rounded"></div>
-              <div className="h-32 bg-gray-200 rounded"></div>
+              <div className="h-32 bg-white rounded-xl shadow"></div>
+              <div className="h-32 bg-white rounded-xl shadow"></div>
+              <div className="h-32 bg-white rounded-xl shadow"></div>
+              <div className="h-32 bg-white rounded-xl shadow"></div>
             </div>
           </div>
         </main>
@@ -134,10 +133,8 @@ export default function ProviderProfilePage() {
     ? activities
     : activities.filter(a => a.type === filterType);
 
-  // Determine provider type for customization
   const isIndependentCaregiver = providerProfile?.providerType === 'INDEPENDENT_CAREGIVER';
   const isHomeCareFacility = providerProfile?.providerType === 'HOME_CARE';
-  const isOrganization = !isIndependentCaregiver;
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -184,266 +181,184 @@ export default function ProviderProfilePage() {
     }
   };
 
+  const userName = session?.user?.name?.split(' ')[0] || 'there';
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
-      <Breadcrumb />
+
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold">
+                  Welcome back, {userName}
+                </h1>
+              </div>
+              <p className="text-emerald-100 text-lg">
+                Manage your provider profile and connect with families
+              </p>
+            </div>
+            <Link
+              href="/provider/profile/edit"
+              className="inline-flex items-center gap-2 bg-white text-emerald-700 px-6 py-3 rounded-xl font-semibold hover:bg-emerald-50 transition-colors shadow-lg"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Profile
+            </Link>
+          </div>
+
+          {/* Quick Stats in Hero */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+            <Link href="/provider/leads" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-500/30 p-2 rounded-lg">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{stats.pendingRequests}</div>
+                  <div className="text-emerald-100 text-sm">New Requests</div>
+                </div>
+              </div>
+            </Link>
+            <Link href="/provider/requests" className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{stats.activeConversations}</div>
+                  <div className="text-emerald-100 text-sm">Active Chats</div>
+                </div>
+              </div>
+            </Link>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-emerald-400/30 p-2 rounded-lg">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{stats.acceptedRequests}</div>
+                  <div className="text-emerald-100 text-sm">Connected</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{stats.totalRequests}</div>
+                  <div className="text-emerald-100 text-sm">Total Requests</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Provider Profile
-          </h1>
-          <p className="text-lg text-gray-600">
-            A complete profile improves your visibility to families and enables better matching.
-            {isIndependentCaregiver && " You'll also be discoverable by organizations looking to hire caregivers."}
-          </p>
-        </div>
-
-        {/* Gentle nudge for onboarding (Manual Ch 8) */}
-        {needsOnboarding && <OnboardingPrompt context="dashboard" />}
+        {/* Onboarding Prompt */}
+        {needsOnboarding && (
+          <div className="mb-8">
+            <OnboardingPrompt context="dashboard" />
+          </div>
+        )}
 
         {/* Profile Completion Widget */}
         <div className="mb-8">
           <ProfileCompletionWidget />
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">New Requests</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {stats.pendingRequests}
-                </p>
-              </div>
-              <div className="bg-yellow-100 p-3 rounded-full">
-                <svg
-                  className="w-8 h-8 text-yellow-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <Link
-              href="/provider/leads"
-              className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
-            >
-              View requests →
-            </Link>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Active Conversations</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {stats.activeConversations}
-                </p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <svg
-                  className="w-8 h-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <Link
-              href="/provider/requests"
-              className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
-            >
-              View messages →
-            </Link>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Accepted Requests</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {stats.acceptedRequests}
-                </p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <svg
-                  className="w-8 h-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <Link
-              href="/provider/requests"
-              className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
-            >
-              View all →
-            </Link>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total Requests</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {stats.totalRequests}
-                </p>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-full">
-                <svg
-                  className="w-8 h-8 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <Link
-              href="/provider/requests"
-              className="text-sm text-blue-600 hover:text-blue-700 mt-4 inline-block"
-            >
-              View history →
-            </Link>
-          </div>
-        </div>
-
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
             Quick Actions
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               href="/provider/profile/edit"
-              className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+              className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-emerald-200 transition-all flex items-center"
             >
-              <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                <svg
-                  className="w-6 h-6 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
+              <div className="bg-emerald-100 p-3 rounded-xl mr-4 group-hover:bg-emerald-200 transition-colors">
+                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Edit Profile</h3>
+                <h3 className="font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">
+                  Edit Profile
+                </h3>
                 <p className="text-sm text-gray-600">Update services</p>
               </div>
             </Link>
 
-            {/* Conditional second action based on provider type */}
             {isIndependentCaregiver ? (
               <Link
                 href="/provider/organizations"
-                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+                className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all flex items-center"
               >
-                <div className="bg-green-100 p-3 rounded-lg mr-4">
-                  <svg
-                    className="w-6 h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
+                <div className="bg-blue-100 p-3 rounded-xl mr-4 group-hover:bg-blue-200 transition-colors">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Browse Organizations</h3>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+                    Browse Organizations
+                  </h3>
                   <p className="text-sm text-gray-600">Find employment</p>
                 </div>
               </Link>
             ) : isHomeCareFacility ? (
               <Link
                 href="/provider/hire-staff"
-                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+                className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all flex items-center"
               >
-                <div className="bg-green-100 p-3 rounded-lg mr-4">
-                  <svg
-                    className="w-6 h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
+                <div className="bg-blue-100 p-3 rounded-xl mr-4 group-hover:bg-blue-200 transition-colors">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Hire Care Staff</h3>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+                    Hire Care Staff
+                  </h3>
                   <p className="text-sm text-gray-600">Find caregivers</p>
                 </div>
               </Link>
             ) : (
               <Link
                 href="/provider/leads"
-                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+                className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all flex items-center"
               >
-                <div className="bg-green-100 p-3 rounded-lg mr-4">
-                  <svg
-                    className="w-6 h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
+                <div className="bg-blue-100 p-3 rounded-xl mr-4 group-hover:bg-blue-200 transition-colors">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Find Families</h3>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+                    Find Families
+                  </h3>
                   <p className="text-sm text-gray-600">Browse care requests</p>
                 </div>
               </Link>
@@ -451,49 +366,34 @@ export default function ProviderProfilePage() {
 
             <Link
               href="/provider/requests"
-              className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+              className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-purple-200 transition-all flex items-center"
             >
-              <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                <svg
-                  className="w-6 h-6 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
+              <div className="bg-purple-100 p-3 rounded-xl mr-4 group-hover:bg-purple-200 transition-colors">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">View Requests</h3>
+                <h3 className="font-semibold text-gray-900 group-hover:text-purple-700 transition-colors">
+                  View Requests
+                </h3>
                 <p className="text-sm text-gray-600">Manage inquiries</p>
               </div>
             </Link>
+
             <Link
               href="/provider/requests"
-              className="bg-white p-4 rounded-lg shadow hover:shadow-md transition flex items-center"
+              className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-orange-200 transition-all flex items-center"
             >
-              <div className="bg-orange-100 p-3 rounded-lg mr-4">
-                <svg
-                  className="w-6 h-6 text-orange-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
+              <div className="bg-orange-100 p-3 rounded-xl mr-4 group-hover:bg-orange-200 transition-colors">
+                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Messages</h3>
+                <h3 className="font-semibold text-gray-900 group-hover:text-orange-700 transition-colors">
+                  Messages
+                </h3>
                 <p className="text-sm text-gray-600">
                   {isIndependentCaregiver ? "Chat with clients" : "Chat with families"}
                 </p>
@@ -502,135 +402,187 @@ export default function ProviderProfilePage() {
           </div>
         </div>
 
-        {/* Upcoming Tours Widget */}
-        <div className="mb-8">
-          <UpcomingToursWidget />
-        </div>
-
-        {/* Recent Activity with Filters */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Recent Activity
-              </h2>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setFilterType("all")}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
-                    filterType === "all"
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setFilterType("REQUEST")}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
-                    filterType === "REQUEST"
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Requests
-                </button>
-                <button
-                  onClick={() => setFilterType("MESSAGE")}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
-                    filterType === "MESSAGE"
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Messages
-                </button>
-                <button
-                  onClick={() => setFilterType("TOUR_SCHEDULED")}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
-                    filterType === "TOUR_SCHEDULED"
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Tours
-                </button>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content - Activity Feed */}
+          <div className="lg:col-span-2">
+            {/* Recent Activity with Filters */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Recent Activity
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { key: "all", label: "All" },
+                      { key: "REQUEST", label: "Requests" },
+                      { key: "MESSAGE", label: "Messages" },
+                      { key: "TOUR_SCHEDULED", label: "Tours" },
+                    ].map((filter) => (
+                      <button
+                        key={filter.key}
+                        onClick={() => setFilterType(filter.key)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+                          filterType === filter.key
+                            ? "bg-emerald-600 text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                {filteredActivities.length > 0 ? (
+                  <div className="space-y-3">
+                    {filteredActivities.map((activity) => (
+                      <Link
+                        key={activity.id}
+                        href={activity.relatedId ? `/provider/requests/${activity.relatedId}` : "#"}
+                        className={`flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition ${
+                          activity.isUnread ? "bg-emerald-50 border border-emerald-100" : "bg-white border border-gray-100"
+                        }`}
+                      >
+                        <div className={`p-2.5 rounded-xl ${getActivityColor(activity.type)}`}>
+                          {getActivityIcon(activity.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-semibold text-gray-900">
+                              {activity.title}
+                              {activity.isUnread && (
+                                <span className="ml-2 inline-block w-2 h-2 bg-emerald-600 rounded-full"></span>
+                              )}
+                            </h3>
+                            <span className="text-xs text-gray-500 whitespace-nowrap">
+                              {new Date(activity.timestamp).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {activity.description}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg
+                        className="w-8 h-8 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                        />
+                      </svg>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-2">
+                      {filterType === "all" ? "No recent activity yet" : `No ${filterType.toLowerCase()} activity`}
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Complete your profile to start receiving care requests
+                    </p>
+                    {isIndependentCaregiver ? (
+                      <Link
+                        href="/provider/organizations"
+                        className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium"
+                      >
+                        Browse organizations
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/provider/leads"
+                        className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium"
+                      >
+                        Find families
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
-          <div className="p-6">
-            {filteredActivities.length > 0 ? (
-              <div className="space-y-3">
-                {filteredActivities.map((activity) => (
-                  <Link
-                    key={activity.id}
-                    href={activity.relatedId ? `/provider/requests/${activity.relatedId}` : "#"}
-                    className={`flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition ${
-                      activity.isUnread ? "bg-blue-50" : "bg-white border border-gray-100"
-                    }`}
-                  >
-                    <div className={`p-2 rounded-lg ${getActivityColor(activity.type)}`}>
-                      {getActivityIcon(activity.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-semibold text-gray-900">
-                          {activity.title}
-                          {activity.isUnread && (
-                            <span className="ml-2 inline-block w-2 h-2 bg-blue-600 rounded-full"></span>
-                          )}
-                        </h3>
-                        <span className="text-xs text-gray-500 whitespace-nowrap">
-                          {new Date(activity.timestamp).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {activity.description}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Upcoming Tours Widget */}
+            <UpcomingToursWidget />
+
+            {/* Tips Card */}
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-xl p-6 border border-emerald-200">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="bg-emerald-600 p-2 rounded-lg">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-emerald-900">Tips for Success</h3>
+                </div>
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <svg
-                  className="w-16 h-16 text-gray-300 mx-auto mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                  />
+              <ul className="space-y-2 text-sm text-emerald-800">
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Complete your profile with photos
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Respond to inquiries within 24 hours
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Ask for reviews from families
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Keep your availability up to date
+                </li>
+              </ul>
+            </div>
+
+            {/* Need Help Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="font-semibold text-gray-900 mb-3">Need Help?</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Our provider support team is here to help you succeed.
+              </p>
+              <a
+                href="mailto:providers@olera.com"
+                className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <p className="text-gray-500 mb-4">
-                  {filterType === "all" ? "No recent activity yet" : `No ${filterType.toLowerCase()} activity`}
-                </p>
-                {isIndependentCaregiver ? (
-                  <Link
-                    href="/provider/organizations"
-                    className="text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Browse organizations to get started →
-                  </Link>
-                ) : (
-                  <Link
-                    href="/provider/leads"
-                    className="text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Find families to get started →
-                  </Link>
-                )}
-              </div>
-            )}
+                Contact Provider Support
+              </a>
+            </div>
           </div>
         </div>
       </main>
