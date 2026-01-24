@@ -544,6 +544,45 @@ export default function MatchesPage() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Intro Section - Explains what matches are */}
+        <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl p-6 mb-8 border border-primary-100">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">Your Personalized Matches</h2>
+              <p className="text-gray-600 text-sm">
+                We analyze your care profile to find providers that best fit your needs. Matches are based on care types, location,
+                budget, and provider qualifications. Higher match percentages indicate better alignment with your requirements.
+              </p>
+              <div className="flex items-center gap-4 mt-3">
+                <Link
+                  href="/care-profile/edit"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Update care profile
+                </Link>
+                <span className="text-gray-300">|</span>
+                <Link
+                  href="/browse"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Browse all providers
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Care types filter display */}
         {familyProfile.careTypes.length > 0 && (
           <div className="mb-6 flex flex-wrap items-center gap-2">

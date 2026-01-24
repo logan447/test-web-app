@@ -19,21 +19,21 @@
 | M5 | Engagement page redesign | /requests/[id] | New structure with progress indicator | ✅ DONE |
 | M6 | Provider-specific CTAs | Provider cards + detail | CTA text matches provider type | ✅ DONE |
 | M7 | Post-action confirmations | All action points | Every action shows feedback | ✅ DONE |
-| M8 | Care profile restructure | /care-profile | Calendar-first layout | ☐ TODO |
-| M9 | Unified card system | All cards | Single component, consistent design | ☐ TODO |
+| M8 | Care profile restructure | /care-profile | Calendar-first layout | ✅ DONE |
+| M9 | Unified card system | All cards | Single component, consistent design | ✅ DONE |
 | M10 | Fix sticky nav offset | /providers/[id] | Sections align when clicked | ✅ DONE |
 
 ### SHOULD SHIP (Improves experience significantly)
 
 | ID | Task | Page/Component | Acceptance Criteria | Status |
 |----|------|----------------|---------------------|--------|
-| S1 | Saved page hero colors | /saved | Uses brand colors (no red/pink) | ☐ TODO |
-| S2 | Matches page context | /matches | Intro section explains purpose | ☐ TODO |
-| S3 | Leads page hero reduction | /provider/leads | Family cards above fold | ☐ TODO |
-| S4 | Paywall messaging clarity | PaywallModal | Clear value proposition | ☐ TODO |
-| S5 | Review submission flow | ReviewModal | Reviews can be submitted | ☐ TODO |
-| S6 | Filter UI simplification | /browse | Compact filter bar | ☐ TODO |
-| S7 | Empty states improvement | All pages | Helpful guidance when empty | ☐ TODO |
+| S1 | Saved page hero colors | /saved | Uses brand colors (no red/pink) | ✅ DONE |
+| S2 | Matches page context | /matches | Intro section explains purpose | ✅ DONE |
+| S3 | Leads page hero reduction | /provider/leads | Family cards above fold | ✅ DONE |
+| S4 | Paywall messaging clarity | PaywallModal | Clear value proposition | ✅ DONE |
+| S5 | Review submission flow | ReviewModal | Reviews can be submitted | ✅ DONE |
+| S6 | Filter UI simplification | /browse | Compact filter bar | ✅ DONE |
+| S7 | Empty states improvement | All pages | Helpful guidance when empty | ✅ DONE |
 | S8 | "Starting at" pricing | All cards | Changed from "Estimated" | ✅ DONE |
 | S9 | Progress indicator | /requests/[id] | Visual step progress | ✅ DONE |
 | S10 | What happens next | /requests/[id] | Collapsible guidance section | ✅ DONE |
@@ -72,9 +72,9 @@
 ### Week 3: Polish
 | Order | ID | Task | Status |
 |-------|-----|------|--------|
-| 9 | M8 | Care profile restructure | ☐ TODO |
-| 10 | M9 | Unified card system | ☐ TODO |
-| 11 | S1-S10 | Should-ship items | ☐ TODO |
+| 9 | M8 | Care profile restructure | ✅ DONE |
+| 10 | M9 | Unified card system | ✅ DONE |
+| 11 | S1-S7 | Should-ship items | ✅ DONE |
 
 ### Week 4: Regression & QA
 | Order | Task | Status |

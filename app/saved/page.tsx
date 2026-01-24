@@ -164,7 +164,7 @@ export default function SavedProvidersPage() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
         {/* Hero Skeleton */}
-        <div className="bg-gradient-to-br from-pink-600 via-pink-700 to-rose-800">
+        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="animate-pulse">
               <div className="h-10 bg-white/20 rounded-lg w-1/3 mb-4"></div>
@@ -192,7 +192,7 @@ export default function SavedProvidersPage() {
       <MainNav />
 
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-pink-600 via-pink-700 to-rose-800 text-white">
+      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
@@ -204,7 +204,7 @@ export default function SavedProvidersPage() {
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold">Saved Providers</h1>
               </div>
-              <p className="text-pink-100 text-lg">
+              <p className="text-primary-100 text-lg">
                 Your shortlist of care providers for easy comparison
               </p>
             </div>
@@ -214,7 +214,7 @@ export default function SavedProvidersPage() {
                   onClick={toggleCompareMode}
                   className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors shadow-lg ${
                     compareMode
-                      ? 'bg-white text-pink-700 hover:bg-pink-50'
+                      ? 'bg-white text-primary-700 hover:bg-primary-50'
                       : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
                 >
@@ -226,7 +226,7 @@ export default function SavedProvidersPage() {
               )}
               <Link
                 href="/browse"
-                className="inline-flex items-center gap-2 bg-white text-pink-700 px-6 py-3 rounded-xl font-semibold hover:bg-pink-50 transition-colors shadow-lg"
+                className="inline-flex items-center gap-2 bg-white text-primary-700 px-6 py-3 rounded-xl font-semibold hover:bg-primary-50 transition-colors shadow-lg"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -241,17 +241,17 @@ export default function SavedProvidersPage() {
             <div className="grid grid-cols-3 gap-4 mt-8 max-w-lg">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
                 <div className="text-3xl font-bold">{providers.length}</div>
-                <div className="text-pink-100 text-sm">Saved</div>
+                <div className="text-primary-100 text-sm">Saved</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
                 <div className="text-3xl font-bold">{requestedProviderIds.size}</div>
-                <div className="text-pink-100 text-sm">Contacted</div>
+                <div className="text-primary-100 text-sm">Contacted</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
                 <div className="text-3xl font-bold">
                   {providers.filter(p => p.provider.verified).length}
                 </div>
-                <div className="text-pink-100 text-sm">Verified</div>
+                <div className="text-primary-100 text-sm">Verified</div>
               </div>
             </div>
           )}
@@ -351,9 +351,9 @@ export default function SavedProvidersPage() {
         {/* Results */}
         {providers.length === 0 ? (
           <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
-            <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg
-                className="w-10 h-10 text-pink-500"
+                className="w-10 h-10 text-primary-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

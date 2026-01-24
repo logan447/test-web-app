@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { BadgeStyles, SaveButton, RatingDisplay, LocationDisplay } from "./UnifiedCard";
 
 // Provider type categories for styling
 const FACILITY_TYPES = [
@@ -154,7 +155,7 @@ export default function ProviderCard({
         href={linkHref}
         target="_blank"
         rel="noopener noreferrer"
-        className={`group block bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all ${className}`}
+        className={`group block bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 ${className}`}
       >
         <div className="flex flex-col sm:flex-row">
           {/* Image */}
@@ -333,7 +334,7 @@ export default function ProviderCard({
       href={linkHref}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group block bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all ${className}`}
+      className={`group block bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 ${className}`}
     >
       {/* Image */}
       <div className="relative h-48 bg-gray-100">

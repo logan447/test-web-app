@@ -38,13 +38,13 @@ type Provider = {
   claimed?: boolean;
 };
 
-// Filter configurations
-const FILTER_CONFIGS: FilterConfig[] = [
+// Primary filters (always visible)
+const PRIMARY_FILTER_CONFIGS: FilterConfig[] = [
   {
     id: "providerType",
-    label: "Provider Type",
+    label: "Care Type",
     options: [
-      { value: "", label: "All Provider Types" },
+      { value: "", label: "All Types" },
       { value: "HOME_CARE", label: "Home Care" },
       { value: "HOME_HEALTH", label: "Home Health" },
       { value: "ASSISTED_LIVING", label: "Assisted Living" },
@@ -53,9 +53,13 @@ const FILTER_CONFIGS: FilterConfig[] = [
       { value: "HOSPICE", label: "Hospice" },
       { value: "INDEPENDENT_LIVING", label: "Independent Living" },
       { value: "REHABILITATION", label: "Rehabilitation" },
-      { value: "INDEPENDENT_CAREGIVER", label: "Independent Caregiver" },
+      { value: "INDEPENDENT_CAREGIVER", label: "Caregiver" },
     ],
   },
+];
+
+// Secondary filters (hidden behind "More Filters")
+const SECONDARY_FILTER_CONFIGS: FilterConfig[] = [
   {
     id: "rating",
     label: "Rating",
@@ -75,24 +79,27 @@ const FILTER_CONFIGS: FilterConfig[] = [
       { value: "private_pay", label: "Private Pay" },
       { value: "medicaid", label: "Medicaid" },
       { value: "medicare", label: "Medicare" },
-      { value: "insurance", label: "Long-term Care Insurance" },
+      { value: "insurance", label: "Long-term Insurance" },
     ],
   },
   {
     id: "careService",
-    label: "Care Service",
+    label: "Services",
     options: [
-      { value: "", label: "All Care Services" },
-      { value: "COMPANION_CARE", label: "Companion Care" },
+      { value: "", label: "All Services" },
+      { value: "COMPANION_CARE", label: "Companion" },
       { value: "PERSONAL_CARE", label: "Personal Care" },
       { value: "SKILLED_NURSING", label: "Skilled Nursing" },
       { value: "MEMORY_CARE", label: "Memory Care" },
-      { value: "HOSPICE_CARE", label: "Hospice Care" },
-      { value: "RESPITE_CARE", label: "Respite Care" },
-      { value: "LIVE_IN_CARE", label: "Live-in Care" },
+      { value: "HOSPICE_CARE", label: "Hospice" },
+      { value: "RESPITE_CARE", label: "Respite" },
+      { value: "LIVE_IN_CARE", label: "Live-in" },
     ],
   },
 ];
+
+// Combined for reference
+const FILTER_CONFIGS: FilterConfig[] = [...PRIMARY_FILTER_CONFIGS, ...SECONDARY_FILTER_CONFIGS];
 
 // Sort options
 const SORT_OPTIONS = [
@@ -120,6 +127,7 @@ function BrowseContent() {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [showMap, setShowMap] = useState(true);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   // Filters - default to empty (show all)
   // Support both "location" param and separate "city"/"state" params (from homepage)
@@ -227,23 +235,125 @@ function BrowseContent() {
       <MainNav />
 
       <div className="min-h-screen bg-gray-50">
-        {/* Filter Bar */}
-        <FilterBar
-          showLocationFilter={true}
-          location={location}
-          onLocationChange={setLocation}
-          locationPlaceholder="City, State (e.g. San Diego, CA)"
-          filters={FILTER_CONFIGS}
-          values={filterValues}
-          onFilterChange={handleFilterChange}
-          showSort={true}
-          sortOptions={SORT_OPTIONS}
-          sortValue={sortBy}
-          onSortChange={setSortBy}
-          onClearAll={clearFilters}
-          hasActiveFilters={hasActiveFilters}
-          sticky={true}
-        />
+        {/* Compact Filter Bar */}
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            {/* Primary Filter Row */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Location Input */}
+              <div className="relative">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="City, State"
+                  className="w-40 sm:w-48 pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+
+              {/* Primary Filter - Care Type */}
+              {PRIMARY_FILTER_CONFIGS.map((filter) => (
+                <select
+                  key={filter.id}
+                  value={filterValues[filter.id] || ""}
+                  onChange={(e) => handleFilterChange(filter.id, e.target.value)}
+                  className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                    filterValues[filter.id]
+                      ? "border-primary-500 bg-primary-50 text-primary-700"
+                      : "border-gray-300 bg-white text-gray-700"
+                  }`}
+                >
+                  {filter.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ))}
+
+              {/* More Filters Button */}
+              <button
+                onClick={() => setShowMoreFilters(!showMoreFilters)}
+                className={`flex items-center gap-1 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                  showMoreFilters || filterValues.rating || filterValues.payment || filterValues.careService
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                Filters
+                {(filterValues.rating || filterValues.payment || filterValues.careService) && (
+                  <span className="ml-1 w-5 h-5 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">
+                    {[filterValues.rating, filterValues.payment, filterValues.careService].filter(Boolean).length}
+                  </span>
+                )}
+              </button>
+
+              {/* Clear All */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* Sort */}
+              <div className="hidden sm:flex items-center gap-2">
+                <span className="text-sm text-gray-500">Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium bg-white text-gray-700"
+                >
+                  {SORT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Secondary Filters (Expandable) */}
+            {showMoreFilters && (
+              <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                {SECONDARY_FILTER_CONFIGS.map((filter) => (
+                  <select
+                    key={filter.id}
+                    value={filterValues[filter.id] || ""}
+                    onChange={(e) => handleFilterChange(filter.id, e.target.value)}
+                    className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                      filterValues[filter.id]
+                        ? "border-primary-500 bg-primary-50 text-primary-700"
+                        : "border-gray-300 bg-white text-gray-700"
+                    }`}
+                  >
+                    {filter.options.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Results Header */}
         <div className="max-w-7xl mx-auto px-4 py-4">

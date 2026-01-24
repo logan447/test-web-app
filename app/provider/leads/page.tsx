@@ -328,15 +328,15 @@ function ProviderLeadsPageContent() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <div className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
-          <div className="max-w-7xl mx-auto px-4 py-12">
-            <div className="animate-pulse">
-              <div className="h-8 bg-white/20 rounded w-1/4 mb-4"></div>
-              <div className="h-5 bg-white/20 rounded w-1/2"></div>
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="animate-pulse flex items-center justify-between">
+              <div className="h-7 bg-gray-200 rounded w-24"></div>
+              <div className="h-9 bg-gray-200 rounded w-28"></div>
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="animate-pulse bg-white rounded-xl p-6 shadow-sm">
@@ -358,41 +358,35 @@ function ProviderLeadsPageContent() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Header */}
-      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-12">
+      {/* Compact Hero Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Leads</h1>
-              <p className="text-primary-100 text-lg">
-                Discover families who need your care services
-              </p>
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
+              <div className="hidden sm:flex items-center gap-4 text-sm">
+                <span className="text-gray-500">
+                  <span className="font-semibold text-gray-900">{profiles.length}</span> Available
+                </span>
+                <span className="text-gray-300">|</span>
+                <span className="text-gray-500">
+                  <span className="font-semibold text-primary-600">{matchedFamilies.length}</span> Matched
+                </span>
+                <span className="text-gray-300">|</span>
+                <span className="text-gray-500">
+                  <span className="font-semibold text-gray-900">{activeRequestsCount}</span> In Progress
+                </span>
+              </div>
             </div>
             <Link
               href="/provider/requests"
-              className="hidden md:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+              className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              View Requests
+              Requests
             </Link>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">{profiles.length}</div>
-              <div className="text-primary-100 text-sm">Available Leads</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">{matchedFamilies.length}</div>
-              <div className="text-primary-100 text-sm">Matched Families</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">{activeRequestsCount}</div>
-              <div className="text-primary-100 text-sm">In Progress</div>
-            </div>
           </div>
         </div>
       </div>
