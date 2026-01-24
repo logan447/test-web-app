@@ -10,7 +10,9 @@ import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
 import ReviewModal from "@/components/Reviews/ReviewModal";
+import ReviewsSection from "@/components/Reviews/ReviewsSection";
 import ClaimProviderModal from "@/components/Provider/ClaimProviderModal";
+import CredibilityScore from "@/components/Trust/CredibilityScore";
 import { showToast } from "@/lib/toast";
 import FacilityTabs from "@/components/Provider/tabs/FacilityTabs";
 import HomeCareAgencyTabs from "@/components/Provider/tabs/HomeCareAgencyTabs";
@@ -74,40 +76,13 @@ type Provider = {
   hasHospiceCare: boolean;
   specialtyPrograms: string[];
   claimed?: boolean;
+  verified?: boolean;
 };
 
 type ActiveEngagement = {
   id: string;
   status: string;
 } | null;
-
-// Rating bar component
-function RatingBar({ label, value, maxValue = 5 }: { label: string; value: number; maxValue?: number }) {
-  const percentage = (value / maxValue) * 100;
-  const segments = 5;
-
-  return (
-    <div className="flex items-center gap-4">
-      <span className="text-sm text-gray-700 w-48">{label}: {value.toFixed(1)} / {maxValue}</span>
-      <div className="flex-1 flex gap-0.5">
-        {Array.from({ length: segments }).map((_, i) => {
-          const segmentStart = (i / segments) * 100;
-          const segmentEnd = ((i + 1) / segments) * 100;
-          const fillPercentage = Math.max(0, Math.min(100, ((percentage - segmentStart) / (segmentEnd - segmentStart)) * 100));
-
-          return (
-            <div key={i} className="flex-1 h-2 bg-gray-200 rounded-sm overflow-hidden">
-              <div
-                className="h-full bg-primary-600 transition-all duration-500"
-                style={{ width: `${fillPercentage}%` }}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 export default function ProviderDetailPage() {
   const params = useParams();
@@ -296,13 +271,6 @@ export default function ProviderDetailPage() {
   }
 
   if (!provider) return null;
-
-  // Mock rating breakdown (in real app, fetch from reviews)
-  const ratingBreakdown = {
-    communitySentiment: 5.0,
-    value: 4.2,
-    informationAvailability: 5.0,
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -570,33 +538,40 @@ export default function ProviderDetailPage() {
 
               return (
                 <div className="space-y-8">
-                  {/* Rating Section */}
+                  {/* Rating & Reviews Section */}
                   <section id="rating" className="space-y-6">
-                      <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <div className="flex items-start gap-4 mb-6">
-                          <div className="w-16 h-16 bg-primary-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
-                            {provider.averageRating?.toFixed(1) || 'N/A'}
-                          </div>
+                      {/* Credibility Score Panel */}
+                      <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl border border-primary-100 p-6">
+                        <div className="flex items-center justify-between">
                           <div>
-                            <h2 className="text-xl font-semibold text-gray-900">{provider.name} Rating</h2>
-                            <button className="text-sm text-primary-600 hover:underline">
-                              Learn about how the Olera Score is calculated
-                            </button>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Provider Trust Score</h3>
+                            <p className="text-sm text-gray-600 max-w-md">
+                              Based on verification status, reviews, and ratings to help you make informed decisions.
+                            </p>
                           </div>
+                          <CredibilityScore
+                            verified={provider.verified || provider.claimed}
+                            licensed={provider.licensed}
+                            insuranceVerified={provider.insuranceVerified}
+                            backgroundChecked={provider.backgroundChecked}
+                            claimed={provider.claimed}
+                            averageRating={provider.averageRating}
+                            reviewCount={provider.reviewCount}
+                            size="large"
+                            showLabel={true}
+                            showBreakdown={false}
+                          />
                         </div>
+                      </div>
 
-                        <div className="space-y-4">
-                          <RatingBar label="Community sentiment" value={ratingBreakdown.communitySentiment} />
-                          <RatingBar label="Value" value={ratingBreakdown.value} />
-                          <RatingBar label="Information Availability" value={ratingBreakdown.informationAvailability} />
-                        </div>
-
-                        <button
-                          onClick={() => setReviewModalOpen(true)}
-                          className="mt-6 px-6 py-2.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
-                        >
-                          Add review
-                        </button>
+                      {/* Reviews Section */}
+                      <div className="bg-white rounded-xl border border-gray-200 p-6">
+                        <ReviewsSection
+                          providerId={provider.id}
+                          averageRating={provider.averageRating}
+                          reviewCount={provider.reviewCount}
+                          onWriteReview={() => setReviewModalOpen(true)}
+                        />
                       </div>
 
                       {/* Q&A Section */}
