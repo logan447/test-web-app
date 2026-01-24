@@ -310,6 +310,15 @@ REHABILITATION:      "Schedule a Tour" / "Request Info"
 | 2026-01-24 | S8 | Changed "Estimated Pricing" to "Starting at" in ProviderCard | 4c9af04 |
 | 2026-01-24 | S9 | Progress indicator implemented via EngagementProgressIndicator | 4c9af04 |
 | 2026-01-24 | S10 | "What happens next" collapsible section added to NextStepCard | 4c9af04 |
+| 2026-01-24 | M8 | Care profile restructure with calendar-first layout | 275790d |
+| 2026-01-24 | M9 | Created UnifiedCard system with shared styles and components | 275790d |
+| 2026-01-24 | S1 | Changed saved page hero from pink/rose to brand primary colors | 275790d |
+| 2026-01-24 | S2 | Added intro section to matches page explaining personalized matching | 275790d |
+| 2026-01-24 | S3 | Reduced leads page hero to compact inline header | 275790d |
+| 2026-01-24 | S4 | Redesigned PaywallModal with clear value proposition | 275790d |
+| 2026-01-24 | S5 | Verified review submission flow works (auto-approved by default) | 275790d |
+| 2026-01-24 | S6 | Created compact filter bar with primary/secondary filters | 275790d |
+| 2026-01-24 | S7 | Created reusable EmptyState component for consistent empty states | 275790d |
 
 ---
 
