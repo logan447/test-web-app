@@ -182,7 +182,7 @@ export default function Home() {
 
             <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
               Navigate senior care with confidence. Compare verified providers, read real reviews,
-              and schedule tours — all in one place.
+              and schedule consultations — all in one place.
             </p>
 
             {/* Search Form - Enhanced Airbnb-style */}
@@ -417,7 +417,7 @@ export default function Home() {
               {
                 step: "4",
                 title: "Schedule & visit",
-                description: "Book tours and consultations that sync directly to your calendar.",
+                description: "Book consultations and visits that sync directly to your calendar.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

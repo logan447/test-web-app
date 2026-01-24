@@ -546,7 +546,7 @@ export default function CareProfilePage() {
                   href="/requests"
                   className="text-sm font-medium text-primary-600 hover:text-primary-700"
                 >
-                  Manage Tours
+                  Manage Engagements
                 </Link>
               </div>
               <EngagementCalendar

@@ -57,7 +57,7 @@ export default function OrganizationCard({
   return (
     <Link
       href={linkHref}
-      className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden hover-lift block"
+      className="group bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden block"
     >
       {/* Image */}
       <div className="relative h-48 bg-gray-200 overflow-hidden">

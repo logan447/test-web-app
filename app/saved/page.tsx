@@ -313,8 +313,8 @@ export default function SavedProvidersPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 text-sm">Schedule tours</p>
-                    <p className="text-xs text-gray-600">Visit facilities before making decisions</p>
+                    <p className="font-medium text-gray-900 text-sm">Schedule visits</p>
+                    <p className="text-xs text-gray-600">Meet providers before making decisions</p>
                   </div>
                 </div>
               </div>

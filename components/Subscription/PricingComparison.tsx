@@ -52,7 +52,7 @@ export default function PricingComparison({
       features: [
         { name: "Save favorite providers", free: "5", pro: "Unlimited", enterprise: "Unlimited" },
         { name: "Messages per month", free: "3", pro: "Unlimited", enterprise: "Unlimited" },
-        { name: "Schedule tours", free: true, pro: true, enterprise: true },
+        { name: "Schedule engagements", free: true, pro: true, enterprise: true },
         { name: "Video consultations", free: false, pro: true, enterprise: true },
       ],
     },

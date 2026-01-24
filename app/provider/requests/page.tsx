@@ -269,7 +269,7 @@ export default function ProviderRequestsPage() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
         {/* Skeleton Hero */}
-        <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
+        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="animate-pulse">
               <div className="h-10 bg-white/20 rounded w-48 mb-3"></div>
@@ -302,7 +302,7 @@ export default function ProviderRequestsPage() {
       <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h1 className="text-4xl font-bold mb-3">Family Connections</h1>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl">
+          <p className="text-xl text-primary-100 mb-8 max-w-2xl">
             Manage your family connections and discover new care opportunities
           </p>
 

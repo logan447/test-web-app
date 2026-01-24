@@ -73,7 +73,7 @@ export default function SavedFamilyCard({
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
+    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden group">
       {/* Header with Location and Status */}
       <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-4 border-b border-primary-200">
         <div className="flex items-start justify-between">

@@ -68,7 +68,7 @@ export default function SavedProviderCard({
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
+    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden group">
       {/* Image with Badges */}
       <div className="relative h-48 bg-gray-200 overflow-hidden">
         <Image
@@ -309,7 +309,7 @@ export default function SavedProviderCard({
                 href={`/requests/new?providerId=${saved.provider.id}`}
                 className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 font-semibold text-center transition-all shadow-sm hover:shadow-md text-sm"
               >
-                Request
+                Request Consultation
               </Link>
             )}
           </div>

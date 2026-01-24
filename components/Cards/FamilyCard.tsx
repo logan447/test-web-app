@@ -91,7 +91,7 @@ export default function FamilyCard({
     : `/provider/leads/${profile.id}`;
 
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all ${className}`}>
+    <div className={`bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all ${className}`}>
       {/* Header with Profile Photo */}
       <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-4 border-b border-primary-200">
         <div className="flex items-start gap-4">

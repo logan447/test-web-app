@@ -167,7 +167,7 @@ export default function RequestsPage() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
         {/* Hero Skeleton */}
-        <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
+        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="animate-pulse">
               <div className="h-10 bg-white/20 rounded-lg w-1/3 mb-4"></div>
@@ -195,7 +195,7 @@ export default function RequestsPage() {
       <MainNav />
 
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
+      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
@@ -207,7 +207,7 @@ export default function RequestsPage() {
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold">Messages & Requests</h1>
               </div>
-              <p className="text-blue-100 text-lg">
+              <p className="text-primary-100 text-lg">
                 Manage your provider connections and conversations
               </p>
             </div>
