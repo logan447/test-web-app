@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { notifyTourProposed } from "@/lib/notificationService";
 
 // GET - Fetch all tour appointments for a request
 export async function GET(
@@ -122,6 +123,15 @@ export async function POST(
         status: "PROPOSED",
       },
     });
+
+    // Send email notification (non-blocking)
+    notifyTourProposed({
+      requestId,
+      proposerId: session.user.id,
+      proposedDate,
+      proposedTime,
+      notes: notes || undefined,
+    }).catch(console.error);
 
     return NextResponse.json(tour, { status: 201 });
   } catch (error) {

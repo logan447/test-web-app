@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { notifyNewRequest } from "@/lib/notificationService";
 
 export async function GET(req: Request) {
   try {
@@ -273,6 +274,13 @@ export async function POST(req: Request) {
         include: { provider: true },
       });
 
+      // Send email notification to provider (non-blocking)
+      notifyNewRequest({
+        requestId: request.id,
+        senderId: session.user.id,
+        isOutreach: false,
+      }).catch(console.error);
+
       return NextResponse.json(request, { status: 201 });
     } else {
       // Provider sending request (consultation OR hiring)
@@ -365,6 +373,15 @@ export async function POST(req: Request) {
       });
 
       console.log('[REQUEST API] Request created successfully:', request.id);
+
+      // Send email notification (non-blocking)
+      // For provider-initiated requests, it's "outreach" to families
+      notifyNewRequest({
+        requestId: request.id,
+        senderId: session.user.id,
+        isOutreach: true,
+      }).catch(console.error);
+
       return NextResponse.json(request, { status: 201 });
     }
   } catch (error) {

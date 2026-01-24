@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { notifyNewMessage } from "@/lib/notificationService";
 
 export async function POST(
   req: Request,
@@ -26,6 +27,13 @@ export async function POST(
         attachments: attachments || [],
       },
     });
+
+    // Send email notification (non-blocking)
+    notifyNewMessage({
+      requestId: id,
+      senderId: session.user.id,
+      messageContent: content,
+    }).catch(console.error);
 
     return NextResponse.json(message, { status: 201 });
   } catch (error) {

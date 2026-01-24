@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { notifyTourAccepted } from "@/lib/notificationService";
 
 // PATCH - Accept or decline a tour proposal
 export async function PATCH(
@@ -99,6 +100,16 @@ export async function PATCH(
       where: { id: tourId },
       data: { status },
     });
+
+    // Send email notification for accepted tours (non-blocking)
+    if (status === "ACCEPTED") {
+      notifyTourAccepted({
+        requestId,
+        acceptedByUserId: session.user.id,
+        confirmedDate: tour.proposedDate.toISOString(),
+        confirmedTime: tour.proposedTime,
+      }).catch(console.error);
+    }
 
     return NextResponse.json(updatedTour);
   } catch (error) {

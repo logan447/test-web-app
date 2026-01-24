@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { notifyRequestStatusChange } from "@/lib/notificationService";
 
 export async function PATCH(
   req: Request,
@@ -47,6 +48,15 @@ export async function PATCH(
       where: { id },
       data: { status },
     });
+
+    // Send email notification for status changes (non-blocking)
+    if (["ACCEPTED", "DECLINED", "COMPLETED"].includes(status)) {
+      notifyRequestStatusChange({
+        requestId: id,
+        newStatus: status as "ACCEPTED" | "DECLINED" | "COMPLETED",
+        changedByUserId: session.user.id,
+      }).catch(console.error);
+    }
 
     return NextResponse.json(request);
   } catch (error) {
@@ -126,6 +136,13 @@ export async function DELETE(
       where: { id },
       data: { status: "DECLINED" },
     });
+
+    // Send email notification (non-blocking)
+    notifyRequestStatusChange({
+      requestId: id,
+      newStatus: "DECLINED",
+      changedByUserId: session.user.id,
+    }).catch(console.error);
 
     return NextResponse.json({
       success: true,
