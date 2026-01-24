@@ -103,13 +103,8 @@ export default function ProviderDetailPage() {
   const [activeSection, setActiveSection] = useState("rating");
   const { getProfileSummary } = useFamilyProfile();
 
-  // Contact form state
-  const [contactForm, setContactForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    details: "",
-  });
+  // Contact form state - only message is actually used by the API
+  const [contactMessage, setContactMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -221,7 +216,7 @@ export default function ProviderDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           providerId: params.id,
-          message: contactForm.details || 'I would like to learn more about your services.',
+          message: contactMessage || 'I would like to learn more about your services.',
           contactReason: 'Request information',
         }),
       });
@@ -1245,59 +1240,51 @@ export default function ProviderDetailPage() {
                 </h2>
 
                 <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={contactForm.fullName}
-                      onChange={(e) => setContactForm({ ...contactForm, fullName: e.target.value })}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={contactForm.email}
-                      onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={contactForm.phone}
-                      onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Additional details (optional)
-                    </label>
-                    <textarea
-                      rows={4}
-                      value={contactForm.details}
-                      onChange={(e) => setContactForm({ ...contactForm, details: e.target.value })}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
-                    />
-                  </div>
+                  {session?.user ? (
+                    <>
+                      {/* Logged in - show simplified form */}
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-2">
+                        <div className="flex items-start gap-2">
+                          <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                          <p className="text-sm text-green-800">
+                            Your care profile will be shared securely. Contact info stays private until they accept.
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Message (optional)
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={contactMessage}
+                          onChange={(e) => setContactMessage(e.target.value)}
+                          placeholder="Tell them about your care needs or any questions you have..."
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Not logged in - show prompt to sign in */}
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                        <svg className="w-10 h-10 text-blue-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <p className="text-sm text-blue-900 font-medium mb-1">
+                          Create a free account to connect
+                        </p>
+                        <p className="text-xs text-blue-700">
+                          Your profile helps providers understand your needs
+                        </p>
+                      </div>
+                    </>
+                  )}
 
                   <p className="text-xs text-gray-500">
-                    By submitting your information, you agree to our{' '}
+                    By continuing, you agree to our{' '}
                     <Link href="/terms" className="text-primary-600 hover:underline">TOS</Link>
                     {' '}&{' '}
                     <Link href="/privacy" className="text-primary-600 hover:underline">Privacy Policy</Link>.
