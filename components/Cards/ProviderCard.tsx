@@ -135,10 +135,10 @@ export default function ProviderCard({
       NURSING_HOME: "Schedule a Tour",
       INDEPENDENT_LIVING: "Schedule a Tour",
       REHABILITATION: "Schedule a Tour",
-      HOME_CARE: "Request Consultation",
-      HOME_HEALTH: "Request Consultation",
-      HOSPICE: "Request Consultation",
-      INDEPENDENT_CAREGIVER: "Schedule Interview",
+      HOME_CARE: "Request a Consultation",
+      HOME_HEALTH: "Request a Consultation",
+      HOSPICE: "Request a Consultation",
+      INDEPENDENT_CAREGIVER: "Schedule an Interview",
     };
     return typeMap[provider.providerType] || "View Details";
   };

@@ -21,12 +21,12 @@ export const FACILITY_PROVIDER_TYPES = [
   "NURSING_HOME",
   "INDEPENDENT_LIVING",
   "REHABILITATION",
-  "HOSPICE",
 ] as const;
 
 export const HOME_CARE_PROVIDER_TYPES = [
   "HOME_CARE",
   "HOME_HEALTH",
+  "HOSPICE",
 ] as const;
 
 export const CAREGIVER_PROVIDER_TYPES = [
@@ -76,7 +76,7 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
   CONSULTATION: {
     type: "CONSULTATION",
     label: "Consultation",
-    actionLabel: "Request Consultation",
+    actionLabel: "Request a Consultation",
     scheduleLabel: "Schedule Consultation",
     proposalLabel: "Consultation Invitation",
     completedLabel: "Consultation Completed",
@@ -87,7 +87,7 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
   INTERVIEW: {
     type: "INTERVIEW",
     label: "Interview",
-    actionLabel: "Request Interview",
+    actionLabel: "Schedule an Interview",
     scheduleLabel: "Schedule Interview",
     proposalLabel: "Interview Invitation",
     completedLabel: "Interview Completed",

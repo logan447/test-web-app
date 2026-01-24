@@ -18,7 +18,7 @@ export function getProviderCTAs(providerType: ProviderType) {
   if (FACILITY_PROVIDER_TYPES.includes(providerType as typeof FACILITY_PROVIDER_TYPES[number])) {
     return {
       primary: engagementConfig.actionLabel,
-      secondary: 'Request Information',
+      secondary: 'Request Info',
       saved: 'View Details',
       contact: 'Contact Facility',
       requestType: 'CONSULTATION' as const,
@@ -27,8 +27,8 @@ export function getProviderCTAs(providerType: ProviderType) {
     };
   }
 
-  // Home care agency (request consultation)
-  if (HOME_CARE_PROVIDER_TYPES.includes(providerType as typeof HOME_CARE_PROVIDER_TYPES[number])) {
+  // Hospice (request consultation with "Learn More" secondary)
+  if (providerType === 'HOSPICE') {
     return {
       primary: engagementConfig.actionLabel,
       secondary: 'Learn More',
@@ -40,11 +40,24 @@ export function getProviderCTAs(providerType: ProviderType) {
     };
   }
 
-  // Individual caregiver (request interview/connect)
+  // Home care agency (request consultation)
+  if (HOME_CARE_PROVIDER_TYPES.includes(providerType as typeof HOME_CARE_PROVIDER_TYPES[number])) {
+    return {
+      primary: engagementConfig.actionLabel,
+      secondary: 'Get a Care Plan',
+      saved: 'View Details',
+      contact: 'Contact Agency',
+      requestType: 'CONSULTATION' as const,
+      tourEnabled: false,
+      engagementType: engagementConfig.type,
+    };
+  }
+
+  // Individual caregiver (schedule interview)
   if (CAREGIVER_PROVIDER_TYPES.includes(providerType as typeof CAREGIVER_PROVIDER_TYPES[number])) {
     return {
       primary: engagementConfig.actionLabel,
-      secondary: 'View Profile',
+      secondary: 'Send Message',
       saved: 'View Details',
       contact: 'Message Caregiver',
       requestType: 'HIRING' as const,

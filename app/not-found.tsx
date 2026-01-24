@@ -57,7 +57,7 @@ export default function NotFound() {
           </Link>
 
           <Link
-            href="/search"
+            href="/browse"
             className="block w-full px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
           >
             <span className="inline-flex items-center justify-center">
@@ -74,7 +74,7 @@ export default function NotFound() {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-              Search Providers
+              Browse Providers
             </span>
           </Link>
         </div>
@@ -84,31 +84,31 @@ export default function NotFound() {
           <p className="text-sm text-gray-500 mb-4">Popular pages:</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              href="/dashboard"
+              href="/care-profile"
               className="text-sm text-primary-600 hover:text-primary-800 hover:underline transition-colors"
             >
-              Dashboard
+              Care Profile
             </Link>
             <span className="text-gray-300">•</span>
             <Link
-              href="/messages"
+              href="/requests"
               className="text-sm text-primary-600 hover:text-primary-800 hover:underline transition-colors"
             >
               Messages
             </Link>
             <span className="text-gray-300">•</span>
             <Link
-              href="/profile"
+              href="/saved"
               className="text-sm text-primary-600 hover:text-primary-800 hover:underline transition-colors"
             >
-              Profile
+              Saved
             </Link>
             <span className="text-gray-300">•</span>
             <Link
-              href="/help"
+              href="/matches"
               className="text-sm text-primary-600 hover:text-primary-800 hover:underline transition-colors"
             >
-              Help
+              Matches
             </Link>
           </div>
         </div>

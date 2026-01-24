@@ -18,6 +18,7 @@ import FacilityTabs from "@/components/Provider/tabs/FacilityTabs";
 import HomeCareAgencyTabs from "@/components/Provider/tabs/HomeCareAgencyTabs";
 import EngagementConfirmationModal from "@/components/Engagement/EngagementConfirmationModal";
 import { useFamilyProfile, getEngagementType } from "@/hooks/useFamilyProfile";
+import { getProviderCTAs } from "@/lib/providerUtils";
 
 // Provider type categories
 const FACILITY_TYPES = ["ASSISTED_LIVING", "MEMORY_CARE", "NURSING_HOME", "INDEPENDENT_LIVING", "REHABILITATION"];
@@ -1307,7 +1308,7 @@ export default function ProviderDetailPage() {
                     disabled={submitting}
                     className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
                   >
-                    {submitting ? 'Submitting...' : activeEngagement ? 'View Conversation' : 'Submit'}
+                    {submitting ? 'Submitting...' : activeEngagement ? 'View Conversation' : getProviderCTAs(provider.providerType).primary}
                   </button>
                 </form>
               </div>
