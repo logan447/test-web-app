@@ -319,12 +319,12 @@ REHABILITATION:      "Schedule a Tour" / "Request Info"
 | 2026-01-24 | S5 | Verified review submission flow works (auto-approved by default) | 275790d |
 | 2026-01-24 | S6 | Created compact filter bar with primary/secondary filters | 275790d |
 | 2026-01-24 | S7 | Created reusable EmptyState component for consistent empty states | 275790d |
-| 2026-01-24 | W4-1 | Fixed 404 page broken links (/search→/browse, /dashboard→/care-profile, etc.) | PENDING |
-| 2026-01-24 | W4-2 | Fixed provider detail page CTA to use provider-type-specific text | PENDING |
-| 2026-01-24 | W4-3 | Fixed CTA text in engagementUtils (Request a Consultation, Schedule an Interview) | PENDING |
-| 2026-01-24 | W4-4 | Fixed secondary CTAs in providerUtils (Request Info, Get a Care Plan, Send Message) | PENDING |
-| 2026-01-24 | W4-5 | Moved HOSPICE from FACILITY_PROVIDER_TYPES to HOME_CARE_PROVIDER_TYPES | PENDING |
-| 2026-01-24 | W4-6 | Full regression audit: Routing ✓, CTAs ✓, Persistence ✓, Confirmations ✓, Visual ✓ | PENDING |
+| 2026-01-24 | W4-1 | Fixed 404 page broken links (/search→/browse, /dashboard→/care-profile, etc.) | 2b89214 |
+| 2026-01-24 | W4-2 | Fixed provider detail page CTA to use provider-type-specific text | 2b89214 |
+| 2026-01-24 | W4-3 | Fixed CTA text in engagementUtils (Request a Consultation, Schedule an Interview) | 2b89214 |
+| 2026-01-24 | W4-4 | Fixed secondary CTAs in providerUtils (Request Info, Get a Care Plan, Send Message) | 2b89214 |
+| 2026-01-24 | W4-5 | Moved HOSPICE from FACILITY_PROVIDER_TYPES to HOME_CARE_PROVIDER_TYPES | 2b89214 |
+| 2026-01-24 | W4-6 | Full regression audit: Routing ✓, CTAs ✓, Persistence ✓, Confirmations ✓, Visual ✓ | 2b89214 |
 
 ---
 
