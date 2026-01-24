@@ -2,3 +2,7 @@ export { default as EngagementCalendar } from "./EngagementCalendar";
 export type { ScheduledEvent } from "./EngagementCalendar";
 export { default as EngagementTimeline } from "./EngagementTimeline";
 export { default as EngagementSummary } from "./EngagementSummary";
+export { default as EngagementProgressIndicator } from "./EngagementProgressIndicator";
+export { default as EngagementHeader } from "./EngagementHeader";
+export { default as NextStepCard } from "./NextStepCard";
+export { default as EngagementSuccessModal } from "./EngagementSuccessModal";

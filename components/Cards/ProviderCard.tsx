@@ -126,6 +126,22 @@ export default function ProviderCard({
     return badges;
   };
 
+  // Get provider-type-specific CTA text
+  const getProviderCTA = () => {
+    const typeMap: Record<string, string> = {
+      ASSISTED_LIVING: "Schedule a Tour",
+      MEMORY_CARE: "Schedule a Tour",
+      NURSING_HOME: "Schedule a Tour",
+      INDEPENDENT_LIVING: "Schedule a Tour",
+      REHABILITATION: "Schedule a Tour",
+      HOME_CARE: "Request Consultation",
+      HOME_HEALTH: "Request Consultation",
+      HOSPICE: "Request Consultation",
+      INDEPENDENT_CAREGIVER: "Schedule Interview",
+    };
+    return typeMap[provider.providerType] || "View Details";
+  };
+
   const specialtyBadges = getSpecialtyBadges();
   const careTypes = provider.careTypesOffered || [];
   const price = formatPrice();
@@ -138,7 +154,7 @@ export default function ProviderCard({
         href={linkHref}
         target="_blank"
         rel="noopener noreferrer"
-        className={`block bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all ${className}`}
+        className={`group block bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all ${className}`}
       >
         <div className="flex flex-col sm:flex-row">
           {/* Image */}
@@ -237,7 +253,7 @@ export default function ProviderCard({
             {/* Price and Rating Row */}
             <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
               <div>
-                <p className="text-xs text-gray-500">Estimated Pricing</p>
+                <p className="text-xs text-gray-500">Starting at</p>
                 <p className="font-semibold text-gray-900">
                   {price || "Contact for pricing"}
                 </p>
@@ -274,6 +290,14 @@ export default function ProviderCard({
                 Serves within {provider.serviceRadius} miles
               </div>
             )}
+
+            {/* CTA Text */}
+            <div className="mt-4 flex items-center text-sm font-medium text-primary-600">
+              <span>{getProviderCTA()}</span>
+              <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
           </div>
 
           {/* Save Button (if enabled) */}
@@ -433,10 +457,10 @@ export default function ProviderCard({
           </div>
         )}
 
-        {/* View Details Link */}
+        {/* CTA Link */}
         <div className="pt-3 border-t border-gray-100">
           <div className="flex items-center justify-between text-sm font-medium text-primary-600">
-            <span>View Details</span>
+            <span>{getProviderCTA()}</span>
             <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

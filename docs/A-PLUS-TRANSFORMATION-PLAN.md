@@ -16,9 +16,9 @@
 | M2 | Remove list/grid toggle | /browse | Toggle does not exist | ✅ DONE |
 | M3 | Verify provider seed data | Database | /browse shows 5+ provider cards | ✅ DONE |
 | M4 | Simplify signup modal | AuthModal.tsx | Only email + password fields | ✅ DONE |
-| M5 | Engagement page redesign | /requests/[id] | New structure with progress indicator | ☐ TODO |
-| M6 | Provider-specific CTAs | Provider cards + detail | CTA text matches provider type | ☐ TODO |
-| M7 | Post-action confirmations | All action points | Every action shows feedback | ☐ TODO |
+| M5 | Engagement page redesign | /requests/[id] | New structure with progress indicator | ✅ DONE |
+| M6 | Provider-specific CTAs | Provider cards + detail | CTA text matches provider type | ✅ DONE |
+| M7 | Post-action confirmations | All action points | Every action shows feedback | ✅ DONE |
 | M8 | Care profile restructure | /care-profile | Calendar-first layout | ☐ TODO |
 | M9 | Unified card system | All cards | Single component, consistent design | ☐ TODO |
 | M10 | Fix sticky nav offset | /providers/[id] | Sections align when clicked | ✅ DONE |
@@ -34,9 +34,9 @@
 | S5 | Review submission flow | ReviewModal | Reviews can be submitted | ☐ TODO |
 | S6 | Filter UI simplification | /browse | Compact filter bar | ☐ TODO |
 | S7 | Empty states improvement | All pages | Helpful guidance when empty | ☐ TODO |
-| S8 | "Starting at" pricing | All cards | Changed from "Estimated" | ☐ TODO |
-| S9 | Progress indicator | /requests/[id] | Visual step progress | ☐ TODO |
-| S10 | What happens next | /requests/[id] | Collapsible guidance section | ☐ TODO |
+| S8 | "Starting at" pricing | All cards | Changed from "Estimated" | ✅ DONE |
+| S9 | Progress indicator | /requests/[id] | Visual step progress | ✅ DONE |
+| S10 | What happens next | /requests/[id] | Collapsible guidance section | ✅ DONE |
 
 ### DEFERRED (Not blocking A+, track for later)
 
@@ -65,9 +65,9 @@
 ### Week 2: Critical Flow
 | Order | ID | Task | Status |
 |-------|-----|------|--------|
-| 6 | M5 | Engagement page redesign | ☐ TODO |
-| 7 | M6 | Provider-specific CTAs | ☐ TODO |
-| 8 | M7 | Post-action confirmations | ☐ TODO |
+| 6 | M5 | Engagement page redesign | ✅ DONE |
+| 7 | M6 | Provider-specific CTAs | ✅ DONE |
+| 8 | M7 | Post-action confirmations | ✅ DONE |
 
 ### Week 3: Polish
 | Order | ID | Task | Status |
@@ -304,6 +304,12 @@ REHABILITATION:      "Schedule a Tour" / "Request Info"
 | 2026-01-24 | M3 | Verified seed data has 58+ providers (36 orgs, 18 caregivers, 4 unclaimed) | a724ea7 |
 | 2026-01-24 | M4 | Simplified signup modal to email + password only (name collected in onboarding) | a724ea7 |
 | 2026-01-24 | M10 | Added scroll-mt-36 to all section elements for proper sticky nav offset | a724ea7 |
+| 2026-01-24 | M5 | Created EngagementHeader, EngagementProgressIndicator, NextStepCard components | pending |
+| 2026-01-24 | M6 | Added provider-type-specific CTAs to ProviderCard (Schedule Tour/Consultation/Interview) | pending |
+| 2026-01-24 | M7 | Created EngagementSuccessModal for post-action confirmations | pending |
+| 2026-01-24 | S8 | Changed "Estimated Pricing" to "Starting at" in ProviderCard | pending |
+| 2026-01-24 | S9 | Progress indicator implemented via EngagementProgressIndicator | pending |
+| 2026-01-24 | S10 | "What happens next" collapsible section added to NextStepCard | pending |
 
 ---
 

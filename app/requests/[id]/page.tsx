@@ -21,6 +21,7 @@ import QuickRepliesBar from "@/components/Messaging/QuickRepliesBar";
 import TourProposal from "@/components/Messaging/TourProposal";
 import ToursSection from "@/components/Messaging/ToursSection";
 import RichTextInput from "@/components/Messaging/RichTextInput";
+import { EngagementHeader, NextStepCard } from "@/components/Engagement";
 import MessageSearch, { SearchFilters } from "@/components/Messaging/MessageSearch";
 import ConversationExport from "@/components/Messaging/ConversationExport";
 import NotificationSettings, { NotificationSettingsData } from "@/components/Messaging/NotificationSettings";
@@ -694,41 +695,59 @@ export default function RequestDetailPage() {
   const isFamily = true;
   const isSender = request.sender.id === session?.user?.id;
 
+  // Compute tour states for progress indicator
+  const hasTourProposed = (request.tourAppointments || []).some(t => t.status === "PROPOSED" || t.status === "PENDING");
+  const hasTourScheduled = (request.tourAppointments || []).some(t => t.status === "ACCEPTED" || t.status === "CONFIRMED");
+  const scheduledTour = (request.tourAppointments || []).find(t => t.status === "ACCEPTED" || t.status === "CONFIRMED");
+
+  // Scroll to message input for "Send a Message" action
+  const handleScrollToMessages = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
       <Breadcrumb currentPage={isFamily ? request.provider.name : request.familyProfile.user.name} />
 
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Request Header */}
+        {/* New Engagement Header with Progress Indicator */}
+        <EngagementHeader
+          provider={request.provider}
+          status={request.status}
+          hasTourProposed={hasTourProposed}
+          hasTourScheduled={hasTourScheduled}
+          scheduledDate={scheduledTour ? new Date(scheduledTour.proposedDate).toLocaleDateString() : undefined}
+          scheduledTime={scheduledTour?.proposedTime}
+        />
+
+        {/* Next Step Guidance Card */}
+        <NextStepCard
+          status={request.status}
+          providerName={request.provider.name}
+          providerType={request.provider.providerType}
+          hasTourProposed={hasTourProposed}
+          hasTourScheduled={hasTourScheduled}
+          onSuggestTimes={() => {
+            // Scroll to tours section
+            document.getElementById("tours-section")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          onSendMessage={handleScrollToMessages}
+        />
+
+        {/* Contact Information Card */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {isFamily ? request.provider.name : request.familyProfile.user.name}
-              </h1>
-              <div className="flex items-center gap-3">
-                <p className="text-gray-600">
-                  {isFamily
-                    ? `${request.provider.providerType.split('_').join(' ')} • ${request.provider.city}, ${request.provider.state}`
-                    : `${request.familyProfile.city}, ${request.familyProfile.state}`}
-                </p>
-                {presence && (
-                  <OnlineStatus
-                    isOnline={presence.isOnline}
-                    lastSeen={presence.otherUser.lastSeen ? new Date(presence.otherUser.lastSeen) : undefined}
-                    userName={presence.otherUser.name}
-                    showLabel={false}
-                    size="md"
-                  />
-                )}
-              </div>
-            </div>
-            <Tooltip content={getStatusTooltip(request.status, isSender)}>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)} cursor-help`}>
-                {getCombinedBadgeText(request.requestType, isSender, request.status)}
-              </span>
-            </Tooltip>
+            <h3 className="font-semibold text-gray-900">Contact Information</h3>
+            {presence && (
+              <OnlineStatus
+                isOnline={presence.isOnline}
+                lastSeen={presence.otherUser.lastSeen ? new Date(presence.otherUser.lastSeen) : undefined}
+                userName={presence.otherUser.name}
+                showLabel={true}
+                size="md"
+              />
+            )}
           </div>
 
           {/* Contact Information */}
@@ -865,7 +884,7 @@ export default function RequestDetailPage() {
         </div>
 
         {/* Tours Section */}
-        <div className="mb-6">
+        <div id="tours-section" className="mb-6 scroll-mt-24">
           <ToursSection
             requestId={request.id}
             providerType={request.provider.providerType}
