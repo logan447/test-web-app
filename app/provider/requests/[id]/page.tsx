@@ -26,6 +26,7 @@ import ConversationExport from "@/components/Messaging/ConversationExport";
 import NotificationSettings, { NotificationSettingsData } from "@/components/Messaging/NotificationSettings";
 import SmartNotificationBanner, { SmartNotification } from "@/components/Messaging/SmartNotificationBanner";
 import VideoCallButton from "@/components/Messaging/VideoCallButton";
+import { ProviderEngagementHeader, ProviderNextStepCard } from "@/components/Engagement";
 import { ProviderType } from "@prisma/client";
 
 type ConsultRequest = {
@@ -694,45 +695,65 @@ export default function RequestDetailPage() {
   const isFamily = false;
   const isSender = request.sender.id === session?.user?.id;
 
+  // Compute tour states for progress indicator
+  const hasTourProposed = (request.tourAppointments || []).some(t => t.status === "PROPOSED" || t.status === "PENDING");
+  const hasTourScheduled = (request.tourAppointments || []).some(t => t.status === "ACCEPTED" || t.status === "CONFIRMED");
+  const scheduledTour = (request.tourAppointments || []).find(t => t.status === "ACCEPTED" || t.status === "CONFIRMED");
+
+  // Scroll to message input for "Send a Message" action
+  const handleScrollToMessages = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
-      <Breadcrumb currentPage={isFamily ? request.provider.name : request.familyProfile.user.name} />
+      <Breadcrumb currentPage={request.familyProfile.user.name} />
 
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Request Header */}
+        {/* New Provider Engagement Header with Progress Indicator */}
+        <ProviderEngagementHeader
+          familyProfile={request.familyProfile}
+          providerType={request.provider.providerType}
+          status={request.status}
+          hasTourProposed={hasTourProposed}
+          hasTourScheduled={hasTourScheduled}
+          scheduledDate={scheduledTour ? new Date(scheduledTour.proposedDate).toLocaleDateString() : undefined}
+          scheduledTime={scheduledTour?.proposedTime}
+        />
+
+        {/* Next Step Guidance Card for Providers */}
+        <ProviderNextStepCard
+          status={request.status}
+          familyName={request.familyProfile.user.name}
+          providerType={request.provider.providerType}
+          hasTourProposed={hasTourProposed}
+          hasTourScheduled={hasTourScheduled}
+          onAccept={() => handleStatusUpdate("ACCEPTED")}
+          onDecline={() => handleStatusUpdate("DECLINED")}
+          onProposeTimes={() => {
+            document.getElementById("tours-section")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          onSendMessage={handleScrollToMessages}
+        />
+
+        {/* Contact Information Card */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
           <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {isFamily ? request.provider.name : request.familyProfile.user.name}
-              </h1>
-              <div className="flex items-center gap-3">
-                <p className="text-gray-600">
-                  {isFamily
-                    ? `${request.provider.providerType.split('_').join(' ')} • ${request.provider.city}, ${request.provider.state}`
-                    : `${request.familyProfile.city}, ${request.familyProfile.state}`}
-                </p>
-                {presence && (
-                  <OnlineStatus
-                    isOnline={presence.isOnline}
-                    lastSeen={presence.otherUser.lastSeen ? new Date(presence.otherUser.lastSeen) : undefined}
-                    userName={presence.otherUser.name}
-                    showLabel={false}
-                    size="md"
-                  />
-                )}
-              </div>
-            </div>
-            <Tooltip content={getStatusTooltip(request.status, isSender)}>
-              <span className={`px-4 py-1.5 rounded-full text-sm font-medium ${getStatusColor(request.status)} cursor-help`}>
-                {getCombinedBadgeText(request.requestType, isSender, request.status)}
-              </span>
-            </Tooltip>
+            <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
+            {presence && (
+              <OnlineStatus
+                isOnline={presence.isOnline}
+                lastSeen={presence.otherUser.lastSeen ? new Date(presence.otherUser.lastSeen) : undefined}
+                userName={presence.otherUser.name}
+                showLabel={true}
+                size="md"
+              />
+            )}
           </div>
 
-          {/* Contact Information */}
-          <div className="border-t border-gray-100 pt-4 mt-4">
+          {/* Contact Details */}
+          <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Information</h3>
             {(() => {
               // Determine if contact should be visible
@@ -834,25 +855,8 @@ export default function RequestDetailPage() {
             })()}
           </div>
 
-          {/* Actions - Only show for recipients, not senders */}
-          {!isSender && request.status === "PENDING" && (
-            <div className="border-t border-gray-100 pt-4 mt-4 flex gap-3">
-              <button
-                onClick={() => handleStatusUpdate("ACCEPTED")}
-                className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-sm hover:shadow-md"
-              >
-                Yes, Let&apos;s Connect
-              </button>
-              <button
-                onClick={() => handleStatusUpdate("DECLINED")}
-                className="px-6 py-3 rounded-lg font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                No Thanks
-              </button>
-            </div>
-          )}
-
-          {!isSender && request.status === "ACCEPTED" && (
+          {/* Mark as Completed - Only show when accepted */}
+          {request.status === "ACCEPTED" && (
             <div className="border-t border-gray-100 pt-4 mt-4">
               <button
                 onClick={() => handleStatusUpdate("COMPLETED")}
@@ -865,13 +869,13 @@ export default function RequestDetailPage() {
         </div>
 
         {/* Tours Section */}
-        <div className="mb-6">
+        <div id="tours-section" className="mb-6 scroll-mt-24">
           <ToursSection
             requestId={request.id}
             providerType={request.provider.providerType}
             tours={request.tourAppointments || []}
             currentUserId={session?.user?.id || ""}
-            isProvider={!isFamily}
+            isProvider={true}
             onProposeTour={handleProposeTour}
             onAcceptTour={handleAcceptTour}
             onDeclineTour={handleDeclineTour}

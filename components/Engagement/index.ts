@@ -5,4 +5,6 @@ export { default as EngagementSummary } from "./EngagementSummary";
 export { default as EngagementProgressIndicator } from "./EngagementProgressIndicator";
 export { default as EngagementHeader } from "./EngagementHeader";
 export { default as NextStepCard } from "./NextStepCard";
+export { default as ProviderEngagementHeader } from "./ProviderEngagementHeader";
+export { default as ProviderNextStepCard } from "./ProviderNextStepCard";
 export { default as EngagementSuccessModal } from "./EngagementSuccessModal";

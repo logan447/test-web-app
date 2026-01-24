@@ -323,6 +323,8 @@ export default function SavedProviderCard({
           <div className="mt-4 flex gap-2">
             <Link
               href={`/providers/${provider.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-1 px-3 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm transition-colors"
             >
               View Details
@@ -337,6 +339,8 @@ export default function SavedProviderCard({
             ) : (
               <Link
                 href={`/providers/${provider.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors"
               >
                 {getProviderCTA()}
