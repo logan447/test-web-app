@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -8,6 +8,8 @@ import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import AuthModal from "@/components/Auth/AuthModal";
+import EngagementConfirmationModal from "@/components/Engagement/EngagementConfirmationModal";
+import { useFamilyProfile, getEngagementType } from "@/hooks/useFamilyProfile";
 
 type Provider = {
   id: string;
@@ -26,6 +28,9 @@ function NewRequestContent() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const { getProfileSummary, loading: profileLoading } = useFamilyProfile();
 
   const providerId = searchParams.get("providerId");
 
@@ -57,6 +62,7 @@ function NewRequestContent() {
     }
   };
 
+  // Handle form submission - show confirmation modal first
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -66,10 +72,18 @@ function NewRequestContent() {
       return;
     }
 
+    // Show confirmation modal
+    setConfirmModalOpen(true);
+  };
+
+  // Actually send the request after confirmation
+  const handleConfirmedSubmit = async () => {
+    if (!formRef.current) return;
+
     setSending(true);
     setError("");
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(formRef.current);
 
     try {
       const response = await fetch("/api/requests", {
@@ -90,6 +104,7 @@ function NewRequestContent() {
     } catch (err: any) {
       setError(err.message || "Failed to send consultation request");
       setSending(false);
+      throw err; // Re-throw so modal knows it failed
     }
   };
 
@@ -130,7 +145,7 @@ function NewRequestContent() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Your Message *
@@ -176,6 +191,19 @@ function NewRequestContent() {
         }}
         defaultView="login"
       />
+
+      {/* Engagement Confirmation Modal */}
+      {provider && (
+        <EngagementConfirmationModal
+          isOpen={confirmModalOpen}
+          onClose={() => setConfirmModalOpen(false)}
+          onConfirm={handleConfirmedSubmit}
+          providerName={provider.name}
+          providerType={provider.providerType}
+          engagementType={getEngagementType(provider.providerType)}
+          profileSummary={getProfileSummary()}
+        />
+      )}
 
       {/* Footer */}
       <Footer variant="light" />

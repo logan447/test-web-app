@@ -14,6 +14,8 @@ import ClaimProviderModal from "@/components/Provider/ClaimProviderModal";
 import { showToast } from "@/lib/toast";
 import FacilityTabs from "@/components/Provider/tabs/FacilityTabs";
 import HomeCareAgencyTabs from "@/components/Provider/tabs/HomeCareAgencyTabs";
+import EngagementConfirmationModal from "@/components/Engagement/EngagementConfirmationModal";
+import { useFamilyProfile, getEngagementType } from "@/hooks/useFamilyProfile";
 
 // Provider type categories
 const FACILITY_TYPES = ["ASSISTED_LIVING", "MEMORY_CARE", "NURSING_HOME", "INDEPENDENT_LIVING", "REHABILITATION"];
@@ -119,9 +121,11 @@ export default function ProviderDetailPage() {
   const [pendingAction, setPendingAction] = useState<PendingAction | undefined>(undefined);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [claimModalOpen, setClaimModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [activeSection, setActiveSection] = useState("rating");
+  const { getProfileSummary } = useFamilyProfile();
 
   // Contact form state
   const [contactForm, setContactForm] = useState({
@@ -229,6 +233,11 @@ export default function ProviderDetailPage() {
       return;
     }
 
+    // Show confirmation modal instead of submitting directly
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmedContactSubmit = async () => {
     setSubmitting(true);
     try {
       const response = await fetch('/api/requests', {
@@ -250,6 +259,7 @@ export default function ProviderDetailPage() {
       }
     } catch (error) {
       showToast.error('Failed to send request');
+      throw error; // Re-throw so modal knows it failed
     } finally {
       setSubmitting(false);
     }
@@ -1360,6 +1370,17 @@ export default function ProviderDetailPage() {
           showToast.success('Provider claimed successfully!');
           router.push('/provider/profile');
         }}
+      />
+
+      {/* Engagement Confirmation Modal */}
+      <EngagementConfirmationModal
+        isOpen={confirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        onConfirm={handleConfirmedContactSubmit}
+        providerName={provider.name}
+        providerType={provider.providerType}
+        engagementType={getEngagementType(provider.providerType)}
+        profileSummary={getProfileSummary()}
       />
 
       {/* Footer */}
