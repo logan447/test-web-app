@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Footer from '@/components/Navigation/Footer';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
@@ -396,6 +397,9 @@ export default function CaregiverHireDetailPage() {
         }}
         defaultView="login"
       />
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

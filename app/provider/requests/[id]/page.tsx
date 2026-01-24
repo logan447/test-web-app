@@ -5,6 +5,7 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import PaywallModal from "@/components/Paywall/PaywallModal";
 import { showToast } from "@/lib/toast";
@@ -1331,6 +1332,9 @@ export default function RequestDetailPage() {
           autoDismissDelay={5000}
         />
       ))}
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

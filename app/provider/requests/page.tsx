@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Tooltip from "@/components/UI/Tooltip";
 import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
 import { useProviderIdentity } from "@/hooks/useProviderIdentity";
@@ -644,6 +645,9 @@ export default function ProviderRequestsPage() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import { showToast } from "@/lib/toast";
 
@@ -461,6 +462,9 @@ export default function ProviderProfileEditPage() {
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </>
   );
 }

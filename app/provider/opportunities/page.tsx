@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import MainNav from '@/components/Navigation/MainNav';
+import Footer from '@/components/Navigation/Footer';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
@@ -566,6 +567,9 @@ export default function OpportunitiesPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

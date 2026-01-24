@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import { showToast } from "@/lib/toast";
 import { maskContactInfo } from "@/lib/contact-masking";
@@ -380,6 +381,9 @@ export default function CandidateDetailPage() {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

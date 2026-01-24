@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import MainNav from '@/components/Navigation/MainNav';
+import Footer from '@/components/Navigation/Footer';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
@@ -271,6 +272,9 @@ export default function CandidatesPage() {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Footer from '@/components/Navigation/Footer';
 import Link from 'next/link';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import CaregiverCard from '@/components/Directory/CaregiverCard';
@@ -304,6 +305,9 @@ export default function HireStaffPage() {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }
