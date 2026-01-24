@@ -736,9 +736,9 @@ export default function RequestDetailPage() {
         />
 
         {/* Contact Information Card */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="font-semibold text-gray-900">Contact Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
             {presence && (
               <OnlineStatus
                 isOnline={presence.isOnline}
@@ -750,9 +750,8 @@ export default function RequestDetailPage() {
             )}
           </div>
 
-          {/* Contact Information */}
-          <div className="border-t pt-4 mt-4">
-            <h3 className="font-semibold text-gray-900 mb-2">Contact Information</h3>
+          {/* Contact Details */}
+          <div>
             {(() => {
               // Determine if contact should be visible
               const requestAccepted = request.status === "ACCEPTED" || request.status === "COMPLETED";
@@ -855,16 +854,16 @@ export default function RequestDetailPage() {
 
           {/* Actions - Only show for recipients, not senders */}
           {!isSender && request.status === "PENDING" && (
-            <div className="border-t pt-4 mt-4 flex gap-2">
+            <div className="border-t border-gray-100 pt-4 mt-4 flex gap-3">
               <button
                 onClick={() => handleStatusUpdate("ACCEPTED")}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-sm hover:shadow-md"
               >
                 Yes, Let&apos;s Connect
               </button>
               <button
                 onClick={() => handleStatusUpdate("DECLINED")}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+                className="px-6 py-3 rounded-lg font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 No Thanks
               </button>
@@ -872,10 +871,10 @@ export default function RequestDetailPage() {
           )}
 
           {!isSender && request.status === "ACCEPTED" && (
-            <div className="border-t pt-4 mt-4">
+            <div className="border-t border-gray-100 pt-4 mt-4">
               <button
                 onClick={() => handleStatusUpdate("COMPLETED")}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-primary-700 hover:to-primary-800 transition-all shadow-sm hover:shadow-md"
               >
                 Mark as Completed
               </button>
@@ -899,12 +898,12 @@ export default function RequestDetailPage() {
 
         {/* Messages */}
         <div
-          className="bg-white rounded-lg shadow flex flex-col overflow-hidden"
+          className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden"
           style={{ height: "600px" }}
           role="region"
           aria-label="Messaging conversation"
         >
-          <div className="p-4 border-b bg-gray-50">
+          <div className="p-4 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold text-gray-900" id="messages-heading">Messages</h2>
               <div className="flex items-center gap-2">

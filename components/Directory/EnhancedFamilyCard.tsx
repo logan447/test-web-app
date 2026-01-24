@@ -82,7 +82,7 @@ export default function EnhancedFamilyCard({
     : null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden group">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 overflow-hidden group">
       {/* Header with Photo, Location and Status */}
       <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-4 border-b border-primary-200">
         <div className="flex items-start gap-4">
