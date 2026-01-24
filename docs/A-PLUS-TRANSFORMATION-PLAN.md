@@ -304,12 +304,12 @@ REHABILITATION:      "Schedule a Tour" / "Request Info"
 | 2026-01-24 | M3 | Verified seed data has 58+ providers (36 orgs, 18 caregivers, 4 unclaimed) | a724ea7 |
 | 2026-01-24 | M4 | Simplified signup modal to email + password only (name collected in onboarding) | a724ea7 |
 | 2026-01-24 | M10 | Added scroll-mt-36 to all section elements for proper sticky nav offset | a724ea7 |
-| 2026-01-24 | M5 | Created EngagementHeader, EngagementProgressIndicator, NextStepCard components | pending |
-| 2026-01-24 | M6 | Added provider-type-specific CTAs to ProviderCard (Schedule Tour/Consultation/Interview) | pending |
-| 2026-01-24 | M7 | Created EngagementSuccessModal for post-action confirmations | pending |
-| 2026-01-24 | S8 | Changed "Estimated Pricing" to "Starting at" in ProviderCard | pending |
-| 2026-01-24 | S9 | Progress indicator implemented via EngagementProgressIndicator | pending |
-| 2026-01-24 | S10 | "What happens next" collapsible section added to NextStepCard | pending |
+| 2026-01-24 | M5 | Created EngagementHeader, EngagementProgressIndicator, NextStepCard components | 4c9af04 |
+| 2026-01-24 | M6 | Added provider-type-specific CTAs to ProviderCard (Schedule Tour/Consultation/Interview) | 4c9af04 |
+| 2026-01-24 | M7 | Created EngagementSuccessModal for post-action confirmations | 4c9af04 |
+| 2026-01-24 | S8 | Changed "Estimated Pricing" to "Starting at" in ProviderCard | 4c9af04 |
+| 2026-01-24 | S9 | Progress indicator implemented via EngagementProgressIndicator | 4c9af04 |
+| 2026-01-24 | S10 | "What happens next" collapsible section added to NextStepCard | 4c9af04 |
 
 ---
 
