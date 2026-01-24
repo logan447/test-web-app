@@ -299,7 +299,7 @@ export default function ProviderRequestsPage() {
       <MainNav />
 
       {/* Hero Header with Gradient */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
+      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h1 className="text-4xl font-bold mb-3">Family Connections</h1>
           <p className="text-xl text-primary-100 mb-8 max-w-2xl">
