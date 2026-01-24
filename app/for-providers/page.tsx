@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import AuthModal from "@/components/Auth/AuthModal";
 
 function ForProvidersContent() {
@@ -515,6 +516,9 @@ function ForProvidersContent() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer variant="dark" />
 
       {/* Auth Modal - with provider intent for signup */}
       <AuthModal

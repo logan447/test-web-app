@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import ProfileCompletionWidget from "@/components/Dashboard/ProfileCompletionWidget";
 import UpcomingToursWidget from "@/components/Dashboard/UpcomingToursWidget";
 import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
@@ -865,6 +866,9 @@ export default function ProviderProfilePage() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

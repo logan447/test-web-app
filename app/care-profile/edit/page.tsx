@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 
 type CareProfile = {
   id: string;
@@ -600,6 +601,9 @@ export default function EditCareProfilePage() {
           </div>
         </form>
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

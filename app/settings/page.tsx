@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Link from "next/link";
 
 export default function SettingsPage() {
@@ -806,6 +807,9 @@ export default function SettingsPage() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }
