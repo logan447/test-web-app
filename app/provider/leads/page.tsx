@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import MainNav from '@/components/Navigation/MainNav';
+import Footer from '@/components/Navigation/Footer';
 import { showToast } from '@/lib/toast';
 import PaywallModal from '@/components/Paywall/PaywallModal';
 import EnhancedFamilyCard from '@/components/Directory/EnhancedFamilyCard';
@@ -629,6 +630,9 @@ function ProviderLeadsPageContent() {
         onClose={() => setPaywallOpen(false)}
         onUpgrade={handleUpgradeSubscription}
       />
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

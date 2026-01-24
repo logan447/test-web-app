@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Footer from '@/components/Navigation/Footer';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import SavedProviderCard from '@/components/Directory/SavedProviderCard';
@@ -337,6 +338,9 @@ export default function SavedProvidersPage() {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

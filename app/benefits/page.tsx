@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import { showToast } from "@/lib/toast";
 
@@ -37,18 +38,30 @@ const CARE_TYPES = [
   { value: "MOBILITY_HELP" as CareType, icon: "🚶", label: "Mobility Help", description: "Walking, stairs, transfers" },
 ];
 
+// Category styling
+const CATEGORY_STYLES: Record<string, { bg: string; text: string; icon: string }> = {
+  Healthcare: { bg: "bg-emerald-100", text: "text-emerald-700", icon: "🏥" },
+  "Food Assistance": { bg: "bg-orange-100", text: "text-orange-700", icon: "🍎" },
+  Income: { bg: "bg-green-100", text: "text-green-700", icon: "💵" },
+  Utilities: { bg: "bg-blue-100", text: "text-blue-700", icon: "⚡" },
+  Veterans: { bg: "bg-indigo-100", text: "text-indigo-700", icon: "🎖️" },
+  "Senior Services": { bg: "bg-purple-100", text: "text-purple-700", icon: "👴" },
+  "Caregiver Support": { bg: "bg-pink-100", text: "text-pink-700", icon: "💝" },
+  Legal: { bg: "bg-slate-100", text: "text-slate-700", icon: "⚖️" },
+};
+
 // Static benefits programs data (would come from API in production)
 const BENEFITS_PROGRAMS = [
-  { id: 1, name: "Medicaid Home Care", category: "Healthcare", description: "Covers in-home personal care services", eligibility: ["income", "age"], minAge: 65 },
-  { id: 2, name: "SNAP (Food Stamps)", category: "Food Assistance", description: "Monthly benefits for groceries", eligibility: ["income"], minAge: null },
-  { id: 3, name: "SSI (Supplemental Security Income)", category: "Income", description: "Monthly cash assistance for living expenses", eligibility: ["income", "age"], minAge: 65 },
-  { id: 4, name: "Medicare Extra Help", category: "Healthcare", description: "Helps pay Medicare prescription drug costs", eligibility: ["income", "medicare"], minAge: 65 },
-  { id: 5, name: "LIHEAP", category: "Utilities", description: "Low Income Home Energy Assistance Program", eligibility: ["income"], minAge: null },
-  { id: 6, name: "Veterans Aid & Attendance", category: "Veterans", description: "Monthly pension for veterans needing care", eligibility: ["veteran", "care_needs"], minAge: null },
-  { id: 7, name: "Area Agency on Aging Services", category: "Senior Services", description: "Local support services for seniors", eligibility: ["age"], minAge: 60 },
-  { id: 8, name: "Community Care Programs", category: "Healthcare", description: "State-sponsored home care assistance", eligibility: ["income", "age", "care_needs"], minAge: 65 },
-  { id: 9, name: "Respite Care Programs", category: "Caregiver Support", description: "Temporary relief for family caregivers", eligibility: ["caregiver"], minAge: null },
-  { id: 10, name: "Senior Legal Aid", category: "Legal", description: "Free legal services for seniors", eligibility: ["age", "income"], minAge: 60 },
+  { id: 1, name: "Medicaid Home Care", category: "Healthcare", description: "Covers in-home personal care services", eligibility: ["income", "age"], minAge: 65, savings: "$2,000-$5,000/mo" },
+  { id: 2, name: "SNAP (Food Stamps)", category: "Food Assistance", description: "Monthly benefits for groceries", eligibility: ["income"], minAge: null, savings: "$200-$400/mo" },
+  { id: 3, name: "SSI (Supplemental Security Income)", category: "Income", description: "Monthly cash assistance for living expenses", eligibility: ["income", "age"], minAge: 65, savings: "$914/mo max" },
+  { id: 4, name: "Medicare Extra Help", category: "Healthcare", description: "Helps pay Medicare prescription drug costs", eligibility: ["income", "medicare"], minAge: 65, savings: "$5,000+/yr" },
+  { id: 5, name: "LIHEAP", category: "Utilities", description: "Low Income Home Energy Assistance Program", eligibility: ["income"], minAge: null, savings: "$500-$1,500/yr" },
+  { id: 6, name: "Veterans Aid & Attendance", category: "Veterans", description: "Monthly pension for veterans needing care", eligibility: ["veteran", "care_needs"], minAge: null, savings: "$2,000+/mo" },
+  { id: 7, name: "Area Agency on Aging Services", category: "Senior Services", description: "Local support services for seniors", eligibility: ["age"], minAge: 60, savings: "Varies" },
+  { id: 8, name: "Community Care Programs", category: "Healthcare", description: "State-sponsored home care assistance", eligibility: ["income", "age", "care_needs"], minAge: 65, savings: "$3,000+/mo" },
+  { id: 9, name: "Respite Care Programs", category: "Caregiver Support", description: "Temporary relief for family caregivers", eligibility: ["caregiver"], minAge: null, savings: "$500-$2,000/mo" },
+  { id: 10, name: "Senior Legal Aid", category: "Legal", description: "Free legal services for seniors", eligibility: ["age", "income"], minAge: 60, savings: "$200+/hr" },
 ];
 
 type FamilyProfile = {
@@ -202,59 +215,109 @@ export default function BenefitsPage() {
   // Entry State - Voice-first UI
   if (pageState === "entry") {
     return (
-      <div className="min-h-screen bg-gray-900 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-primary-900 flex flex-col">
         <MainNav />
 
         <main className="flex-grow flex flex-col items-center justify-center px-4 py-12">
+          {/* Stats banner */}
+          <div className="flex items-center gap-6 mb-8 text-center">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">$15K+</div>
+              <div className="text-xs text-gray-400 uppercase tracking-wide">Avg. Annual Savings</div>
+            </div>
+            <div className="w-px h-12 bg-gray-700" />
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">50+</div>
+              <div className="text-xs text-gray-400 uppercase tracking-wide">Programs Available</div>
+            </div>
+            <div className="w-px h-12 bg-gray-700" />
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white">2 min</div>
+              <div className="text-xs text-gray-400 uppercase tracking-wide">To Complete</div>
+            </div>
+          </div>
+
           {/* Greeting text */}
-          <div className="text-center mb-12 max-w-lg">
-            <h1 className="text-2xl md:text-3xl font-medium text-white leading-relaxed">
-              Hi{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ''}! I can help find benefits to reduce senior care costs. Tell me who needs care and where you&apos;re located.
+          <div className="text-center mb-10 max-w-xl">
+            <h1 className="text-3xl md:text-4xl font-bold text-white leading-relaxed mb-4">
+              Find Benefits to Reduce Care Costs
             </h1>
+            <p className="text-lg text-gray-300">
+              Hi{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ''}! Let&apos;s find programs that can help cover senior care expenses.
+            </p>
           </div>
 
           {/* Voice button - placeholder */}
           <div className="relative mb-8">
-            <div className="w-48 h-48 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-2xl shadow-blue-500/30 cursor-pointer hover:scale-105 transition-transform">
-              <div className="w-40 h-40 rounded-full border-4 border-blue-400/30 flex items-center justify-center">
-                {/* Sound wave animation placeholder */}
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((i) => (
+            <div className="w-52 h-52 rounded-full bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 flex items-center justify-center shadow-2xl shadow-primary-500/40 cursor-pointer hover:scale-105 transition-transform">
+              <div className="w-44 h-44 rounded-full border-4 border-white/20 flex items-center justify-center backdrop-blur-sm">
+                {/* Sound wave animation */}
+                <div className="flex items-center gap-1.5">
+                  {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                     <div
                       key={i}
-                      className="w-1 bg-white rounded-full animate-pulse"
+                      className="w-1.5 bg-white rounded-full"
                       style={{
-                        height: `${Math.random() * 24 + 12}px`,
-                        animationDelay: `${i * 0.1}s`,
+                        height: `${16 + Math.sin(i * 0.8) * 20}px`,
+                        animation: `pulse 1s ease-in-out ${i * 0.1}s infinite alternate`,
                       }}
                     />
                   ))}
                 </div>
               </div>
             </div>
-            {/* Outer glow ring */}
-            <div className="absolute inset-0 -m-2 rounded-full border-2 border-blue-500/20 animate-ping" style={{ animationDuration: '2s' }} />
+            {/* Outer glow rings */}
+            <div className="absolute inset-0 -m-3 rounded-full border-2 border-primary-400/30 animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="absolute inset-0 -m-6 rounded-full border border-primary-400/20 animate-ping" style={{ animationDuration: '3s' }} />
           </div>
 
           {/* Coming soon notice */}
-          <p className="text-cyan-400 text-sm mb-6">
-            Voice input coming soon
-          </p>
+          <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-8">
+            <svg className="w-4 h-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+            <span className="text-primary-300 text-sm font-medium">Voice input coming soon</span>
+          </div>
 
           {/* Action buttons */}
-          <div className="flex flex-col gap-3 w-full max-w-xs">
+          <div className="flex flex-col gap-3 w-full max-w-sm">
             <button
-              onClick={() => router.push("/care-profile/edit")}
-              className="w-full px-6 py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              onClick={() => setPageState("form")}
+              className="w-full px-6 py-4 bg-white text-gray-900 rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
-              Fill Out Form Instead
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              Start Benefits Finder
             </button>
             <button
-              onClick={() => router.push("/")}
-              className="w-full px-6 py-3 bg-transparent text-gray-400 rounded-lg font-medium hover:text-white transition-colors"
+              onClick={() => router.push("/care-profile")}
+              className="w-full px-6 py-3 bg-white/10 backdrop-blur-sm text-white rounded-xl font-medium hover:bg-white/20 transition-colors border border-white/20"
             >
               Skip for Now
             </button>
+          </div>
+
+          {/* Trust indicators */}
+          <div className="mt-12 flex items-center gap-6 text-gray-400 text-sm">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span>100% Free</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+              <span>Secure & Private</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span>No Obligations</span>
+            </div>
           </div>
         </main>
       </div>
@@ -264,90 +327,121 @@ export default function BenefitsPage() {
   // Form Fallback State
   if (pageState === "form") {
     return (
-      <div className="min-h-screen bg-[#F5F3EF]">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <MainNav />
-        <Breadcrumb />
 
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={() => setPageState("entry")}
-              className="p-2 rounded-full hover:bg-gray-200 transition-colors"
-            >
-              <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <div className="flex items-center gap-2">
+        {/* Progress Header */}
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+          <div className="max-w-3xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => setPageState("entry")}
+                className="p-2 -ml-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div className="text-center">
+                <span className="text-sm text-gray-500">Step 1 of 2</span>
+                <h2 className="font-semibold text-gray-900">Select Care Needs</h2>
+              </div>
               <button
                 onClick={() => router.push("/care-profile")}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-sm text-gray-500 hover:text-gray-700"
               >
                 Cancel
               </button>
-              <span className="text-gray-400">|</span>
-              <span className="font-semibold text-gray-900">Care Needs</span>
             </div>
-            <div className="w-10" /> {/* Spacer for alignment */}
+            {/* Progress bar */}
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full w-1/2 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full transition-all" />
+            </div>
           </div>
+        </div>
 
-          {/* Progress bar */}
-          <div className="h-1 bg-gray-200 rounded-full mb-8">
-            <div className="h-full w-1/2 bg-primary-600 rounded-full transition-all" />
-          </div>
-
+        <main className="flex-grow max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Form content */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
               What kind of help is most needed?
             </h1>
             <p className="text-gray-600">
-              Select 1 or more. This helps us find relevant benefits.
-              {familyProfile?.careTypes && familyProfile.careTypes.length > 0 && (
-                <span className="block text-sm text-primary-600 mt-1">
-                  Your current selections from Care Profile are pre-selected.
-                </span>
-              )}
+              Select all that apply. This helps us match you with the right programs.
             </p>
+            {familyProfile?.careTypes && familyProfile.careTypes.length > 0 && (
+              <div className="mt-3 flex items-center gap-2 text-sm text-primary-600 bg-primary-50 px-3 py-2 rounded-lg">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                Pre-selected from your Care Profile
+              </div>
+            )}
           </div>
 
           {/* Care type selection grid */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             {CARE_TYPES.map((item) => {
               const isSelected = selectedCareTypes.includes(item.value);
               return (
                 <button
                   key={item.value}
                   onClick={() => toggleCareType(item.value)}
-                  className={`flex flex-col items-center p-4 rounded-xl transition-all text-center ${
+                  className={`relative flex items-start gap-4 p-5 rounded-2xl transition-all text-left ${
                     isSelected
-                      ? "bg-primary-100 border-2 border-primary-600 shadow-md"
-                      : "bg-white border-2 border-transparent shadow-sm hover:shadow-md"
+                      ? "bg-primary-50 border-2 border-primary-500 shadow-md ring-2 ring-primary-500/20"
+                      : "bg-white border-2 border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300"
                   }`}
                 >
-                  <span className="text-3xl mb-2">{item.icon}</span>
-                  <span className={`font-semibold ${isSelected ? "text-primary-700" : "text-gray-900"}`}>
-                    {item.label}
-                  </span>
-                  <span className="text-xs text-gray-500">{item.description}</span>
+                  <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${
+                    isSelected ? "bg-primary-100" : "bg-gray-100"
+                  }`}>
+                    {item.icon}
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <span className={`font-semibold block ${isSelected ? "text-primary-700" : "text-gray-900"}`}>
+                      {item.label}
+                    </span>
+                    <span className="text-sm text-gray-500 line-clamp-2">{item.description}</span>
+                  </div>
                   {isSelected && (
-                    <span className="mt-2 text-primary-600">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="absolute top-3 right-3 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                    </span>
+                    </div>
                   )}
                 </button>
               );
             })}
           </div>
 
-          {/* Navigation */}
-          <div className="flex items-center justify-between">
+          {/* Selected count indicator */}
+          {selectedCareTypes.length > 0 && (
+            <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <span className="text-emerald-700 font-bold">{selectedCareTypes.length}</span>
+                </div>
+                <div>
+                  <p className="font-medium text-emerald-800">
+                    {selectedCareTypes.length} care {selectedCareTypes.length === 1 ? "need" : "needs"} selected
+                  </p>
+                  <p className="text-sm text-emerald-600">
+                    We&apos;ll find programs that match these needs
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+
+        {/* Fixed bottom navigation */}
+        <div className="bg-white border-t border-gray-200 p-4">
+          <div className="max-w-3xl mx-auto flex items-center justify-between">
             <button
               onClick={() => setPageState("entry")}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -357,20 +451,20 @@ export default function BenefitsPage() {
             <button
               onClick={handleContinue}
               disabled={saving || selectedCareTypes.length === 0}
-              className={`px-8 py-3 rounded-full font-semibold flex items-center gap-2 transition-colors ${
+              className={`px-8 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg ${
                 selectedCareTypes.length > 0
-                  ? "bg-primary-600 text-white hover:bg-primary-700"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  ? "bg-primary-600 text-white hover:bg-primary-700 hover:shadow-xl"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
               }`}
             >
               {saving ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Saving...
+                  Finding Programs...
                 </>
               ) : (
                 <>
-                  Find Benefits
+                  Find My Benefits
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -378,67 +472,72 @@ export default function BenefitsPage() {
               )}
             </button>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
 
   // Results State
+  const totalSavings = matchedPrograms.reduce((acc, p) => {
+    const match = p.savings.match(/\$?([\d,]+)/);
+    return acc + (match ? parseInt(match[1].replace(",", "")) : 0);
+  }, 0);
+
   return (
-    <div className="min-h-screen bg-[#F5F3EF]">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
-      <Breadcrumb />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => router.push("/care-profile")}
-            className="text-primary-600 font-medium hover:text-primary-700"
-          >
-            Done
-          </button>
-          <button
-            onClick={() => setPageState("form")}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      {/* Success Hero */}
+      <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-primary-700 text-white">
+        <div className="max-w-3xl mx-auto px-4 py-10 text-center">
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Edit needs
-          </button>
-        </div>
-
-        {/* Results title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Benefits</h1>
-          <div className="text-primary-600 text-xl font-semibold mb-2">
-            We found {matchedPrograms.length} programs that may help
           </div>
-          <p className="text-gray-600">
-            Based on your care needs
-            {familyProfile?.city && familyProfile?.state && (
-              <> in {familyProfile.city}, {familyProfile.state}</>
-            )}
-            {familyProfile?.lovedOneAge && (
-              <>, for someone {familyProfile.lovedOneAge} years old</>
-            )}
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">Great News!</h1>
+          <p className="text-xl text-emerald-100 mb-6">
+            We found <span className="font-bold text-white">{matchedPrograms.length} programs</span> that may help reduce your care costs
           </p>
-        </div>
 
+          {/* Stats */}
+          <div className="flex items-center justify-center gap-8">
+            <div className="text-center">
+              <div className="text-3xl font-bold">{matchedPrograms.length}</div>
+              <div className="text-sm text-emerald-200">Programs Found</div>
+            </div>
+            <div className="w-px h-12 bg-white/30" />
+            <div className="text-center">
+              <div className="text-3xl font-bold">${totalSavings.toLocaleString()}+</div>
+              <div className="text-sm text-emerald-200">Potential Savings/yr</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-grow max-w-3xl mx-auto px-4 py-8 w-full">
         {/* Selected care types */}
         {selectedCareTypes.length > 0 && (
-          <div className="mb-6">
-            <p className="text-sm text-gray-500 mb-2">Care needs:</p>
+          <div className="mb-6 bg-white rounded-xl p-4 border border-gray-200">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium text-gray-700">Based on your care needs:</p>
+              <button
+                onClick={() => setPageState("form")}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              >
+                Edit
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
               {selectedCareTypes.map(ct => {
                 const careType = CARE_TYPES.find(c => c.value === ct);
                 return careType ? (
                   <span
                     key={ct}
-                    className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium"
+                    className="px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg text-sm font-medium flex items-center gap-1.5"
                   >
-                    {careType.icon} {careType.label}
+                    <span>{careType.icon}</span>
+                    {careType.label}
                   </span>
                 ) : null;
               })}
@@ -446,58 +545,117 @@ export default function BenefitsPage() {
           </div>
         )}
 
-        {/* Programs section */}
-        <div className="mb-4">
-          <p className="text-gray-500 text-sm font-medium">Programs you may qualify for</p>
+        {/* Programs section header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900">Programs You May Qualify For</h2>
+          <span className="text-sm text-gray-500">{matchedPrograms.length} programs</span>
         </div>
 
-        {/* Program list */}
-        <div className="space-y-3">
-          {matchedPrograms.map((program) => (
-            <button
-              key={program.id}
-              className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow text-left group"
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-gray-900">{program.name}</h3>
-                  <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                    {program.category}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600">{program.description}</p>
-                {program.minAge && familyProfile?.lovedOneAge && familyProfile.lovedOneAge >= program.minAge && (
-                  <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+        {/* Program list - Enhanced cards */}
+        <div className="space-y-4">
+          {matchedPrograms.map((program) => {
+            const categoryStyle = CATEGORY_STYLES[program.category] || { bg: "bg-gray-100", text: "text-gray-700", icon: "📋" };
+            const meetsAge = program.minAge && familyProfile?.lovedOneAge && familyProfile.lovedOneAge >= program.minAge;
+
+            return (
+              <div
+                key={program.id}
+                className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-all overflow-hidden group cursor-pointer"
+              >
+                <div className="p-5">
+                  <div className="flex items-start gap-4">
+                    {/* Category Icon */}
+                    <div className={`w-12 h-12 rounded-xl ${categoryStyle.bg} flex items-center justify-center text-2xl flex-shrink-0`}>
+                      {categoryStyle.icon}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-grow min-w-0">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                          <h3 className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
+                            {program.name}
+                          </h3>
+                          <span className={`inline-block px-2.5 py-0.5 ${categoryStyle.bg} ${categoryStyle.text} text-xs font-medium rounded-full mt-1`}>
+                            {program.category}
+                          </span>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-lg font-bold text-emerald-600">{program.savings}</div>
+                          <div className="text-xs text-gray-500">Est. savings</div>
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-gray-600 mb-3">{program.description}</p>
+
+                      {/* Eligibility indicators */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {meetsAge && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-lg">
+                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Meets age requirement
+                          </span>
+                        )}
+                        {program.eligibility.includes("income") && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded-lg">
+                            Income-based
+                          </span>
+                        )}
+                        {program.eligibility.includes("veteran") && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-lg">
+                            Veterans only
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Arrow */}
+                    <svg className="w-5 h-5 text-gray-300 group-hover:text-primary-500 transition-colors flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
-                    Meets age requirement ({program.minAge}+)
-                  </p>
-                )}
+                  </div>
+                </div>
               </div>
-              <svg className="w-5 h-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          ))}
+            );
+          })}
+        </div>
+
+        {/* Disclaimer */}
+        <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <div className="flex gap-3">
+            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-sm font-medium text-amber-800">Eligibility may vary</p>
+              <p className="text-sm text-amber-700 mt-1">
+                These programs have specific requirements. Contact each program directly to confirm your eligibility and apply.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Actions */}
-        <div className="mt-8 flex flex-col gap-3">
+        <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => router.push("/care-profile")}
-            className="w-full px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+            className="flex-1 px-6 py-3.5 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors shadow-lg hover:shadow-xl"
           >
-            Back to Care Profile
+            Save to Care Profile
           </button>
           <button
             onClick={() => setPageState("form")}
-            className="w-full px-6 py-3 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-50 transition-colors border border-primary-600"
+            className="flex-1 px-6 py-3.5 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors border border-gray-300"
           >
             Update Care Needs
           </button>
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

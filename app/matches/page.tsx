@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Link from "next/link";
 import EnhancedProviderCard from "@/components/Directory/EnhancedProviderCard";
 
@@ -396,6 +397,9 @@ export default function MatchesPage() {
             </div>
           </div>
         </main>
+
+        {/* Footer */}
+        <Footer variant="light" />
       </div>
     );
   }
@@ -685,6 +689,9 @@ export default function MatchesPage() {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }
