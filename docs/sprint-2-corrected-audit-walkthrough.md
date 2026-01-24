@@ -39,8 +39,8 @@ All accounts use password: `test1234!`
 | 0A.5 | Check wizard first question | Wizard shows intent question: "Are you looking for care?" vs "Are you a care provider?" | | |
 | 0A.6 | Select "Looking for care" | Family onboarding variant starts | | |
 | 0A.7 | Complete wizard steps | Captures: name, location, care type | | |
-| 0A.8 | Check redirect after completion | Lands on homepage (`/`) | | |
-| 0A.9 | Navigate to `/dashboard/care-profile` | Family profile shows captured data | | |
+| 0A.8 | Check redirect after completion | Lands on care profile page (`/care-profile`) | | |
+| 0A.9 | Navigate to `/care-profile` | Family profile shows captured data | | |
 
 ---
 
@@ -58,8 +58,8 @@ All accounts use password: `test1234!`
 | 0B.6 | Check wizard | Intent question or provider-type question appears | | |
 | 0B.7 | Select "Care organization" (if asked) | Organization onboarding variant | | |
 | 0B.8 | Complete organization onboarding | Captures: org name, services, location | | |
-| 0B.9 | Check redirect | Lands on `/provider/find-families` or provider dashboard | | |
-| 0B.10 | Navigate to `/dashboard/provider-profile` | Provider profile shows captured data | | |
+| 0B.9 | Check redirect | Lands on `/provider/leads` or provider dashboard | | |
+| 0B.10 | Navigate to `/provider/profile` | Provider profile shows captured data | | |
 
 ---
 
@@ -78,7 +78,7 @@ All accounts use password: `test1234!`
 | 0C.7 | Select "Individual caregiver" | Caregiver onboarding variant | | |
 | 0C.8 | Complete caregiver onboarding | Captures: name, skills, location, experience | | |
 | 0C.9 | Check redirect | Lands on `/caregiver/browse-organizations` | | |
-| 0C.10 | Navigate to `/dashboard/provider-profile` | Caregiver profile shows captured data | | |
+| 0C.10 | Navigate to `/provider/profile` | Caregiver profile shows captured data | | |
 
 ---
 
@@ -107,24 +107,24 @@ All accounts use password: `test1234!`
 | 2.2 | Navigate to a provider detail page (`/providers/[id]`) | Page loads | | |
 | 2.3 | Click "Schedule Tour" or "Contact" | Contact modal opens | | |
 | 2.4 | Fill out form and submit | Form submits successfully | | |
-| 2.5 | Check redirect | Redirected to `/dashboard/my-providers/[id]` | | |
+| 2.5 | Check redirect | Redirected to `/requests/[id]` | | |
 | 2.6 | Check success message | Shows confirmation | | |
-| 2.7 | Navigate to `/dashboard/my-providers` | Engagement list shows new request | | |
+| 2.7 | Navigate to `/requests` | Engagement list shows new request | | |
 
 ---
 
-## Walkthrough 3: Family Views Engagements (My Providers)
+## Walkthrough 3: Family Views Engagements (Messages & Requests)
 
 **Goal**: Verify family can view and manage their provider engagements.
 
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 3.1 | Log in as `family@test.olera.com` | Login succeeds | | |
-| 3.2 | Navigate to `/dashboard/my-providers` | "My Providers" page loads | | |
-| 3.3 | Check page title | Shows "My Providers" | | |
-| 3.4 | Check tabs | "Your Outreach" and "Providers Reaching Out" tabs visible | | |
+| 3.2 | Navigate to `/requests` | "Messages & Requests" page loads | | |
+| 3.3 | Check page title | Shows "Messages & Requests" | | |
+| 3.4 | Check tabs | "Your Requests" and "Provider Outreach" tabs visible | | |
 | 3.5 | Check request cards | Shows provider name, status, date | | |
-| 3.6 | Click "View Request" on a card | `/dashboard/my-providers/[id]` detail page loads | | |
+| 3.6 | Click "View Request" on a card | `/requests/[id]` detail page loads | | |
 | 3.7 | Check message thread | Messages display chronologically | | |
 
 ---
@@ -136,7 +136,7 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 4.1 | Log in as `family@test.olera.com` | Login succeeds | | |
-| 4.2 | Navigate to `/dashboard/care-profile` | Care profile editor loads | | |
+| 4.2 | Navigate to `/care-profile` | Care profile editor loads | | |
 | 4.3 | Edit name field | Field updates | | |
 | 4.4 | Edit location | Location updates | | |
 | 4.5 | Toggle care types | Care types toggle correctly | | |
@@ -152,24 +152,24 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 5.1 | Log in as `provider@test.olera.com` | Login succeeds | | |
-| 5.2 | Navigate to `/provider/dashboard` | Provider dashboard loads | | |
+| 5.2 | Navigate to `/provider` | Provider dashboard loads | | |
 | 5.3 | Check profile completion widget | Shows completion percentage | | |
 | 5.4 | Check quick links | Links to: Find Families, Edit Profile, My Families visible | | |
 | 5.5 | Check recent activity section | Shows recent engagements/requests | | |
 
 ---
 
-## Walkthrough 6: Provider Views Incoming Family Requests (My Families)
+## Walkthrough 6: Provider Views Incoming Family Requests (Family Connections)
 
 **Goal**: Verify provider can see families who have contacted them.
 
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 6.1 | Log in as `provider@test.olera.com` | Login succeeds | | |
-| 6.2 | Navigate to `/provider/dashboard/my-families` | "My Families" page loads | | |
-| 6.3 | Check page title | Shows "My Families" (not "My Providers") | | |
+| 6.2 | Navigate to `/provider/requests` | "Family Connections" page loads | | |
+| 6.3 | Check page title | Shows "Family Connections" | | |
 | 6.4 | Check tabs | "Families Reaching Out" and "Your Outreach" tabs visible | | |
-| 6.5 | Select "Families Reaching Out" tab | Incoming requests display | | |
+| 6.5 | Check "Families Reaching Out" tab (default) | Incoming requests display | | |
 | 6.6 | Check request card content | Family name, location, message preview, date | | |
 | 6.7 | Check PENDING badge | Shows "Needs your response" | | |
 | 6.8 | Check ACCEPTED badge (if any) | Shows "Conversation started" | | |
@@ -183,7 +183,7 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 7.1 | Log in as `provider@test.olera.com` | Login succeeds | | |
-| 7.2 | Navigate to `/provider/dashboard/my-families` | My Families page loads | | |
+| 7.2 | Navigate to `/provider/requests` | Family Connections page loads | | |
 | 7.3 | Find a PENDING request | Request card visible | | |
 | 7.4 | Click "Yes, Let's Connect" | Request accepted | | |
 | 7.5 | Check status badge | Changes to "Conversation started" | | |
@@ -201,9 +201,9 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 8.1 | Log in as `provider@test.olera.com` | Login succeeds | | |
-| 8.2 | Navigate to `/provider/dashboard/my-families` | Page loads | | |
-| 8.3 | Click "View Request" on any engagement | `/provider/dashboard/my-families/[id]` loads | | |
-| 8.4 | Check URL | Contains `/provider/dashboard/my-families/` | | |
+| 8.2 | Navigate to `/provider/requests` | Page loads | | |
+| 8.3 | Click "View Request" on any engagement | `/provider/requests/[id]` loads | | |
+| 8.4 | Check URL | Contains `/provider/requests/` | | |
 | 8.5 | Check message thread | Messages display chronologically | | |
 | 8.6 | Send a reply message (if ACCEPTED) | Message appears in thread | | |
 
@@ -216,7 +216,7 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 9.1 | Log in as `provider@test.olera.com` | Login succeeds | | |
-| 9.2 | Navigate to `/dashboard/provider-profile` | Profile editor loads | | |
+| 9.2 | Navigate to `/provider/profile` | Profile editor loads | | |
 | 9.3 | Edit organization name | Field updates | | |
 | 9.4 | Edit description | Description updates | | |
 | 9.5 | Toggle services offered | Services toggle correctly | | |
@@ -233,11 +233,11 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 10.1 | Log in as `provider@test.olera.com` | Login succeeds | | |
-| 10.2 | Navigate to `/provider/find-families` | Family directory loads | | |
+| 10.2 | Navigate to `/provider/leads` | Family directory loads | | |
 | 10.3 | Browse family cards | Cards display with name, location, care needs | | |
 | 10.4 | Click on a family card | Family detail or modal opens | | |
 | 10.5 | Send outreach message | Outreach request created | | |
-| 10.6 | Navigate to `/provider/dashboard/my-families` | Check "Your Outreach" tab | | |
+| 10.6 | Navigate to `/provider/requests` | Check "Your Outreach" tab | | |
 | 10.7 | Verify outreach appears | Sent request visible | | |
 
 ---
@@ -264,10 +264,10 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 12.1 | Log in as `provider@test.olera.com` | Login succeeds | | |
-| 12.2 | Navigate to `/provider/my-candidates` | "My Candidates" page loads | | |
+| 12.2 | Navigate to `/provider/candidates` | "My Candidates" page loads | | |
 | 12.3 | Check for incoming applications | Caregiver applications visible | | |
 | 12.4 | Check candidate card content | Name, skills, location | | |
-| 12.5 | Click to view detail | `/provider/my-candidates/[id]` loads | | |
+| 12.5 | Click to view detail | `/provider/candidates/[id]` loads | | |
 | 12.6 | Accept/decline candidate | Status updates | | |
 
 ---
@@ -317,7 +317,7 @@ All accounts use password: `test1234!`
 | 15.3 | Switch to Family mode | Mode switches | | |
 | 15.4 | Check landing | Homepage (`/`) loads | | |
 | 15.5 | Switch to Provider mode | Mode switches | | |
-| 15.6 | Check landing | `/provider/find-families` loads | | |
+| 15.6 | Check landing | `/provider/leads` loads | | |
 | 15.7 | Refresh browser | Mode persists after refresh | | |
 
 ---
@@ -330,7 +330,7 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 16A.1 | Log in as provider | Dashboard loads | | |
-| 16A.2 | Navigate to `/dashboard/provider-profile` | Editor loads | | |
+| 16A.2 | Navigate to `/provider/profile` | Editor loads | | |
 | 16A.3 | Find visibility toggle | Toggle present | | |
 | 16A.4 | Clear required fields | Fields cleared | | |
 | 16A.5 | Try to enable visibility | Blocked with message about missing fields | | |
@@ -340,7 +340,7 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 16B.1 | Log in as family | Dashboard loads | | |
-| 16B.2 | Navigate to `/dashboard/care-profile` | Care profile loads | | |
+| 16B.2 | Navigate to `/care-profile` | Care profile loads | | |
 | 16B.3 | Clear required fields (name/location/care type) | Fields cleared | | |
 | 16B.4 | Try to enable visibility | Blocked with message about missing fields | | |
 
@@ -353,9 +353,9 @@ All accounts use password: `test1234!`
 | Step | Action | Expected | Pass/Fail | Notes |
 |------|--------|----------|-----------|-------|
 | 17.1 | Log in as `newuser@test.olera.com` | Login succeeds | | |
-| 17.2 | Navigate to `/dashboard/my-providers` | Empty state with CTA to find providers | | |
+| 17.2 | Navigate to `/requests` | Empty state with CTA to find providers | | |
 | 17.3 | Switch to provider mode (if able) | Mode switches | | |
-| 17.4 | Navigate to `/provider/dashboard/my-families` | Empty state with CTA | | |
+| 17.4 | Navigate to `/provider/requests` | Empty state with CTA | | |
 
 ---
 
@@ -370,10 +370,10 @@ All accounts use password: `test1234!`
 | 0C: Caregiver Sign-Up | | | | |
 | W1: Family Find Care | | | | |
 | W2: Family Contacts Provider | | | | |
-| W3: Family My Providers | | | | |
+| W3: Family Messages & Requests | | | | |
 | W4: Family Edit Profile | | | | |
 | W5: Provider Dashboard | | | | |
-| W6: Provider My Families | | | | |
+| W6: Provider Family Connections | | | | |
 | W7: Accept/Decline Requests | | | | |
 | W8: Engagement Detail | | | | |
 | W9: Provider Edit Profile | | | | |
