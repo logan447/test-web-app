@@ -47,7 +47,7 @@ export async function GET() {
       }
     }
 
-    // Also count unread messages in conversations
+    // Count unread messages in conversations
     const unreadMessages = await prisma.message.count({
       where: {
         read: false,
@@ -63,10 +63,19 @@ export async function GET() {
       },
     });
 
+    // Count unread in-app notifications (Sprint 15)
+    const unreadNotifications = await prisma.notification.count({
+      where: {
+        userId: session.user.id,
+        read: false,
+      },
+    });
+
     return NextResponse.json({
       unreadRequests: unreadCount,
       unreadMessages,
-      total: unreadCount + unreadMessages,
+      unreadNotifications,
+      total: unreadNotifications, // Use notification count as the primary indicator
     });
   } catch (error) {
     console.error("Error fetching unread count:", error);

@@ -811,3 +811,54 @@ model HiringMessage {
   @@index([hiringEngagementId])
   @@index([senderId])
 }
+
+// ============================================
+// SPRINT 15: In-App Notification System
+// Persistent notification storage for notification center
+// ============================================
+
+enum NotificationType {
+  MESSAGE          // New message received
+  REQUEST_NEW      // New consultation/hiring request
+  REQUEST_ACCEPTED // Request was accepted
+  REQUEST_DECLINED // Request was declined
+  REQUEST_COMPLETED // Engagement completed
+  TOUR_PROPOSED    // Tour/meeting proposed
+  TOUR_ACCEPTED    // Tour/meeting accepted
+  TOUR_REMINDER    // Upcoming tour reminder
+  PROFILE_VIEW     // Someone viewed your profile
+  SYSTEM           // System announcements
+}
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String // Recipient of the notification
+
+  // Notification content
+  type    NotificationType
+  title   String
+  body    String
+
+  // Optional link for navigation
+  linkHref  String?
+  linkLabel String?
+
+  // Related entities (for context)
+  relatedRequestId String? // ConsultRequest ID if applicable
+  relatedUserId    String? // Other user involved (sender)
+  relatedProviderId String? // Provider involved
+
+  // Status
+  read   Boolean @default(false)
+  readAt DateTime?
+
+  // Metadata for grouping/filtering
+  metadata Json? // Flexible field for additional data
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, read])
+  @@index([createdAt])
+  @@index([type])
+}

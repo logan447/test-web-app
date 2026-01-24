@@ -16,6 +16,15 @@ import {
   isEmailConfigured,
 } from "@/lib/email";
 import { getEngagementTypeForProvider, formatEngagementType } from "@/lib/engagementUtils";
+import {
+  notifyNewMessageInApp,
+  notifyNewRequestInApp,
+  notifyRequestAcceptedInApp,
+  notifyRequestDeclinedInApp,
+  notifyEngagementCompletedInApp,
+  notifyTourProposedInApp,
+  notifyTourAcceptedInApp,
+} from "@/lib/notificationUtils";
 
 // Types for notification payloads
 interface NotificationContext {
@@ -138,20 +147,36 @@ export async function notifyNewRequest(ctx: NotificationContext & {
       senderName = request.sender.name || "A family";
     }
 
-    if (!recipientEmail || !recipientUserId) return;
+    if (!recipientUserId) return;
 
-    const shouldSend = await shouldSendEmail(ctx.requestId, recipientUserId);
-    if (!shouldSend) return;
+    // Always create in-app notification
+    if (!isProviderSender) {
+      // Family sent to provider - notify provider
+      await notifyNewRequestInApp({
+        providerUserId: recipientUserId,
+        familyName: senderName,
+        requestId: ctx.requestId,
+        contactReason: request.contactReason || undefined,
+        familyUserId: ctx.senderId,
+        providerId: request.provider.id,
+      });
+    }
 
-    await sendNewRequestEmail({
-      recipientEmail,
-      recipientName,
-      senderName,
-      providerName: isProviderSender ? request.provider.name : undefined,
-      requestType: isProviderSender ? "outreach" : "inquiry",
-      message: request.message || undefined,
-      requestId: ctx.requestId,
-    });
+    // Send email if configured and not muted
+    if (recipientEmail) {
+      const shouldSend = await shouldSendEmail(ctx.requestId, recipientUserId);
+      if (shouldSend) {
+        await sendNewRequestEmail({
+          recipientEmail,
+          recipientName,
+          senderName,
+          providerName: isProviderSender ? request.provider.name : undefined,
+          requestType: isProviderSender ? "outreach" : "inquiry",
+          message: request.message || undefined,
+          requestId: ctx.requestId,
+        });
+      }
+    }
   } catch (error) {
     console.error("[NotificationService] notifyNewRequest error:", error);
   }
@@ -189,43 +214,75 @@ export async function notifyRequestStatusChange(ctx: NotificationContext & {
       recipientName = request.provider.user?.name || request.provider.name;
     }
 
-    if (!recipientEmail || !recipientUserId) return;
-
-    const shouldSend = await shouldSendEmail(ctx.requestId, recipientUserId);
-    if (!shouldSend) return;
+    if (!recipientUserId) return;
 
     const engagementType = formatEngagementType(
       getEngagementTypeForProvider(request.provider.providerType)
     );
 
+    // Create in-app notifications
     if (ctx.newStatus === "ACCEPTED") {
-      await sendRequestAcceptedEmail({
-        recipientEmail,
-        recipientName,
+      await notifyRequestAcceptedInApp({
+        recipientUserId,
         providerName: request.provider.name,
-        engagementType,
         requestId: ctx.requestId,
+        providerId: request.provider.id,
       });
     } else if (ctx.newStatus === "DECLINED") {
-      await sendRequestDeclinedEmail({
-        recipientEmail,
-        recipientName,
+      await notifyRequestDeclinedInApp({
+        recipientUserId,
         providerName: request.provider.name,
         requestId: ctx.requestId,
+        providerId: request.provider.id,
       });
     } else if (ctx.newStatus === "COMPLETED") {
       const otherPartyName = isProviderChanging
         ? request.provider.name
         : request.familyProfile?.user?.name || "the family";
 
-      await sendEngagementCompletedEmail({
-        recipientEmail,
-        recipientName,
+      await notifyEngagementCompletedInApp({
+        recipientUserId,
         otherPartyName,
-        engagementType,
         requestId: ctx.requestId,
-        isProvider: !isProviderChanging,
+        relatedUserId: isProviderChanging ? request.provider.user?.id : request.familyProfile?.user?.id,
+        relatedProviderId: request.provider.id,
       });
+    }
+
+    // Send email if configured and not muted
+    if (recipientEmail) {
+      const shouldSend = await shouldSendEmail(ctx.requestId, recipientUserId);
+      if (shouldSend) {
+        if (ctx.newStatus === "ACCEPTED") {
+          await sendRequestAcceptedEmail({
+            recipientEmail,
+            recipientName,
+            providerName: request.provider.name,
+            engagementType,
+            requestId: ctx.requestId,
+          });
+        } else if (ctx.newStatus === "DECLINED") {
+          await sendRequestDeclinedEmail({
+            recipientEmail,
+            recipientName,
+            providerName: request.provider.name,
+            requestId: ctx.requestId,
+          });
+        } else if (ctx.newStatus === "COMPLETED") {
+          const otherPartyName = isProviderChanging
+            ? request.provider.name
+            : request.familyProfile?.user?.name || "the family";
+
+          await sendEngagementCompletedEmail({
+            recipientEmail,
+            recipientName,
+            otherPartyName,
+            engagementType,
+            requestId: ctx.requestId,
+            isProvider: !isProviderChanging,
+          });
+        }
+      }
     }
   } catch (error) {
     console.error("[NotificationService] notifyRequestStatusChange error:", error);
@@ -265,19 +322,31 @@ export async function notifyNewMessage(ctx: NotificationContext & {
       senderName = request.sender.name || "A family member";
     }
 
-    if (!recipientEmail || !recipientUserId) return;
+    if (!recipientUserId) return;
 
-    const shouldSend = await shouldSendEmail(ctx.requestId, recipientUserId);
-    if (!shouldSend) return;
-
-    await sendNewMessageEmail({
-      recipientEmail,
-      recipientName,
+    // Always create in-app notification
+    await notifyNewMessageInApp({
+      recipientUserId,
       senderName,
-      messagePreview: ctx.messageContent,
       requestId: ctx.requestId,
-      isProvider: !isSenderProvider,
+      messagePreview: ctx.messageContent,
+      senderUserId: ctx.senderId,
     });
+
+    // Send email if configured and not muted
+    if (recipientEmail) {
+      const shouldSend = await shouldSendEmail(ctx.requestId, recipientUserId);
+      if (shouldSend) {
+        await sendNewMessageEmail({
+          recipientEmail,
+          recipientName,
+          senderName,
+          messagePreview: ctx.messageContent,
+          requestId: ctx.requestId,
+          isProvider: !isSenderProvider,
+        });
+      }
+    }
   } catch (error) {
     console.error("[NotificationService] notifyNewMessage error:", error);
   }
@@ -318,26 +387,39 @@ export async function notifyTourProposed(ctx: NotificationContext & {
       proposerName = request.sender.name || "A family member";
     }
 
-    if (!recipientEmail || !recipientUserId) return;
+    if (!recipientUserId) return;
 
-    const shouldSend = await shouldSendEmail(ctx.requestId, recipientUserId);
-    if (!shouldSend) return;
-
-    const engagementType = formatEngagementType(
-      getEngagementTypeForProvider(request.provider.providerType)
-    );
-
-    await sendTourProposedEmail({
-      recipientEmail,
-      recipientName,
+    // Always create in-app notification
+    await notifyTourProposedInApp({
+      recipientUserId,
       proposerName,
-      engagementType,
+      requestId: ctx.requestId,
       proposedDate: ctx.proposedDate,
       proposedTime: ctx.proposedTime,
-      notes: ctx.notes,
-      requestId: ctx.requestId,
-      isProvider: !isProposerProvider,
+      proposerUserId: ctx.proposerId,
     });
+
+    // Send email if configured and not muted
+    if (recipientEmail) {
+      const shouldSend = await shouldSendEmail(ctx.requestId, recipientUserId);
+      if (shouldSend) {
+        const engagementType = formatEngagementType(
+          getEngagementTypeForProvider(request.provider.providerType)
+        );
+
+        await sendTourProposedEmail({
+          recipientEmail,
+          recipientName,
+          proposerName,
+          engagementType,
+          proposedDate: ctx.proposedDate,
+          proposedTime: ctx.proposedTime,
+          notes: ctx.notes,
+          requestId: ctx.requestId,
+          isProvider: !isProposerProvider,
+        });
+      }
+    }
   } catch (error) {
     console.error("[NotificationService] notifyTourProposed error:", error);
   }
@@ -391,6 +473,19 @@ export async function notifyTourAccepted(ctx: NotificationContext & {
       accepterName = request.sender.name || "The family";
     }
 
+    // Create in-app notification for proposer
+    if (proposerUserId) {
+      await notifyTourAcceptedInApp({
+        recipientUserId: proposerUserId,
+        accepterName,
+        requestId: ctx.requestId,
+        scheduledDate: ctx.confirmedDate,
+        scheduledTime: ctx.confirmedTime,
+        accepterUserId: ctx.acceptedByUserId,
+      });
+    }
+
+    // Send email to proposer if configured and not muted
     if (proposerEmail && proposerUserId) {
       const shouldSend = await shouldSendEmail(ctx.requestId, proposerUserId);
       if (shouldSend) {
@@ -420,6 +515,19 @@ export async function notifyTourAccepted(ctx: NotificationContext & {
       accepterEmail = request.familyProfile?.user?.email || undefined;
     }
 
+    // Create in-app notification for accepter (confirmation)
+    if (accepterUserId) {
+      await notifyTourAcceptedInApp({
+        recipientUserId: accepterUserId,
+        accepterName: proposerName,
+        requestId: ctx.requestId,
+        scheduledDate: ctx.confirmedDate,
+        scheduledTime: ctx.confirmedTime,
+        accepterUserId: proposerUserId,
+      });
+    }
+
+    // Send email to accepter if configured and not muted
     if (accepterEmail && accepterUserId) {
       const shouldSend = await shouldSendEmail(ctx.requestId, accepterUserId);
       if (shouldSend) {
