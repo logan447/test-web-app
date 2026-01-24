@@ -1,66 +1,67 @@
 import { ProviderType } from '@prisma/client';
+import {
+  FACILITY_PROVIDER_TYPES,
+  HOME_CARE_PROVIDER_TYPES,
+  CAREGIVER_PROVIDER_TYPES,
+  getEngagementConfigForProvider,
+  supportsScheduledEvents,
+} from './engagementUtils';
 
 /**
  * Get context-appropriate CTA text based on provider type
+ * Uses the centralized engagement system for consistency
  */
 export function getProviderCTAs(providerType: ProviderType) {
+  const engagementConfig = getEngagementConfigForProvider(providerType);
+
   // Facility types (schedule tours)
-  const facilityTypes: ProviderType[] = [
-    'ASSISTED_LIVING',
-    'MEMORY_CARE',
-    'NURSING_HOME',
-    'INDEPENDENT_LIVING',
-    'REHABILITATION',
-    'HOSPICE',
-  ];
-
-  // Home care agency (request consultation)
-  const homecareTypes: ProviderType[] = ['HOME_CARE', 'HOME_HEALTH'];
-
-  // Individual caregiver (request interview/connect)
-  const caregiverTypes: ProviderType[] = ['INDEPENDENT_CAREGIVER'];
-
-  if (facilityTypes.includes(providerType)) {
+  if (FACILITY_PROVIDER_TYPES.includes(providerType as typeof FACILITY_PROVIDER_TYPES[number])) {
     return {
-      primary: 'Schedule a Tour',
+      primary: engagementConfig.actionLabel,
       secondary: 'Request Information',
       saved: 'View Details',
       contact: 'Contact Facility',
       requestType: 'CONSULTATION' as const,
       tourEnabled: true,
+      engagementType: engagementConfig.type,
     };
   }
 
-  if (homecareTypes.includes(providerType)) {
+  // Home care agency (request consultation)
+  if (HOME_CARE_PROVIDER_TYPES.includes(providerType as typeof HOME_CARE_PROVIDER_TYPES[number])) {
     return {
-      primary: 'Request Consultation',
+      primary: engagementConfig.actionLabel,
       secondary: 'Learn More',
       saved: 'View Details',
       contact: 'Contact Agency',
       requestType: 'CONSULTATION' as const,
       tourEnabled: false,
+      engagementType: engagementConfig.type,
     };
   }
 
-  if (caregiverTypes.includes(providerType)) {
+  // Individual caregiver (request interview/connect)
+  if (CAREGIVER_PROVIDER_TYPES.includes(providerType as typeof CAREGIVER_PROVIDER_TYPES[number])) {
     return {
-      primary: 'Request Interview',
+      primary: engagementConfig.actionLabel,
       secondary: 'View Profile',
       saved: 'View Details',
       contact: 'Message Caregiver',
       requestType: 'HIRING' as const,
       tourEnabled: false,
+      engagementType: engagementConfig.type,
     };
   }
 
   // Default fallback
   return {
-    primary: 'Request Information',
+    primary: engagementConfig.actionLabel,
     secondary: 'Learn More',
     saved: 'View Details',
     contact: 'Contact Provider',
     requestType: 'CONSULTATION' as const,
     tourEnabled: false,
+    engagementType: engagementConfig.type,
   };
 }
 
@@ -84,16 +85,13 @@ export function getProviderTypeDisplay(providerType: ProviderType): string {
 }
 
 /**
- * Determine if provider type supports tours
+ * Determine if provider type supports tours (scheduled events)
+ * Uses the centralized engagement system
  */
 export function supportsTours(providerType: ProviderType): boolean {
-  const tourSupportedTypes: ProviderType[] = [
-    'ASSISTED_LIVING',
-    'MEMORY_CARE',
-    'NURSING_HOME',
-    'INDEPENDENT_LIVING',
-    'REHABILITATION',
-  ];
-
-  return tourSupportedTypes.includes(providerType);
+  return supportsScheduledEvents(providerType) &&
+    FACILITY_PROVIDER_TYPES.includes(providerType as typeof FACILITY_PROVIDER_TYPES[number]);
 }
+
+// Re-export engagement utilities for convenience
+export { getEngagementConfigForProvider, supportsScheduledEvents } from './engagementUtils';

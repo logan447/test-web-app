@@ -216,7 +216,7 @@ export default function ProviderRequestsPage() {
       case "DECLINED":
         return "This request was declined. No further action is needed.";
       case "COMPLETED":
-        return "This consultation has been marked as completed.";
+        return "This engagement has been marked as completed.";
       default:
         return "";
     }

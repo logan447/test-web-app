@@ -10,6 +10,7 @@ import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import AuthModal from "@/components/Auth/AuthModal";
 import EngagementConfirmationModal from "@/components/Engagement/EngagementConfirmationModal";
 import { useFamilyProfile, getEngagementType } from "@/hooks/useFamilyProfile";
+import { getEngagementConfigForProvider } from "@/lib/engagementUtils";
 
 type Provider = {
   id: string;
@@ -102,11 +103,16 @@ function NewRequestContent() {
 
       router.push("/requests");
     } catch (err: any) {
-      setError(err.message || "Failed to send consultation request");
+      setError(err.message || "Failed to send request");
       setSending(false);
       throw err; // Re-throw so modal knows it failed
     }
   };
+
+  // Get engagement configuration for dynamic text
+  const engagementConfig = provider
+    ? getEngagementConfigForProvider(provider.providerType)
+    : null;
 
   if (loading) {
     return (
@@ -130,7 +136,9 @@ function NewRequestContent() {
       <Breadcrumb />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Request Consultation</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">
+          {engagementConfig ? `Request ${engagementConfig.label}` : "Request Engagement"}
+        </h1>
 
         {error && (
           <div className="bg-red-50 text-red-800 p-4 rounded-md mb-6">
@@ -168,7 +176,7 @@ function NewRequestContent() {
               disabled={sending}
               className="bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 disabled:opacity-50 font-medium"
             >
-              {sending ? "Sending..." : "Send Consultation Request"}
+              {sending ? "Sending..." : `Send ${engagementConfig?.label || "Engagement"} Request`}
             </button>
             <Link
               href={`/providers/${providerId}`}

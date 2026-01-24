@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import {
+  getEngagementTypeForProvider,
+  type EngagementType,
+} from "@/lib/engagementUtils";
 
 export interface ProfileSummary {
   careTypes: string[];
@@ -111,22 +115,11 @@ export function useFamilyProfile() {
 }
 
 // Helper function to determine engagement type based on provider type
+// Returns lowercase for backward compatibility with existing components
 export function getEngagementType(providerType: string): "consultation" | "tour" | "interview" {
-  const facilityTypes = [
-    "ASSISTED_LIVING",
-    "MEMORY_CARE",
-    "NURSING_HOME",
-    "INDEPENDENT_LIVING",
-    "REHABILITATION",
-  ];
-
-  const caregiverTypes = ["INDEPENDENT_CAREGIVER"];
-
-  if (facilityTypes.includes(providerType)) {
-    return "tour";
-  }
-  if (caregiverTypes.includes(providerType)) {
-    return "interview";
-  }
-  return "consultation";
+  const engagementType = getEngagementTypeForProvider(providerType);
+  return engagementType.toLowerCase() as "consultation" | "tour" | "interview";
 }
+
+// Re-export the normalized engagement type for components that need the enum value
+export { getEngagementTypeForProvider, type EngagementType };

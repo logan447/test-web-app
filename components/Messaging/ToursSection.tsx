@@ -4,6 +4,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import TourScheduler from "./TourScheduler";
 import { supportsTours } from "@/lib/providerUtils";
+import { getEngagementConfigForProvider } from "@/lib/engagementUtils";
 import { ProviderType } from "@prisma/client";
 
 interface Tour {
@@ -43,6 +44,9 @@ export default function ToursSection({
   if (!supportsTours(providerType)) {
     return null;
   }
+
+  // Get engagement-specific terminology
+  const engagementConfig = getEngagementConfigForProvider(providerType);
 
   const handlePropose = async (date: Date, time: string, notes?: string) => {
     try {
@@ -108,10 +112,10 @@ export default function ToursSection({
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
-          <h3 className="text-lg font-semibold text-gray-900">Facility Tours</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Scheduled {engagementConfig.label}s</h3>
         </div>
         {!showScheduler && tours.length === 0 && (
-          <span className="text-sm text-gray-500">No tours scheduled yet</span>
+          <span className="text-sm text-gray-500">No {engagementConfig.label.toLowerCase()}s scheduled yet</span>
         )}
       </div>
 
@@ -195,14 +199,14 @@ export default function ToursSection({
               d="M12 6v6m0 0v6m0-6h6m-6 0H6"
             />
           </svg>
-          Schedule a Tour
+          {engagementConfig.scheduleLabel}
         </button>
       )}
 
       <p className="text-xs text-gray-500 mt-3 text-center">
         {isProvider
-          ? 'Propose tour times for families to visit your facility'
-          : 'Schedule a visit to tour the facility in person'}
+          ? `Propose ${engagementConfig.label.toLowerCase()} times for families`
+          : engagementConfig.description}
       </p>
     </div>
   );

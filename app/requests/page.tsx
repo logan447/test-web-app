@@ -153,7 +153,7 @@ export default function RequestsPage() {
       case "DECLINED":
         return "This request was declined.";
       case "COMPLETED":
-        return "This consultation has been marked as completed.";
+        return "This engagement has been marked as completed.";
       default:
         return "";
     }
@@ -299,7 +299,7 @@ export default function RequestsPage() {
             </h3>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               {activeTab === "sent"
-                ? "Browse providers and send a consultation request to get started."
+                ? "Browse providers and send an engagement request to get started."
                 : "Providers you've connected with will appear here when they reach out."}
             </p>
             {activeTab === "sent" && (

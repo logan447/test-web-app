@@ -17,6 +17,7 @@ export interface TourProposalProps {
   onAccept?: (tourId: string) => void;
   onDecline?: (tourId: string) => void;
   disabled?: boolean;
+  engagementLabel?: string; // e.g., "Tour", "Consultation", "Interview"
 }
 
 export default function TourProposal({
@@ -25,6 +26,7 @@ export default function TourProposal({
   onAccept,
   onDecline,
   disabled = false,
+  engagementLabel = "Tour",
 }: TourProposalProps) {
   const isProposer = tour.proposedBy === currentUserId;
   const isPending = tour.status === "PROPOSED";
@@ -99,8 +101,8 @@ export default function TourProposal({
             </svg>
           </div>
           <div>
-            <h3 className="text-base font-semibold text-gray-900">Facility Tour</h3>
-            <p className="text-xs text-gray-500">{isProposer ? "You proposed" : "Tour invitation"}</p>
+            <h3 className="text-base font-semibold text-gray-900">Scheduled {engagementLabel}</h3>
+            <p className="text-xs text-gray-500">{isProposer ? "You proposed" : `${engagementLabel} invitation`}</p>
           </div>
         </div>
         {getStatusBadge()}
@@ -163,7 +165,7 @@ export default function TourProposal({
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            Accept Tour
+            Accept {engagementLabel}
           </button>
           <button
             onClick={() => onDecline?.(tour.id)}
@@ -206,7 +208,7 @@ export default function TourProposal({
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span className="font-medium">Tour confirmed! See you there.</span>
+          <span className="font-medium">{engagementLabel} confirmed! See you there.</span>
         </div>
       )}
     </div>

@@ -7,6 +7,7 @@ export interface TourSchedulerProps {
   onPropose: (date: Date, time: string, notes?: string) => void;
   onCancel: () => void;
   disabled?: boolean;
+  engagementLabel?: string; // e.g., "Tour", "Consultation", "Interview"
 }
 
 // Pre-defined time slots
@@ -34,6 +35,7 @@ export default function TourScheduler({
   onPropose,
   onCancel,
   disabled = false,
+  engagementLabel = "Tour",
 }: TourSchedulerProps) {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
@@ -70,8 +72,8 @@ export default function TourScheduler({
           </svg>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Schedule a Tour</h3>
-          <p className="text-xs text-gray-500">Propose a date and time for the facility tour</p>
+          <h3 className="text-lg font-semibold text-gray-900">Schedule a {engagementLabel}</h3>
+          <p className="text-xs text-gray-500">Propose a date and time for your {engagementLabel.toLowerCase()}</p>
         </div>
       </div>
 
@@ -144,7 +146,7 @@ export default function TourScheduler({
             disabled={disabled}
             rows={3}
             maxLength={200}
-            placeholder="Any special requests or questions for the tour..."
+            placeholder={`Any special requests or questions for the ${engagementLabel.toLowerCase()}...`}
             className="
               w-full
               px-4 py-2.5
@@ -163,7 +165,7 @@ export default function TourScheduler({
         {/* Preview */}
         {selectedDate && selectedTime && (
           <div className="bg-primary-50 border border-primary-200 rounded-lg p-3">
-            <p className="text-xs font-medium text-primary-700 mb-1.5">Tour Preview:</p>
+            <p className="text-xs font-medium text-primary-700 mb-1.5">{engagementLabel} Preview:</p>
             <div className="flex items-center gap-2 text-sm text-gray-900">
               <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -209,7 +211,7 @@ export default function TourScheduler({
                 d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
               />
             </svg>
-            Propose Tour
+            Propose {engagementLabel}
           </button>
           <button
             type="button"
