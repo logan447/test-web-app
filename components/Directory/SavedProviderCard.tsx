@@ -33,6 +33,9 @@ interface SavedProviderCardProps {
   hasRequest: boolean;
   requestId?: string;
   onRemove: (providerId: string) => void;
+  compareMode?: boolean;
+  isSelectedForCompare?: boolean;
+  onToggleCompare?: (providerId: string) => void;
 }
 
 export default function SavedProviderCard({
@@ -40,6 +43,9 @@ export default function SavedProviderCard({
   hasRequest,
   requestId,
   onRemove,
+  compareMode = false,
+  isSelectedForCompare = false,
+  onToggleCompare,
 }: SavedProviderCardProps) {
   const [imageError, setImageError] = useState(false);
 
@@ -68,7 +74,9 @@ export default function SavedProviderCard({
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden group">
+    <div className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border overflow-hidden group ${
+      isSelectedForCompare ? 'border-primary-500 ring-2 ring-primary-200' : 'border-gray-100'
+    }`}>
       {/* Image with Badges */}
       <div className="relative h-48 bg-gray-200 overflow-hidden">
         <Image
@@ -80,8 +88,30 @@ export default function SavedProviderCard({
           onError={() => setImageError(true)}
         />
 
+        {/* Compare Checkbox */}
+        {compareMode && onToggleCompare && (
+          <button
+            onClick={() => onToggleCompare(saved.provider.id)}
+            className={`absolute top-3 left-3 z-10 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+              isSelectedForCompare
+                ? 'bg-primary-600 text-white shadow-lg'
+                : 'bg-white/90 text-gray-400 hover:bg-white hover:text-primary-600 shadow-md'
+            }`}
+          >
+            {isSelectedForCompare ? (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+              </svg>
+            )}
+          </button>
+        )}
+
         {/* Badges Overlay */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+        <div className={`absolute top-3 flex flex-wrap gap-2 ${compareMode ? 'left-14' : 'left-3'}`}>
           {saved.provider.verified && (
             <span className="bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-semibold inline-flex items-center gap-1">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
