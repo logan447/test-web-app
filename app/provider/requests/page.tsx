@@ -229,7 +229,7 @@ export default function ProviderRequestsPage() {
 
   // Skeleton Loading Component
   const SkeletonCard = () => (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-pulse">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
           <div className="h-5 bg-gray-200 rounded w-1/3 mb-2"></div>
@@ -248,7 +248,7 @@ export default function ProviderRequestsPage() {
   );
 
   const SkeletonMatchCard = () => (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-pulse">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 animate-pulse">
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="h-5 bg-gray-200 rounded w-24 mb-2"></div>
@@ -563,7 +563,7 @@ export default function ProviderRequestsPage() {
             ) : (
               <div className="space-y-4">
                 {requests.map((request) => (
-                  <div key={request.id} className="bg-gray-50 rounded-2xl p-6 hover:bg-gray-100 transition-colors">
+                  <div key={request.id} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md hover:border-primary-200 transition-all duration-200">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
