@@ -6,7 +6,7 @@ import { UserMode } from "@prisma/client";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, password, role, phone, intent } = body;
+    const { email, password, role, intent } = body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -30,14 +30,15 @@ export async function POST(req: Request) {
 
     console.log('SIGNUP DEBUG: Creating user:', email, 'intent:', intent, 'initialMode:', initialMode);
 
-    // Create user
+    // Create user with minimal required fields (name/phone collected in onboarding)
+    // Use email prefix as placeholder name - real name collected during onboarding
+    const placeholderName = email.split('@')[0] || 'User';
     const user = await prisma.user.create({
       data: {
-        name,
+        name: placeholderName,
         email,
         passwordHash: hashedPassword,
         role,
-        phone: phone || null,
         activeMode: initialMode, // Set based on intent param
       },
     });

@@ -148,8 +148,6 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
     const data = {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
-      name: formData.get("name") as string,
-      phone: formData.get("phone") as string,
       role,
       intent: intent || undefined, // Pass intent for mode initialization
     };
@@ -424,20 +422,6 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                 ) : (
                   <form onSubmit={handleSignup} className="space-y-4">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                        Full Name
-                      </label>
-                      <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        required
-                        className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                        placeholder="John Smith"
-                      />
-                    </div>
-
-                    <div>
                       <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 mb-2">
                         Email address
                       </label>
@@ -449,19 +433,6 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                         required
                         className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                         placeholder="you@example.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number <span className="text-gray-400 font-normal">(optional)</span>
-                      </label>
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                        placeholder="(555) 123-4567"
                       />
                     </div>
 

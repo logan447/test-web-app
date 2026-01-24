@@ -539,7 +539,7 @@ export default function ProviderDetailPage() {
               return (
                 <div className="space-y-8">
                   {/* Rating & Reviews Section */}
-                  <section id="rating" className="space-y-6">
+                  <section id="rating" className="space-y-6 scroll-mt-36">
                       {/* Credibility Score Panel */}
                       <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl border border-primary-100 p-6">
                         <div className="flex items-center justify-between">
@@ -614,17 +614,17 @@ export default function ProviderDetailPage() {
                   {isFacility ? (
                     <>
                       {/* Living Options Section */}
-                      <section id="living-options">
+                      <section id="living-options" className="scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Living Options</h2>
                         <FacilityTabs provider={provider} activeTab="living" />
                       </section>
                       {/* Life Here Section */}
-                      <section id="life-here">
+                      <section id="life-here" className="scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Life Here</h2>
                         <FacilityTabs provider={provider} activeTab="life" />
                       </section>
                       {/* Care & Medical Section */}
-                      <section id="care-medical">
+                      <section id="care-medical" className="scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Care & Medical</h2>
                         <FacilityTabs provider={provider} activeTab="care" />
                       </section>
@@ -632,17 +632,17 @@ export default function ProviderDetailPage() {
                   ) : isHomeCare ? (
                     <>
                       {/* Our Caregivers Section */}
-                      <section id="caregivers">
+                      <section id="caregivers" className="scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Our Caregivers</h2>
                         <HomeCareAgencyTabs provider={provider} activeTab="caregivers" />
                       </section>
                       {/* How It Works Section */}
-                      <section id="how-it-works">
+                      <section id="how-it-works" className="scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">How It Works</h2>
                         <HomeCareAgencyTabs provider={provider} activeTab="how-it-works" />
                       </section>
                       {/* Services Section */}
-                      <section id="services">
+                      <section id="services" className="scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Services</h2>
                         <HomeCareAgencyTabs provider={provider} activeTab="services" />
                       </section>
@@ -650,7 +650,7 @@ export default function ProviderDetailPage() {
                   ) : (
                     <>
                       {/* About Section - Default for caregivers */}
-                      <section id="about" className="space-y-6">
+                      <section id="about" className="space-y-6 scroll-mt-36">
                   {/* Description Block */}
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">About {provider.name}</h2>
@@ -817,7 +817,7 @@ export default function ProviderDetailPage() {
                       </section>
 
                       {/* Services Section - Default for caregivers */}
-                      <section id="services" className="space-y-6">
+                      <section id="services" className="space-y-6 scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Services</h2>
                           {/* Care Types */}
                           <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -963,7 +963,7 @@ export default function ProviderDetailPage() {
                   )}
 
                   {/* Pricing Section - Shared across all types */}
-                  <section id="pricing" className="space-y-6">
+                  <section id="pricing" className="space-y-6 scroll-mt-36">
                     <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Pricing</h2>
                   {/* Main Pricing Card */}
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -1082,7 +1082,7 @@ export default function ProviderDetailPage() {
                   </section>
 
                   {/* Location Section */}
-                  <section id="location" className="space-y-6">
+                  <section id="location" className="space-y-6 scroll-mt-36">
                     <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Location</h2>
                   {/* Map Section */}
                   <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">

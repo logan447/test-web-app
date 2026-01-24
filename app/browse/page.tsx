@@ -112,9 +112,6 @@ const QUICK_FILTERS: Array<{ id: string; label: string; filter: Record<string, s
   { id: "nursing", label: "Nursing Home", filter: { providerType: "NURSING_HOME" } },
 ];
 
-// View mode type
-type ViewMode = "list" | "grid";
-
 function BrowseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -123,7 +120,6 @@ function BrowseContent() {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [showMap, setShowMap] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   // Filters - default to empty (show all)
   // Support both "location" param and separate "city"/"state" params (from homepage)
@@ -264,38 +260,6 @@ function BrowseContent() {
               </div>
 
               <div className="flex items-center gap-3">
-              {/* View Toggle */}
-              <div className="hidden sm:flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewMode === "list"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                  title="List view"
-                  aria-label="Switch to list view"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewMode === "grid"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                  title="Grid view"
-                  aria-label="Switch to grid view"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
-                </button>
-              </div>
-
               {/* Map Toggle (mobile) */}
               <button
                 onClick={() => setShowMap(!showMap)}
@@ -405,93 +369,49 @@ function BrowseContent() {
             {/* Results */}
             <div className={`flex-1 ${showMap ? "lg:w-1/2" : "w-full"}`}>
               {loading ? (
-                // Loading state - adapts to view mode
-                viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse">
-                        <div className="h-48 bg-gray-200" />
-                        <div className="p-5">
-                          <div className="h-3 bg-gray-200 rounded w-1/4 mb-2" />
-                          <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
-                          <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
+                // Loading state
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 animate-pulse">
+                      <div className="flex gap-4">
+                        <div className="w-48 h-36 bg-gray-200 rounded-lg shrink-0" />
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
+                          <div className="h-6 bg-gray-200 rounded w-2/3 mb-3" />
+                          <div className="h-4 bg-gray-200 rounded w-1/4 mb-4" />
                           <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                          <div className="h-4 bg-gray-200 rounded w-2/3" />
+                          <div className="h-4 bg-gray-200 rounded w-3/4" />
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 animate-pulse">
-                        <div className="flex gap-4">
-                          <div className="w-48 h-36 bg-gray-200 rounded-lg shrink-0" />
-                          <div className="flex-1">
-                            <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-                            <div className="h-6 bg-gray-200 rounded w-2/3 mb-3" />
-                            <div className="h-4 bg-gray-200 rounded w-1/4 mb-4" />
-                            <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                            <div className="h-4 bg-gray-200 rounded w-3/4" />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )
+                    </div>
+                  ))}
+                </div>
               ) : providers.length > 0 ? (
-                // Results - grid or list view
-                viewMode === "grid" ? (
-                  <div className={`grid gap-4 ${showMap ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
-                    {providers.map((provider) => (
-                      <ProviderCard
-                        key={provider.id}
-                        provider={{
-                          id: provider.id,
-                          name: provider.name,
-                          providerType: provider.providerType,
-                          city: provider.city,
-                          state: provider.state,
-                          description: provider.description,
-                          careTypesOffered: provider.careTypesOffered,
-                          averageRating: provider.averageRating,
-                          reviewCount: provider.reviewCount,
-                          priceMin: provider.priceMin,
-                          priceMax: provider.priceMax,
-                          coverPhoto: provider.coverPhoto,
-                          photos: provider.photos,
-                          claimed: provider.claimed,
-                        }}
-                        variant="vertical"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {providers.map((provider) => (
-                      <ProviderCard
-                        key={provider.id}
-                        provider={{
-                          id: provider.id,
-                          name: provider.name,
-                          providerType: provider.providerType,
-                          city: provider.city,
-                          state: provider.state,
-                          description: provider.description,
-                          careTypesOffered: provider.careTypesOffered,
-                          averageRating: provider.averageRating,
-                          reviewCount: provider.reviewCount,
-                          priceMin: provider.priceMin,
-                          priceMax: provider.priceMax,
-                          coverPhoto: provider.coverPhoto,
-                          photos: provider.photos,
-                          claimed: provider.claimed,
-                        }}
-                        variant="horizontal"
-                      />
-                    ))}
-                  </div>
-                )
+                // Results - list view
+                <div className="space-y-4">
+                  {providers.map((provider) => (
+                    <ProviderCard
+                      key={provider.id}
+                      provider={{
+                        id: provider.id,
+                        name: provider.name,
+                        providerType: provider.providerType,
+                        city: provider.city,
+                        state: provider.state,
+                        description: provider.description,
+                        careTypesOffered: provider.careTypesOffered,
+                        averageRating: provider.averageRating,
+                        reviewCount: provider.reviewCount,
+                        priceMin: provider.priceMin,
+                        priceMax: provider.priceMax,
+                        coverPhoto: provider.coverPhoto,
+                        photos: provider.photos,
+                        claimed: provider.claimed,
+                      }}
+                      variant="horizontal"
+                    />
+                  ))}
+                </div>
               ) : (
                 // Empty state - improved with more helpful messaging
                 <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
