@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import Footer from "@/components/Navigation/Footer";
 
 export default function CreateProviderPage() {
   const router = useRouter();
@@ -341,6 +342,9 @@ export default function CreateProviderPage() {
           </div>
         </form>
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

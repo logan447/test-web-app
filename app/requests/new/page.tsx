@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import AuthModal from "@/components/Auth/AuthModal";
 
@@ -175,6 +176,9 @@ function NewRequestContent() {
         }}
         defaultView="login"
       />
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
+import Footer from '@/components/Navigation/Footer';
 import Link from 'next/link';
 import AuthModal from '@/components/Auth/AuthModal';
 
@@ -438,6 +439,9 @@ export default function BrowseOrganizationsPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </>
   );
 }

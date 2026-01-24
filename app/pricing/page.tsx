@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
+import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import {
   SubscriptionPlans,
@@ -316,6 +317,9 @@ export default function PricingPage() {
           />
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer variant="light" />
     </div>
   );
 }
