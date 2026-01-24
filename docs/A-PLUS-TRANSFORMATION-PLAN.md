@@ -299,11 +299,11 @@ REHABILITATION:      "Schedule a Tour" / "Request Info"
 
 | Date | Task ID | Change | Commit |
 |------|---------|--------|--------|
-| 2026-01-24 | M1 | Removed Footer from layout.tsx - individual pages control their own footer | pending |
-| 2026-01-24 | M2 | Removed list/grid toggle from /browse - simplified to list view only | pending |
-| 2026-01-24 | M3 | Verified seed data has 58+ providers (36 orgs, 18 caregivers, 4 unclaimed) | pending |
-| 2026-01-24 | M4 | Simplified signup modal to email + password only (name collected in onboarding) | pending |
-| 2026-01-24 | M10 | Added scroll-mt-36 to all section elements for proper sticky nav offset | pending |
+| 2026-01-24 | M1 | Removed Footer from layout.tsx - individual pages control their own footer | a724ea7 |
+| 2026-01-24 | M2 | Removed list/grid toggle from /browse - simplified to list view only | a724ea7 |
+| 2026-01-24 | M3 | Verified seed data has 58+ providers (36 orgs, 18 caregivers, 4 unclaimed) | a724ea7 |
+| 2026-01-24 | M4 | Simplified signup modal to email + password only (name collected in onboarding) | a724ea7 |
+| 2026-01-24 | M10 | Added scroll-mt-36 to all section elements for proper sticky nav offset | a724ea7 |
 
 ---
 
