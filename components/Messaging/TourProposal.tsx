@@ -1,6 +1,8 @@
 "use client";
 
 import { format } from "date-fns";
+import AddToCalendarButton from "@/components/Calendar/AddToCalendarButton";
+import { buildCalendarEventFromTour } from "@/lib/calendarUtils";
 
 export interface TourAppointment {
   id: string;
@@ -18,6 +20,8 @@ export interface TourProposalProps {
   onDecline?: (tourId: string) => void;
   disabled?: boolean;
   engagementLabel?: string; // e.g., "Tour", "Consultation", "Interview"
+  providerName?: string;
+  providerLocation?: string;
 }
 
 export default function TourProposal({
@@ -27,6 +31,8 @@ export default function TourProposal({
   onDecline,
   disabled = false,
   engagementLabel = "Tour",
+  providerName = "Provider",
+  providerLocation,
 }: TourProposalProps) {
   const isProposer = tour.proposedBy === currentUserId;
   const isPending = tour.status === "PROPOSED";
@@ -202,13 +208,28 @@ export default function TourProposal({
         </div>
       )}
 
-      {/* Confirmed message */}
+      {/* Confirmed message with Add to Calendar */}
       {isAccepted && (
-        <div className="mt-4 flex items-center gap-2 text-sm text-green-700 bg-green-50 p-3 rounded-lg">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="font-medium">{engagementLabel} confirmed! See you there.</span>
+        <div className="mt-4 space-y-3">
+          <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 p-3 rounded-lg">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-medium">{engagementLabel} confirmed! See you there.</span>
+          </div>
+          <AddToCalendarButton
+            event={buildCalendarEventFromTour({
+              id: tour.id,
+              proposedDate: tour.proposedDate,
+              proposedTime: tour.proposedTime,
+              notes: tour.notes,
+              providerName,
+              providerLocation,
+              engagementType: engagementLabel.toUpperCase(),
+            })}
+            variant="secondary"
+            size="sm"
+          />
         </div>
       )}
     </div>
