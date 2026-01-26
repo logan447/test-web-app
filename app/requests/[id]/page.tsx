@@ -244,13 +244,23 @@ export default function RequestDetailPage() {
 
   // Helper functions
   const getEngagementType = (providerType: ProviderType) => {
-    if (providerType === "SENIOR_LIVING_FACILITY" || providerType === "NURSING_HOME") {
+    // Facility types → tour
+    if (
+      providerType === "ASSISTED_LIVING" ||
+      providerType === "INDEPENDENT_LIVING" ||
+      providerType === "MEMORY_CARE" ||
+      providerType === "NURSING_HOME" ||
+      providerType === "HOSPICE" ||
+      providerType === "REHABILITATION"
+    ) {
       return "tour";
-    } else if (providerType === "HOME_CARE_AGENCY") {
-      return "consultation";
-    } else {
-      return "interview";
     }
+    // Home care types → consultation
+    if (providerType === "HOME_CARE" || providerType === "HOME_HEALTH") {
+      return "consultation";
+    }
+    // Individual caregiver → interview
+    return "interview";
   };
 
   const getEngagementCTA = (providerType: ProviderType) => {
