@@ -32,6 +32,40 @@ Sprint 1 is complete. All code committed and pushed. Ready for Sprint 2 (Edit Ca
 
 ---
 
+## Sprint 2 — Completed ✓
+
+**Date**: January 26, 2025
+**Type**: Deep Sprint (1 GASH Page)
+**Commits**: `df4123b`
+
+### Completed Items
+
+| ID | Issue | Resolution |
+|----|-------|------------|
+| A-115 | EC-2: Feels like survey, not profile builder | Redesigned from 4-step wizard to section-based profile builder with all sections visible |
+| A-116 | EC-3: Questions too long and poorly written | Rewrote all copy at 3rd-4th grade reading level with plain language |
+| A-117 | EC-4: Hero section takes too much vertical space | Removed hero, integrated header into two-column layout |
+| A-118 | EC-5: Progress indicators too wide | Replaced with compact progress bar showing % complete |
+| A-119 | EC-6: Questions poorly fitted to viewport | Two-column layout: form (60%) + live preview (40%) |
+| A-120 | EC-7: Users don't understand profile's value | Added live preview showing "What providers see" |
+| A-121 | EC-8: No preview of live profile | Full live preview panel updates in real-time |
+| A-122 | EC-9: Privacy controls not clearly explained | Dedicated Privacy section with simple toggle and explanation |
+| A-123 | EC-10: Profile photo and first name not encouraged | Photo upload with encouragement: "Profiles with photos get 3x more responses" |
+
+### Key Decisions Made
+
+1. **Full section-based redesign**: All sections visible and editable (not wizard steps)
+2. **Live preview architecture**: Right panel shows real-time preview of what providers see
+3. **Photo encouragement**: Strongly encouraged but not required, with "3x more responses" messaging
+4. **Plain language copy**: All labels and descriptions written at 3rd-4th grade reading level
+5. **Collapsible sections**: Preferences section collapsible to reduce cognitive load
+6. **Pattern for reuse**: Architecture designed to be reusable for provider profile edit later
+
+### Handoff Note
+Sprint 2 is complete. Edit Care Profile transformed from 4-step wizard to modern section-based profile builder. All code committed and pushed. Ready for Sprint 3 (Provider Profile Pages GASH).
+
+---
+
 ## Severity Classification
 
 | Severity | Definition | Typical Effort | Example |
@@ -49,7 +83,7 @@ These 7 pages are rated C- or below and require first-principles redesigns, not 
 | # | Page | Path | Rating | Primary Issues | Status |
 |---|------|------|--------|----------------|--------|
 | G-1 | Request / Engagement Page | `/requests/[id]` | C- | Auto-scroll, messaging-first instead of scheduling-first, no guidance | **Done** (Sprint 1) |
-| G-2 | Edit Care Profile | `/care-profile/edit` | C-/C+ | **BUG: doesn't save**, survey not profile-builder, poor copy | Bug fixed (Sprint 1), redesign pending |
+| G-2 | Edit Care Profile | `/care-profile/edit` | C-/C+ | **BUG: doesn't save**, survey not profile-builder, poor copy | **Done** (Sprint 2) |
 | G-3 | Provider My Profile | `/provider/profile` | C- | Overbuilt, unfocused, not calendar-first | Open |
 | G-4 | Edit Provider Profile | `/provider/profile/edit` | C- | No preview, wrong visibility model, not subtype-aware | Open |
 | G-5 | Find Organizations (Caregiver) | `/providers/browse-organizations` | C- | Design overhaul needed, semantic drift, wrong hero | **Done** (Sprint 1) |
@@ -240,19 +274,19 @@ All 217 issues with immutable IDs, organized by execution phase.
 | A-113 | CP-5: "Welcome back" should use first name | PAPER CUT | Open |
 | A-114 | CP-6: Calendar needs clearer engagement focus | CUT | Open |
 
-### Phase 10: Edit Care Profile (`/care-profile/edit`) — GASH
+### Phase 10: Edit Care Profile (`/care-profile/edit`) — GASH ✓ COMPLETED
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| A-115 | EC-2: Feels like survey, not profile builder | GASH | Open |
-| A-116 | EC-3: Questions too long and poorly written | GASH | Open |
-| A-117 | EC-4: Hero section takes too much vertical space | CUT | Open |
-| A-118 | EC-5: Progress indicators too wide | PAPER CUT | Open |
-| A-119 | EC-6: Questions poorly fitted to viewport | CUT | Open |
-| A-120 | EC-7: Users don't understand profile's value | GASH | Open |
-| A-121 | EC-8: No preview of live profile | GASH | Open |
-| A-122 | EC-9: Privacy controls not clearly explained | CUT | Open |
-| A-123 | EC-10: Profile photo and first name not encouraged | PAPER CUT | Open |
+| A-115 | EC-2: Feels like survey, not profile builder | GASH | **Done** (Sprint 2) |
+| A-116 | EC-3: Questions too long and poorly written | GASH | **Done** (Sprint 2) |
+| A-117 | EC-4: Hero section takes too much vertical space | CUT | **Done** (Sprint 2) |
+| A-118 | EC-5: Progress indicators too wide | PAPER CUT | **Done** (Sprint 2) |
+| A-119 | EC-6: Questions poorly fitted to viewport | CUT | **Done** (Sprint 2) |
+| A-120 | EC-7: Users don't understand profile's value | GASH | **Done** (Sprint 2) |
+| A-121 | EC-8: No preview of live profile | GASH | **Done** (Sprint 2) |
+| A-122 | EC-9: Privacy controls not clearly explained | CUT | **Done** (Sprint 2) |
+| A-123 | EC-10: Profile photo and first name not encouraged | PAPER CUT | **Done** (Sprint 2) |
 
 ### Phase 11: Benefits Page (`/benefits`)
 

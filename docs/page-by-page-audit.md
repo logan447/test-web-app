@@ -519,12 +519,12 @@ Improving, but still too busy and overwhelming. Calendar is very strong and shou
 
 ### 9. Edit Care Profile Page — `/care-profile/edit`
 
-**Current Rating**: C- / C+
+**Current Rating**: B+ (was C- / C+)
 **Target Rating**: A+
-**Status**: Audited
-**Priority**: CRITICAL — Mission-critical page requiring full redesign
+**Status**: ✅ REDESIGNED (Sprint 2)
+**Priority**: Complete — Full redesign shipped
 
-This page is underdeveloped, confusing, and not aligned with the platform's core goal. The experience feels like a survey rather than building a meaningful profile. Requires an A+-level rebuild, not incremental fixes.
+This page was completely redesigned in Sprint 2. Transformed from a 4-step wizard survey into a modern section-based profile builder with live preview, plain language copy, and photo encouragement.
 
 ---
 
@@ -533,20 +533,20 @@ This page is underdeveloped, confusing, and not aligned with the platform's core
 | # | Issue | Tag | Status |
 |---|-------|-----|--------|
 | EC-1 | **CRITICAL BUG: Final question redirects without saving** — On the final question, user is redirected back to Care Profile page without saving. Broken and confusing experience. | `LOGIC` | **Done** (Sprint 1) |
-| EC-2 | **Feels like a survey, not a profile builder** — Users cannot see what their profile looks like. Should resemble creating a Facebook/Airbnb profile, not a linear questionnaire. See CC-21. | `UX` `GUIDANCE` | Open |
-| EC-3 | **Questions too long and poorly written** — Written above 3rd-grade reading level. Not appropriate for 65+ users. See CC-13. | `COPY` | Open |
-| EC-4 | **Hero section takes too much vertical space** — Far too much viewport consumed before useful content. | `VISUAL` `UX` | Open |
+| EC-2 | **Feels like a survey, not a profile builder** — Users cannot see what their profile looks like. Should resemble creating a Facebook/Airbnb profile, not a linear questionnaire. See CC-21. | `UX` `GUIDANCE` | **Done** (Sprint 2) |
+| EC-3 | **Questions too long and poorly written** — Written above 3rd-grade reading level. Not appropriate for 65+ users. See CC-13. | `COPY` | **Done** (Sprint 2) |
+| EC-4 | **Hero section takes too much vertical space** — Far too much viewport consumed before useful content. | `VISUAL` `UX` | **Done** (Sprint 2) |
 
 #### Important (degrades experience)
 
 | # | Issue | Tag | Status |
 |---|-------|-----|--------|
-| EC-5 | **Progress indicators too wide and visually heavy** — Care type, location, budget indicators are directionally good but not optimized for clarity or scannability. | `VISUAL` `UX` | Open |
-| EC-6 | **Questions poorly fitted to viewport** — Content doesn't fit well on screen, creating awkward scrolling and reading experience. | `VISUAL` `UX` | Open |
-| EC-7 | **Users don't understand profile's value** — Page doesn't explain why the profile matters: scheduling 3–5 meetings, avoiding repeating their story, pre-qualifying needs, increasing response speed, improving match quality. | `GUIDANCE` `COPY` | Open |
-| EC-8 | **No preview of live profile** — Users should be able to see their profile as providers will see it. | `UX` | Open |
-| EC-9 | **Privacy controls not clearly explained** — Users need reassurance about what's shared and when. | `GUIDANCE` `UX` | Open |
-| EC-10 | **Profile photo and first name not encouraged** — Should encourage (but not require) adding photo and first name to increase engagement success. | `UX` `GUIDANCE` | Open |
+| EC-5 | **Progress indicators too wide and visually heavy** — Care type, location, budget indicators are directionally good but not optimized for clarity or scannability. | `VISUAL` `UX` | **Done** (Sprint 2) |
+| EC-6 | **Questions poorly fitted to viewport** — Content doesn't fit well on screen, creating awkward scrolling and reading experience. | `VISUAL` `UX` | **Done** (Sprint 2) |
+| EC-7 | **Users don't understand profile's value** — Page doesn't explain why the profile matters: scheduling 3–5 meetings, avoiding repeating their story, pre-qualifying needs, increasing response speed, improving match quality. | `GUIDANCE` `COPY` | **Done** (Sprint 2) |
+| EC-8 | **No preview of live profile** — Users should be able to see their profile as providers will see it. | `UX` | **Done** (Sprint 2) |
+| EC-9 | **Privacy controls not clearly explained** — Users need reassurance about what's shared and when. | `GUIDANCE` `UX` | **Done** (Sprint 2) |
+| EC-10 | **Profile photo and first name not encouraged** — Should encourage (but not require) adding photo and first name to increase engagement success. | `UX` `GUIDANCE` | **Done** (Sprint 2) |
 
 #### Keep (working well)
 - Progress/status indicators concept (care type, location, budget) is directionally good
