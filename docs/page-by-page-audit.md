@@ -39,6 +39,9 @@
 | CC-14 | **Encourage 3–5 provider engagements** — Families should be explicitly guided to engage multiple providers (3–5 is normal in senior care). Pages should encourage continued browsing, not feel like dead ends. | `GUIDANCE` `UX` | Open |
 | CC-15 | **Engagement confirmation flow pattern** — When user has a profile, clicking "Schedule [X]" should NOT redirect to provider page. Instead, trigger confirmation: "Would you like to share your profile and request a meeting?" This pattern should be consistent site-wide. | `UX` `CTA` | Open |
 | CC-16 | **Core platform message consistency** — The platform's core message must be reinforced everywhere: "Meet with 3–5 providers to find the right fit." Olera helps users submit engagements, share info, schedule/track meetings, and compare providers. This mantra guides copy, layout, CTAs, and empty states. | `COPY` `GUIDANCE` | Open |
+| CC-17 | **Calendar as central engagement destination** — The calendar should be the core focus of the user journey, clearly showing: scheduled engagements, pending requests, upcoming meetings (virtual or in-person). This is where users track and manage all engagements. | `UX` `GUIDANCE` | Open |
+| CC-18 | **Activity belongs in notifications, not scattered sections** — Active conversations and activity logs should live in a centralized notifications feed (top nav icon), not duplicated across multiple pages. | `UX` | Open |
+| CC-19 | **Preferred times and format in engagement flow** — Throughout request and scheduling flows, users should be encouraged to share preferred times and format (virtual vs in-person). | `UX` `DATA` | Open |
 
 ---
 
@@ -418,6 +421,80 @@ This page should reinforce the platform's core message: meet with 3–5 provider
 - Tracking active engagements
 - Comparing options
 - "Elder care as a journey" education (subtle, secondary to action)
+
+---
+
+### 7. Matches Page — `/matches`
+
+**Current Rating**: B- / C+
+**Target Rating**: A+
+**Status**: Audited
+
+Functionality is largely present, but the page feels overwhelming and visually heavy. Issues are primarily design and framing, not missing functionality.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| MA-1 | **Hero section distracting and not thoughtful** — Dark green color doesn't align with broader design language. Consumes too much initial viewport. | `VISUAL` `UX` | Open |
+| MA-2 | **Page doesn't explain why matches matter** — Doesn't clearly reinforce platform's goal: schedule 3–5 meetings with relevant providers to compare care level, pricing, availability, and fit. | `GUIDANCE` `COPY` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| MA-3 | **Page feels overwhelming and visually heavy** — Too much copy and visual density above the fold. First screen should be immediately understandable and calm. | `VISUAL` `UX` | Open |
+| MA-4 | **Design doesn't align with other pages** — Moving between tabs feels abrupt, not seamless. Any redesign must align visually with platform design system. | `VISUAL` `UX` | Open |
+| MA-5 | **Not optimized for 65+ audience** — Needs larger text, fewer words, simple direct language (~3rd grade reading level), clear obvious next actions. | `UX` `COPY` | Open |
+
+#### Keep (working well)
+- Sections for personalizing matches, recommended matches, active conversations
+- Matching toggles and edit options are directionally correct
+
+---
+
+### 8. Care Profile Page — `/care-profile`
+
+**Current Rating**: B-
+**Target Rating**: A+
+**Status**: Audited
+
+Improving, but still too busy and overwhelming. Calendar is very strong and should be the central focus.
+
+---
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| CP-1 | **Page still too busy and overwhelming** — Needs reduction in visual and cognitive load. Should feel calmer and more intentional. | `VISUAL` `UX` | Open |
+| CP-2 | **Active conversations section likely unnecessary** — Activity should live in notifications feed instead. See CC-18. | `UX` | Open |
+| CP-3 | **"Need help" box may be unnecessary** — Could be removed to simplify. Evaluate if it adds value. | `UX` | Open |
+| CP-4 | **"Complete your profile" box at bottom is redundant** — Given the Edit Profile CTA exists, this is duplicate. Should be removed. | `UX` `VISUAL` | Open |
+| CP-5 | **"Welcome back" should use first name** — Currently may show email/username. Should use first name once collected. | `COPY` `DATA` | Open |
+| CP-6 | **Calendar needs clearer engagement focus** — Should clearly show: scheduled engagements, pending requests, upcoming meetings (virtual or in-person). This is the destination of the user journey. See CC-17. | `UX` `GUIDANCE` | Open |
+
+#### Keep (working well)
+- Calendar surfaced prominently (very strong)
+- "At a glance" and quick actions are useful
+- Top toggle between Edit Profile and Find Providers makes sense
+- "Start your care journey to find providers" is directionally correct
+
+---
+
+#### Care Profile — Design Principles
+
+**Page should clearly communicate**:
+- "This is where you track and manage all your engagements"
+- Calendar is the central outcome of the user journey
+- Encouragement to accumulate 3–5 meetings to compare options
+
+**Remove or relocate**:
+- Active conversations → Notifications
+- Redundant "Complete your profile" box
+- Potentially "Need help" box
 
 ---
 
