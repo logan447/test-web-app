@@ -127,17 +127,8 @@ function BrowseContent() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
 
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
-  const [showMap, setShowMap] = useState(true);
-  const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [savedProviderIds, setSavedProviderIds] = useState<Set<string>>(new Set());
-  const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(getInitialSelectedLocation());
-
-  // Filters - default to empty (show all)
-  // Support both "location" param and separate "city"/"state" params (from homepage)
-  const getInitialLocation = () => {
+  // Helper functions for initial state (must be declared before useState calls)
+  const getInitialLocation = (): string => {
     const locationParam = searchParams.get("location");
     if (locationParam) return locationParam;
 
@@ -148,13 +139,21 @@ function BrowseContent() {
     return "";
   };
 
-  const getInitialSelectedLocation = () => {
+  const getInitialSelectedLocation = (): { city: string; state: string } | null => {
     const city = searchParams.get("city");
     const state = searchParams.get("state");
     if (city && state) return { city, state };
     return null;
   };
 
+  // State declarations
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [showMap, setShowMap] = useState(true);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [savedProviderIds, setSavedProviderIds] = useState<Set<string>>(new Set());
+  const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(getInitialSelectedLocation());
   const [location, setLocation] = useState(getInitialLocation());
   const [filterValues, setFilterValues] = useState<Record<string, string>>({
     providerType: searchParams.get("type") || "",
