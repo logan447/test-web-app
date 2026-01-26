@@ -33,6 +33,8 @@
 | CC-8 | **Empty state hygiene** — Sections with no data should not render, or show intentional helpful empty states. No blank/broken sections. | `UX` `VISUAL` | Open |
 | CC-9 | **CTAs must be provider-type specific and engagement-oriented** — CTAs should match provider type: "Schedule Tour" (facilities), "Schedule Consultation" (home care), "Schedule Interview" (caregivers). No generic "View details". | `CTA` `UX` | Open |
 | CC-10 | **Contact info gating** — Personal contact details should not be visible until mutual engagement acceptance. Privacy-first approach. | `LOGIC` `UX` | Open |
+| CC-11 | **Plain-language care terminology** — Replace industry jargon (e.g., "personal care", "skilled nursing") with plain language a 65+ user understands: "Help at home", "Help after hospital discharge", "Assisted living", "Full-time nursing care", "Help with daily activities". | `COPY` `UX` | Open |
+| CC-12 | **Dropdown-based inputs for data consistency** — Eliminate free-text inputs where possible. Use dropdowns/autocomplete for: who needs care, city/state, care types. Ensures data quality and search accuracy. | `LOGIC` `DATA` | Open |
 
 ---
 
@@ -226,6 +228,76 @@ Key cross-cutting issues affecting all provider types:
 - CC-8: Empty state hygiene
 - CC-9: Provider-type specific CTAs
 - CC-10: Contact info gating
+
+---
+
+### 4. CTA Submission Flow — Auth + Onboarding
+
+**Flow**: Provider Page → Schedule Tour CTA → Auth Modal → Onboarding → Request Page
+**Current Rating**: B/B+
+**Target Rating**: A
+**Status**: Audited
+
+This audit covers the authentication and onboarding steps when a logged-out user clicks a CTA on a provider page. The request page itself is audited separately.
+
+---
+
+#### 4a. Authentication Modal
+
+**Status**: Audited
+
+##### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| AM-1 | **Text alignment inconsistent** — "Your data is protected" and "By continuing you agree…" text has mixed alignment. Should be consistently left-aligned or center-aligned throughout. | `VISUAL` | Open |
+
+##### Polish (future phase)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| AM-2 | **Social auth buttons need wiring** — Apple, Google, Facebook buttons look good but need future implementation. Define behavior and flows for each provider. | `LOGIC` | Open |
+
+##### Keep (working well)
+- Auth modal appears correctly when clicking Schedule Tour
+- Apple, Google, Facebook options are present
+- Email + password option is good
+- Overall structure and tone are solid
+
+---
+
+#### 4b. Onboarding Module (Post-Auth)
+
+**Title**: "Complete your profile to contact [Provider Name]"
+**Status**: Audited
+
+##### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| OB-1 | **Onboarding copy too wordy** — Text is slightly too verbose for new users. Aim for shorter, simpler sentences with less cognitive load. See CC-1. | `COPY` | Open |
+| OB-2 | **Free-text inputs should be dropdowns** — "Who needs care" and "City/State" should be dropdowns or autocomplete, not free text. See CC-12. | `LOGIC` `DATA` | Open |
+| OB-3 | **Care type uses industry jargon** — Replace technical terms with plain-language options. See CC-11. | `COPY` `UX` | Open |
+| OB-4 | **Profile visibility toggle copy too heavy** — Concept is correct and necessary, but copy is too long and visually heavy. Should be shorter, more visually simple, clear and reassuring without over-explaining. | `COPY` `VISUAL` | Open |
+
+##### Keep (working well)
+- Contextual copy referencing the specific provider is excellent
+- "About your care search" is the right framing
+- Flow correctly blocks engagement until a profile exists
+- "Connect" button works correctly and routes to request page
+
+---
+
+#### CTA Flow — Summary
+
+The CTA → Auth → Onboarding flow is **directionally strong and mostly correct**. Current rating: **B/B+**.
+
+To reach A-level polish:
+- Visual alignment cleanup in auth modal
+- Dropdown-based inputs for data consistency
+- Plain-language care terminology
+- Shorter, calmer onboarding copy
+- Simplified profile visibility controls
 
 ---
 
