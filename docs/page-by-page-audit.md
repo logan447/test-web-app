@@ -45,6 +45,11 @@
 | CC-20 | **Care Profile as single source of truth** — Care Profile must be the canonical data source for: provider matching, benefits matching, engagement scheduling, onboarding data, benefits finder inputs. One profile, editable from multiple entry points. No duplicate data entry, no conflicting flows. | `DATA` `LOGIC` | Open |
 | CC-21 | **Profile-builder mental model (not survey)** — Profile creation should feel like building a Facebook/Airbnb profile, not answering a form. Users should see what their profile looks like, edit inline, and understand they're creating something reusable and valuable. | `UX` `GUIDANCE` | Open |
 | CC-22 | **Dual value of Care Profile** — The site does two things with the same profile: 1) Help families meet 3–5 providers, 2) Find benefits to help pay for care. This dual value should be unmistakable everywhere the profile is referenced. | `GUIDANCE` `COPY` | Open |
+| CC-23 | **Provider mode purpose clarity** — Make obvious this is a marketplace for scheduling conversations and hiring. Profiles exist to increase visibility and engagement. Core value must be explicit during onboarding. | `GUIDANCE` `COPY` | Open |
+| CC-24 | **Provider visibility = lever for demand/supply** — Profile visibility drives: family inquiries (demand) AND caregiver hiring (supply). Visibility settings are levers that providers control to increase opportunities. | `GUIDANCE` `UX` | Open |
+| CC-25 | **Dual marketplace awareness** — Provider mode is not just a family leads marketplace. There's also a hiring marketplace where providers browse caregivers for staff. This must be introduced during onboarding. | `GUIDANCE` `UX` | Open |
+| CC-26 | **Card design consistency** — All cards across the platform must use consistent visual language and match the best-designed cards. No weak, generic, or inconsistent card styles. | `VISUAL` `UX` | Open |
+| CC-27 | **Provider story ladder** — All provider pages must ladder to one obvious story: Create profile → Get discovered → Schedule conversations → Hire or get hired. | `GUIDANCE` `UX` | Open |
 
 ---
 
@@ -655,6 +660,177 @@ Must integrate deeply with:
 - Engagement scheduling
 
 **Final direction**: Keep page, but simplify layout, clarify CTAs, tighten copy, align flow with Care Profile.
+
+---
+
+## Provider Mode Pages
+
+Provider Mode is a strong foundation but needs: clearer framing of purpose, better onboarding guidance, stronger card design, role-appropriate landing pages, and consistent emphasis on meetings, hiring, and engagement.
+
+**Core story all pages must support**: Create profile → Get discovered → Schedule conversations → Hire or get hired.
+
+---
+
+### 11. Provider Mode Onboarding — `/provider/onboarding`
+
+**Current Rating**: B- / C+
+**Target Rating**: A+
+**Status**: Audited
+
+The onboarding split between Care Organization and Individual Caregiver is directionally correct. UI is solid, but purpose is not explicit enough.
+
+---
+
+#### 11a. Global Onboarding Issues
+
+##### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| PO-1 | **Purpose not explicit enough** — Onboarding doesn't clearly explain: why users are creating a profile, what they gain, how it leads to meetings/hiring/getting hired. See CC-23. | `GUIDANCE` `COPY` | Open |
+| PO-2 | **Core value not obvious** — This is a marketplace for scheduling conversations and hiring. Profiles exist to increase visibility and engagement. Not communicated clearly. | `GUIDANCE` `UX` | Open |
+
+##### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| PO-3 | **"Individual Caregiver" label may be unclear** — For job seekers, this term may not resonate. Consider pressure-testing terminology. | `COPY` | Open |
+| PO-4 | **Dual marketplace not introduced** — Users don't learn during onboarding that there's both a family leads marketplace AND a hiring marketplace. See CC-25. | `GUIDANCE` | Open |
+
+##### Keep (working well)
+- Split between Care Organization and Individual Caregiver is directionally correct
+- UI is solid
+
+---
+
+#### 11b. Care Organization Onboarding
+
+##### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| CO-1 | **Location uses free text** — Must use single source of truth. Dropdowns or structured selection only. See CC-4. | `LOGIC` `DATA` | Open |
+
+##### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| CO-2 | **Type of Care missing "Home Health"** — This is a common care type that should be included. | `DATA` | Open |
+| CO-3 | **Type of Care should allow "select all that apply"** — Many organizations span multiple categories. | `UX` `DATA` | Open |
+| CO-4 | **Profile visibility copy unclear** — Should explain how visibility drives: family inquiries (demand) AND caregiver hiring (supply). Profiles are levers. See CC-24. | `GUIDANCE` `COPY` | Open |
+| CO-5 | **"You're all set" state could be stronger** — Should reinforce why profile matters and set expectations for what comes next. | `GUIDANCE` `COPY` | Open |
+
+##### Keep (working well)
+- Organization Name as free text is fine
+- Profile visibility frame is well-designed (just needs clearer copy)
+
+---
+
+#### 11c. Individual Caregiver Onboarding
+
+##### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| CG-1 | **Framing is wrong — user is looking for a job** — "About your services" feels wrong. This should feel like creating a professional profile to be discovered and hired. | `COPY` `UX` | Open |
+| CG-2 | **After onboarding, caregivers land on wrong page** — Should NOT land on family leads. Should land on "Find Organizations" or equivalent for browsing hiring orgs. | `LOGIC` `UX` | Open |
+
+##### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| CG-3 | **Fields focus on wrong things** — Should be: name, location (structured, no free text), skills (job-relevant). Not "services offered" like an org. | `COPY` `DATA` | Open |
+| CG-4 | **Profile visibility explanation incomplete** — Should explain profile will be seen by: families hiring directly AND organizations hiring staff. Visibility = more opportunities. | `GUIDANCE` `COPY` | Open |
+| CG-5 | **Onboarding language should be reframed** — Use "Tell us about yourself" and "Create a profile families and organizations can hire from". | `COPY` | Open |
+
+---
+
+### 12. Leads Page (Organizations) — `/provider/leads`
+
+**Current Rating**: B- / C+
+**Target Rating**: A+
+**Status**: Audited
+
+Defaulting organizations to Leads page is correct. Core structure exists but needs significant refinement.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| LP-1 | **CTAs unclear and weak** — Should be action-oriented: "Schedule a meeting", "Request conversation". Not "View details". See CC-9. | `CTA` `UX` | Open |
+| LP-2 | **Page doesn't communicate its purpose** — Must clearly state: this is where providers connect with families and initiate conversations. | `GUIDANCE` `COPY` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| LP-3 | **Filters UI oversized, boxy, inefficient** — Takes too much space without providing proportional value. | `VISUAL` `UX` | Open |
+| LP-4 | **Duplicate sections ("40 care requests" boxes)** — Unnecessary repetition. Consolidate or remove. | `VISUAL` `UX` | Open |
+| LP-5 | **Cards visually weak and inconsistent** — Don't match gold standard used elsewhere (city/provider cards). Light green headers feel generic and distracting. See CC-26. | `VISUAL` `UX` | Open |
+| LP-6 | **Hiring marketplace not surfaced** — Page should make obvious there's also a hiring marketplace where providers can browse caregivers when they need staff. | `GUIDANCE` `UX` | Open |
+
+#### Keep (working well)
+- Defaulting organizations to Leads page is correct
+- Header summary (available / matched / in progress) is good
+- "Matched with Families" section is directionally right
+
+---
+
+### 13. Find Organizations Page (Caregivers) — `/provider/organizations` or equivalent
+
+**Current Rating**: C+
+**Target Rating**: A+
+**Status**: Audited
+
+This is where individual caregivers should land after onboarding to browse hiring organizations and apply.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| FO-1 | **Cards are missing or underdeveloped** — Page needs proper organization cards that caregivers can browse. | `UX` `VISUAL` | Open |
+| FO-2 | **CTAs missing or unclear** — Need clear CTAs like "Apply" or "Express interest". | `CTA` `UX` | Open |
+| FO-3 | **Page may not exist or is hard to find** — Caregivers need a clear path to this page after onboarding. | `UX` `LOGIC` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| FO-4 | **Page naming may be unclear** — "Find Organizations" or "Browse Hiring Organizations" should clearly signal this is for job seekers. | `COPY` | Open |
+
+---
+
+### Provider Mode — Planned Deep Dives
+
+The following pages require individual detailed audits:
+
+1. **Provider Leads Page** — `/provider/leads` (started above, needs expansion)
+2. **Provider Request Page** — `/provider/requests/[id]`
+3. **Provider Profile Page** — `/provider/profile` and `/provider/profile/edit`
+4. **Hiring Marketplace Pages**:
+   - Find Organizations (for caregivers)
+   - Find Care Staff / Candidates (for orgs)
+   - My Opportunities (for caregivers)
+   - My Candidates (for orgs)
+
+---
+
+### Provider Mode — Design Principles
+
+**Revenue impact**: These pages directly impact monetization. Providers decide whether to pay based on:
+- Lead quality
+- Clarity
+- Ease of engagement
+
+**All provider pages should**:
+- Use consistent card designs (gold standard)
+- Reinforce that the platform exists to schedule meetings
+- Make clear that profiles reduce friction and speed engagement
+- Support the story ladder: Create profile → Get discovered → Schedule conversations → Hire or get hired
 
 ---
 
