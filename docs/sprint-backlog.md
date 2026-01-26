@@ -871,6 +871,262 @@ Sprint 6 is complete. CTA flow, Saved, Matches, and Requests pages elevated to A
 
 ---
 
+## Sprint 7 — In Progress
+
+**Date**: January 26, 2025
+**Type**: Mixed Sprint (Care Profile + Benefits + Data Foundation)
+**Focus**: Care Profile simplification, Benefits page alignment, care types source of truth, voice UI polish
+
+### Overview
+
+Sprint 7 addresses 13 original issues (A-109 to A-130) PLUS critical data foundation work discovered during pre-sprint audit:
+
+**Critical Finding**: Benefits page uses care types that don't exist in Prisma schema, causing matching algorithm failures when families use Benefits Finder first.
+
+### Pre-Sprint Audit Results
+
+#### Care Types Inconsistency (CRITICAL)
+
+**Prisma Schema (Source of Truth)**:
+```prisma
+enum CareType {
+  COMPANION_CARE
+  PERSONAL_CARE
+  SKILLED_NURSING
+  MEMORY_CARE
+  HOSPICE_CARE
+  RESPITE_CARE
+  LIVE_IN_CARE
+}
+```
+
+**Benefits Page (WRONG)**:
+| Benefits Page Value | Prisma Enum | Status |
+|---------------------|-------------|--------|
+| PERSONAL_CARE | PERSONAL_CARE | ✓ Match |
+| HOUSEHOLD_HELP | - | ✗ NOT IN SCHEMA |
+| HEALTH_MANAGEMENT | - | ✗ NOT IN SCHEMA |
+| COMPANIONSHIP | COMPANION_CARE | ✗ WRONG VALUE |
+| FINANCIAL_HELP | - | ✗ NOT IN SCHEMA |
+| MEMORY_CARE | MEMORY_CARE | ✓ Match |
+| MOBILITY_HELP | - | ✗ NOT IN SCHEMA |
+
+**Impact**: When family uses Benefits page first, invalid care types are saved, causing matching to fail.
+
+#### Matching Algorithm Verification
+
+**Family ↔ Provider (`/matches` page)**: ✓ Algorithm is sound - compares `profile.careTypes` with `provider.careTypesOffered`
+
+**Caregiver ↔ Organization (`/api/caregiver/matches`)**: ✓ Algorithm is sound - compares `caregiver.careTypesOffered` with `org.careTypesOffered`
+
+**Both work correctly IF data is consistent** — the problem is the Benefits page writing invalid data.
+
+#### Provider Detail Page Regression Audit
+
+✓ No regressions found. All Sprint 5 components (OleraScore, ContactInfoDisplay, TakedownRequestModal, ForOrganizationsSection) present and working.
+
+#### Voice UI Status
+
+✓ Voice UI present on Benefits page with "Voice input coming soon" label. User directive: Keep visible and polished as demo placeholder.
+
+---
+
+### Sprint 7 Phases
+
+#### Phase 0: Data Foundation (MUST COME FIRST)
+
+| Task | Description | Priority |
+|------|-------------|----------|
+| **Create `lib/careTypes.ts`** | Single source of truth for care types with labels, icons, descriptions | CRITICAL |
+| **Update Benefits Page** | Replace local CARE_TYPES with import from `lib/careTypes.ts` | CRITICAL |
+| **Update Onboarding Wizard** | Replace local CARE_TYPES with import from `lib/careTypes.ts` | CRITICAL |
+| **Verify Matching** | Confirm both matching algorithms work with aligned data | CRITICAL |
+
+**Care Types Constants Specification**:
+```typescript
+// lib/careTypes.ts
+import { CareType } from "@prisma/client";
+
+export const CARE_TYPE_CONFIG: Record<CareType, {
+  label: string;           // Plain language label
+  description: string;     // Longer description for tooltips/onboarding
+  icon: string;            // Emoji icon
+  familyLabel?: string;    // Alternative label for family-facing UI
+}> = {
+  PERSONAL_CARE: {
+    label: "Personal Care",
+    description: "Help with daily activities like bathing, dressing, and grooming",
+    icon: "✋",
+    familyLabel: "Help with daily activities",
+  },
+  COMPANION_CARE: {
+    label: "Companion Care",
+    description: "Companionship, conversation, and social support",
+    icon: "👥",
+    familyLabel: "Companionship and social support",
+  },
+  SKILLED_NURSING: {
+    label: "Skilled Nursing",
+    description: "Medical care from a licensed nurse",
+    icon: "🏥",
+    familyLabel: "Medical care from a nurse",
+  },
+  MEMORY_CARE: {
+    label: "Memory Care",
+    description: "Specialized support for memory conditions and dementia",
+    icon: "🧠",
+    familyLabel: "Memory or dementia support",
+  },
+  HOSPICE_CARE: {
+    label: "Hospice Care",
+    description: "Comfort-focused end-of-life care",
+    icon: "💜",
+    familyLabel: "End-of-life comfort care",
+  },
+  RESPITE_CARE: {
+    label: "Respite Care",
+    description: "Short-term relief for family caregivers",
+    icon: "🔄",
+    familyLabel: "Short-term relief for family caregivers",
+  },
+  LIVE_IN_CARE: {
+    label: "Live-In Care",
+    description: "Around-the-clock in-home care",
+    icon: "🏠",
+    familyLabel: "24/7 in-home care",
+  },
+};
+
+// Helper to get all care types as array for forms
+export const ALL_CARE_TYPES = Object.keys(CARE_TYPE_CONFIG) as CareType[];
+
+// Helper to get care type options for select/checkbox components
+export function getCareTypeOptions(useFamilyLabels = false) {
+  return ALL_CARE_TYPES.map(type => ({
+    value: type,
+    label: useFamilyLabels
+      ? CARE_TYPE_CONFIG[type].familyLabel || CARE_TYPE_CONFIG[type].label
+      : CARE_TYPE_CONFIG[type].label,
+    description: CARE_TYPE_CONFIG[type].description,
+    icon: CARE_TYPE_CONFIG[type].icon,
+  }));
+}
+```
+
+#### Phase 1: Care Profile Page (`/care-profile`) — Issues A-109 to A-114
+
+| ID | Issue | Severity | Resolution |
+|----|-------|----------|------------|
+| A-109 | CP-1: Page still too busy | CUT | Remove Active Conversations, Need Help, ProfileCompletionWidget. Keep: Calendar, Quick Stats, Quick Actions |
+| A-110 | CP-2: Active conversations unnecessary | CUT | Remove section entirely (conversations in `/requests`) |
+| A-111 | CP-3: "Need help" box unnecessary | PAPER CUT | Remove section |
+| A-112 | CP-4: "Complete your profile" redundant | PAPER CUT | Remove widget (Edit Profile link in Quick Actions is sufficient) |
+| A-113 | CP-5: "Welcome back" should use first name | PAPER CUT | Use `profile.lovedOneName` or user's first name |
+| A-114 | CP-6: Calendar needs clearer engagement focus | CUT | Add guidance text, improve empty state |
+
+**Target Architecture**:
+- PageHero with user's name and quick stats
+- Calendar as primary content (engagement-focused)
+- Quick Actions (Edit Profile, Browse Providers, View Matches)
+- Remove all clutter sections
+
+#### Phase 2: Benefits Page (`/benefits`) — Issues A-124 to A-130
+
+| ID | Issue | Severity | Resolution |
+|----|-------|----------|------------|
+| A-124 | BN-1: Dark background inconsistent | CUT | Align with site color system (use PageHero pattern) |
+| A-125 | BN-2: Design heavy for 65+ | PAPER CUT | Simplify, larger text, clearer CTAs |
+| A-126 | BN-3: "Start Benefits Finder" wrong destination | CUT | Route to Care Profile onboarding with benefits context |
+| A-127 | BN-4: "Skip for now" unclear destination | CUT | Clear destination with explanation |
+| A-128 | BN-5: Dual value proposition not clear | CUT | Explain: (1) Find benefits, (2) Improve matching |
+| A-129 | BN-6: Copy needs simplification | PAPER CUT | Plain language, 3rd-4th grade reading level |
+| A-130 | BN-7: LLM UI not fully developed | PAPER CUT | Keep Voice UI visible with "Voice coming soon" label |
+
+**Benefits ↔ Care Profile Integration**:
+- Benefits form IS Care Profile onboarding (not separate)
+- When user fills Benefits form, data goes to FamilyProfile
+- Care types must use Prisma enum (via `lib/careTypes.ts`)
+- Form completion updates Care Profile, improving matching
+
+#### Phase 3: Verification & Polish
+
+| Task | Description |
+|------|-------------|
+| **Matching Verification** | Test that family created via Benefits gets correct matches |
+| **Voice UI Polish** | Ensure "Voice coming soon" label is prominent and styled well |
+| **Cross-Page Consistency** | Verify Care Profile and Benefits use same components (PageHero, EmptyState) |
+| **TypeScript Compilation** | Ensure no type errors |
+
+---
+
+### Components to Create/Update
+
+| Component | Purpose | Status |
+|-----------|---------|--------|
+| `lib/careTypes.ts` | Single source of truth for CareType enum with labels/icons | NEW |
+| `app/care-profile/page.tsx` | Simplify to calendar-first, remove clutter | UPDATE |
+| `app/benefits/page.tsx` | Align care types, simplify design, integrate with Care Profile | UPDATE |
+| `components/Onboarding/OnboardingWizardOverlay.tsx` | Use `lib/careTypes.ts` instead of local constants | UPDATE |
+
+---
+
+### Definition of Done
+
+**Data Foundation**:
+- [ ] `lib/careTypes.ts` created with all CareType enum values
+- [ ] Benefits page imports care types from `lib/careTypes.ts`
+- [ ] Onboarding wizard imports care types from `lib/careTypes.ts`
+- [ ] No local care type definitions remain (single source of truth)
+
+**Care Profile Page**:
+- [ ] Active Conversations section removed
+- [ ] Need Help section removed
+- [ ] ProfileCompletionWidget removed
+- [ ] Calendar is primary focus with clear engagement guidance
+- [ ] Welcome message uses first name
+- [ ] All A-109 through A-114 addressed
+
+**Benefits Page**:
+- [ ] Care types aligned with Prisma schema
+- [ ] Design consistent with site (no dark background)
+- [ ] Voice UI visible with "Voice coming soon" label
+- [ ] "Start Benefits Finder" routes correctly
+- [ ] Copy simplified for 65+ audience
+- [ ] All A-124 through A-130 addressed
+
+**Verification**:
+- [ ] Family created via Benefits page gets correct matches
+- [ ] TypeScript compilation passes
+- [ ] All code committed and pushed
+
+---
+
+### Implementation Order
+
+1. **Phase 0: Data Foundation** (must come first)
+   - Create `lib/careTypes.ts`
+   - Update Benefits page to use shared care types
+   - Update Onboarding wizard to use shared care types
+   - Verify no other files define local care types
+
+2. **Phase 1: Care Profile Page**
+   - Remove clutter sections
+   - Add PageHero with personalized greeting
+   - Improve calendar focus and guidance
+
+3. **Phase 2: Benefits Page**
+   - Align visual design with site
+   - Simplify copy for 65+ audience
+   - Ensure Benefits form writes to Care Profile correctly
+   - Polish Voice UI placeholder
+
+4. **Phase 3: Verification**
+   - Test matching with Benefits-created profiles
+   - Final TypeScript check
+   - Commit and push
+
+---
+
 ## Severity Classification
 
 | Severity | Definition | Typical Effort | Example |
@@ -1330,9 +1586,11 @@ Rollover (if any):
 - Type: Mixed Sprint
 - A-077 through A-108 (Auth, onboarding, saved, matches)
 
-**Sprint 7: Care Profile + Benefits**
+**Sprint 7: Care Profile + Benefits + Data Foundation**
 - Type: Mixed Sprint
 - A-109 through A-130
+- **NEW**: Care types source of truth (lib/careTypes.ts)
+- **NEW**: Benefits page care types alignment with Prisma schema
 
 **Sprint 8: Provider Onboarding + Leads**
 - Type: Mixed Sprint
