@@ -327,98 +327,218 @@ Ready for Sprint 5 (Provider Detail Pages).
 ## Sprint 5 — In Progress
 
 **Date**: January 26, 2025
-**Type**: Mixed Sprint (Provider Detail Pages)
-**Focus**: Transform provider detail pages for all three provider types to A+ quality
+**Type**: Mixed Sprint (Provider Detail Pages + Platform Foundations)
+**Focus**: Transform provider detail pages to A+ quality with proper contact gating, Olera Score integration, and claim/takedown flows
 
 ### Overview
 
-Sprint 5 addresses 24 issues (A-053 through A-076) across three provider detail page variants:
+Sprint 5 addresses 24 original issues (A-053 through A-076) plus critical platform foundations:
 - **Independent Caregiver** (11 issues): A-053 to A-063
 - **Home Care Agency** (7 issues): A-064 to A-070
 - **Senior Living / Facility** (6 issues): A-071 to A-076
+- **NEW**: Olera Score integration, contact info privacy rules, claim/takedown flows
+
+---
+
+### Core Architecture Decisions
+
+#### Contact Information Privacy Rules
+
+| Provider Type | Profile Pages | Engagement Pages | Cards |
+|---------------|---------------|------------------|-------|
+| **Organizations** (agencies, facilities) | ✅ Always visible | ✅ Always visible | ✅ Always visible |
+| **Individual Caregivers** | ❌ Never public | ✅ Only with active engagement | ❌ Never visible |
+| **Families** | ❌ Never public | ✅ Only with active engagement | N/A |
+
+**Implementation**: Create `ContactInfoDisplay` component with `providerType` and `hasActiveEngagement` props to enforce these rules consistently across all surfaces.
+
+#### Olera Score System
+
+**Name**: Olera Score (primary) or "Olera Trust Score" (acceptable alternative)
+
+**Formula**:
+```
+Olera Score = (OR × w₁ + GR × w₂ + PC × w₃) ÷ (w₁ + w₂ + w₃)
+```
+
+**Components**:
+| Input | Description | Scale |
+|-------|-------------|-------|
+| **OR** (Online Reputation) | Synthesized reputation from directories, reviews, records | 0-5 |
+| **GR** (Google Reviews) | Adjusted Google rating accounting for volume | 0-5 |
+| **PC** (Profile Completeness) | % of profile fields completed | 0-100% → 0-5 |
+
+**Dynamic Weighting by Review Volume**:
+| Review Count | OR Weight | GR Weight | PC Weight |
+|--------------|-----------|-----------|-----------|
+| 0-5 (Low) | 60% | 30% | 10% |
+| 6-20 (Moderate) | 45% | 45% | 10% |
+| >20 (High) | 30% | 60% | 10% |
+
+**Key Principles**:
+- Non-pay-to-win: Only real data and actions improve score
+- Fair to new providers: Low review count doesn't penalize
+- Transparent: Clear inputs, visible methodology
+- Supports unclaimed providers: Score calculated from available data
+
+**MVP Scope**:
+- OR: Use internal Olera review average (we don't have external directory data yet)
+- GR: Placeholder/null until Google integration (future sprint)
+- PC: Calculate from profile field completion percentage
+
+#### Claim & Takedown Flows
+
+**Applies to**: Organizations only (agencies, facilities)
+**Does NOT apply to**: Individual caregivers, families (never have pre-seeded pages)
+
+**Claim Flow** (exists, enhance):
+1. "Claim this profile" CTA on unclaimed provider pages
+2. Verification method selection
+3. Demo mode: auto-approve; Production: admin review
+4. Success → redirect to provider dashboard
+
+**Takedown Flow** (NEW):
+1. "Request removal" link on provider page footer
+2. TakedownRequestModal with reason selection
+3. Submit → queued for admin review
+4. Confirmation message: "Your request has been submitted and will be reviewed. We'll notify you of the outcome."
+5. DMCA-compliant process
+
+---
 
 ### Goals
 
 | Goal | Acceptance Criteria |
 |------|---------------------|
-| **Trust & Credibility** | Define and display consistent trust signals across all provider types |
-| **Pricing Clarity** | Change "Estimated Pricing" to "Starting at", add meaningful tooltips |
-| **Contact Info Gating** | Hide contact details until engagement is ACCEPTED (privacy protection) |
+| **Olera Score Integration** | Score displayed on all provider pages, calculated from OR/GR/PC with dynamic weighting |
+| **Contact Info Privacy** | Organizations: always visible. Individuals: only with active engagement. Enforced everywhere. |
+| **Pricing Clarity** | "Starting at" replaces "Estimated" globally |
+| **Claim Flow Enhancement** | Visible CTA, clear entry point on unclaimed pages |
+| **Takedown Flow** | DMCA-compliant request flow with admin queue |
 | **Section Hygiene** | Empty sections don't render, sticky nav matches visible sections |
 | **Provider-Type Specific** | Each type has appropriate sections, CTAs, and content |
-| **Caregiver Dual Audience** | Add employer-facing view for individual caregivers |
 
-### Priority 1: Cross-Cutting Fixes (All Provider Types)
+---
 
-| ID | Issue | Severity | Resolution Plan |
-|----|-------|----------|-----------------|
-| A-054 | Contact info visible before engagement | CUT | Gate phone/email behind `activeEngagement?.status === 'ACCEPTED'` check |
-| A-057/A-069 | Trust/Olera Score undefined | CUT | Define credibility score algorithm or remove undefined elements |
-| A-067/A-073 | Pricing language says "estimated" | PAPER CUT | Change to "Starting at" (per S8 in A+ Transformation Plan) |
-| A-063/A-075 | Empty sections still render | PAPER CUT | Add conditional rendering for empty arrays/null values |
+### Priority 1: Platform Foundations (Cross-Cutting)
 
-### Priority 2: Independent Caregiver (A-053 to A-063)
+| Task | Description | Components Affected |
+|------|-------------|---------------------|
+| **Olera Score System** | Implement `calculateOleraScore()` with dynamic weighting, rename existing Trust Score | `lib/oleraScore.ts`, `components/Trust/OleraScore.tsx` |
+| **Contact Info Component** | Create `ContactInfoDisplay` enforcing privacy rules by provider type | `components/Provider/ContactInfoDisplay.tsx` |
+| **Takedown Request Flow** | Create modal + API endpoint + admin queue | `components/Provider/TakedownRequestModal.tsx`, `app/api/providers/[id]/takedown/route.ts` |
+| **Pricing Language Sweep** | Replace "Estimated" → "Starting at" globally | Provider detail, cards, edit forms |
 
-| ID | Issue | Severity | Resolution Plan |
-|----|-------|----------|-----------------|
-| A-053 | "Request detailed pricing" does nothing | CUT | Wire to contact form with pricing inquiry pre-selected |
-| A-055 | Single image only | PAPER CUT | Show photo gallery if multiple images exist |
-| A-056 | Pricing tooltips lack explanation | PAPER CUT | Add tooltip explaining hourly rate vs package pricing |
-| A-058 | CTA copy too wordy | PAPER CUT | Simplify to "Schedule Interview" / "Send Message" |
-| A-059 | Sticky nav missing sections | PAPER CUT | Ensure nav matches all rendered sections |
-| A-060 | Service area vs location redundant | PAPER CUT | Consolidate into single location section |
-| A-061 | No availability section | CUT | Add availability/schedule section for caregivers |
-| A-062 | No employer-facing view | CUT | Add "For Organizations" tab or section |
+### Priority 2: Original Issues (A-053 to A-076)
 
-### Priority 3: Home Care Agency (A-064 to A-070)
+#### Cross-Cutting Fixes
 
-| ID | Issue | Severity | Resolution Plan |
-|----|-------|----------|-----------------|
-| A-064 | "Request detailed pricing" CTA lacks guidance | CUT | Add context about what consultation includes |
-| A-065 | "How it works" section too wordy | PAPER CUT | Simplify to 3 clear steps |
-| A-066 | No real caregiver profiles | PAPER CUT | Show "Caregivers on staff" section if data exists |
-| A-068 | Service area definition unclear | PAPER CUT | Add map or list of covered zip codes/cities |
-| A-070 | Reviews section needs seed data | PAPER CUT | Ensure seed script includes reviews for agencies |
+| ID | Issue | Severity | Resolution |
+|----|-------|----------|------------|
+| A-054 | Contact info visible before engagement | CUT | Use new `ContactInfoDisplay` component with provider-type rules |
+| A-057/A-069 | Trust/Olera Score undefined | CUT | Implement Olera Score system with transparent methodology |
+| A-067/A-073 | Pricing says "estimated" | PAPER CUT | Global sweep: "Starting at" |
+| A-063/A-075 | Empty sections render | PAPER CUT | Conditional rendering for empty arrays/null values |
 
-### Priority 4: Senior Living / Facility (A-071 to A-076)
+#### Independent Caregiver (A-053 to A-063)
 
-| ID | Issue | Severity | Resolution Plan |
-|----|-------|----------|-----------------|
-| A-071 | "Live here" section unclear | PAPER CUT | Rename to "Living Experience" or "Community Life" |
-| A-072 | Image categorization missing | CUT | Add image categories (Rooms, Common Areas, Dining, etc.) |
-| A-074 | No "last updated" indicator | PAPER CUT | Add "Info last verified" timestamp if available |
-| A-076 | CTA clarity | PAPER CUT | Use "Schedule a Tour" consistently |
+| ID | Issue | Severity | Resolution |
+|----|-------|----------|------------|
+| A-053 | "Request detailed pricing" does nothing | CUT | Wire to contact form with pricing inquiry |
+| A-055 | Single image only | PAPER CUT | Photo gallery if multiple images |
+| A-056 | Pricing tooltips lack explanation | PAPER CUT | Add tooltip for hourly vs package |
+| A-058 | CTA copy too wordy | PAPER CUT | "Schedule Interview" / "Send Message" |
+| A-059 | Sticky nav missing sections | PAPER CUT | Nav matches rendered sections |
+| A-060 | Service area vs location redundant | PAPER CUT | Consolidate to single location section |
+| A-061 | No availability section | CUT | Add availability/schedule section |
+| A-062 | No employer-facing view | CUT | Add "For Organizations" section |
 
-### Shared Components to Create
+#### Home Care Agency (A-064 to A-070)
 
-| Component | Purpose |
-|-----------|---------|
-| `CredibilityScore` | Standardized trust/credibility display (exists, may need updates) |
-| `AvailabilitySection` | Show caregiver availability/schedule |
-| `GatedContactInfo` | Contact info that reveals only after engagement accepted |
-| `ImageGallery` | Enhanced gallery with categories and lightbox |
+| ID | Issue | Severity | Resolution |
+|----|-------|----------|------------|
+| A-064 | "Request detailed pricing" lacks guidance | CUT | Context about consultation |
+| A-065 | "How it works" too wordy | PAPER CUT | 3 clear steps |
+| A-066 | No caregiver profiles | PAPER CUT | "Caregivers on staff" if data exists |
+| A-068 | Service area unclear | PAPER CUT | Map or covered cities list |
+| A-070 | Reviews need seed data | PAPER CUT | Post-sprint: seed script update |
+
+#### Senior Living / Facility (A-071 to A-076)
+
+| ID | Issue | Severity | Resolution |
+|----|-------|----------|------------|
+| A-071 | "Live here" unclear | PAPER CUT | Rename to "Community Life" |
+| A-072 | Image categorization missing | CUT | Categories: Rooms, Common Areas, Dining |
+| A-074 | No "last updated" | PAPER CUT | "Info last verified" timestamp |
+| A-076 | CTA clarity | PAPER CUT | "Schedule a Tour" consistently |
+
+---
+
+### Components to Create/Update
+
+| Component | Purpose | Status |
+|-----------|---------|--------|
+| `lib/oleraScore.ts` | Olera Score calculation with dynamic weighting | NEW |
+| `components/Trust/OleraScore.tsx` | Score display (badge, breakdown, tooltip) | UPDATE from CredibilityScore |
+| `components/Provider/ContactInfoDisplay.tsx` | Privacy-aware contact info display | NEW |
+| `components/Provider/TakedownRequestModal.tsx` | DMCA-compliant takedown request | NEW |
+| `components/Provider/AvailabilitySection.tsx` | Caregiver schedule/availability | NEW |
+| `components/Provider/ImageGallery.tsx` | Enhanced gallery with categories | UPDATE |
+
+---
 
 ### Definition of Done
 
+**Platform Foundations**:
+- [ ] Olera Score system implemented with dynamic weighting
+- [ ] Score displays on all provider detail pages
+- [ ] `ContactInfoDisplay` enforces privacy rules by provider type
+- [ ] Takedown request flow complete with admin queue
+- [ ] "Starting at" pricing language used everywhere
+
+**Original Issues**:
 - [ ] All 24 issues addressed (A-053 through A-076)
-- [ ] Contact info properly gated (hidden until ACCEPTED engagement)
-- [ ] "Starting at" pricing language used consistently
-- [ ] Empty sections don't render (no empty cards/lists)
-- [ ] Sticky nav accurately reflects visible sections
-- [ ] Trust signals defined and displayed consistently
+- [ ] Empty sections don't render
+- [ ] Sticky nav matches visible sections
 - [ ] Individual caregivers have employer-facing content
+
+**Quality Gates**:
 - [ ] TypeScript compilation passes
+- [ ] Privacy rules verified across all surfaces (pages, cards, engagement)
+- [ ] Claim/takedown flows tested for organizations
 - [ ] All code committed and pushed
+
+---
 
 ### Implementation Order
 
-1. **Cross-cutting fixes first**: Contact gating, pricing language, empty section hygiene
-2. **Independent Caregiver**: Most issues, sets pattern for others
-3. **Home Care Agency**: Apply learnings from caregiver
-4. **Senior Living**: Final polish pass
+1. **Platform Foundations** (sets patterns for everything else)
+   - Olera Score system (`lib/oleraScore.ts`)
+   - Contact info privacy component
+   - Takedown request modal + API
+   - Pricing language global sweep
+
+2. **Provider Detail Page Updates**
+   - Integrate Olera Score display
+   - Integrate ContactInfoDisplay
+   - Empty section hygiene
+   - Sticky nav accuracy
+
+3. **Provider-Type Specific**
+   - Independent Caregiver enhancements
+   - Home Care Agency polish
+   - Senior Living final pass
+
+4. **Cross-Surface Verification**
+   - Cards use correct contact rules
+   - Engagement pages use correct contact rules
+   - Claim CTA visible on unclaimed pages
+   - Takedown link in footer
+
+---
 
 ### Handoff Note
-Sprint 5 planning complete. Focus areas are contact info privacy gating, trust signal standardization, pricing language consistency, and provider-type-specific enhancements.
+Sprint 5 scope expanded to include Olera Score integration, contact info privacy architecture, and DMCA-compliant takedown flow. All systems designed to support claimed/unclaimed states and varying data completeness. Seed data verification deferred to post-sprint audit.
 
 ---
 
