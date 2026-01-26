@@ -350,7 +350,29 @@ Sprint 5 addresses 24 original issues (A-053 through A-076) plus critical platfo
 | **Individual Caregivers** | ❌ Never public | ✅ Only with active engagement | ❌ Never visible |
 | **Families** | ❌ Never public | ✅ Only with active engagement | N/A |
 
-**Implementation**: Create `ContactInfoDisplay` component with `providerType` and `hasActiveEngagement` props to enforce these rules consistently across all surfaces.
+**"Active Engagement" Definition**:
+Contact info is visible only when engagement status is one of:
+- `ACCEPTED` - Provider accepted the request
+- `SCHEDULED` - Meeting/tour has been scheduled
+- `COMPLETED` - Engagement finished (contact may still be needed for follow-up)
+
+Contact info is **NOT visible** when status is:
+- `PENDING` - Request sent but not yet accepted (no consent)
+- `DECLINED` - Provider rejected the request
+- `CANCELLED` - Either party cancelled
+- `EXPIRED` - Request timed out
+
+**Full Contact Visibility Matrix**:
+
+| Viewer | Subject | Condition | Visible Fields |
+|--------|---------|-----------|----------------|
+| Family | Organization (agency/facility) | Always | phone, email, website, address |
+| Family | Individual Caregiver | ACCEPTED/SCHEDULED/COMPLETED | phone, email |
+| Provider (any) | Family | ACCEPTED/SCHEDULED/COMPLETED | phone, email |
+| Organization | Individual Caregiver (hiring) | ACCEPTED/SCHEDULED/COMPLETED | phone, email |
+| Individual Caregiver | Organization (applying) | Always | phone, email, website |
+
+**Implementation**: Create `ContactInfoDisplay` component with `providerType`, `engagementStatus`, and `viewerRole` props to enforce these rules consistently across all surfaces.
 
 #### Olera Score System
 
@@ -386,6 +408,32 @@ Olera Score = (OR × w₁ + GR × w₂ + PC × w₃) ÷ (w₁ + w₂ + w₃)
 - GR: Placeholder/null until Google integration (future sprint)
 - PC: Calculate from profile field completion percentage
 
+**Edge Case Handling**:
+
+| Scenario | Handling | Display |
+|----------|----------|---------|
+| 0 reviews (OR = null) | Use PC-only with 100% weight | "New provider - no reviews yet" badge |
+| GR = null (MVP default) | Redistribute: OR 90%, PC 10% | Normal score display |
+| PC < 30% | Score still calculated | "Incomplete profile" warning |
+| Unclaimed provider | Calculate from available public data | "Unclaimed - score based on public info" |
+| All inputs null/empty | Cannot calculate | "Limited data available" (no numeric score) |
+
+**Score Display Thresholds**:
+
+| Score Range | Label | Color | Badge |
+|-------------|-------|-------|-------|
+| 4.5 - 5.0 | Exceptional | Emerald | ⭐ |
+| 4.0 - 4.4 | Excellent | Blue | |
+| 3.5 - 3.9 | Very Good | Teal | |
+| 3.0 - 3.4 | Good | Amber | |
+| 2.0 - 2.9 | Fair | Orange | |
+| < 2.0 | Limited Data | Gray | |
+
+**Storage Decision**: Hybrid approach
+- Compute on-the-fly for detail pages (always fresh)
+- Store `oleraScore` and `oleraScoreUpdatedAt` on Provider model for list pages
+- Recalculate on: review submission, profile update, daily background job
+
 #### Claim & Takedown Flows
 
 **Applies to**: Organizations only (agencies, facilities)
@@ -403,6 +451,67 @@ Olera Score = (OR × w₁ + GR × w₂ + PC × w₃) ÷ (w₁ + w₂ + w₃)
 3. Submit → queued for admin review
 4. Confirmation message: "Your request has been submitted and will be reviewed. We'll notify you of the outcome."
 5. DMCA-compliant process
+
+**TakedownRequest Database Model** (NEW):
+```prisma
+model TakedownRequest {
+  id            String          @id @default(cuid())
+  providerId    String
+  provider      Provider        @relation(fields: [providerId], references: [id])
+  reason        TakedownReason
+  details       String?         // Additional context from requester
+  contactName   String          // Name of person requesting
+  contactEmail  String          // Email for notification
+  contactPhone  String?         // Optional phone
+  proofUrl      String?         // Link to proof of ownership (optional)
+  status        TakedownStatus  @default(PENDING)
+  createdAt     DateTime        @default(now())
+  reviewedAt    DateTime?
+  reviewedBy    String?         // Admin user ID
+  reviewNotes   String?         // Internal admin notes
+
+  @@index([providerId])
+  @@index([status])
+}
+
+enum TakedownReason {
+  NOT_MY_BUSINESS      // "I don't own or represent this business"
+  INCORRECT_INFO       // "The information is incorrect"
+  BUSINESS_CLOSED      // "This business has permanently closed"
+  PRIVACY_CONCERN      // "Privacy or legal concern"
+  DUPLICATE_LISTING    // "This is a duplicate of another listing"
+  OTHER                // "Other reason"
+}
+
+enum TakedownStatus {
+  PENDING   // Awaiting admin review
+  APPROVED  // Takedown approved, provider soft-deleted
+  DENIED    // Takedown denied with reason
+}
+```
+
+#### Caregiver "For Organizations" Section Spec
+
+**Purpose**: Help individual caregivers be discovered by organizations for employment.
+
+**Content**:
+| Field | Description | Source |
+|-------|-------------|--------|
+| Employment Status | "Open to opportunities" toggle | New field on Provider |
+| Work Preferences | Full-time, Part-time, Live-in, Per diem | New multi-select field |
+| Preferred Employers | Home care agencies, Facilities, Direct families | New multi-select field |
+| Availability Start | When they can start | Existing or new date field |
+| Experience Summary | Years, specialties | Existing provider fields |
+
+**Display Rules**:
+- Only shown on Individual Caregiver pages
+- Only shown if `openToEmployment` toggle is ON
+- Appears as collapsible section after main caregiver info
+- CTA: "Send Interview Request" (for logged-in org providers)
+
+**Visibility Toggle Integration**:
+- Controlled by existing "Visible to organizations" toggle from Sprint 3
+- If toggle OFF, section doesn't render even if `openToEmployment` is ON
 
 ---
 
@@ -424,10 +533,13 @@ Olera Score = (OR × w₁ + GR × w₂ + PC × w₃) ÷ (w₁ + w₂ + w₃)
 
 | Task | Description | Components Affected |
 |------|-------------|---------------------|
-| **Olera Score System** | Implement `calculateOleraScore()` with dynamic weighting, rename existing Trust Score | `lib/oleraScore.ts`, `components/Trust/OleraScore.tsx` |
-| **Contact Info Component** | Create `ContactInfoDisplay` enforcing privacy rules by provider type | `components/Provider/ContactInfoDisplay.tsx` |
-| **Takedown Request Flow** | Create modal + API endpoint + admin queue | `components/Provider/TakedownRequestModal.tsx`, `app/api/providers/[id]/takedown/route.ts` |
+| **Database Schema Updates** | Add TakedownRequest model, add oleraScore/oleraScoreUpdatedAt to Provider, add openToEmployment to Provider | `prisma/schema.prisma` |
+| **Olera Score System** | Implement `calculateOleraScore()` with dynamic weighting and edge case handling | `lib/oleraScore.ts`, `components/Trust/OleraScore.tsx` |
+| **Contact Info Component** | Create `ContactInfoDisplay` with full visibility matrix by provider type, engagement status, viewer role | `components/Provider/ContactInfoDisplay.tsx` |
+| **Takedown Request Flow** | Create modal + API endpoint + database storage | `components/Provider/TakedownRequestModal.tsx`, `app/api/providers/[id]/takedown/route.ts` |
 | **Pricing Language Sweep** | Replace "Estimated" → "Starting at" globally | Provider detail, cards, edit forms |
+| **Card Contact Audit** | Verify contact info rules applied to all card components | `ProviderCard.tsx`, `UnifiedCard.tsx`, browse/saved/matches pages |
+| **Engagement Page Contact Audit** | Apply contact visibility matrix to engagement pages | `app/requests/[id]/page.tsx`, provider-side engagement views |
 
 ### Priority 2: Original Issues (A-053 to A-076)
 
@@ -476,35 +588,65 @@ Olera Score = (OR × w₁ + GR × w₂ + PC × w₃) ÷ (w₁ + w₂ + w₃)
 
 ### Components to Create/Update
 
+**Database/Schema**:
 | Component | Purpose | Status |
 |-----------|---------|--------|
-| `lib/oleraScore.ts` | Olera Score calculation with dynamic weighting | NEW |
-| `components/Trust/OleraScore.tsx` | Score display (badge, breakdown, tooltip) | UPDATE from CredibilityScore |
-| `components/Provider/ContactInfoDisplay.tsx` | Privacy-aware contact info display | NEW |
-| `components/Provider/TakedownRequestModal.tsx` | DMCA-compliant takedown request | NEW |
+| `prisma/schema.prisma` | Add TakedownRequest model, oleraScore fields on Provider, openToEmployment field | UPDATE |
+
+**Libraries**:
+| Component | Purpose | Status |
+|-----------|---------|--------|
+| `lib/oleraScore.ts` | Olera Score calculation with dynamic weighting and edge cases | NEW |
+| `lib/contactVisibility.ts` | Contact visibility rules by provider type, engagement status, viewer role | NEW |
+
+**Components**:
+| Component | Purpose | Status |
+|-----------|---------|--------|
+| `components/Trust/OleraScore.tsx` | Score display (badge, breakdown, tooltip) with all edge case displays | UPDATE from CredibilityScore |
+| `components/Provider/ContactInfoDisplay.tsx` | Privacy-aware contact info using `contactVisibility` rules | NEW |
+| `components/Provider/TakedownRequestModal.tsx` | DMCA-compliant takedown request form | NEW |
+| `components/Provider/ForOrganizationsSection.tsx` | Caregiver employer-facing section | NEW |
 | `components/Provider/AvailabilitySection.tsx` | Caregiver schedule/availability | NEW |
 | `components/Provider/ImageGallery.tsx` | Enhanced gallery with categories | UPDATE |
+
+**API Routes**:
+| Component | Purpose | Status |
+|-----------|---------|--------|
+| `app/api/providers/[id]/takedown/route.ts` | POST takedown request, stores in database | NEW |
 
 ---
 
 ### Definition of Done
 
+**Database & Schema**:
+- [ ] TakedownRequest model added to Prisma schema
+- [ ] oleraScore and oleraScoreUpdatedAt fields added to Provider
+- [ ] openToEmployment field added to Provider
+- [ ] Migration run successfully
+
 **Platform Foundations**:
-- [ ] Olera Score system implemented with dynamic weighting
-- [ ] Score displays on all provider detail pages
-- [ ] `ContactInfoDisplay` enforces privacy rules by provider type
-- [ ] Takedown request flow complete with admin queue
+- [ ] Olera Score system with dynamic weighting and all edge cases handled
+- [ ] Score displays on all provider detail pages with appropriate badges
+- [ ] `ContactInfoDisplay` enforces full visibility matrix
+- [ ] Takedown request flow complete with database storage
 - [ ] "Starting at" pricing language used everywhere
+
+**Contact Privacy Verification**:
+- [ ] Provider detail pages: orgs always show contact, individuals never
+- [ ] Cards (browse/saved/matches): orgs show contact, individuals don't
+- [ ] Engagement pages: contact shown based on status (ACCEPTED/SCHEDULED/COMPLETED only)
+- [ ] Hiring marketplace: follows same engagement-based rules
 
 **Original Issues**:
 - [ ] All 24 issues addressed (A-053 through A-076)
 - [ ] Empty sections don't render
 - [ ] Sticky nav matches visible sections
-- [ ] Individual caregivers have employer-facing content
+- [ ] Individual caregivers have "For Organizations" section
 
 **Quality Gates**:
 - [ ] TypeScript compilation passes
-- [ ] Privacy rules verified across all surfaces (pages, cards, engagement)
+- [ ] Prisma generate succeeds
+- [ ] Privacy rules verified across all surfaces
 - [ ] Claim/takedown flows tested for organizations
 - [ ] All code committed and pushed
 
@@ -512,33 +654,49 @@ Olera Score = (OR × w₁ + GR × w₂ + PC × w₃) ÷ (w₁ + w₂ + w₃)
 
 ### Implementation Order
 
-1. **Platform Foundations** (sets patterns for everything else)
-   - Olera Score system (`lib/oleraScore.ts`)
-   - Contact info privacy component
-   - Takedown request modal + API
-   - Pricing language global sweep
+1. **Database Schema** (must come first)
+   - Add TakedownRequest model
+   - Add oleraScore fields to Provider
+   - Add openToEmployment to Provider
+   - Run migration
 
-2. **Provider Detail Page Updates**
+2. **Core Libraries** (dependencies for components)
+   - `lib/oleraScore.ts` with edge case handling
+   - `lib/contactVisibility.ts` with full matrix
+
+3. **Platform Components**
+   - `OleraScore.tsx` display component
+   - `ContactInfoDisplay.tsx` privacy component
+   - `TakedownRequestModal.tsx` + API route
+
+4. **Provider Detail Page Updates**
    - Integrate Olera Score display
    - Integrate ContactInfoDisplay
    - Empty section hygiene
    - Sticky nav accuracy
+   - Pricing language sweep
 
-3. **Provider-Type Specific**
-   - Independent Caregiver enhancements
-   - Home Care Agency polish
-   - Senior Living final pass
+5. **Provider-Type Specific**
+   - Independent Caregiver: ForOrganizationsSection, AvailabilitySection
+   - Home Care Agency: polish and consistency
+   - Senior Living: final pass
 
-4. **Cross-Surface Verification**
-   - Cards use correct contact rules
-   - Engagement pages use correct contact rules
-   - Claim CTA visible on unclaimed pages
-   - Takedown link in footer
+6. **Cross-Surface Verification**
+   - Audit and update all card components
+   - Audit and update engagement pages
+   - Verify claim CTA on unclaimed pages
+   - Add takedown link in footer
 
 ---
 
 ### Handoff Note
-Sprint 5 scope expanded to include Olera Score integration, contact info privacy architecture, and DMCA-compliant takedown flow. All systems designed to support claimed/unclaimed states and varying data completeness. Seed data verification deferred to post-sprint audit.
+Sprint 5 scope finalized with full specifications for:
+- Active engagement status definitions (ACCEPTED/SCHEDULED/COMPLETED)
+- Olera Score edge case handling (0 reviews, null GR, low PC)
+- TakedownRequest database model
+- Full contact visibility matrix
+- Caregiver "For Organizations" section spec
+- Olera Score storage decision (hybrid: compute + cache)
 
 ---
 

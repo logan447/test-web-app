@@ -78,6 +78,24 @@ Fields counted for completeness:
 
 Formula: `(filledFields / totalFields) × 5`
 
+### Edge Case Handling
+
+| Scenario | Formula Adjustment | Display |
+|----------|-------------------|---------|
+| **0 reviews (OR = null)** | Use PC only with 100% weight | "New provider - no reviews yet" badge |
+| **GR = null (MVP default)** | Redistribute weights: OR 90%, PC 10% | Normal score display |
+| **PC < 30%** | Score still calculated | "Incomplete profile" warning alongside score |
+| **Unclaimed provider** | Calculate from available public data | "Unclaimed - score based on public info" badge |
+| **All inputs null/empty** | Cannot calculate | "Limited data available" (no numeric score shown) |
+
+### Storage Strategy
+
+**Hybrid approach for performance:**
+- **Detail pages**: Compute on-the-fly (always fresh)
+- **List pages**: Use cached `oleraScore` field on Provider model
+- **Cache invalidation**: Recalculate on review submission, profile update
+- **Background refresh**: Nightly job recalculates all scores
+
 ---
 
 ## Score Display Guidelines
