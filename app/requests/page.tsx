@@ -7,6 +7,8 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import Tooltip from "@/components/UI/Tooltip";
+import PageHero from "@/components/UI/PageHero";
+import EmptyState from "@/components/UI/EmptyState";
 
 type ConsultRequest = {
   id: string;
@@ -195,50 +197,27 @@ export default function RequestsPage() {
       <MainNav />
 
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <h1 className="text-3xl md:text-4xl font-bold">Messages & Requests</h1>
-              </div>
-              <p className="text-primary-100 text-lg">
-                Manage your provider connections and conversations
-              </p>
-            </div>
-            <Link
-              href="/browse"
-              className="inline-flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors shadow-lg"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              New Request
-            </Link>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-8 max-w-lg">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold">{requests.length}</div>
-              <div className="text-blue-100 text-sm">Total</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold">{pendingCount}</div>
-              <div className="text-blue-100 text-sm">Pending</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold">{acceptedCount}</div>
-              <div className="text-blue-100 text-sm">Connected</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        title="Messages & Requests"
+        subtitle="Manage your provider connections"
+        compact
+        stats={[
+          { value: requests.length, label: "Total" },
+          { value: pendingCount, label: "Pending" },
+          { value: acceptedCount, label: "Connected" },
+        ]}
+        actions={
+          <Link
+            href="/browse"
+            className="inline-flex items-center gap-2 bg-white text-primary-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-50 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            New Request
+          </Link>
+        }
+      />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
@@ -276,44 +255,31 @@ export default function RequestsPage() {
         </div>
 
         {requests.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg
-                className="w-10 h-10 text-blue-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              {activeTab === "sent"
-                ? "No requests sent yet"
-                : "No provider outreach yet"}
-            </h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              {activeTab === "sent"
-                ? "Browse providers and send an engagement request to get started."
-                : "Providers you've connected with will appear here when they reach out."}
-            </p>
-            {activeTab === "sent" && (
-              <Link
-                href="/browse"
-                className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-xl hover:bg-primary-700 font-semibold transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Browse Providers
-              </Link>
-            )}
-          </div>
+          <EmptyState
+            variant="requests"
+            title={activeTab === "sent" ? "No requests sent yet" : "No provider outreach yet"}
+            description={activeTab === "sent"
+              ? "Browse providers and send an engagement request to get started."
+              : "Providers you've connected with will appear here when they reach out."
+            }
+            size="large"
+            actions={activeTab === "sent" ? [
+              {
+                label: "Browse Providers",
+                href: "/browse",
+                icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                ),
+              },
+              {
+                label: "View Matches",
+                href: "/matches",
+                variant: "secondary",
+              },
+            ] : undefined}
+          />
         ) : (
           <div className="space-y-4">
             {requests.map((request) => (

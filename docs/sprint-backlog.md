@@ -849,6 +849,17 @@ Sprint 6 elevated the CTA flow (onboarding), Saved Providers, and Matches pages 
 - [x] TypeScript compilation passes
 - [x] All code committed and pushed
 
+### Phase 5: Additional Polish (Post-Pressure Test)
+
+| Task | Description |
+|------|-------------|
+| **HeroSection.tsx Removal** | Removed unused legacy component `components/Directory/HeroSection.tsx` |
+| **Requests Page PageHero** | Updated `/requests` page to use PageHero and EmptyState components for consistency |
+
+**Files Modified**:
+- `components/Directory/HeroSection.tsx` - Deleted (unused)
+- `app/requests/page.tsx` - Updated with PageHero and EmptyState
+
 ### Deferred Items
 
 | Item | Reason | Recommended Sprint |
@@ -856,7 +867,7 @@ Sprint 6 elevated the CTA flow (onboarding), Saved Providers, and Matches pages 
 | A-078: Social auth wiring | Requires OAuth app configuration (Google, Apple, Facebook) | Infrastructure sprint |
 
 ### Handoff Note
-Sprint 6 is complete. CTA flow, Saved, and Matches pages elevated to A+ quality with consistent components (PageHero, EmptyState, LocationAutocomplete), guidance nudges, and 65+ optimized copy. Social auth wiring deferred as it requires external OAuth configuration. Ready for Sprint 7 (Care Profile + Benefits).
+Sprint 6 is complete. CTA flow, Saved, Matches, and Requests pages elevated to A+ quality with consistent components (PageHero, EmptyState, LocationAutocomplete), guidance nudges, and 65+ optimized copy. Removed unused HeroSection.tsx component. Social auth wiring deferred as it requires external OAuth configuration. Ready for Sprint 7 (Care Profile + Benefits).
 
 ---
 
