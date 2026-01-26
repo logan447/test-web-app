@@ -740,6 +740,126 @@ Sprint 5 scope finalized with full specifications for:
 
 ---
 
+## Sprint 6 — Completed ✓
+
+**Date**: January 26, 2025
+**Type**: Mixed Sprint (CTA Flow + Saved + Matches Polish)
+**Focus**: Cross-page consistency, EmptyState enhancements, LocationAutocomplete in onboarding, PageHero standardization
+**Commits**: `abdc585`
+
+### Overview
+
+Sprint 6 elevated the CTA flow (onboarding), Saved Providers, and Matches pages to A+ quality with:
+- LocationAutocomplete integration in all onboarding location inputs
+- EmptyState component enhanced with `guidanceMessage`, `size`, and `matches` variant
+- PageHero component standardized across Saved and Matches pages
+- SavedProvider type updated with Sprint 5 fields (oleraScore, etc.)
+- Guidance nudges added to reinforce "meet 3-5 providers" messaging
+- Simplified copy throughout for 65+ users
+
+### Phase 1: Onboarding Overlay Fixes (Critical)
+
+| Task | Description | Status |
+|------|-------------|--------|
+| **LocationAutocomplete Integration** | Replaced free-text location inputs with LocationAutocomplete in all 3 location steps (family, organization, caregiver) | ✅ Complete |
+| **Care Type Plain Language** | Replaced jargon labels with plain language (e.g., "Help with daily activities" instead of "Personal Care") | ✅ Complete |
+| **Copy Simplification** | Reduced wordiness throughout onboarding wizard | ✅ Complete |
+
+**Key Files Modified**:
+- `components/Onboarding/OnboardingWizardOverlay.tsx` - Full LocationAutocomplete integration, plain language care types
+
+### Phase 2: EmptyState Component Enhancement
+
+| Enhancement | Description |
+|-------------|-------------|
+| **`guidanceMessage` prop** | Optional highlighted message box above CTAs (amber styling) |
+| **`size` prop** | "large" variant for 65+ friendly sizing (bigger icons, text, buttons) |
+| **`matches` variant** | New pre-built content for matches page empty state |
+
+**Files Modified**:
+- `components/UI/EmptyState.tsx` - Added new props and variant
+
+### Phase 3: Saved Providers Page Polish
+
+| Task | Description |
+|------|-------------|
+| **SavedProvider Type Fix** | Added Sprint 5 fields: oleraScore, priceDescription, claimed, hasMemoryCare, etc. |
+| **PageHero Standardization** | Replaced inline hero with PageHero component |
+| **EmptyState Integration** | Replaced verbose inline empty state with EmptyState component |
+| **Guidance Nudge** | Added "Keep exploring! Experts recommend 3-5 providers" when <3 saved |
+
+**Files Modified**:
+- `app/saved/page.tsx` - Full polish with PageHero, EmptyState, guidance nudge
+
+### Phase 4: Matches Page Polish
+
+| Task | Description |
+|------|-------------|
+| **PageHero Standardization** | Replaced both hero variants with PageHero component |
+| **EmptyState Integration** | Replaced verbose inline empty states with EmptyState component |
+| **Guidance Nudge** | Added "Keep browsing! See 3-5 matches" when matches <5 |
+| **Copy Simplification** | Removed wordy intro sections, reduced cognitive load |
+
+**Files Modified**:
+- `app/matches/page.tsx` - Full polish with PageHero, EmptyState, simplified content
+
+### Issues Addressed
+
+#### CTA Flow (Auth + Onboarding)
+
+| ID | Issue | Status |
+|----|-------|--------|
+| A-077 | AM-1: Text alignment inconsistent | **Done** |
+| A-078 | AM-2: Social auth buttons need wiring | **Deferred** (requires OAuth configuration) |
+| A-079 | OB-1: Onboarding copy too wordy | **Done** |
+| A-080 | OB-2: Free-text inputs should be dropdowns | **Done** (LocationAutocomplete) |
+| A-081 | OB-3: Care type uses industry jargon | **Done** |
+| A-082 | OB-4: Profile visibility toggle copy too heavy | **Done** |
+
+#### Saved Providers
+
+| ID | Issue | Status |
+|----|-------|--------|
+| A-097 | SP-1: Provider cards truncated and visually awkward | **Done** |
+| A-098 | SP-2: "Schedule Interview" CTA redirects to provider page | **Done** |
+| A-099 | SP-3: Empty state too wordy | **Done** |
+| A-100 | SP-4: Empty state lacks clear guidance | **Done** |
+| A-101 | SP-5: Provider cards show too much information | **Done** |
+| A-102 | SP-6: Hero section is B- quality | **Done** |
+| A-103 | SP-7: Sort by toggle may not be necessary | **Done** (kept, but streamlined) |
+
+#### Matches Page
+
+| ID | Issue | Status |
+|----|-------|--------|
+| A-104 | MA-1: Hero section distracting | **Done** |
+| A-105 | MA-2: Page doesn't explain why matches matter | **Done** |
+| A-106 | MA-3: Page feels overwhelming | **Done** |
+| A-107 | MA-4: Design doesn't align with other pages | **Done** |
+| A-108 | MA-5: Not optimized for 65+ audience | **Done** |
+
+### Definition of Done
+
+- [x] LocationAutocomplete integrated in all onboarding location inputs
+- [x] EmptyState component enhanced with guidanceMessage, size, matches variant
+- [x] PageHero used consistently on Saved and Matches pages
+- [x] SavedProvider type includes Sprint 5 fields
+- [x] Guidance nudges added to Saved (<3) and Matches (<5) pages
+- [x] Copy simplified throughout for 65+ users
+- [x] TypeScript compilation passes
+- [x] All code committed and pushed
+
+### Deferred Items
+
+| Item | Reason | Recommended Sprint |
+|------|--------|-------------------|
+| A-078: Social auth wiring | Requires OAuth app configuration (Google, Apple, Facebook) | Infrastructure sprint |
+
+### Handoff Note
+Sprint 6 is complete. CTA flow, Saved, and Matches pages elevated to A+ quality with consistent components (PageHero, EmptyState, LocationAutocomplete), guidance nudges, and 65+ optimized copy. Social auth wiring deferred as it requires external OAuth configuration. Ready for Sprint 7 (Care Profile + Benefits).
+
+---
+
 ## Severity Classification
 
 | Severity | Definition | Typical Effort | Example |
@@ -885,16 +1005,16 @@ All 217 issues with immutable IDs, organized by execution phase.
 | A-075 | SL-5: Empty sections still render | PAPER CUT | Open |
 | A-076 | SL-6: CTA clarity | PAPER CUT | Open |
 
-### Phase 5: CTA Submission Flow (Auth + Onboarding)
+### Phase 5: CTA Submission Flow (Auth + Onboarding) — ✓ COMPLETED (Sprint 6)
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| A-077 | AM-1: Text alignment inconsistent | PAPER CUT | Open |
-| A-078 | AM-2: Social auth buttons need wiring | CUT | Open |
-| A-079 | OB-1: Onboarding copy too wordy | PAPER CUT | Open |
-| A-080 | OB-2: Free-text inputs should be dropdowns | CUT | Open |
-| A-081 | OB-3: Care type uses industry jargon | PAPER CUT | Open |
-| A-082 | OB-4: Profile visibility toggle copy too heavy | PAPER CUT | Open |
+| A-077 | AM-1: Text alignment inconsistent | PAPER CUT | **Done** (Sprint 6) |
+| A-078 | AM-2: Social auth buttons need wiring | CUT | Deferred |
+| A-079 | OB-1: Onboarding copy too wordy | PAPER CUT | **Done** (Sprint 6) |
+| A-080 | OB-2: Free-text inputs should be dropdowns | CUT | **Done** (Sprint 6) |
+| A-081 | OB-3: Care type uses industry jargon | PAPER CUT | **Done** (Sprint 6) |
+| A-082 | OB-4: Profile visibility toggle copy too heavy | PAPER CUT | **Done** (Sprint 6) |
 
 ### Phase 6: Request Page (`/requests/[id]`) — GASH ✓ COMPLETED
 
@@ -915,27 +1035,27 @@ All 217 issues with immutable IDs, organized by execution phase.
 | A-095 | RQ-13: Contact information section underdeveloped | CUT | **Done** (Sprint 1) |
 | A-096 | RQ-14: Page difficult for 65+ users | GASH | **Done** (Sprint 1) |
 
-### Phase 7: Saved Providers (`/saved`)
+### Phase 7: Saved Providers (`/saved`) — ✓ COMPLETED (Sprint 6)
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| A-097 | SP-1: Provider cards truncated and visually awkward | CUT | Open |
-| A-098 | SP-2: "Schedule Interview" CTA redirects to provider page | CUT | Open |
-| A-099 | SP-3: Empty state too wordy | PAPER CUT | Open |
-| A-100 | SP-4: Empty state lacks clear guidance | CUT | Open |
-| A-101 | SP-5: Provider cards show too much information | PAPER CUT | Open |
-| A-102 | SP-6: Hero section is B- quality | PAPER CUT | Open |
-| A-103 | SP-7: Sort by toggle may not be necessary | PAPER CUT | Open |
+| A-097 | SP-1: Provider cards truncated and visually awkward | CUT | **Done** (Sprint 6) |
+| A-098 | SP-2: "Schedule Interview" CTA redirects to provider page | CUT | **Done** (Sprint 6) |
+| A-099 | SP-3: Empty state too wordy | PAPER CUT | **Done** (Sprint 6) |
+| A-100 | SP-4: Empty state lacks clear guidance | CUT | **Done** (Sprint 6) |
+| A-101 | SP-5: Provider cards show too much information | PAPER CUT | **Done** (Sprint 6) |
+| A-102 | SP-6: Hero section is B- quality | PAPER CUT | **Done** (Sprint 6) |
+| A-103 | SP-7: Sort by toggle may not be necessary | PAPER CUT | **Done** (Sprint 6) |
 
-### Phase 8: Matches Page (`/matches`)
+### Phase 8: Matches Page (`/matches`) — ✓ COMPLETED (Sprint 6)
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| A-104 | MA-1: Hero section distracting | CUT | Open |
-| A-105 | MA-2: Page doesn't explain why matches matter | CUT | Open |
-| A-106 | MA-3: Page feels overwhelming | CUT | Open |
-| A-107 | MA-4: Design doesn't align with other pages | CUT | Open |
-| A-108 | MA-5: Not optimized for 65+ audience | PAPER CUT | Open |
+| A-104 | MA-1: Hero section distracting | CUT | **Done** (Sprint 6) |
+| A-105 | MA-2: Page doesn't explain why matches matter | CUT | **Done** (Sprint 6) |
+| A-106 | MA-3: Page feels overwhelming | CUT | **Done** (Sprint 6) |
+| A-107 | MA-4: Design doesn't align with other pages | CUT | **Done** (Sprint 6) |
+| A-108 | MA-5: Not optimized for 65+ audience | PAPER CUT | **Done** (Sprint 6) |
 
 ### Phase 9: Care Profile (`/care-profile`)
 
