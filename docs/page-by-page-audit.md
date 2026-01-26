@@ -37,6 +37,8 @@
 | CC-12 | **Dropdown-based inputs for data consistency** — Eliminate free-text inputs where possible. Use dropdowns/autocomplete for: who needs care, city/state, care types. Ensures data quality and search accuracy. | `LOGIC` `DATA` | Open |
 | CC-13 | **3rd–4th grade reading level** — All copy site-wide should be written at a 3rd–4th grade reading level. Users should never have to guess what happened, what to do next, or what success looks like. | `COPY` | Open |
 | CC-14 | **Encourage 3–5 provider engagements** — Families should be explicitly guided to engage multiple providers (3–5 is normal in senior care). Pages should encourage continued browsing, not feel like dead ends. | `GUIDANCE` `UX` | Open |
+| CC-15 | **Engagement confirmation flow pattern** — When user has a profile, clicking "Schedule [X]" should NOT redirect to provider page. Instead, trigger confirmation: "Would you like to share your profile and request a meeting?" This pattern should be consistent site-wide. | `UX` `CTA` | Open |
+| CC-16 | **Core platform message consistency** — The platform's core message must be reinforced everywhere: "Meet with 3–5 providers to find the right fit." Olera helps users submit engagements, share info, schedule/track meetings, and compare providers. This mantra guides copy, layout, CTAs, and empty states. | `COPY` `GUIDANCE` | Open |
 
 ---
 
@@ -358,6 +360,64 @@ The redesigned `/requests/[id]` page must:
 8. **Loop users back into browsing** and matching
 
 The scheduling action should feel: **obvious, calm, supportive, not visually overwhelming**.
+
+---
+
+### 6. Saved Providers Page — `/saved`
+
+**Current Rating**: B-
+**Target Rating**: A+
+**Status**: Audited
+
+This page should reinforce the platform's core message: meet with 3–5 providers to find the right fit. Currently needs simplification and card redesign.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| SP-1 | **Provider cards truncated and visually awkward** — Content is cut off, CTAs like "Scheduled Interview" don't fit card width. Significant UI issue requiring card redesign. | `VISUAL` `UX` | Open |
+| SP-2 | **"Schedule Interview" CTA redirects to provider page** — Should NOT redirect. Should trigger confirmation flow if user has profile: "Would you like to share your profile and request a meeting?" See CC-15. | `CTA` `UX` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| SP-3 | **Empty state too wordy and overwhelming** — "Tips for finding the right care" are directionally good but need to be much shorter. Focus almost entirely on scheduling and meeting 3–5 providers. | `COPY` `GUIDANCE` | Open |
+| SP-4 | **Empty state lacks clear guidance** — Should clearly guide users: browse providers, submit engagement requests, track and schedule meetings. Elevate scheduling as primary action. | `GUIDANCE` `CTA` | Open |
+| SP-5 | **Provider cards show too much information** — Information should be pared down to what supports the next action. Cards should feel clean, scannable, and calm. | `VISUAL` `UX` | Open |
+| SP-6 | **Hero section is B- quality** — Acceptable but could be improved or possibly removed if it doesn't advance the scheduling journey. | `VISUAL` `UX` | Open |
+
+#### Polish (consider removing)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| SP-7 | **Sort by toggle may not be necessary** — Could be removed if it adds noise without value. | `UX` | Open |
+
+#### Keep (working well)
+- "View details" works well and correctly opens provider page in new tab
+- "Browse Providers" and "View Matches" actions are strong and should remain prominent
+- "Schedule Interview" CTA is directionally correct (just needs confirmation flow fix)
+
+---
+
+#### Saved Page — Design Principles
+
+**Why meetups matter** (context for design decisions):
+- Families need to assess care level fit
+- Confirm pricing and payment modes
+- Check availability
+- Compare providers across types (home care, assisted living, caregivers)
+- Make informed, non-rushed decisions
+
+**Olera's value**: Help families manage multiple engagements at once, not push toward the first provider who responds.
+
+**Page should reinforce**:
+- Scheduling engagements
+- Tracking active engagements
+- Comparing options
+- "Elder care as a journey" education (subtle, secondary to action)
 
 ---
 
