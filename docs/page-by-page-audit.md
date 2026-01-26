@@ -58,6 +58,7 @@
 | CC-33 | **Apply flow must explain profile sharing** — When caregivers apply, page must explicitly state: submitting shares your profile, more information increases hiring chances, goal is to complete 3–5 interviews. | `GUIDANCE` `COPY` | Open |
 | CC-34 | **All request pages must be consistent** — Family ↔ provider, provider ↔ caregiver, caregiver ↔ organization request pages must: share consistent layout and visual language, clearly state engagement purpose, drive toward scheduled meetings (not vague messaging). Calendars, reminders, and follow-ups should be first-class concepts. | `UX` `VISUAL` | Open |
 | CC-35 | **Organization hiring goal** — Organizations want to interview 3–5 caregivers per week, maintain steady staffing supply, and track interviews/follow-ups easily. All org-facing hiring UX must support this goal. | `GUIDANCE` `UX` | Open |
+| CC-36 | **Separate hiring calendar from family engagement calendar** — Hiring and family engagement are different workflows. They need clean separation to avoid confusion. May need dedicated calendar views for each. | `UX` `DATA` | Open |
 
 ---
 
@@ -1279,6 +1280,101 @@ This page should be reimagined as an **Interview Request & Scheduling Hub**.
 **This flow is mission-critical for organizational customers.**
 
 Be ambitious and thoughtful in redesigning it so it genuinely helps organizations hire great caregivers and makes Olera indispensable in their staffing workflow.
+
+---
+
+### 25. My Candidates Page — `/provider/candidates`
+
+**Current Rating**: C-
+**Target Rating**: A+
+**Status**: Audited
+**Priority**: HIGH — Requires major redesign from first principles
+
+This page looks outdated, lacks seeded data, and does not guide the user toward the platform's primary outcome: requesting interviews and successfully scheduling them on a calendar.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| MC-1 | **No matches or candidate cards visible** — Cannot evaluate if cards meet gold standard. No seeded demo data. | `DATA` `UX` | Open |
+| MC-2 | **Page feels unfinished and outdated** — Does not meet modern UX standards. | `VISUAL` `UX` | Open |
+| MC-3 | **Doesn't communicate what user should do next** — No clear guidance toward action. | `GUIDANCE` `UX` | Open |
+| MC-4 | **Doesn't reinforce core purpose** — Should clearly communicate: find candidates, request interviews, schedule 3–5/week, track interviews and follow-ups. See CC-35. | `GUIDANCE` `COPY` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| MC-5 | **No pipeline dashboard view** — Organizations need to see: who they're considering, where each candidate is in the process, what interviews are scheduled, what still needs scheduling. | `UX` `DATA` | Open |
+| MC-6 | **No dedicated calendar/schedule view for hiring interviews** — Needs calendar showing: upcoming interviews, pending requests, quick actions (reschedule, message, cancel, add to Google Calendar). See CC-36. | `UX` | Open |
+| MC-7 | **No seeded demo data** — Page cannot be fully evaluated without representative data. | `DATA` | Open |
+
+---
+
+#### My Candidates — Required Redesign (First Principles)
+
+**Do not optimize around what exists today.** Take a first-principles approach.
+
+**Page should function as a Hiring Pipeline Dashboard.**
+
+Organization should immediately understand:
+- Who they are considering
+- Where each candidate is in the process
+- What interviews are scheduled (and what still needs scheduling)
+- What actions to take next
+
+**Page should make it easy to**:
+- Initiate interview requests quickly
+- Track pending responses
+- Confirm interview times
+- Send calendar invites
+- Follow up if candidate hasn't responded
+
+---
+
+#### Calendar / Scheduling Requirement
+
+This page needs a **dedicated calendar or schedule view** for hiring interviews.
+
+**Calendar should support**:
+- Upcoming interviews (time, candidate, role, type: video/phone/in-person)
+- Pending interview requests (awaiting confirmation)
+- Quick actions from events (reschedule, message, cancel, add to Google Calendar)
+
+**Note**: This may be separate from family-engagement calendar since hiring and family engagement are different workflows. See CC-36.
+
+---
+
+#### My Candidates — Design Direction
+
+**Requirements**:
+- Simple, modern, highly guided, outcome-driven
+- Thoughtful decisions across: UX/UI layout, copy/terminology, data structures, event states
+- Seeded demo data so page can be fully evaluated
+
+**This is not incremental edits — this is a full redesign to make this page clearly useful and best-in-class for organizations hiring caregivers.**
+
+**The My Candidates page must become a place where organizations can reliably**:
+1. View candidates in a structured pipeline
+2. Request and schedule interviews quickly
+3. Track everything through a calendar-first experience
+4. Move candidates toward hiring with minimal friction
+
+Be ambitious, creative, and intentional. This page should make it obvious that Olera is built to help organizations hire caregivers through structured engagements and scheduling—not just browsing lists.
+
+---
+
+### Organization Hiring — Updated Summary
+
+| Page | Rating | Priority | Key Issue |
+|------|--------|----------|-----------|
+| Hire Care Staff | C+ | High | Brand inconsistent, wrong terminology, broken navigation |
+| Hire Staff Request | C- | High | Severely underdeveloped, no structured prompts, no guidance |
+| My Candidates | C- | High | Unfinished, no pipeline view, no calendar, no seeded data |
+
+**All three pages are mission-critical for organizational customers and require ambitious, first-principles redesigns.**
 
 ---
 
