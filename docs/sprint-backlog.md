@@ -511,6 +511,7 @@ Rollover (if any):
 - Type: Deep Sprint
 - G-3 (Provider My Profile)
 - G-4 (Edit Provider Profile)
+- **CRITICAL**: Edit Provider Profile must reference Edit Care Profile patterns (see design-standards.md §0)
 
 **Sprint 4: Homepage + Browse Polish**
 - Type: Polish Sprint

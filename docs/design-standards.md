@@ -5,6 +5,45 @@
 
 ---
 
+## 0. Cross-Mode Profile Consistency — CRITICAL
+
+**Principle**: Equivalent pages across family mode and provider mode must feel coherent, consistent, and intentional.
+
+When we make structural, design, or interaction decisions for one mode's profile editing experience, those decisions become the foundation for the equivalent page in the other mode. We do NOT rebuild similar pages from scratch in isolation.
+
+### Profile Editor Pattern (Established Sprint 2)
+
+The Edit Care Profile (`/care-profile/edit`) establishes the canonical profile editing pattern. When implementing Edit Provider Profile (`/provider/profile/edit`), reference and reuse:
+
+| Pattern | Implementation | Applies To |
+|---------|----------------|------------|
+| **Layout** | Two-column: form sections (60%) + live preview (40%) | Both profiles |
+| **Navigation** | Section-based (all visible), not wizard steps | Both profiles |
+| **Preview** | Real-time "What [audience] sees" panel | Both profiles |
+| **Progress** | Percentage-based indicator for key fields | Both profiles |
+| **Photo** | Upload with encouragement messaging ("X more responses") | Both profiles |
+| **Copy** | 3rd-4th grade reading level, plain language | Both profiles |
+| **Sections** | Core sections always visible, optional sections collapsible | Both profiles |
+| **Privacy** | Dedicated section with clear toggle and explanation | Both profiles |
+
+### What Varies by Mode
+
+| Aspect | Family Mode (Care Profile) | Provider Mode (Provider Profile) |
+|--------|---------------------------|----------------------------------|
+| **Audience** | "What providers see" | "What families see" / "What organizations see" |
+| **Fields** | Care needs, budget, timeline, loved one info | Services, experience, credentials, availability |
+| **Encouragement** | "Get responses from providers" | "Get inquiries from families" / "Get hired" |
+| **Privacy context** | Control what providers see before engagement | Control visibility to families vs. hiring orgs |
+
+### Reference Files
+
+- **Care Profile Editor**: `/app/care-profile/edit/page.tsx` (Sprint 2 implementation)
+- **Provider Profile Editor**: `/app/provider/profile/edit/page.tsx` (Sprint 3 target)
+
+When implementing Sprint 3 (Provider Profile GASH), the Care Profile Editor is the explicit reference point and foundation.
+
+---
+
 ## 1. Copy Standards
 
 ### Reading Level
