@@ -66,6 +66,90 @@ Sprint 2 is complete. Edit Care Profile transformed from 4-step wizard to modern
 
 ---
 
+## Sprint 3 — In Progress
+
+**Date**: January 26, 2025
+**Type**: Deep Sprint (2 GASH Pages)
+**Status**: Planning Complete, Execution Starting
+
+### Sprint 3 Scope
+
+| Page | Treatment | Priority |
+|------|-----------|----------|
+| G-4: Edit Provider Profile | Full section-based redesign (mirrors Care Profile pattern) | Primary |
+| G-3: Provider My Profile | Radical simplification (calendar-first) | Secondary |
+
+### Planning Decisions (Confirmed)
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| **Scope Priority** | G-4 first, then G-3 | Edit Profile establishes pattern; My Profile is simplification |
+| **My Profile Approach** | Radical simplification | Calendar + engagements + Edit Profile only. Remove all clutter. |
+| **Visibility Toggles** | Context-aware by provider type | Different providers have different audiences |
+| **Subtype Variation** | Significant | Conditional sections/fields based on provider type |
+| **Photo Encouragement** | Context-appropriate | Different messaging for facilities vs. caregivers |
+
+### Visibility Toggle Logic
+
+| Provider Type | Toggle 1 | Toggle 2 |
+|---------------|----------|----------|
+| **Facilities** (Assisted Living, Memory Care, etc.) | Visible to families | Visible to hiring caregivers |
+| **Home Care Agencies** | Visible to families | Visible to hiring caregivers |
+| **Independent Caregivers** | Visible to families (direct hire) | Visible to organizations (employment) |
+
+### G-4: Edit Provider Profile — Implementation Plan
+
+**Architecture** (per design-standards.md §0):
+- Two-column layout: form sections (60%) + live preview (40%)
+- Section-based navigation (all visible, not wizard)
+- Real-time preview: "What families see" / "What organizations see"
+- Progress indicator based on profile completeness
+- Photo upload with context-appropriate encouragement
+
+**Subtype-Specific Sections**:
+
+| Section | Facilities | Home Care | Independent Caregiver |
+|---------|------------|-----------|----------------------|
+| Basic Info | Name, type, description | Name, type, description | Name, bio, experience |
+| Location | Address, service area | City, state, service radius | City, state, service radius |
+| Services | Care types, amenities, capacity | Care types, staff size | Care types, specialties |
+| Credentials | License, certifications, accreditations | License, insurance | Certifications, background check |
+| Availability | Capacity, waitlist | Availability | Schedule, hourly rate |
+| Privacy | Dual toggles | Dual toggles | Dual toggles |
+
+**Issues Addressed**: A-179 through A-186 (EP-1 through EP-8)
+
+### G-3: Provider My Profile — Implementation Plan
+
+**Radical Simplification**:
+- Remove: Performance insights, activity feed, tips card, profile completion widget, quick actions, recent leads
+- Keep: Calendar (PRIMARY), upcoming engagements, Edit Profile button
+- Conditional: Matching families preview (only if clean/simple design)
+
+**Target**: Page reduced from 875 lines to <200 lines
+
+**Issues Addressed**: A-171 through A-178 (PP-1 through PP-8)
+
+### Definition of Done
+
+**G-4 (Edit Provider Profile)**:
+- [ ] Two-column layout with live preview implemented
+- [ ] Dual visibility toggles (context-aware)
+- [ ] Subtype-specific sections render correctly
+- [ ] Progress indicator shows completion %
+- [ ] Photo upload with encouragement
+- [ ] Plain language copy (3rd-4th grade level)
+- [ ] All EP-1 through EP-8 issues resolved
+
+**G-3 (Provider My Profile)**:
+- [ ] Calendar is first meaningful content above fold
+- [ ] Page reduced to <200 lines
+- [ ] No clutter sections remain (insights, activity, tips removed)
+- [ ] Clear Edit Profile action visible
+- [ ] All PP-1 through PP-8 issues resolved
+
+---
+
 ## Severity Classification
 
 | Severity | Definition | Typical Effort | Example |
@@ -84,8 +168,8 @@ These 7 pages are rated C- or below and require first-principles redesigns, not 
 |---|------|------|--------|----------------|--------|
 | G-1 | Request / Engagement Page | `/requests/[id]` | C- | Auto-scroll, messaging-first instead of scheduling-first, no guidance | **Done** (Sprint 1) |
 | G-2 | Edit Care Profile | `/care-profile/edit` | C-/C+ | **BUG: doesn't save**, survey not profile-builder, poor copy | **Done** (Sprint 2) |
-| G-3 | Provider My Profile | `/provider/profile` | C- | Overbuilt, unfocused, not calendar-first | Open |
-| G-4 | Edit Provider Profile | `/provider/profile/edit` | C- | No preview, wrong visibility model, not subtype-aware | Open |
+| G-3 | Provider My Profile | `/provider/profile` | C- | Overbuilt, unfocused, not calendar-first | **In Progress** (Sprint 3) |
+| G-4 | Edit Provider Profile | `/provider/profile/edit` | C- | No preview, wrong visibility model, not subtype-aware | **In Progress** (Sprint 3) |
 | G-5 | Find Organizations (Caregiver) | `/providers/browse-organizations` | C- | Design overhaul needed, semantic drift, wrong hero | **Done** (Sprint 1) |
 | G-6 | Hire Staff Request | `/provider/hire-staff/[id]` | C- | Severely underdeveloped, no structured prompts | Open |
 | G-7 | My Candidates | `/provider/candidates` | C- | Unfinished, no pipeline view, no calendar, no data | Open |
