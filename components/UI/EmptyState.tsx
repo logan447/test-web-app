@@ -8,6 +8,7 @@ type EmptyStateVariant =
   | "messages"
   | "requests"
   | "saved"
+  | "matches"
   | "notifications"
   | "providers"
   | "families";
@@ -17,6 +18,7 @@ interface EmptyStateAction {
   href?: string;
   onClick?: () => void;
   variant?: "primary" | "secondary";
+  icon?: React.ReactNode;
 }
 
 interface EmptyStateProps {
@@ -25,6 +27,10 @@ interface EmptyStateProps {
   description?: string;
   icon?: React.ReactNode;
   actions?: EmptyStateAction[];
+  /** Optional guidance message - displays in a highlighted box above CTAs */
+  guidanceMessage?: string;
+  /** Size variant - "large" for 65+ friendly sizing */
+  size?: "default" | "large";
   className?: string;
 }
 
@@ -42,8 +48,11 @@ export default function EmptyState({
   description,
   icon,
   actions,
+  guidanceMessage,
+  size = "default",
   className = "",
 }: EmptyStateProps) {
+  const isLarge = size === "large";
   // Default content based on variant
   const variantContent: Record<
     EmptyStateVariant,
@@ -106,8 +115,8 @@ export default function EmptyState({
       ),
     },
     saved: {
-      title: "No saved items",
-      description: "Items you save will appear here for easy access later.",
+      title: "No saved providers yet",
+      description: "Save providers you like to compare them later.",
       icon: (
         <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
@@ -115,6 +124,20 @@ export default function EmptyState({
             strokeLinejoin="round"
             strokeWidth={1.5}
             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
+      ),
+    },
+    matches: {
+      title: "Complete your profile to get matched",
+      description: "Tell us about your care needs to receive personalized recommendations.",
+      icon: (
+        <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
           />
         </svg>
       ),
@@ -169,30 +192,63 @@ export default function EmptyState({
   const displayIcon = icon || content.icon;
 
   return (
-    <div className={`text-center py-12 px-4 ${className}`}>
+    <div className={`text-center ${isLarge ? "py-16 px-6" : "py-12 px-4"} ${className}`}>
       {/* Icon */}
-      <div className="flex justify-center mb-4">
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+      <div className="flex justify-center mb-6">
+        <div className={`rounded-full bg-primary-100 flex items-center justify-center text-primary-500 ${
+          isLarge ? "w-24 h-24" : "w-20 h-20"
+        }`}>
           {displayIcon}
         </div>
       </div>
 
       {/* Text content */}
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{displayTitle}</h3>
-      <p className="text-gray-600 max-w-sm mx-auto mb-6">{displayDescription}</p>
+      <h3 className={`font-bold text-gray-900 mb-3 ${isLarge ? "text-2xl" : "text-xl"}`}>
+        {displayTitle}
+      </h3>
+      <p className={`text-gray-600 max-w-md mx-auto ${isLarge ? "text-lg mb-8" : "mb-6"}`}>
+        {displayDescription}
+      </p>
+
+      {/* Guidance Message */}
+      {guidanceMessage && (
+        <div className="mb-6 inline-flex items-center gap-2 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+          <svg
+            className="w-5 h-5 text-amber-600 flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+            />
+          </svg>
+          <span className={`text-amber-800 font-medium ${isLarge ? "text-base" : "text-sm"}`}>
+            {guidanceMessage}
+          </span>
+        </div>
+      )}
 
       {/* Actions */}
       {actions && actions.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
           {actions.map((action, index) => {
             const buttonClass =
               action.variant === "secondary"
-                ? "px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                : "px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors";
+                ? `inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors ${
+                    isLarge ? "px-6 py-3 text-base" : "px-5 py-2.5"
+                  }`
+                : `inline-flex items-center justify-center gap-2 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md ${
+                    isLarge ? "px-6 py-3 text-base" : "px-5 py-2.5"
+                  }`;
 
             if (action.href) {
               return (
                 <Link key={index} href={action.href} className={buttonClass}>
+                  {action.icon}
                   {action.label}
                 </Link>
               );
@@ -200,6 +256,7 @@ export default function EmptyState({
 
             return (
               <button key={index} onClick={action.onClick} className={buttonClass}>
+                {action.icon}
                 {action.label}
               </button>
             );

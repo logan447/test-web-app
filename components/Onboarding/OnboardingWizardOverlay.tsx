@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import LocationAutocomplete from "@/components/Location/LocationAutocomplete";
 
 // ============================================================================
 // Types
@@ -86,13 +87,13 @@ interface OnboardingWizardOverlayProps {
 // ============================================================================
 
 const CARE_TYPES = [
-  { value: "PERSONAL_CARE", label: "Personal Care" },
-  { value: "COMPANION_CARE", label: "Companion Care" },
-  { value: "SKILLED_NURSING", label: "Skilled Nursing" },
-  { value: "MEMORY_CARE", label: "Memory Care" },
-  { value: "HOSPICE_CARE", label: "Hospice Care" },
-  { value: "RESPITE_CARE", label: "Respite Care" },
-  { value: "LIVE_IN_CARE", label: "Live-In Care" },
+  { value: "PERSONAL_CARE", label: "Help with daily activities (bathing, dressing)" },
+  { value: "COMPANION_CARE", label: "Companionship and social support" },
+  { value: "SKILLED_NURSING", label: "Medical care from a nurse" },
+  { value: "MEMORY_CARE", label: "Memory or dementia support" },
+  { value: "HOSPICE_CARE", label: "End-of-life comfort care" },
+  { value: "RESPITE_CARE", label: "Short-term relief for family caregivers" },
+  { value: "LIVE_IN_CARE", label: "24/7 in-home care" },
 ];
 
 const PROVIDER_TYPES = [
@@ -119,13 +120,13 @@ const PROVIDER_TYPE_MAP: Record<string, string> = {
 };
 
 const CAREGIVER_SERVICES = [
-  { label: "Personal Care", value: "PERSONAL_CARE" },
+  { label: "Daily activities help", value: "PERSONAL_CARE" },
   { label: "Companionship", value: "COMPANION_CARE" },
-  { label: "Skilled Nursing", value: "SKILLED_NURSING" },
-  { label: "Memory Care", value: "MEMORY_CARE" },
-  { label: "Hospice Care", value: "HOSPICE_CARE" },
-  { label: "Respite Care", value: "RESPITE_CARE" },
-  { label: "Live-In Care", value: "LIVE_IN_CARE" },
+  { label: "Medical/nursing care", value: "SKILLED_NURSING" },
+  { label: "Memory support", value: "MEMORY_CARE" },
+  { label: "End-of-life care", value: "HOSPICE_CARE" },
+  { label: "Short-term relief", value: "RESPITE_CARE" },
+  { label: "24/7 in-home care", value: "LIVE_IN_CARE" },
 ];
 
 // ============================================================================
@@ -196,7 +197,7 @@ function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
   return (
     <div className="space-y-6">
       <p className="text-gray-600 text-center">
-        Help us personalize your experience. What brings you to Olera?
+        What brings you to Olera?
       </p>
 
       <div className="space-y-4">
@@ -358,6 +359,7 @@ function ProviderSubtypeStep({ data, onUpdate, onNext, onBack, onSkip }: StepPro
 function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps) {
   const [localData, setLocalData] = useState({
     familyName: data.familyName || "",
+    familyLocation: data.familyLocation || "",
     familyCity: "",
     familyState: "",
     familyCareType: data.familyCareType || "",
@@ -365,17 +367,25 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Handle location selection from autocomplete
+  const handleLocationChange = (value: string, location?: { city: string; state: string }) => {
+    setLocalData(prev => ({
+      ...prev,
+      familyLocation: value,
+      familyCity: location?.city || "",
+      familyState: location?.state || "",
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
     try {
-      // Compose location for display/storage
-      const familyLocation = `${localData.familyCity}, ${localData.familyState}`;
       const formData = {
         familyName: localData.familyName,
-        familyLocation,
+        familyLocation: localData.familyLocation,
         familyCareType: localData.familyCareType,
       };
       onUpdate(formData);
@@ -385,7 +395,7 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
       const profileData = {
         lovedOneName: localData.familyName,
         careTypes: localData.familyCareType ? [localData.familyCareType] : [],
-        location: familyLocation,
+        location: localData.familyLocation,
         city: localData.familyCity,
         state: localData.familyState,
         zipCode: "",
@@ -434,7 +444,7 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <p className="text-gray-600 text-center">
-        Tell us a bit about your care search so we can help you find the right providers.
+        A few quick questions to find the right care.
       </p>
 
       {/* Error message */}
@@ -459,33 +469,17 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="familyCity" className="block text-sm font-medium text-gray-700 mb-1">
-              City
-            </label>
-            <input
-              id="familyCity"
-              type="text"
-              placeholder="Austin"
-              value={localData.familyCity}
-              onChange={(e) => setLocalData({ ...localData, familyCity: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label htmlFor="familyState" className="block text-sm font-medium text-gray-700 mb-1">
-              State
-            </label>
-            <input
-              id="familyState"
-              type="text"
-              placeholder="TX"
-              value={localData.familyState}
-              onChange={(e) => setLocalData({ ...localData, familyState: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
+        <div>
+          <label htmlFor="familyLocation" className="block text-sm font-medium text-gray-700 mb-1">
+            Location
+          </label>
+          <LocationAutocomplete
+            value={localData.familyLocation}
+            onChange={handleLocationChange}
+            placeholder="Search for your city..."
+            inputClassName="py-3"
+          />
+          <p className="mt-1 text-xs text-gray-500">Start typing to search for your city</p>
         </div>
 
         <div>
@@ -556,8 +550,20 @@ function ProviderOrgFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepP
   const [localData, setLocalData] = useState({
     orgName: data.orgName || "",
     orgLocation: data.orgLocation || "",
+    orgCity: "",
+    orgState: "",
     orgProviderType: data.orgProviderType || "",
   });
+
+  // Handle location selection from autocomplete
+  const handleLocationChange = (value: string, location?: { city: string; state: string }) => {
+    setLocalData(prev => ({
+      ...prev,
+      orgLocation: value,
+      orgCity: location?.city || "",
+      orgState: location?.state || "",
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -566,12 +572,12 @@ function ProviderOrgFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepP
     onNext(localData);
   };
 
-  const isValid = localData.orgName && localData.orgLocation && localData.orgProviderType;
+  const isValid = localData.orgName && localData.orgCity && localData.orgState && localData.orgProviderType;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <p className="text-gray-600 text-center">
-        Tell us about your organization so families can find you.
+        Help families find your organization.
       </p>
 
       <div className="space-y-4">
@@ -593,14 +599,13 @@ function ProviderOrgFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepP
           <label htmlFor="orgLocation" className="block text-sm font-medium text-gray-700 mb-1">
             Location
           </label>
-          <input
-            id="orgLocation"
-            type="text"
-            placeholder="City, State (e.g., Austin, TX)"
+          <LocationAutocomplete
             value={localData.orgLocation}
-            onChange={(e) => setLocalData({ ...localData, orgLocation: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            onChange={handleLocationChange}
+            placeholder="Search for your city..."
+            inputClassName="py-3"
           />
+          <p className="mt-1 text-xs text-gray-500">Start typing to search for your city</p>
         </div>
 
         <div>
@@ -659,8 +664,20 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
   const [localData, setLocalData] = useState({
     caregiverName: data.caregiverName || "",
     caregiverLocation: data.caregiverLocation || "",
+    caregiverCity: "",
+    caregiverState: "",
     caregiverServices: data.caregiverServices || [] as string[],
   });
+
+  // Handle location selection from autocomplete
+  const handleLocationChange = (value: string, location?: { city: string; state: string }) => {
+    setLocalData(prev => ({
+      ...prev,
+      caregiverLocation: value,
+      caregiverCity: location?.city || "",
+      caregiverState: location?.state || "",
+    }));
+  };
 
   const handleServiceToggle = (serviceValue: string) => {
     const services = localData.caregiverServices.includes(serviceValue)
@@ -678,13 +695,14 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
 
   const isValid =
     localData.caregiverName &&
-    localData.caregiverLocation &&
+    localData.caregiverCity &&
+    localData.caregiverState &&
     localData.caregiverServices.length > 0;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <p className="text-gray-600 text-center">
-        Tell us about yourself so families can find you.
+        Help families find you.
       </p>
 
       <div className="space-y-4">
@@ -706,14 +724,13 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
           <label htmlFor="caregiverLocation" className="block text-sm font-medium text-gray-700 mb-1">
             Location
           </label>
-          <input
-            id="caregiverLocation"
-            type="text"
-            placeholder="City, State (e.g., Austin, TX)"
+          <LocationAutocomplete
             value={localData.caregiverLocation}
-            onChange={(e) => setLocalData({ ...localData, caregiverLocation: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            onChange={handleLocationChange}
+            placeholder="Search for your city..."
+            inputClassName="py-3"
           />
+          <p className="mt-1 text-xs text-gray-500">Start typing to search for your city</p>
         </div>
 
         <div>
@@ -783,7 +800,7 @@ function FamilyVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <p className="text-gray-600 text-center">
-        Choose who can discover your care profile on Olera.
+        Can providers reach out to you?
       </p>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-4">
@@ -795,9 +812,9 @@ function FamilyVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
             className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
           />
           <div>
-            <span className="font-medium text-gray-900">Make my profile visible to providers</span>
+            <span className="font-medium text-gray-900">Yes, let providers contact me</span>
             <p className="text-sm text-gray-600 mt-1">
-              Care providers can find your profile and reach out to offer their services. You control who you respond to.
+              You decide who to respond to.
             </p>
           </div>
         </label>
@@ -805,7 +822,7 @@ function FamilyVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
         <p className="text-sm text-blue-800">
-          <strong>Privacy first:</strong> Your contact info is never shared until you choose to connect with a provider.
+          Your contact info stays private until you choose to share it.
         </p>
       </div>
 
@@ -868,9 +885,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <p className="text-gray-600 text-center">
-        {isIndividual
-          ? "Choose who can find and contact you on Olera."
-          : "Choose who can discover your organization on Olera."}
+        Who should be able to find you?
       </p>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-4">
@@ -885,10 +900,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
                 className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <div>
-                <span className="font-medium text-gray-900">Make our profile visible to families</span>
-                <p className="text-sm text-gray-600 mt-1">
-                  Families searching for care can find and contact you
-                </p>
+                <span className="font-medium text-gray-900">Families looking for care</span>
               </div>
             </label>
             <label className="flex items-start gap-3 cursor-pointer">
@@ -899,10 +911,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
                 className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <div>
-                <span className="font-medium text-gray-900">We&apos;re hiring caregivers</span>
-                <p className="text-sm text-gray-600 mt-1">
-                  Individual caregivers seeking employment can find and contact you
-                </p>
+                <span className="font-medium text-gray-900">Caregivers looking for work</span>
               </div>
             </label>
           </>
@@ -919,10 +928,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
                 className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <div>
-                <span className="font-medium text-gray-900">Families seeking direct hire</span>
-                <p className="text-sm text-gray-600 mt-1">
-                  Families can contact you directly about care needs
-                </p>
+                <span className="font-medium text-gray-900">Families hiring directly</span>
               </div>
             </label>
             <label className="flex items-start gap-3 cursor-pointer">
@@ -934,9 +940,6 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
               />
               <div>
                 <span className="font-medium text-gray-900">Care organizations hiring staff</span>
-                <p className="text-sm text-gray-600 mt-1">
-                  Agencies and facilities can contact you about employment
-                </p>
               </div>
             </label>
           </>
@@ -945,7 +948,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
         <p className="text-sm text-blue-800">
-          <strong>You&apos;re in control:</strong> You can change these settings anytime from your profile.
+          You can change these settings anytime.
         </p>
       </div>
 
@@ -1202,15 +1205,17 @@ export default function OnboardingWizardOverlay({
           // Step 2: Create Provider profile with onboarding data
           // Use passed data to avoid stale closure
           const orgName = selectedValue?.orgName ?? data.orgName;
-          const orgLocation = selectedValue?.orgLocation ?? data.orgLocation;
           const orgProviderType = selectedValue?.orgProviderType ?? data.orgProviderType;
           const caregiverName = selectedValue?.caregiverName ?? data.caregiverName;
-          const caregiverLocation = selectedValue?.caregiverLocation ?? data.caregiverLocation;
           const caregiverServices = selectedValue?.caregiverServices ?? data.caregiverServices;
 
-          // Parse location into city and state
-          const locationStr = data.providerSubtype === "organization" ? orgLocation : caregiverLocation;
-          const [city, state] = (locationStr || "").split(",").map(s => s.trim());
+          // Use structured city/state from location autocomplete
+          const city = data.providerSubtype === "organization"
+            ? (selectedValue as any)?.orgCity || ""
+            : (selectedValue as any)?.caregiverCity || "";
+          const state = data.providerSubtype === "organization"
+            ? (selectedValue as any)?.orgState || ""
+            : (selectedValue as any)?.caregiverState || "";
 
           // Determine provider type
           let providerType: string;
