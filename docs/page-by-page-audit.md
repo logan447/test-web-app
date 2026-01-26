@@ -44,6 +44,7 @@
 | CC-19 | **Preferred times and format in engagement flow** — Throughout request and scheduling flows, users should be encouraged to share preferred times and format (virtual vs in-person). | `UX` `DATA` | Open |
 | CC-20 | **Care Profile as single source of truth** — Care Profile must be the canonical data source for: provider matching, benefits matching, engagement scheduling, onboarding data, benefits finder inputs. One profile, editable from multiple entry points. No duplicate data entry, no conflicting flows. | `DATA` `LOGIC` | Open |
 | CC-21 | **Profile-builder mental model (not survey)** — Profile creation should feel like building a Facebook/Airbnb profile, not answering a form. Users should see what their profile looks like, edit inline, and understand they're creating something reusable and valuable. | `UX` `GUIDANCE` | Open |
+| CC-22 | **Dual value of Care Profile** — The site does two things with the same profile: 1) Help families meet 3–5 providers, 2) Find benefits to help pay for care. This dual value should be unmistakable everywhere the profile is referenced. | `GUIDANCE` `COPY` | Open |
 
 ---
 
@@ -592,6 +593,68 @@ The Care Profile exists to:
 5. Improve match quality and engagement success
 
 **This must be made obvious to the user.**
+
+---
+
+### 10. Benefits Page — `/benefits`
+
+**Current Rating**: B- / C+
+**Target Rating**: A
+**Status**: Audited
+
+Promising but still overwhelming. Page should feel like a natural extension of the Care Profile, not a separate product.
+
+---
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| BN-1 | **Dark background may not align with site design** — Current look feels more complex and darker than rest of platform. Simpler, lighter design may improve readability and comfort for 65+ users. | `VISUAL` `UX` | Open |
+| BN-2 | **Design and wording heavy for 65+ audience** — Page is acceptable but overwhelming. Needs simplification for target demographic. | `COPY` `UX` | Open |
+| BN-3 | **"Start Benefits Finder" goes to wrong destination** — Should take users into the Care Profile editing experience, which is the correct entry point for collecting benefit-relevant data. | `CTA` `LOGIC` | Open |
+| BN-4 | **"Skip for now" leads to unclear destination** — Needs clearer guidance and intent. Should not dump users into unrelated flows. | `CTA` `UX` | Open |
+| BN-5 | **Dual value proposition not clear** — Page must clearly communicate: Benefits Finder uses the same Care Profile, helps identify local/state/federal benefits, reduces cost of care. Profile is reusable across provider matching AND benefits matching. See CC-22. | `GUIDANCE` `COPY` | Open |
+| BN-6 | **Copy needs simplification** — Reduce wording overall. Rewrite for 3rd-grade reading level, 65+ accessibility. Focus on outcomes: "Lower the cost of care", "Find programs that help pay", "Use the same profile—no extra work". | `COPY` | Open |
+
+#### Polish (acceptable for now)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| BN-7 | **LLM UI not fully developed** — Acceptable for now, but will need refinement in future phase. | `UX` | Open |
+
+#### Keep (working well)
+- Page concept is valid and valuable
+- Benefits finder as a feature has strong potential
+
+---
+
+#### Benefits Page — Core Messaging
+
+The site does two primary things:
+1. **Helps families meet with 3–5 providers** to find the right care
+2. **Uses that same profile to find benefits** that help pay for care
+
+The Benefits page should reinforce this clearly and simply.
+
+**Key points to communicate**:
+- Benefits Finder uses the same Care Profile
+- No extra work—one profile, two purposes
+- Helps identify local, state, and federal benefits
+- Reduces the cost of care services
+
+---
+
+#### Benefits Page — Integration Requirements
+
+This page should feel like a natural extension of Care Profile, not a separate product.
+
+Must integrate deeply with:
+- Care Profile (shared data source)
+- Provider matching
+- Engagement scheduling
+
+**Final direction**: Keep page, but simplify layout, clarify CTAs, tighten copy, align flow with Care Profile.
 
 ---
 
