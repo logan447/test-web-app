@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { OleraScoreBadge } from "@/components/Trust/OleraScore";
 
 // Provider type categories for styling (matching ProviderCard gold standard)
 const FACILITY_TYPES = [
@@ -22,6 +23,7 @@ interface SavedProviderCardProps {
       name: string;
       providerType: string;
       description?: string | null;
+      address?: string;
       city: string;
       state: string;
       careTypesOffered?: string[];
@@ -35,10 +37,14 @@ interface SavedProviderCardProps {
       reviewCount?: number;
       priceMin?: number | null;
       priceMax?: number | null;
+      priceDescription?: string | null;
       claimed?: boolean;
       hasMemoryCare?: boolean;
       hasRespiteCare?: boolean;
       hasHospiceCare?: boolean;
+      phone?: string | null;
+      email?: string | null;
+      website?: string | null;
     };
     notes?: string | null;
     createdAt: string;
@@ -306,17 +312,31 @@ export default function SavedProviderCard({
                 {price || "Contact for pricing"}
               </p>
             </div>
-            {provider.averageRating && provider.averageRating > 0 && (
-              <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">
-                <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-                <span className="text-lg font-bold text-gray-900">{provider.averageRating.toFixed(1)}</span>
-                {provider.reviewCount && provider.reviewCount > 0 && (
-                  <span className="text-sm text-gray-500">({provider.reviewCount})</span>
-                )}
-              </div>
-            )}
+            <OleraScoreBadge
+              provider={{
+                name: provider.name,
+                providerType: provider.providerType as any,
+                description: provider.description,
+                address: provider.address,
+                city: provider.city,
+                state: provider.state,
+                phone: provider.phone,
+                email: provider.email,
+                website: provider.website,
+                careTypesOffered: provider.careTypesOffered,
+                licensed: provider.licensed,
+                backgroundChecked: provider.backgroundChecked,
+                insuranceVerified: provider.insuranceVerified,
+                coverPhoto: provider.coverPhoto,
+                photos: provider.photos,
+                priceMin: provider.priceMin,
+                priceMax: provider.priceMax,
+                priceDescription: provider.priceDescription,
+                claimed: provider.claimed,
+              }}
+              averageRating={provider.averageRating ?? null}
+              reviewCount={provider.reviewCount ?? 0}
+            />
           </div>
 
           {/* Action Buttons */}

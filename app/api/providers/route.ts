@@ -182,6 +182,7 @@ export async function GET(req: Request) {
           reviewCount: true,
           priceMin: true,
           priceMax: true,
+          priceDescription: true,
           availableSpots: true,
           totalCapacity: true,
           photos: true,
@@ -193,6 +194,13 @@ export async function GET(req: Request) {
           hasRespiteCare: true,
           hasHospiceCare: true,
           claimed: true,
+          // Sprint 5: Caregiver work preferences
+          workPreferences: true,
+          preferredEmployers: true,
+          availabilityStart: true,
+          // Sprint 5: Cached Olera Score
+          oleraScore: true,
+          oleraScoreUpdatedAt: true,
         },
         orderBy,
         skip,

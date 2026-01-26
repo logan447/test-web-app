@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { OleraScoreBadge } from "@/components/Trust/OleraScore";
 
 interface CaregiverCardProps {
   caregiver: {
@@ -11,20 +12,25 @@ interface CaregiverCardProps {
     careTypesOffered?: string[];
     city: string;
     state: string;
+    address?: string;
     yearsInBusiness?: number;
     licensed?: boolean;
-    email?: string;
-    phone?: string;
+    email?: string | null;
+    phone?: string | null;
+    website?: string | null;
     coverPhoto?: string | null;
     photos?: string[];
     verified?: boolean;
     backgroundChecked?: boolean;
+    insuranceVerified?: boolean;
     certifications?: string[];
     averageRating?: number | null;
     reviewCount?: number;
     priceMin?: number | null;
     priceMax?: number | null;
+    priceDescription?: string | null;
     serviceRadius?: number | null;
+    claimed?: boolean;
   };
   linkHref?: string;
   hasRequest?: boolean;
@@ -189,17 +195,31 @@ export default function CaregiverCard({
                 {price || "Contact for rates"}
               </p>
             </div>
-            {caregiver.averageRating && caregiver.averageRating > 0 && (
-              <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">
-                <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-                <span className="text-lg font-bold text-gray-900">{caregiver.averageRating.toFixed(1)}</span>
-                {caregiver.reviewCount && caregiver.reviewCount > 0 && (
-                  <span className="text-sm text-gray-500">({caregiver.reviewCount})</span>
-                )}
-              </div>
-            )}
+            <OleraScoreBadge
+              provider={{
+                name: caregiver.name,
+                providerType: "INDEPENDENT_CAREGIVER",
+                description: caregiver.description,
+                address: caregiver.address,
+                city: caregiver.city,
+                state: caregiver.state,
+                phone: caregiver.phone,
+                email: caregiver.email,
+                website: caregiver.website,
+                careTypesOffered: caregiver.careTypesOffered,
+                licensed: caregiver.licensed,
+                backgroundChecked: caregiver.backgroundChecked,
+                insuranceVerified: caregiver.insuranceVerified,
+                coverPhoto: caregiver.coverPhoto,
+                photos: caregiver.photos,
+                priceMin: caregiver.priceMin,
+                priceMax: caregiver.priceMax,
+                priceDescription: caregiver.priceDescription,
+                claimed: caregiver.claimed,
+              }}
+              averageRating={caregiver.averageRating ?? null}
+              reviewCount={caregiver.reviewCount ?? 0}
+            />
           </div>
 
           {/* Service Radius */}
