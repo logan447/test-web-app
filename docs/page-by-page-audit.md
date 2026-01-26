@@ -56,6 +56,8 @@
 | CC-31 | **Eliminate duplicate browse pages** — /provider/organizations and /caregiver/browse-organizations serve the same function. Must consolidate to one canonical page. No parallel pages for same function. | `LOGIC` `UX` | Open |
 | CC-32 | **Hiring marketplace core loop** — For individual caregivers: Create profile once → Apply to 3–5 organizations → Schedule 3–5 interviews → Get hired. UI, copy, CTAs, and navigation must all reinforce this loop. | `GUIDANCE` `UX` | Open |
 | CC-33 | **Apply flow must explain profile sharing** — When caregivers apply, page must explicitly state: submitting shares your profile, more information increases hiring chances, goal is to complete 3–5 interviews. | `GUIDANCE` `COPY` | Open |
+| CC-34 | **All request pages must be consistent** — Family ↔ provider, provider ↔ caregiver, caregiver ↔ organization request pages must: share consistent layout and visual language, clearly state engagement purpose, drive toward scheduled meetings (not vague messaging). Calendars, reminders, and follow-ups should be first-class concepts. | `UX` `VISUAL` | Open |
+| CC-35 | **Organization hiring goal** — Organizations want to interview 3–5 caregivers per week, maintain steady staffing supply, and track interviews/follow-ups easily. All org-facing hiring UX must support this goal. | `GUIDANCE` `UX` | Open |
 
 ---
 
@@ -1174,6 +1176,109 @@ This page must be reframed as an Apply + Schedule Interview page.
 6. Make hiring journey obvious, simple, intentional (CC-32)
 
 **This section is core to marketplace value and requires a thoughtful, unified redesign to reach A+ quality.**
+
+---
+
+## Hiring Marketplace Pages (Organization Hiring View)
+
+This section covers the hiring marketplace from the care organization perspective. Core issue: the experience does not clearly or effectively support the organization's primary goal of interviewing and hiring individual caregivers efficiently.
+
+**Organization hiring goal**: Interview 3–5 caregivers per week, maintain steady staffing supply, track interviews and follow-ups easily (CC-35)
+
+---
+
+### 23. Hire Care Staff Page — `/provider/hire-staff`
+
+**Current Rating**: C+
+**Target Rating**: A+
+**Status**: Audited
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| HS-1 | **Purple hero/header inconsistent with brand** — Visually jarring and disconnected from rest of site. See CC-29. | `VISUAL` | Open |
+| HS-2 | **Hero takes excessive vertical space** — Pushes meaningful content below the fold. | `VISUAL` `UX` | Open |
+| HS-3 | **"View applications" is incorrect terminology** — From org perspective, should be "View candidates". | `COPY` `UX` | Open |
+| HS-4 | **"View applications" routes to wrong page** — Currently routes to Family Connections instead of My Candidates. Critical navigation bug. | `LOGIC` `UX` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| HS-5 | **Caregiver cards need gold standard design** — Cards with "Schedule interview" are directionally correct but must match platform card standard. See CC-28. | `VISUAL` `UX` | Open |
+| HS-6 | **Overall presentation feels disconnected** — Page doesn't align with rest of platform visually or functionally. | `VISUAL` `UX` | Open |
+
+#### Keep (working well)
+- "Schedule interview" CTA direction is correct
+
+---
+
+### 24. Hire Staff Request Page — `/provider/hire-staff/[id]`
+
+**Current Rating**: C-
+**Target Rating**: A+
+**Status**: Audited
+**Priority**: HIGH — Severely underdeveloped, mission-critical for organizational customers
+
+This page does not guide organizations toward successful hiring outcomes. It feels disconnected from the rest of the platform's engagement flows.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| HR-1 | **Page severely underdeveloped** — Does not support organization's real goal of efficient hiring. | `UX` | Open |
+| HR-2 | **No clear framing that this is to request/schedule an interview** — Purpose must be explicit. | `GUIDANCE` `COPY` | Open |
+| HR-3 | **Blank message field instead of structured prompts** — Should have prompts for: interview type (phone/video/in-person), preferred times/availability, role expectations/requirements. | `UX` `GUIDANCE` | Open |
+| HR-4 | **No explicit confirmation of next steps** — Users don't know what happens after submission. | `GUIDANCE` `UX` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| HR-5 | **No inline rendering of caregiver profile details** — Should show relevant info (skills, availability, experience) without leaving page. | `UX` `DATA` | Open |
+| HR-6 | **No ability to open full caregiver profile in new tab** — Should have easy access to full profile while composing request. | `UX` | Open |
+| HR-7 | **Doesn't support org hiring goal** — Should help orgs interview 3–5 caregivers/week, maintain staffing supply, track interviews. See CC-35. | `GUIDANCE` `UX` | Open |
+| HR-8 | **Disconnected from platform engagement flows** — Should share consistent patterns with other request pages. See CC-34. | `UX` | Open |
+
+---
+
+#### Hire Staff Request Page — Required Overhaul
+
+This page should be reimagined as an **Interview Request & Scheduling Hub**.
+
+**Must-Have Elements**:
+- Clear framing that this action is to request and schedule an interview
+- Inline rendering of relevant caregiver profile details (skills, availability, experience)
+- Ability to open full caregiver profile in new tab
+- Structured prompts instead of blank message field:
+  - Interview type (phone / video / in-person)
+  - Preferred times or availability windows
+  - Role expectations or key requirements
+- Explicit confirmation of next steps after submission
+
+**UX Goals**:
+- Reduce friction
+- Increase interview scheduling success
+- Make organization feel confident they are engaging quality candidates
+- Reinforce that platform exists to make hiring easy, fast, and trackable
+
+---
+
+### Organization Hiring — Summary
+
+| Page | Rating | Priority | Key Issue |
+|------|--------|----------|-----------|
+| Hire Care Staff | C+ | High | Brand inconsistent, wrong terminology, broken navigation |
+| Hire Staff Request | C- | High | Severely underdeveloped, no structured prompts, no guidance |
+
+**This flow is mission-critical for organizational customers.**
+
+Be ambitious and thoughtful in redesigning it so it genuinely helps organizations hire great caregivers and makes Olera indispensable in their staffing workflow.
 
 ---
 
