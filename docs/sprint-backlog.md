@@ -320,7 +320,105 @@ Sprint 4 + 4.5 complete. Platform now has true A+ consistency:
 - All saved providers use unified localStorage + server sync via shared hook
 - No split-brain patterns or inconsistent implementations remain
 
-Ready for Sprint 5 (Provider-side pages or remaining GASH pages).
+Ready for Sprint 5 (Provider Detail Pages).
+
+---
+
+## Sprint 5 — In Progress
+
+**Date**: January 26, 2025
+**Type**: Mixed Sprint (Provider Detail Pages)
+**Focus**: Transform provider detail pages for all three provider types to A+ quality
+
+### Overview
+
+Sprint 5 addresses 24 issues (A-053 through A-076) across three provider detail page variants:
+- **Independent Caregiver** (11 issues): A-053 to A-063
+- **Home Care Agency** (7 issues): A-064 to A-070
+- **Senior Living / Facility** (6 issues): A-071 to A-076
+
+### Goals
+
+| Goal | Acceptance Criteria |
+|------|---------------------|
+| **Trust & Credibility** | Define and display consistent trust signals across all provider types |
+| **Pricing Clarity** | Change "Estimated Pricing" to "Starting at", add meaningful tooltips |
+| **Contact Info Gating** | Hide contact details until engagement is ACCEPTED (privacy protection) |
+| **Section Hygiene** | Empty sections don't render, sticky nav matches visible sections |
+| **Provider-Type Specific** | Each type has appropriate sections, CTAs, and content |
+| **Caregiver Dual Audience** | Add employer-facing view for individual caregivers |
+
+### Priority 1: Cross-Cutting Fixes (All Provider Types)
+
+| ID | Issue | Severity | Resolution Plan |
+|----|-------|----------|-----------------|
+| A-054 | Contact info visible before engagement | CUT | Gate phone/email behind `activeEngagement?.status === 'ACCEPTED'` check |
+| A-057/A-069 | Trust/Olera Score undefined | CUT | Define credibility score algorithm or remove undefined elements |
+| A-067/A-073 | Pricing language says "estimated" | PAPER CUT | Change to "Starting at" (per S8 in A+ Transformation Plan) |
+| A-063/A-075 | Empty sections still render | PAPER CUT | Add conditional rendering for empty arrays/null values |
+
+### Priority 2: Independent Caregiver (A-053 to A-063)
+
+| ID | Issue | Severity | Resolution Plan |
+|----|-------|----------|-----------------|
+| A-053 | "Request detailed pricing" does nothing | CUT | Wire to contact form with pricing inquiry pre-selected |
+| A-055 | Single image only | PAPER CUT | Show photo gallery if multiple images exist |
+| A-056 | Pricing tooltips lack explanation | PAPER CUT | Add tooltip explaining hourly rate vs package pricing |
+| A-058 | CTA copy too wordy | PAPER CUT | Simplify to "Schedule Interview" / "Send Message" |
+| A-059 | Sticky nav missing sections | PAPER CUT | Ensure nav matches all rendered sections |
+| A-060 | Service area vs location redundant | PAPER CUT | Consolidate into single location section |
+| A-061 | No availability section | CUT | Add availability/schedule section for caregivers |
+| A-062 | No employer-facing view | CUT | Add "For Organizations" tab or section |
+
+### Priority 3: Home Care Agency (A-064 to A-070)
+
+| ID | Issue | Severity | Resolution Plan |
+|----|-------|----------|-----------------|
+| A-064 | "Request detailed pricing" CTA lacks guidance | CUT | Add context about what consultation includes |
+| A-065 | "How it works" section too wordy | PAPER CUT | Simplify to 3 clear steps |
+| A-066 | No real caregiver profiles | PAPER CUT | Show "Caregivers on staff" section if data exists |
+| A-068 | Service area definition unclear | PAPER CUT | Add map or list of covered zip codes/cities |
+| A-070 | Reviews section needs seed data | PAPER CUT | Ensure seed script includes reviews for agencies |
+
+### Priority 4: Senior Living / Facility (A-071 to A-076)
+
+| ID | Issue | Severity | Resolution Plan |
+|----|-------|----------|-----------------|
+| A-071 | "Live here" section unclear | PAPER CUT | Rename to "Living Experience" or "Community Life" |
+| A-072 | Image categorization missing | CUT | Add image categories (Rooms, Common Areas, Dining, etc.) |
+| A-074 | No "last updated" indicator | PAPER CUT | Add "Info last verified" timestamp if available |
+| A-076 | CTA clarity | PAPER CUT | Use "Schedule a Tour" consistently |
+
+### Shared Components to Create
+
+| Component | Purpose |
+|-----------|---------|
+| `CredibilityScore` | Standardized trust/credibility display (exists, may need updates) |
+| `AvailabilitySection` | Show caregiver availability/schedule |
+| `GatedContactInfo` | Contact info that reveals only after engagement accepted |
+| `ImageGallery` | Enhanced gallery with categories and lightbox |
+
+### Definition of Done
+
+- [ ] All 24 issues addressed (A-053 through A-076)
+- [ ] Contact info properly gated (hidden until ACCEPTED engagement)
+- [ ] "Starting at" pricing language used consistently
+- [ ] Empty sections don't render (no empty cards/lists)
+- [ ] Sticky nav accurately reflects visible sections
+- [ ] Trust signals defined and displayed consistently
+- [ ] Individual caregivers have employer-facing content
+- [ ] TypeScript compilation passes
+- [ ] All code committed and pushed
+
+### Implementation Order
+
+1. **Cross-cutting fixes first**: Contact gating, pricing language, empty section hygiene
+2. **Independent Caregiver**: Most issues, sets pattern for others
+3. **Home Care Agency**: Apply learnings from caregiver
+4. **Senior Living**: Final polish pass
+
+### Handoff Note
+Sprint 5 planning complete. Focus areas are contact info privacy gating, trust signal standardization, pricing language consistency, and provider-type-specific enhancements.
 
 ---
 
