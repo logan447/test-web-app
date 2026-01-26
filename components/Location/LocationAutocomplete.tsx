@@ -56,8 +56,10 @@ export default function LocationAutocomplete({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = "location-listbox";
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -71,6 +73,7 @@ export default function LocationAutocomplete({
     if (query.length < 2) {
       setResults([]);
       setIsOpen(false);
+      setHasSearched(false);
       return;
     }
 
@@ -83,13 +86,16 @@ export default function LocationAutocomplete({
 
       if (response.ok) {
         const data = await response.json();
-        setResults(data.locations || []);
-        setIsOpen(data.locations?.length > 0);
+        const locations = data.locations || [];
+        setResults(locations);
+        setIsOpen(true); // Always open to show results or "no results" message
         setHighlightedIndex(-1);
+        setHasSearched(true);
       }
     } catch (err) {
       console.error("Location search failed:", err);
       setResults([]);
+      setHasSearched(true);
     } finally {
       setIsLoading(false);
     }
@@ -264,6 +270,7 @@ export default function LocationAutocomplete({
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           aria-autocomplete="list"
+          aria-controls={listboxId}
           role="combobox"
         />
 
@@ -295,33 +302,64 @@ export default function LocationAutocomplete({
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
 
       {/* Dropdown */}
-      {isOpen && results.length > 0 && (
+      {isOpen && (
         <div
           ref={dropdownRef}
+          id={listboxId}
           className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto"
           role="listbox"
         >
-          {results.map((location, index) => (
-            <button
-              key={location.id}
-              type="button"
-              onClick={() => handleSelect(location)}
-              onMouseEnter={() => setHighlightedIndex(index)}
-              className={`
-                w-full px-4 py-3 text-left flex items-center gap-3
-                transition-colors
-                ${
-                  index === highlightedIndex
-                    ? "bg-primary-50 text-primary-900"
-                    : "hover:bg-gray-50"
-                }
-                ${index !== results.length - 1 ? "border-b border-gray-100" : ""}
-              `}
-              role="option"
-              aria-selected={index === highlightedIndex}
-            >
+          {results.length > 0 ? (
+            results.map((location, index) => (
+              <button
+                key={location.id}
+                type="button"
+                onClick={() => handleSelect(location)}
+                onMouseEnter={() => setHighlightedIndex(index)}
+                className={`
+                  w-full px-4 py-3 text-left flex items-center gap-3
+                  transition-colors
+                  ${
+                    index === highlightedIndex
+                      ? "bg-primary-50 text-primary-900"
+                      : "hover:bg-gray-50"
+                  }
+                  ${index !== results.length - 1 ? "border-b border-gray-100" : ""}
+                `}
+                role="option"
+                aria-selected={index === highlightedIndex}
+              >
+                <svg
+                  className="w-5 h-5 text-gray-400 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <div>
+                  <div className="font-medium text-gray-900">
+                    {location.city}, {location.state}
+                  </div>
+                  <div className="text-sm text-gray-500">{location.stateName}</div>
+                </div>
+              </button>
+            ))
+          ) : hasSearched && !isLoading ? (
+            <div className="px-4 py-3 text-center text-gray-500">
               <svg
-                className="w-5 h-5 text-gray-400 shrink-0"
+                className="w-6 h-6 mx-auto mb-2 text-gray-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -329,24 +367,14 @@ export default function LocationAutocomplete({
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                 />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
               </svg>
-              <div>
-                <div className="font-medium text-gray-900">
-                  {location.city}, {location.state}
-                </div>
-                <div className="text-sm text-gray-500">{location.stateName}</div>
-              </div>
-            </button>
-          ))}
+              <p className="text-sm">No cities found matching your search</p>
+              <p className="text-xs text-gray-400 mt-1">Try a different city name</p>
+            </div>
+          ) : null}
         </div>
       )}
     </div>

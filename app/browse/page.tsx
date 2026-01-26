@@ -133,7 +133,7 @@ function BrowseContent() {
   const [showMap, setShowMap] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [savedProviderIds, setSavedProviderIds] = useState<Set<string>>(new Set());
-  const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(getInitialSelectedLocation());
 
   // Filters - default to empty (show all)
   // Support both "location" param and separate "city"/"state" params (from homepage)
@@ -147,6 +147,14 @@ function BrowseContent() {
     if (city) return city;
     return "";
   };
+
+  const getInitialSelectedLocation = () => {
+    const city = searchParams.get("city");
+    const state = searchParams.get("state");
+    if (city && state) return { city, state };
+    return null;
+  };
+
   const [location, setLocation] = useState(getInitialLocation());
   const [filterValues, setFilterValues] = useState<Record<string, string>>({
     providerType: searchParams.get("type") || "",
@@ -231,8 +239,9 @@ function BrowseContent() {
 
   const hasActiveFilters = Boolean(location) || Object.values(filterValues).some((v) => v !== "");
 
-  // Load saved providers from localStorage on mount
+  // Load saved providers from localStorage and server (if authenticated)
   useEffect(() => {
+    // First, load from localStorage for immediate display
     const saved = localStorage.getItem("savedProviders");
     if (saved) {
       try {
@@ -242,10 +251,38 @@ function BrowseContent() {
         console.error("Failed to parse saved providers:", e);
       }
     }
-  }, []);
+
+    // If authenticated, also fetch from server and merge
+    const fetchServerSaved = async () => {
+      if (session?.user) {
+        try {
+          const response = await fetch("/api/saved-providers");
+          if (response.ok) {
+            const data = await response.json();
+            if (Array.isArray(data) && data.length > 0) {
+              const serverIds = data.map((s: { providerId: string }) => s.providerId);
+              setSavedProviderIds((prev) => {
+                const merged = new Set([...prev, ...serverIds]);
+                // Sync merged set back to localStorage
+                localStorage.setItem("savedProviders", JSON.stringify([...merged]));
+                return merged;
+              });
+            }
+          }
+        } catch (err) {
+          console.error("Failed to fetch server saved providers:", err);
+        }
+      }
+    };
+
+    fetchServerSaved();
+  }, [session?.user]);
 
   // Handle save/unsave provider
-  const handleSaveProvider = useCallback((providerId: string) => {
+  const handleSaveProvider = useCallback(async (providerId: string) => {
+    const isCurrentlySaved = savedProviderIds.has(providerId);
+
+    // Optimistically update UI
     setSavedProviderIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(providerId)) {
@@ -257,7 +294,29 @@ function BrowseContent() {
       localStorage.setItem("savedProviders", JSON.stringify([...newSet]));
       return newSet;
     });
-  }, []);
+
+    // If authenticated, also persist to server
+    if (session?.user) {
+      try {
+        if (isCurrentlySaved) {
+          // Remove from server
+          await fetch(`/api/saved-providers?providerId=${providerId}`, {
+            method: "DELETE",
+          });
+        } else {
+          // Save to server
+          await fetch("/api/saved-providers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ providerId }),
+          });
+        }
+      } catch (err) {
+        console.error("Failed to sync save to server:", err);
+        // Note: We don't revert the optimistic update - localStorage still has the change
+      }
+    }
+  }, [savedProviderIds, session?.user]);
 
   // Handle location autocomplete selection
   const handleLocationChange = (value: string, loc?: { city: string; state: string }) => {

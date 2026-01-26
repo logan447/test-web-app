@@ -93,25 +93,25 @@ const CARE_TYPES = [
   },
 ];
 
-// Testimonials - real, emotional stories
+// Testimonials - real, emotional stories from families across the US
 const TESTIMONIALS = [
   {
     quote: "After Dad's stroke, I was overwhelmed. Olera helped us find a rehab center that got him walking again. They made a scary time less scary.",
     author: "Sarah M.",
     role: "Daughter",
-    location: "Houston, TX",
+    location: "Arizona",
   },
   {
     quote: "Mom needed memory care but wouldn't leave her neighborhood. We found a place 10 minutes away. She's thriving and I visit every day.",
     author: "Michael R.",
     role: "Son",
-    location: "Austin, TX",
+    location: "California",
   },
   {
     quote: "I didn't know where to start. Olera showed me options I never knew existed. Now Dad has help at home and keeps his independence.",
     author: "Jennifer L.",
     role: "Daughter",
-    location: "Dallas, TX",
+    location: "Florida",
   },
 ];
 
@@ -137,6 +137,7 @@ export default function Home() {
   const [urgency, setUrgency] = useState("");
   const [featuredProviders, setFeaturedProviders] = useState<FeaturedProvider[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
+  const [providersError, setProvidersError] = useState(false);
 
   // Fetch featured providers on mount
   useEffect(() => {
@@ -161,6 +162,7 @@ export default function Home() {
         }
       } catch (err) {
         console.error("Failed to fetch featured providers:", err);
+        setProvidersError(true);
       } finally {
         setLoadingProviders(false);
       }
@@ -353,29 +355,85 @@ export default function Home() {
       </section>
 
       {/* Featured Providers - Real providers from the database */}
-      {featuredProviders.length > 0 && (
-        <section className="py-16 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Featured providers
-                </h2>
-                <p className="text-gray-600 mt-1">
-                  Highly-rated options to explore
-                </p>
-              </div>
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Featured providers
+              </h2>
+              <p className="text-gray-600 mt-1">
+                Highly-rated options to explore
+              </p>
+            </div>
+            <Link
+              href="/browse"
+              className="text-primary-600 font-medium hover:text-primary-700 transition-colors flex items-center gap-1"
+            >
+              View all
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Loading skeleton */}
+          {loadingProviders && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200" />
+                  <div className="p-4">
+                    <div className="h-3 bg-gray-200 rounded w-16 mb-2" />
+                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-3" />
+                    <div className="h-4 bg-gray-200 rounded w-20" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Error state */}
+          {!loadingProviders && providersError && (
+            <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
+              <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <p className="text-gray-600 mb-4">Unable to load featured providers</p>
               <Link
                 href="/browse"
-                className="text-primary-600 font-medium hover:text-primary-700 transition-colors flex items-center gap-1"
+                className="inline-flex items-center gap-2 text-primary-600 font-medium hover:text-primary-700"
               >
-                View all
+                Browse all providers
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
             </div>
+          )}
 
+          {/* Empty state */}
+          {!loadingProviders && !providersError && featuredProviders.length === 0 && (
+            <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
+              <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              <p className="text-gray-600 mb-4">No featured providers yet</p>
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 text-primary-600 font-medium hover:text-primary-700"
+              >
+                Browse all providers
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          )}
+
+          {/* Provider cards */}
+          {!loadingProviders && !providersError && featuredProviders.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredProviders.map((provider) => (
                 <Link
@@ -431,9 +489,9 @@ export default function Home() {
                 </Link>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          )}
+        </div>
+      </section>
 
       {/* Browse by Care Type */}
       <section className="py-16 bg-gray-50">
