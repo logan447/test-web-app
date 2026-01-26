@@ -338,7 +338,7 @@ export default function Home() {
                 Not sure what type of care you need?
               </h2>
               <p className="text-gray-600">
-                Answer a few questions and we'll help you understand your options.
+                Answer a few questions and we&apos;ll help you understand your options.
                 It takes about 5 minutes and helps providers understand your situation.
               </p>
             </div>
@@ -476,7 +476,7 @@ export default function Home() {
               How it works
             </h2>
             <p className="text-gray-600">
-              Finding care doesn't have to be overwhelming
+              Finding care doesn&apos;t have to be overwhelming
             </p>
           </div>
 
