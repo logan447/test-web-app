@@ -99,7 +99,7 @@ export default function OrganizationCard({
 
   const careTypes = organization.careTypesOffered || [];
   const price = formatPrice();
-  const href = linkHref || `/provider/organizations/${organization.id}`;
+  const href = linkHref || `/providers/browse-organizations/${organization.id}`;
 
   return (
     <Link

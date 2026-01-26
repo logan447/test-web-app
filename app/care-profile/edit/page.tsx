@@ -45,6 +45,7 @@ export default function EditCareProfilePage() {
   const [profile, setProfile] = useState<CareProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveSucceeded, setSaveSucceeded] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -150,14 +151,23 @@ export default function EditCareProfilePage() {
       }
 
       const savedProfile = await response.json();
+
+      // Confirm we got a valid profile back before considering save successful
+      if (!savedProfile || !savedProfile.id) {
+        throw new Error("Save appeared to succeed but no profile was returned");
+      }
+
       setProfile(savedProfile);
+      setSaveSucceeded(true);
       setSuccessMessage("Your care profile has been saved!");
       window.scrollTo({ top: 0, behavior: "smooth" });
 
+      // Only redirect after confirmed save success
       setTimeout(() => {
         router.push("/care-profile");
       }, 1500);
     } catch (err) {
+      setSaveSucceeded(false);
       setError(err instanceof Error ? err.message : "Failed to save profile");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
@@ -227,15 +237,24 @@ export default function EditCareProfilePage() {
       {/* Hero Header */}
       <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <Link
-            href="/care-profile"
-            className="inline-flex items-center gap-2 text-primary-100 hover:text-white mb-4 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Dashboard
-          </Link>
+          {saving ? (
+            <span className="inline-flex items-center gap-2 text-primary-300 mb-4 cursor-not-allowed">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Dashboard
+            </span>
+          ) : (
+            <Link
+              href="/care-profile"
+              className="inline-flex items-center gap-2 text-primary-100 hover:text-white mb-4 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Dashboard
+            </Link>
+          )}
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
             {profile ? "Edit Your Care Profile" : "Create Your Care Profile"}
           </h1>
@@ -249,9 +268,12 @@ export default function EditCareProfilePage() {
               {[1, 2, 3, 4].map((step) => (
                 <div key={step} className="flex items-center">
                   <button
-                    onClick={() => setCurrentStep(step)}
+                    onClick={() => !saving && setCurrentStep(step)}
+                    disabled={saving}
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                      currentStep === step
+                      saving
+                        ? "opacity-50 cursor-not-allowed"
+                        : currentStep === step
                         ? "bg-white text-primary-700"
                         : currentStep > step
                         ? "bg-primary-400 text-white"
@@ -550,9 +572,12 @@ export default function EditCareProfilePage() {
             <button
               type="button"
               onClick={prevStep}
+              disabled={saving}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${
                 currentStep === 1
                   ? "invisible"
+                  : saving
+                  ? "text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed"
                   : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
               }`}
             >

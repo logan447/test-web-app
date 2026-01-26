@@ -12,7 +12,7 @@ export default function CaregiverLandingPage() {
 
   useEffect(() => {
     // Redirect to browse organizations (main caregiver feature)
-    router.push("/caregiver/browse-organizations");
+    router.push("/providers/browse-organizations");
   }, [router]);
 
   // Show loading state while redirecting

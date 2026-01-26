@@ -386,7 +386,7 @@ export default function ProviderProfilePage() {
 
             {isIndependentCaregiver ? (
               <Link
-                href="/provider/organizations"
+                href="/providers/browse-organizations"
                 className="group bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all flex items-center"
               >
                 <div className="bg-blue-100 p-3 rounded-xl mr-4 group-hover:bg-blue-200 transition-colors">
@@ -765,7 +765,7 @@ export default function ProviderProfilePage() {
                     </p>
                     {isIndependentCaregiver ? (
                       <Link
-                        href="/provider/organizations"
+                        href="/providers/browse-organizations"
                         className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium"
                       >
                         Browse organizations
