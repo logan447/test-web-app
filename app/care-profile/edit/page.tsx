@@ -1,43 +1,111 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 
+// ============================================
+// TYPES
+// ============================================
+
 type CareProfile = {
   id: string;
+  // Photo & Basics
+  profilePhoto: string | null;
+  lovedOneName: string | null;
+  relationship: string | null;
+  ageRange: string | null;
+  gender: string | null;
+  // Care Needs
   careTypes: string[];
-  location: string;
+  careLevel: string | null;
+  medicalConditions: string[];
+  mobilityStatus: string | null;
+  dailyLivingAssistance: string[];
+  additionalNeeds: string | null;
+  // Location
   city: string;
   state: string;
   zipCode: string;
+  location: string;
+  careSettingPreference: string | null;
+  // Budget & Timeline
   budgetMin: number | null;
   budgetMax: number | null;
   timeline: string | null;
-  description: string | null;
+  // Preferences
+  hobbiesInterests: string[];
+  languagePreferences: string[];
+  culturalBackground: string | null;
+  // Privacy
   isPublic: boolean;
+  description: string | null;
 };
 
+// ============================================
+// CONSTANTS - Plain language, 3rd-4th grade reading level
+// ============================================
+
 const CARE_TYPES = [
-  { value: "PERSONAL_CARE", label: "Personal Care", description: "Help with daily activities like bathing, dressing, and meals" },
-  { value: "COMPANION_CARE", label: "Companion Care", description: "Social companionship and light housekeeping" },
-  { value: "SKILLED_NURSING", label: "Skilled Nursing", description: "Medical care from licensed nurses" },
-  { value: "MEMORY_CARE", label: "Memory Care", description: "Specialized care for dementia and Alzheimer's" },
-  { value: "HOSPICE_CARE", label: "Hospice Care", description: "End-of-life comfort care" },
-  { value: "RESPITE_CARE", label: "Respite Care", description: "Temporary relief for primary caregivers" },
-  { value: "LIVE_IN_CARE", label: "Live-In Care", description: "24/7 in-home care support" },
+  { value: "PERSONAL_CARE", label: "Help with daily tasks", description: "Bathing, dressing, eating" },
+  { value: "COMPANION_CARE", label: "Companionship", description: "Someone to spend time with" },
+  { value: "SKILLED_NURSING", label: "Nursing care", description: "Medical help from a nurse" },
+  { value: "MEMORY_CARE", label: "Memory care", description: "Help for memory loss" },
+  { value: "HOSPICE_CARE", label: "End-of-life care", description: "Comfort and support" },
+  { value: "RESPITE_CARE", label: "Short-term help", description: "Give family a break" },
+  { value: "LIVE_IN_CARE", label: "Live-in care", description: "24/7 help at home" },
+];
+
+const CARE_LEVELS = [
+  { value: "LIGHT", label: "Light help", description: "A few hours a week" },
+  { value: "MODERATE", label: "Regular help", description: "Several hours daily" },
+  { value: "EXTENSIVE", label: "Lots of help", description: "Most of the day" },
+  { value: "FULL_TIME", label: "Full-time care", description: "Around the clock" },
 ];
 
 const TIMELINES = [
-  { value: "Immediately", label: "Immediately", description: "Need care right now" },
-  { value: "Within 1 month", label: "Within 1 month", description: "Planning to start soon" },
-  { value: "Within 3 months", label: "Within 3 months", description: "Researching options" },
-  { value: "Within 6 months", label: "Within 6 months", description: "Planning ahead" },
-  { value: "Planning ahead", label: "6+ months", description: "Future planning" },
+  { value: "IMMEDIATELY", label: "Right now" },
+  { value: "WITHIN_1_MONTH", label: "Within a month" },
+  { value: "WITHIN_3_MONTHS", label: "In 1-3 months" },
+  { value: "PLANNING_AHEAD", label: "Just planning" },
 ];
+
+const RELATIONSHIPS = [
+  { value: "PARENT", label: "Parent" },
+  { value: "SPOUSE", label: "Spouse" },
+  { value: "GRANDPARENT", label: "Grandparent" },
+  { value: "SIBLING", label: "Sibling" },
+  { value: "OTHER_RELATIVE", label: "Other relative" },
+  { value: "FRIEND", label: "Friend" },
+  { value: "SELF", label: "Myself" },
+];
+
+const AGE_RANGES = [
+  { value: "UNDER_65", label: "Under 65" },
+  { value: "65_74", label: "65-74" },
+  { value: "75_84", label: "75-84" },
+  { value: "85_PLUS", label: "85 or older" },
+];
+
+const CARE_SETTINGS = [
+  { value: "AT_HOME", label: "At home", description: "Care in their own home" },
+  { value: "FACILITY", label: "Care facility", description: "Assisted living or nursing home" },
+  { value: "EITHER", label: "Not sure yet", description: "Still deciding" },
+];
+
+const MOBILITY_OPTIONS = [
+  { value: "INDEPENDENT", label: "Gets around on their own" },
+  { value: "SOME_HELP", label: "Needs some help moving" },
+  { value: "WHEELCHAIR", label: "Uses a wheelchair" },
+  { value: "BEDRIDDEN", label: "Mostly in bed" },
+];
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
 
 export default function EditCareProfilePage() {
   const router = useRouter();
@@ -45,24 +113,51 @@ export default function EditCareProfilePage() {
   const [profile, setProfile] = useState<CareProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveSucceeded, setSaveSucceeded] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const previewRef = useRef<HTMLDivElement>(null);
 
-  // Form state
+  // Form state - Photo & Basics
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [lovedOneName, setLovedOneName] = useState("");
+  const [relationship, setRelationship] = useState("");
+  const [ageRange, setAgeRange] = useState("");
+  const [gender, setGender] = useState("");
+
+  // Form state - Care Needs
   const [careTypes, setCareTypes] = useState<string[]>([]);
+  const [careLevel, setCareLevel] = useState("");
+  const [mobilityStatus, setMobilityStatus] = useState("");
+  const [additionalNeeds, setAdditionalNeeds] = useState("");
+
+  // Form state - Location
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zipCode, setZipCode] = useState("");
-  const [budgetMin, setBudgetMin] = useState<string>("");
-  const [budgetMax, setBudgetMax] = useState<string>("");
-  const [timeline, setTimeline] = useState("");
-  const [description, setDescription] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
+  const [careSettingPreference, setCareSettingPreference] = useState("");
 
-  // Current step for progressive form
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  // Form state - Budget & Timeline
+  const [budgetMin, setBudgetMin] = useState("");
+  const [budgetMax, setBudgetMax] = useState("");
+  const [timeline, setTimeline] = useState("");
+
+  // Form state - Preferences
+  const [hobbiesInterests, setHobbiesInterests] = useState("");
+  const [languagePreferences, setLanguagePreferences] = useState<string[]>([]);
+  const [culturalBackground, setCulturalBackground] = useState("");
+
+  // Form state - Privacy
+  const [isPublic, setIsPublic] = useState(false);
+  const [description, setDescription] = useState("");
+
+  // Section collapse state
+  const [expandedSections, setExpandedSections] = useState({
+    preferences: false,
+  });
+
+  // ============================================
+  // EFFECTS
+  // ============================================
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -79,15 +174,28 @@ export default function EditCareProfilePage() {
         const data = await response.json();
         if (data) {
           setProfile(data);
+          // Populate form from existing profile
+          setProfilePhoto(data.profilePhoto || null);
+          setLovedOneName(data.lovedOneName || "");
+          setRelationship(data.relationship || "");
+          setAgeRange(data.ageRange || "");
+          setGender(data.gender || "");
           setCareTypes(data.careTypes || []);
+          setCareLevel(data.careLevel || "");
+          setMobilityStatus(data.mobilityStatus || "");
+          setAdditionalNeeds(data.additionalNeeds || "");
           setCity(data.city || "");
           setState(data.state || "");
           setZipCode(data.zipCode || "");
+          setCareSettingPreference(data.careSettingPreference || "");
           setBudgetMin(data.budgetMin?.toString() || "");
           setBudgetMax(data.budgetMax?.toString() || "");
           setTimeline(data.timeline || "");
-          setDescription(data.description || "");
+          setHobbiesInterests(data.hobbiesInterests?.join(", ") || "");
+          setLanguagePreferences(data.languagePreferences || []);
+          setCulturalBackground(data.culturalBackground || "");
           setIsPublic(data.isPublic || false);
+          setDescription(data.description || "");
         }
       }
     } catch (err) {
@@ -97,10 +205,27 @@ export default function EditCareProfilePage() {
     }
   };
 
+  // ============================================
+  // HANDLERS
+  // ============================================
+
   const handleCareTypeToggle = (type: string) => {
     setCareTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // In production, upload to storage and get URL
+      // For now, create a local preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePhoto(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,30 +236,40 @@ export default function EditCareProfilePage() {
 
     // Validation
     if (careTypes.length === 0) {
-      setError("Please select at least one care type");
+      setError("Please select at least one type of care needed");
       setSaving(false);
-      setCurrentStep(1);
       return;
     }
 
     if (!city || !state || !zipCode) {
-      setError("Please fill in all location fields");
+      setError("Please fill in the location");
       setSaving(false);
-      setCurrentStep(2);
       return;
     }
 
     const data = {
+      profilePhoto,
+      lovedOneName: lovedOneName || null,
+      relationship: relationship || null,
+      ageRange: ageRange || null,
+      gender: gender || null,
       careTypes,
+      careLevel: careLevel || null,
+      mobilityStatus: mobilityStatus || null,
+      additionalNeeds: additionalNeeds || null,
       location: `${city}, ${state} ${zipCode}`,
       city,
       state,
       zipCode,
+      careSettingPreference: careSettingPreference || null,
       budgetMin: budgetMin ? parseInt(budgetMin) : null,
       budgetMax: budgetMax ? parseInt(budgetMax) : null,
       timeline: timeline || null,
-      description: description || null,
+      hobbiesInterests: hobbiesInterests ? hobbiesInterests.split(",").map(s => s.trim()).filter(Boolean) : [],
+      languagePreferences,
+      culturalBackground: culturalBackground || null,
       isPublic,
+      description: description || null,
     };
 
     try {
@@ -152,22 +287,18 @@ export default function EditCareProfilePage() {
 
       const savedProfile = await response.json();
 
-      // Confirm we got a valid profile back before considering save successful
       if (!savedProfile || !savedProfile.id) {
         throw new Error("Save appeared to succeed but no profile was returned");
       }
 
       setProfile(savedProfile);
-      setSaveSucceeded(true);
-      setSuccessMessage("Your care profile has been saved!");
+      setSuccessMessage("Profile saved!");
       window.scrollTo({ top: 0, behavior: "smooth" });
 
-      // Only redirect after confirmed save success
       setTimeout(() => {
         router.push("/care-profile");
       }, 1500);
     } catch (err) {
-      setSaveSucceeded(false);
       setError(err instanceof Error ? err.message : "Failed to save profile");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
@@ -175,292 +306,394 @@ export default function EditCareProfilePage() {
     }
   };
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    }
+  // ============================================
+  // COMPUTED VALUES
+  // ============================================
+
+  const calculateProgress = () => {
+    let filled = 0;
+    let total = 6; // Required + encouraged fields
+
+    if (careTypes.length > 0) filled++;
+    if (city && state && zipCode) filled++;
+    if (lovedOneName) filled++;
+    if (profilePhoto) filled++;
+    if (careLevel) filled++;
+    if (relationship) filled++;
+
+    return Math.round((filled / total) * 100);
   };
 
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
+  const progress = calculateProgress();
+
+  const getDisplayName = () => {
+    if (lovedOneName) return lovedOneName;
+    if (relationship === "SELF") return "You";
+    return "Your loved one";
   };
 
-  const canProceed = () => {
-    switch (currentStep) {
-      case 1:
-        return careTypes.length > 0;
-      case 2:
-        return city && state && zipCode;
-      case 3:
-        return true; // Budget is optional
-      case 4:
-        return true; // Additional details are optional
-      default:
-        return true;
-    }
-  };
+  // ============================================
+  // LOADING STATE
+  // ============================================
 
   if (loading || status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        {/* Hero Skeleton */}
-        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="animate-pulse">
-              <div className="h-8 bg-white/20 rounded-lg w-1/2 mb-4"></div>
-              <div className="h-5 bg-white/20 rounded w-2/3"></div>
-            </div>
-          </div>
-        </div>
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 -mt-8">
+        <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="animate-pulse space-y-6">
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
-              <div className="space-y-4">
-                <div className="h-12 bg-gray-200 rounded"></div>
-                <div className="h-12 bg-gray-200 rounded"></div>
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              <div className="lg:col-span-3 space-y-6">
+                <div className="bg-white rounded-xl p-6 h-48"></div>
+                <div className="bg-white rounded-xl p-6 h-64"></div>
+              </div>
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-xl p-6 h-96"></div>
               </div>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
+
+  // ============================================
+  // RENDER
+  // ============================================
 
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Header */}
-      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {saving ? (
-            <span className="inline-flex items-center gap-2 text-primary-300 mb-4 cursor-not-allowed">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Dashboard
-            </span>
-          ) : (
-            <Link
-              href="/care-profile"
-              className="inline-flex items-center gap-2 text-primary-100 hover:text-white mb-4 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Dashboard
-            </Link>
-          )}
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            {profile ? "Edit Your Care Profile" : "Create Your Care Profile"}
+      {/* Compact Hero - Under 200px */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <Link
+            href="/care-profile"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Dashboard
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {profile ? "Edit Your Care Profile" : "Build Your Care Profile"}
           </h1>
-          <p className="text-primary-100 text-lg">
-            Help us understand your care needs to match you with the right providers
+          <p className="text-gray-600 mt-1">
+            Help providers understand your needs. Complete profiles get 3x more responses.
           </p>
-
-          {/* Progress Steps */}
-          <div className="mt-8">
-            <div className="flex items-center justify-between max-w-md">
-              {[1, 2, 3, 4].map((step) => (
-                <div key={step} className="flex items-center">
-                  <button
-                    onClick={() => !saving && setCurrentStep(step)}
-                    disabled={saving}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                      saving
-                        ? "opacity-50 cursor-not-allowed"
-                        : currentStep === step
-                        ? "bg-white text-primary-700"
-                        : currentStep > step
-                        ? "bg-primary-400 text-white"
-                        : "bg-white/20 text-white/70"
-                    }`}
-                  >
-                    {currentStep > step ? (
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    ) : (
-                      step
-                    )}
-                  </button>
-                  {step < 4 && (
-                    <div className={`w-12 h-1 mx-2 rounded ${currentStep > step ? "bg-primary-400" : "bg-white/20"}`}></div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between max-w-md mt-2 text-xs text-primary-100">
-              <span>Care Type</span>
-              <span>Location</span>
-              <span>Budget</span>
-              <span>Details</span>
-            </div>
-          </div>
         </div>
       </div>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 -mt-4">
-        {/* Success Message */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Messages */}
         {successMessage && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
-            <div className="bg-green-100 p-2 rounded-full">
-              <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
+            <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
             <span className="text-green-800 font-medium">{successMessage}</span>
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center gap-3">
-            <div className="bg-red-100 p-2 rounded-full">
-              <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+            <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span className="text-red-800">{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Step 1: Care Types */}
-          {currentStep === 1 && (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  What type of care do you need?
-                </h2>
-                <p className="text-gray-600">Select all that apply to your situation</p>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            {/* LEFT COLUMN: Form Sections */}
+            <div className="lg:col-span-3 space-y-6">
 
-              <div className="space-y-3">
-                {CARE_TYPES.map((care) => (
-                  <label
-                    key={care.value}
-                    className={`flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                      careTypes.includes(care.value)
-                        ? "border-primary-500 bg-primary-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={careTypes.includes(care.value)}
-                      onChange={() => handleCareTypeToggle(care.value)}
-                      className="sr-only"
-                    />
-                    <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 mr-4 mt-0.5 ${
-                      careTypes.includes(care.value)
-                        ? "bg-primary-600 border-primary-600"
-                        : "border-gray-300"
-                    }`}>
-                      {careTypes.includes(care.value) && (
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
+              {/* SECTION 1: Photo & Basics */}
+              <section className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">Who needs care?</h2>
+                <p className="text-sm text-gray-600 mb-6">Providers respond faster when they know who they&apos;re helping.</p>
+
+                {/* Photo Upload */}
+                <div className="flex items-start gap-6 mb-6">
+                  <div className="shrink-0">
+                    <div className="relative">
+                      {profilePhoto ? (
+                        <img
+                          src={profilePhoto}
+                          alt="Profile"
+                          className="w-24 h-24 rounded-full object-cover border-4 border-primary-100"
+                        />
+                      ) : (
+                        <div className="w-24 h-24 rounded-full bg-gray-100 border-4 border-gray-200 flex items-center justify-center">
+                          <svg className="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
                       )}
+                      <label className="absolute -bottom-1 -right-1 bg-primary-600 text-white p-2 rounded-full cursor-pointer hover:bg-primary-700 transition-colors">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoUpload}
+                          className="hidden"
+                        />
+                      </label>
                     </div>
-                    <div>
-                      <span className={`font-semibold ${careTypes.includes(care.value) ? "text-primary-700" : "text-gray-900"}`}>
-                        {care.label}
-                      </span>
-                      <p className="text-sm text-gray-600 mt-0.5">{care.description}</p>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Location */}
-          {currentStep === 2 && (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Where are you looking for care?
-                </h2>
-                <p className="text-gray-600">Enter the location where care will be provided</p>
-              </div>
-
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">City</label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                    placeholder="e.g. San Diego"
-                  />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-700 mb-1">Add a photo</p>
+                    <p className="text-sm text-gray-500">Profiles with photos get 3x more responses from providers.</p>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+
+                {/* Name & Relationship */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">State</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Their name</label>
+                    <input
+                      type="text"
+                      value={lovedOneName}
+                      onChange={(e) => setLovedOneName(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      placeholder="First name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Your relationship</label>
+                    <select
+                      value={relationship}
+                      onChange={(e) => setRelationship(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="">Select...</option>
+                      {RELATIONSHIPS.map((r) => (
+                        <option key={r.value} value={r.value}>{r.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Age & Gender */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Age range</label>
+                    <select
+                      value={ageRange}
+                      onChange={(e) => setAgeRange(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="">Select...</option>
+                      {AGE_RANGES.map((a) => (
+                        <option key={a.value} value={a.value}>{a.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="">Select...</option>
+                      <option value="FEMALE">Female</option>
+                      <option value="MALE">Male</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              {/* SECTION 2: Care Needs */}
+              <section className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">What kind of care?</h2>
+                <p className="text-sm text-gray-600 mb-6">Select all that apply.</p>
+
+                {/* Care Types */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                  {CARE_TYPES.map((care) => (
+                    <label
+                      key={care.value}
+                      className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                        careTypes.includes(care.value)
+                          ? "border-primary-500 bg-primary-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={careTypes.includes(care.value)}
+                        onChange={() => handleCareTypeToggle(care.value)}
+                        className="sr-only"
+                      />
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mr-3 ${
+                        careTypes.includes(care.value)
+                          ? "bg-primary-600 border-primary-600"
+                          : "border-gray-300"
+                      }`}>
+                        {careTypes.includes(care.value) && (
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-900 text-sm">{care.label}</span>
+                        <p className="text-xs text-gray-500">{care.description}</p>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+
+                {/* Care Level */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">How much help is needed?</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {CARE_LEVELS.map((level) => (
+                      <label
+                        key={level.value}
+                        className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${
+                          careLevel === level.value
+                            ? "border-primary-500 bg-primary-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="careLevel"
+                          value={level.value}
+                          checked={careLevel === level.value}
+                          onChange={(e) => setCareLevel(e.target.value)}
+                          className="sr-only"
+                        />
+                        <span className="font-medium text-sm text-gray-900">{level.label}</span>
+                        <p className="text-xs text-gray-500 mt-0.5">{level.description}</p>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mobility */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Mobility</label>
+                  <select
+                    value={mobilityStatus}
+                    onChange={(e) => setMobilityStatus(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    <option value="">Select...</option>
+                    {MOBILITY_OPTIONS.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </section>
+
+              {/* SECTION 3: Location */}
+              <section className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">Where is care needed?</h2>
+                <p className="text-sm text-gray-600 mb-6">We&apos;ll show you providers nearby.</p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      placeholder="City"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
                     <input
                       type="text"
                       value={state}
                       onChange={(e) => setState(e.target.value.toUpperCase().slice(0, 2))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                       placeholder="CA"
                       maxLength={2}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">ZIP Code</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">ZIP</label>
                     <input
                       type="text"
                       value={zipCode}
                       onChange={(e) => setZipCode(e.target.value.slice(0, 5))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                       placeholder="92101"
                       maxLength={5}
                     />
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* Step 3: Budget & Timeline */}
-          {currentStep === 3 && (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Budget & Timeline
-                </h2>
-                <p className="text-gray-600">Help providers understand your requirements (optional)</p>
-              </div>
-
-              <div className="space-y-6">
-                {/* Budget */}
+                {/* Care Setting */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Monthly Budget Range</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Where would you like care?</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {CARE_SETTINGS.map((setting) => (
+                      <label
+                        key={setting.value}
+                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                          careSettingPreference === setting.value
+                            ? "border-primary-500 bg-primary-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="careSetting"
+                          value={setting.value}
+                          checked={careSettingPreference === setting.value}
+                          onChange={(e) => setCareSettingPreference(e.target.value)}
+                          className="sr-only"
+                        />
+                        <span className="font-medium text-gray-900">{setting.label}</span>
+                        <p className="text-xs text-gray-500 mt-0.5">{setting.description}</p>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* SECTION 4: Budget & Timeline */}
+              <section className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">Budget &amp; timing</h2>
+                <p className="text-sm text-gray-600 mb-6">Optional, but helps providers give accurate quotes.</p>
+
+                {/* Budget */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Monthly budget</label>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                       <input
                         type="number"
                         value={budgetMin}
                         onChange={(e) => setBudgetMin(e.target.value)}
-                        className="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                        placeholder="Minimum"
+                        className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Min"
                       />
                     </div>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                       <input
                         type="number"
                         value={budgetMax}
                         onChange={(e) => setBudgetMax(e.target.value)}
-                        className="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                        placeholder="Maximum"
+                        className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Max"
                       />
                     </div>
                   </div>
@@ -468,13 +701,13 @@ export default function EditCareProfilePage() {
 
                 {/* Timeline */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">When do you need care?</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {TIMELINES.map((option) => (
+                  <label className="block text-sm font-medium text-gray-700 mb-3">When do you need care?</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {TIMELINES.map((t) => (
                       <label
-                        key={option.value}
-                        className={`flex flex-col p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          timeline === option.value
+                        key={t.value}
+                        className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${
+                          timeline === t.value
                             ? "border-primary-500 bg-primary-50"
                             : "border-gray-200 hover:border-gray-300"
                         }`}
@@ -482,152 +715,281 @@ export default function EditCareProfilePage() {
                         <input
                           type="radio"
                           name="timeline"
-                          value={option.value}
-                          checked={timeline === option.value}
+                          value={t.value}
+                          checked={timeline === t.value}
                           onChange={(e) => setTimeline(e.target.value)}
                           className="sr-only"
                         />
-                        <span className={`font-semibold ${timeline === option.value ? "text-primary-700" : "text-gray-900"}`}>
-                          {option.label}
-                        </span>
-                        <span className="text-xs text-gray-500 mt-1">{option.description}</span>
+                        <span className="font-medium text-sm text-gray-900">{t.label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </section>
 
-          {/* Step 4: Additional Details */}
-          {currentStep === 4 && (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Additional Details
-                </h2>
-                <p className="text-gray-600">Share any other information that might help providers</p>
-              </div>
+              {/* SECTION 5: Preferences (Collapsible) */}
+              <section className="bg-white rounded-xl border border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setExpandedSections(prev => ({ ...prev, preferences: !prev.preferences }))}
+                  className="w-full p-6 flex items-center justify-between text-left"
+                >
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">Preferences</h2>
+                    <p className="text-sm text-gray-600">Optional details for better matches</p>
+                  </div>
+                  <svg
+                    className={`w-5 h-5 text-gray-500 transition-transform ${expandedSections.preferences ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
 
-              <div className="space-y-6">
-                {/* Description */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Tell us more about your care needs
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={5}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"
-                    placeholder="Share details about your loved one's condition, preferences, daily routines, or any special requirements..."
-                  />
-                  <p className="text-sm text-gray-500 mt-2">
-                    This helps providers understand your unique situation
-                  </p>
-                </div>
-
-                {/* Visibility */}
-                <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
-                  <label className="flex items-start gap-4 cursor-pointer">
-                    <div className="relative shrink-0 mt-0.5">
+                {expandedSections.preferences && (
+                  <div className="px-6 pb-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Hobbies &amp; interests</label>
                       <input
-                        type="checkbox"
-                        checked={isPublic}
-                        onChange={(e) => setIsPublic(e.target.checked)}
-                        className="sr-only peer"
+                        type="text"
+                        value={hobbiesInterests}
+                        onChange={(e) => setHobbiesInterests(e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Reading, gardening, music..."
                       />
-                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                      <p className="text-xs text-gray-500 mt-1">Separate with commas</p>
                     </div>
                     <div>
-                      <span className="font-semibold text-gray-900">Make my profile visible to providers</span>
-                      <p className="text-sm text-gray-600 mt-1">
-                        When enabled, care providers can find your profile and reach out to you. When disabled, only providers you contact can see your information.
-                      </p>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Cultural background</label>
+                      <input
+                        type="text"
+                        value={culturalBackground}
+                        onChange={(e) => setCulturalBackground(e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Any preferences..."
+                      />
                     </div>
-                  </label>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Anything else providers should know?</label>
+                      <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={3}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                        placeholder="Special routines, medical notes, preferences..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </section>
+
+              {/* SECTION 6: Privacy */}
+              <section className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">Privacy</h2>
+                <p className="text-sm text-gray-600 mb-6">Control who can see your profile.</p>
+
+                <label className="flex items-start gap-4 cursor-pointer">
+                  <div className="relative shrink-0 mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={isPublic}
+                      onChange={(e) => setIsPublic(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-900">Let providers find me</span>
+                    <p className="text-sm text-gray-600 mt-0.5">
+                      When on, providers in your area can see your profile and reach out. When off, only providers you contact can see your info.
+                    </p>
+                  </div>
+                </label>
+              </section>
+
+              {/* Save Button */}
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex items-center gap-2 px-8 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {saving ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Save Profile
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: Live Preview */}
+            <div className="lg:col-span-2">
+              <div ref={previewRef} className="lg:sticky lg:top-8 space-y-6">
+                {/* Progress Card */}
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-semibold text-gray-900">Profile completion</span>
+                    <span className={`text-lg font-bold ${progress >= 80 ? "text-green-600" : progress >= 50 ? "text-amber-600" : "text-gray-600"}`}>
+                      {progress}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all ${progress >= 80 ? "bg-green-500" : progress >= 50 ? "bg-amber-500" : "bg-gray-400"}`}
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                  {progress < 80 && (
+                    <p className="text-sm text-gray-600 mt-3">
+                      {!profilePhoto && "Add a photo, "}
+                      {!lovedOneName && "add a name, "}
+                      {careTypes.length === 0 && "select care types, "}
+                      {(!city || !state || !zipCode) && "add location "}
+                      to improve your profile.
+                    </p>
+                  )}
                 </div>
 
-                {/* Summary */}
-                <div className="bg-primary-50 rounded-xl p-5 border border-primary-200">
-                  <h3 className="font-semibold text-primary-900 mb-3 flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Profile Summary
-                  </h3>
-                  <div className="space-y-2 text-sm text-primary-800">
-                    <p><strong>Care Types:</strong> {careTypes.map(ct => ct.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')).join(', ') || 'None selected'}</p>
-                    <p><strong>Location:</strong> {city && state ? `${city}, ${state} ${zipCode}` : 'Not specified'}</p>
-                    {budgetMin && budgetMax && <p><strong>Budget:</strong> ${budgetMin} - ${budgetMax}/month</p>}
-                    {timeline && <p><strong>Timeline:</strong> {timeline}</p>}
+                {/* Live Preview Card */}
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+                    <p className="text-sm font-medium text-gray-600">What providers see</p>
                   </div>
+                  <div className="p-5">
+                    {/* Preview Header */}
+                    <div className="flex items-start gap-4 mb-4">
+                      {profilePhoto ? (
+                        <img
+                          src={profilePhoto}
+                          alt="Profile"
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {getDisplayName()}
+                        </h3>
+                        {ageRange && (
+                          <p className="text-sm text-gray-600">
+                            {AGE_RANGES.find(a => a.value === ageRange)?.label}
+                            {gender && `, ${gender === "MALE" ? "Male" : gender === "FEMALE" ? "Female" : "Other"}`}
+                          </p>
+                        )}
+                        {city && state && (
+                          <p className="text-sm text-gray-500">{city}, {state}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Care Types */}
+                    {careTypes.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Needs help with</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {careTypes.map((type) => (
+                            <span key={type} className="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">
+                              {CARE_TYPES.find(c => c.value === type)?.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Details */}
+                    <div className="space-y-2 text-sm">
+                      {careLevel && (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {CARE_LEVELS.find(l => l.value === careLevel)?.label}
+                        </div>
+                      )}
+                      {timeline && (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {TIMELINES.find(t => t.value === timeline)?.label}
+                        </div>
+                      )}
+                      {(budgetMin || budgetMax) && (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          ${budgetMin || "?"} - ${budgetMax || "?"}/mo
+                        </div>
+                      )}
+                      {careSettingPreference && (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          </svg>
+                          {CARE_SETTINGS.find(s => s.value === careSettingPreference)?.label}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Empty state */}
+                    {careTypes.length === 0 && !city && !lovedOneName && (
+                      <div className="text-center py-4">
+                        <p className="text-sm text-gray-500">Fill in your profile to see a preview</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Why complete */}
+                <div className="bg-primary-50 rounded-xl border border-primary-100 p-5">
+                  <h3 className="font-semibold text-primary-900 mb-3">Why complete your profile?</h3>
+                  <ul className="space-y-2 text-sm text-primary-800">
+                    <li className="flex items-start gap-2">
+                      <svg className="w-4 h-4 text-primary-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Get matched with the right providers
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg className="w-4 h-4 text-primary-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Providers respond faster to complete profiles
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg className="w-4 h-4 text-primary-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Find benefits to help pay for care
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
-          )}
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center mt-6">
-            <button
-              type="button"
-              onClick={prevStep}
-              disabled={saving}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${
-                currentStep === 1
-                  ? "invisible"
-                  : saving
-                  ? "text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed"
-                  : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </button>
-
-            {currentStep < totalSteps ? (
-              <button
-                type="button"
-                onClick={nextStep}
-                disabled={!canProceed()}
-                className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Continue
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center gap-2 px-8 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {saving ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Save Profile
-                  </>
-                )}
-              </button>
-            )}
           </div>
         </form>
       </main>
 
-      {/* Footer */}
       <Footer variant="light" />
     </div>
   );
