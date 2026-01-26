@@ -53,6 +53,9 @@
 | CC-28 | **One unified card system** — Consolidate to a single card design system across entire site: hiring marketplace, provider leads, requests, family-facing views. No more introducing new card styles. | `VISUAL` `UX` | Open |
 | CC-29 | **Unified color system** — Color themes must be unified across the platform. No mixing blue with green inconsistently. Color usage should be predictable and meaningful. | `VISUAL` | Open |
 | CC-30 | **Matching algorithm consistency** — Matching logic must be verified and consistent across: families ↔ providers, providers ↔ providers (hiring marketplace). Match percentages should be meaningful. | `LOGIC` `DATA` | Open |
+| CC-31 | **Eliminate duplicate browse pages** — /provider/organizations and /caregiver/browse-organizations serve the same function. Must consolidate to one canonical page. No parallel pages for same function. | `LOGIC` `UX` | Open |
+| CC-32 | **Hiring marketplace core loop** — For individual caregivers: Create profile once → Apply to 3–5 organizations → Schedule 3–5 interviews → Get hired. UI, copy, CTAs, and navigation must all reinforce this loop. | `GUIDANCE` `UX` | Open |
+| CC-33 | **Apply flow must explain profile sharing** — When caregivers apply, page must explicitly state: submitting shares your profile, more information increases hiring chances, goal is to complete 3–5 interviews. | `GUIDANCE` `COPY` | Open |
 
 ---
 
@@ -1016,6 +1019,161 @@ Page must clearly answer:
 - Every page ladders to: Create profile → get matched → schedule meetings → track engagements
 
 **This is core revenue-driving UX. Treat these as first-class, high-leverage surfaces.**
+
+---
+
+## Hiring Marketplace Pages (Caregiver Job Seeking)
+
+This section covers the experience for individual caregivers seeking jobs. Overall theme: confusing navigation, inconsistent language, duplicate pages, weak CTAs, and lack of guidance toward interviews.
+
+**Core loop that must be reinforced**: Create profile → Apply to 3–5 orgs → Schedule 3–5 interviews → Get hired (CC-32)
+
+---
+
+### 18. Find Organizations Page — `/provider/organizations`
+
+**Current Rating**: C-
+**Target Rating**: A+
+**Status**: Audited
+**Priority**: HIGH — Needs full overhaul in design and framing
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| FO-5 | **Hero color blue, inconsistent with site** — Visual language doesn't match platform design system. See CC-29. | `VISUAL` | Open |
+| FO-6 | **Hero takes far too much vertical space** — Wastes viewport, pushes content down. | `VISUAL` `UX` | Open |
+| FO-7 | **"My Applications" introduces semantic drift** — Confusing language. Caregivers think in terms of "looking for orgs that are hiring" and "applying for interviews", not "applications". | `COPY` `UX` | Open |
+| FO-8 | **Purpose not explicit** — Page must clearly state: Apply to 3–5 organizations, schedule 3–5 interviews, get hired. See CC-32. | `GUIDANCE` `COPY` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| FO-9 | **Design feels unfinished and visually confusing** — Overall UX needs significant polish. | `VISUAL` `UX` | Open |
+| FO-10 | **Cards must follow gold standard** — When seeded data is added, cards must match platform card system. See CC-28. | `VISUAL` `UX` | Open |
+| FO-11 | **CTAs should be "Apply now"** — Not generic actions. Clear, action-oriented language. | `CTA` | Open |
+
+---
+
+### 19. My Opportunities Page — `/provider/opportunities`
+
+**Current Rating**: C+
+**Target Rating**: A+
+**Status**: Audited
+
+Directionally correct but needs clarity, better guidance, and cleaner design.
+
+---
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| MO-1 | **Hero too large, dark green inconsistent** — Visual weight overwhelms content. Color doesn't align with platform. See CC-29. | `VISUAL` `UX` | Open |
+| MO-2 | **"My Opportunities" may not be intuitive** — Should clearly communicate: organizations interested in you, places you've applied, interviews you're scheduling. | `COPY` `GUIDANCE` | Open |
+| MO-3 | **Cards must match gold standard** — Closer to usable but still not meeting platform standard. See CC-28. | `VISUAL` `UX` | Open |
+| MO-4 | **Need "Apply now" or "Schedule interview" CTAs** — Current CTAs are unclear and generic. | `CTA` | Open |
+| MO-5 | **Should guide users toward interviews** — Page purpose is moving caregivers toward scheduled interviews. | `GUIDANCE` `UX` | Open |
+
+---
+
+### 20. CRITICAL: Duplicate Browse Pages
+
+**Priority**: CRITICAL — Must fix immediately
+
+---
+
+#### Critical Issue
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| DP-1 | **Duplicate pages for same function** — /caregiver/browse-organizations and /provider/organizations serve the same purpose. Clicking "View All" from My Opportunities routes to /caregiver/browse-organizations, which is different from /provider/organizations. This duplication is extremely confusing and unacceptable. See CC-31. | `LOGIC` `UX` | Open |
+
+#### Required Action
+- Consolidate to ONE canonical page for caregivers browsing hiring organizations
+- Suggested: Keep /provider/browse-organizations (or similar)
+- Remove or redirect all other variants
+- No parallel caregiver vs provider browse pages for the same function
+
+---
+
+### 21. Caregiver Browse Organizations — `/caregiver/browse-organizations`
+
+**Current Rating**: C+
+**Target Rating**: A+ (or consolidate into canonical page)
+**Status**: Audited
+
+Better than /provider/organizations but still has issues.
+
+---
+
+#### What Works
+- Better hero sizing and color (closer to correct)
+- Clear structure: "Organizations looking for you" (matched) + "Browse all organizations"
+- Match percentage is useful
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| CB-1 | **Cards not gold standard** — Must match platform card system. See CC-28. | `VISUAL` `UX` | Open |
+| CB-2 | **"View opportunities" is unclear CTA** — Should be "Apply now". Clear, action-oriented. | `CTA` `COPY` | Open |
+| CB-3 | **Semantic drift across pages** — Language inconsistency with other hiring pages must be eliminated. | `COPY` | Open |
+
+---
+
+### 22. Organization Detail / Apply Flow — `/caregiver/browse-organizations/[id]`
+
+**Current Rating**: C-
+**Target Rating**: A+
+**Status**: Audited
+**Priority**: HIGH — Core conversion page for hiring marketplace
+
+This page must be reframed as an Apply + Schedule Interview page.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| OA-1 | **Page not delightful or clear** — UX feels unfinished and doesn't guide user effectively. | `UX` | Open |
+| OA-2 | **Doesn't explain profile sharing** — Must explicitly state: "Submitting this request shares your profile with [Organization]". See CC-33. | `GUIDANCE` `COPY` | Open |
+| OA-3 | **Doesn't explain what org will see** — Caregivers need to know what information is shared. | `GUIDANCE` `COPY` | Open |
+| OA-4 | **Doesn't explain goal is interview scheduling** — Primary purpose must be obvious. | `GUIDANCE` `COPY` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| OA-5 | **No guidance to improve profile completeness** — Should encourage adding more info to increase hiring chances. | `GUIDANCE` `UX` | Open |
+| OA-6 | **No guidance to apply to more orgs** — After submission, should guide users back to apply to more organizations. | `GUIDANCE` `UX` | Open |
+| OA-7 | **No reinforcement of core loop** — Must reinforce: Apply → Interview → Compare → Get hired. See CC-32. | `GUIDANCE` | Open |
+
+---
+
+### Hiring Marketplace — Summary
+
+| Page | Rating | Priority | Key Issue |
+|------|--------|----------|-----------|
+| Find Organizations | C- | High | Design overhaul, semantic drift |
+| My Opportunities | C+ | Medium | Hero, unclear purpose, weak CTAs |
+| Duplicate Pages | CRITICAL | Immediate | Must consolidate to one canonical page |
+| Caregiver Browse Orgs | C+ | Medium | Cards, CTAs, semantic drift |
+| Apply Flow | C- | High | No profile sharing explanation, no guidance |
+
+**Required Actions**:
+1. Eliminate duplicate browse pages (CC-31)
+2. Standardize language across all hiring pages
+3. Apply gold standard card design everywhere (CC-28)
+4. Replace generic CTAs with "Apply now" / "Schedule interview"
+5. Redesign apply pages to explain: profile sharing, interview scheduling, next steps
+6. Make hiring journey obvious, simple, intentional (CC-32)
+
+**This section is core to marketplace value and requires a thoughtful, unified redesign to reach A+ quality.**
 
 ---
 
