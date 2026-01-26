@@ -1,5 +1,6 @@
 import { PrismaClient, ProviderType, CareType, RequestType, ConsultRequestStatus } from '@prisma/client';
 import { hash } from 'bcryptjs';
+import { US_LOCATIONS } from './data/us-locations';
 
 // Create a local prisma client for CLI usage
 // When called from API, the shared client is passed as parameter
@@ -124,6 +125,51 @@ const CA_LOCATIONS = [
   { city: 'Palm Springs', state: 'CA', zip: '92262', lat: 33.8303, lng: -116.5453 },
 ];
 
+/**
+ * Seed Location table with US cities data
+ * Uses upsert to avoid duplicates and allow re-running
+ */
+async function seedLocations() {
+  console.log('📍 Seeding Location table with US cities...');
+
+  let created = 0;
+  let skipped = 0;
+
+  for (const loc of US_LOCATIONS) {
+    try {
+      await prisma.location.upsert({
+        where: {
+          city_state: {
+            city: loc.city,
+            state: loc.state,
+          },
+        },
+        update: {
+          stateName: loc.stateName,
+          county: loc.county,
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+          population: loc.population,
+        },
+        create: {
+          city: loc.city,
+          state: loc.state,
+          stateName: loc.stateName,
+          county: loc.county,
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+          population: loc.population,
+        },
+      });
+      created++;
+    } catch (e) {
+      skipped++;
+    }
+  }
+
+  console.log(`   ✅ Locations: ${created} created/updated, ${skipped} skipped\n`);
+}
+
 async function main(externalPrisma?: PrismaClient) {
   // Use external prisma client if provided (for API usage), otherwise use local
   if (externalPrisma) {
@@ -131,6 +177,9 @@ async function main(externalPrisma?: PrismaClient) {
   }
 
   console.log('🌱 Starting MEGA database seed (90+ accounts)...\n');
+
+  // Seed locations first (foundation data)
+  await seedLocations();
 
   // Get admin users to preserve
   const adminUsers = await prisma.user.findMany({
