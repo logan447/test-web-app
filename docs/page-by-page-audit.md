@@ -50,6 +50,9 @@
 | CC-25 | **Dual marketplace awareness** — Provider mode is not just a family leads marketplace. There's also a hiring marketplace where providers browse caregivers for staff. This must be introduced during onboarding. | `GUIDANCE` `UX` | Open |
 | CC-26 | **Card design consistency** — All cards across the platform must use consistent visual language and match the best-designed cards. No weak, generic, or inconsistent card styles. | `VISUAL` `UX` | Open |
 | CC-27 | **Provider story ladder** — All provider pages must ladder to one obvious story: Create profile → Get discovered → Schedule conversations → Hire or get hired. | `GUIDANCE` `UX` | Open |
+| CC-28 | **One unified card system** — Consolidate to a single card design system across entire site: hiring marketplace, provider leads, requests, family-facing views. No more introducing new card styles. | `VISUAL` `UX` | Open |
+| CC-29 | **Unified color system** — Color themes must be unified across the platform. No mixing blue with green inconsistently. Color usage should be predictable and meaningful. | `VISUAL` | Open |
+| CC-30 | **Matching algorithm consistency** — Matching logic must be verified and consistent across: families ↔ providers, providers ↔ providers (hiring marketplace). Match percentages should be meaningful. | `LOGIC` `DATA` | Open |
 
 ---
 
@@ -831,6 +834,188 @@ The following pages require individual detailed audits:
 - Reinforce that the platform exists to schedule meetings
 - Make clear that profiles reduce friction and speed engagement
 - Support the story ladder: Create profile → Get discovered → Schedule conversations → Hire or get hired
+
+---
+
+### 14. Leads Page — Extended Audit (`/provider/leads`)
+
+**Current Rating**: C+ (updated from B-/C+)
+**Target Rating**: A+
+**Status**: Audited (expanded)
+
+Building on initial audit, this captures additional card and CTA issues.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| LP-7 | **Matched cards don't meet gold standard** — No profile images, minimal information, inconsistent layout vs. cards used elsewhere (city pages, provider cards). See CC-28. | `VISUAL` `UX` | Open |
+| LP-8 | **CTA says "Save lead" — incorrect** — CTA must reflect intended action: "Schedule a consultation", "Schedule a tour", "Schedule an interview". Platform's purpose is facilitating meetings. | `CTA` `UX` | Open |
+
+#### Notes
+- "Matched" section is critical — providers land here first
+- All cards across all sections must be reconciled to gold standard
+- Previous issues (LP-1 through LP-6) still apply
+
+---
+
+### 15. Provider Requests Page — `/provider/requests`
+
+**Current Rating**: C+
+**Target Rating**: A+
+**Status**: Audited
+
+Directionally correct, but inconsistent and visually messy.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| PR-1 | **Yet another new card style** — This must stop. Cards should match global card standard. See CC-28. | `VISUAL` `UX` | Open |
+| PR-2 | **"View profile" is wrong CTA** — Should be subtype-specific: Facility → "Schedule a tour", Home care → "Schedule a consultation", Individual caregiver → "Schedule an interview". See CC-9. | `CTA` `UX` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| PR-3 | **Too much vertical space in header** — Header is oversized and wastes viewport. | `VISUAL` `UX` | Open |
+| PR-4 | **Color too dark, inconsistent with other pages** — Doesn't align with platform color system. | `VISUAL` | Open |
+| PR-5 | **"35% match" badge needs verification** — Matching algorithm must be verified and consistent. See CC-30. | `LOGIC` `DATA` | Open |
+| PR-6 | **Inconsistent color usage (blue mixed with green)** — Color themes must be unified. See CC-29. | `VISUAL` | Open |
+| PR-7 | **Need more explicit guidance** — Should guide users toward outreach, scheduling meetings, moving engagements forward. | `GUIDANCE` `UX` | Open |
+
+#### Keep (working well)
+- Toggle between "Families reaching out" and "Your outreach" makes sense
+
+---
+
+### 16. My Profile Page (Provider) — `/provider/profile`
+
+**Current Rating**: C-
+**Target Rating**: A+
+**Status**: Audited
+**Priority**: HIGH — One of the weakest pages reviewed
+
+This page is overbuilt and unfocused. Needs radical simplification.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| PP-1 | **Page doesn't focus on what matters** — Should focus almost entirely on: calendar, upcoming and scheduled engagements. Currently cluttered with irrelevant sections. | `UX` `GUIDANCE` | Open |
+| PP-2 | **"Complete your profile" widget poorly designed and redundant** — There's already an Edit Profile button. Widget is unnecessary clutter. | `UX` `VISUAL` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| PP-3 | **Inconsistent and awkward hero/header styling** — Visual design doesn't align with platform standards. | `VISUAL` | Open |
+| PP-4 | **Poor color choices** — Colors feel off and inconsistent. See CC-29. | `VISUAL` | Open |
+| PP-5 | **Quick actions irrelevant and misaligned with goals** — Actions shown don't support the core purpose of scheduling meetings. | `UX` `GUIDANCE` | Open |
+| PP-6 | **Performance insights unnecessary** — Adds clutter without clear value. | `UX` | Open |
+| PP-7 | **Request activity and recent activity confusing/redundant** — These should live in notifications, not on this page. See CC-18. | `UX` | Open |
+| PP-8 | **Provider subtype not shaping content** — What's shown should vary based on provider type. | `UX` `DATA` | Open |
+
+---
+
+#### My Profile — Required Direction
+
+This page should mirror the family Care Profile philosophy:
+- **Simple**
+- **Action-oriented**
+- **Calendar-first**
+
+Focus almost entirely on:
+- Calendar
+- Upcoming and scheduled engagements
+- Clear path to Edit Profile
+
+Remove or relocate:
+- Performance insights
+- Request activity → Notifications
+- Recent activity → Notifications
+- Redundant "Complete your profile" widget
+
+---
+
+### 17. Edit Provider Profile Page — `/provider/profile/edit`
+
+**Current Rating**: C- (barely passing)
+**Target Rating**: A+
+**Status**: Audited
+**Priority**: HIGH — Requires full overhaul
+
+This page feels underdeveloped and not delightful. Does not anticipate user needs.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| EP-1 | **Visibility toggles incorrect** — Must be split into two separate toggles: visibility to Families AND visibility to Organizations (for hiring). | `LOGIC` `UX` | Open |
+| EP-2 | **No live preview mode** — Providers should see what their public profile looks like. Preview should update as edits are made and be openable in separate tab. | `UX` | Open |
+| EP-3 | **Page doesn't explain why filling out matters** — Must clearly communicate how completing profile increases meetings, hiring, and demand/supply balance. | `GUIDANCE` `COPY` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| EP-4 | **Profile fields not subtype-specific** — Fields should adapt based on: facilities, agencies, home care, individual caregivers. | `UX` `DATA` | Open |
+| EP-5 | **Fields not clearly optional vs required** — Users need to understand what's minimum viable vs. optional enrichment. | `UX` `GUIDANCE` | Open |
+| EP-6 | **Fields not framed around value** — Each field should explain how it improves matching and engagement. | `GUIDANCE` `COPY` | Open |
+| EP-7 | **No distinction between minimum viable and enrichment** — Should clearly separate: minimum viable profile (for visibility) vs. optional enrichment fields (to improve matching). | `UX` `GUIDANCE` | Open |
+| EP-8 | **Page feels underdeveloped and not delightful** — UX doesn't anticipate user needs or guide them effectively. | `UX` | Open |
+
+---
+
+#### Edit Provider Profile — Required Direction
+
+**Best-in-class profile editing experience**:
+- Clear distinction between minimum viable profile (for visibility) and optional enrichment fields (to improve matching)
+- Strong subtype awareness (facilities, agencies, home care, individual caregivers)
+- Live preview mode that updates as edits are made
+- Openable in separate tab
+
+**Visibility model**:
+- Split into two separate toggles:
+  - Visible to Families (for leads)
+  - Visible to Organizations (for hiring marketplace)
+
+**Framing**:
+Page must clearly answer:
+- Why filling this out matters
+- How it increases meetings, hiring, and demand/supply balance
+
+**Goal should be explicit**:
+- Help providers meet 3–5 families per week
+- Help providers meet 3–5 caregivers per week
+- Keep supply and demand balanced
+
+---
+
+### Provider-Side Pages — Summary
+
+| Page | Rating | Priority | Key Issue |
+|------|--------|----------|-----------|
+| Leads (expanded) | C+ | High | Card system, wrong CTAs |
+| Requests | C+ | High | Inconsistent cards, wrong CTAs, color issues |
+| My Profile | C- | High | Overbuilt, unfocused, not calendar-first |
+| Edit Profile | C- | High | No preview, wrong visibility model, not subtype-aware |
+
+**Cross-cutting requirements**:
+- One card system across entire platform (CC-28)
+- Consistent color system (CC-29)
+- CTAs always reflect next real-world action
+- Every page ladders to: Create profile → get matched → schedule meetings → track engagements
+
+**This is core revenue-driving UX. Treat these as first-class, high-leverage surfaces.**
 
 ---
 
