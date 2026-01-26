@@ -48,6 +48,8 @@ export interface ProviderCardProps {
     licensed?: boolean;
     backgroundChecked?: boolean;
     insuranceVerified?: boolean;
+    // Cached Olera Score from database
+    oleraScore?: number | null;
   };
   variant?: "horizontal" | "vertical";
   showRequestStatus?: boolean;
@@ -292,6 +294,7 @@ export default function ProviderCard({
                 }}
                 averageRating={provider.averageRating ?? null}
                 reviewCount={provider.reviewCount ?? 0}
+                cachedScore={provider.oleraScore}
               />
             </div>
 
@@ -472,6 +475,7 @@ export default function ProviderCard({
             }}
             averageRating={provider.averageRating ?? null}
             reviewCount={provider.reviewCount ?? 0}
+            cachedScore={provider.oleraScore}
           />
         </div>
 

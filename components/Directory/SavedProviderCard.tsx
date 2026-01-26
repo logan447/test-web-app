@@ -45,6 +45,7 @@ interface SavedProviderCardProps {
       phone?: string | null;
       email?: string | null;
       website?: string | null;
+      oleraScore?: number | null;
     };
     notes?: string | null;
     createdAt: string;
@@ -336,6 +337,7 @@ export default function SavedProviderCard({
               }}
               averageRating={provider.averageRating ?? null}
               reviewCount={provider.reviewCount ?? 0}
+              cachedScore={provider.oleraScore}
             />
           </div>
 

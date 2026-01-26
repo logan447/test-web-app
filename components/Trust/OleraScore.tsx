@@ -121,6 +121,25 @@ const badgeColors: Record<ScoreBadge['type'], { bg: string; text: string }> = {
   no_reviews: { bg: "bg-blue-100", text: "text-blue-700" },
 };
 
+// Helper functions to derive tier and label from cached score
+function getTierFromScore(score: number): ScoreTier {
+  if (score >= 4.5) return "exceptional";
+  if (score >= 4.0) return "excellent";
+  if (score >= 3.5) return "very_good";
+  if (score >= 3.0) return "good";
+  if (score >= 2.0) return "fair";
+  return "limited_data";
+}
+
+function getLabelFromScore(score: number): string {
+  if (score >= 4.5) return "Exceptional";
+  if (score >= 4.0) return "Excellent";
+  if (score >= 3.5) return "Very Good";
+  if (score >= 3.0) return "Good";
+  if (score >= 2.0) return "Fair";
+  return "Limited Data";
+}
+
 export default function OleraScore({
   provider,
   averageRating,
@@ -277,20 +296,34 @@ export default function OleraScore({
 
 /**
  * Compact inline version for cards
+ * Supports optional cachedScore to avoid recalculation on list pages
  */
 export function OleraScoreBadge({
   provider,
   averageRating,
   reviewCount,
   googleRating,
+  cachedScore,
   className = "",
-}: Omit<OleraScoreProps, "size" | "showLabel" | "showBreakdown" | "showBadges">) {
-  const result = calculateOleraScore({
-    averageRating,
-    googleRating,
-    reviewCount,
-    provider,
-  });
+}: Omit<OleraScoreProps, "size" | "showLabel" | "showBreakdown" | "showBadges"> & {
+  cachedScore?: number | null;
+}) {
+  // Use cached score if available, otherwise calculate
+  const result = cachedScore !== undefined && cachedScore !== null
+    ? {
+        score: cachedScore,
+        tier: getTierFromScore(cachedScore),
+        label: getLabelFromScore(cachedScore),
+        tooltip: `Olera Score: ${cachedScore.toFixed(1)}/5`,
+        badges: [],
+        breakdown: { or: averageRating, gr: googleRating ?? null, pc: 0, pcPercentage: 0, weights: { or: 0.6, gr: 0, pc: 0.4 } },
+      }
+    : calculateOleraScore({
+        averageRating,
+        googleRating,
+        reviewCount,
+        provider,
+      });
 
   const colors = tierColors[result.tier];
   const displayScore = result.score !== null ? result.score.toFixed(1) : "—";

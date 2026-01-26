@@ -31,6 +31,7 @@ interface CaregiverCardProps {
     priceDescription?: string | null;
     serviceRadius?: number | null;
     claimed?: boolean;
+    oleraScore?: number | null;
   };
   linkHref?: string;
   hasRequest?: boolean;
@@ -219,6 +220,7 @@ export default function CaregiverCard({
               }}
               averageRating={caregiver.averageRating ?? null}
               reviewCount={caregiver.reviewCount ?? 0}
+              cachedScore={caregiver.oleraScore}
             />
           </div>
 

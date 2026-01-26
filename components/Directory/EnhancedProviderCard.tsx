@@ -48,6 +48,7 @@ interface EnhancedProviderCardProps {
     phone?: string | null;
     email?: string | null;
     website?: string | null;
+    oleraScore?: number | null;
   };
   linkHref?: string;
   hasRequestSent?: boolean;
@@ -301,6 +302,7 @@ export default function EnhancedProviderCard({
               }}
               averageRating={provider.averageRating ?? null}
               reviewCount={provider.reviewCount ?? 0}
+              cachedScore={provider.oleraScore}
             />
           </div>
 

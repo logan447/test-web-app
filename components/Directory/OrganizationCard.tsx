@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { OleraScoreBadge } from "@/components/Trust/OleraScore";
 
 // Provider type categories for styling (matching ProviderCard gold standard)
 const FACILITY_TYPES = [
@@ -20,12 +21,14 @@ interface OrganizationCardProps {
     providerType: string;
     description?: string | null;
     careTypesOffered?: string[];
+    address?: string;
     city: string;
     state: string;
     yearsInBusiness?: number;
     licensed?: boolean;
-    email?: string;
-    phone?: string;
+    email?: string | null;
+    phone?: string | null;
+    website?: string | null;
     coverPhoto?: string | null;
     photos?: string[];
     verified?: boolean;
@@ -35,6 +38,9 @@ interface OrganizationCardProps {
     reviewCount?: number;
     priceMin?: number | null;
     priceMax?: number | null;
+    priceDescription?: string | null;
+    claimed?: boolean;
+    oleraScore?: number | null;
   };
   linkHref?: string;
   hasRequest?: boolean;
@@ -199,17 +205,32 @@ export default function OrganizationCard({
                 {price || "Contact for pricing"}
               </p>
             </div>
-            {organization.averageRating && organization.averageRating > 0 && (
-              <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">
-                <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-                <span className="text-lg font-bold text-gray-900">{organization.averageRating.toFixed(1)}</span>
-                {organization.reviewCount && organization.reviewCount > 0 && (
-                  <span className="text-sm text-gray-500">({organization.reviewCount})</span>
-                )}
-              </div>
-            )}
+            <OleraScoreBadge
+              provider={{
+                name: organization.name,
+                providerType: organization.providerType as any,
+                description: organization.description,
+                address: organization.address,
+                city: organization.city,
+                state: organization.state,
+                phone: organization.phone,
+                email: organization.email,
+                website: organization.website,
+                careTypesOffered: organization.careTypesOffered,
+                licensed: organization.licensed,
+                backgroundChecked: organization.backgroundChecked,
+                insuranceVerified: organization.insuranceVerified,
+                coverPhoto: organization.coverPhoto,
+                photos: organization.photos,
+                priceMin: organization.priceMin,
+                priceMax: organization.priceMax,
+                priceDescription: organization.priceDescription,
+                claimed: organization.claimed,
+              }}
+              averageRating={organization.averageRating ?? null}
+              reviewCount={organization.reviewCount ?? 0}
+              cachedScore={organization.oleraScore}
+            />
           </div>
 
           {/* CTA Text */}
