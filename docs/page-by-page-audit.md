@@ -42,6 +42,8 @@
 | CC-17 | **Calendar as central engagement destination** — The calendar should be the core focus of the user journey, clearly showing: scheduled engagements, pending requests, upcoming meetings (virtual or in-person). This is where users track and manage all engagements. | `UX` `GUIDANCE` | Open |
 | CC-18 | **Activity belongs in notifications, not scattered sections** — Active conversations and activity logs should live in a centralized notifications feed (top nav icon), not duplicated across multiple pages. | `UX` | Open |
 | CC-19 | **Preferred times and format in engagement flow** — Throughout request and scheduling flows, users should be encouraged to share preferred times and format (virtual vs in-person). | `UX` `DATA` | Open |
+| CC-20 | **Care Profile as single source of truth** — Care Profile must be the canonical data source for: provider matching, benefits matching, engagement scheduling, onboarding data, benefits finder inputs. One profile, editable from multiple entry points. No duplicate data entry, no conflicting flows. | `DATA` `LOGIC` | Open |
+| CC-21 | **Profile-builder mental model (not survey)** — Profile creation should feel like building a Facebook/Airbnb profile, not answering a form. Users should see what their profile looks like, edit inline, and understand they're creating something reusable and valuable. | `UX` `GUIDANCE` | Open |
 
 ---
 
@@ -495,6 +497,101 @@ Improving, but still too busy and overwhelming. Calendar is very strong and shou
 - Active conversations → Notifications
 - Redundant "Complete your profile" box
 - Potentially "Need help" box
+
+---
+
+### 9. Edit Care Profile Page — `/care-profile/edit`
+
+**Current Rating**: C- / C+
+**Target Rating**: A+
+**Status**: Audited
+**Priority**: CRITICAL — Mission-critical page requiring full redesign
+
+This page is underdeveloped, confusing, and not aligned with the platform's core goal. The experience feels like a survey rather than building a meaningful profile. Requires an A+-level rebuild, not incremental fixes.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| EC-1 | **CRITICAL BUG: Final question redirects without saving** — On the final question, user is redirected back to Care Profile page without saving. Broken and confusing experience. | `LOGIC` | Open |
+| EC-2 | **Feels like a survey, not a profile builder** — Users cannot see what their profile looks like. Should resemble creating a Facebook/Airbnb profile, not a linear questionnaire. See CC-21. | `UX` `GUIDANCE` | Open |
+| EC-3 | **Questions too long and poorly written** — Written above 3rd-grade reading level. Not appropriate for 65+ users. See CC-13. | `COPY` | Open |
+| EC-4 | **Hero section takes too much vertical space** — Far too much viewport consumed before useful content. | `VISUAL` `UX` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| EC-5 | **Progress indicators too wide and visually heavy** — Care type, location, budget indicators are directionally good but not optimized for clarity or scannability. | `VISUAL` `UX` | Open |
+| EC-6 | **Questions poorly fitted to viewport** — Content doesn't fit well on screen, creating awkward scrolling and reading experience. | `VISUAL` `UX` | Open |
+| EC-7 | **Users don't understand profile's value** — Page doesn't explain why the profile matters: scheduling 3–5 meetings, avoiding repeating their story, pre-qualifying needs, increasing response speed, improving match quality. | `GUIDANCE` `COPY` | Open |
+| EC-8 | **No preview of live profile** — Users should be able to see their profile as providers will see it. | `UX` | Open |
+| EC-9 | **Privacy controls not clearly explained** — Users need reassurance about what's shared and when. | `GUIDANCE` `UX` | Open |
+| EC-10 | **Profile photo and first name not encouraged** — Should encourage (but not require) adding photo and first name to increase engagement success. | `UX` `GUIDANCE` | Open |
+
+#### Keep (working well)
+- Progress/status indicators concept (care type, location, budget) is directionally good
+- "Back to dashboard" concept may be needed (role should be reconsidered)
+
+---
+
+#### Edit Care Profile — Redesign Requirements (Non-Negotiable)
+
+**Data & Architecture**:
+This page must operate as the **single source of truth** for:
+- Provider matching
+- Benefits matching
+- Engagement scheduling
+- Onboarding data
+- Benefits finder inputs
+- Future platform features
+
+All data must persist and reconcile across: Onboarding, Edit Care Profile, Benefits Finder, Matching algorithms, Engagement requests. See CC-20.
+
+**Structural Changes**:
+- Shift from survey flow → **section-based profile builder**
+- Each section should:
+  - Show what providers will see
+  - Be editable inline
+  - Clearly explain why the information matters
+  - Allow users to preview their live profile as others see it
+
+**Content & Language**:
+- Rewrite ALL copy for: 3rd-grade reading level, 65+ accessibility, minimal jargon
+- Replace industry terms with plain language:
+  - "Help at home"
+  - "Help after hospital"
+  - "Living with support"
+  - "Full-time care"
+
+**Visual & Functional Enhancements**:
+- Encourage (but do not require): profile photo, first name
+- Clearly explain privacy controls
+- Show how completing profile: increases matches, speeds up scheduling, reduces back-and-forth
+
+**Integration Requirements**:
+Must work seamlessly with:
+- Care Profile view page
+- Benefits Finder
+- Provider matching
+- Engagement requests
+
+**No duplicate data entry. No conflicting flows. No broken saves or redirects.**
+
+---
+
+#### Edit Care Profile — North Star
+
+The Care Profile exists to:
+1. Help users schedule 3–5 meetings with providers
+2. Avoid telling their story repeatedly
+3. Pre-qualify care needs, availability, and payment
+4. Increase response speed from providers
+5. Improve match quality and engagement success
+
+**This must be made obvious to the user.**
 
 ---
 
