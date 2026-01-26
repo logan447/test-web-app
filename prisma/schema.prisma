@@ -445,9 +445,18 @@ model Provider {
   completionPercentage  Int     @default(0)     // Profile completion for UX feedback (0-100)
   visibilityUnlockedAt  DateTime?               // When visibility was first unlocked
 
+  // Sprint 5: Olera Score (cached for list pages, computed fresh for detail pages)
+  oleraScore          Float?    // Cached Olera Score (0-5), null if cannot be calculated
+  oleraScoreUpdatedAt DateTime? // When the cached score was last computed
+
   // Availability (for individual caregivers)
   availableForFamilies      Boolean @default(true) // Available for direct hire by families
   availableForOrganizations Boolean @default(false) // Available for hire by care organizations
+
+  // Sprint 5: Enhanced Employment Preferences (for individual caregivers)
+  workPreferences    String[] @default([]) // ["full_time", "part_time", "live_in", "per_diem"]
+  preferredEmployers String[] @default([]) // ["home_care_agencies", "facilities", "direct_families"]
+  availabilityStart  DateTime?             // When they can start working
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -457,9 +466,10 @@ model Provider {
   consultRequests     ConsultRequest[]
   sentHiringRequests  ConsultRequest[]   @relation("HiringRequestSender")
   reviews             Review[]
-  engagements     Engagement[]           // Sprint 2: Family ↔ Provider engagements
-  hiringAsOrg     HiringEngagement[]     @relation("HiringOrganization") // Sprint 2: Org hiring caregivers
-  hiringAsCaregiver HiringEngagement[] @relation("HiringCaregiver")      // Sprint 2: Caregiver seeking work
+  engagements         Engagement[]           // Sprint 2: Family ↔ Provider engagements
+  hiringAsOrg         HiringEngagement[]     @relation("HiringOrganization") // Sprint 2: Org hiring caregivers
+  hiringAsCaregiver   HiringEngagement[]     @relation("HiringCaregiver")      // Sprint 2: Caregiver seeking work
+  takedownRequests    TakedownRequest[]  // Sprint 5: Takedown requests for this provider
 
   @@index([city, state])
   @@index([providerType])
@@ -475,6 +485,50 @@ model SavedProvider {
   createdAt       DateTime      @default(now())
 
   @@unique([familyProfileId, providerId])
+}
+
+// Sprint 5: Takedown Request for DMCA-compliant provider page removal
+model TakedownRequest {
+  id            String          @id @default(cuid())
+  providerId    String
+  provider      Provider        @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Request details
+  reason        TakedownReason
+  details       String?         // Additional context from requester
+
+  // Requester contact info
+  contactName   String          // Name of person requesting
+  contactEmail  String          // Email for notification
+  contactPhone  String?         // Optional phone
+  proofUrl      String?         // Link to proof of ownership (optional)
+
+  // Admin review
+  status        TakedownStatus  @default(PENDING)
+  reviewedAt    DateTime?
+  reviewedBy    String?         // Admin user ID
+  reviewNotes   String?         // Internal admin notes
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([providerId])
+  @@index([status])
+}
+
+enum TakedownReason {
+  NOT_MY_BUSINESS      // "I don't own or represent this business"
+  INCORRECT_INFO       // "The information is incorrect"
+  BUSINESS_CLOSED      // "This business has permanently closed"
+  PRIVACY_CONCERN      // "Privacy or legal concern"
+  DUPLICATE_LISTING    // "This is a duplicate of another listing"
+  OTHER                // "Other reason"
+}
+
+enum TakedownStatus {
+  PENDING   // Awaiting admin review
+  APPROVED  // Takedown approved, provider soft-deleted
+  DENIED    // Takedown denied with reason
 }
 
 model SavedFamilyProfile {

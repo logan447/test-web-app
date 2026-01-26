@@ -12,7 +12,10 @@ import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
 import ReviewModal from "@/components/Reviews/ReviewModal";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
 import ClaimProviderModal from "@/components/Provider/ClaimProviderModal";
-import CredibilityScore from "@/components/Trust/CredibilityScore";
+import TakedownRequestModal from "@/components/Provider/TakedownRequestModal";
+import ContactInfoDisplay from "@/components/Provider/ContactInfoDisplay";
+import OleraScore from "@/components/Trust/OleraScore";
+import { ViewerRole } from "@/lib/contactVisibility";
 import { showToast } from "@/lib/toast";
 import FacilityTabs from "@/components/Provider/tabs/FacilityTabs";
 import HomeCareAgencyTabs from "@/components/Provider/tabs/HomeCareAgencyTabs";
@@ -98,6 +101,7 @@ export default function ProviderDetailPage() {
   const [pendingAction, setPendingAction] = useState<PendingAction | undefined>(undefined);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [claimModalOpen, setClaimModalOpen] = useState(false);
+  const [takedownModalOpen, setTakedownModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -107,6 +111,17 @@ export default function ProviderDetailPage() {
   // Contact form state - only message is actually used by the API
   const [contactMessage, setContactMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Derive viewer role for contact visibility
+  const getViewerRole = (): ViewerRole => {
+    if (!session?.user) return 'anonymous';
+    // Default to family mode for most users viewing provider pages
+    if (session.user.activeMode === 'FAMILY') return 'family';
+    // Providers viewing other providers - treat as organization for now
+    // TODO: Could check provider identity to be more accurate
+    return 'organization';
+  };
+  const viewerRole = getViewerRole();
 
   useEffect(() => {
     fetchProvider();
@@ -407,7 +422,7 @@ export default function ProviderDetailPage() {
                   {/* Pricing Card */}
                   <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                     <div className="flex items-center gap-1 text-sm text-gray-500 mb-1">
-                      Estimated Pricing
+                      Starting at
                       <button className="text-gray-400 hover:text-gray-600">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -457,6 +472,18 @@ export default function ProviderDetailPage() {
                       Manage this page
                     </button>
                     .
+                  </p>
+                )}
+
+                {/* Takedown Request Link (organizations only) */}
+                {provider.providerType !== 'INDEPENDENT_CAREGIVER' && (
+                  <p className="text-xs text-gray-400 mt-2">
+                    <button
+                      onClick={() => setTakedownModalOpen(true)}
+                      className="hover:text-gray-600 hover:underline"
+                    >
+                      Request page removal
+                    </button>
                   </p>
                 )}
               </div>
@@ -515,26 +542,23 @@ export default function ProviderDetailPage() {
                 <div className="space-y-8">
                   {/* Rating & Reviews Section */}
                   <section id="rating" className="space-y-6 scroll-mt-36">
-                      {/* Credibility Score Panel */}
+                      {/* Olera Score Panel */}
                       <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl border border-primary-100 p-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Provider Trust Score</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Olera Score</h3>
                             <p className="text-sm text-gray-600 max-w-md">
-                              Based on verification status, reviews, and ratings to help you make informed decisions.
+                              A transparent score based on reviews, profile completeness, and verification to help you make informed decisions.
                             </p>
                           </div>
-                          <CredibilityScore
-                            verified={provider.verified || provider.claimed}
-                            licensed={provider.licensed}
-                            insuranceVerified={provider.insuranceVerified}
-                            backgroundChecked={provider.backgroundChecked}
-                            claimed={provider.claimed}
+                          <OleraScore
+                            provider={provider}
                             averageRating={provider.averageRating}
                             reviewCount={provider.reviewCount}
                             size="large"
                             showLabel={true}
                             showBreakdown={false}
+                            showBadges={true}
                           />
                         </div>
                       </div>
@@ -636,7 +660,10 @@ export default function ProviderDetailPage() {
                     )}
                   </div>
 
-                  {/* Quick Facts */}
+                  {/* Quick Facts - Only show if any data exists */}
+                  {(provider.yearsInBusiness || provider.licensed || provider.backgroundChecked ||
+                    provider.insuranceVerified || provider.capacity || provider.totalCapacity ||
+                    provider.serviceRadius) && (
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Facts</h3>
                     <div className="grid grid-cols-2 gap-4">
@@ -720,6 +747,7 @@ export default function ProviderDetailPage() {
                       )}
                     </div>
                   </div>
+                  )}
 
                   {/* Languages & Certifications */}
                   {(provider.languagesSpoken?.length > 0 || provider.certifications?.length > 0) && (
@@ -752,7 +780,8 @@ export default function ProviderDetailPage() {
                   )}
 
                   {/* Staff Info */}
-                  {(provider.staffToResidentRatio || provider.hasRNOnSite || provider.hasLVNOnSite || provider.caregiverTraining?.length > 0) && (
+                  {(provider.staffToResidentRatio || provider.hasRNOnSite || provider.hasLVNOnSite ||
+                    provider.allStaffBackgroundChecked || provider.visitingDoctorFrequency) && (
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">Staff Information</h3>
                       <div className="space-y-3">
@@ -948,7 +977,7 @@ export default function ProviderDetailPage() {
                       <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-6 mb-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-primary-600 font-medium mb-1">Estimated Monthly Cost</p>
+                            <p className="text-sm text-primary-600 font-medium mb-1">Starting Monthly Cost</p>
                             <p className="text-4xl font-bold text-primary-700">
                               {provider.priceMin && provider.priceMax
                                 ? `$${provider.priceMin.toLocaleString()} – $${provider.priceMax.toLocaleString()}`
@@ -1114,50 +1143,22 @@ export default function ProviderDetailPage() {
                     </div>
                   </div>
 
-                  {/* Contact Information */}
+                  {/* Contact Information - Privacy-Aware */}
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-                    <div className="space-y-4">
-                      {provider.phone && (
-                        <a href={`tel:${provider.phone}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                            <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Phone</p>
-                            <p className="text-gray-900 font-medium">{provider.phone}</p>
-                          </div>
-                        </a>
-                      )}
-                      {provider.email && (
-                        <a href={`mailto:${provider.email}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Email</p>
-                            <p className="text-gray-900 font-medium">{provider.email}</p>
-                          </div>
-                        </a>
-                      )}
-                      {provider.website && (
-                        <a href={provider.website.startsWith('http') ? provider.website : `https://${provider.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                            </svg>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Website</p>
-                            <p className="text-gray-900 font-medium">{provider.website}</p>
-                          </div>
-                        </a>
-                      )}
-                    </div>
+                    <ContactInfoDisplay
+                      phone={provider.phone}
+                      email={provider.email}
+                      website={provider.website}
+                      address={`${provider.address}, ${provider.city}, ${provider.state} ${provider.zipCode}`}
+                      providerType={provider.providerType}
+                      viewerRole={viewerRole}
+                      engagementStatus={activeEngagement?.status as any}
+                      context="profile_page"
+                      layout="vertical"
+                      showLabels={true}
+                      showIcons={true}
+                    />
                   </div>
 
                   {/* Neighborhood Info */}
@@ -1324,6 +1325,16 @@ export default function ProviderDetailPage() {
         engagementType={getEngagementType(provider.providerType)}
         profileSummary={getProfileSummary()}
       />
+
+      {/* Takedown Request Modal (only for organizations) */}
+      {provider.providerType !== 'INDEPENDENT_CAREGIVER' && (
+        <TakedownRequestModal
+          isOpen={takedownModalOpen}
+          onClose={() => setTakedownModalOpen(false)}
+          providerId={provider.id}
+          providerName={provider.name}
+        />
+      )}
 
       {/* Footer */}
       <Footer variant="light" />
