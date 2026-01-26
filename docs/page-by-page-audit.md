@@ -35,6 +35,8 @@
 | CC-10 | **Contact info gating** — Personal contact details should not be visible until mutual engagement acceptance. Privacy-first approach. | `LOGIC` `UX` | Open |
 | CC-11 | **Plain-language care terminology** — Replace industry jargon (e.g., "personal care", "skilled nursing") with plain language a 65+ user understands: "Help at home", "Help after hospital discharge", "Assisted living", "Full-time nursing care", "Help with daily activities". | `COPY` `UX` | Open |
 | CC-12 | **Dropdown-based inputs for data consistency** — Eliminate free-text inputs where possible. Use dropdowns/autocomplete for: who needs care, city/state, care types. Ensures data quality and search accuracy. | `LOGIC` `DATA` | Open |
+| CC-13 | **3rd–4th grade reading level** — All copy site-wide should be written at a 3rd–4th grade reading level. Users should never have to guess what happened, what to do next, or what success looks like. | `COPY` | Open |
+| CC-14 | **Encourage 3–5 provider engagements** — Families should be explicitly guided to engage multiple providers (3–5 is normal in senior care). Pages should encourage continued browsing, not feel like dead ends. | `GUIDANCE` `UX` | Open |
 
 ---
 
@@ -298,6 +300,64 @@ To reach A-level polish:
 - Plain-language care terminology
 - Shorter, calmer onboarding copy
 - Simplified profile visibility controls
+
+---
+
+### 5. Request / Engagement Page — `/requests/[id]`
+
+**Current Rating**: C-
+**Target Rating**: A+
+**Status**: Audited
+**Priority**: HIGH — This is one of the most critical pages on the platform
+
+This page is the center of gravity for engagement scheduling and tracking. It currently feels cluttered, ambiguous, and unintentionally designed. Requires substantial redesign.
+
+---
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| RQ-1 | **Auto-scroll to messaging is disorienting** — Page auto-scrolls into messaging area. Users must scroll up to understand what's happening. Initial viewport should clearly explain: what just happened, what the next step is, what to do now. | `UX` `GUIDANCE` | Open |
+| RQ-2 | **First message is blank/contentless** — Message thread opens with empty or meaningless content. First message should always be the request that was just submitted so users understand what was sent. | `UX` `LOGIC` | Open |
+| RQ-3 | **Page overemphasizes "conversation" instead of scheduling** — The real goal is confirming and scheduling an engagement (tour, consultation, interview). Messaging should be secondary, not the focal point. | `UX` `GUIDANCE` | Open |
+| RQ-4 | **No guidance to continue engaging providers** — No clear guidance encouraging users to complete profile, share more info, or submit additional requests. Page feels like a dead end. See CC-14. | `GUIDANCE` `CTA` | Open |
+| RQ-5 | **Scheduling not centered as primary action** — Page must clearly center on: confirming profile was shared, scheduling engagement (tour/consultation/interview, virtual or in-person), showing what happens next. Currently buried or unclear. | `UX` `CTA` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| RQ-6 | **Quick replies overwhelming** — Too many options, presented in two lines. Should be one clean row, thoughtfully curated. | `UX` `VISUAL` | Open |
+| RQ-7 | **Message composer overly complex** — Bold/italics/code formatting unnecessary. Remove features users won't realistically use. Keep: plain text, attachments, emoji (optional). | `UX` `VISUAL` | Open |
+| RQ-8 | **Unnecessary icons in messaging** — Search, download, notifications icons inside messaging are distracting. Remove or minimize. | `VISUAL` `UX` | Open |
+| RQ-9 | **Copy too complex** — Text throughout page is too complex. Should be 3rd–4th grade reading level. See CC-13. | `COPY` | Open |
+| RQ-10 | **"View Provider" opens in same tab** — Should open in new tab to preserve engagement context. | `UX` `LOGIC` | Open |
+| RQ-11 | **"View Provider" shows wrong CTA** — Shows "Connect with [Provider]" which is wrong in this context. Should say "View engagement", "Track request", or "View conversation". | `CTA` `COPY` | Open |
+| RQ-12 | **"While you wait" / "What happens next" sections underdeveloped** — These sections have potential but need to be: visually lighter, written in plain language, explicitly instructive (e.g., "Next, we recommend scheduling with 2–4 more providers"). | `GUIDANCE` `COPY` | Open |
+| RQ-13 | **Contact information section underdeveloped** — Needs clearer presentation and purpose. | `UX` `DATA` | Open |
+| RQ-14 | **Page difficult for 65+ users** — Too many buttons, too many words, unclear hierarchy, no single obvious "next action". Must work for users with minimal tech literacy. | `UX` `GUIDANCE` | Open |
+
+#### Keep (working well)
+- Request → Provider Response → Schedule → Meet progress indicator is strong
+- "View Provider" button concept is useful (just needs fixes)
+
+---
+
+#### Request Page — Redesign Requirements (Non-Negotiable)
+
+The redesigned `/requests/[id]` page must:
+
+1. **Clearly confirm** that a request was sent
+2. **Explain what happens next** in simple language
+3. **Make scheduling the engagement the primary action**
+4. **Support both virtual and in-person** engagements
+5. **Provide calendar integration** and reminders (Google Calendar)
+6. **Encourage submitting multiple requests** (see CC-14)
+7. **Reduce messaging to a supporting role** — calm, obvious, secondary to scheduling
+8. **Loop users back into browsing** and matching
+
+The scheduling action should feel: **obvious, calm, supportive, not visually overwhelming**.
 
 ---
 
