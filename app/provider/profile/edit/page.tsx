@@ -8,6 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import LocationAutocomplete from "@/components/Location/LocationAutocomplete";
 import { showToast } from "@/lib/toast";
+import { getCareTypeOptions } from "@/lib/careTypes";
 
 // ============================================
 // TYPES
@@ -84,15 +85,9 @@ const ALL_PROVIDER_TYPES = [
   ...PROVIDER_TYPES.individual,
 ];
 
-const CARE_TYPES = [
-  { value: "PERSONAL_CARE", label: "Personal care", description: "Help with bathing, dressing, eating" },
-  { value: "COMPANION_CARE", label: "Companionship", description: "Friendly visits and activities" },
-  { value: "SKILLED_NURSING", label: "Nursing care", description: "Medical care from nurses" },
-  { value: "MEMORY_CARE", label: "Memory care", description: "Help for dementia or Alzheimers" },
-  { value: "HOSPICE_CARE", label: "Hospice care", description: "Comfort at end of life" },
-  { value: "RESPITE_CARE", label: "Respite care", description: "Short-term care breaks" },
-  { value: "LIVE_IN_CARE", label: "Live-in care", description: "24/7 care at home" },
-];
+// Care types from single source of truth (lib/careTypes.ts)
+// Uses standard labels for this provider-facing page
+const CARE_TYPES = getCareTypeOptions(false);
 
 const CERTIFICATIONS = [
   { value: "CNA", label: "CNA", description: "Certified Nursing Assistant" },

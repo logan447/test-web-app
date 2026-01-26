@@ -7,6 +7,7 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import LocationAutocomplete from "@/components/Location/LocationAutocomplete";
+import { getCareTypeOptions } from "@/lib/careTypes";
 
 // ============================================
 // TYPES
@@ -50,15 +51,9 @@ type CareProfile = {
 // CONSTANTS - Plain language, 3rd-4th grade reading level
 // ============================================
 
-const CARE_TYPES = [
-  { value: "PERSONAL_CARE", label: "Help with daily tasks", description: "Bathing, dressing, eating" },
-  { value: "COMPANION_CARE", label: "Companionship", description: "Someone to spend time with" },
-  { value: "SKILLED_NURSING", label: "Nursing care", description: "Medical help from a nurse" },
-  { value: "MEMORY_CARE", label: "Memory care", description: "Help for memory loss" },
-  { value: "HOSPICE_CARE", label: "End-of-life care", description: "Comfort and support" },
-  { value: "RESPITE_CARE", label: "Short-term help", description: "Give family a break" },
-  { value: "LIVE_IN_CARE", label: "Live-in care", description: "24/7 help at home" },
-];
+// Care types from single source of truth (lib/careTypes.ts)
+// Uses family-friendly labels for this family-facing page
+const CARE_TYPES = getCareTypeOptions(true);
 
 const CARE_LEVELS = [
   { value: "LIGHT", label: "Light help", description: "A few hours a week" },

@@ -258,11 +258,15 @@ export default function BenefitsPage() {
             </div>
 
             {/* Voice UI - Prominent but clearly labeled as coming soon */}
-            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 mb-8 text-center border border-primary-200">
-              <div className="relative inline-block mb-6">
+            <div
+              className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 mb-8 text-center border border-primary-200"
+              role="region"
+              aria-label="Voice assistance feature preview"
+            >
+              <div className="relative inline-block mb-6" aria-hidden="true">
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 flex items-center justify-center shadow-xl shadow-primary-500/30">
                   <div className="w-24 h-24 rounded-full border-4 border-white/30 flex items-center justify-center">
-                    {/* Sound wave animation */}
+                    {/* Sound wave animation - decorative */}
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map((i) => (
                         <div
@@ -279,8 +283,11 @@ export default function BenefitsPage() {
                 </div>
                 {/* Coming soon badge */}
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-primary-700 text-sm font-semibold rounded-full shadow-md border border-primary-200">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-primary-700 text-sm font-semibold rounded-full shadow-md border border-primary-200"
+                    role="status"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                     </svg>
                     Voice Coming Soon
