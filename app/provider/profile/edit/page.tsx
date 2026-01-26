@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
+import LocationAutocomplete from "@/components/Location/LocationAutocomplete";
 import { showToast } from "@/lib/toast";
 
 // ============================================
@@ -708,49 +709,33 @@ export default function EditProviderProfilePage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-                  <div className="col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+                  <div className="sm:col-span-3">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      City <span className="text-red-500">*</span>
+                      City, State <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => {
-                        setCity(e.target.value);
-                        if (fieldErrors.city) setFieldErrors(prev => ({ ...prev, city: "" }));
+                    <LocationAutocomplete
+                      value={city && state ? `${city}, ${state}` : city || ""}
+                      onChange={(value, location) => {
+                        if (location) {
+                          setCity(location.city);
+                          setState(location.state);
+                          if (fieldErrors.city) setFieldErrors(prev => ({ ...prev, city: "" }));
+                          if (fieldErrors.state) setFieldErrors(prev => ({ ...prev, state: "" }));
+                        } else {
+                          // User is typing, parse manually if possible
+                          const parts = value.split(",").map(s => s.trim());
+                          if (parts.length >= 2) {
+                            setCity(parts[0]);
+                            setState(parts[1].toUpperCase().slice(0, 2));
+                          } else {
+                            setCity(value);
+                          }
+                        }
                       }}
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                        fieldErrors.city ? "border-red-500 bg-red-50" : "border-gray-300"
-                      }`}
-                      placeholder="San Diego"
+                      placeholder="Start typing a city..."
+                      error={(fieldErrors.city || fieldErrors.state) ? "City and state are required" : undefined}
                     />
-                    {fieldErrors.city && (
-                      <p className="mt-1 text-sm text-red-600">{fieldErrors.city}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      State <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={state}
-                      onChange={(e) => {
-                        setState(e.target.value);
-                        if (fieldErrors.state) setFieldErrors(prev => ({ ...prev, state: "" }));
-                      }}
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                        fieldErrors.state ? "border-red-500 bg-red-50" : "border-gray-300"
-                      }`}
-                    >
-                      <option value="">Select</option>
-                      {US_STATES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                    {fieldErrors.state && (
-                      <p className="mt-1 text-sm text-red-600">{fieldErrors.state}</p>
-                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">ZIP</label>

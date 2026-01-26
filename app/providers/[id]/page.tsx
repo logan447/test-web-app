@@ -18,6 +18,7 @@ import FacilityTabs from "@/components/Provider/tabs/FacilityTabs";
 import HomeCareAgencyTabs from "@/components/Provider/tabs/HomeCareAgencyTabs";
 import EngagementConfirmationModal from "@/components/Engagement/EngagementConfirmationModal";
 import { useFamilyProfile, getEngagementType } from "@/hooks/useFamilyProfile";
+import { useSavedProviders } from "@/hooks/useSavedProviders";
 import { getProviderCTAs } from "@/lib/providerUtils";
 
 // Provider type categories
@@ -91,7 +92,7 @@ export default function ProviderDetailPage() {
   const { data: session } = useSession();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isSaved, setIsSaved] = useState(false);
+  const { isSaved, toggleSave } = useSavedProviders();
   const [saving, setSaving] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingAction | undefined>(undefined);
@@ -110,7 +111,6 @@ export default function ProviderDetailPage() {
   useEffect(() => {
     fetchProvider();
     if (session?.user) {
-      checkIfSaved();
       checkActiveEngagement();
     }
   }, [session]);
@@ -132,19 +132,6 @@ export default function ProviderDetailPage() {
     }
   };
 
-  const checkIfSaved = async () => {
-    try {
-      const response = await fetch('/api/saved-providers');
-      if (response.ok) {
-        const savedProviders = await response.json();
-        const isProviderSaved = savedProviders.some((sp: any) => sp.provider.id === params.id);
-        setIsSaved(isProviderSaved);
-      }
-    } catch (error) {
-      console.error('Error checking saved status:', error);
-    }
-  };
-
   const checkActiveEngagement = async () => {
     try {
       const response = await fetch(`/api/engagements/check?providerId=${params.id}`);
@@ -157,28 +144,20 @@ export default function ProviderDetailPage() {
     }
   };
 
+  const providerId = params.id as string;
+  const isProviderSaved = isSaved(providerId);
+
   const handleSaveToggle = async () => {
     if (!session?.user) {
-      setPendingAction({ type: 'save', providerId: params.id as string, providerName: provider?.name });
+      setPendingAction({ type: 'save', providerId, providerName: provider?.name });
       setAuthModalOpen(true);
       return;
     }
 
     setSaving(true);
     try {
-      if (isSaved) {
-        await fetch(`/api/saved-providers?providerId=${params.id}`, { method: 'DELETE' });
-        setIsSaved(false);
-        showToast.success('Removed from saved');
-      } else {
-        await fetch('/api/saved-providers', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ providerId: params.id }),
-        });
-        setIsSaved(true);
-        showToast.success('Provider saved');
-      }
+      await toggleSave(providerId);
+      showToast.success(isProviderSaved ? 'Removed from saved' : 'Provider saved');
     } catch (error) {
       showToast.error('Failed to update saved status');
     } finally {
@@ -378,13 +357,13 @@ export default function ProviderDetailPage() {
                     onClick={handleSaveToggle}
                     disabled={saving}
                     className={`p-2 rounded-full border transition-colors ${
-                      isSaved
+                      isProviderSaved
                         ? 'border-red-200 text-red-500 hover:bg-red-50'
                         : 'border-gray-300 text-gray-400 hover:text-red-500 hover:border-red-200'
                     }`}
                   >
-                    <span className="sr-only">{isSaved ? 'Unsave' : 'Save'}</span>
-                    <svg className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" fill={isSaved ? 'currentColor' : 'none'} strokeWidth={2}>
+                    <span className="sr-only">{isProviderSaved ? 'Unsave' : 'Save'}</span>
+                    <svg className={`w-5 h-5 ${isProviderSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" fill={isProviderSaved ? 'currentColor' : 'none'} strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                   </button>

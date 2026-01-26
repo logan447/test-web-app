@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
+import LocationAutocomplete from "@/components/Location/LocationAutocomplete";
 
 // ============================================
 // TYPES
@@ -603,26 +604,27 @@ export default function EditCareProfilePage() {
                 <h2 className="text-lg font-semibold text-gray-900 mb-1">Where is care needed?</h2>
                 <p className="text-sm text-gray-600 mb-6">We&apos;ll show you providers nearby.</p>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      placeholder="City"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                    <input
-                      type="text"
-                      value={state}
-                      onChange={(e) => setState(e.target.value.toUpperCase().slice(0, 2))}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      placeholder="CA"
-                      maxLength={2}
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                  <div className="sm:col-span-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">City, State</label>
+                    <LocationAutocomplete
+                      value={city && state ? `${city}, ${state}` : city || ""}
+                      onChange={(value, location) => {
+                        if (location) {
+                          setCity(location.city);
+                          setState(location.state);
+                        } else {
+                          // User is typing, parse manually if possible
+                          const parts = value.split(",").map(s => s.trim());
+                          if (parts.length >= 2) {
+                            setCity(parts[0]);
+                            setState(parts[1].toUpperCase().slice(0, 2));
+                          } else {
+                            setCity(value);
+                          }
+                        }
+                      }}
+                      placeholder="Start typing a city..."
                     />
                   </div>
                   <div>
@@ -630,7 +632,7 @@ export default function EditCareProfilePage() {
                     <input
                       type="text"
                       value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value.slice(0, 5))}
+                      onChange={(e) => setZipCode(e.target.value.replace(/\D/g, "").slice(0, 5))}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                       placeholder="92101"
                       maxLength={5}

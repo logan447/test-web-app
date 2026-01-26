@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
@@ -10,6 +9,7 @@ import Footer from "@/components/Navigation/Footer";
 import { ProviderCard } from "@/components/Cards";
 import { LocationAutocomplete } from "@/components/Location";
 import FilterBar, { FilterConfig } from "@/components/Layout/FilterBar";
+import { useSavedProviders } from "@/hooks/useSavedProviders";
 
 // Dynamically import map to avoid SSR issues
 const MapView = dynamic(() => import("@/components/Directory/MapView"), {
@@ -125,7 +125,7 @@ const QUICK_FILTERS: Array<{ id: string; label: string; filter: Record<string, s
 function BrowseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { savedIds, isSaved, toggleSave } = useSavedProviders();
 
   // Helper functions for initial state (must be declared before useState calls)
   const getInitialLocation = (): string => {
@@ -152,7 +152,6 @@ function BrowseContent() {
   const [totalCount, setTotalCount] = useState(0);
   const [showMap, setShowMap] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [savedProviderIds, setSavedProviderIds] = useState<Set<string>>(new Set());
   const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(getInitialSelectedLocation());
   const [location, setLocation] = useState(getInitialLocation());
   const [filterValues, setFilterValues] = useState<Record<string, string>>({
@@ -237,85 +236,6 @@ function BrowseContent() {
   };
 
   const hasActiveFilters = Boolean(location) || Object.values(filterValues).some((v) => v !== "");
-
-  // Load saved providers from localStorage and server (if authenticated)
-  useEffect(() => {
-    // First, load from localStorage for immediate display
-    const saved = localStorage.getItem("savedProviders");
-    if (saved) {
-      try {
-        const ids = JSON.parse(saved);
-        setSavedProviderIds(new Set(ids));
-      } catch (e) {
-        console.error("Failed to parse saved providers:", e);
-      }
-    }
-
-    // If authenticated, also fetch from server and merge
-    const fetchServerSaved = async () => {
-      if (session?.user) {
-        try {
-          const response = await fetch("/api/saved-providers");
-          if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data) && data.length > 0) {
-              const serverIds = data.map((s: { providerId: string }) => s.providerId);
-              setSavedProviderIds((prev) => {
-                const merged = new Set([...prev, ...serverIds]);
-                // Sync merged set back to localStorage
-                localStorage.setItem("savedProviders", JSON.stringify([...merged]));
-                return merged;
-              });
-            }
-          }
-        } catch (err) {
-          console.error("Failed to fetch server saved providers:", err);
-        }
-      }
-    };
-
-    fetchServerSaved();
-  }, [session?.user]);
-
-  // Handle save/unsave provider
-  const handleSaveProvider = useCallback(async (providerId: string) => {
-    const isCurrentlySaved = savedProviderIds.has(providerId);
-
-    // Optimistically update UI
-    setSavedProviderIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(providerId)) {
-        newSet.delete(providerId);
-      } else {
-        newSet.add(providerId);
-      }
-      // Persist to localStorage
-      localStorage.setItem("savedProviders", JSON.stringify([...newSet]));
-      return newSet;
-    });
-
-    // If authenticated, also persist to server
-    if (session?.user) {
-      try {
-        if (isCurrentlySaved) {
-          // Remove from server
-          await fetch(`/api/saved-providers?providerId=${providerId}`, {
-            method: "DELETE",
-          });
-        } else {
-          // Save to server
-          await fetch("/api/saved-providers", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ providerId }),
-          });
-        }
-      } catch (err) {
-        console.error("Failed to sync save to server:", err);
-        // Note: We don't revert the optimistic update - localStorage still has the change
-      }
-    }
-  }, [savedProviderIds, session?.user]);
 
   // Handle location autocomplete selection
   const handleLocationChange = (value: string, loc?: { city: string; state: string }) => {
@@ -640,8 +560,8 @@ function BrowseContent() {
                       }}
                       variant="horizontal"
                       showSaveButton={true}
-                      isSaved={savedProviderIds.has(provider.id)}
-                      onSave={handleSaveProvider}
+                      isSaved={isSaved(provider.id)}
+                      onSave={toggleSave}
                     />
                   ))}
                 </div>
