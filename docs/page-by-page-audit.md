@@ -27,6 +27,7 @@
 | CC-2 | **Remove "Texas only" / "expanding nationwide" language** — Platform is now nationwide | `COPY` | Open |
 | CC-3 | **Logo incorrect** — Replace with correct full bird logo site-wide (awaiting screenshot) | `VISUAL` | Blocked |
 | CC-4 | **Canonical location system** — Eliminate free-text city/ZIP; implement controlled select from single source of truth for providers, users, search, filtering | `LOGIC` `DATA` | Open |
+| CC-5 | **Heart/save icon on all provider cards** — Users should be able to save providers directly from any card (browse, homepage, map popups, etc.). Standard pattern site-wide. | `UX` `CTA` | Open |
 
 ---
 
@@ -64,6 +65,41 @@
 
 #### Notes
 - May return to test search behavior, validate card interactions, audit flows triggered from homepage CTAs
+
+---
+
+### 2. Browse / City Page — `/browse`
+
+**Current Rating**: B-
+**Target Rating**: A+
+**Status**: Audited
+
+#### Critical (blocks engagement or causes confusion)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| BR-1 | **Filter state doesn't persist from homepage** — City/state, care type, and timing entered on homepage resets to empty on /browse. Breaks continuity and creates friction. Must reflect user's intent from homepage. | `LOGIC` `UX` | Open |
+
+#### Important (degrades experience)
+
+| # | Issue | Tag | Status |
+|---|-------|-----|--------|
+| BR-2 | **Quick filters + filter bar consume too much vertical space** — Feels redundant and visually heavy. Consolidate quick filters into main filter bar, or visually minimize one while keeping functionality. | `VISUAL` `UX` | Open |
+| BR-3 | **Results summary not context-aware** — "56 providers found" should read "56 providers found in Houston, Texas" (if location set) or "56 providers found in the United States" (if no location). | `COPY` `UX` | Open |
+| BR-4 | **No guidance for unsure users** — Page can feel overwhelming for families who don't know what they need. Add subtle, supportive CTA encouraging care profile creation and explaining it improves matching. | `GUIDANCE` `CTA` | Open |
+| BR-5 | **No save/heart icon on provider cards** — Users should be able to save providers directly from /browse. Heart icon should be standard on all provider cards site-wide. | `UX` `CTA` | Open |
+| BR-6 | **Map pop-up cards underdeveloped** — Currently lack provider image, key details, and context-aware CTA. Should include image, summary details, and CTA like "Schedule Tour" / "Schedule Consultation" / "Schedule Interview" based on provider type. | `UX` `CTA` | Open |
+| BR-7 | **Map doesn't respond to location state** — When no location selected: show U.S. map view. When location selected: zoom smoothly into relevant city/region. Reinforces geographic context. | `UX` `VISUAL` | Open |
+
+#### Keep (working well)
+- Provider cards are strong overall
+- Map placement is good
+- Filter bar structure (just needs consolidation)
+- Quick filter concept (just needs space optimization)
+
+#### Notes
+- Filter persistence ties to CC-4 (canonical location system)
+- Heart/save icon is a cross-cutting pattern for all cards
 
 ---
 
