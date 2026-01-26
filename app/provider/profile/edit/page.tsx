@@ -21,8 +21,6 @@ type ProviderType =
   | "HOME_HEALTH"
   | "HOSPICE"
   | "REHABILITATION"
-  | "ADULT_DAY_CARE"
-  | "RESPITE_CARE"
   | "INDEPENDENT_CAREGIVER";
 
 type Provider = {
@@ -65,12 +63,10 @@ const PROVIDER_TYPES = {
     { value: "NURSING_HOME", label: "Nursing Home", description: "24/7 skilled nursing care" },
     { value: "HOSPICE", label: "Hospice", description: "End-of-life comfort care" },
     { value: "REHABILITATION", label: "Rehabilitation", description: "Recovery after hospital" },
-    { value: "ADULT_DAY_CARE", label: "Adult Day Care", description: "Daytime care and activities" },
   ],
   agency: [
     { value: "HOME_CARE", label: "Home Care Agency", description: "Help at home" },
     { value: "HOME_HEALTH", label: "Home Health Agency", description: "Medical care at home" },
-    { value: "RESPITE_CARE", label: "Respite Care", description: "Short-term relief for families" },
   ],
   individual: [
     { value: "INDEPENDENT_CAREGIVER", label: "Independent Caregiver", description: "Self-employed caregiver" },
@@ -116,11 +112,11 @@ const US_STATES = [
 // ============================================
 
 const isFacility = (type: ProviderType): boolean => {
-  return ["ASSISTED_LIVING", "INDEPENDENT_LIVING", "MEMORY_CARE", "NURSING_HOME", "HOSPICE", "REHABILITATION", "ADULT_DAY_CARE"].includes(type);
+  return ["ASSISTED_LIVING", "INDEPENDENT_LIVING", "MEMORY_CARE", "NURSING_HOME", "HOSPICE", "REHABILITATION"].includes(type);
 };
 
 const isAgency = (type: ProviderType): boolean => {
-  return ["HOME_CARE", "HOME_HEALTH", "RESPITE_CARE"].includes(type);
+  return ["HOME_CARE", "HOME_HEALTH"].includes(type);
 };
 
 const isCaregiver = (type: ProviderType): boolean => {
@@ -148,6 +144,7 @@ export default function EditProviderProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Form state - Basic Info
   const [name, setName] = useState("");
@@ -266,9 +263,14 @@ export default function EditProviderProfilePage() {
   // ============================================
 
   const handleCareTypeToggle = (type: string) => {
-    setCareTypesOffered((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
+    setCareTypesOffered((prev) => {
+      const newTypes = prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type];
+      // Clear error when at least one service is selected
+      if (newTypes.length > 0 && fieldErrors.careTypes) {
+        setFieldErrors((prevErrors) => ({ ...prevErrors, careTypes: "" }));
+      }
+      return newTypes;
+    });
   };
 
   const handleCertificationToggle = (cert: string) => {
@@ -288,28 +290,84 @@ export default function EditProviderProfilePage() {
     }
   };
 
+  // Validation helpers
+  const validateEmail = (value: string): boolean => {
+    if (!value) return true; // Optional field
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value);
+  };
+
+  const validatePhone = (value: string): boolean => {
+    if (!value) return true; // Optional field
+    const digitsOnly = value.replace(/\D/g, "");
+    return digitsOnly.length >= 10 && digitsOnly.length <= 11;
+  };
+
+  const validateUrl = (value: string): boolean => {
+    if (!value) return true; // Optional field
+    try {
+      new URL(value);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const validateZipCode = (value: string): boolean => {
+    if (!value) return true; // Optional field
+    return /^\d{5}$/.test(value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError("");
     setSuccessMessage("");
+    setFieldErrors({});
 
-    // Validation
+    // Collect all validation errors
+    const errors: Record<string, string> = {};
+
+    // Required fields
     if (!name.trim()) {
-      setError("Please enter a name");
-      setSaving(false);
-      return;
+      errors.name = "Name is required";
     }
 
-    if (!city || !state) {
-      setError("Please enter your location");
-      setSaving(false);
-      return;
+    if (!city.trim()) {
+      errors.city = "City is required";
+    }
+
+    if (!state) {
+      errors.state = "State is required";
     }
 
     if (careTypesOffered.length === 0) {
-      setError("Please select at least one service");
+      errors.careTypes = "Select at least one service";
+    }
+
+    // Optional field format validation
+    if (email && !validateEmail(email)) {
+      errors.email = "Enter a valid email address";
+    }
+
+    if (phone && !validatePhone(phone)) {
+      errors.phone = "Enter a valid phone number";
+    }
+
+    if (website && !validateUrl(website)) {
+      errors.website = "Enter a valid URL (e.g., https://example.com)";
+    }
+
+    if (zipCode && !validateZipCode(zipCode)) {
+      errors.zipCode = "Enter a 5-digit ZIP code";
+    }
+
+    // If there are validation errors, show them and stop
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError("Please fix the errors below");
       setSaving(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
@@ -551,10 +609,18 @@ export default function EditProviderProfilePage() {
                     <input
                       type="text"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        if (fieldErrors.name) setFieldErrors(prev => ({ ...prev, name: "" }));
+                      }}
+                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                        fieldErrors.name ? "border-red-500 bg-red-50" : "border-gray-300"
+                      }`}
                       placeholder={isIndividual ? "Your full name" : "Organization name"}
                     />
+                    {fieldErrors.name && (
+                      <p className="mt-1 text-sm text-red-600">{fieldErrors.name}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -650,10 +716,18 @@ export default function EditProviderProfilePage() {
                     <input
                       type="text"
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      onChange={(e) => {
+                        setCity(e.target.value);
+                        if (fieldErrors.city) setFieldErrors(prev => ({ ...prev, city: "" }));
+                      }}
+                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                        fieldErrors.city ? "border-red-500 bg-red-50" : "border-gray-300"
+                      }`}
                       placeholder="San Diego"
                     />
+                    {fieldErrors.city && (
+                      <p className="mt-1 text-sm text-red-600">{fieldErrors.city}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -661,25 +735,41 @@ export default function EditProviderProfilePage() {
                     </label>
                     <select
                       value={state}
-                      onChange={(e) => setState(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      onChange={(e) => {
+                        setState(e.target.value);
+                        if (fieldErrors.state) setFieldErrors(prev => ({ ...prev, state: "" }));
+                      }}
+                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                        fieldErrors.state ? "border-red-500 bg-red-50" : "border-gray-300"
+                      }`}
                     >
                       <option value="">Select</option>
                       {US_STATES.map((s) => (
                         <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
+                    {fieldErrors.state && (
+                      <p className="mt-1 text-sm text-red-600">{fieldErrors.state}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">ZIP</label>
                     <input
                       type="text"
                       value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value.slice(0, 5))}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      onChange={(e) => {
+                        setZipCode(e.target.value.replace(/\D/g, "").slice(0, 5));
+                        if (fieldErrors.zipCode) setFieldErrors(prev => ({ ...prev, zipCode: "" }));
+                      }}
+                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                        fieldErrors.zipCode ? "border-red-500 bg-red-50" : "border-gray-300"
+                      }`}
                       placeholder="92101"
                       maxLength={5}
                     />
+                    {fieldErrors.zipCode && (
+                      <p className="mt-1 text-sm text-red-600">{fieldErrors.zipCode}</p>
+                    )}
                   </div>
                 </div>
 
@@ -721,11 +811,14 @@ export default function EditProviderProfilePage() {
               </section>
 
               {/* SECTION 3: Services */}
-              <section className="bg-white rounded-xl border border-gray-200 p-6">
+              <section className={`bg-white rounded-xl border p-6 ${fieldErrors.careTypes ? "border-red-300" : "border-gray-200"}`}>
                 <h2 className="text-lg font-semibold text-gray-900 mb-1">
                   {isIndividual ? "What care do you provide?" : "Services offered"}
                 </h2>
-                <p className="text-sm text-gray-600 mb-6">Select all that apply.</p>
+                <p className="text-sm text-gray-600 mb-2">Select all that apply. <span className="text-red-500">*</span></p>
+                {fieldErrors.careTypes && (
+                  <p className="text-sm text-red-600 mb-4">{fieldErrors.careTypes}</p>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {CARE_TYPES.map((care) => (
@@ -890,20 +983,36 @@ export default function EditProviderProfilePage() {
                       <input
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          if (fieldErrors.email) setFieldErrors(prev => ({ ...prev, email: "" }));
+                        }}
+                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                          fieldErrors.email ? "border-red-500 bg-red-50" : "border-gray-300"
+                        }`}
                         placeholder="contact@example.com"
                       />
+                      {fieldErrors.email && (
+                        <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                       <input
                         type="tel"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        onChange={(e) => {
+                          setPhone(e.target.value);
+                          if (fieldErrors.phone) setFieldErrors(prev => ({ ...prev, phone: "" }));
+                        }}
+                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                          fieldErrors.phone ? "border-red-500 bg-red-50" : "border-gray-300"
+                        }`}
                         placeholder="(555) 123-4567"
                       />
+                      {fieldErrors.phone && (
+                        <p className="mt-1 text-sm text-red-600">{fieldErrors.phone}</p>
+                      )}
                     </div>
                     {!isIndividual && (
                       <div>
@@ -911,10 +1020,18 @@ export default function EditProviderProfilePage() {
                         <input
                           type="url"
                           value={website}
-                          onChange={(e) => setWebsite(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          onChange={(e) => {
+                            setWebsite(e.target.value);
+                            if (fieldErrors.website) setFieldErrors(prev => ({ ...prev, website: "" }));
+                          }}
+                          className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                            fieldErrors.website ? "border-red-500 bg-red-50" : "border-gray-300"
+                          }`}
                           placeholder="https://example.com"
                         />
+                        {fieldErrors.website && (
+                          <p className="mt-1 text-sm text-red-600">{fieldErrors.website}</p>
+                        )}
                       </div>
                     )}
                   </div>
