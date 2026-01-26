@@ -6,6 +6,32 @@
 
 ---
 
+## Sprint 1 — Completed ✓
+
+**Date**: January 26, 2025
+**Type**: Deep Sprint (Critical Bugs + 1 GASH Page)
+**Commits**: `b4a29a9`, `1d4580d`
+
+### Completed Items
+
+| ID | Issue | Resolution |
+|----|-------|------------|
+| A-001 | EC-1: Edit Care Profile save bug | Added `saveSucceeded` state guard, disabled navigation during save |
+| A-002 | HS-4: "View applications" wrong routing | Changed route to `/provider/candidates`, updated text to "View Candidates" |
+| A-003 | DP-1: Duplicate browse pages | Consolidated to `/providers/browse-organizations` with redirects from old URLs |
+| A-083–A-096 | G-1: Request page redesign (14 issues) | Complete first-principles redesign: scheduling-first, messages collapsed, 65+ friendly, 1359→706 lines |
+
+### Key Decisions Made
+
+1. **Browse pages canonical URL**: `/providers/browse-organizations` (not `/caregiver/`)
+2. **Request page approach**: Full redesign (not incremental fixes) — messaging demoted to secondary role
+3. **Navigation updates**: All links to old browse pages redirect to canonical URL
+
+### Handoff Note
+Sprint 1 is complete. All code committed and pushed. Ready for Sprint 2 (Edit Care Profile GASH + Global Standards).
+
+---
+
 ## Severity Classification
 
 | Severity | Definition | Typical Effort | Example |
@@ -20,15 +46,15 @@
 
 These 7 pages are rated C- or below and require first-principles redesigns, not incremental fixes:
 
-| # | Page | Path | Rating | Primary Issues |
-|---|------|------|--------|----------------|
-| G-1 | Request / Engagement Page | `/requests/[id]` | C- | Auto-scroll, messaging-first instead of scheduling-first, no guidance |
-| G-2 | Edit Care Profile | `/care-profile/edit` | C-/C+ | **BUG: doesn't save**, survey not profile-builder, poor copy |
-| G-3 | Provider My Profile | `/provider/profile` | C- | Overbuilt, unfocused, not calendar-first |
-| G-4 | Edit Provider Profile | `/provider/profile/edit` | C- | No preview, wrong visibility model, not subtype-aware |
-| G-5 | Find Organizations (Caregiver) | `/provider/organizations` | C- | Design overhaul needed, semantic drift, wrong hero |
-| G-6 | Hire Staff Request | `/provider/hire-staff/[id]` | C- | Severely underdeveloped, no structured prompts |
-| G-7 | My Candidates | `/provider/candidates` | C- | Unfinished, no pipeline view, no calendar, no data |
+| # | Page | Path | Rating | Primary Issues | Status |
+|---|------|------|--------|----------------|--------|
+| G-1 | Request / Engagement Page | `/requests/[id]` | C- | Auto-scroll, messaging-first instead of scheduling-first, no guidance | **Done** (Sprint 1) |
+| G-2 | Edit Care Profile | `/care-profile/edit` | C-/C+ | **BUG: doesn't save**, survey not profile-builder, poor copy | Bug fixed (Sprint 1), redesign pending |
+| G-3 | Provider My Profile | `/provider/profile` | C- | Overbuilt, unfocused, not calendar-first | Open |
+| G-4 | Edit Provider Profile | `/provider/profile/edit` | C- | No preview, wrong visibility model, not subtype-aware | Open |
+| G-5 | Find Organizations (Caregiver) | `/providers/browse-organizations` | C- | Design overhaul needed, semantic drift, wrong hero | **Done** (Sprint 1) |
+| G-6 | Hire Staff Request | `/provider/hire-staff/[id]` | C- | Severely underdeveloped, no structured prompts | Open |
+| G-7 | My Candidates | `/provider/candidates` | C- | Unfinished, no pipeline view, no calendar, no data | Open |
 
 **Treatment**: Each GASH page gets a dedicated mini-spec in `/docs/gash-specs/` before implementation begins.
 
@@ -42,9 +68,9 @@ All 217 issues with immutable IDs, organized by execution phase.
 
 | ID | Issue | Page | Severity | Status |
 |----|-------|------|----------|--------|
-| A-001 | EC-1: Final question redirects without saving | `/care-profile/edit` | GASH | Open |
-| A-002 | HS-4: "View applications" routes to wrong page | `/provider/hire-staff` | CUT | Open |
-| A-003 | DP-1: Duplicate browse pages for same function | Multiple | CUT | Open |
+| A-001 | EC-1: Final question redirects without saving | `/care-profile/edit` | GASH | **Done** (Sprint 1) |
+| A-002 | HS-4: "View applications" routes to wrong page | `/provider/hire-staff` | CUT | **Done** (Sprint 1) |
+| A-003 | DP-1: Duplicate browse pages for same function | Multiple | CUT | **Done** (Sprint 1) |
 
 ### Phase 1: Cross-Cutting Standards (Apply Before Page Fixes)
 
@@ -162,24 +188,24 @@ All 217 issues with immutable IDs, organized by execution phase.
 | A-081 | OB-3: Care type uses industry jargon | PAPER CUT | Open |
 | A-082 | OB-4: Profile visibility toggle copy too heavy | PAPER CUT | Open |
 
-### Phase 6: Request Page (`/requests/[id]`) — GASH
+### Phase 6: Request Page (`/requests/[id]`) — GASH ✓ COMPLETED
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| A-083 | RQ-1: Auto-scroll to messaging is disorienting | GASH | Open |
-| A-084 | RQ-2: First message is blank/contentless | GASH | Open |
-| A-085 | RQ-3: Page overemphasizes conversation | GASH | Open |
-| A-086 | RQ-4: No guidance to continue engaging providers | GASH | Open |
-| A-087 | RQ-5: Scheduling not centered as primary action | GASH | Open |
-| A-088 | RQ-6: Quick replies overwhelming | CUT | Open |
-| A-089 | RQ-7: Message composer overly complex | CUT | Open |
-| A-090 | RQ-8: Unnecessary icons in messaging | PAPER CUT | Open |
-| A-091 | RQ-9: Copy too complex | PAPER CUT | Open |
-| A-092 | RQ-10: "View Provider" opens in same tab | PAPER CUT | Open |
-| A-093 | RQ-11: "View Provider" shows wrong CTA | CUT | Open |
-| A-094 | RQ-12: "While you wait" sections underdeveloped | CUT | Open |
-| A-095 | RQ-13: Contact information section underdeveloped | CUT | Open |
-| A-096 | RQ-14: Page difficult for 65+ users | GASH | Open |
+| A-083 | RQ-1: Auto-scroll to messaging is disorienting | GASH | **Done** (Sprint 1) |
+| A-084 | RQ-2: First message is blank/contentless | GASH | **Done** (Sprint 1) |
+| A-085 | RQ-3: Page overemphasizes conversation | GASH | **Done** (Sprint 1) |
+| A-086 | RQ-4: No guidance to continue engaging providers | GASH | **Done** (Sprint 1) |
+| A-087 | RQ-5: Scheduling not centered as primary action | GASH | **Done** (Sprint 1) |
+| A-088 | RQ-6: Quick replies overwhelming | CUT | **Done** (Sprint 1) |
+| A-089 | RQ-7: Message composer overly complex | CUT | **Done** (Sprint 1) |
+| A-090 | RQ-8: Unnecessary icons in messaging | PAPER CUT | **Done** (Sprint 1) |
+| A-091 | RQ-9: Copy too complex | PAPER CUT | **Done** (Sprint 1) |
+| A-092 | RQ-10: "View Provider" opens in same tab | PAPER CUT | **Done** (Sprint 1) |
+| A-093 | RQ-11: "View Provider" shows wrong CTA | CUT | **Done** (Sprint 1) |
+| A-094 | RQ-12: "While you wait" sections underdeveloped | CUT | **Done** (Sprint 1) |
+| A-095 | RQ-13: Contact information section underdeveloped | CUT | **Done** (Sprint 1) |
+| A-096 | RQ-14: Page difficult for 65+ users | GASH | **Done** (Sprint 1) |
 
 ### Phase 7: Saved Providers (`/saved`)
 

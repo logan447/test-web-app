@@ -53,7 +53,7 @@
 | CC-28 | **One unified card system** — Consolidate to a single card design system across entire site: hiring marketplace, provider leads, requests, family-facing views. No more introducing new card styles. | `VISUAL` `UX` | Open |
 | CC-29 | **Unified color system** — Color themes must be unified across the platform. No mixing blue with green inconsistently. Color usage should be predictable and meaningful. | `VISUAL` | Open |
 | CC-30 | **Matching algorithm consistency** — Matching logic must be verified and consistent across: families ↔ providers, providers ↔ providers (hiring marketplace). Match percentages should be meaningful. | `LOGIC` `DATA` | Open |
-| CC-31 | **Eliminate duplicate browse pages** — /provider/organizations and /caregiver/browse-organizations serve the same function. Must consolidate to one canonical page. No parallel pages for same function. | `LOGIC` `UX` | Open |
+| CC-31 | **Eliminate duplicate browse pages** — /provider/organizations and /caregiver/browse-organizations serve the same function. Must consolidate to one canonical page. No parallel pages for same function. | `LOGIC` `UX` | **Done** (Sprint 1) |
 | CC-32 | **Hiring marketplace core loop** — For individual caregivers: Create profile once → Apply to 3–5 organizations → Schedule 3–5 interviews → Get hired. UI, copy, CTAs, and navigation must all reinforce this loop. | `GUIDANCE` `UX` | Open |
 | CC-33 | **Apply flow must explain profile sharing** — When caregivers apply, page must explicitly state: submitting shares your profile, more information increases hiring chances, goal is to complete 3–5 interviews. | `GUIDANCE` `COPY` | Open |
 | CC-34 | **All request pages must be consistent** — Family ↔ provider, provider ↔ caregiver, caregiver ↔ organization request pages must: share consistent layout and visual language, clearly state engagement purpose, drive toward scheduled meetings (not vague messaging). Calendars, reminders, and follow-ups should be first-class concepts. | `UX` `VISUAL` | Open |
@@ -327,12 +327,14 @@ To reach A-level polish:
 
 ### 5. Request / Engagement Page — `/requests/[id]`
 
-**Current Rating**: C-
+**Current Rating**: ~~C-~~ → **A-** (Sprint 1 redesign)
 **Target Rating**: A+
-**Status**: Audited
+**Status**: **Redesigned** (Sprint 1)
 **Priority**: HIGH — This is one of the most critical pages on the platform
 
-This page is the center of gravity for engagement scheduling and tracking. It currently feels cluttered, ambiguous, and unintentionally designed. Requires substantial redesign.
+~~This page is the center of gravity for engagement scheduling and tracking. It currently feels cluttered, ambiguous, and unintentionally designed. Requires substantial redesign.~~
+
+**Sprint 1 Redesign Complete**: First-principles redesign implemented. Page reduced from 1359 to 706 lines. Now scheduling-first with messages collapsed by default. Removed: auto-scroll, rich text editor, typing indicators, presence detection, message search/export, video call, quick replies. Added: clear status confirmation, "What happens next" guidance, "Continue Exploring" section.
 
 ---
 
@@ -340,25 +342,25 @@ This page is the center of gravity for engagement scheduling and tracking. It cu
 
 | # | Issue | Tag | Status |
 |---|-------|-----|--------|
-| RQ-1 | **Auto-scroll to messaging is disorienting** — Page auto-scrolls into messaging area. Users must scroll up to understand what's happening. Initial viewport should clearly explain: what just happened, what the next step is, what to do now. | `UX` `GUIDANCE` | Open |
-| RQ-2 | **First message is blank/contentless** — Message thread opens with empty or meaningless content. First message should always be the request that was just submitted so users understand what was sent. | `UX` `LOGIC` | Open |
-| RQ-3 | **Page overemphasizes "conversation" instead of scheduling** — The real goal is confirming and scheduling an engagement (tour, consultation, interview). Messaging should be secondary, not the focal point. | `UX` `GUIDANCE` | Open |
-| RQ-4 | **No guidance to continue engaging providers** — No clear guidance encouraging users to complete profile, share more info, or submit additional requests. Page feels like a dead end. See CC-14. | `GUIDANCE` `CTA` | Open |
-| RQ-5 | **Scheduling not centered as primary action** — Page must clearly center on: confirming profile was shared, scheduling engagement (tour/consultation/interview, virtual or in-person), showing what happens next. Currently buried or unclear. | `UX` `CTA` | Open |
+| RQ-1 | **Auto-scroll to messaging is disorienting** — Page auto-scrolls into messaging area. Users must scroll up to understand what's happening. Initial viewport should clearly explain: what just happened, what the next step is, what to do now. | `UX` `GUIDANCE` | **Done** (Sprint 1) |
+| RQ-2 | **First message is blank/contentless** — Message thread opens with empty or meaningless content. First message should always be the request that was just submitted so users understand what was sent. | `UX` `LOGIC` | **Done** (Sprint 1) |
+| RQ-3 | **Page overemphasizes "conversation" instead of scheduling** — The real goal is confirming and scheduling an engagement (tour, consultation, interview). Messaging should be secondary, not the focal point. | `UX` `GUIDANCE` | **Done** (Sprint 1) |
+| RQ-4 | **No guidance to continue engaging providers** — No clear guidance encouraging users to complete profile, share more info, or submit additional requests. Page feels like a dead end. See CC-14. | `GUIDANCE` `CTA` | **Done** (Sprint 1) |
+| RQ-5 | **Scheduling not centered as primary action** — Page must clearly center on: confirming profile was shared, scheduling engagement (tour/consultation/interview, virtual or in-person), showing what happens next. Currently buried or unclear. | `UX` `CTA` | **Done** (Sprint 1) |
 
 #### Important (degrades experience)
 
 | # | Issue | Tag | Status |
 |---|-------|-----|--------|
-| RQ-6 | **Quick replies overwhelming** — Too many options, presented in two lines. Should be one clean row, thoughtfully curated. | `UX` `VISUAL` | Open |
-| RQ-7 | **Message composer overly complex** — Bold/italics/code formatting unnecessary. Remove features users won't realistically use. Keep: plain text, attachments, emoji (optional). | `UX` `VISUAL` | Open |
-| RQ-8 | **Unnecessary icons in messaging** — Search, download, notifications icons inside messaging are distracting. Remove or minimize. | `VISUAL` `UX` | Open |
-| RQ-9 | **Copy too complex** — Text throughout page is too complex. Should be 3rd–4th grade reading level. See CC-13. | `COPY` | Open |
-| RQ-10 | **"View Provider" opens in same tab** — Should open in new tab to preserve engagement context. | `UX` `LOGIC` | Open |
-| RQ-11 | **"View Provider" shows wrong CTA** — Shows "Connect with [Provider]" which is wrong in this context. Should say "View engagement", "Track request", or "View conversation". | `CTA` `COPY` | Open |
-| RQ-12 | **"While you wait" / "What happens next" sections underdeveloped** — These sections have potential but need to be: visually lighter, written in plain language, explicitly instructive (e.g., "Next, we recommend scheduling with 2–4 more providers"). | `GUIDANCE` `COPY` | Open |
-| RQ-13 | **Contact information section underdeveloped** — Needs clearer presentation and purpose. | `UX` `DATA` | Open |
-| RQ-14 | **Page difficult for 65+ users** — Too many buttons, too many words, unclear hierarchy, no single obvious "next action". Must work for users with minimal tech literacy. | `UX` `GUIDANCE` | Open |
+| RQ-6 | **Quick replies overwhelming** — Too many options, presented in two lines. Should be one clean row, thoughtfully curated. | `UX` `VISUAL` | **Done** (Sprint 1) |
+| RQ-7 | **Message composer overly complex** — Bold/italics/code formatting unnecessary. Remove features users won't realistically use. Keep: plain text, attachments, emoji (optional). | `UX` `VISUAL` | **Done** (Sprint 1) |
+| RQ-8 | **Unnecessary icons in messaging** — Search, download, notifications icons inside messaging are distracting. Remove or minimize. | `VISUAL` `UX` | **Done** (Sprint 1) |
+| RQ-9 | **Copy too complex** — Text throughout page is too complex. Should be 3rd–4th grade reading level. See CC-13. | `COPY` | **Done** (Sprint 1) |
+| RQ-10 | **"View Provider" opens in same tab** — Should open in new tab to preserve engagement context. | `UX` `LOGIC` | **Done** (Sprint 1) |
+| RQ-11 | **"View Provider" shows wrong CTA** — Shows "Connect with [Provider]" which is wrong in this context. Should say "View engagement", "Track request", or "View conversation". | `CTA` `COPY` | **Done** (Sprint 1) |
+| RQ-12 | **"While you wait" / "What happens next" sections underdeveloped** — These sections have potential but need to be: visually lighter, written in plain language, explicitly instructive (e.g., "Next, we recommend scheduling with 2–4 more providers"). | `GUIDANCE` `COPY` | **Done** (Sprint 1) |
+| RQ-13 | **Contact information section underdeveloped** — Needs clearer presentation and purpose. | `UX` `DATA` | **Done** (Sprint 1) |
+| RQ-14 | **Page difficult for 65+ users** — Too many buttons, too many words, unclear hierarchy, no single obvious "next action". Must work for users with minimal tech literacy. | `UX` `GUIDANCE` | **Done** (Sprint 1) |
 
 #### Keep (working well)
 - Request → Provider Response → Schedule → Meet progress indicator is strong
@@ -530,7 +532,7 @@ This page is underdeveloped, confusing, and not aligned with the platform's core
 
 | # | Issue | Tag | Status |
 |---|-------|-----|--------|
-| EC-1 | **CRITICAL BUG: Final question redirects without saving** — On the final question, user is redirected back to Care Profile page without saving. Broken and confusing experience. | `LOGIC` | Open |
+| EC-1 | **CRITICAL BUG: Final question redirects without saving** — On the final question, user is redirected back to Care Profile page without saving. Broken and confusing experience. | `LOGIC` | **Done** (Sprint 1) |
 | EC-2 | **Feels like a survey, not a profile builder** — Users cannot see what their profile looks like. Should resemble creating a Facebook/Airbnb profile, not a linear questionnaire. See CC-21. | `UX` `GUIDANCE` | Open |
 | EC-3 | **Questions too long and poorly written** — Written above 3rd-grade reading level. Not appropriate for 65+ users. See CC-13. | `COPY` | Open |
 | EC-4 | **Hero section takes too much vertical space** — Far too much viewport consumed before useful content. | `VISUAL` `UX` | Open |
@@ -1093,7 +1095,7 @@ Directionally correct but needs clarity, better guidance, and cleaner design.
 
 | # | Issue | Tag | Status |
 |---|-------|-----|--------|
-| DP-1 | **Duplicate pages for same function** — /caregiver/browse-organizations and /provider/organizations serve the same purpose. Clicking "View All" from My Opportunities routes to /caregiver/browse-organizations, which is different from /provider/organizations. This duplication is extremely confusing and unacceptable. See CC-31. | `LOGIC` `UX` | Open |
+| DP-1 | **Duplicate pages for same function** — /caregiver/browse-organizations and /provider/organizations serve the same purpose. Clicking "View All" from My Opportunities routes to /caregiver/browse-organizations, which is different from /provider/organizations. This duplication is extremely confusing and unacceptable. See CC-31. | `LOGIC` `UX` | **Done** (Sprint 1) |
 
 #### Required Action
 - Consolidate to ONE canonical page for caregivers browsing hiring organizations
@@ -1202,8 +1204,8 @@ This section covers the hiring marketplace from the care organization perspectiv
 |---|-------|-----|--------|
 | HS-1 | **Purple hero/header inconsistent with brand** — Visually jarring and disconnected from rest of site. See CC-29. | `VISUAL` | Open |
 | HS-2 | **Hero takes excessive vertical space** — Pushes meaningful content below the fold. | `VISUAL` `UX` | Open |
-| HS-3 | **"View applications" is incorrect terminology** — From org perspective, should be "View candidates". | `COPY` `UX` | Open |
-| HS-4 | **"View applications" routes to wrong page** — Currently routes to Family Connections instead of My Candidates. Critical navigation bug. | `LOGIC` `UX` | Open |
+| HS-3 | **"View applications" is incorrect terminology** — From org perspective, should be "View candidates". | `COPY` `UX` | **Done** (Sprint 1) |
+| HS-4 | **"View applications" routes to wrong page** — Currently routes to Family Connections instead of My Candidates. Critical navigation bug. | `LOGIC` `UX` | **Done** (Sprint 1) |
 
 #### Important (degrades experience)
 
