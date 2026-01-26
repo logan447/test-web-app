@@ -50,6 +50,10 @@ type Provider = {
   isVisible: boolean;
   availableForFamilies: boolean;
   availableForOrganizations: boolean;
+  // Caregiver work preferences (Sprint 5)
+  workPreferences: string[];
+  preferredEmployers: string[];
+  availabilityStart: string | null;
 };
 
 // ============================================
@@ -98,6 +102,22 @@ const CERTIFICATIONS = [
   { value: "CPR", label: "CPR", description: "CPR Certified" },
   { value: "FIRST_AID", label: "First Aid", description: "First Aid Certified" },
   { value: "ALZHEIMERS", label: "Dementia Care", description: "Alzheimers/Dementia Training" },
+];
+
+// Caregiver work preferences (Sprint 5)
+const WORK_PREFERENCES = [
+  { value: "full_time", label: "Full-Time", description: "40+ hours per week" },
+  { value: "part_time", label: "Part-Time", description: "20-30 hours per week" },
+  { value: "live_in", label: "Live-In", description: "24-hour care with accommodations" },
+  { value: "per_diem", label: "Per Diem", description: "As-needed shifts" },
+  { value: "overnight", label: "Overnight", description: "Evening/night shifts" },
+  { value: "weekends", label: "Weekends", description: "Saturday and Sunday" },
+];
+
+const PREFERRED_EMPLOYERS = [
+  { value: "direct_families", label: "Direct with Families", description: "Work directly for families seeking care" },
+  { value: "home_care_agencies", label: "Home Care Agencies", description: "Employment with home care agencies" },
+  { value: "facilities", label: "Care Facilities", description: "Work at assisted living, nursing homes, etc." },
 ];
 
 const US_STATES = [
@@ -181,6 +201,11 @@ export default function EditProviderProfilePage() {
   const [availableForFamilies, setAvailableForFamilies] = useState(true);
   const [availableForOrganizations, setAvailableForOrganizations] = useState(false);
 
+  // Form state - Caregiver work preferences (Sprint 5)
+  const [workPreferences, setWorkPreferences] = useState<string[]>([]);
+  const [preferredEmployers, setPreferredEmployers] = useState<string[]>([]);
+  const [availabilityStart, setAvailabilityStart] = useState("");
+
   // Section collapse state
   const [expandedSections, setExpandedSections] = useState({
     credentials: true,
@@ -257,6 +282,10 @@ export default function EditProviderProfilePage() {
     setWebsite(data.website || "");
     setAvailableForFamilies(data.availableForFamilies ?? true);
     setAvailableForOrganizations(data.availableForOrganizations ?? false);
+    // Caregiver work preferences
+    setWorkPreferences(data.workPreferences || []);
+    setPreferredEmployers(data.preferredEmployers || []);
+    setAvailabilityStart(data.availabilityStart ? data.availabilityStart.split('T')[0] : "");
   };
 
   // ============================================
@@ -396,6 +425,10 @@ export default function EditProviderProfilePage() {
       availableForFamilies,
       availableForOrganizations,
       isVisible: availableForFamilies || availableForOrganizations,
+      // Caregiver work preferences
+      workPreferences: isIndividual ? workPreferences : [],
+      preferredEmployers: isIndividual ? preferredEmployers : [],
+      availabilityStart: isIndividual && availabilityStart ? new Date(availabilityStart).toISOString() : null,
     };
 
     try {
@@ -1103,6 +1136,112 @@ export default function EditProviderProfilePage() {
                   </p>
                 )}
               </section>
+
+              {/* SECTION 7: Work Preferences (Caregivers only) */}
+              {isIndividual && (
+                <section className="bg-white rounded-xl border border-gray-200 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-1">Work Preferences</h2>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Help families and organizations understand your availability.
+                  </p>
+
+                  {/* Availability Start Date */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      When can you start?
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="date"
+                        value={availabilityStart}
+                        onChange={(e) => setAvailabilityStart(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setAvailabilityStart("")}
+                        className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          !availabilityStart
+                            ? "bg-green-100 text-green-800 border-2 border-green-500"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        Available now
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Leave blank or click &quot;Available now&quot; if you can start immediately.
+                    </p>
+                  </div>
+
+                  {/* Work Schedule Preferences */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Schedule preferences
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {WORK_PREFERENCES.map((pref) => (
+                        <button
+                          key={pref.value}
+                          type="button"
+                          onClick={() => {
+                            setWorkPreferences((prev) =>
+                              prev.includes(pref.value)
+                                ? prev.filter((p) => p !== pref.value)
+                                : [...prev, pref.value]
+                            );
+                          }}
+                          className={`p-3 text-left rounded-lg border-2 transition-all ${
+                            workPreferences.includes(pref.value)
+                              ? "border-primary-500 bg-primary-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <span className="block font-medium text-gray-900 text-sm">{pref.label}</span>
+                          <span className="block text-xs text-gray-500">{pref.description}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Preferred Employers */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Who would you like to work with?
+                    </label>
+                    <div className="space-y-2">
+                      {PREFERRED_EMPLOYERS.map((emp) => (
+                        <label
+                          key={emp.value}
+                          className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                            preferredEmployers.includes(emp.value)
+                              ? "border-primary-500 bg-primary-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={preferredEmployers.includes(emp.value)}
+                            onChange={() => {
+                              setPreferredEmployers((prev) =>
+                                prev.includes(emp.value)
+                                  ? prev.filter((e) => e !== emp.value)
+                                  : [...prev, emp.value]
+                              );
+                            }}
+                            className="mt-0.5 w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                          />
+                          <div>
+                            <span className="block font-medium text-gray-900">{emp.label}</span>
+                            <span className="block text-sm text-gray-500">{emp.description}</span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
 
               {/* Save Button */}
               <div className="flex justify-end">

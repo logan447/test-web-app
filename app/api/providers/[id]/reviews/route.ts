@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { calculateOleraScore } from '@/lib/oleraScore';
 
 // GET /api/providers/[id]/reviews - Fetch reviews with pagination
 export async function GET(
@@ -161,11 +162,41 @@ export async function POST(
       _count: true,
     });
 
+    // Calculate the new Olera Score
+    const oleraResult = calculateOleraScore({
+      averageRating: aggregateResult._avg.rating,
+      googleRating: null, // Not available in MVP
+      reviewCount: aggregateResult._count,
+      provider: {
+        name: provider.name,
+        providerType: provider.providerType,
+        description: provider.description,
+        address: provider.address,
+        city: provider.city,
+        state: provider.state,
+        phone: provider.phone,
+        email: provider.email,
+        website: provider.website,
+        careTypesOffered: provider.careTypesOffered,
+        licensed: provider.licensed,
+        backgroundChecked: provider.backgroundChecked,
+        insuranceVerified: provider.insuranceVerified,
+        coverPhoto: provider.coverPhoto,
+        photos: provider.photos,
+        priceMin: provider.priceMin,
+        priceMax: provider.priceMax,
+        priceDescription: provider.priceDescription,
+        claimed: provider.claimed,
+      },
+    });
+
     await prisma.provider.update({
       where: { id },
       data: {
         averageRating: aggregateResult._avg.rating,
         reviewCount: aggregateResult._count,
+        oleraScore: oleraResult.score,
+        oleraScoreUpdatedAt: new Date(),
       },
     });
 

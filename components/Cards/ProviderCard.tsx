@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { BadgeStyles, SaveButton, RatingDisplay, LocationDisplay } from "./UnifiedCard";
+import { OleraScoreBadge } from "@/components/Trust/OleraScore";
 
 // Provider type categories for styling
 const FACILITY_TYPES = [
@@ -29,6 +30,7 @@ export interface ProviderCardProps {
     reviewCount?: number;
     priceMin?: number | null;
     priceMax?: number | null;
+    priceDescription?: string | null;
     photos?: string[];
     coverPhoto?: string | null;
     verified?: boolean;
@@ -39,6 +41,13 @@ export interface ProviderCardProps {
     hasHospiceCare?: boolean;
     responseTime?: string | null;
     serviceRadius?: number | null;
+    // Trust/verification fields for Olera Score
+    phone?: string | null;
+    email?: string | null;
+    website?: string | null;
+    licensed?: boolean;
+    backgroundChecked?: boolean;
+    insuranceVerified?: boolean;
   };
   variant?: "horizontal" | "vertical";
   showRequestStatus?: boolean;
@@ -251,7 +260,7 @@ export default function ProviderCard({
               </div>
             )}
 
-            {/* Price and Rating Row */}
+            {/* Price and Olera Score Row */}
             <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
               <div>
                 <p className="text-xs text-gray-500">Starting at</p>
@@ -259,17 +268,31 @@ export default function ProviderCard({
                   {price || "Contact for pricing"}
                 </p>
               </div>
-              {provider.averageRating && provider.averageRating > 0 && (
-                <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">
-                  <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                  </svg>
-                  <span className="text-lg font-bold text-gray-900">{provider.averageRating.toFixed(1)}</span>
-                  {provider.reviewCount && provider.reviewCount > 0 && (
-                    <span className="text-sm text-gray-500">({provider.reviewCount})</span>
-                  )}
-                </div>
-              )}
+              <OleraScoreBadge
+                provider={{
+                  name: provider.name,
+                  providerType: provider.providerType as any,
+                  description: provider.description,
+                  address: provider.address,
+                  city: provider.city,
+                  state: provider.state,
+                  phone: provider.phone,
+                  email: provider.email,
+                  website: provider.website,
+                  careTypesOffered: provider.careTypesOffered,
+                  licensed: provider.licensed,
+                  backgroundChecked: provider.backgroundChecked,
+                  insuranceVerified: provider.insuranceVerified,
+                  coverPhoto: provider.coverPhoto,
+                  photos: provider.photos,
+                  priceMin: provider.priceMin,
+                  priceMax: provider.priceMax,
+                  priceDescription: provider.priceDescription,
+                  claimed: provider.claimed,
+                }}
+                averageRating={provider.averageRating ?? null}
+                reviewCount={provider.reviewCount ?? 0}
+              />
             </div>
 
             {/* Response Time (for home care) */}
@@ -423,22 +446,34 @@ export default function ProviderCard({
           </p>
         </div>
 
-        {/* Rating */}
-        {provider.averageRating && provider.averageRating > 0 && (
-          <div className="flex items-center gap-2 mb-3">
-            <div className="flex items-center gap-1">
-              <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-              </svg>
-              <span className="font-semibold text-gray-900">{provider.averageRating.toFixed(1)}</span>
-            </div>
-            {provider.reviewCount && provider.reviewCount > 0 && (
-              <span className="text-sm text-gray-500">
-                ({provider.reviewCount} {provider.reviewCount === 1 ? "review" : "reviews"})
-              </span>
-            )}
-          </div>
-        )}
+        {/* Olera Score */}
+        <div className="mb-3">
+          <OleraScoreBadge
+            provider={{
+              name: provider.name,
+              providerType: provider.providerType as any,
+              description: provider.description,
+              address: provider.address,
+              city: provider.city,
+              state: provider.state,
+              phone: provider.phone,
+              email: provider.email,
+              website: provider.website,
+              careTypesOffered: provider.careTypesOffered,
+              licensed: provider.licensed,
+              backgroundChecked: provider.backgroundChecked,
+              insuranceVerified: provider.insuranceVerified,
+              coverPhoto: provider.coverPhoto,
+              photos: provider.photos,
+              priceMin: provider.priceMin,
+              priceMax: provider.priceMax,
+              priceDescription: provider.priceDescription,
+              claimed: provider.claimed,
+            }}
+            averageRating={provider.averageRating ?? null}
+            reviewCount={provider.reviewCount ?? 0}
+          />
+        </div>
 
         {/* Pricing */}
         {price && (

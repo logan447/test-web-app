@@ -268,6 +268,11 @@ export async function PATCH(req: Request) {
       availableForFamilies,
       availableForOrganizations,
 
+      // Caregiver work preferences (Sprint 5)
+      workPreferences,
+      preferredEmployers,
+      availabilityStart,
+
       // Visibility request
       isVisible,
     } = body;
@@ -408,6 +413,11 @@ export async function PATCH(req: Request) {
     addIfDefined("active", active);
     addIfDefined("availableForFamilies", availableForFamilies);
     addIfDefined("availableForOrganizations", availableForOrganizations);
+
+    // Caregiver work preferences (Sprint 5)
+    addIfDefined("workPreferences", workPreferences);
+    addIfDefined("preferredEmployers", preferredEmployers);
+    addIfDefined("availabilityStart", availabilityStart);
 
     // Create merged data to check visibility requirements
     const mergedData = { ...existingProvider, ...updateData };

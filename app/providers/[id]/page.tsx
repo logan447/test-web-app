@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { useParams, useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ import ClaimProviderModal from "@/components/Provider/ClaimProviderModal";
 import TakedownRequestModal from "@/components/Provider/TakedownRequestModal";
 import ContactInfoDisplay from "@/components/Provider/ContactInfoDisplay";
 import OleraScore from "@/components/Trust/OleraScore";
-import { ViewerRole } from "@/lib/contactVisibility";
+import { ViewerRole, EngagementStatus } from "@/lib/contactVisibility";
 import { showToast } from "@/lib/toast";
 import FacilityTabs from "@/components/Provider/tabs/FacilityTabs";
 import HomeCareAgencyTabs from "@/components/Provider/tabs/HomeCareAgencyTabs";
@@ -23,6 +23,9 @@ import EngagementConfirmationModal from "@/components/Engagement/EngagementConfi
 import { useFamilyProfile, getEngagementType } from "@/hooks/useFamilyProfile";
 import { useSavedProviders } from "@/hooks/useSavedProviders";
 import { getProviderCTAs } from "@/lib/providerUtils";
+import { useProviderIdentity } from "@/hooks/useProviderIdentity";
+import ForOrganizationsSection from "@/components/Provider/ForOrganizationsSection";
+import AvailabilitySection from "@/components/Provider/AvailabilitySection";
 
 // Provider type categories
 const FACILITY_TYPES = ["ASSISTED_LIVING", "MEMORY_CARE", "NURSING_HOME", "INDEPENDENT_LIVING", "REHABILITATION"];
@@ -82,11 +85,15 @@ type Provider = {
   specialtyPrograms: string[];
   claimed?: boolean;
   verified?: boolean;
+  // Caregiver work preferences (Sprint 5)
+  workPreferences: string[];
+  preferredEmployers: string[];
+  availabilityStart: Date | null;
 };
 
 type ActiveEngagement = {
   id: string;
-  status: string;
+  status: EngagementStatus;
 } | null;
 
 export default function ProviderDetailPage() {
@@ -108,20 +115,42 @@ export default function ProviderDetailPage() {
   const [activeSection, setActiveSection] = useState("rating");
   const { getProfileSummary } = useFamilyProfile();
 
+  // Get provider identity for accurate viewer role derivation (only fetches if in provider mode)
+  const { identity: providerIdentity } = useProviderIdentity({ checkMode: true });
+
   // Contact form state - only message is actually used by the API
   const [contactMessage, setContactMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Derive viewer role for contact visibility
-  const getViewerRole = (): ViewerRole => {
+  /**
+   * Derive viewer role for contact visibility.
+   * Memoized to avoid recalculation on every render.
+   *
+   * Rules:
+   * - Anonymous users: 'anonymous'
+   * - Family mode users: 'family'
+   * - Provider mode (individual caregiver): 'individual_caregiver'
+   * - Provider mode (organization): 'organization'
+   */
+  const viewerRole = useMemo((): ViewerRole => {
     if (!session?.user) return 'anonymous';
-    // Default to family mode for most users viewing provider pages
+
+    // Family mode users are always 'family'
     if (session.user.activeMode === 'FAMILY') return 'family';
-    // Providers viewing other providers - treat as organization for now
-    // TODO: Could check provider identity to be more accurate
+
+    // Provider mode users - check their provider type
+    if (session.user.activeMode === 'PROVIDER' && providerIdentity?.type) {
+      // Individual caregivers viewing other providers
+      if (providerIdentity.type === 'INDEPENDENT_CAREGIVER') {
+        return 'individual_caregiver';
+      }
+      // Organization providers (agencies, facilities)
+      return 'organization';
+    }
+
+    // Default fallback for provider mode without identity
     return 'organization';
-  };
-  const viewerRole = getViewerRole();
+  }, [session?.user?.activeMode, providerIdentity?.type]);
 
   useEffect(() => {
     fetchProvider();
@@ -820,6 +849,36 @@ export default function ProviderDetailPage() {
                   )}
                       </section>
 
+                      {/* Availability Section - Caregivers only */}
+                      {provider.providerType === 'INDEPENDENT_CAREGIVER' && (
+                        <section id="availability" className="scroll-mt-36">
+                          <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Availability</h2>
+                          <AvailabilitySection
+                            availabilityStart={provider.availabilityStart}
+                            workPreferences={provider.workPreferences || []}
+                            serviceRadius={provider.serviceRadius}
+                            city={provider.city}
+                            state={provider.state}
+                            providerName={provider.name}
+                          />
+                        </section>
+                      )}
+
+                      {/* For Organizations Section - Caregivers only, visible to organization viewers */}
+                      {provider.providerType === 'INDEPENDENT_CAREGIVER' && viewerRole === 'organization' && (
+                        <section id="for-organizations" className="scroll-mt-36">
+                          <ForOrganizationsSection
+                            workPreferences={provider.workPreferences || []}
+                            preferredEmployers={provider.preferredEmployers || []}
+                            availabilityStart={provider.availabilityStart}
+                            certifications={provider.certifications || []}
+                            yearsInBusiness={provider.yearsInBusiness}
+                            languagesSpoken={provider.languagesSpoken || []}
+                            providerName={provider.name}
+                          />
+                        </section>
+                      )}
+
                       {/* Services Section - Default for caregivers */}
                       <section id="services" className="space-y-6 scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Services</h2>
@@ -1153,7 +1212,7 @@ export default function ProviderDetailPage() {
                       address={`${provider.address}, ${provider.city}, ${provider.state} ${provider.zipCode}`}
                       providerType={provider.providerType}
                       viewerRole={viewerRole}
-                      engagementStatus={activeEngagement?.status as any}
+                      engagementStatus={activeEngagement?.status}
                       context="profile_page"
                       layout="vertical"
                       showLabels={true}

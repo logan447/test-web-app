@@ -10,26 +10,33 @@
  * | Viewer | Subject | Condition | Visible Fields |
  * |--------|---------|-----------|----------------|
  * | Family | Organization (agency/facility) | Always | phone, email, website, address |
- * | Family | Individual Caregiver | ACCEPTED/SCHEDULED/COMPLETED only | phone, email |
- * | Provider (any) | Family | ACCEPTED/SCHEDULED/COMPLETED only | phone, email |
- * | Organization | Individual Caregiver (hiring) | ACCEPTED/SCHEDULED/COMPLETED only | phone, email |
+ * | Family | Individual Caregiver | Active engagement only | phone, email (never address) |
+ * | Provider (any) | Family | Active engagement only | phone, email |
+ * | Organization | Individual Caregiver (hiring) | Active engagement only | phone, email (never address) |
  * | Individual Caregiver | Organization (applying) | Always | phone, email, website |
  *
  * "Active Engagement" statuses that allow contact visibility:
- * - ACCEPTED: Provider accepted the request
- * - SCHEDULED: Meeting/tour has been scheduled
- * - COMPLETED: Engagement finished (contact may still be needed for follow-up)
+ * - ACCEPTED: Recipient agreed to engage (ConsultRequestStatus, EngagementStatus, HiringEngagementStatus)
+ * - ACTIVE: Ongoing engagement (EngagementStatus)
+ * - COMPLETED: Engagement concluded (ConsultRequestStatus, EngagementStatus)
+ * - INTERVIEWING: Interview in progress (HiringEngagementStatus)
+ * - HIRED: Employment confirmed (HiringEngagementStatus)
  *
  * Statuses that DO NOT allow contact visibility:
- * - PENDING: Request sent but not yet accepted (no consent)
- * - DECLINED: Provider rejected the request
- * - CANCELLED: Either party cancelled
- * - EXPIRED: Request timed out
+ * - PENDING: Awaiting response, no consent yet (all enums)
+ * - DECLINED: Recipient rejected (all enums)
+ * - CANCELLED: Initiator withdrew (ConsultRequestStatus, EngagementStatus)
+ * - WITHDRAWN: Initiator withdrew (HiringEngagementStatus)
+ *
+ * Note: Status values align with Prisma enums:
+ * - ConsultRequestStatus: PENDING, ACCEPTED, DECLINED, COMPLETED, CANCELLED
+ * - EngagementStatus: PENDING, ACCEPTED, ACTIVE, COMPLETED, DECLINED, CANCELLED
+ * - HiringEngagementStatus: PENDING, ACCEPTED, INTERVIEWING, HIRED, DECLINED, WITHDRAWN
  */
 
 import { ProviderType } from "@prisma/client";
 
-// Provider types that are considered "organizations" (always show contact)
+// Provider types that are considered "organizations" (always show contact to families)
 export const ORGANIZATION_PROVIDER_TYPES: ProviderType[] = [
   'ASSISTED_LIVING',
   'MEMORY_CARE',
@@ -46,24 +53,37 @@ export const INDIVIDUAL_PROVIDER_TYPES: ProviderType[] = [
   'INDEPENDENT_CAREGIVER',
 ];
 
-// Engagement statuses that allow contact visibility
+/**
+ * Engagement statuses that allow contact visibility.
+ * These statuses indicate mutual consent to communicate.
+ */
 export const CONTACT_VISIBLE_STATUSES = [
-  'ACCEPTED',
-  'SCHEDULED',
-  'COMPLETED',
+  'ACCEPTED',     // All engagement types
+  'ACTIVE',       // EngagementStatus - ongoing engagement
+  'COMPLETED',    // ConsultRequestStatus, EngagementStatus - finished but may need follow-up
+  'INTERVIEWING', // HiringEngagementStatus - interview implies contact
+  'HIRED',        // HiringEngagementStatus - employment confirmed
 ] as const;
 
-// Engagement statuses that do NOT allow contact visibility
+/**
+ * Engagement statuses that do NOT allow contact visibility.
+ * These statuses indicate no consent or withdrawn consent.
+ */
 export const CONTACT_HIDDEN_STATUSES = [
-  'PENDING',
-  'DECLINED',
-  'CANCELLED',
-  'EXPIRED',
+  'PENDING',    // All engagement types - awaiting response
+  'DECLINED',   // All engagement types - rejected
+  'CANCELLED',  // ConsultRequestStatus, EngagementStatus - withdrawn
+  'WITHDRAWN',  // HiringEngagementStatus - withdrawn
 ] as const;
 
+/**
+ * Union type of all possible engagement statuses across the platform.
+ * Accepts string to handle API responses safely.
+ */
 export type EngagementStatus =
   | typeof CONTACT_VISIBLE_STATUSES[number]
-  | typeof CONTACT_HIDDEN_STATUSES[number];
+  | typeof CONTACT_HIDDEN_STATUSES[number]
+  | string; // Allow any string for forward compatibility with new statuses
 
 export type ViewerRole = 'family' | 'organization' | 'individual_caregiver' | 'anonymous';
 
@@ -109,11 +129,16 @@ export function isIndividualType(providerType: ProviderType): boolean {
 }
 
 /**
- * Check if an engagement status allows contact visibility
+ * Check if an engagement status allows contact visibility.
+ * Returns true for any status that indicates mutual consent to communicate.
  */
 export function isActiveEngagementStatus(status: EngagementStatus | null | undefined): boolean {
   if (!status) return false;
-  return (CONTACT_VISIBLE_STATUSES as readonly string[]).includes(status);
+  // Normalize to uppercase for comparison (API might return different cases)
+  const normalizedStatus = status.toUpperCase();
+  return (CONTACT_VISIBLE_STATUSES as readonly string[]).some(
+    s => s.toUpperCase() === normalizedStatus
+  );
 }
 
 /**
