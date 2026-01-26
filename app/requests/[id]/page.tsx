@@ -395,7 +395,7 @@ export default function RequestDetailPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary-200 text-primary-700 flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                <span>You'll get an email when they respond</span>
+                <span>You&apos;ll get an email when they respond</span>
               </li>
             </ol>
           </div>
