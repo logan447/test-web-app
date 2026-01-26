@@ -7,6 +7,8 @@ import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import { showToast } from "@/lib/toast";
+import { CareType } from "@prisma/client";
+import { getCareTypeOptions } from "@/lib/careTypes";
 
 /**
  * Benefits - Help families find financial assistance programs
@@ -17,26 +19,11 @@ import { showToast } from "@/lib/toast";
  * 3. Results State - List of matched benefit programs
  *
  * Data persists to Care Profile as the single source of truth.
+ * Care types are imported from lib/careTypes.ts (single source of truth).
  */
 
-type CareType =
-  | "PERSONAL_CARE"
-  | "HOUSEHOLD_HELP"
-  | "HEALTH_MANAGEMENT"
-  | "COMPANIONSHIP"
-  | "FINANCIAL_HELP"
-  | "MEMORY_CARE"
-  | "MOBILITY_HELP";
-
-const CARE_TYPES = [
-  { value: "PERSONAL_CARE" as CareType, icon: "✋", label: "Personal Care", description: "Bathing, dressing, toileting" },
-  { value: "HOUSEHOLD_HELP" as CareType, icon: "🏠", label: "Household Help", description: "Meals, cleaning, errands" },
-  { value: "HEALTH_MANAGEMENT" as CareType, icon: "❤️", label: "Health Management", description: "Medications, appointments" },
-  { value: "COMPANIONSHIP" as CareType, icon: "👥", label: "Companionship", description: "Social visits, emotional support" },
-  { value: "FINANCIAL_HELP" as CareType, icon: "💰", label: "Financial Help", description: "Benefits, bills, budgeting" },
-  { value: "MEMORY_CARE" as CareType, icon: "🧠", label: "Memory Care", description: "Dementia, Alzheimer's, cognitive support" },
-  { value: "MOBILITY_HELP" as CareType, icon: "🚶", label: "Mobility Help", description: "Walking, stairs, transfers" },
-];
+// Get care type options with family-friendly labels for this page
+const CARE_TYPES = getCareTypeOptions(true);
 
 // Category styling
 const CATEGORY_STYLES: Record<string, { bg: string; text: string; icon: string }> = {
@@ -77,6 +64,9 @@ export default function BenefitsPage() {
   const router = useRouter();
   const [pageState, setPageState] = useState<"entry" | "form" | "results">("entry");
   const [selectedCareTypes, setSelectedCareTypes] = useState<CareType[]>([]);
+
+  // Care type options for the form (uses family-friendly labels)
+  const careTypeOptions = CARE_TYPES;
   const [familyProfile, setFamilyProfile] = useState<FamilyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -212,114 +202,147 @@ export default function BenefitsPage() {
     );
   }
 
-  // Entry State - Voice-first UI
+  // Entry State - Clean, accessible design for 65+ audience
   if (pageState === "entry") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-primary-900 flex flex-col">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <MainNav />
 
-        <main className="flex-grow flex flex-col items-center justify-center px-4 py-12">
-          {/* Stats banner */}
-          <div className="flex items-center gap-6 mb-8 text-center">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">$15K+</div>
-              <div className="text-xs text-gray-400 uppercase tracking-wide">Avg. Annual Savings</div>
-            </div>
-            <div className="w-px h-12 bg-gray-700" />
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">50+</div>
-              <div className="text-xs text-gray-400 uppercase tracking-wide">Programs Available</div>
-            </div>
-            <div className="w-px h-12 bg-gray-700" />
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">2 min</div>
-              <div className="text-xs text-gray-400 uppercase tracking-wide">To Complete</div>
+        <main className="flex-grow">
+          {/* Hero Section - Light, accessible design */}
+          <div className="bg-white border-b border-gray-200">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Find Help Paying for Care
+              </h1>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                {session?.user?.name ? `Hi ${session.user.name.split(' ')[0]}! ` : ''}
+                Many families don&apos;t know about programs that can help pay for senior care.
+                Let us show you what&apos;s available.
+              </p>
             </div>
           </div>
 
-          {/* Greeting text */}
-          <div className="text-center mb-10 max-w-xl">
-            <h1 className="text-3xl md:text-4xl font-bold text-white leading-relaxed mb-4">
-              Find Benefits to Reduce Care Costs
-            </h1>
-            <p className="text-lg text-gray-300">
-              Hi{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ''}! Let&apos;s find programs that can help cover senior care expenses.
-            </p>
-          </div>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            {/* Value Proposition Cards - Two clear benefits */}
+            <div className="grid md:grid-cols-2 gap-6 mb-10">
+              {/* Benefit 1: Find Programs */}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">
+                  Find Financial Help
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  See which programs you may qualify for. Many families save <strong className="text-emerald-600">$15,000+</strong> per year.
+                </p>
+              </div>
 
-          {/* Voice button - placeholder */}
-          <div className="relative mb-8">
-            <div className="w-52 h-52 rounded-full bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 flex items-center justify-center shadow-2xl shadow-primary-500/40 cursor-pointer hover:scale-105 transition-transform">
-              <div className="w-44 h-44 rounded-full border-4 border-white/20 flex items-center justify-center backdrop-blur-sm">
-                {/* Sound wave animation */}
-                <div className="flex items-center gap-1.5">
-                  {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                    <div
-                      key={i}
-                      className="w-1.5 bg-white rounded-full"
-                      style={{
-                        height: `${16 + Math.sin(i * 0.8) * 20}px`,
-                        animation: `pulse 1s ease-in-out ${i * 0.1}s infinite alternate`,
-                      }}
-                    />
-                  ))}
+              {/* Benefit 2: Better Matches */}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">
+                  Get Better Provider Matches
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  Your answers help us find providers that fit your specific care needs.
+                </p>
+              </div>
+            </div>
+
+            {/* Voice UI - Prominent but clearly labeled as coming soon */}
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 mb-8 text-center border border-primary-200">
+              <div className="relative inline-block mb-6">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 flex items-center justify-center shadow-xl shadow-primary-500/30">
+                  <div className="w-24 h-24 rounded-full border-4 border-white/30 flex items-center justify-center">
+                    {/* Sound wave animation */}
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div
+                          key={i}
+                          className="w-1.5 bg-white rounded-full"
+                          style={{
+                            height: `${12 + Math.sin(i * 0.8) * 14}px`,
+                            animation: `pulse 1s ease-in-out ${i * 0.1}s infinite alternate`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {/* Coming soon badge */}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-primary-700 text-sm font-semibold rounded-full shadow-md border border-primary-200">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    Voice Coming Soon
+                  </span>
+                </div>
+              </div>
+              <p className="text-primary-800 text-lg">
+                Soon you&apos;ll be able to answer questions by voice instead of typing.
+              </p>
+            </div>
+
+            {/* Main CTA */}
+            <div className="text-center mb-8">
+              <button
+                onClick={() => setPageState("form")}
+                className="inline-flex items-center gap-3 bg-primary-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Start Benefits Finder
+              </button>
+              <p className="text-gray-500 mt-3">Takes about 2 minutes</p>
+            </div>
+
+            {/* Skip option with clear destination */}
+            <div className="text-center pb-8">
+              <button
+                onClick={() => router.push("/care-profile")}
+                className="text-gray-600 hover:text-gray-800 underline"
+              >
+                Skip for now and go to my Care Profile
+              </button>
+            </div>
+
+            {/* Trust indicators - larger, clearer */}
+            <div className="border-t border-gray-200 pt-8">
+              <div className="flex flex-wrap justify-center gap-8 text-gray-600">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium">100% Free</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium">Your Info Stays Private</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium">No Obligation</span>
                 </div>
               </div>
             </div>
-            {/* Outer glow rings */}
-            <div className="absolute inset-0 -m-3 rounded-full border-2 border-primary-400/30 animate-ping" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-0 -m-6 rounded-full border border-primary-400/20 animate-ping" style={{ animationDuration: '3s' }} />
-          </div>
-
-          {/* Coming soon notice */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-8">
-            <svg className="w-4 h-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-            </svg>
-            <span className="text-primary-300 text-sm font-medium">Voice input coming soon</span>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex flex-col gap-3 w-full max-w-sm">
-            <button
-              onClick={() => setPageState("form")}
-              className="w-full px-6 py-4 bg-white text-gray-900 rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              Start Benefits Finder
-            </button>
-            <button
-              onClick={() => router.push("/care-profile")}
-              className="w-full px-6 py-3 bg-white/10 backdrop-blur-sm text-white rounded-xl font-medium hover:bg-white/20 transition-colors border border-white/20"
-            >
-              Skip for Now
-            </button>
-          </div>
-
-          {/* Trust indicators */}
-          <div className="mt-12 flex items-center gap-6 text-gray-400 text-sm">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>100% Free</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-              <span>Secure & Private</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>No Obligations</span>
-            </div>
           </div>
         </main>
+
+        <Footer variant="light" />
       </div>
     );
   }
@@ -381,7 +404,7 @@ export default function BenefitsPage() {
 
           {/* Care type selection grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            {CARE_TYPES.map((item) => {
+            {careTypeOptions.map((item) => {
               const isSelected = selectedCareTypes.includes(item.value);
               return (
                 <button
@@ -530,7 +553,7 @@ export default function BenefitsPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               {selectedCareTypes.map(ct => {
-                const careType = CARE_TYPES.find(c => c.value === ct);
+                const careType = careTypeOptions.find(c => c.value === ct);
                 return careType ? (
                   <span
                     key={ct}

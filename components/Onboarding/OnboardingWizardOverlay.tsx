@@ -5,6 +5,7 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import LocationAutocomplete from "@/components/Location/LocationAutocomplete";
+import { getCareTypeOptions } from "@/lib/careTypes";
 
 // ============================================================================
 // Types
@@ -86,15 +87,9 @@ interface OnboardingWizardOverlayProps {
 // Constants
 // ============================================================================
 
-const CARE_TYPES = [
-  { value: "PERSONAL_CARE", label: "Help with daily activities (bathing, dressing)" },
-  { value: "COMPANION_CARE", label: "Companionship and social support" },
-  { value: "SKILLED_NURSING", label: "Medical care from a nurse" },
-  { value: "MEMORY_CARE", label: "Memory or dementia support" },
-  { value: "HOSPICE_CARE", label: "End-of-life comfort care" },
-  { value: "RESPITE_CARE", label: "Short-term relief for family caregivers" },
-  { value: "LIVE_IN_CARE", label: "24/7 in-home care" },
-];
+// Care types imported from single source of truth (lib/careTypes.ts)
+// Uses family-friendly labels for onboarding UI
+const CARE_TYPES = getCareTypeOptions(true);
 
 const PROVIDER_TYPES = [
   "Assisted Living Facility",
@@ -119,15 +114,11 @@ const PROVIDER_TYPE_MAP: Record<string, string> = {
   "Continuing Care Retirement Community": "ASSISTED_LIVING", // No specific enum, closest match
 };
 
-const CAREGIVER_SERVICES = [
-  { label: "Daily activities help", value: "PERSONAL_CARE" },
-  { label: "Companionship", value: "COMPANION_CARE" },
-  { label: "Medical/nursing care", value: "SKILLED_NURSING" },
-  { label: "Memory support", value: "MEMORY_CARE" },
-  { label: "End-of-life care", value: "HOSPICE_CARE" },
-  { label: "Short-term relief", value: "RESPITE_CARE" },
-  { label: "24/7 in-home care", value: "LIVE_IN_CARE" },
-];
+// Caregiver services use the same care types with shorter labels for compact display
+const CAREGIVER_SERVICES = getCareTypeOptions(false).map(ct => ({
+  label: ct.label.split(" ").slice(0, 2).join(" "), // Shortened labels for grid display
+  value: ct.value,
+}));
 
 // ============================================================================
 // Helper Functions
