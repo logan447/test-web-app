@@ -179,7 +179,7 @@ export default function TakedownRequestModal({
                   {step === "form" && (
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <p className="text-sm text-gray-600">
-                        You're requesting removal of the page for <strong>{providerName}</strong>.
+                        You&apos;re requesting removal of the page for <strong>{providerName}</strong>.
                         This request will be reviewed by our team.
                       </p>
 
@@ -252,7 +252,7 @@ export default function TakedownRequestModal({
                       {/* Contact info */}
                       <p className="text-sm font-medium text-gray-700">Your contact information</p>
                       <p className="text-xs text-gray-500 -mt-2">
-                        We'll notify you about the status of your request
+                        We&apos;ll notify you about the status of your request
                       </p>
 
                       <div className="grid grid-cols-2 gap-3">
@@ -332,7 +332,7 @@ export default function TakedownRequestModal({
                       <h4 className="text-lg font-semibold text-gray-900 mb-2">Request Submitted</h4>
                       <p className="text-gray-600 mb-4">
                         Your request has been submitted and will be reviewed by our team.
-                        We'll notify you at <strong>{contactEmail}</strong> once a decision has been made.
+                        We&apos;ll notify you at <strong>{contactEmail}</strong> once a decision has been made.
                       </p>
                       <p className="text-sm text-gray-500">
                         Please allow 5-7 business days for review.
