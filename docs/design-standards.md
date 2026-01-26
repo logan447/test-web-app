@@ -266,13 +266,32 @@ The calendar should be:
 - Immediately visible (not below fold)
 - Show: scheduled meetings, pending requests, upcoming events
 
-### Request Pages (CC-34)
-All request pages (family↔provider, provider↔caregiver, caregiver↔org) must share:
-- Consistent layout
-- Clear engagement purpose
-- Drive toward scheduled meetings
-- Calendar integration
-- Reminder options
+### Request Page Architecture (CC-34) — CRITICAL
+
+**Principle**: One unified request page framework with context-driven variations in copy only.
+
+All request pages must share:
+- **Same core infrastructure** (components, state management, API patterns)
+- **Same design patterns** (layout, visual hierarchy, interaction patterns)
+- **Same functional flow** (status → scheduling → messaging → next steps)
+
+What varies by context:
+- **Who initiates**: Family, provider, caregiver
+- **Relationship type**: Family→org, family→caregiver, provider→caregiver, org→org
+- **Engagement intent**: Tour, consultation, interview, hiring inquiry
+
+**This is NOT**: Different pages for each relationship type
+**This IS**: One page component that adapts copy/labels based on context
+
+| Context | Engagement Label | Primary CTA | Status Copy |
+|---------|------------------|-------------|-------------|
+| Family → Facility | Tour | Schedule Tour | "Tour request sent" |
+| Family → Home Care | Consultation | Schedule Consultation | "Consultation request sent" |
+| Family → Caregiver | Interview | Schedule Interview | "Interview request sent" |
+| Org → Caregiver | Interview | Schedule Interview | "Interview request sent" |
+| Caregiver → Org | Application | Schedule Interview | "Application submitted" |
+
+The Sprint 1 redesign of `/requests/[id]` establishes the canonical pattern. All future request page work must extend this framework, not create parallel implementations.
 
 ---
 
