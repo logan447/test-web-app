@@ -1119,6 +1119,167 @@ Sprint 7 complete. Critical data foundation work done:
 - [x] TypeScript compilation passes
 - [x] All code committed and pushed
 
+### Sprint 7 Self-Critique Fixes (Follow-Up)
+
+**Date**: January 26, 2025
+**Commit**: `5825906`
+
+Self-critique revealed 3 additional files needed updating:
+
+| Task | Resolution |
+|------|------------|
+| **care-profile/edit local CARE_TYPES** | Replaced with `getCareTypeOptions(true)` from `lib/careTypes.ts` |
+| **provider/profile/edit local CARE_TYPES** | Replaced with `getCareTypeOptions(false)` from `lib/careTypes.ts` |
+| **Benefits Voice UI accessibility** | Added `role="region"`, `aria-label`, `aria-hidden`, `role="status"` for screen reader support |
+
+**Data Foundation Status**: All files now use `lib/careTypes.ts` as single source of truth. No local CARE_TYPES definitions remain.
+
+---
+
+## Sprint 8 — Planned
+
+**Date**: TBD
+**Type**: Mixed Sprint (Provider Onboarding + Leads)
+**Focus**: Provider onboarding flow improvements, leads page polish, LocationAutocomplete integration
+
+### Overview
+
+Sprint 8 addresses 22 issues (A-131 to A-152) across two key provider-facing pages:
+- **Provider Onboarding** (`/provider/onboarding`): 14 issues
+- **Provider Leads** (`/provider/leads`): 8 issues
+
+### Pre-Sprint Checklist
+
+Before executing Sprint 8, verify:
+- [ ] Read `/docs/design-standards.md` for implementation guidelines
+- [ ] Review current state of `/app/provider/onboarding` pages
+- [ ] Review current state of `/app/provider/leads/page.tsx`
+- [ ] Identify any new cross-cutting patterns established in Sprint 7
+
+---
+
+### Phase 1: Provider Onboarding Global Issues (A-131 to A-134)
+
+| ID | Issue | Severity | Resolution Plan |
+|----|-------|----------|-----------------|
+| A-131 | PO-1: Purpose not explicit enough | CUT | Add hero/intro explaining value: "Get found by families, access hiring marketplace" |
+| A-132 | PO-2: Core value not obvious | CUT | Add value proposition messaging throughout flow |
+| A-133 | PO-3: "Individual Caregiver" label may be unclear | PAPER CUT | Consider "Independent Caregiver" or add description |
+| A-134 | PO-4: Dual marketplace not introduced | CUT | Explain: families can find you + you can find work at agencies |
+
+### Phase 2: Care Organization Onboarding (A-135 to A-139)
+
+| ID | Issue | Severity | Resolution Plan |
+|----|-------|----------|-----------------|
+| A-135 | CO-1: Location uses free text | CUT | Replace with LocationAutocomplete (established pattern) |
+| A-136 | CO-2: Type of Care missing "Home Health" | PAPER CUT | Add HOME_HEALTH to options if in Prisma enum |
+| A-137 | CO-3: Type of Care should allow "select all that apply" | PAPER CUT | Change from radio to checkbox multi-select |
+| A-138 | CO-4: Profile visibility copy unclear | PAPER CUT | Simplify toggle explanations (Sprint 3 pattern) |
+| A-139 | CO-5: "You're all set" state could be stronger | PAPER CUT | Add next steps, celebration, clear CTA to dashboard |
+
+### Phase 3: Individual Caregiver Onboarding (A-140 to A-144)
+
+| ID | Issue | Severity | Resolution Plan |
+|----|-------|----------|-----------------|
+| A-140 | CG-1: Framing is wrong — user is looking for a job | CUT | Reframe as "Find Care Work" not "List your services" |
+| A-141 | CG-2: After onboarding, caregivers land on wrong page | CUT | Redirect to `/provider/opportunities` (job-finding) not dashboard |
+| A-142 | CG-3: Fields focus on wrong things | CUT | Prioritize: availability, work preferences, preferred employers |
+| A-143 | CG-4: Profile visibility explanation incomplete | PAPER CUT | Explain dual visibility: families + organizations |
+| A-144 | CG-5: Onboarding language should be reframed | PAPER CUT | Use job-seeker language: "Find work", "Get hired" |
+
+### Phase 4: Provider Leads Page (A-145 to A-152)
+
+| ID | Issue | Severity | Resolution Plan |
+|----|-------|----------|-----------------|
+| A-145 | LP-1: CTAs unclear and weak | CUT | Use provider-specific CTAs: "Schedule Tour", "Schedule Consultation", "Schedule Interview" |
+| A-146 | LP-2: Page doesn't communicate its purpose | CUT | Add hero explaining: "Families interested in your services" |
+| A-147 | LP-3: Filters UI oversized | PAPER CUT | Streamline filter bar (Sprint 4 pattern) |
+| A-148 | LP-4: Duplicate sections | PAPER CUT | Consolidate into single leads list |
+| A-149 | LP-5: Cards visually weak and inconsistent | CUT | Use consistent card pattern with OleraScoreBadge |
+| A-150 | LP-6: Hiring marketplace not surfaced | CUT | Add link/section for organizations that also want to hire |
+| A-151 | LP-7: Matched cards don't meet gold standard | CUT | Update to use established card components |
+| A-152 | LP-8: CTA says "Save lead" — incorrect | CUT | Change to "Respond" or "View Details" |
+
+---
+
+### Components to Create/Update
+
+| Component | Purpose | Priority |
+|-----------|---------|----------|
+| `/app/provider/onboarding` pages | Full flow improvements | HIGH |
+| `/app/provider/leads/page.tsx` | Redesign with proper hero, cards, CTAs | HIGH |
+| Onboarding completion state | Celebration + clear next steps | MEDIUM |
+| Lead card component | Consistent card for family leads | MEDIUM |
+
+### Dependencies
+
+| Dependency | Status | Notes |
+|------------|--------|-------|
+| LocationAutocomplete | ✅ Done | Use established component from Sprint 4 |
+| Care types constants | ✅ Done | Use `lib/careTypes.ts` |
+| PageHero | ✅ Done | Use established component from Sprint 6 |
+| EmptyState | ✅ Done | Use established component from Sprint 6 |
+| OleraScoreBadge | ✅ Done | Use established component from Sprint 5 |
+
+---
+
+### Definition of Done
+
+**Provider Onboarding**:
+- [ ] LocationAutocomplete in all location inputs
+- [ ] Care types use `lib/careTypes.ts` if not already
+- [ ] Dual marketplace explained during onboarding
+- [ ] Caregiver framing reoriented to job-seeking
+- [ ] Completion state celebrates and directs to right destination
+- [ ] All A-131 through A-144 addressed
+
+**Provider Leads**:
+- [ ] PageHero explains page purpose
+- [ ] Cards use consistent pattern with OleraScoreBadge
+- [ ] CTAs are provider-type specific and actionable
+- [ ] No duplicate sections
+- [ ] Hiring marketplace surfaced for applicable providers
+- [ ] All A-145 through A-152 addressed
+
+**Quality Gates**:
+- [ ] TypeScript compilation passes
+- [ ] Prisma generate succeeds
+- [ ] No regressions in provider flows
+- [ ] All code committed and pushed
+
+---
+
+### Implementation Order
+
+1. **Phase 1: Provider Onboarding Global** (foundation)
+   - Add value proposition messaging
+   - Introduce dual marketplace concept
+   - Clarify provider type labels
+
+2. **Phase 2: Care Organization Onboarding**
+   - Replace free-text location with LocationAutocomplete
+   - Fix care type selection
+   - Improve visibility toggle copy
+   - Enhance completion state
+
+3. **Phase 3: Individual Caregiver Onboarding**
+   - Reframe as job-seeking flow
+   - Update fields to focus on availability/preferences
+   - Fix redirect destination
+   - Update copy throughout
+
+4. **Phase 4: Provider Leads Page**
+   - Add PageHero explaining purpose
+   - Update card components
+   - Fix CTAs
+   - Consolidate sections
+   - Surface hiring marketplace
+
+5. **Verification & Polish**
+   - TypeScript check
+   - Cross-page consistency review
+   - Commit and push
+
 ---
 
 ### Implementation Order
@@ -1612,9 +1773,10 @@ Rollover (if any):
 - **NEW**: Care types source of truth (lib/careTypes.ts)
 - **NEW**: Benefits page care types alignment with Prisma schema
 
-**Sprint 8: Provider Onboarding + Leads**
+**Sprint 8: Provider Onboarding + Leads** — PLANNED
 - Type: Mixed Sprint
-- A-131 through A-152
+- A-131 through A-152 (22 issues)
+- Focus: Improve provider onboarding flow, fix leads page, integrate LocationAutocomplete
 
 **Sprint 9: Hiring Marketplace (Caregiver Side)**
 - Type: Deep Sprint
