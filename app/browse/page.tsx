@@ -2,10 +2,13 @@
 
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import { ProviderCard } from "@/components/Cards";
+import { LocationAutocomplete } from "@/components/Location";
 import FilterBar, { FilterConfig } from "@/components/Layout/FilterBar";
 
 // Dynamically import map to avoid SSR issues
@@ -122,12 +125,15 @@ const QUICK_FILTERS: Array<{ id: string; label: string; filter: Record<string, s
 function BrowseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
 
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [showMap, setShowMap] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [savedProviderIds, setSavedProviderIds] = useState<Set<string>>(new Set());
+  const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(null);
 
   // Filters - default to empty (show all)
   // Support both "location" param and separate "city"/"state" params (from homepage)
@@ -156,8 +162,11 @@ function BrowseContent() {
     try {
       const params = new URLSearchParams();
 
-      // Parse location into city and state
-      if (location) {
+      // Use selectedLocation if available, otherwise parse location string
+      if (selectedLocation) {
+        params.append("city", selectedLocation.city);
+        params.append("state", selectedLocation.state);
+      } else if (location) {
         const parts = location.split(",").map((s) => s.trim());
         if (parts[0]) params.append("city", parts[0]);
         if (parts[1]) params.append("state", parts[1]);
@@ -182,7 +191,7 @@ function BrowseContent() {
     } finally {
       setLoading(false);
     }
-  }, [location, filterValues, sortBy]);
+  }, [location, selectedLocation, filterValues, sortBy]);
 
   // Fetch on mount and when filters change
   useEffect(() => {
@@ -222,6 +231,44 @@ function BrowseContent() {
 
   const hasActiveFilters = Boolean(location) || Object.values(filterValues).some((v) => v !== "");
 
+  // Load saved providers from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("savedProviders");
+    if (saved) {
+      try {
+        const ids = JSON.parse(saved);
+        setSavedProviderIds(new Set(ids));
+      } catch (e) {
+        console.error("Failed to parse saved providers:", e);
+      }
+    }
+  }, []);
+
+  // Handle save/unsave provider
+  const handleSaveProvider = useCallback((providerId: string) => {
+    setSavedProviderIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(providerId)) {
+        newSet.delete(providerId);
+      } else {
+        newSet.add(providerId);
+      }
+      // Persist to localStorage
+      localStorage.setItem("savedProviders", JSON.stringify([...newSet]));
+      return newSet;
+    });
+  }, []);
+
+  // Handle location autocomplete selection
+  const handleLocationChange = (value: string, loc?: { city: string; state: string }) => {
+    setLocation(value);
+    if (loc) {
+      setSelectedLocation({ city: loc.city, state: loc.state });
+    } else {
+      setSelectedLocation(null);
+    }
+  };
+
   // Providers with coordinates for map
   const mappableProviders = providers.filter((p) => p.latitude && p.longitude);
 
@@ -240,22 +287,15 @@ function BrowseContent() {
           <div className="max-w-7xl mx-auto px-4 py-3">
             {/* Primary Filter Row */}
             <div className="flex flex-wrap items-center gap-2">
-              {/* Location Input */}
-              <div className="relative">
-                <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                <input
-                  type="text"
+              {/* Location Input with Autocomplete */}
+              <div className="w-44 sm:w-52">
+                <LocationAutocomplete
                   value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  onChange={handleLocationChange}
                   placeholder="City, State"
-                  className="w-40 sm:w-48 pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full"
+                  inputClassName="py-2 text-sm"
+                  size="default"
                 />
               </div>
 
@@ -499,6 +539,28 @@ function BrowseContent() {
               ) : providers.length > 0 ? (
                 // Results - list view
                 <div className="space-y-4">
+                  {/* Guidance Nudge */}
+                  {providers.length >= 3 && (
+                    <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 flex items-center gap-4">
+                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
+                        <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-primary-800">
+                          <span className="font-medium">Tip:</span> Meet with 3-5 providers to compare and find the best fit for your family.
+                        </p>
+                      </div>
+                      <Link
+                        href="/care-profile/edit"
+                        className="shrink-0 text-sm font-medium text-primary-700 hover:text-primary-800"
+                      >
+                        Create profile
+                      </Link>
+                    </div>
+                  )}
+
                   {providers.map((provider) => (
                     <ProviderCard
                       key={provider.id}
@@ -519,6 +581,9 @@ function BrowseContent() {
                         claimed: provider.claimed,
                       }}
                       variant="horizontal"
+                      showSaveButton={true}
+                      isSaved={savedProviderIds.has(provider.id)}
+                      onSave={handleSaveProvider}
                     />
                   ))}
                 </div>

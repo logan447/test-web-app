@@ -126,6 +126,29 @@ enum HiringEngagementStatus {
   WITHDRAWN     // Initiator withdrew
 }
 
+// ============================================
+// SPRINT 4: Location System (Single Source of Truth)
+// US Census data for autocomplete & filtering
+// ============================================
+
+model Location {
+  id         String @id @default(cuid())
+  city       String
+  state      String // 2-letter state code (e.g., "TX", "CA")
+  stateName  String // Full state name (e.g., "Texas", "California")
+  county     String?
+  latitude   Float?
+  longitude  Float?
+  population Int?   // For relevance sorting (larger cities first)
+
+  createdAt DateTime @default(now())
+
+  @@unique([city, state])
+  @@index([state])
+  @@index([city])
+  @@index([population(sort: Desc)])
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique

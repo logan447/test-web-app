@@ -196,6 +196,98 @@ Sprint 3.5 complete. G-3 and G-4 now have schema alignment, comprehensive form v
 
 ---
 
+## Sprint 4 — Completed ✓
+
+**Date**: January 26, 2025
+**Type**: Deep Sprint (Homepage + Browse A+ Polish)
+**Focus**: Location infrastructure, homepage transformation, browse enhancements
+
+### Overview
+
+Sprint 4 elevated the homepage and browse page from B+ to A+ quality with:
+- Best-practice location system (Airbnb/Zillow quality)
+- Emotionally resonant copy for 65+ users
+- Featured providers section with real data
+- Save/heart functionality wired up
+- Guidance nudges reinforcing "meet 3-5 providers"
+
+### Phase 1: Location Infrastructure (Foundation)
+
+| Component | Description |
+|-----------|-------------|
+| **Location Prisma Model** | New `Location` model with city, state, stateName, population, coordinates |
+| **US Locations Data** | 400+ US cities with Census population data in `/prisma/data/us-locations.ts` |
+| **Search API** | `/api/locations/search` with relevance sorting by population |
+| **LocationAutocomplete** | Reusable component with debounced search, keyboard navigation, accessibility |
+
+**Key Files Created**:
+- `prisma/schema.prisma` - Added Location model
+- `prisma/data/us-locations.ts` - 400+ US cities with coordinates and population
+- `app/api/locations/search/route.ts` - Location search API endpoint
+- `components/Location/LocationAutocomplete.tsx` - Autocomplete component
+
+### Phase 2: Homepage Transformation
+
+| Change | Before | After |
+|--------|--------|-------|
+| **Hero Copy** | "Find peace of mind for your family" | "Find the right care for someone you love" |
+| **Location Input** | Free text input | LocationAutocomplete with dropdown |
+| **Featured Providers** | None | 4 top-rated providers from database |
+| **Guidance Section** | Buried "Not sure where to start?" | Prominent guidance banner early on page |
+| **Texas References** | "Currently available in Texas" | Removed |
+| **Care Types** | Industry jargon | Plain language (e.g., "Help at Home" not "Home Care") |
+| **Testimonials** | Generic quotes | Emotional stories ("After Dad's stroke...") |
+| **How It Works** | 4 steps | 3 steps + "meet 3-5 providers" tip |
+
+### Phase 3: Browse Page Enhancements
+
+| Feature | Implementation |
+|---------|---------------|
+| **Save/Heart Wiring** | localStorage persistence, ProviderCard integration |
+| **LocationAutocomplete** | Replaced free text input in filter bar |
+| **Guidance Nudge** | "Tip: Meet with 3-5 providers" banner when results >= 3 |
+| **Selected Location** | Structured city/state for reliable API filtering |
+
+### Cross-Cutting Issues Addressed
+
+| Issue | Resolution |
+|-------|------------|
+| A-005 CC-2: Texas only language | Removed from homepage |
+| A-007 CC-4: Canonical location system | LocationAutocomplete + Location model |
+| A-008 CC-5: Heart/save on cards | Wired save functionality on browse page |
+| A-040–A-052: Homepage issues | Full transformation |
+
+### Technical Notes
+
+1. **Location Architecture**: Single source of truth pattern established:
+   - Static data in `us-locations.ts` (~400 cities, expandable to 30K)
+   - API endpoint for frontend consumption
+   - Reusable component across all pages
+   - Population-based relevance sorting
+
+2. **Save Functionality**: Uses localStorage for unauthenticated users. Can be extended to use `/api/saved-providers` for authenticated users.
+
+3. **Featured Providers**: Fetches from `/api/providers?limit=4&sortBy=rating` on page load.
+
+### Definition of Done
+
+- [x] Location model added to Prisma schema
+- [x] 400+ US cities seeded with population data
+- [x] LocationAutocomplete component with keyboard navigation
+- [x] Homepage hero rewritten for emotional resonance
+- [x] Featured providers section showing real data
+- [x] Guidance section prominent for unsure users
+- [x] Browse save/heart functionality wired
+- [x] Browse LocationAutocomplete integrated
+- [x] Browse guidance nudge added
+- [x] TypeScript compilation verified
+- [x] All code committed and pushed
+
+### Handoff Note
+Sprint 4 complete. Homepage and browse page elevated to A+ quality with best-practice location system, emotionally resonant copy, featured providers, and save functionality. Ready for Sprint 5 (Provider-side pages or remaining GASH pages).
+
+---
+
 ## Severity Classification
 
 | Severity | Definition | Typical Effort | Example |
