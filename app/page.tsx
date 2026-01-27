@@ -216,7 +216,7 @@ export default function Home() {
             </h1>
 
             <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-              Home care, assisted living, memory care, nursing homes, and more. Compare options and schedule tours or calls to find the right fit.
+              Home care, assisted living, memory care, nursing homes, and more.
             </p>
 
             {/* Search bar — all fields left-aligned, same height */}
@@ -407,7 +407,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* What best describes your situation? — no subtitle */}
+      {/* What best describes your situation? */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
@@ -434,34 +434,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Not sure where to start? — trimmed to two short lines */}
-      <section className="py-12 bg-primary-50 border-y border-primary-100">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-              <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="text-center md:text-left flex-1">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                Not sure where to start?
-              </h2>
-              <p className="text-gray-600 text-base leading-relaxed">
-                Answer a few simple questions and we&apos;ll show you the types of care that fit your situation.
-              </p>
-            </div>
-            <Link
-              href="/care-profile/edit"
-              className="shrink-0 px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all text-base"
-            >
-              Help me find care
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works — plain, scannable, third-grade language */}
+      {/* How It Works — Search, Schedule, Compare */}
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -475,7 +448,7 @@ export default function Home() {
               {
                 step: "1",
                 title: "Search your area",
-                description: "Type your city. See nearby providers with photos, reviews, and prices.",
+                description: "Type your city and see nearby providers with photos, reviews, and prices.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -484,21 +457,21 @@ export default function Home() {
               },
               {
                 step: "2",
-                title: "Save and reach out",
-                description: "Heart the ones you like. Share your needs to start a conversation.",
+                title: "Schedule meetings",
+                description: "Book tours, video calls, or consultations directly with providers.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 ),
               },
               {
                 step: "3",
-                title: "Visit and choose",
-                description: "Schedule tours or calls. Pick the best fit for your loved one.",
+                title: "Compare and choose",
+                description: "Visit your favorites and pick the best fit for your loved one.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 ),
               },
@@ -514,6 +487,33 @@ export default function Home() {
                 <p className="text-base text-gray-600 leading-relaxed">{item.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Not sure where to start? */}
+      <section className="py-12 bg-primary-50 border-y border-primary-100">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+              <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="text-center md:text-left flex-1">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                Not sure where to start?
+              </h2>
+              <p className="text-gray-600 text-base">
+                Answer a few simple questions and we&apos;ll help you choose a provider.
+              </p>
+            </div>
+            <Link
+              href="/care-profile/edit"
+              className="shrink-0 px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all text-base"
+            >
+              Help me choose
+            </Link>
           </div>
         </div>
       </section>
@@ -607,19 +607,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* For Providers — laser-targeted, concise */}
+      {/* For Providers */}
       <section className="py-16 bg-gray-900">
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">
               For Care Providers
             </h2>
-            <p className="text-lg text-gray-400">
-              Grow your business without pay-per-lead fees.
-            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-10">
+            {/* Free visibility */}
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center text-primary-400 mb-4">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <h3 className="text-white font-semibold mb-2">Free visibility to families</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Families can find and learn about you at no cost.
+              </p>
+            </div>
+
             {/* Flat membership */}
             <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
               <div className="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center text-primary-400 mb-4">
@@ -627,22 +638,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-white font-semibold mb-2">Flat membership</h3>
+              <h3 className="text-white font-semibold mb-2">Flat membership to engage</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 One simple price. No per-lead fees. No surprises.
-              </p>
-            </div>
-
-            {/* Direct scheduling */}
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <div className="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center text-primary-400 mb-4">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-white font-semibold mb-2">Direct scheduling</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Families book tours, calls, and interviews right on your profile.
               </p>
             </div>
 
@@ -655,7 +653,7 @@ export default function Home() {
               </div>
               <h3 className="text-white font-semibold mb-2">Hiring marketplace</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Find staff for your facility or agency. Caregivers can find jobs with families too.
+                Agencies and facilities can find staff. Individual caregivers can find work with families.
               </p>
             </div>
           </div>
@@ -671,7 +669,7 @@ export default function Home() {
               href="/signup?intent=provider"
               className="px-6 py-3.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors text-base text-center"
             >
-              List your services
+              List yourself
             </Link>
           </div>
         </div>
