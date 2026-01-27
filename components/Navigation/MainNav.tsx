@@ -229,7 +229,7 @@ function MainNavContent({ hidden }: MainNavContentProps) {
           </div>
 
           {/* Center: Care type hover dropdowns (desktop) — absolutely centered */}
-          <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+          <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 whitespace-nowrap">
             {MAIN_CATEGORIES.map((category) => (
               <div
                 key={category.slug}
