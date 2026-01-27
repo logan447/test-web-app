@@ -9,6 +9,7 @@ import Footer from "@/components/Navigation/Footer";
 import { ProviderCard } from "@/components/Cards";
 import { LocationAutocomplete } from "@/components/Location";
 import FilterBar, { FilterConfig } from "@/components/Layout/FilterBar";
+import WelcomeBanner from "@/components/Provider/WelcomeBanner";
 import { useSavedProviders } from "@/hooks/useSavedProviders";
 
 // Dynamically import map to avoid SSR issues
@@ -161,6 +162,21 @@ function BrowseContent() {
     careService: searchParams.get("care") || "",
   });
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "");
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Check for welcome parameter (post-onboarding)
+  const isWelcome = searchParams.get('welcome') === 'true';
+
+  // Show welcome banner on first load if welcome param is present
+  useEffect(() => {
+    if (isWelcome && !loading) {
+      setShowWelcome(true);
+      // Clear the welcome param from URL without refresh
+      const url = new URL(window.location.href);
+      url.searchParams.delete('welcome');
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+    }
+  }, [isWelcome, loading]);
 
   // Fetch providers
   const fetchProviders = useCallback(async () => {
@@ -372,6 +388,17 @@ function BrowseContent() {
             )}
           </div>
         </div>
+
+        {/* Welcome banner for new users */}
+        {showWelcome && (
+          <div className="max-w-7xl mx-auto px-4 pt-4">
+            <WelcomeBanner
+              variant="family"
+              isVisible={showWelcome}
+              onDismiss={() => setShowWelcome(false)}
+            />
+          </div>
+        )}
 
         {/* Results Header */}
         <div className="max-w-7xl mx-auto px-4 py-4">

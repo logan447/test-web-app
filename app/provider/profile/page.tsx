@@ -387,7 +387,7 @@ export default function ProviderProfilePage() {
             </Link>
           ) : (
             <Link
-              href="/hire-staff"
+              href="/provider/hire-staff"
               className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
             >
               <svg className="w-6 h-6 mx-auto mb-2 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
