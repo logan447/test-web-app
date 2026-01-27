@@ -633,12 +633,62 @@ async function main(externalPrisma?: PrismaClient) {
   console.log('   - 6 scheduled tours');
   console.log('   - 40 saved providers\n');
 
+  // ============================================================================
+  // NOTIFICATIONS (for notification bell testing)
+  // ============================================================================
+  console.log('🔔 Creating notification data...');
+
+  // Get first few users for notifications
+  const notificationUsers = [...families.slice(0, 5), ...facilities.slice(0, 5)];
+
+  const notificationData = [
+    // Family notifications
+    { userId: families[0].id, type: 'MESSAGE', title: 'New message', body: 'Sunshine Manor replied to your inquiry', linkHref: '/requests', read: false },
+    { userId: families[0].id, type: 'REQUEST_ACCEPTED', title: 'Request accepted!', body: 'Sunshine Manor accepted your consultation request', linkHref: '/requests', read: false },
+    { userId: families[0].id, type: 'TOUR_PROPOSED', title: 'Tour proposed', body: 'Sunshine Manor proposed a tour for Thursday at 2pm', linkHref: '/requests', read: true },
+    { userId: families[1].id, type: 'MESSAGE', title: 'New message', body: 'You have a new message from Parkside Living', linkHref: '/requests', read: false },
+    { userId: families[2].id, type: 'REQUEST_ACCEPTED', title: 'Request accepted!', body: 'Memory Haven is ready to connect', linkHref: '/requests', read: false },
+    { userId: families[2].id, type: 'TOUR_ACCEPTED', title: 'Tour confirmed', body: 'Your tour at Memory Haven is confirmed', linkHref: '/requests', read: true },
+    { userId: families[3].id, type: 'MESSAGE', title: 'New message', body: 'OC Senior Living sent you a message', linkHref: '/requests', read: false },
+    { userId: families[4].id, type: 'REQUEST_NEW', title: 'Response received', body: 'Maria Santos responded to your inquiry', linkHref: '/requests', read: false },
+
+    // Provider notifications
+    { userId: facilities[0].id, type: 'REQUEST_NEW', title: 'New inquiry', body: 'Sarah Johnson is interested in your services', linkHref: '/provider/requests', read: false },
+    { userId: facilities[0].id, type: 'MESSAGE', title: 'New message', body: 'You have a message from a family', linkHref: '/provider/requests', read: false },
+    { userId: facilities[1].id, type: 'REQUEST_NEW', title: 'New inquiry', body: 'A family is looking for assisted living', linkHref: '/provider/leads', read: false },
+    { userId: facilities[2].id, type: 'REQUEST_NEW', title: 'New inquiry', body: 'High-budget family seeking premium care', linkHref: '/provider/leads', read: false },
+    { userId: facilities[4].id, type: 'REQUEST_NEW', title: 'Memory care inquiry', body: 'Family seeking memory care services', linkHref: '/provider/requests', read: false },
+    { userId: facilities[4].id, type: 'MESSAGE', title: 'New message', body: 'David Chen replied to your message', linkHref: '/provider/requests', read: true },
+
+    // Caregiver notifications
+    { userId: caregivers[0].id, type: 'REQUEST_NEW', title: 'Job inquiry', body: 'A family is interested in hiring you', linkHref: '/provider/requests', read: false },
+    { userId: caregivers[0].id, type: 'MESSAGE', title: 'New message', body: 'Emily Davis sent you a message', linkHref: '/provider/requests', read: false },
+    { userId: caregivers[3].id, type: 'REQUEST_NEW', title: 'Job opportunity', body: 'Hillcrest Assisted Living wants to interview you', linkHref: '/provider/requests', read: false },
+  ];
+
+  for (const notif of notificationData) {
+    await prisma.notification.create({
+      data: {
+        userId: notif.userId,
+        type: notif.type as any,
+        title: notif.title,
+        body: notif.body,
+        linkHref: notif.linkHref,
+        read: notif.read,
+        createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random time in last 7 days
+      },
+    });
+  }
+
+  console.log('✅ Created 17 notifications for demo accounts\n');
+
   console.log('📊 MEGA Seed Summary:');
   console.log('   - 36 family accounts (all with photos)');
   console.log('   - 36 organization/facility accounts (all with multiple photos)');
   console.log('   - 18 individual caregiver accounts (all with photos)');
   console.log('   - 4 unclaimed providers for claiming flow');
   console.log('   - 90+ total user accounts');
+  console.log('   - 17 notifications (for bell dropdown testing)');
   console.log('   - Password for all accounts: demo123\n');
 
   console.log('✅ MEGA seed completed successfully!\n');

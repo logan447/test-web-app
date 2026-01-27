@@ -1547,10 +1547,50 @@ async function main() {
   console.log('   - 1 scheduled tour');
   console.log('   - 8 saved providers\n');
 
+  // ============================================================================
+  // NOTIFICATIONS (for notification bell testing)
+  // ============================================================================
+  console.log('🔔 Creating notification data...');
+
+  const notificationData = [
+    // Family notifications
+    { userId: family1.id, type: 'MESSAGE', title: 'New message', body: 'Sunshine Manor replied to your inquiry', linkHref: '/requests', read: false },
+    { userId: family1.id, type: 'REQUEST_ACCEPTED', title: 'Request accepted!', body: 'Sunshine Manor accepted your consultation request', linkHref: '/requests', read: false },
+    { userId: family1.id, type: 'TOUR_PROPOSED', title: 'Tour proposed', body: 'Sunshine Manor proposed a tour for Thursday at 2pm', linkHref: '/requests', read: true },
+    { userId: family3.id, type: 'REQUEST_ACCEPTED', title: 'Request accepted!', body: 'Memory Haven is ready to connect', linkHref: '/requests', read: false },
+    { userId: family5.id, type: 'MESSAGE', title: 'New message', body: 'Maria Santos sent you a message', linkHref: '/requests', read: false },
+
+    // Provider notifications
+    { userId: org1.id, type: 'REQUEST_NEW', title: 'New inquiry', body: 'Sarah Johnson is interested in your services', linkHref: '/provider/requests', read: false },
+    { userId: org1.id, type: 'MESSAGE', title: 'New message', body: 'You have a message from a family', linkHref: '/provider/requests', read: false },
+    { userId: org5.id, type: 'REQUEST_NEW', title: 'Memory care inquiry', body: 'Family seeking memory care services', linkHref: '/provider/requests', read: false },
+
+    // Caregiver notifications
+    { userId: caregiver1.id, type: 'REQUEST_NEW', title: 'Job inquiry', body: 'A family is interested in hiring you', linkHref: '/provider/requests', read: false },
+    { userId: caregiver4.id, type: 'REQUEST_NEW', title: 'Job opportunity', body: 'Hillcrest Assisted Living wants to interview you', linkHref: '/provider/requests', read: false },
+  ];
+
+  for (const notif of notificationData) {
+    await prisma.notification.create({
+      data: {
+        userId: notif.userId,
+        type: notif.type as any,
+        title: notif.title,
+        body: notif.body,
+        linkHref: notif.linkHref,
+        read: notif.read,
+        createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
+  console.log('✅ Created 10 notifications for demo accounts\n');
+
   console.log('📊 Seed Summary:');
   console.log('   - 30 total user accounts (12 families, 12 orgs, 6 caregivers)');
   console.log('   - All profiles with varying completion levels');
   console.log('   - All 3 engagement scenarios covered');
+  console.log('   - 10 notifications (for bell dropdown testing)');
   console.log('   - Password for all accounts: demo123\n');
 
   console.log('✅ Comprehensive seed completed successfully!\n');
