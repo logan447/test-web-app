@@ -331,7 +331,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              Explore Every Type of Senior Care
+              Senior Care Near You
             </h2>
           </div>
 
@@ -364,7 +364,7 @@ export default function Home() {
                 <Link
                   key={provider.id}
                   href={`/providers/${provider.id}`}
-                  className="group rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all bg-white"
+                  className="group rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all bg-white"
                 >
                   {/* Provider image */}
                   <div className="relative h-40 bg-gray-100 overflow-hidden">
@@ -488,7 +488,7 @@ export default function Home() {
               {
                 step: "3",
                 title: "Compare and choose",
-                description: "Visit your favorites and pick the best fit for your loved one.",
+                description: "Compare your favorites and pick the best fit for your loved one.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

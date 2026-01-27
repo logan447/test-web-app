@@ -525,13 +525,13 @@ function BrowseContent() {
                   className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div className="flex-1 min-w-0 flex items-center divide-x divide-gray-200">
-                    <span className="px-4 py-2.5 text-sm truncate text-gray-900 flex-1">
-                      {location || <span className="text-gray-900">Enter city</span>}
+                    <span className="px-4 py-2.5 text-sm font-medium truncate text-gray-800 flex-1">
+                      {location || "Enter city"}
                     </span>
-                    <span className="hidden md:block px-4 py-2.5 text-sm truncate text-gray-700 flex-1">
+                    <span className="hidden md:block px-4 py-2.5 text-sm font-medium truncate text-gray-800 flex-1">
                       {PROVIDER_TYPE_OPTIONS.find(o => o.value === filterValues.providerType)?.label || "Any type"}
                     </span>
-                    <span className="hidden lg:block px-4 py-2.5 text-sm truncate text-gray-700 flex-1">
+                    <span className="hidden lg:block px-4 py-2.5 text-sm font-medium truncate text-gray-800 flex-1">
                       {CARE_SERVICE_OPTIONS.find(o => o.value === filterValues.careService)?.label || "Any service"}
                     </span>
                   </div>
