@@ -19,6 +19,7 @@ interface AuthModalProps {
   onClose: () => void;
   defaultView?: "login" | "signup";
   intent?: "provider" | "family"; // For provider-targeted signup flows
+  providerSubtype?: "organization" | "individual"; // For provider intent: org vs individual caregiver
   pendingAction?: PendingAction; // Action that triggered signup (for contextual handoff)
 }
 
@@ -51,7 +52,7 @@ const FacebookIcon = () => (
  * GlobalOnboardingOverlay (in Providers) reads this param and shows the overlay.
  * This works on ANY page, independent of page-level state.
  */
-export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent, pendingAction }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, defaultView = "signup", intent, providerSubtype, pendingAction }: AuthModalProps) {
   const router = useRouter();
   const [view, setView] = useState<"login" | "signup">(defaultView);
   const [error, setError] = useState("");
@@ -188,15 +189,13 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
       const params = new URLSearchParams();
       params.set('onboarding', 'true');
 
-      // Provider intent: redirect to leads page with onboarding overlay
+      // Set intent param for onboarding overlay
       if (intent === "provider") {
         params.set('intent', 'provider');
-        window.location.href = `/provider/leads?${params.toString()}`;
-        return;
-      }
-
-      // Family intent (or undefined): trigger family onboarding wizard
-      if (intent === "family") {
+        if (providerSubtype) {
+          params.set('providerSubtype', providerSubtype);
+        }
+      } else if (intent === "family") {
         params.set('intent', 'family');
       }
       // If intent is undefined (home page), omit param so wizard shows intent question

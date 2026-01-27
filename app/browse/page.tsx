@@ -118,6 +118,8 @@ function BrowseContent() {
   // Auth & save state
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">("signup");
+  const [authIntent, setAuthIntent] = useState<"provider" | "family" | undefined>(undefined);
+  const [authProviderSubtype, setAuthProviderSubtype] = useState<"organization" | "individual" | undefined>(undefined);
   const [signOutModalOpen, setSignOutModalOpen] = useState(false);
   const { isSaved, toggleSave } = useSavedProviders({
     onAuthRequired: () => setAuthModalOpen(true),
@@ -274,11 +276,10 @@ function BrowseContent() {
   };
 
   const triggerProviderOnboarding = (subtype?: "individual" | "organization") => {
-    const params = new URLSearchParams();
-    params.set("onboarding", "true");
-    params.set("intent", "provider");
-    if (subtype) params.set("providerSubtype", subtype);
-    router.push(`/provider/leads?${params.toString()}`);
+    setAuthIntent("provider");
+    setAuthProviderSubtype(subtype);
+    setAuthModalView("signup");
+    setAuthModalOpen(true);
   };
 
   const currentMode = session?.user?.activeMode || "FAMILY";
@@ -701,7 +702,7 @@ function BrowseContent() {
                       </button>
                       <div className="border-t border-gray-100 my-1" />
                       <button
-                        onClick={() => { setHamburgerOpen(false); setAuthModalView("signup"); setAuthModalOpen(true); }}
+                        onClick={() => { setHamburgerOpen(false); setAuthIntent("family"); setAuthProviderSubtype(undefined); setAuthModalView("signup"); setAuthModalOpen(true); }}
                         className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
                       >
                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -984,9 +985,10 @@ function BrowseContent() {
 
       <AuthModal
         isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+        onClose={() => { setAuthModalOpen(false); setAuthIntent(undefined); setAuthProviderSubtype(undefined); }}
         defaultView={authModalView}
-        intent="family"
+        intent={authIntent || "family"}
+        providerSubtype={authProviderSubtype}
       />
       <SignOutModal
         isOpen={signOutModalOpen}

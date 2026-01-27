@@ -113,6 +113,8 @@ function MainNavContent({ hidden }: MainNavContentProps) {
   const [hamburgerOpen, setHamburgerOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalView, setAuthModalView] = useState<"login" | "signup">("login");
+  const [authIntent, setAuthIntent] = useState<"provider" | "family" | undefined>(undefined);
+  const [authProviderSubtype, setAuthProviderSubtype] = useState<"organization" | "individual" | undefined>(undefined);
   const [signOutModalOpen, setSignOutModalOpen] = useState(false);
   const [switchingMode, setSwitchingMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -194,11 +196,10 @@ function MainNavContent({ hidden }: MainNavContentProps) {
   const isProviderMode = currentMode === 'PROVIDER';
 
   const triggerProviderOnboarding = (subtype?: 'individual' | 'organization') => {
-    const params = new URLSearchParams();
-    params.set('onboarding', 'true');
-    params.set('intent', 'provider');
-    if (subtype) params.set('providerSubtype', subtype);
-    router.push(`/provider/leads?${params.toString()}`);
+    setAuthIntent("provider");
+    setAuthProviderSubtype(subtype);
+    setAuthModalView("signup");
+    setAuthModalOpen(true);
   };
 
   // Close hamburger on outside click
@@ -636,7 +637,13 @@ function MainNavContent({ hidden }: MainNavContentProps) {
         )}
       </div>
 
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} defaultView={authModalView} />
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => { setAuthModalOpen(false); setAuthIntent(undefined); setAuthProviderSubtype(undefined); }}
+        defaultView={authModalView}
+        intent={authIntent}
+        providerSubtype={authProviderSubtype}
+      />
       <SignOutModal isOpen={signOutModalOpen} onClose={() => setSignOutModalOpen(false)} />
     </nav>
   );
