@@ -175,6 +175,7 @@ model User {
   subscription        Subscription?
   contactViews        ContactView[]
   reviews             Review[]
+  questions           Question[]
 }
 
 model ProviderIdentity {
@@ -466,6 +467,7 @@ model Provider {
   consultRequests     ConsultRequest[]
   sentHiringRequests  ConsultRequest[]   @relation("HiringRequestSender")
   reviews             Review[]
+  questions           Question[]
   engagements         Engagement[]           // Sprint 2: Family ↔ Provider engagements
   hiringAsOrg         HiringEngagement[]     @relation("HiringOrganization") // Sprint 2: Org hiring caregivers
   hiringAsCaregiver   HiringEngagement[]     @relation("HiringCaregiver")      // Sprint 2: Caregiver seeking work
@@ -685,6 +687,7 @@ model Review {
   rating  Int // 1-5 stars
   title   String? // Optional review title
   content String // Review text
+  source  String @default("olera") // "olera" | "google" | "imported"
 
   // Reviewer context
   relationship String? // e.g., "Daughter of resident", "Son looking for care"
@@ -700,6 +703,28 @@ model Review {
   updatedAt DateTime @updatedAt
 
   @@unique([providerId, userId]) // One review per user per provider
+  @@index([providerId])
+  @@index([userId])
+}
+
+// Customer Q&A — per provider profile page
+model Question {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content    String
+  likeCount  Int      @default(0)
+
+  // Answer from provider (optional)
+  answer     String?
+  answeredAt DateTime?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   @@index([providerId])
   @@index([userId])
 }
