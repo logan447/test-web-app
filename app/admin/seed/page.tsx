@@ -67,7 +67,7 @@ export default function SeedAdminPage() {
     }
   };
 
-  const runSeed = async (reset: boolean = false, mode: 'test' | 'full' = 'test') => {
+  const runSeed = async (reset: boolean = false, mode: 'test' | 'full' | 'demo' = 'test') => {
     setLoading(true);
     setResult(null);
     setError(null);
@@ -264,24 +264,41 @@ export default function SeedAdminPage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
 
           <div className="space-y-4">
-            {/* Full Demo Seed - Primary action */}
+            {/* Comprehensive Demo Seed - Primary action */}
             <div className="p-4 border-2 border-primary-200 bg-primary-50 rounded-lg">
               <button
-                onClick={() => runSeed(false, 'full')}
+                onClick={() => runSeed(false, 'demo' as any)}
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-4 rounded-lg font-bold text-lg hover:from-primary-700 hover:to-primary-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition shadow-md"
               >
-                {loading ? 'Seeding 90 accounts...' : 'Full Demo Seed (90 Accounts)'}
+                {loading ? 'Seeding demo data...' : 'Full Demo Seed (A+ Demo Ready)'}
               </button>
               <p className="text-sm text-primary-700 mt-2 font-medium">
-                Creates demo data with photos:
+                Creates comprehensive demo data for end-to-end demos:
               </p>
               <ul className="text-xs text-primary-600 mt-1 space-y-0.5">
-                <li>- 36 family accounts (with profile photos)</li>
-                <li>- 36 facility/organization accounts (with photos)</li>
-                <li>- 18 individual caregiver accounts (with photos)</li>
+                <li>- 90 accounts: 36 families + 36 facilities + 18 caregivers</li>
+                <li>- 5 unclaimed providers (for claiming flow)</li>
+                <li>- 35 reviews with varied ratings and provider responses</li>
+                <li>- 18 engagements + 10 hiring engagements with messages</li>
+                <li>- 12+ scheduled events (tours, consultations, interviews)</li>
+                <li>- 60+ notifications, 15 Q&A, subscriptions, saved items</li>
                 <li>- Password for all: <code className="bg-primary-100 px-1 rounded">demo123</code></li>
               </ul>
+            </div>
+
+            {/* Accounts-only seed */}
+            <div className="p-4 border border-gray-200 bg-gray-50 rounded-lg">
+              <button
+                onClick={() => runSeed(false, 'full')}
+                disabled={loading}
+                className="w-full bg-gray-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+              >
+                {loading ? 'Seeding...' : 'Accounts Only (90 Accounts, No Enrichment)'}
+              </button>
+              <p className="text-xs text-gray-500 mt-1">
+                Creates 90 accounts with photos but no reviews, engagements, or notifications.
+              </p>
             </div>
 
             <hr className="my-4" />

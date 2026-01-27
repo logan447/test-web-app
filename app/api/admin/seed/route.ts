@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { hash } from 'bcryptjs';
 import { seedLite } from '@/lib/seed-lite';
+import { seedDemo } from '@/lib/seed-demo';
 
 /**
  * Test account configuration
@@ -128,7 +129,46 @@ export async function POST(req: Request) {
 
     // Parse options from request body
     const body = await req.json().catch(() => ({}));
-    const { reset = false, mode = 'test' } = body;
+    const { reset = false, mode = 'test' } = body as { reset?: boolean; mode?: 'test' | 'full' | 'demo' };
+
+    // If mode is 'demo', run the comprehensive demo seed
+    if (mode === 'demo') {
+      console.log(`[SEED] Running DEMO seed by ${session.user.email}...`);
+      await seedDemo(prisma);
+      return NextResponse.json({
+        success: true,
+        data: {
+          message: 'Successfully seeded comprehensive demo data',
+          password: 'demo123',
+          summary: {
+            families: 36,
+            facilities: 36,
+            caregivers: 18,
+            unclaimed: 5,
+            total: 95,
+            reviews: 35,
+            engagements: 18,
+            hiringEngagements: 10,
+            scheduledEvents: 12,
+            notifications: 60,
+            questions: 15,
+          },
+          instructions: [
+            'Comprehensive demo data seeded with all entity types',
+            'Password for all demo accounts: demo123',
+            '35 reviews across 20 providers (varied ratings + responses)',
+            '18 family↔provider engagements with messages',
+            '10 org↔caregiver hiring engagements',
+            '12+ scheduled events (tours, consultations, interviews)',
+            '60+ notifications (mix of read/unread)',
+            '15 Q&A entries on provider profiles',
+            '5 unclaimed providers for claiming flow',
+            '2 takedown requests (1 pending, 1 denied)',
+            'Subscriptions: FREE, BASIC, PRO tiers on org accounts',
+          ],
+        },
+      });
+    }
 
     // If mode is 'full', run the lite seed (Vercel-compatible)
     if (mode === 'full') {
