@@ -5,16 +5,21 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import Link from "next/link";
 import EnhancedProviderCard from "@/components/Directory/EnhancedProviderCard";
 import PageHero from "@/components/UI/PageHero";
 import EmptyState from "@/components/UI/EmptyState";
 
 /**
- * Matches Page - Combined view of Recommended Matches + Active Engagements
+ * My Matches — Active conversations and provider recommendations
  *
- * Section 1: Recommended Matches - algorithm-based matches where no outreach has occurred
- * Section 2: Active Matches - inbound + outbound engagements between families and providers
+ * Role in the system: This is where users track active conversations,
+ * confirm meetings, and discover new provider matches.
+ *
+ * Core actions:
+ * 1. Confirm and manage meeting times with providers
+ * 2. Share care profile with new recommended matches
  */
 
 type FamilyProfile = {
@@ -253,22 +258,23 @@ export default function MatchesPage() {
     return status;
   };
 
-  // Loading state with skeleton
+  // Loading state
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
-          <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-8 bg-white/20 rounded w-1/3 mb-4"></div>
-              <div className="h-5 bg-white/20 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 rounded w-40 mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-3"></div>
+              <div className="h-5 bg-gray-200 rounded w-1/2"></div>
             </div>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map(i => (
+            {[1, 2, 3].map(i => (
               <div key={i} className="animate-pulse bg-white rounded-xl p-6 shadow-sm">
                 <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
                 <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -284,79 +290,7 @@ export default function MatchesPage() {
   // Calculate stats
   const pendingCount = activeRequests.filter(r => r.status === 'PENDING').length;
   const activeCount = activeRequests.filter(r => r.status === 'ACCEPTED' || r.status === 'APPROVED').length;
-
-  // No profile or no care types - show empty state
-  if (!familyProfile || !familyProfile.careTypes || familyProfile.careTypes.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <MainNav />
-
-        {/* Hero Header */}
-        <PageHero
-          title="My Matches"
-          subtitle="Find care providers that match your needs"
-          compact
-          actions={
-            <Link
-              href="/browse"
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Browse Providers
-            </Link>
-          }
-        />
-
-        <main className="max-w-7xl mx-auto px-4 py-8">
-          {/* Active Matches section - show even without profile */}
-          {activeRequests.length > 0 && (
-            <div className="mb-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Active Connections</h2>
-                  <p className="text-sm text-gray-600">Providers you&apos;re currently connected with</p>
-                </div>
-              </div>
-              {renderActiveRequests()}
-            </div>
-          )}
-
-          {/* Empty State for matches */}
-          <EmptyState
-            variant="matches"
-            size="large"
-            guidanceMessage="Experts recommend meeting 3-5 providers before deciding"
-            actions={[
-              {
-                label: "Complete Care Profile",
-                href: "/care-profile/edit",
-                icon: (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                ),
-              },
-              {
-                label: "Browse Providers",
-                href: "/browse",
-                variant: "secondary",
-              },
-            ]}
-          />
-        </main>
-
-        {/* Footer */}
-        <Footer variant="light" />
-      </div>
-    );
-  }
+  const needsResponseCount = activeRequests.filter(r => r.status === 'PENDING' && r.type === 'received').length;
 
   function renderActiveRequests() {
     return (
@@ -388,18 +322,6 @@ export default function MatchesPage() {
                   {getStatusLabel(request.status, request.type)}
                 </span>
               </div>
-              {/* Unread Badge */}
-              {request._count?.messages && request._count.messages > 0 && (
-                <div className="absolute top-3 left-3">
-                  <span className="px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-full flex items-center gap-1">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
-                    {request._count.messages}
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Content */}
@@ -451,27 +373,96 @@ export default function MatchesPage() {
     );
   }
 
+  // No profile — show empty state with profile creation guidance
+  if (!familyProfile || !familyProfile.careTypes || familyProfile.careTypes.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MainNav />
+
+        <PageHero
+          title="My Matches"
+          subtitle="Providers recommended based on your care needs"
+          variant="soft"
+          compact
+          breadcrumb={<Breadcrumb variant="inline" />}
+          actions={
+            <Link
+              href="/browse"
+              className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Browse Providers
+            </Link>
+          }
+        />
+
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          {/* Active Connections section — show even without profile */}
+          {activeRequests.length > 0 && (
+            <div className="mb-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Active Connections</h2>
+                  <p className="text-sm text-gray-600">Providers you&apos;re currently connected with</p>
+                </div>
+              </div>
+              {renderActiveRequests()}
+            </div>
+          )}
+
+          <EmptyState
+            variant="matches"
+            size="large"
+            guidanceMessage="Complete your care profile so we can match you with the right providers"
+            actions={[
+              {
+                label: "Complete Care Profile",
+                href: "/care-profile/edit",
+                icon: (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Browse Providers",
+                href: "/browse",
+                variant: "secondary",
+              },
+            ]}
+          />
+        </main>
+
+        <Footer variant="light" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Header */}
+      {/* Soft Hero Header with Breadcrumb */}
       <PageHero
         title="My Matches"
         subtitle={familyProfile.city && familyProfile.state
           ? `Providers recommended for you in ${familyProfile.city}, ${familyProfile.state}`
           : "Providers recommended based on your care needs"
         }
+        variant="soft"
         compact
-        stats={[
-          { value: matchedProviders.length, label: "Matches" },
-          { value: activeCount, label: "Active" },
-          { value: pendingCount, label: "Pending" },
-        ]}
+        breadcrumb={<Breadcrumb variant="inline" />}
         actions={
           <Link
             href="/browse"
-            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+            className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -482,20 +473,98 @@ export default function MatchesPage() {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Guidance Nudge - Simplified for 65+ users */}
-        {matchedProviders.length > 0 && matchedProviders.length < 5 && (
-          <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            <p className="text-sm text-amber-800">
-              <span className="font-medium">Tip:</span> Contact 3-5 providers to find the best fit for your needs.
-            </p>
+        {/* Contextual Next Step Guidance */}
+        {needsResponseCount > 0 && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 text-base">
+                  {needsResponseCount} provider{needsResponseCount !== 1 ? 's' : ''} waiting for your response
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Review their messages and confirm meeting times below to keep things moving.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
+        {needsResponseCount === 0 && pendingCount > 0 && (
+          <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 text-base">
+                  Waiting on {pendingCount} provider{pendingCount !== 1 ? 's' : ''} to respond
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  In the meantime, explore more providers below or{' '}
+                  <Link href="/saved" className="text-primary-600 hover:text-primary-700 font-medium">
+                    review your saved list
+                  </Link>.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
-        {/* Section 1: Recommended Matches */}
+        {activeRequests.length === 0 && matchedProviders.length > 0 && (
+          <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 text-base">
+                  Your next step: Share your care profile with providers
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  We found {matchedProviders.length} match{matchedProviders.length !== 1 ? 'es' : ''} for you.
+                  Contact providers to share your needs and set up tours or consultations.
+                  Experts recommend reaching out to 3–5 before deciding.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section 1: Active Connections — shown first when present */}
+        {activeRequests.length > 0 && (
+          <div className="mb-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
+                <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Active Connections</h2>
+                <p className="text-sm text-gray-600">
+                  {activeRequests.length} conversation{activeRequests.length !== 1 ? 's' : ''} with providers
+                </p>
+              </div>
+            </div>
+            {renderActiveRequests()}
+          </div>
+        )}
+
+        {/* Divider */}
+        {activeRequests.length > 0 && matchedProviders.length > 0 && (
+          <div className="border-b border-gray-200 mb-10"></div>
+        )}
+
+        {/* Section 2: Recommended Matches */}
         <div className="mb-10">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -517,7 +586,7 @@ export default function MatchesPage() {
               title="No new matches found"
               description={activeRequests.length > 0
                 ? "You've contacted all matching providers. Browse to find more."
-                : "We couldn't find matches. Try browsing all providers."
+                : "We couldn't find matches yet. Try browsing all providers."
               }
               actions={[
                 {
@@ -532,95 +601,50 @@ export default function MatchesPage() {
               ]}
             />
           ) : (
-            <>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {matchedProviders.length} Match{matchedProviders.length !== 1 ? 'es' : ''} Found
-                    </p>
-                    <p className="text-sm text-gray-600">Sorted by match score</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {matchedProviders.map((provider) => (
+                <div key={provider.id} className="relative">
+                  <div className="absolute top-4 right-4 z-10">
+                    <div className={`px-3 py-1 rounded-full text-sm font-bold shadow-sm ${
+                      provider.matchScore >= 80 ? 'bg-emerald-100 text-emerald-800' :
+                      provider.matchScore >= 60 ? 'bg-blue-100 text-blue-800' :
+                      provider.matchScore >= 40 ? 'bg-amber-100 text-amber-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {provider.matchScore}% Match
+                    </div>
                   </div>
-                  <Link
-                    href="/browse"
-                    className="text-primary-600 hover:text-primary-700 font-medium text-sm"
-                  >
-                    Browse all →
-                  </Link>
-                </div>
-              </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {matchedProviders.map((provider) => (
-                  <div key={provider.id} className="relative">
-                    <div className="absolute top-4 right-4 z-10">
-                      <div className={`px-3 py-1 rounded-full text-sm font-bold shadow-sm ${
-                        provider.matchScore >= 80 ? 'bg-emerald-100 text-emerald-800' :
-                        provider.matchScore >= 60 ? 'bg-blue-100 text-blue-800' :
-                        provider.matchScore >= 40 ? 'bg-amber-100 text-amber-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {provider.matchScore}% Match
+                  <EnhancedProviderCard
+                    provider={provider}
+                    linkHref={`/providers/${provider.id}`}
+                    hasRequestSent={false}
+                  />
+
+                  {provider.matchReasons.length > 0 && (
+                    <div className="mt-2 px-4">
+                      <div className="flex flex-wrap gap-1">
+                        {provider.matchReasons.slice(0, 2).map((reason, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs rounded-full flex items-center gap-1"
+                          >
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            {reason}
+                          </span>
+                        ))}
                       </div>
                     </div>
-
-                    <EnhancedProviderCard
-                      provider={provider}
-                      linkHref={`/providers/${provider.id}`}
-                      hasRequestSent={false}
-                    />
-
-                    {provider.matchReasons.length > 0 && (
-                      <div className="mt-2 px-4">
-                        <div className="flex flex-wrap gap-1">
-                          {provider.matchReasons.slice(0, 2).map((reason, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs rounded-full flex items-center gap-1"
-                            >
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                              {reason}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </div>
-
-        {/* Divider */}
-        {activeRequests.length > 0 && matchedProviders.length > 0 && (
-          <div className="border-b border-gray-200 mb-10"></div>
-        )}
-
-        {/* Section 2: Active Connections */}
-        {activeRequests.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
-                <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Active Connections</h2>
-                <p className="text-sm text-gray-600">
-                  {activeRequests.length} conversation{activeRequests.length !== 1 ? 's' : ''} with providers
-                </p>
-              </div>
-            </div>
-            {renderActiveRequests()}
-          </div>
-        )}
       </main>
 
-      {/* Footer */}
       <Footer variant="light" />
     </div>
   );

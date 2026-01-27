@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import PageHero from "@/components/UI/PageHero";
 import EmptyState from "@/components/UI/EmptyState";
 import EngagementCalendar, { ScheduledEvent } from "@/components/Engagement/EngagementCalendar";
@@ -38,16 +39,14 @@ interface TourData {
 }
 
 /**
- * Care Profile - Family-side dashboard
+ * Care Profile — Your profile and meeting tracking hub
  *
- * Sprint 7 Simplified Design:
- * - Calendar-first layout
- * - Quick Stats for overview
- * - Quick Actions for navigation
- * - Removed: Active Conversations (use /requests), Need Help, ProfileCompletionWidget
+ * Role in the system: Central hub for managing your care profile
+ * and tracking scheduled meetings with providers.
  *
- * This is an explicit route (not mode-aware) per Manual architecture principles.
- * For provider-side profile, see /provider/profile
+ * Core actions:
+ * 1. View and edit your care profile
+ * 2. Track and manage upcoming meetings
  */
 export default function CareProfilePage() {
   const { data: session, status } = useSession();
@@ -97,7 +96,6 @@ export default function CareProfilePage() {
       if (toursRes.ok) {
         const data = await toursRes.json();
         const tours: TourData[] = data.tours || [];
-        // Convert tours to calendar events
         const events: ScheduledEvent[] = tours.map((tour) => ({
           id: tour.id,
           date: new Date(tour.proposedDate),
@@ -124,6 +122,7 @@ export default function CareProfilePage() {
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-40 mb-4"></div>
               <div className="h-8 bg-gray-200 rounded-lg w-1/3 mb-3"></div>
               <div className="h-5 bg-gray-200 rounded w-1/2"></div>
             </div>
@@ -143,28 +142,26 @@ export default function CareProfilePage() {
     );
   }
 
-  // Use loved one's name if available, otherwise user's first name
   const displayName = familyProfile?.lovedOneName || session?.user?.name?.split(" ")[0] || "there";
   const hasScheduledEvents = calendarEvents.length > 0;
+  const hasPendingActions = stats.pendingRequests > 0;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
 
-      {/* Page Hero with personalized greeting */}
+      {/* Soft Hero Header with Breadcrumb */}
       <PageHero
         title={`Welcome back, ${displayName}`}
-        subtitle="Your care journey at a glance"
-        stats={[
-          { value: stats.pendingRequests, label: "Pending" },
-          { value: stats.activeConversations, label: "Active" },
-          { value: stats.savedProviders, label: "Saved" },
-        ]}
+        subtitle="Your care profile and meeting hub"
+        variant="soft"
+        compact
+        breadcrumb={<Breadcrumb variant="inline" />}
         actions={
           <div className="flex gap-3">
             <Link
               href="/browse"
-              className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -173,7 +170,7 @@ export default function CareProfilePage() {
             </Link>
             <Link
               href="/care-profile/edit"
-              className="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors border border-gray-200"
+              className="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -185,7 +182,52 @@ export default function CareProfilePage() {
       />
 
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* Calendar Section - Primary Focus */}
+        {/* Contextual Next Step Guidance */}
+        {hasPendingActions && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 text-base">
+                  You have {stats.pendingRequests} pending request{stats.pendingRequests !== 1 ? 's' : ''}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Review and respond to provider messages to confirm meeting times.{' '}
+                  <Link href="/matches" className="text-primary-600 hover:text-primary-700 font-medium">
+                    View your matches
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!hasPendingActions && !hasScheduledEvents && stats.savedProviders === 0 && (
+          <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 text-base">
+                  Get started: Browse and save providers
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Search for care providers in your area, save the ones you like, then share your care profile
+                  to start conversations. Experts recommend meeting 3–5 providers before deciding.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Scheduled Meetings — Primary Focus */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -199,15 +241,17 @@ export default function CareProfilePage() {
                 Tours, consultations, and interviews with providers
               </p>
             </div>
-            <Link
-              href="/requests"
-              className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
-            >
-              View all meetings
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+            {hasScheduledEvents && (
+              <Link
+                href="/requests"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+              >
+                View all
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            )}
           </div>
 
           {hasScheduledEvents ? (
@@ -225,7 +269,7 @@ export default function CareProfilePage() {
               variant="default"
               title="No upcoming meetings"
               description="When you schedule tours or consultations with providers, they'll appear here."
-              guidanceMessage="Experts recommend meeting with 3-5 providers before making a decision."
+              guidanceMessage="Experts recommend meeting with 3–5 providers before making a decision."
               size="default"
               icon={
                 <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,9 +292,8 @@ export default function CareProfilePage() {
           )}
         </div>
 
-        {/* Quick Actions Grid */}
+        {/* Quick Navigation — Simplified to essential pages */}
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Browse Providers */}
           <Link
             href="/browse"
             className="group bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-primary-200 transition-all"
@@ -268,7 +311,6 @@ export default function CareProfilePage() {
             </p>
           </Link>
 
-          {/* Saved Providers */}
           <Link
             href="/saved"
             className="group bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-primary-200 transition-all"
@@ -285,11 +327,10 @@ export default function CareProfilePage() {
               )}
             </h3>
             <p className="text-sm text-gray-600">
-              Review providers you&apos;ve bookmarked
+              Your shortlist for easy comparison
             </p>
           </Link>
 
-          {/* View Matches */}
           <Link
             href="/matches"
             className="group bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-primary-200 transition-all"
@@ -300,42 +341,17 @@ export default function CareProfilePage() {
               </svg>
             </div>
             <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-primary-700 transition-colors">
-              View Matches
+              My Matches
+              {(stats.pendingRequests > 0 || stats.activeConversations > 0) && (
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  ({stats.pendingRequests + stats.activeConversations} active)
+                </span>
+              )}
             </h3>
             <p className="text-sm text-gray-600">
-              See providers matched to your care needs
+              Active conversations and provider recommendations
             </p>
           </Link>
-        </div>
-
-        {/* Messaging & Requests Link */}
-        <div className="mt-8 bg-gray-50 rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Messages & Requests</h3>
-                <p className="text-sm text-gray-600">
-                  {stats.pendingRequests > 0
-                    ? `${stats.pendingRequests} pending, ${stats.activeConversations} active conversations`
-                    : "View and manage your provider communications"}
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/requests"
-              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
-            >
-              View all
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
         </div>
       </main>
 

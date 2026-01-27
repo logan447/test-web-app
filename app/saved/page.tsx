@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import SavedProviderCard from '@/components/Directory/SavedProviderCard';
@@ -178,12 +179,12 @@ export default function SavedProvidersPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <MainNav />
-        {/* Hero Skeleton */}
-        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="animate-pulse">
-              <div className="h-10 bg-white/20 rounded-lg w-1/3 mb-4"></div>
-              <div className="h-5 bg-white/20 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 rounded w-40 mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded-lg w-1/3 mb-3"></div>
+              <div className="h-5 bg-gray-200 rounded w-1/2"></div>
             </div>
           </div>
         </div>
@@ -202,20 +203,23 @@ export default function SavedProvidersPage() {
     );
   }
 
+  const contactedCount = requestedProviderIds.size;
+  const notContactedCount = providers.filter(p => !requestedProviderIds.has(p.provider.id)).length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Header */}
+      {/* Soft Hero Header with Breadcrumb */}
       <PageHero
         title="Saved Providers"
-        subtitle="Your shortlist for easy comparison"
+        subtitle={providers.length > 0
+          ? `${providers.length} saved — ${contactedCount} contacted, ${notContactedCount} not yet contacted`
+          : "Your shortlist for easy comparison"
+        }
+        variant="soft"
         compact
-        stats={providers.length > 0 ? [
-          { value: providers.length, label: "Saved" },
-          { value: requestedProviderIds.size, label: "Contacted" },
-          { value: providers.filter(p => p.provider.verified).length, label: "Verified" },
-        ] : undefined}
+        breadcrumb={<Breadcrumb variant="inline" />}
         actions={
           <div className="flex items-center gap-3">
             {providers.length >= 2 && (
@@ -223,8 +227,8 @@ export default function SavedProvidersPage() {
                 onClick={toggleCompareMode}
                 className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-colors ${
                   compareMode
-                    ? 'bg-white text-primary-700 hover:bg-primary-50'
-                    : 'bg-white/20 text-white hover:bg-white/30'
+                    ? 'bg-primary-600 text-white hover:bg-primary-700'
+                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -235,7 +239,7 @@ export default function SavedProvidersPage() {
             )}
             <Link
               href="/browse"
-              className="inline-flex items-center gap-2 bg-white text-primary-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-50 transition-colors"
+              className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -303,18 +307,50 @@ export default function SavedProvidersPage() {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Guidance Nudge */}
-        {providers.length > 0 && providers.length < 3 && (
-          <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            <p className="text-sm text-amber-800">
-              <span className="font-medium">Keep exploring!</span> Experts recommend saving 3-5 providers to compare before deciding.
-            </p>
-            <Link href="/browse" className="ml-auto text-sm font-medium text-amber-700 hover:text-amber-800 whitespace-nowrap">
-              Browse more →
-            </Link>
+        {/* Next Step Guidance — actionable and contextual */}
+        {providers.length > 0 && notContactedCount > 0 && (
+          <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 text-base">
+                  Your next step: Share your care profile
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  You have {notContactedCount} saved provider{notContactedCount !== 1 ? 's' : ''} you haven&apos;t contacted yet.
+                  Sharing your care profile lets providers understand your needs and respond faster.
+                  Experts recommend reaching out to 3–5 providers before deciding.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {providers.length > 0 && notContactedCount === 0 && (
+          <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 text-base">
+                  Great progress — now confirm your meetings
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  You&apos;ve contacted all your saved providers. Check your{' '}
+                  <Link href="/matches" className="text-primary-600 hover:text-primary-700 font-medium">
+                    matches page
+                  </Link>{' '}
+                  to confirm meeting times and track responses.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -356,7 +392,7 @@ export default function SavedProvidersPage() {
           <EmptyState
             variant="saved"
             size="large"
-            guidanceMessage="Experts recommend meeting 3-5 providers before deciding"
+            guidanceMessage="Experts recommend saving 3–5 providers to compare before deciding"
             actions={[
               {
                 label: "Browse Providers",

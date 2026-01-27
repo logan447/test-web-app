@@ -7,6 +7,7 @@ import { ReactNode } from "react";
  *
  * Variants:
  * - primary: Teal gradient (default for most pages)
+ * - soft: Calm light background with subtle border — preferred for 65+ audience
  * - light: White/gray gradient (homepage style)
  * - dark: Dark gradient (provider CTA sections)
  * - minimal: No gradient, just padding
@@ -22,7 +23,7 @@ interface PageHeroProps {
   title: string;
   subtitle?: string;
   children?: ReactNode;
-  variant?: "primary" | "light" | "dark" | "minimal";
+  variant?: "primary" | "soft" | "light" | "dark" | "minimal";
   stats?: StatItem[];
   badge?: {
     text: string;
@@ -36,6 +37,7 @@ interface PageHeroProps {
 
 const variantStyles = {
   primary: "bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white",
+  soft: "bg-white border-b border-gray-200 text-gray-900",
   light: "bg-gradient-to-b from-white to-gray-50 text-gray-900",
   dark: "bg-gray-900 text-white",
   minimal: "bg-white text-gray-900",
@@ -43,6 +45,7 @@ const variantStyles = {
 
 const subtitleStyles = {
   primary: "text-primary-100",
+  soft: "text-gray-500",
   light: "text-gray-600",
   dark: "text-gray-400",
   minimal: "text-gray-600",
@@ -53,6 +56,11 @@ const statStyles = {
     value: "text-white",
     label: "text-primary-200",
     suffix: "text-yellow-400",
+  },
+  soft: {
+    value: "text-primary-700",
+    label: "text-gray-500",
+    suffix: "text-primary-500",
   },
   light: {
     value: "text-primary-600",
