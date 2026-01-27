@@ -34,23 +34,31 @@
 | **Home Care Organization** | HOME_CARE, HOME_HEALTH, HOSPICE | Consultation | "Request a Consultation" |
 | **Individual** | INDEPENDENT_CAREGIVER | Interview | "Schedule an Interview" |
 
-### 1.3 Subscription Tiers
+### 1.3 Membership Model
 
-| Tier | Cost | Limits | Key Gating |
-|------|------|--------|------------|
-| **FREE** | $0 | 3 active engagements/month | Paywall after limit |
-| **PRO** | $49/mo | Unlimited engagements | Full access |
+| User Type | Cost | What's Gated |
+|-----------|------|--------------|
+| **Individual Caregiver** | $25/month | Apply to orgs, send interview requests, accept ANY inbound |
+| **Organization** | $25/month | Interview caregivers, contact families, accept ANY inbound |
+| **Family** | Free | No membership required |
+
+**Key Rules:**
+- There is NO free tier for providers
+- Providers can browse everything (maximize FOMO) but cannot engage without membership
+- Existing scheduled meetings continue even if membership lapses
+- New meetings blocked without active membership
+- Gating applies to ANY authenticated provider, regardless of profile completion status
 
 ### 1.4 State Combinations
 
-| Mode | Has Profile | Has Provider | Subscription | Can Access |
-|------|-------------|--------------|--------------|------------|
-| FAMILY | No FamilyProfile | N/A | N/A | Browse, save (limited) |
-| FAMILY | Has FamilyProfile | N/A | N/A | Full family features |
-| PROVIDER | No ProviderIdentity | N/A | N/A | Redirect to onboarding |
-| PROVIDER | ProviderIdentity | No Provider | N/A | Create/claim provider |
-| PROVIDER | ProviderIdentity | Provider + FREE | FREE | 3 engagements/month |
-| PROVIDER | ProviderIdentity | Provider + PRO | PRO | Unlimited |
+| Mode | Has Profile | Membership | Can Access |
+|------|-------------|------------|------------|
+| FAMILY | No FamilyProfile | N/A (free) | Browse, save, limited engagement |
+| FAMILY | Has FamilyProfile | N/A (free) | Full family features |
+| PROVIDER | No ProviderIdentity | Any | Redirect to onboarding |
+| PROVIDER | ProviderIdentity | None | Browse all, view all, NO engagement |
+| PROVIDER | ProviderIdentity | Active ($25/mo) | Full provider features |
+| PROVIDER | ProviderIdentity | Lapsed | Continue existing meetings, NO new meetings |
 
 ---
 
@@ -378,132 +386,157 @@
 
 ---
 
-## 3. Paywall & Monetization Flows
+## 3. Paywall & Membership Flows
 
-### 3.1 Paywall Trigger Points
+### 3.1 Membership Model
 
-The paywall is checked when a provider attempts to create a new engagement (request). The check happens at:
-- **API Location**: `POST /api/requests` (line ~296 in route handler)
-- **Client Location**: Before EngagementConfirmationModal or request submission
+**Price**: $25/month for all providers (individual caregivers and organizations)
 
-### 3.2 Subscription Model
+**Families**: Free (no membership required)
 
-| Tier | Monthly Limit | What Counts | Reset |
-|------|---------------|-------------|-------|
-| FREE | 3 active engagements | PENDING + ACCEPTED requests initiated by provider | Monthly |
-| PRO | Unlimited | N/A | N/A |
+**Core Principle**: Providers can browse and view EVERYTHING (maximize FOMO), but cannot engage without active membership.
 
-**Note**: Requests initiated by the other party (e.g., family contacting provider first) do NOT count against provider's limit.
+### 3.2 Paywall Trigger Points
 
-### 3.3 Individual Caregiver Paywall Flows
+The paywall is checked when a provider attempts ANY engagement action:
+- **Initiating**: Schedule a meeting, send interview request, contact family
+- **Accepting**: Confirm an inbound meeting request
 
-#### Flow PWC1: Caregiver Applies to Organization (Gated)
+**API Location**: `POST /api/requests` and `PATCH /api/requests/[id]` (status change to ACCEPTED)
+**Client Location**: Before EngagementConfirmationModal opens OR before Accept button executes
+
+### 3.3 Gating Rules Summary
+
+| User Type | Action | Gated? |
+|-----------|--------|--------|
+| Individual Caregiver | Apply to organization | ✅ YES |
+| Individual Caregiver | Send interview request to family | ✅ YES |
+| Individual Caregiver | **Accept inbound from family** | ✅ YES |
+| Individual Caregiver | **Accept inbound from organization** | ✅ YES |
+| Organization | Send interview request to caregiver | ✅ YES |
+| Organization | Contact family (outreach) | ✅ YES |
+| Organization | **Accept family outreach** | ✅ YES |
+| Organization | **Accept caregiver application** | ✅ YES |
+| Family | Schedule tour/consultation/interview | ❌ NO (free) |
+| Family | Accept provider outreach | ❌ NO (free) |
+
+**There is NO free tier for providers. All engagement requires $25/month membership.**
+
+### 3.4 Membership Lapse Behavior
+
+| Scenario | Behavior |
+|----------|----------|
+| Active membership | Full access to all features |
+| Membership lapses, has existing meetings | Can continue existing meetings (messages, scheduling) |
+| Membership lapses, tries to create new meeting | Paywall blocks action |
+| Membership lapses, tries to accept inbound | Paywall blocks action |
+
+### 3.5 Individual Caregiver Paywall Flows
+
+#### Flow PWC1: Caregiver Applies to Organization (GATED)
 - **Trigger**: Caregiver clicks "Apply" on organization profile
-- **Check**: Active engagement count < 3 (FREE) or has PRO subscription
-- **If Allowed**:
-  1. Application submitted (requestType: HIRING)
-  2. Org notified
-  3. Caregiver redirected to `/provider/requests/[id]`
-- **If Blocked**:
-  1. PaywallModal opens
-  2. Shows: "You've reached your monthly limit of 3 applications"
-  3. Copy: "Upgrade to PRO for unlimited applications and priority visibility"
-  4. CTA: "Upgrade to PRO - $49/month"
-  5. Secondary: "View current applications" (to close some)
-- **Post-Upgrade Continuation**:
-  1. Modal closes
-  2. Subscription updated in database
-  3. Original action resumes automatically (pending action context)
-  4. Application submitted
+- **Check**: Has active membership?
+- **If No Membership → PaywallModal (Caregiver Variant)**
 
-#### Flow PWC2: Caregiver Messages/Outreach to Family (Gated)
-- **Trigger**: Caregiver clicks "Send Interview Request" on family profile
-- **Check**: Same as PWC1
-- **If Allowed**:
-  1. Request created (requestType: CONSULTATION, from caregiver)
-  2. Family notified
-  3. Caregiver redirected to conversation
-- **If Blocked**:
-  1. PaywallModal with same messaging
-  2. Shows active engagement count: "3 of 3 connections used this month"
-- **Post-Upgrade**: Same automatic continuation
+#### Flow PWC2: Caregiver Sends Interview Request to Family (GATED)
+- **Trigger**: Caregiver clicks "Schedule an Interview" on family profile
+- **Check**: Has active membership?
+- **If No Membership → PaywallModal (Caregiver Variant)**
 
-#### Flow PWC3: Caregiver Responds to Inbound Request (NOT Gated)
-- **Trigger**: Caregiver receives request from family or org, clicks "Accept"
-- **Check**: NONE - responding to inbound is always free
-- **Rationale**: Don't penalize caregivers for being in demand
-- **Flow**:
-  1. Accept button always enabled
-  2. Status changes to ACCEPTED
-  3. Contact info exchanged
-  4. Conversation continues
+#### Flow PWC3: Caregiver Accepts Inbound Request (GATED)
+- **Trigger**: Caregiver clicks "Confirm Meeting" on inbound request
+- **Check**: Has active membership?
+- **If No Membership → PaywallModal (Caregiver Variant)**
 
-### 3.4 Organization Paywall Flows
+### 3.6 Organization Paywall Flows
 
-#### Flow PWO1: Org Schedules Interview with Caregiver (Gated)
-- **Trigger**: Org clicks "Send Interview Request" on caregiver profile
-- **Check**: Active hiring engagement count < 3 (FREE) or PRO
-- **If Allowed**:
-  1. Request created (requestType: HIRING)
-  2. Caregiver notified
-  3. Org redirected to `/provider/candidates/[id]`
-- **If Blocked**:
-  1. PaywallModal opens
-  2. Shows: "Upgrade to unlock unlimited hiring outreach"
-  3. CTA: "Upgrade to PRO"
-- **Post-Upgrade**: Automatic continuation
+#### Flow PWO1: Org Sends Interview Request to Caregiver (GATED)
+- **Trigger**: Org clicks "Schedule an Interview" on caregiver profile
+- **Check**: Has active membership?
+- **If No Membership → PaywallModal (Organization Variant)**
 
-#### Flow PWO2: Org Sends Outreach to Family (Gated)
-- **Trigger**: Org clicks "Contact Family" on family lead
-- **Check**: Active engagement count < 3 (FREE) or PRO
-- **If Allowed**:
-  1. Request created
-  2. Family notified
-  3. Org redirected to conversation
-- **If Blocked**: PaywallModal
-- **Post-Upgrade**: Automatic continuation
+#### Flow PWO2: Org Contacts Family (GATED)
+- **Trigger**: Org clicks "Schedule a Tour/Consultation" on family lead
+- **Check**: Has active membership?
+- **If No Membership → PaywallModal (Organization Variant)**
 
-#### Flow PWO3: Org Responds to Inbound Family Request (NOT Gated)
-- **Trigger**: Family contacts org first, org clicks "Accept"
-- **Check**: NONE - responding is always free
-- **Flow**: Accept → ACCEPTED → Tour/consultation scheduling
+#### Flow PWO3: Org Accepts Family Outreach (GATED)
+- **Trigger**: Org clicks "Confirm Meeting" on inbound family request
+- **Check**: Has active membership?
+- **If No Membership → PaywallModal (Organization Variant)**
 
-### 3.5 PaywallModal UI Specification
+### 3.7 Intent-Aware PaywallModal Specifications
+
+Paywall copy MUST be laser-specific to user type. Pass intent through CTAs.
+
+#### Caregiver PaywallModal
 
 ```
 ┌─────────────────────────────────────────┐
-│  [Lock Icon]                            │
+│  [Briefcase Icon]                       │
 │                                         │
-│  Upgrade to Continue                    │
+│  Start Your Membership                  │
 │                                         │
-│  You've used 3 of 3 free connections    │
-│  this month. Upgrade to PRO for:        │
+│  Join Olera to connect with families    │
+│  and organizations looking for care     │
+│  professionals like you.                │
 │                                         │
-│  ✓ Unlimited connections                │
-│  ✓ Priority in search results           │
-│  ✓ Advanced analytics                   │
-│  ✓ Dedicated support                    │
+│  With membership, you can:              │
+│                                         │
+│  ✓ Apply to job opportunities           │
+│  ✓ Interview with organizations         │
+│  ✓ Connect directly with families       │
+│  ✓ Manage all your care relationships   │
 │                                         │
 │  ┌─────────────────────────────────┐    │
-│  │  Upgrade to PRO - $49/month     │    │
+│  │  Join for $25/month             │    │
 │  └─────────────────────────────────┘    │
 │                                         │
-│  [Manage existing connections]          │
+│  Cancel anytime. No commitment.         │
 │                                         │
 └─────────────────────────────────────────┘
 ```
 
-### 3.6 Post-Upgrade Continuation Flow
+#### Organization PaywallModal
 
-1. User hits paywall during action attempt
-2. PaywallModal opens with `pendingAction` context stored
-3. User clicks "Upgrade to PRO"
-4. Redirect to `/pricing` or Stripe checkout
-5. On successful payment:
-   - Webhook updates `subscription.tier = PRO`
-   - User redirected back to original page with `?upgraded=true&pendingAction=...`
-6. Page detects params, automatically retries original action
-7. Action succeeds, user continues seamlessly
+```
+┌─────────────────────────────────────────┐
+│  [Building Icon]                        │
+│                                         │
+│  Start Your Membership                  │
+│                                         │
+│  Join Olera to connect with qualified   │
+│  caregivers and families seeking your   │
+│  services.                              │
+│                                         │
+│  With membership, you can:              │
+│                                         │
+│  ✓ Interview and hire caregivers        │
+│  ✓ Respond to family inquiries          │
+│  ✓ Schedule tours and consultations     │
+│  ✓ Manage your hiring pipeline          │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │  Join for $25/month             │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  Cancel anytime. No commitment.         │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+### 3.8 Post-Membership Continuation Flow
+
+1. User attempts engagement action (initiate or accept)
+2. System checks membership status
+3. If no membership → PaywallModal opens with `pendingAction` context stored
+4. User clicks "Join for $25/month"
+5. Redirect to Stripe checkout (or inline payment form)
+6. On successful payment:
+   - Webhook creates/updates subscription record
+   - User redirected back with `?subscribed=true&pendingAction=...`
+7. Page detects params, automatically retries original action
+8. Action succeeds, user continues seamlessly to meeting detail page
 
 ---
 
@@ -735,11 +768,31 @@ Users may land on provider pages via:
 
 ## 5. Lifecycle & Calendar Flows
 
-### 5.1 Engagement Lifecycle States
+### 5.0 Conceptual Model: Meetings, Not Requests
+
+**Core Principle**: The platform exists to schedule meetings, not manage abstract "requests."
+
+**Meeting Types**:
+- **Tour** - Family visits a facility
+- **Consultation** - Family meets with home care provider
+- **Interview** - Caregiver meets with family or organization
+
+**Terminology Mapping**:
+| Old Term | New Term (Preferred) |
+|----------|---------------------|
+| "Send request" | "Schedule a [Tour/Consultation/Interview]" |
+| "Accept request" | "Confirm meeting" |
+| "Request page" | "Meeting details" |
+| "Active requests" | "Scheduled meetings" |
+| "Request status" | "Meeting status" |
+
+**Note**: Database models may still use "request" terminology internally, but UI should use meeting-first language.
+
+### 5.1 Meeting Lifecycle States
 
 ```
                     ┌─────────┐
-                    │ PENDING │
+                    │ PENDING │ ← Meeting requested, awaiting confirmation
                     └────┬────┘
                          │
            ┌─────────────┼─────────────┐
@@ -747,50 +800,51 @@ Users may land on provider pages via:
            ▼             ▼             ▼
       ┌────────┐   ┌──────────┐   ┌───────────┐
       │ACCEPTED│   │ DECLINED │   │ CANCELLED │
-      └────┬───┘   └──────────┘   └───────────┘
+      │(Confirmed)│ └──────────┘   └───────────┘
+      └────┬───┘
            │
            ▼
      ┌───────────┐
-     │ COMPLETED │
+     │ COMPLETED │ ← Meeting happened
      └───────────┘
 ```
 
 ### 5.2 Notification → Resume Action Flows
 
-#### Flow NRA1: Notification → Accept Request → Schedule Meeting
-- **Trigger**: Provider receives notification "New request from [Family]"
-- **Path**: Bell dropdown → Click notification → `/provider/requests/[id]`
+#### Flow NRA1: Notification → Confirm Meeting → Schedule Time
+- **Trigger**: Provider receives notification "New meeting request from [Family]"
+- **Path**: Bell dropdown → Click notification → `/provider/meetings/[id]` (or `/provider/requests/[id]`)
 - **Key Actions**:
   1. Notification marked as read (PATCH `/api/notifications/[id]`)
-  2. Land on request detail page
+  2. Land on meeting detail page
   3. Review family profile
-  4. Click "Accept"
+  4. Click "Confirm Meeting" (membership required for providers)
   5. Status changes to ACCEPTED
-  6. "Propose Meeting Time" section appears
+  6. "Propose Time" section appears
   7. Select date/time, add message
   8. Submit → TourAppointment created with status PROPOSED
-  9. Family notified
-- **Expected Outcome**: Meeting proposed, await family confirmation
+  9. Family notified: "Time proposed for your [Tour/Consultation/Interview]"
+- **Expected Outcome**: Time proposed, await family confirmation
 
 #### Flow NRA2: Notification → Confirm Proposed Time → Add to Calendar
-- **Trigger**: User receives "Meeting time proposed"
-- **Path**: Notification → `/requests/[id]` → Confirm → Calendar
+- **Trigger**: User receives "[Name] proposed a time for your meeting"
+- **Path**: Notification → Meeting detail page → Confirm → Calendar
 - **Key Actions**:
   1. View proposed time details
   2. Click "Confirm This Time" or "Propose Different Time"
   3. If confirmed:
      - TourAppointment status → CONFIRMED
-     - Both parties notified
+     - Both parties notified: "Meeting confirmed!"
      - Calendar links appear (Google, Outlook, Yahoo, Apple)
   4. Click calendar link → Event added to external calendar
 - **Expected Outcome**: Meeting confirmed, on both calendars
 
 #### Flow NRA3: Notification → Message Received → Reply
 - **Trigger**: User receives "New message from [Name]"
-- **Path**: Notification → `/requests/[id]` → Reply
+- **Path**: Notification → Meeting detail page → Reply
 - **Key Actions**:
   1. Land on conversation thread
-  2. Read new message (highlighted)
+  2. Read new message (highlighted or scrolled to)
   3. Type reply in composer
   4. Send → Message created
   5. Other party notified
@@ -846,9 +900,9 @@ Users may land on provider pages via:
 - **Expected Outcome**: Meeting cancelled, engagement continues
 - **Note**: Cancelling meeting ≠ declining engagement
 
-#### Flow RSC3: Decline/Cancel Entire Engagement
-- **Trigger**: User wants to end engagement entirely
-- **Path**: `/requests/[id]` → "Decline" or "Cancel Engagement"
+#### Flow RSC3: Decline/Cancel Entire Meeting
+- **Trigger**: User wants to end the meeting relationship entirely
+- **Path**: Meeting detail page → "Decline" or "Cancel"
 - **Key Actions**:
   1. Click decline/cancel button
   2. Confirmation modal with reason selection:
@@ -857,12 +911,12 @@ Users may land on provider pages via:
      - "Changed my mind"
      - "Other"
   3. If confirmed:
-     - Engagement status → DECLINED or CANCELLED
-     - Other party notified
+     - Meeting status → DECLINED or CANCELLED
+     - Other party notified: "Meeting cancelled by [Name]"
      - Page becomes read-only
      - No further actions possible
-- **Expected Outcome**: Engagement ended
-- **Privacy**: Contact info access revoked if was engagement-gated
+- **Expected Outcome**: Meeting ended
+- **Privacy**: Contact info access revoked if was meeting-gated (caregivers/families)
 
 ### 5.5 Calendar Integration Details
 
@@ -892,34 +946,26 @@ Generated for each confirmed TourAppointment:
 
 ### 6.1 Incomplete Profile Edge Cases
 
-#### Flow EC1: User Tries to Engage Without Profile
-- **Trigger**: Authenticated user without FamilyProfile clicks "Schedule a Tour"
-- **Path**: CTA → EngagementConfirmationModal → Profile Blocker
-- **What User Sees**:
-  ```
-  ┌─────────────────────────────────────────┐
-  │  Complete Your Profile First            │
-  │                                         │
-  │  Before connecting with providers,      │
-  │  we need a few details about your       │
-  │  care needs.                            │
-  │                                         │
-  │  Missing information:                   │
-  │  • Who needs care                       │
-  │  • Your location                        │
-  │  • Type of care needed                  │
-  │                                         │
-  │  [Complete Profile →]                   │
-  └─────────────────────────────────────────┘
-  ```
-- **Path**: Click → `/care-profile/edit` → Complete → Return → Retry action
-- **Pending Action**: URL params preserve intent for seamless continuation
+**Critical Rule**: Profile blockers must ALWAYS invoke the GlobalOnboardingOverlay, NOT a toast or lightweight modal.
 
-#### Flow EC2: Provider Tries to Accept Lead Without Profile
-- **Trigger**: Provider with incomplete Tier 1 tries to accept family lead
-- **Path**: Click "Accept" → Blocker modal
-- **What User Sees**: "Complete your provider profile to respond to families"
-- **Resolution**: Complete profile → Retry
+#### Flow EC1: Family Tries to Schedule Meeting Without Profile
+- **Trigger**: Authenticated family user without FamilyProfile clicks "Schedule a Tour"
+- **Path**: CTA → GlobalOnboardingOverlay invoked immediately
+- **Overlay Behavior**:
+  1. If intent known (family) → Jump directly to family fields section
+  2. If intent unknown → Start with "Are you looking for care?" / "Are you a provider?"
+  3. User completes required fields (loved one name, location, care types)
+  4. On completion → Original action resumes via pending action context
+- **NOT a toast, NOT a lightweight modal** — always the full wizard overlay
+
+#### Flow EC2: Provider Tries to Engage Without Complete Profile
+- **Trigger**: Provider with incomplete Tier 1 tries to schedule meeting or accept inbound
+- **Path**: Action blocked → GlobalOnboardingOverlay invoked
+- **Overlay Behavior**:
+  1. If intent known (provider + subtype) → Jump directly to provider fields section
+  2. User completes required Tier 1 fields (name, type, location, care types)
+  3. On completion → Original action resumes via pending action context
+- **Note**: Membership check happens AFTER profile completion (profile first, then paywall if needed)
 
 ### 6.2 Empty State Flows
 
@@ -1052,23 +1098,71 @@ Generated for each confirmed TourAppointment:
   4. Contact section in request detail shows: phone, email, address
 - **Privacy Note**: Only authenticated, engaged parties see contact info
 
-### 6.6 Seeded Demo Data Requirements
+### 6.6 Account Deletion Flow
+
+#### Flow AD1: User Deletes Account
+- **Entry Point**: `/settings` → "Delete Account" section
+- **Path**: Click "Delete Account" → Confirmation modal → Final confirmation → Deletion
+- **Key Actions**:
+  1. User clicks "Delete my account"
+  2. Modal shows consequences:
+     - "Your profile will be permanently deleted"
+     - "Active meetings will be cancelled"
+     - "Other parties will be notified"
+     - "This cannot be undone"
+  3. User types "DELETE" to confirm
+  4. User clicks "Permanently Delete Account"
+  5. System:
+     - Cancels all active meetings
+     - Notifies other parties: "This user has deleted their account"
+     - Soft-deletes user record (sets `deletedAt`)
+     - Signs user out
+     - Redirects to homepage
+- **Failure Cases**:
+  - Network error → Toast with retry
+  - User cancels → Return to settings
+
+#### Flow AD2: Subscription Cancellation
+- **Entry Point**: `/settings` → "Membership" section
+- **Path**: Click "Cancel Membership" → Confirmation → Cancellation
+- **Key Actions**:
+  1. User clicks "Cancel Membership"
+  2. Modal shows:
+     - "Your membership will remain active until [end date]"
+     - "After that, you won't be able to schedule new meetings"
+     - "Existing meetings will continue"
+  3. User confirms cancellation
+  4. System:
+     - Sets subscription to cancel at period end
+     - Shows "Membership ending on [date]" badge
+     - Sends confirmation email
+- **Reactivation**: User can resubscribe anytime from paywall or settings
+
+---
+
+### 6.7 Seeded Demo Data Requirements
 
 For comprehensive testing, seed data must include:
 
 | Entity | Count | States/Variations |
 |--------|-------|-------------------|
-| Providers (Claimed) | 20 | All types, various completeness levels |
-| Providers (Unclaimed) | 10 | Minimal data, no photos |
-| Family Profiles | 15 | Various care types, budgets, timelines |
-| Caregivers | 10 | Various skills, some availableForOrgs |
-| Engagements | 30 | All status types (PENDING x10, ACCEPTED x10, COMPLETED x5, DECLINED x3, CANCELLED x2) |
-| Tour Appointments | 15 | PROPOSED x5, CONFIRMED x5, COMPLETED x3, CANCELLED x2 |
-| Messages | 50 | Across active engagements |
-| Reviews | 25 | Various ratings, some with responses |
-| Notifications | 40 | All types, mix of read/unread |
-| Saved Providers | 20 | Various users saving various providers |
-| Subscriptions | 5 | 3 FREE, 2 PRO providers |
+| **Providers (Claimed)** | 20 | All types, various completeness levels |
+| **Providers (Unclaimed)** | 10 | Minimal data, no photos |
+| **Family Profiles** | 15 | Various care types, budgets, timelines |
+| **Individual Caregivers** | 10 | Various skills, some `availableForOrganizations = true` |
+| **Meetings** | 30 | All status types (PENDING x10, ACCEPTED x10, COMPLETED x5, DECLINED x3, CANCELLED x2) |
+| **Scheduled Times** | 15 | PROPOSED x5, CONFIRMED x5, COMPLETED x3, CANCELLED x2 |
+| **Messages** | 50 | Across active meetings |
+| **Reviews** | 25 | Various ratings, some with provider responses |
+| **Notifications** | 40 | All types, mix of read/unread |
+| **Saved Providers** | 20 | Various users saving various providers |
+| **Memberships** | 10 | 5 active, 3 lapsed, 2 cancelled |
+
+**Membership test scenarios needed:**
+- Provider with active membership (can engage)
+- Provider with lapsed membership + existing meetings (can continue, can't create new)
+- Provider with lapsed membership + no meetings (sees paywall everywhere)
+- Provider who never had membership (sees paywall on first attempt)
 
 ---
 
@@ -1190,54 +1284,59 @@ For comprehensive testing, seed data must include:
 
 ## 9. Simplification Opportunities
 
-### 9.1 Pages to Merge or Remove
+### 9.1 Pages to Remove or Consolidate
 
-| Current | Recommendation | Rationale |
-|---------|---------------|-----------|
-| `/provider/opportunities` + `/provider/opportunities/[id]` | Merge into `/provider/requests` with tab | Same engagement model, reduces navigation |
-| `/caregiver/browse-organizations` | Rename to `/provider/find-work` | Clearer intent, consistent with provider URL space |
-| `/setup` | Remove, use GlobalOnboardingOverlay only | Duplicate functionality |
-| `/onboarding` | Redirect to `/?onboarding=true` | Already just a redirect |
+| Current | Recommendation | Rationale | Status |
+|---------|---------------|-----------|--------|
+| `/setup` | Remove, use GlobalOnboardingOverlay only | Duplicate functionality | Approved |
+| `/onboarding` | Redirect to `/?onboarding=true` | Already just a redirect | Approved |
+| `/caregiver/browse-organizations` | Consider renaming to `/provider/find-work` | Clearer intent | Open |
 
-### 9.2 Flows to Collapse
+**Note**: `/provider/opportunities` and `/provider/requests` will remain SEPARATE per decision. Different relationship types warrant distinct spaces.
 
-| Current Flow | Simplification | Benefit |
-|--------------|----------------|---------|
-| Auth → Onboarding → Profile → Engage | Auth → Inline profile in engagement modal | Fewer steps to first meeting |
-| Save → Compare → Engage | Add "Quick Compare" overlay on provider cards | Faster decision-making |
-| Notification → Page → Find message | Notification deep-links to exact message | Immediate context |
+### 9.2 Flows to Collapse (Fewer Steps, Not Hidden Behavior)
 
-### 9.3 UI Elements to Remove
+| Current Flow | Simplification | Benefit | Status |
+|--------------|----------------|---------|--------|
+| Save → Navigate to Saved → Compare → Navigate to Provider → Engage | Add "Quick Compare" hover/popup on provider cards | Faster decision-making | Open |
+| Notification → Page load → Scroll to find context | Notification deep-links to exact message anchor | Immediate context | Approved |
 
-| Element | Location | Rationale |
-|---------|----------|-----------|
-| Redundant "Back" buttons | Various detail pages | Browser back works |
-| "Learn More" sections | Homepage | Focus on action, not education |
-| Pricing tier comparison | Provider dashboard | Show only upgrade CTA if free |
+**Guiding Principle**: Reduce clicks and page transitions, but NEVER hide information or make behavior implicit.
 
-### 9.4 CTAs to Clarify
+### 9.3 UI Elements to Evaluate
 
-| Current CTA | Recommended | Rationale |
-|-------------|-------------|-----------|
+| Element | Location | Consideration | Status |
+|---------|----------|---------------|--------|
+| Redundant "Back" buttons | Various detail pages | Browser back may suffice | Open |
+| "Learn More" sections | Homepage | Focus on action over education | Open |
+
+### 9.4 CTAs to Clarify (NON-NEGOTIABLE)
+
+| Current CTA | Must Change To | Rationale |
+|-------------|----------------|-----------|
 | "Contact" | "Schedule a Tour" / "Request a Consultation" / "Schedule an Interview" | Specific to engagement type |
-| "View Details" | "Continue" (if engaged) or "View Profile" (if not) | Clearer action |
-| "Get Started" | "Find Care" (family) / "List Your Services" (provider) | Role-specific |
+| "View Details" | "Continue" (if active meeting) or "View Profile" (if no meeting) | Clearer action based on state |
+| "Get Started" | "Find Care" (family) / "Join as Provider" (provider) | Role-specific |
+| "Send Request" | "Schedule Meeting" | Meeting-first framing |
+| "Accept Request" | "Confirm Meeting" | Meeting-first framing |
 
-### 9.5 Information to Reduce
+### 9.5 Information Density Guidelines
 
-| Current | Simplification | Rationale |
-|---------|----------------|-----------|
-| Full profile summary in engagement modal | Just: Name, Type, Location, Rating | Don't overwhelm |
-| All notification types in dropdown | Last 5 only, grouped by date | Scannable |
-| Complete provider profile on cards | Top 4 attributes only | Focus attention |
+| Area | Guideline | Rationale |
+|------|-----------|-----------|
+| Provider cards | Show: Image, Name, Type, Rating, Location, Price, CTA | 65+ readability |
+| Notification dropdown | Show last 5-7, grouped by date | Scannable |
+| Engagement modal | Show: Name, Type, Location, Rating (not full profile) | Don't overwhelm |
 
-### 9.6 Steps to Eliminate
+### 9.6 Explicit Behavior Requirements
 
-| Current Step | Eliminate By | Benefit |
-|--------------|--------------|---------|
-| Acknowledgment checkbox in engagement modal | Auto-checked with info tooltip | One less click |
-| Separate "Propose Time" page | Inline scheduler in request detail | No page transition |
-| Review modal separate from provider page | Inline review form in completed engagement | Contextual |
+| Element | Keep Explicit | Rationale |
+|---------|---------------|-----------|
+| Profile visibility checkbox | YES | User must consciously opt-in to being discoverable |
+| Engagement acknowledgment checkbox | YES | User must confirm profile sharing |
+| Membership confirmation | YES | Payment requires explicit consent |
+
+**Principle**: Fewer steps is good. Hidden or implicit behavior is NOT acceptable.
 
 ---
 
@@ -1247,11 +1346,13 @@ For comprehensive testing, seed data must include:
 
 | Risk | Severity | Trigger | Mitigation |
 |------|----------|---------|------------|
-| **Paywall bypass** | Critical | API change to `/api/requests` | E2E tests for FREE tier limits |
+| **Membership bypass** | Critical | API change to `/api/requests` or PATCH status | E2E tests: provider without membership CANNOT engage |
+| **Accept-without-membership** | Critical | Missing check on "Confirm Meeting" action | Test inbound acceptance requires membership |
 | **Contact info leak** | Critical | UI change to gated sections | Audit all contact display components |
 | **Mode switch breaks** | High | Changes to MainNav or session | Test both directions, all profile states |
-| **Engagement status sync** | High | Race conditions on accept/decline | Database transactions, optimistic UI |
+| **Meeting status sync** | High | Race conditions on confirm/decline | Database transactions, optimistic UI |
 | **Notification links break** | High | URL structure changes | Test all notification types → page loads |
+| **Membership lapse handling** | High | Edge case: existing meetings vs new meetings | Test lapsed users can continue but not create |
 
 ### 10.2 Medium-Risk Inconsistencies
 
