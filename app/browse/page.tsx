@@ -508,19 +508,16 @@ function BrowseContent() {
           searchExpanded ? "max-h-0 opacity-0 overflow-hidden" : "max-h-20 opacity-100"
         }`}>
           <div className="max-w-7xl mx-auto px-4 py-2.5">
-            <div className="flex items-center gap-3">
-              {/* Logo */}
+            <div className="relative flex items-center gap-3">
+              {/* Logo — left */}
               <Link href="/" className="flex items-center gap-2 shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/bird-logo.svg" alt="" className="w-7 h-7" aria-hidden="true" />
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
 
-              {/* Spacer — pushes search bar to center on desktop */}
-              <div className="hidden lg:block flex-1" />
-
-              {/* Compact search bar + Filters pill grouped together */}
-              <div className="flex-1 lg:flex-none flex items-center gap-2 min-w-0 lg:min-w-[540px] lg:max-w-[640px] justify-center">
+              {/* Search bar + Filters — absolutely centered on desktop */}
+              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[540px] lg:max-w-[640px]">
                 <button
                   type="button"
                   onClick={() => setSearchExpanded(true)}
@@ -565,10 +562,8 @@ function BrowseContent() {
                 </button>
               </div>
 
-              {/* Spacer — balances centering on desktop */}
+              {/* Right side — Become a provider + Hamburger */}
               <div className="hidden lg:block flex-1" />
-
-              {/* Become a provider + Hamburger pill */}
               <Link
                 href="/for-providers"
                 className="hidden md:block text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors shrink-0"
