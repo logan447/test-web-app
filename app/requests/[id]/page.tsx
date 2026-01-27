@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
@@ -32,6 +33,8 @@ type ConsultRequest = {
     state: string;
     email: string;
     phone: string;
+    coverPhoto?: string | null;
+    photos?: string[];
   };
   familyProfile: {
     user: {
@@ -62,10 +65,6 @@ type ConsultRequest = {
   }[];
 };
 
-/**
- * Get provider-type-specific request label
- * e.g., "Visit request" for facilities, "Call request" for home care, "Meeting request" for caregivers
- */
 function getRequestLabel(providerType: ProviderType): { label: string; noun: string } {
   const pt = providerType as string;
   if ((FACILITY_PROVIDER_TYPES as readonly string[]).includes(pt)) {
@@ -100,6 +99,10 @@ export default function RequestDetailPage() {
   const [proposedTime, setProposedTime] = useState("");
   const [schedulingNote, setSchedulingNote] = useState("");
   const [proposing, setProposing] = useState(false);
+
+  // Post-suggestion next steps flow
+  const [showNextSteps, setShowNextSteps] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -201,6 +204,7 @@ export default function RequestDetailPage() {
         setProposedDate("");
         setProposedTime("");
         setSchedulingNote("");
+        setShowNextSteps(true);
         fetchRequest();
       } else {
         showToast.error("Could not send your preferred time");
@@ -267,6 +271,15 @@ export default function RequestDetailPage() {
     }
   };
 
+  const toggleStep = (step: number) => {
+    setCompletedSteps(prev => {
+      const next = new Set(prev);
+      if (next.has(step)) next.delete(step);
+      else next.add(step);
+      return next;
+    });
+  };
+
   // Helper functions
   const formatProviderType = (type: string) => {
     return type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
@@ -321,9 +334,12 @@ export default function RequestDetailPage() {
   const tours = request.tourAppointments || [];
   const pendingTours = tours.filter(t => t.status === "PROPOSED" || t.status === "PENDING");
   const confirmedTour = tours.find(t => t.status === "ACCEPTED" || t.status === "CONFIRMED");
+  const hasSuggestedTime = tours.some(t => t.proposedBy === session?.user?.id);
 
   const engagementConfig = getEngagementConfigForProvider(request.provider.providerType);
   const requestLabel = getRequestLabel(request.provider.providerType);
+
+  const providerImage = request.provider.coverPhoto || (request.provider.photos && request.provider.photos[0]);
 
   const allMessages = [
     { id: "initial", senderId: request.sender.id, content: request.message, createdAt: request.createdAt },
@@ -335,7 +351,6 @@ export default function RequestDetailPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
 
-      {/* Breadcrumb */}
       <Breadcrumb
         items={[
           { label: "Home", href: "/" },
@@ -344,53 +359,53 @@ export default function RequestDetailPage() {
         ]}
       />
 
-      <main className="flex-grow max-w-2xl w-full mx-auto px-4 py-8">
+      <main className="flex-grow max-w-2xl w-full mx-auto px-4 py-8 space-y-6">
 
-        {/* ============================================ */}
-        {/* HERO: Status Banner + Provider Card          */}
-        {/* ============================================ */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
+        {/* ================================================ */}
+        {/* PROVIDER HERO CARD                               */}
+        {/* ================================================ */}
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
           {/* Status Banner */}
           {isPending && (
             <div className="bg-primary-50 px-6 py-4 flex items-center gap-3 border-b border-primary-100">
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-primary-900">{requestLabel.label} sent</p>
+                <p className="font-semibold text-primary-900 text-[15px]">{requestLabel.label} sent</p>
                 <p className="text-sm text-primary-700">
-                  {request.provider.name} will review and respond, usually within 1–2 days.
+                  They typically respond within 1–2 days.
                 </p>
               </div>
             </div>
           )}
           {isAccepted && !confirmedTour && (
             <div className="bg-green-50 px-6 py-4 flex items-center gap-3 border-b border-green-100">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-green-900">{request.provider.name} accepted</p>
+                <p className="font-semibold text-green-900 text-[15px]">{request.provider.name} accepted</p>
                 <p className="text-sm text-green-700">
-                  Now pick a time for your {requestLabel.noun}.
+                  Pick a time for your {requestLabel.noun}.
                 </p>
               </div>
             </div>
           )}
           {confirmedTour && (
             <div className="bg-primary-50 px-6 py-4 flex items-center gap-3 border-b border-primary-100">
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-primary-900">
-                  Your {requestLabel.noun} is confirmed
+                <p className="font-semibold text-primary-900 text-[15px]">
+                  {requestLabel.noun.charAt(0).toUpperCase() + requestLabel.noun.slice(1)} confirmed
                 </p>
                 <p className="text-sm text-primary-700">
                   {formatDate(confirmedTour.proposedDate)} at {formatTime(confirmedTour.proposedTime)}
@@ -400,15 +415,15 @@ export default function RequestDetailPage() {
           )}
           {isDeclined && (
             <div className="bg-gray-100 px-6 py-4 flex items-center gap-3 border-b border-gray-200">
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-gray-700">This request is no longer active</p>
+                <p className="font-semibold text-gray-700 text-[15px]">Request no longer active</p>
                 <p className="text-sm text-gray-500">
-                  Don&apos;t worry — there are other great options in your area.
+                  Other great options are available in your area.
                 </p>
               </div>
             </div>
@@ -417,25 +432,43 @@ export default function RequestDetailPage() {
           {/* Provider Info */}
           <div className="p-6">
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <span className="text-xl font-bold text-primary-700">
-                  {request.provider.name.charAt(0)}
-                </span>
-              </div>
+              {/* Provider Avatar — real image or fallback */}
+              {providerImage ? (
+                <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100">
+                  <Image
+                    src={providerImage}
+                    alt={request.provider.name}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span className="text-xl font-bold text-primary-700">
+                    {request.provider.name.charAt(0)}
+                  </span>
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <h1 className="text-xl font-bold text-gray-900 mb-0.5">
                   {request.provider.name}
                 </h1>
-                <p className="text-sm text-gray-500 mb-2">
+                <p className="text-sm text-gray-500 mb-3">
                   {formatProviderType(request.provider.providerType)} &middot; {request.provider.city}, {request.provider.state}
                 </p>
                 <div className="flex items-center gap-3 text-sm">
-                  <Link
+                  <a
                     href={`/providers/${request.provider.id}`}
-                    className="text-primary-600 hover:text-primary-700 font-medium"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 hover:text-primary-700 font-medium inline-flex items-center gap-1"
                   >
                     View Profile
-                  </Link>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
                   <span className="text-gray-300">&middot;</span>
                   <span className="text-gray-400">
                     Sent {formatRelativeDate(request.createdAt)}
@@ -446,167 +479,350 @@ export default function RequestDetailPage() {
           </div>
         </div>
 
-        {/* ============================================ */}
-        {/* PRIMARY ACTION: Suggest meeting times        */}
-        {/* Shows for PENDING sender — the key next step */}
-        {/* ============================================ */}
+        {/* ================================================ */}
+        {/* SUGGEST TIMES (pending sender)                   */}
+        {/* ================================================ */}
         {isPending && isSender && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-1">
-              Suggest times for your {requestLabel.noun}
-            </h2>
-            <p className="text-sm text-gray-500 mb-5">
-              While {request.provider.name} reviews your request, you can get ahead by sharing when you&apos;re available. This helps schedule faster.
-            </p>
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+            <div className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                Suggest a {requestLabel.noun} time
+              </h2>
+              <p className="text-[15px] text-gray-500 mb-5">
+                Share your availability so scheduling is faster once they respond.
+              </p>
 
-            {/* Pending proposals already sent */}
-            {pendingTours.length > 0 && (
-              <div className="mb-4 space-y-3">
-                {pendingTours.map((tour) => (
-                  <div key={tour.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {formatDate(tour.proposedDate)} at {formatTime(tour.proposedTime)}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {tour.proposedBy === session?.user?.id ? "Sent — waiting for response" : "Proposed by them"}
-                        </p>
-                      </div>
-                      {tour.proposedBy !== session?.user?.id && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleAcceptTour(tour.id)}
-                            className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800"
-                          >
-                            Accept
-                          </button>
-                          <button
-                            onClick={() => handleDeclineTour(tour.id)}
-                            className="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50"
-                          >
-                            Decline
-                          </button>
+              {/* Pending proposals already sent */}
+              {pendingTours.length > 0 && (
+                <div className="mb-5 space-y-3">
+                  {pendingTours.map((tour) => (
+                    <div key={tour.id} className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-900 text-[15px]">
+                            {formatDate(tour.proposedDate)} at {formatTime(tour.proposedTime)}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-0.5">
+                            {tour.proposedBy === session?.user?.id ? "Sent — waiting for response" : "Proposed by them"}
+                          </p>
                         </div>
-                      )}
+                        {tour.proposedBy !== session?.user?.id && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleAcceptTour(tour.id)}
+                              className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleDeclineTour(tour.id)}
+                              className="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50"
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Suggest a time form */}
+              {!showScheduler ? (
+                <button
+                  onClick={() => setShowScheduler(true)}
+                  className="w-full bg-primary-600 text-white py-3.5 rounded-xl font-semibold text-[15px] hover:bg-primary-700 transition-colors"
+                >
+                  Suggest a Time
+                </button>
+              ) : (
+                <form onSubmit={handleProposeTour} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Date</label>
+                      <input
+                        type="date"
+                        value={proposedDate}
+                        onChange={(e) => setProposedDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 text-base"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Time</label>
+                      <input
+                        type="time"
+                        value={proposedTime}
+                        onChange={(e) => setProposedTime(e.target.value)}
+                        className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 text-base"
+                        required
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Suggest a time form */}
-            {!showScheduler ? (
-              <button
-                onClick={() => setShowScheduler(true)}
-                className="w-full bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
-              >
-                Suggest a Time
-              </button>
-            ) : (
-              <form onSubmit={handleProposeTour} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Note (optional)
+                    </label>
                     <input
-                      type="date"
-                      value={proposedDate}
-                      onChange={(e) => setProposedDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
-                      required
+                      type="text"
+                      value={schedulingNote}
+                      onChange={(e) => setSchedulingNote(e.target.value)}
+                      placeholder="e.g., Mornings work best"
+                      className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 text-base"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
-                    <input
-                      type="time"
-                      value={proposedTime}
-                      onChange={(e) => setProposedTime(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
-                      required
-                    />
+                  <div className="flex gap-3">
+                    <button
+                      type="submit"
+                      disabled={proposing}
+                      className="flex-1 bg-primary-600 text-white py-3.5 rounded-xl font-semibold text-[15px] hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                    >
+                      {proposing ? "Sending..." : "Send Preferred Time"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowScheduler(false)}
+                      className="px-6 py-3.5 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Note (optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={schedulingNote}
-                    onChange={(e) => setSchedulingNote(e.target.value)}
-                    placeholder="e.g., Mornings work best for me"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="submit"
-                    disabled={proposing}
-                    className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
-                  >
-                    {proposing ? "Sending..." : "Send Preferred Time"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowScheduler(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
+                </form>
+              )}
+            </div>
 
-            {/* What to expect — inline, not collapsible */}
-            <div className="mt-5 pt-5 border-t border-gray-100">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">What happens next</h3>
-              <ol className="space-y-2">
+            {/* What happens next — clean timeline */}
+            <div className="border-t border-gray-100 px-6 py-5 bg-gray-50/50">
+              <p className="text-sm font-medium text-gray-600 mb-3">What happens next</p>
+              <div className="space-y-3">
                 {[
-                  { text: "Your request was sent", done: true },
-                  { text: `${request.provider.name} reviews it (1–2 days)`, done: false },
-                  { text: `You schedule your ${requestLabel.noun}`, done: false },
+                  { text: "Request sent", done: true },
+                  { text: "Provider reviews (1–2 days)", done: false },
+                  { text: `You confirm your ${requestLabel.noun}`, done: false },
                 ].map((step, i) => (
-                  <li key={i} className="flex items-center gap-2.5 text-sm">
+                  <div key={i} className="flex items-center gap-3">
                     {step.done ? (
-                      <div className="w-5 h-5 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
                     ) : (
-                      <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
-                        <span className="text-[10px] font-semibold text-gray-400">{i + 1}</span>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-semibold text-gray-400">{i + 1}</span>
                       </div>
                     )}
-                    <span className={step.done ? "text-gray-900" : "text-gray-500"}>{step.text}</span>
-                  </li>
+                    <span className={`text-[15px] ${step.done ? "text-gray-900 font-medium" : "text-gray-500"}`}>
+                      {step.text}
+                    </span>
+                  </div>
                 ))}
-              </ol>
+              </div>
             </div>
           </div>
         )}
 
-        {/* ============================================ */}
-        {/* ACCEPT/DECLINE (for pending recipients)      */}
-        {/* ============================================ */}
+        {/* ================================================ */}
+        {/* POST-SUGGESTION NEXT STEPS GUIDE                 */}
+        {/* Shows after user suggests a time                 */}
+        {/* ================================================ */}
+        {isPending && isSender && (hasSuggestedTime || showNextSteps) && (
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+            <div className="px-6 pt-6 pb-2">
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                While you wait, a few things to do
+              </h2>
+              <p className="text-[15px] text-gray-500">
+                These help your provider respond faster and make your {requestLabel.noun} more productive.
+              </p>
+            </div>
+
+            <div className="p-4 space-y-2">
+              {/* Step 1: Complete care profile */}
+              <button
+                onClick={() => toggleStep(1)}
+                className="w-full text-left"
+              >
+                <div className={`flex items-start gap-4 p-4 rounded-xl transition-colors ${
+                  completedSteps.has(1) ? "bg-green-50" : "bg-gray-50 hover:bg-gray-100"
+                }`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    completedSteps.has(1) ? "bg-green-600" : "border-2 border-gray-300"
+                  }`}>
+                    {completedSteps.has(1) ? (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="text-xs font-bold text-gray-400">1</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-[15px] ${completedSteps.has(1) ? "text-green-800" : "text-gray-900"}`}>
+                      Complete your care profile
+                    </p>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Providers respond faster when they can see your care needs and preferences upfront.
+                    </p>
+                    {!completedSteps.has(1) && (
+                      <Link
+                        href="/profile"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 mt-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Go to your profile
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              {/* Step 2: Send a message with questions */}
+              <button
+                onClick={() => toggleStep(2)}
+                className="w-full text-left"
+              >
+                <div className={`flex items-start gap-4 p-4 rounded-xl transition-colors ${
+                  completedSteps.has(2) ? "bg-green-50" : "bg-gray-50 hover:bg-gray-100"
+                }`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    completedSteps.has(2) ? "bg-green-600" : "border-2 border-gray-300"
+                  }`}>
+                    {completedSteps.has(2) ? (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="text-xs font-bold text-gray-400">2</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-[15px] ${completedSteps.has(2) ? "text-green-800" : "text-gray-900"}`}>
+                      Send your questions ahead of time
+                    </p>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Ask about care services, costs, availability, or anything on your mind.
+                    </p>
+                    {!completedSteps.has(2) && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMessages(true);
+                          setTimeout(() => {
+                            document.getElementById("message-input")?.focus();
+                          }, 200);
+                        }}
+                        className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 mt-2"
+                      >
+                        Open messages
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              {/* Step 3: Prepare for your visit */}
+              <button
+                onClick={() => toggleStep(3)}
+                className="w-full text-left"
+              >
+                <div className={`flex items-start gap-4 p-4 rounded-xl transition-colors ${
+                  completedSteps.has(3) ? "bg-green-50" : "bg-gray-50 hover:bg-gray-100"
+                }`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    completedSteps.has(3) ? "bg-green-600" : "border-2 border-gray-300"
+                  }`}>
+                    {completedSteps.has(3) ? (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="text-xs font-bold text-gray-400">3</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-[15px] ${completedSteps.has(3) ? "text-green-800" : "text-gray-900"}`}>
+                      Start preparing for your {requestLabel.noun}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Write down your top questions and bring a family member if you&apos;d like. Check your email for confirmation details.
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Step 4: Reach out to more providers */}
+              <button
+                onClick={() => toggleStep(4)}
+                className="w-full text-left"
+              >
+                <div className={`flex items-start gap-4 p-4 rounded-xl transition-colors ${
+                  completedSteps.has(4) ? "bg-green-50" : "bg-gray-50 hover:bg-gray-100"
+                }`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    completedSteps.has(4) ? "bg-green-600" : "border-2 border-gray-300"
+                  }`}>
+                    {completedSteps.has(4) ? (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="text-xs font-bold text-gray-400">4</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-[15px] ${completedSteps.has(4) ? "text-green-800" : "text-gray-900"}`}>
+                      Reach out to a few more providers
+                    </p>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Families who meet 3–5 providers feel more confident in their choice.
+                    </p>
+                    {!completedSteps.has(4) && (
+                      <Link
+                        href="/browse"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 mt-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Browse providers
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================ */}
+        {/* ACCEPT / DECLINE (for pending recipients)        */}
+        {/* ================================================ */}
         {isPending && !isSender && (
-          <div className="bg-white rounded-xl border-2 border-primary-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-2">Respond to this {requestLabel.noun} request</h2>
-            <p className="text-sm text-gray-500 mb-4">
+          <div className="bg-white rounded-2xl border-2 border-primary-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Respond to this request</h2>
+            <p className="text-[15px] text-gray-500 mb-5">
               Accept to share contact info and start scheduling.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => handleStatusUpdate("ACCEPTED")}
-                className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                className="flex-1 bg-primary-600 text-white py-3.5 rounded-xl font-semibold text-[15px] hover:bg-primary-700 transition-colors"
               >
                 Accept
               </button>
               <button
                 onClick={() => handleStatusUpdate("DECLINED")}
-                className="px-6 py-3 rounded-lg font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-6 py-3.5 rounded-xl font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Decline
               </button>
@@ -614,149 +830,153 @@ export default function RequestDetailPage() {
           </div>
         )}
 
-        {/* ============================================ */}
-        {/* SCHEDULE MEETING (accepted, no confirmed)    */}
-        {/* ============================================ */}
+        {/* ================================================ */}
+        {/* SCHEDULE MEETING (accepted, no confirmed)        */}
+        {/* ================================================ */}
         {(isAccepted || isCompleted) && !confirmedTour && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-1">
-              Pick a time for your {requestLabel.noun}
-            </h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Choose a date and time. {request.provider.name} will confirm.
-            </p>
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+            <div className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                Pick a time for your {requestLabel.noun}
+              </h2>
+              <p className="text-[15px] text-gray-500 mb-5">
+                Choose a date and time. {request.provider.name} will confirm.
+              </p>
 
-            {/* Pending tour proposals */}
-            {pendingTours.length > 0 && (
-              <div className="mb-4 space-y-3">
-                {pendingTours.map((tour) => (
-                  <div key={tour.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {formatDate(tour.proposedDate)} at {formatTime(tour.proposedTime)}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {tour.proposedBy === session?.user?.id ? "Sent — waiting for response" : "Proposed by them"}
-                        </p>
-                      </div>
-                      {tour.proposedBy !== session?.user?.id && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleAcceptTour(tour.id)}
-                            className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800"
-                          >
-                            Accept
-                          </button>
-                          <button
-                            onClick={() => handleDeclineTour(tour.id)}
-                            className="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50"
-                          >
-                            Decline
-                          </button>
+              {/* Pending tour proposals */}
+              {pendingTours.length > 0 && (
+                <div className="mb-5 space-y-3">
+                  {pendingTours.map((tour) => (
+                    <div key={tour.id} className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-900 text-[15px]">
+                            {formatDate(tour.proposedDate)} at {formatTime(tour.proposedTime)}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-0.5">
+                            {tour.proposedBy === session?.user?.id ? "Sent — waiting for response" : "Proposed by them"}
+                          </p>
                         </div>
-                      )}
+                        {tour.proposedBy !== session?.user?.id && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleAcceptTour(tour.id)}
+                              className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleDeclineTour(tour.id)}
+                              className="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50"
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Propose new time */}
+              {!showScheduler ? (
+                <button
+                  onClick={() => setShowScheduler(true)}
+                  className="w-full bg-primary-600 text-white py-3.5 rounded-xl font-semibold text-[15px] hover:bg-primary-700 transition-colors"
+                >
+                  Suggest a Time
+                </button>
+              ) : (
+                <form onSubmit={handleProposeTour} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Date</label>
+                      <input
+                        type="date"
+                        value={proposedDate}
+                        onChange={(e) => setProposedDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 text-base"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Time</label>
+                      <input
+                        type="time"
+                        value={proposedTime}
+                        onChange={(e) => setProposedTime(e.target.value)}
+                        className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 text-base"
+                        required
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Propose new time */}
-            {!showScheduler ? (
-              <button
-                onClick={() => setShowScheduler(true)}
-                className="w-full bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
-              >
-                Suggest a Time
-              </button>
-            ) : (
-              <form onSubmit={handleProposeTour} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Note (optional)</label>
                     <input
-                      type="date"
-                      value={proposedDate}
-                      onChange={(e) => setProposedDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
-                      required
+                      type="text"
+                      value={schedulingNote}
+                      onChange={(e) => setSchedulingNote(e.target.value)}
+                      placeholder="e.g., Mornings work best"
+                      className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 text-base"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
-                    <input
-                      type="time"
-                      value={proposedTime}
-                      onChange={(e) => setProposedTime(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
-                      required
-                    />
+                  <div className="flex gap-3">
+                    <button
+                      type="submit"
+                      disabled={proposing}
+                      className="flex-1 bg-primary-600 text-white py-3.5 rounded-xl font-semibold text-[15px] hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                    >
+                      {proposing ? "Sending..." : "Send Preferred Time"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowScheduler(false)}
+                      className="px-6 py-3.5 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Note (optional)</label>
-                  <input
-                    type="text"
-                    value={schedulingNote}
-                    onChange={(e) => setSchedulingNote(e.target.value)}
-                    placeholder="e.g., Mornings work best for me"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="submit"
-                    disabled={proposing}
-                    className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
-                  >
-                    {proposing ? "Sending..." : "Send Preferred Time"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowScheduler(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
+                </form>
+              )}
+            </div>
           </div>
         )}
 
-        {/* ============================================ */}
-        {/* CONFIRMED MEETING DETAILS                    */}
-        {/* ============================================ */}
+        {/* ================================================ */}
+        {/* CONFIRMED MEETING DETAILS                        */}
+        {/* ================================================ */}
         {confirmedTour && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-3">Your {requestLabel.noun} details</h2>
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Your {requestLabel.noun} details
+            </h2>
             <div className="flex items-center gap-3 mb-2">
-              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <p className="text-gray-900 font-medium">
+              <p className="text-gray-900 font-medium text-[15px]">
                 {formatDate(confirmedTour.proposedDate)} at {formatTime(confirmedTour.proposedTime)}
               </p>
             </div>
             {confirmedTour.notes && (
               <p className="text-sm text-gray-500 ml-8">{confirmedTour.notes}</p>
             )}
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">
-                Prepare a few questions to make the most of your time. It&apos;s okay to bring a family member.
+            <div className="mt-4 p-4 bg-primary-50 rounded-xl">
+              <p className="text-sm text-primary-800">
+                Write down a few questions beforehand. It&apos;s fine to bring a family member along.
               </p>
             </div>
           </div>
         )}
 
-        {/* ============================================ */}
-        {/* CONTACT INFO (once accepted)                 */}
-        {/* ============================================ */}
+        {/* ================================================ */}
+        {/* CONTACT INFO (once accepted)                     */}
+        {/* ================================================ */}
         {(isAccepted || isCompleted) && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-4">Contact Information</h2>
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact information</h2>
             <ContactInfoDisplay
               phone={request.provider.phone}
               email={request.provider.email}
@@ -771,22 +991,22 @@ export default function RequestDetailPage() {
           </div>
         )}
 
-        {/* ============================================ */}
-        {/* MESSAGES                                      */}
-        {/* ============================================ */}
+        {/* ================================================ */}
+        {/* MESSAGES                                          */}
+        {/* ================================================ */}
         {!isDeclined && (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
             <button
               onClick={() => setShowMessages(!showMessages)}
-              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+              className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <span className="font-medium text-gray-900">Messages</span>
+                <span className="font-semibold text-gray-900 text-[15px]">Messages</span>
                 {allMessages.length > 1 && (
-                  <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                  <span className="bg-primary-100 text-primary-700 text-xs font-semibold px-2 py-0.5 rounded-full">
                     {allMessages.length}
                   </span>
                 )}
@@ -811,12 +1031,12 @@ export default function RequestDetailPage() {
                         <div
                           className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                             isOwn
-                              ? "bg-gray-900 text-white rounded-br-md"
+                              ? "bg-primary-600 text-white rounded-br-md"
                               : "bg-white border border-gray-200 text-gray-900 rounded-bl-md"
                           }`}
                         >
                           <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                          <p className={`text-xs mt-1 ${isOwn ? "text-gray-400" : "text-gray-400"}`}>
+                          <p className={`text-xs mt-1 ${isOwn ? "text-primary-200" : "text-gray-400"}`}>
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
                           </p>
                         </div>
@@ -830,16 +1050,17 @@ export default function RequestDetailPage() {
                   <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-white">
                     <div className="flex gap-2">
                       <input
+                        id="message-input"
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Ask a question or add details..."
-                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
+                        placeholder="Ask a question..."
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
                       />
                       <button
                         type="submit"
                         disabled={sending || !newMessage.trim()}
-                        className="px-5 py-2.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                        className="px-5 py-3 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 transition-colors font-medium"
                       >
                         {sending ? "..." : "Send"}
                       </button>
@@ -851,18 +1072,18 @@ export default function RequestDetailPage() {
           </div>
         )}
 
-        {/* ============================================ */}
-        {/* BROWSE MORE — always last                    */}
-        {/* ============================================ */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 text-center">
-          <p className="text-sm text-gray-500 mb-3">
+        {/* ================================================ */}
+        {/* BROWSE MORE PROVIDERS                             */}
+        {/* ================================================ */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+          <p className="text-[15px] text-gray-600 mb-4">
             {isDeclined
-              ? "There are many great providers in your area."
+              ? "There are other great providers in your area."
               : "Most families meet with 3\u20135 providers before deciding."}
           </p>
           <Link
             href="/browse"
-            className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold text-[15px] rounded-xl transition-colors"
           >
             Browse More Providers
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
