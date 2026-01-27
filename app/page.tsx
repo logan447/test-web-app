@@ -570,7 +570,7 @@ export default function Home() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Book meetings directly</h3>
               <p className="text-base text-gray-600">
-                Schedule tours or calls with 2–3 providers to compare options and find the right fit.
+                Schedule tours or calls directly with providers to compare options.
               </p>
             </div>
 
@@ -636,7 +636,8 @@ export default function Home() {
               </div>
               <h3 className="text-white font-semibold mb-2">Hiring marketplace</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Facilities find staff. Caregivers find work.
+                Facilities and agencies find staff.
+                Local caregivers find work.
               </p>
             </div>
           </div>
