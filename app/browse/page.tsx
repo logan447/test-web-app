@@ -528,7 +528,7 @@ function BrowseContent() {
                 >
                   <div className="flex-1 min-w-0 flex items-center divide-x divide-gray-200">
                     <span className="px-4 py-2.5 text-sm truncate text-gray-900 flex-1">
-                      {location || <span className="text-gray-500">Enter city</span>}
+                      {location || <span className="text-gray-900">Enter city</span>}
                     </span>
                     <span className="hidden md:block px-4 py-2.5 text-sm truncate text-gray-700 flex-1">
                       {PROVIDER_TYPE_OPTIONS.find(o => o.value === filterValues.providerType)?.label || "Any type"}
@@ -547,7 +547,7 @@ function BrowseContent() {
                 {/* Filters pill — only visible in collapsed state */}
                 <button
                   onClick={() => setFilterModalOpen(true)}
-                  className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-colors shrink-0 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 border rounded-2xl text-sm font-medium transition-colors shrink-0 ${
                     advancedFilterCount > 0
                       ? "border-primary-500 bg-primary-50 text-primary-700"
                       : "border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -571,7 +571,7 @@ function BrowseContent() {
               {/* Become a provider + Hamburger pill */}
               <Link
                 href="/for-providers"
-                className="hidden md:block text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors shrink-0"
+                className="hidden md:block text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors shrink-0"
               >
                 Become a provider
               </Link>
