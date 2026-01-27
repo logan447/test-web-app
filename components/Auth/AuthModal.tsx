@@ -261,7 +261,7 @@ export default function AuthModal({ isOpen, onClose, defaultView = "signup", int
                 {/* Logo */}
                 <div className="flex justify-center mb-6">
                   <Image
-                    src="/bird-logo.svg"
+                    src="/olera-logo.jpg"
                     alt="Olera"
                     width={48}
                     height={48}

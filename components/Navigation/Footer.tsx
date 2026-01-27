@@ -51,7 +51,7 @@ export default function Footer({ variant = "light", showNewsletter = false }: Fo
           <div className="col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <Image
-                src="/bird-logo.svg"
+                src="/olera-logo.jpg"
                 alt="Olera"
                 width={32}
                 height={32}

@@ -401,7 +401,7 @@ function BrowseContent() {
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2 shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/bird-logo.svg" alt="" className="w-7 h-7" aria-hidden="true" />
+                <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
 
@@ -513,7 +513,7 @@ function BrowseContent() {
               {/* Logo — left */}
               <Link href="/" className="flex items-center gap-2 shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/bird-logo.svg" alt="" className="w-7 h-7" aria-hidden="true" />
+                <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
 

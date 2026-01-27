@@ -223,7 +223,7 @@ function MainNavContent({ hidden }: MainNavContentProps) {
           <div className="flex items-center shrink-0">
             <Link href="/" className="flex items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/bird-logo.svg" alt="" className="w-8 h-8" aria-hidden="true" />
+              <img src="/olera-logo.jpg" alt="" className="w-8 h-8" aria-hidden="true" />
               <span className="text-2xl font-bold text-gray-900">Olera</span>
             </Link>
           </div>
