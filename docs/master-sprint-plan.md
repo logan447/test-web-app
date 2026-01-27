@@ -1,6 +1,6 @@
 # Olera Platform — Master Sprint Plan
 
-> **Version**: 1.5 — Sprint 8 Complete
+> **Version**: 1.6 — Sprint 10 In Progress
 > **Last Updated**: January 27, 2026
 > **Purpose**: Execution-focused roadmap translating the Master Platform Manual into clear build tasks and sprint sequences.
 

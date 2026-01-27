@@ -2005,11 +2005,253 @@ Rollover (if any):
 - Focus: Browse organizations, apply flow, my opportunities
 - **Expanded**: Pattern consistency, route consolidation, mobile optimization
 
-**Sprint 10: Hiring Marketplace (Organization Side)**
-- Type: Deep Sprint
-- G-6 (Hire Staff Request GASH)
-- G-7 (My Candidates GASH)
-- A-202 through A-221
+---
+
+## Sprint 10 — A+ Polish + Communications + Demo Readiness
+
+**Date**: January 27, 2026
+**Status**: In Progress
+**Type**: Deep Sprint (Multi-Phase)
+**Theme**: "Calm, Complete, Confident" — Every flow finished, every notification centralized, every demo scenario exercised
+
+### Guiding Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Less is more** | Calm, focused, non-overwhelming UI |
+| **Restrained color** | No visual noise |
+| **Single source of truth** | Notifications in the bell, not scattered |
+| **No dead ends** | Every journey completes |
+| **No empty states in demo** | Sufficient data for every scenario |
+
+### Cross-Platform Impact Framework
+
+For **every change** in Sprint 10, verify:
+
+| Check | Question |
+|-------|----------|
+| **Shared Components** | Does this pattern exist elsewhere? Update all instances. |
+| **API Contracts** | Does this change response shapes? Update all consumers. |
+| **Navigation/Routing** | Does this affect redirects, breadcrumbs, or back links? |
+| **Terminology** | Is the language consistent with other similar pages? |
+| **Mobile** | Does this work on 375px viewport? |
+| **Error States** | What happens if this fails? Is there recovery? |
+| **Empty States** | What if there's no data? Is there a helpful CTA? |
+
+---
+
+### Phase 0: Critical Path Fixes
+**Focus**: Remove blockers before any polish
+
+| Task | Issue | Resolution | Status |
+|------|-------|------------|--------|
+| **0.1** | `/forgot-password` missing | Create password reset flow | Open |
+| **0.2** | `/dashboard` missing | Mode-aware redirect | Open |
+| **0.3** | Double-redirects | Fix caregiver flow blank screens | Open |
+| **0.4** | Component duplication | Consolidate EmptyState, Skeleton | Open |
+
+---
+
+### Phase 1: Notification Bell Consolidation
+**Focus**: Single, reliable source of truth for all activity
+
+| Task | Description | Status |
+|------|-------------|--------|
+| **1.1** | Audit current notification locations | Open |
+| **1.2** | Design bell dropdown (icon + title + time + unread) | Open |
+| **1.3** | Centralize all notification types | Open |
+| **1.4** | Red indicator badge with unread count | Open |
+| **1.5** | "Mark all as read" action | Open |
+| **1.6** | Click-through to source page | Open |
+
+**Cross-Platform Impact**:
+- MainNav component updated
+- Remove scattered notification indicators from other pages
+- API endpoint for fetching/marking notifications
+
+---
+
+### Phase 2: Meeting/Scheduling System Completion
+**Focus**: Universal scheduling for tours, interviews, AND consultations
+
+| Task | Description | Status |
+|------|-------------|--------|
+| **2.1** | Audit meeting types (TOUR, INTERVIEW, CONSULTATION) | Open |
+| **2.2** | Context-aware meeting proposal labels | Open |
+| **2.3** | Meeting confirmation state with date/time/location | Open |
+| **2.4** | Add to Calendar button after confirmation | Open |
+| **2.5** | Meeting completion action (after date passes) | Open |
+| **2.6** | Reschedule flow (propose new time) | Open |
+| **2.7** | Location/video field for venue or video call | Open |
+
+**Terminology**:
+- Family→Provider: "Tour" or "Consultation"
+- Caregiver→Org: "Interview"
+- All use same `ScheduledEvent` model
+
+---
+
+### Phase 3: Systematic Page-by-Page Audit
+**Focus**: Every page meets A+ standard
+
+#### Audit Checklist (Per Page)
+
+| Criterion | Question |
+|-----------|----------|
+| **Purpose** | Is it immediately clear what this page is for? |
+| **Next Action** | Is there an obvious primary CTA? |
+| **Loading** | Does it show a calm skeleton while loading? |
+| **Empty** | If no data, is there a helpful message + action? |
+| **Error** | If something fails, can the user recover? |
+| **Navigation** | Can user easily go back or forward? |
+| **Mobile** | Does it work on 375px without horizontal scroll? |
+| **Color** | Is color restrained? No overwhelming visual noise? |
+
+#### Pages to Audit
+
+**Core Family Journey**:
+- [ ] `/` — Homepage/Browse
+- [ ] `/providers/[id]` — Provider detail
+- [ ] `/care-profile` — Family profile summary
+- [ ] `/requests` — Engagement list
+- [ ] `/requests/[id]` — Engagement detail + messaging + scheduling
+- [ ] `/saved` — Saved providers
+
+**Core Provider Journey**:
+- [ ] `/provider/leads` — Family inquiries
+- [ ] `/provider/leads/[id]` — Family detail + respond
+- [ ] `/provider/profile` — Provider profile summary
+- [ ] `/provider/requests` — Engagement list (provider side)
+
+**Caregiver Hiring Journey**:
+- [ ] `/providers/browse-organizations` — Find organizations
+- [ ] `/providers/browse-organizations/[id]` — Organization detail + apply
+- [ ] `/provider/opportunities` — Application tracking
+
+**Organization Hiring Journey**:
+- [ ] `/provider/hire-staff` — Find caregivers
+- [ ] `/provider/hire-staff/[id]` — Caregiver detail + contact
+- [ ] `/provider/candidates` — Hiring conversations
+
+---
+
+### Phase 4: Demo Data & Scenario Validation
+**Focus**: Every demo scenario has sufficient, realistic data
+
+#### Demo Personas
+
+| Persona | Purpose | Pre-populated State |
+|---------|---------|---------------------|
+| **Sarah (Family)** | New user | Just signed up, empty state |
+| **Michael (Family)** | Active searcher | 3 saved, 1 pending request |
+| **Linda (Family)** | Engaged user | Active conversation, tour scheduled |
+| **Sunrise Care (Facility)** | Busy provider | 5+ inquiries, tours, reviews |
+| **HomeHelpers (Agency)** | New provider | Just completed profile |
+| **Maria (Caregiver)** | Job seeker | 2 applications pending |
+| **CareStaff Inc (Org)** | Hiring org | 3 candidates in pipeline |
+
+#### Data Requirements
+
+| Entity | Count | Notes |
+|--------|-------|-------|
+| Providers | 25+ | Mix of facilities, agencies, caregivers |
+| Families | 12+ | Varied care needs and locations |
+| Engagements | 15+ | PENDING, ACCEPTED, COMPLETED states |
+| Scheduled Meetings | 8+ | Tours, interviews, consultations |
+| Messages | 40+ | Realistic conversation threads |
+| Reviews | 20+ | 3-5 stars, authentic-sounding |
+| Notifications | 10+ | Unread items for bell indicator |
+
+#### Demo Walkthrough Document
+
+Create `docs/demo-walkthrough.md`:
+1. Persona login credentials
+2. Family Journey walkthrough (step-by-step)
+3. Provider Journey walkthrough
+4. Caregiver Hiring walkthrough
+5. Organization Hiring walkthrough
+6. Key features to highlight
+7. Known limitations
+
+**Use as Audit Tool**: Walk through each step as new user, note confusion points.
+
+---
+
+### Phase 5: Communications (Email Notifications)
+**Focus**: Professional emails for key events
+
+| Email | Trigger | Status |
+|-------|---------|--------|
+| **Welcome** | Signup | Open |
+| **New Request** | Family contacts provider | Open |
+| **Request Accepted** | Provider accepts | Open |
+| **Meeting Scheduled** | Meeting confirmed | Open |
+| **Meeting Reminder** | 24h before | Open |
+
+**Technical Setup**:
+- Resend integration
+- React Email templates (clean, minimal)
+- Notification preferences in Settings
+
+---
+
+### Phase 6: Reviews System (If Time Permits)
+**Focus**: Trust signal through social proof
+
+| Task | Description | Status |
+|------|-------------|--------|
+| **6.1** | Write review flow (COMPLETED engagements) | Open |
+| **6.2** | Display reviews on provider detail | Open |
+| **6.3** | Star ratings on cards (subtle) | Open |
+| **6.4** | Provider response to reviews | Open |
+
+**Note**: Lower priority than Phases 0-5.
+
+---
+
+### Definition of Done — Sprint 10
+
+| Category | Criterion |
+|----------|-----------|
+| **No Dead Ends** | Every page has clear next action |
+| **Notifications Centralized** | Bell is single source of truth |
+| **Meetings Complete** | Tours, interviews, consultations all work |
+| **Demo Ready** | All personas have data, walkthrough complete |
+| **Emails Sending** | Welcome + engagement emails work |
+| **UI Calm** | Restrained color, focused layouts |
+| **Mobile Works** | Core flows tested on 375px |
+| **Build Passes** | `npm run build` with no errors |
+
+---
+
+### What We're NOT Doing
+
+| Item | Reason |
+|------|--------|
+| AI/Smart matching | Basic matching sufficient |
+| Real-time messaging | Polling works fine |
+| Video call integration | External link sufficient |
+| Complex admin dashboard | Not demo-critical |
+| SMS notifications | Email sufficient |
+| Elaborate animations | Calm UI doesn't need them |
+
+---
+
+### Execution Order
+
+```
+Phase 0 (Critical Fixes)
+    ↓
+Phase 1 (Notification Bell)
+    ↓
+Phase 2 (Meeting System)
+    ↓
+Phase 3 (Page Audit) ←→ Phase 4 (Demo Data)
+    ↓
+Phase 5 (Email Notifications)
+    ↓
+Phase 6 (Reviews) — if time permits
+```
 
 ---
 
