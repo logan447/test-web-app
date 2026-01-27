@@ -89,18 +89,18 @@ export default function RequestsPage() {
 
       if (response.ok) {
         fetchRequests();
-        showToast.success("Request updated successfully.");
+        showToast.success("Meeting updated successfully.");
       } else {
-        showToast.error("Unable to update request. Please try again.");
+        showToast.error("Unable to update. Please try again.");
       }
     } catch (err) {
       console.error("Error updating request:", err);
-      showToast.error("Unable to update request. Please try again.");
+      showToast.error("Unable to update. Please try again.");
     }
   };
 
   const handleDelete = async (requestId: string) => {
-    if (!confirm('Are you sure you want to delete this request? This will notify the other party that the request was declined.')) {
+    if (!confirm('Are you sure you want to cancel this meeting? This will notify the other party.')) {
       return;
     }
 
@@ -112,14 +112,14 @@ export default function RequestsPage() {
       });
 
       if (!response.ok) {
-        showToast.error("Unable to delete request. Please try again.");
+        showToast.error("Unable to cancel meeting. Please try again.");
         fetchRequests();
       } else {
-        showToast.success("Request removed.");
+        showToast.success("Meeting cancelled.");
       }
     } catch (err) {
       console.error("Error deleting request:", err);
-      showToast.error("Unable to delete request. Please try again.");
+      showToast.error("Unable to cancel meeting. Please try again.");
       fetchRequests();
     }
   };
@@ -208,7 +208,7 @@ export default function RequestsPage() {
 
       {/* Hero Header */}
       <PageHero
-        title="Messages & Requests"
+        title="Messages & Meetings"
         subtitle="Manage your provider connections"
         compact
         stats={[
@@ -224,7 +224,7 @@ export default function RequestsPage() {
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            New Request
+            Schedule Meeting
           </Link>
         }
       />
@@ -244,7 +244,7 @@ export default function RequestsPage() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-              Your Requests
+              Your Meetings
             </span>
           </button>
           <button
@@ -267,9 +267,9 @@ export default function RequestsPage() {
         {requests.length === 0 ? (
           <EmptyState
             variant="requests"
-            title={activeTab === "sent" ? "No requests sent yet" : "No provider outreach yet"}
+            title={activeTab === "sent" ? "No meetings scheduled yet" : "No provider outreach yet"}
             description={activeTab === "sent"
-              ? "Browse providers and send an engagement request to get started."
+              ? "Browse providers and schedule a meeting to get started."
               : "Providers you've connected with will appear here when they reach out."
             }
             size="large"

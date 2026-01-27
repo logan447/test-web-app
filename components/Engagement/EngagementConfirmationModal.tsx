@@ -51,7 +51,7 @@ export default function EngagementConfirmationModal({
         return "caregiver interview";
       case "consultation":
       default:
-        return "consultation request";
+        return "consultation";
     }
   };
 
@@ -143,7 +143,7 @@ export default function EngagementConfirmationModal({
               </svg>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Confirm Your Request</h2>
+              <h2 className="text-xl font-bold text-gray-900">Confirm Your Meeting</h2>
               <p className="text-sm text-primary-700">Review what will be shared with {providerName}</p>
             </div>
           </div>
@@ -271,7 +271,7 @@ export default function EngagementConfirmationModal({
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
-                  Send Request
+                  Schedule Meeting
                 </>
               )}
             </button>

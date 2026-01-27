@@ -76,7 +76,7 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
   CONSULTATION: {
     type: "CONSULTATION",
     label: "Consultation",
-    actionLabel: "Request a Consultation",
+    actionLabel: "Schedule a Consultation",
     scheduleLabel: "Schedule Consultation",
     proposalLabel: "Consultation Invitation",
     completedLabel: "Consultation Completed",

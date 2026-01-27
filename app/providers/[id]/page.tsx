@@ -248,7 +248,7 @@ export default function ProviderDetailPage() {
 
       if (response.ok) {
         const engagement = await response.json();
-        showToast.success('Request sent successfully!');
+        showToast.success('Meeting scheduled! Check your meetings page for details.');
         router.push(`/requests/${engagement.id}`);
       } else {
         throw new Error('Failed to send request');

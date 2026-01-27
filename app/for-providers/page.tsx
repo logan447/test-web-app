@@ -247,10 +247,10 @@ function ForProvidersContent() {
                   </div>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  Browse care requests
+                  Browse families seeking care
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  View profiles of families seeking care in your area and their specific needs.
+                  View profiles of families in your area and understand their specific care needs.
                 </p>
               </div>
 
@@ -269,7 +269,7 @@ function ForProvidersContent() {
                   Connect & grow
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Send consultation requests and connect with families interested in your services.
+                  Schedule consultations and connect with families interested in your services.
                 </p>
               </div>
             </div>
@@ -469,10 +469,10 @@ function ForProvidersContent() {
                 </svg>
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Lead management
+                Meeting management
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Track consultation requests and manage your leads in one place.
+                Track scheduled meetings and manage your consultations in one place.
               </p>
             </div>
 
@@ -483,10 +483,10 @@ function ForProvidersContent() {
                 </svg>
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Save care requests
+                Save family profiles
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Save interesting family profiles to review and reach out later.
+                Save interesting families to review and schedule meetings later.
               </p>
             </div>
           </div>

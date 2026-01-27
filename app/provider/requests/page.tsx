@@ -113,11 +113,11 @@ export default function ProviderRequestsPage() {
         // Filter out DECLINED requests so deleted requests don't reappear
         setRequests(data.filter((req: ConsultRequest) => req.status !== "DECLINED"));
       } else {
-        showToast.error("Unable to load requests");
+        showToast.error("Unable to load conversations");
       }
     } catch (err) {
       console.error("Error fetching requests:", err);
-      showToast.error("Unable to load requests");
+      showToast.error("Unable to load conversations");
     } finally {
       setLoading(false);
     }
@@ -151,16 +151,16 @@ export default function ProviderRequestsPage() {
       if (response.ok) {
         fetchRequests();
       } else {
-        showToast.error("Failed to update request");
+        showToast.error("Failed to update. Please try again.");
       }
     } catch (err) {
       console.error("Error updating request:", err);
-      showToast.error("Failed to update request");
+      showToast.error("Failed to update. Please try again.");
     }
   };
 
   const handleDelete = async (requestId: string) => {
-    if (!confirm('Are you sure you want to delete this request? This will notify the other party that the request was declined.')) {
+    if (!confirm('Are you sure you want to remove this conversation? This will notify the other party.')) {
       return;
     }
 
@@ -173,13 +173,13 @@ export default function ProviderRequestsPage() {
       });
 
       if (!response.ok) {
-        showToast.error("Failed to delete request");
+        showToast.error("Failed to remove. Please try again.");
         // If delete failed, refetch to restore state
         fetchRequests();
       }
     } catch (err) {
       console.error("Error deleting request:", err);
-      showToast.error("Failed to delete request");
+      showToast.error("Failed to remove. Please try again.");
       // Refetch to restore state on error
       fetchRequests();
     }
@@ -218,14 +218,14 @@ export default function ProviderRequestsPage() {
     switch (status) {
       case "PENDING":
         if (activeTab === "received") {
-          return "This request is awaiting your response. Accept or decline to continue.";
+          return "Awaiting your response. Accept or decline to continue.";
         } else {
           return "Waiting for the family to respond to your outreach.";
         }
       case "ACCEPTED":
-        return "Request accepted! Contact information is now unlocked. Continue the conversation in messages.";
+        return "Connected! Contact information is now unlocked. Continue the conversation in messages.";
       case "DECLINED":
-        return "This request was declined. No further action is needed.";
+        return "Declined. No further action is needed.";
       case "COMPLETED":
         return "This engagement has been marked as completed.";
       default:
@@ -504,7 +504,7 @@ export default function ProviderRequestsPage() {
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
                   {activeTab === "received"
                     ? needsOnboarding
-                      ? "Complete your provider profile to appear in family searches and start receiving care requests."
+                      ? "Complete your provider profile to appear in family searches and start connecting with families."
                       : "Make sure your profile is complete and up-to-date so families can find you. New families join every day!"
                     : "Browse family inquiries to find families who need your care services. Reach out to start a conversation."}
                 </p>

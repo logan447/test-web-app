@@ -421,11 +421,11 @@ Status: [ ] TODO / [x] FIXED / [~] DEFERRED
 
 | Sprint | Flows | Est. Pages | Status | Findings | Fixed |
 |--------|-------|------------|--------|----------|-------|
-| A | 4 | 8-10 | [ ] Not Started | 0 | 0 |
-| B | 6 | 12-15 | [ ] Not Started | 0 | 0 |
-| C | 3 | 5-7 | [ ] Not Started | 0 | 0 |
-| D | 8 | 15-18 | [ ] Not Started | 0 | 0 |
-| E | 5 | 10-12 | [ ] Not Started | 0 | 0 |
+| A | 4 | 8-10 | [x] Completed | 6 | 6 |
+| B | 6 | 12-15 | [x] Completed | 8 | 8 |
+| C | 3 | 5-7 | [x] Completed | 0 | 0 |
+| D | 8 | 15-18 | [x] Completed | 4 | 4 |
+| E | 5 | 10-12 | [x] Completed | 0 | 0 |
 | F | 6 | 8-10 | [ ] Not Started | 0 | 0 |
 | G | 4 | 5-7 | [ ] Not Started | 0 | 0 |
 | H | 7 | 8-10 | [ ] Not Started | 0 | 0 |
@@ -440,29 +440,255 @@ Status: [ ] TODO / [x] FIXED / [~] DEFERRED
 ## Findings Log
 
 ### Sprint A Findings
+
+**Flow A1: Browse Providers (No Account)**
+
 ```
-(To be populated during audit)
+[MEDIUM] Page: /providers/[id]
+Flow: A1 - Browse Providers
+Issue: Toast message used "request" terminology - "Request sent successfully!"
+Impact: Inconsistent with meeting-first language model
+Recommendation: Changed to "Meeting scheduled! Check your meetings page for details."
+Status: [x] FIXED
 ```
+
+```
+[HIGH] File: lib/engagementUtils.ts
+Flow: A1 - Browse Providers (affects all provider CTAs)
+Issue: CONSULTATION actionLabel was "Request a Consultation" instead of "Schedule a Consultation"
+Impact: Inconsistent meeting-first terminology on home care provider CTAs
+Recommendation: Changed to "Schedule a Consultation" for consistency
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /for-providers
+Flow: A3 - Provider Sign Up
+Issue: Section heading "Browse care requests" uses request terminology
+Impact: Inconsistent with platform positioning
+Recommendation: Changed to "Browse families seeking care"
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /for-providers
+Flow: A3 - Provider Sign Up
+Issue: "Send consultation requests" uses request terminology
+Impact: Inconsistent with meeting-first language model
+Recommendation: Changed to "Schedule consultations"
+Status: [x] FIXED
+```
+
+```
+[LOW] Page: /for-providers
+Flow: A3 - Provider Sign Up
+Issue: "Lead management" and "Track consultation requests" terminology
+Impact: Minor inconsistency
+Recommendation: Changed to "Meeting management" and "Track scheduled meetings"
+Status: [x] FIXED
+```
+
+```
+[LOW] Page: /for-providers
+Flow: A3 - Provider Sign Up
+Issue: "Save care requests" feature label
+Impact: Minor inconsistency
+Recommendation: Changed to "Save family profiles"
+Status: [x] FIXED
+```
+
+**Flow A2: Sign Up (Family Intent)** - No issues found
+- UI consistency: PASS
+- UX guidance: PASS
+- Copy language: PASS
+- Technical correctness: PASS
+
+**Flow A3: Sign Up (Provider Intent)** - Issues fixed above
+
+**Flow A4: Login** - No issues found
+- UI consistency: PASS
+- UX guidance: PASS
+- Copy language: PASS
+- Technical correctness: PASS
+
+**Components Audited:**
+- GlobalOnboardingOverlay: PASS - Intent-aware, handles pending actions correctly
+- AuthModal: PASS - Clean flow, proper redirects
 
 ### Sprint B Findings
+
+**Flow F1: Complete Care Profile** - No issues found
+- Care profile edit page uses correct terminology throughout
+- Profile completion flow is clear and accessible
+
+**Flow F2-F4: Search and Engage Provider**
+
 ```
-(To be populated during audit)
+[MEDIUM] Page: /care-profile
+Flow: F1 - Care Profile Dashboard
+Issue: Link text "View all requests" instead of "View all meetings"
+Impact: Inconsistent with meeting-first language model
+Recommendation: Changed to "View all meetings"
+Status: [x] FIXED
 ```
+
+```
+[HIGH] Page: /requests
+Flow: F5 - Manage Requests
+Issue: Page title was "Messages & Requests" with multiple "request" references
+Impact: Major inconsistency with meeting-first language model
+Recommendation: Changed title to "Messages & Meetings", updated all related copy
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /requests
+Flow: F5 - Manage Requests
+Issue: Toast messages used "request" terminology ("Request updated successfully", "Request removed")
+Impact: Inconsistent with meeting-first language model
+Recommendation: Changed to meeting-first language
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /requests
+Flow: F5 - Manage Requests
+Issue: Tab label "Your Requests" and empty state text referenced "requests"
+Impact: Inconsistent with meeting-first language model
+Recommendation: Changed to "Your Meetings" and updated empty state
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /requests/[id]
+Flow: F6 - View Provider Detail
+Issue: Multiple "request" terminology instances including "Accept Request" button
+Impact: Inconsistent with meeting-first language model
+Recommendation: Changed "Accept Request" to "Confirm Meeting", updated related copy
+Status: [x] FIXED
+```
+
+```
+[HIGH] Component: EngagementConfirmationModal
+Flow: F2-F4 - Engagement Flows
+Issue: Modal title "Confirm Your Request" and button "Send Request"
+Impact: Major inconsistency at critical engagement touchpoint
+Recommendation: Changed to "Confirm Your Meeting" and "Schedule Meeting"
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Component: EngagementConfirmationModal
+Flow: F2-F4 - Engagement Flows
+Issue: getEngagementLabel() returned "consultation request" instead of "consultation"
+Impact: Inconsistent terminology in privacy notice
+Recommendation: Changed to return just "consultation"
+Status: [x] FIXED
+```
+
+**Flow F5: Manage Saved Providers** - No issues found
+- Uses appropriate terminology ("Contacted", "Saved")
+- Compare functionality works correctly
+
+**Flow F6: View and Respond to Provider Outreach** - Issues fixed above
+
+**Components Audited:**
+- EngagementConfirmationModal: FIXED - Updated to meeting terminology
+- SavedProviderCard: PASS - Uses correct terminology
+- ComparisonTable: PASS - Uses correct terminology
 
 ### Sprint C Findings
-```
-(To be populated during audit)
-```
+
+**Flow F7: View Recommendations/Matches** - No issues found
+- Uses appropriate terminology ("Active Connections", "Matches")
+- Empty states have actionable CTAs
+- 65+ friendly with clear guidance nudge
+
+**Flow F8: Write Review (Two-Way System)** - No issues found
+- ReviewModal has all required fields
+- Clear star rating interface
+- Proper validation and error handling
+
+**Flow F9: Switch to Provider Mode** - No issues found
+- Mode switch logic handles all profile states correctly
+- Redirects appropriately based on provider profile status
+- Success toast uses clear language
+
+**Components Audited:**
+- ReviewModal: PASS - Clean, accessible form
+- MainNav mode switch: PASS - Handles edge cases correctly
 
 ### Sprint D Findings
+
+**Flow PO1-PO2: Provider Profile & Claim** - No issues found
+- Dashboard uses appropriate terminology
+- Profile completion indicators clear
+
+**Flow PO3: Browse and Respond to Family Leads** - No issues found
+- Uses "Family Inquiries" and "Conversations" terminology
+- Clear empty states with actionable CTAs
+
+**Flow PO4-PO5: Hire Staff & Manage Candidates** - No issues found
+- Hiring pipeline uses clear terminology
+- Candidate statuses clear (Applied, Active, Hired)
+
+**Flow PO6: Manage Active Meetings (Provider Requests)**
+
 ```
-(To be populated during audit)
+[MEDIUM] Page: /provider/requests
+Flow: PO6 - Provider Conversations
+Issue: Toast messages used "request" terminology ("Unable to load requests", "Failed to update request")
+Impact: Inconsistent with meeting-first language model
+Recommendation: Changed to "Unable to load conversations", "Failed to update"
+Status: [x] FIXED
 ```
 
+```
+[MEDIUM] Page: /provider/requests
+Flow: PO6 - Provider Conversations
+Issue: Delete confirmation used request terminology
+Impact: Inconsistent language
+Recommendation: Changed to "remove this conversation"
+Status: [x] FIXED
+```
+
+```
+[LOW] Page: /provider/requests
+Flow: PO6 - Provider Conversations
+Issue: Tooltip text mentioned "Request accepted!"
+Impact: Minor inconsistency
+Recommendation: Changed to "Connected!"
+Status: [x] FIXED
+```
+
+```
+[LOW] Page: /provider/requests
+Flow: PO6 - Provider Conversations
+Issue: Empty state text mentioned "receiving care requests"
+Impact: Minor inconsistency with meeting-first model
+Recommendation: Changed to "connecting with families"
+Status: [x] FIXED
+```
+
+**Flow PO7-PO8: Review Family** - Part of two-way review system (audited in Sprint C)
+
 ### Sprint E Findings
-```
-(To be populated during audit)
-```
+
+**Flow PC1: Complete Caregiver Profile** - No issues found
+- Profile edit shows caregiver-specific fields correctly
+- Uses appropriate terminology
+
+**Flow PC2-PC3: Browse Families/Organizations** - No issues found
+- Terminology is clear and appropriate ("Organizations Reaching Out", "Your Applications")
+- Empty states have actionable CTAs
+
+**Flow PC4-PC5: Interview Requests & Opportunities** - No issues found
+- Opportunities page uses clear terminology
+- Job-seeker language is appropriate for caregiver context
+
+**Components Audited:**
+- OpportunitiesPage: PASS - Uses appropriate job-seeker terminology
+- CaregiverCard: PASS - Clean, consistent layout
 
 ### Sprint F Findings
 ```
@@ -501,12 +727,12 @@ Status: [ ] TODO / [x] FIXED / [~] DEFERRED
 | Metric | Count |
 |--------|-------|
 | Total Critical findings | 0 |
-| Total High findings | 0 |
-| Total Medium findings | 0 |
-| Total Low findings | 0 |
-| Fixed immediately | 0 |
+| Total High findings | 3 |
+| Total Medium findings | 10 |
+| Total Low findings | 4 |
+| Fixed immediately | 18 |
 | Deferred | 0 |
-| Sprints completed | 0/11 |
+| Sprints completed | 5/11 |
 
 ---
 

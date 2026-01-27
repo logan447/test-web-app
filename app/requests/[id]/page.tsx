@@ -112,7 +112,7 @@ export default function RequestDetailPage() {
 
       if (response.ok) {
         fetchRequest();
-        showToast.success(newStatus === "ACCEPTED" ? "Connected!" : "Request declined");
+        showToast.success(newStatus === "ACCEPTED" ? "Connected!" : "Meeting declined");
       } else {
         const data = await response.json();
         if (data.requiresUpgrade) {
@@ -363,7 +363,7 @@ export default function RequestDetailPage() {
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
-              <span className="text-sm font-medium">Request declined</span>
+              <span className="text-sm font-medium">Meeting declined</span>
             </div>
           )}
 
@@ -398,7 +398,7 @@ export default function RequestDetailPage() {
             <ol className="space-y-2 text-sm text-primary-800">
               <li className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary-200 text-primary-700 flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                <span>{request.provider.name} reviews your request</span>
+                <span>{request.provider.name} reviews your meeting request</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary-200 text-primary-700 flex items-center justify-center text-xs font-bold shrink-0">2</span>
@@ -417,16 +417,16 @@ export default function RequestDetailPage() {
         {/* ============================================ */}
         {isPending && !isSender && (
           <div className="bg-white rounded-xl border-2 border-amber-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-2">Respond to this request</h2>
+            <h2 className="font-semibold text-gray-900 mb-2">Confirm this meeting</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Accept to share contact information and schedule a meeting.
+              Confirm to share contact information and finalize scheduling.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => handleStatusUpdate("ACCEPTED")}
                 className="flex-1 bg-primary-600 text-white py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
               >
-                Accept Request
+                Confirm Meeting
               </button>
               <button
                 onClick={() => handleStatusUpdate("DECLINED")}

@@ -203,7 +203,7 @@ export default function CareProfilePage() {
               href="/requests"
               className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
             >
-              View all requests
+              View all meetings
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
