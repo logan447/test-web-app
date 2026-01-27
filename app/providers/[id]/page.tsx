@@ -112,7 +112,7 @@ export default function ProviderDetailPage() {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  const [activeSection, setActiveSection] = useState("rating");
+  const [activeSection, setActiveSection] = useState("how-it-works");
   const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
   const [questions, setQuestions] = useState<Array<{ id: string; content: string; likeCount: number; answer: string | null; answeredAt: string | null; createdAt: string; user: { name: string | null } }>>([]);
   const [newQuestion, setNewQuestion] = useState("");
@@ -497,26 +497,22 @@ export default function ProviderDetailPage() {
                 {/* Pricing & Rating Cards */}
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   {/* Pricing Card */}
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <div className="flex items-center gap-1 text-sm text-gray-500 mb-1">
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 relative group/price">
+                    <p className="text-sm text-gray-500 mb-1">
                       Starting at
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </button>
-                    </div>
+                    </p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {provider.priceMin && provider.priceMax
-                        ? `$${provider.priceMin}–$${provider.priceMax} / hr`
-                        : provider.priceMin
-                        ? `From $${provider.priceMin} / hr`
+                      {provider.priceMin
+                        ? `$${provider.priceMin.toLocaleString()}${(HOME_CARE_TYPES.includes(provider.providerType) || provider.providerType === 'INDEPENDENT_CAREGIVER') ? ' / hr' : ' / mo'}`
                         : 'Contact for pricing'}
                     </p>
+                    {provider.priceMin && (
+                      <p className="text-xs text-gray-400 mt-1">Actual cost depends on care needs</p>
+                    )}
                   </div>
 
                   {/* Rating Card */}
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center relative group/rating">
                     <p className="text-4xl font-bold text-gray-900 mb-1">
                       {provider.averageRating?.toFixed(1) || 'N/A'}
                     </p>
@@ -533,11 +529,11 @@ export default function ProviderDetailPage() {
                         ))}
                       </div>
                     )}
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <svg className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </button>
+                    <p className="text-xs text-gray-500">
+                      {provider.reviewCount > 0
+                        ? `Based on ${provider.reviewCount} review${provider.reviewCount !== 1 ? 's' : ''}`
+                        : 'No reviews yet'}
+                    </p>
                   </div>
                 </div>
 
@@ -570,23 +566,21 @@ export default function ProviderDetailPage() {
             <div className="sticky top-16 z-10 bg-white border-b border-gray-200 -mx-4 px-4 mb-8">
               <nav className="flex items-center gap-1 overflow-x-auto py-3 scrollbar-hide">
                 {[
-                  { id: "rating", label: "Rating & Reviews" },
+                  { id: "how-it-works", label: "How It Works" },
+                  { id: "rating", label: "Reviews" },
                   ...(FACILITY_TYPES.includes(provider.providerType)
                     ? [
                         { id: "living-options", label: "Living Options" },
                         { id: "care-medical", label: "Care & Medical" },
-                        { id: "how-it-works", label: "How It Works" },
                       ]
                     : HOME_CARE_TYPES.includes(provider.providerType)
                     ? [
                         { id: "caregivers", label: "Caregivers" },
-                        { id: "how-it-works", label: "How It Works" },
                         { id: "services", label: "Services" },
                       ]
                     : [
                         { id: "about", label: "About" },
                         { id: "services", label: "Services" },
-                        { id: "how-it-works", label: "How It Works" },
                       ]),
                   { id: "pricing", label: "Pricing" },
                   { id: "location", label: "Location" },
@@ -618,6 +612,50 @@ export default function ProviderDetailPage() {
 
               return (
                 <div className="space-y-8">
+                  {/* How It Works — First section, answering "What do I do next?" */}
+                  <section id="how-it-works" className="scroll-mt-36 space-y-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">How It Works</h2>
+                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                      <div className="grid gap-5">
+                        {(isFacility ? [
+                          { step: "1", title: "Schedule a tour", desc: "Visit in person to see the community and meet the staff." },
+                          { step: "2", title: "Meet the care team", desc: "Discuss your specific needs, medical requirements, and budget." },
+                          { step: "3", title: "Compare options", desc: "Visit 3–5 providers to find the best fit for your family." },
+                          { step: "4", title: "Make your decision", desc: "Choose the right community and start the move-in process." },
+                        ] : isHomeCare ? [
+                          { step: "1", title: "Request a consultation", desc: "Share your care needs so the agency can prepare." },
+                          { step: "2", title: "Meet your care team", desc: "Discuss scheduling, services, and communication preferences." },
+                          { step: "3", title: "Compare options", desc: "Talk to 3–5 agencies to compare services and fit." },
+                          { step: "4", title: "Start care", desc: "Begin a trial period and adjust as needed." },
+                        ] : [
+                          { step: "1", title: "Review their profile", desc: "Check experience, certifications, and specialties." },
+                          { step: "2", title: "Schedule a meeting", desc: "Meet in person or by video to discuss care needs." },
+                          { step: "3", title: "Compare candidates", desc: "Meet 3–5 caregivers to find the right fit." },
+                          { step: "4", title: "Start a trial", desc: "Begin with a short trial before committing long-term." },
+                        ]).map((item) => (
+                          <div key={item.step} className="flex gap-4">
+                            <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
+                              <span className="text-primary-700 font-bold text-sm">{item.step}</span>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                              <p className="text-sm text-gray-600 mt-0.5">{item.desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 flex items-start gap-3">
+                      <svg className="w-5 h-5 text-primary-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-primary-800">
+                        <span className="font-medium">Why meet with 3–5 providers?</span>{' '}
+                        Comparing options helps you see different care styles, ask better questions, and feel confident in your final choice.
+                      </p>
+                    </div>
+                  </section>
+
                   {/* Rating & Reviews Section */}
                   <section id="rating" className="space-y-6 scroll-mt-36">
                       {/* Olera Score Panel */}
@@ -742,49 +780,6 @@ export default function ProviderDetailPage() {
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Care & Medical</h2>
                         <FacilityTabs provider={provider} activeTab="care" />
                       </section>
-                      {/* How It Works — Facility */}
-                      <section id="how-it-works" className="scroll-mt-36 space-y-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">How It Works</h2>
-                        <div className="bg-white rounded-xl border border-gray-200 p-6">
-                          <div className="grid gap-6">
-                            {[
-                              { step: "1", title: "Schedule a Tour", desc: "Visit in person to see the community, meet staff, and ask questions about daily life and care options." },
-                              { step: "2", title: "Meet the Team", desc: "Speak with care coordinators about specific needs, medical requirements, and level of care." },
-                              { step: "3", title: "Compare Options", desc: "Visit 3–5 communities to compare environments, services, pricing, and overall fit." },
-                              { step: "4", title: "Make Your Decision", desc: "Choose the community that feels right and begin the move-in process with their admissions team." },
-                            ].map((item) => (
-                              <div key={item.step} className="flex gap-4">
-                                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
-                                  <span className="text-primary-700 font-bold text-sm">{item.step}</span>
-                                </div>
-                                <div>
-                                  <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                                  <p className="text-sm text-gray-600 mt-1">{item.desc}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="bg-white rounded-xl border border-gray-200 p-6">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4">What to Expect</h3>
-                          <ul className="space-y-3">
-                            {[
-                              "Tours typically last 45–60 minutes and can include a meal",
-                              "Bring a list of medications and care needs for accurate assessments",
-                              "Ask about staff-to-resident ratios, activities, and emergency protocols",
-                              "Request a written cost breakdown including all fees before committing",
-                              "Most communities offer a trial stay or respite option to test the fit",
-                            ].map((item, i) => (
-                              <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
-                                <svg className="w-5 h-5 text-primary-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </section>
                     </>
                   ) : isHomeCare ? (
                     <>
@@ -792,11 +787,6 @@ export default function ProviderDetailPage() {
                       <section id="caregivers" className="scroll-mt-36">
                         <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Our Caregivers</h2>
                         <HomeCareAgencyTabs provider={provider} activeTab="caregivers" />
-                      </section>
-                      {/* How It Works Section */}
-                      <section id="how-it-works" className="scroll-mt-36">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">How It Works</h2>
-                        <HomeCareAgencyTabs provider={provider} activeTab="how-it-works" />
                       </section>
                       {/* Services Section */}
                       <section id="services" className="scroll-mt-36">
@@ -1152,49 +1142,6 @@ export default function ProviderDetailPage() {
                           )}
                       </section>
 
-                      {/* How It Works — Caregiver */}
-                      <section id="how-it-works" className="scroll-mt-36 space-y-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">How It Works</h2>
-                        <div className="bg-white rounded-xl border border-gray-200 p-6">
-                          <div className="grid gap-6">
-                            {[
-                              { step: "1", title: "Review Their Profile", desc: "Read about their experience, certifications, and specialties to see if they match your needs." },
-                              { step: "2", title: "Schedule an Interview", desc: "Meet in person or by video to discuss care needs, availability, and expectations." },
-                              { step: "3", title: "Compare Candidates", desc: "Interview 3–5 caregivers to find the right personality and skill fit for your family." },
-                              { step: "4", title: "Start a Trial Period", desc: "Begin with a short trial to make sure the caregiver is the right match before committing long-term." },
-                            ].map((item) => (
-                              <div key={item.step} className="flex gap-4">
-                                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
-                                  <span className="text-primary-700 font-bold text-sm">{item.step}</span>
-                                </div>
-                                <div>
-                                  <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                                  <p className="text-sm text-gray-600 mt-1">{item.desc}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="bg-white rounded-xl border border-gray-200 p-6">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4">What to Expect</h3>
-                          <ul className="space-y-3">
-                            {[
-                              "Initial interviews typically last 30–45 minutes",
-                              "Prepare a clear list of daily care tasks and scheduling needs",
-                              "Ask about their experience with conditions relevant to your situation",
-                              "Discuss backup plans for days the caregiver is unavailable",
-                              "Agree on a communication routine for updates and check-ins",
-                            ].map((item, i) => (
-                              <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
-                                <svg className="w-5 h-5 text-primary-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </section>
                     </>
                   )}
 
@@ -1205,27 +1152,25 @@ export default function ProviderDetailPage() {
                   <div className="bg-white rounded-xl border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Pricing Information</h2>
 
-                    {(provider.priceMin || provider.priceMax) ? (
-                      <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-6 mb-6">
-                        <p className="text-sm text-primary-600 font-medium mb-1">
-                          {HOME_CARE_TYPES.includes(provider.providerType) || provider.providerType === 'INDEPENDENT_CAREGIVER'
-                            ? 'Hourly Rate' : 'Starting Monthly Cost'}
+                    {provider.priceMin ? (
+                      <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                        <p className="text-sm text-gray-500 font-medium mb-1">
+                          Starting at
                         </p>
-                        <p className="text-4xl font-bold text-primary-700">
-                          {provider.priceMin && provider.priceMax
-                            ? `$${provider.priceMin.toLocaleString()} – $${provider.priceMax.toLocaleString()}`
-                            : provider.priceMin
-                            ? `From $${provider.priceMin.toLocaleString()}`
-                            : `Up to $${provider.priceMax?.toLocaleString()}`}
+                        <p className="text-3xl font-bold text-gray-900">
+                          ${provider.priceMin.toLocaleString()}
+                          <span className="text-lg font-normal text-gray-500 ml-1">
+                            {HOME_CARE_TYPES.includes(provider.providerType) || provider.providerType === 'INDEPENDENT_CAREGIVER'
+                              ? '/ hr' : '/ mo'}
+                          </span>
                         </p>
-                        <p className="text-sm text-primary-600 mt-1">
-                          {HOME_CARE_TYPES.includes(provider.providerType) || provider.providerType === 'INDEPENDENT_CAREGIVER'
-                            ? 'per hour' : 'per month'}
+                        <p className="text-sm text-gray-500 mt-1">
+                          Actual cost depends on level of care and services needed.
                         </p>
                       </div>
                     ) : (
                       <div className="bg-gray-50 rounded-xl p-6 mb-6">
-                        <p className="text-gray-600 font-medium">Contact for pricing information</p>
+                        <p className="text-gray-600 font-medium">Contact for pricing</p>
                         <p className="text-sm text-gray-500 mt-1">Pricing varies based on care needs</p>
                       </div>
                     )}
@@ -1379,23 +1324,25 @@ export default function ProviderDetailPage() {
                     </div>
                   </div>
 
-                  {/* Contact Information - Privacy-Aware */}
-                  <div className="bg-white rounded-xl border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-                    <ContactInfoDisplay
-                      phone={provider.phone}
-                      email={provider.email}
-                      website={provider.website}
-                      address={`${provider.address}, ${provider.city}, ${provider.state} ${provider.zipCode}`}
-                      providerType={provider.providerType}
-                      viewerRole={viewerRole}
-                      engagementStatus={activeEngagement?.status}
-                      context="profile_page"
-                      layout="vertical"
-                      showLabels={true}
-                      showIcons={true}
-                    />
-                  </div>
+                  {/* Contact Information - Privacy-Aware (hidden for individual caregivers) */}
+                  {provider.providerType !== 'INDEPENDENT_CAREGIVER' && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+                      <ContactInfoDisplay
+                        phone={provider.phone}
+                        email={provider.email}
+                        website={provider.website}
+                        address={`${provider.address}, ${provider.city}, ${provider.state} ${provider.zipCode}`}
+                        providerType={provider.providerType}
+                        viewerRole={viewerRole}
+                        engagementStatus={activeEngagement?.status}
+                        context="profile_page"
+                        layout="vertical"
+                        showLabels={true}
+                        showIcons={true}
+                      />
+                    </div>
+                  )}
 
                   {/* Neighborhood Info */}
                   {(provider.neighborhoodDescription || provider.nearbyAmenities?.length > 0) && (
@@ -1424,41 +1371,15 @@ export default function ProviderDetailPage() {
                     </div>
                   )}
 
-                  {/* Service Area (integrated into Location for caregivers/home care) */}
+                  {/* Service Area note (for home care / caregivers) */}
                   {provider.serviceRadius && (
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Service Area</h3>
-                      <div className="flex items-center gap-3 mb-4 p-3 bg-primary-50 rounded-lg">
-                        <svg className="w-5 h-5 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        </svg>
-                        <p className="text-sm text-primary-700">
-                          Serves within <span className="font-semibold">{provider.serviceRadius} miles</span> of {provider.city}, {provider.state}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Check if you&apos;re in the service area</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            placeholder="Enter your city or zip code"
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                showToast.success(`Contact ${provider.name} to confirm availability in your area.`);
-                              }
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => showToast.success(`Contact ${provider.name} to confirm availability in your area.`)}
-                            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors"
-                          >
-                            Check
-                          </button>
-                        </div>
-                      </div>
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                      <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      </svg>
+                      <p className="text-sm text-gray-600">
+                        Serves within <span className="font-medium">{provider.serviceRadius} miles</span> of {provider.city}, {provider.state}
+                      </p>
                     </div>
                   )}
                   </section>
@@ -1500,37 +1421,26 @@ export default function ProviderDetailPage() {
                   /* Fresh CTA state */
                   <form onSubmit={handleContactSubmit} className="space-y-4">
                     <h2 className="text-lg font-semibold text-gray-900 text-center">
-                      {getProviderCTAs(provider.providerType).primary}
+                      Interested in {provider.name}?
                     </h2>
 
-                    {session?.user ? (
-                      <p className="text-sm text-gray-500 text-center">
-                        Your care profile will be shared. Contact info stays private until they accept.
-                      </p>
-                    ) : (
-                      <div className="text-center py-2">
-                        <p className="text-sm text-gray-600 font-medium mb-1">
-                          Create a free account to connect
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          Your profile helps providers understand your needs
-                        </p>
-                      </div>
-                    )}
+                    <p className="text-sm text-gray-500 text-center">
+                      {session?.user
+                        ? 'We\'ll share your care profile. Contact info stays private until they respond.'
+                        : 'Create a free account to connect with this provider.'}
+                    </p>
 
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+                      className="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
                     >
-                      {submitting ? 'Submitting...' : getProviderCTAs(provider.providerType).primary}
+                      {submitting ? 'Sending...' : getProviderCTAs(provider.providerType).primary}
                     </button>
 
                     <p className="text-xs text-gray-400 text-center">
-                      By continuing, you agree to our{' '}
-                      <Link href="/terms" className="text-primary-600 hover:underline">Terms</Link>
-                      {' '}and{' '}
-                      <Link href="/privacy" className="text-primary-600 hover:underline">Privacy Policy</Link>.
+                      Free to use · No obligation ·{' '}
+                      <Link href="/privacy" className="text-gray-500 hover:underline">Privacy</Link>
                     </p>
                   </form>
                 )}

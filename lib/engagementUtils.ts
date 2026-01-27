@@ -65,7 +65,7 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
   TOUR: {
     type: "TOUR",
     label: "Tour",
-    actionLabel: "Schedule a Tour",
+    actionLabel: "Schedule a Visit",
     scheduleLabel: "Schedule Tour",
     proposalLabel: "Tour Invitation",
     completedLabel: "Tour Completed",
@@ -76,7 +76,7 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
   CONSULTATION: {
     type: "CONSULTATION",
     label: "Consultation",
-    actionLabel: "Schedule a Consultation",
+    actionLabel: "Request a Call",
     scheduleLabel: "Schedule Consultation",
     proposalLabel: "Consultation Invitation",
     completedLabel: "Consultation Completed",
@@ -87,7 +87,7 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
   INTERVIEW: {
     type: "INTERVIEW",
     label: "Interview",
-    actionLabel: "Schedule an Interview",
+    actionLabel: "Request a Meeting",
     scheduleLabel: "Schedule Interview",
     proposalLabel: "Interview Invitation",
     completedLabel: "Interview Completed",
