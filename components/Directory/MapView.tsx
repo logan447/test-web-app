@@ -89,11 +89,11 @@ export default function MapView({ providers, onMarkerClick }: MapViewProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full">
       <MapContainer
         center={center}
         zoom={10}
-        style={{ height: "600px", width: "100%" }}
+        style={{ height: "100%", width: "100%" }}
         className="z-0"
       >
         <TileLayer
