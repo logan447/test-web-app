@@ -544,7 +544,9 @@ export default function EditProviderProfilePage() {
             Back to Dashboard
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">
-            {provider ? "Edit Your Profile" : "Build Your Profile"}
+            {provider
+              ? isIndividual ? "Edit Your Caregiver Profile" : "Edit Your Profile"
+              : isIndividual ? "Build Your Caregiver Profile" : "Build Your Profile"}
           </h1>
           <p className="text-gray-600 mt-1">{getVisibilityEncouragement()}</p>
         </div>
