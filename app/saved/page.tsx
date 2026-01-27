@@ -9,7 +9,6 @@ import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { showToast } from '@/lib/toast';
 import SavedProviderCard from '@/components/Directory/SavedProviderCard';
-import PageHero from '@/components/UI/PageHero';
 import EmptyState from '@/components/UI/EmptyState';
 
 type SavedProvider = {
@@ -210,45 +209,50 @@ export default function SavedProvidersPage() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Soft Hero Header with Breadcrumb */}
-      <PageHero
-        title="Saved Providers"
-        subtitle={providers.length > 0
-          ? `${providers.length} saved — ${contactedCount} contacted, ${notContactedCount} not yet contacted`
-          : "Your shortlist for easy comparison"
-        }
-        variant="soft"
-        compact
-        breadcrumb={<Breadcrumb variant="inline" />}
-        actions={
-          <div className="flex items-center gap-3">
-            {providers.length >= 2 && (
-              <button
-                onClick={toggleCompareMode}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-colors ${
-                  compareMode
-                    ? 'bg-primary-600 text-white hover:bg-primary-700'
-                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
+      {/* Breadcrumb */}
+      <Breadcrumb />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Saved Providers</h1>
+              <p className="text-gray-500 mt-1">
+                {providers.length > 0
+                  ? `${providers.length} saved — ${contactedCount} contacted, ${notContactedCount} not yet contacted`
+                  : "Your shortlist for easy comparison"}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {providers.length >= 2 && (
+                <button
+                  onClick={toggleCompareMode}
+                  className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-colors ${
+                    compareMode
+                      ? 'bg-primary-600 text-white hover:bg-primary-700'
+                      : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                  </svg>
+                  {compareMode ? 'Cancel' : 'Compare'}
+                </button>
+              )}
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                {compareMode ? 'Cancel' : 'Compare'}
-              </button>
-            )}
-            <Link
-              href="/browse"
-              className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Browse More
-            </Link>
+                Browse More
+              </Link>
+            </div>
           </div>
-        }
-      />
+        </div>
+      </div>
 
       {/* Compare Mode Bar */}
       {compareMode && (

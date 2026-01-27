@@ -8,7 +8,6 @@ import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import Link from "next/link";
 import EnhancedProviderCard from "@/components/Directory/EnhancedProviderCard";
-import PageHero from "@/components/UI/PageHero";
 import EmptyState from "@/components/UI/EmptyState";
 
 /**
@@ -379,24 +378,27 @@ export default function MatchesPage() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
 
-        <PageHero
-          title="My Matches"
-          subtitle="Providers recommended based on your care needs"
-          variant="soft"
-          compact
-          breadcrumb={<Breadcrumb variant="inline" />}
-          actions={
-            <Link
-              href="/browse"
-              className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Browse Providers
-            </Link>
-          }
-        />
+        <Breadcrumb />
+
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">My Matches</h1>
+                <p className="text-gray-500 mt-1">Providers recommended based on your care needs</p>
+              </div>
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Browse Providers
+              </Link>
+            </div>
+          </div>
+        </div>
 
         <main className="max-w-7xl mx-auto px-4 py-8">
           {/* Active Connections section — show even without profile */}
@@ -449,28 +451,33 @@ export default function MatchesPage() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Soft Hero Header with Breadcrumb */}
-      <PageHero
-        title="My Matches"
-        subtitle={familyProfile.city && familyProfile.state
-          ? `Providers recommended for you in ${familyProfile.city}, ${familyProfile.state}`
-          : "Providers recommended based on your care needs"
-        }
-        variant="soft"
-        compact
-        breadcrumb={<Breadcrumb variant="inline" />}
-        actions={
-          <Link
-            href="/browse"
-            className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            Browse All
-          </Link>
-        }
-      />
+      {/* Breadcrumb */}
+      <Breadcrumb />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">My Matches</h1>
+              <p className="text-gray-500 mt-1">
+                {familyProfile.city && familyProfile.state
+                  ? `Providers recommended for you in ${familyProfile.city}, ${familyProfile.state}`
+                  : "Providers recommended based on your care needs"}
+              </p>
+            </div>
+            <Link
+              href="/browse"
+              className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Browse All
+            </Link>
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Contextual Next Step Guidance */}

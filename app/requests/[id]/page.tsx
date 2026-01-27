@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import PaywallModal from "@/components/Paywall/PaywallModal";
 import ContactInfoDisplay from "@/components/Provider/ContactInfoDisplay";
 import { showToast } from "@/lib/toast";
@@ -334,18 +335,16 @@ export default function RequestDetailPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
 
-      <main className="flex-grow max-w-2xl w-full mx-auto px-4 py-8">
+      {/* Breadcrumb */}
+      <Breadcrumb
+        items={[
+          { label: "Home", href: "/" },
+          { label: "My Requests", href: "/requests" },
+          { label: request.provider.name, href: `/requests/${request.id}` },
+        ]}
+      />
 
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
-          <Link href="/requests" className="hover:text-gray-600 transition-colors">
-            My Requests
-          </Link>
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <span className="text-gray-600">{request.provider.name}</span>
-        </nav>
+      <main className="flex-grow max-w-2xl w-full mx-auto px-4 py-8">
 
         {/* ============================================ */}
         {/* HERO: Status Banner + Provider Card          */}

@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
 import ReviewModal from "@/components/Reviews/ReviewModal";
 import ReviewsSection from "@/components/Reviews/ReviewsSection";
@@ -343,39 +344,16 @@ export default function ProviderDetailPage() {
     <div className="min-h-screen bg-white">
       <MainNav />
 
-      {/* Header with Back Button & Breadcrumb */}
-      <div className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/browse"
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Go back and explore more
-            </Link>
-
-            <nav className="flex items-center gap-2 text-sm">
-              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <Link href="/" className="text-primary-600 hover:underline">Home</Link>
-              <span className="text-gray-400">›</span>
-              <Link href={`/browse?type=${provider.providerType}`} className="text-primary-600 hover:underline">
-                {formatProviderType(provider.providerType)}
-              </Link>
-              <span className="text-gray-400">›</span>
-              <Link href={`/browse?state=${provider.state}`} className="text-primary-600 hover:underline">{provider.state}</Link>
-              <span className="text-gray-400">›</span>
-              <Link href={`/browse?city=${provider.city}&state=${provider.state}`} className="text-primary-600 hover:underline">{provider.city}</Link>
-              <span className="text-gray-400">›</span>
-              <span className="text-gray-900">{provider.name}</span>
-            </nav>
-          </div>
-        </div>
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb
+        items={[
+          { label: "Home", href: "/" },
+          { label: formatProviderType(provider.providerType), href: `/browse?type=${provider.providerType}` },
+          { label: provider.state, href: `/browse?state=${provider.state}` },
+          { label: provider.city, href: `/browse?city=${provider.city}&state=${provider.state}` },
+          { label: provider.name, href: `/providers/${provider.id}` },
+        ]}
+      />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">

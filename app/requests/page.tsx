@@ -7,7 +7,7 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import Tooltip from "@/components/UI/Tooltip";
-import PageHero from "@/components/UI/PageHero";
+import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import EmptyState from "@/components/UI/EmptyState";
 import { showToast } from "@/lib/toast";
 
@@ -206,28 +206,38 @@ export default function RequestsPage() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Header */}
-      <PageHero
-        title="Messages & Meetings"
-        subtitle="Manage your provider connections"
-        compact
-        stats={[
-          { value: requests.length, label: "Total" },
-          { value: pendingCount, label: "Pending" },
-          { value: acceptedCount, label: "Connected" },
-        ]}
-        actions={
-          <Link
-            href="/browse"
-            className="inline-flex items-center gap-2 bg-white text-primary-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-50 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Schedule Meeting
-          </Link>
-        }
-      />
+      {/* Breadcrumb */}
+      <Breadcrumb />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Messages & Meetings</h1>
+              <p className="text-gray-500 mt-1">Manage your provider connections</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 text-sm text-gray-500">
+                <span><span className="font-semibold text-gray-900">{requests.length}</span> Total</span>
+                <span className="text-gray-300">&middot;</span>
+                <span><span className="font-semibold text-gray-900">{pendingCount}</span> Pending</span>
+                <span className="text-gray-300">&middot;</span>
+                <span><span className="font-semibold text-gray-900">{acceptedCount}</span> Connected</span>
+              </div>
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                New Request
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
