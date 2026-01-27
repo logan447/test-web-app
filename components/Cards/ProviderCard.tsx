@@ -166,7 +166,7 @@ export default function ProviderCard({
         href={linkHref}
         target="_blank"
         rel="noopener noreferrer"
-        className={`group block bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 ${className}`}
+        className={`group block bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 relative ${className}`}
       >
         <div className="flex flex-col sm:flex-row">
           {/* Image */}

@@ -413,19 +413,6 @@ function BrowseContent() {
                     />
                   ))}
 
-                  {/* Tip — shown below results */}
-                  {providers.length >= 3 && (
-                    <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 flex items-center gap-4">
-                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
-                        <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <p className="text-sm text-primary-800 flex-1">
-                        <span className="font-medium">Tip:</span> Meet with 3-5 providers to compare and find the best fit for your family.
-                      </p>
-                    </div>
-                  )}
                 </div>
               ) : (
                 // Empty state
@@ -460,36 +447,50 @@ function BrowseContent() {
               )}
             </div>
 
-            {/* Map */}
+            {/* Map + Tip */}
             {showMap && (
-              <div className="hidden lg:block lg:w-1/2 h-[calc(100vh-180px)] sticky top-32 rounded-xl overflow-hidden border border-gray-200">
-                {mappableProviders.length > 0 ? (
-                  <MapView
-                    providers={mappableProviders.map((p) => ({
-                      id: p.id,
-                      name: p.name,
-                      latitude: p.latitude!,
-                      longitude: p.longitude!,
-                      providerType: p.providerType,
-                      city: p.city,
-                      state: p.state,
-                    }))}
-                    onMarkerClick={(id) => {
-                      const element = document.getElementById(`provider-${id}`);
-                      if (element) {
-                        element.scrollIntoView({ behavior: "smooth", block: "center" });
-                      }
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <p>No locations to display</p>
+              <div className="hidden lg:flex lg:flex-col lg:w-1/2 lg:gap-3 sticky top-32" style={{ height: "calc(100vh - 180px)" }}>
+                <div className="flex-1 rounded-xl overflow-hidden border border-gray-200">
+                  {mappableProviders.length > 0 ? (
+                    <MapView
+                      providers={mappableProviders.map((p) => ({
+                        id: p.id,
+                        name: p.name,
+                        latitude: p.latitude!,
+                        longitude: p.longitude!,
+                        providerType: p.providerType,
+                        city: p.city,
+                        state: p.state,
+                      }))}
+                      onMarkerClick={(id) => {
+                        const element = document.getElementById(`provider-${id}`);
+                        if (element) {
+                          element.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <div className="text-center text-gray-500">
+                        <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <p>No locations to display</p>
+                      </div>
                     </div>
+                  )}
+                </div>
+                {!loading && providers.length >= 3 && (
+                  <div className="bg-primary-50 border border-primary-100 rounded-xl p-3 flex items-center gap-3 shrink-0">
+                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
+                      <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-sm text-primary-800">
+                      <span className="font-medium">Tip:</span> Meet with 3–5 providers to compare and find the best fit.
+                    </p>
                   </div>
                 )}
               </div>
