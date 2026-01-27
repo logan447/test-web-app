@@ -82,7 +82,7 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
     completedLabel: "Consultation Completed",
     icon: "message-circle",
     supportsScheduling: true,
-    description: "Discuss care services and options",
+    description: "Discuss care options",
   },
   INTERVIEW: {
     type: "INTERVIEW",
@@ -93,7 +93,7 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
     completedLabel: "Interview Completed",
     icon: "users",
     supportsScheduling: true,
-    description: "Meet with the caregiver",
+    description: "Meet the caregiver",
   },
   INQUIRY: {
     type: "INQUIRY",

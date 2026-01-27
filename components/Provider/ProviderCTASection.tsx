@@ -85,32 +85,34 @@ export default function ProviderCTASection({
   };
 
   // Render active engagement state
-  const renderActiveEngagementState = () => (
-    <div className="text-center">
-      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-        <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-      </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        You&apos;re Connected!
-      </h3>
-      <p className="text-sm text-gray-600 mb-4">
-        You have an active conversation with {providerName}
-      </p>
-      <button
-        onClick={() => router.push(`/requests/${activeEngagement?.id}`)}
-        className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-      >
-        <div className="flex items-center justify-center gap-2">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+  const renderActiveEngagementState = () => {
+    const isPending = activeEngagement?.status === 'PENDING';
+    return (
+      <div className="text-center space-y-3">
+        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+          <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          <span>Go to Conversation</span>
         </div>
-      </button>
-    </div>
-  );
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            {isPending ? 'Request Sent' : 'Connected'}
+          </h3>
+          <p className="text-sm text-gray-500">
+            {isPending
+              ? `Waiting for ${providerName} to respond`
+              : `You have an active meeting with ${providerName}`}
+          </p>
+        </div>
+        <button
+          onClick={() => router.push(`/requests/${activeEngagement?.id}`)}
+          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+        >
+          {isPending ? 'Check Status' : 'Go to Conversation'}
+        </button>
+      </div>
+    );
+  };
 
   // Render loading state
   const renderLoadingState = () => (
@@ -236,12 +238,7 @@ export default function ProviderCTASection({
             onClick={() => router.push(`/requests/${activeEngagement.id}`)}
             className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
           >
-            <div className="flex items-center justify-center gap-2">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <span>Go to Conversation</span>
-            </div>
+            {activeEngagement.status === 'PENDING' ? 'Check Status' : 'Go to Conversation'}
           </button>
         ) : (
         <div className="flex gap-2">
