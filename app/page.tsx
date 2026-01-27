@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
@@ -114,6 +114,30 @@ export default function Home() {
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [providersError, setProvidersError] = useState(false);
 
+  // Sticky search state
+  const [showStickySearch, setShowStickySearch] = useState(false);
+  const heroSearchRef = useRef<HTMLFormElement>(null);
+
+  // Sticky search: location + care type for the compact bar
+  const [stickyLocation, setStickyLocation] = useState("");
+  const [stickySelectedLocation, setStickySelectedLocation] = useState<{ city: string; state: string } | null>(null);
+
+  // Observe when the hero search form leaves the viewport
+  useEffect(() => {
+    const searchForm = heroSearchRef.current;
+    if (!searchForm) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowStickySearch(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "-64px 0px 0px 0px" } // 64px = nav height
+    );
+
+    observer.observe(searchForm);
+    return () => observer.disconnect();
+  }, []);
+
   // Fetch featured providers on mount
   useEffect(() => {
     const fetchFeaturedProviders = async () => {
@@ -153,37 +177,95 @@ export default function Home() {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleStickyLocationChange = (value: string, loc?: { city: string; state: string }) => {
+    setStickyLocation(value);
+    if (loc) {
+      setStickySelectedLocation({ city: loc.city, state: loc.state });
+    }
+  };
+
+  const buildSearchParams = useCallback((loc: string, selLoc: { city: string; state: string } | null, type: string, service: string) => {
     const params = new URLSearchParams();
 
-    if (selectedLocation) {
-      params.set("city", selectedLocation.city);
-      params.set("state", selectedLocation.state);
-    } else if (location) {
-      // Fallback: try to parse "City, State" format
-      const parts = location.split(",").map((s) => s.trim());
+    if (selLoc) {
+      params.set("city", selLoc.city);
+      params.set("state", selLoc.state);
+    } else if (loc) {
+      const parts = loc.split(",").map((s) => s.trim());
       if (parts.length >= 2) {
         params.set("city", parts[0]);
         params.set("state", parts[1]);
       } else {
-        params.set("city", location);
+        params.set("city", loc);
       }
     }
 
-    if (careType) {
-      params.set("type", careType);
-    }
-    if (careService) {
-      params.set("care", careService);
-    }
+    if (type) params.set("type", type);
+    if (service) params.set("care", service);
 
+    return params;
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = buildSearchParams(location, selectedLocation, careType, careService);
+    router.push(`/browse?${params.toString()}`);
+  };
+
+  const handleStickySearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = buildSearchParams(stickyLocation, stickySelectedLocation, careType, careService);
     router.push(`/browse?${params.toString()}`);
   };
 
   return (
     <>
-      <MainNav />
+      <MainNav hidden={showStickySearch} />
+
+      {/* Sticky compact search bar — replaces toolbar on scroll */}
+      <div
+        className={`fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b transition-transform duration-300 ${
+          showStickySearch ? 'translate-y-0' : '-translate-y-full'
+        }`}
+      >
+        <div className="max-w-5xl mx-auto px-4 py-2">
+          <form onSubmit={handleStickySearch} className="flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-xl border border-gray-200 px-3 py-1.5">
+              <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <LocationAutocomplete
+                value={stickyLocation}
+                onChange={handleStickyLocationChange}
+                placeholder="City or zip code"
+                showIcon={false}
+                inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-sm h-6 leading-6 text-gray-900 placeholder:text-gray-400 bg-transparent"
+                className="flex-1"
+              />
+            </div>
+            <select
+              value={careType}
+              onChange={(e) => setCareType(e.target.value)}
+              className="hidden md:block h-9 px-3 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary-300 cursor-pointer"
+            >
+              <option value="">Any type</option>
+              {CARE_TYPES.map((type) => (
+                <option key={type.id} value={type.slug}>{type.name}</option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center gap-1.5 text-sm"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="hidden sm:inline">Search</span>
+            </button>
+          </form>
+        </div>
+      </div>
 
       {/* Hero — clear, calm, simple for 65+ families */}
       <section className="relative bg-white overflow-hidden">
@@ -198,7 +280,7 @@ export default function Home() {
             </p>
 
             {/* Search bar — all fields left-aligned, same height */}
-            <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-8">
+            <form ref={heroSearchRef} onSubmit={handleSearch} className="max-w-3xl mx-auto mb-8">
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
                 <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
                   {/* Location */}
@@ -496,7 +578,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Olera Is Different — differentiation block */}
+      {/* Why Olera Is Different — 3 core differentiators */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -506,42 +588,42 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {/* All care in one place */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mx-auto mb-4">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Every type of care, one place</h3>
-              <p className="text-base text-gray-600">
-                See all your options side by side. Come back as needs change.
-              </p>
-            </div>
-
-            {/* Schedule directly */}
+            {/* Book tours and calls directly */}
             <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
               <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600 mx-auto mb-4">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Book visits and calls directly</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Book tours and calls directly</h3>
               <p className="text-base text-gray-600">
-                Schedule tours, video calls, and meetings on your own time.
+                Video or in-person, on your terms.
               </p>
             </div>
 
-            {/* No spam */}
+            {/* No spam. No pressure. */}
             <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
               <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 mx-auto mb-4">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No spam, no pressure</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No spam. No pressure.</h3>
               <p className="text-base text-gray-600">
-                We never sell your information or make unwanted calls.
+                Your information is only shared with providers you choose.
+              </p>
+            </div>
+
+            {/* Help paying for care */}
+            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
+              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mx-auto mb-4">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Help paying for care</h3>
+              <p className="text-base text-gray-600">
+                We help families find benefits and resources to make senior care more affordable.
               </p>
             </div>
           </div>
