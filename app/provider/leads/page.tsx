@@ -13,6 +13,7 @@ import FamilyFiltersBar, { FamilyFilters } from '@/components/Directory/FamilyFi
 import ScrollToTop from '@/components/Directory/ScrollToTop';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
+import PageHero from '@/components/UI/PageHero';
 
 type FamilyProfile = {
   id: string;
@@ -355,47 +356,64 @@ function ProviderLeadsPageContent() {
   const activeRequestsCount = requestedProfileIds.size;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
 
-      {/* Compact Hero Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
-              <div className="hidden sm:flex items-center gap-4 text-sm">
-                <span className="text-gray-500">
-                  <span className="font-semibold text-gray-900">{profiles.length}</span> Available
-                </span>
-                <span className="text-gray-300">|</span>
-                <span className="text-gray-500">
-                  <span className="font-semibold text-primary-600">{matchedFamilies.length}</span> Matched
-                </span>
-                <span className="text-gray-300">|</span>
-                <span className="text-gray-500">
-                  <span className="font-semibold text-gray-900">{activeRequestsCount}</span> In Progress
-                </span>
-              </div>
-            </div>
-            <Link
-              href="/provider/requests"
-              className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              Requests
-            </Link>
-          </div>
-        </div>
-      </div>
+      {/* PageHero - Clear page purpose (A-146) */}
+      <PageHero
+        title="Family Inquiries"
+        subtitle="Families looking for care services like yours. Respond to start a conversation."
+        variant="primary"
+        compact
+        stats={[
+          { value: matchedFamilies.length, label: "Matched to You" },
+          { value: profiles.length, label: "All Inquiries" },
+          { value: activeRequestsCount, label: "In Progress" },
+        ]}
+        actions={
+          <Link
+            href="/provider/requests"
+            className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-colors border border-white/30"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            View Conversations
+          </Link>
+        }
+      />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <main className="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Gentle nudge for onboarding */}
         {needsOnboarding && (
           <div className="mb-8">
             <OnboardingPrompt context="requests" />
+          </div>
+        )}
+
+        {/* Hiring Marketplace CTA for Organizations (A-150) */}
+        {hasIdentity && (
+          <div className="mb-8 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Looking to hire caregivers?</p>
+                <p className="text-sm text-gray-600">Browse qualified caregivers in your area</p>
+              </div>
+            </div>
+            <Link
+              href="/provider/hire-staff"
+              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+            >
+              Find Caregivers
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
         )}
 
@@ -488,21 +506,28 @@ function ProviderLeadsPageContent() {
                       ))}
                     </div>
 
-                    <button
-                      onClick={() => {
-                        if (!savedProfileIds.has(family.id)) {
-                          handleToggleSave(family.id);
-                        }
-                        showToast.success('Added to saved families');
-                      }}
-                      className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                        savedProfileIds.has(family.id)
-                          ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                          : 'bg-primary-600 text-white hover:bg-primary-700'
-                      }`}
-                    >
-                      {savedProfileIds.has(family.id) ? 'Saved' : 'Save Lead'}
-                    </button>
+                    {/* Primary CTA: Respond (A-145, A-152) */}
+                    <div className="flex gap-2">
+                      <Link
+                        href={`/provider/requests/new?familyId=${family.id}`}
+                        className="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors bg-primary-600 text-white hover:bg-primary-700 text-center"
+                      >
+                        Respond
+                      </Link>
+                      <button
+                        onClick={() => handleToggleSave(family.id)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          savedProfileIds.has(family.id)
+                            ? 'bg-primary-100 text-primary-600'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                        title={savedProfileIds.has(family.id) ? 'Saved' : 'Save for later'}
+                      >
+                        <svg className="w-5 h-5" fill={savedProfileIds.has(family.id) ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -515,9 +540,12 @@ function ProviderLeadsPageContent() {
           <div className="border-b border-gray-200 mb-8"></div>
         )}
 
-        {/* All Care Requests Section */}
+        {/* All Family Inquiries Section */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">All Care Requests</h2>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Browse All Inquiries</h2>
+            <p className="text-sm text-gray-600">Families actively looking for care providers</p>
+          </div>
           <div className="flex items-center gap-3">
             <label className="text-sm font-medium text-gray-700">Sort:</label>
             <select
@@ -616,16 +644,16 @@ function ProviderLeadsPageContent() {
             ))}
           </div>
         )}
-      </div>
 
-      <ScrollToTop />
+        <ScrollToTop />
+      </main>
+
       <PaywallModal
         isOpen={paywallOpen}
         onClose={() => setPaywallOpen(false)}
         onUpgrade={handleUpgradeSubscription}
       />
 
-      {/* Footer */}
       <Footer variant="light" />
     </div>
   );
