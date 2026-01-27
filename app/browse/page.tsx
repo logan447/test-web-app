@@ -486,42 +486,6 @@ function BrowseContent() {
               </form>
             </div>
 
-            {/* Filters button */}
-            <button
-              onClick={() => setFilterModalOpen(true)}
-              className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-colors shrink-0 ${
-                advancedFilterCount > 0
-                  ? "border-primary-500 bg-primary-50 text-primary-700"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-              </svg>
-              <span className="hidden sm:inline">Filters</span>
-              {advancedFilterCount > 0 && (
-                <span className="bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {advancedFilterCount}
-                </span>
-              )}
-            </button>
-
-            {/* Right controls (desktop) */}
-            <div className="hidden lg:flex items-center gap-3 shrink-0">
-              {session && (
-                <NotificationDropdown
-                  unreadCount={unreadCount}
-                  onUnreadCountChange={setUnreadCount}
-                />
-              )}
-              <Link
-                href="/for-providers"
-                className="text-sm font-bold text-primary-600 hover:text-primary-700 transition-colors whitespace-nowrap"
-              >
-                Become a provider
-              </Link>
-            </div>
-
             {/* Hamburger pill */}
             <div className="relative shrink-0" data-hamburger-menu>
               <button
@@ -779,25 +743,45 @@ function BrowseContent() {
           </div>
         )}
 
-        {/* Results header */}
+        {/* Results header + Filters */}
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">
-                {resultTitle}
-              </h1>
-            </div>
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="text-xl font-bold text-gray-900">
+              {resultTitle}
+            </h1>
 
-            {/* Map toggle (mobile) */}
-            <button
-              onClick={() => setShowMap(!showMap)}
-              className="lg:hidden flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-              {showMap ? "Hide Map" : "Show Map"}
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Filters button */}
+              <button
+                onClick={() => setFilterModalOpen(true)}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-medium transition-colors ${
+                  advancedFilterCount > 0
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                Filters
+                {advancedFilterCount > 0 && (
+                  <span className="bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {advancedFilterCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Map toggle (mobile) */}
+              <button
+                onClick={() => setShowMap(!showMap)}
+                className="lg:hidden flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                {showMap ? "Hide Map" : "Show Map"}
+              </button>
+            </div>
           </div>
 
           {/* Tip — inline, above results */}
