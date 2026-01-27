@@ -351,7 +351,7 @@ export default function OpportunityDetailPage() {
                     <div>
                       <p className="font-medium text-amber-900">Waiting for response</p>
                       <p className="text-sm text-amber-700 mt-1">
-                        {organizationName} typically responds within 2-3 business days. You'll be notified when they reply.
+                        {organizationName} typically responds within 2-3 business days. You&apos;ll be notified when they reply.
                       </p>
                     </div>
                   </div>
