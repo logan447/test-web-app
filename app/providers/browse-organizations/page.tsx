@@ -1,12 +1,17 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import AuthModal from '@/components/Auth/AuthModal';
+import PageHero from '@/components/UI/PageHero';
+import WelcomeBanner from '@/components/Provider/WelcomeBanner';
+import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
+import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type Organization = {
   id: string;
@@ -39,9 +44,10 @@ type MatchedOrganization = {
   coverPhoto?: string | null;
 };
 
-export default function BrowseOrganizationsPage() {
+function BrowseOrganizationsContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [matchedOrgs, setMatchedOrgs] = useState<MatchedOrganization[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +55,24 @@ export default function BrowseOrganizationsPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [requestedOrgIds, setRequestedOrgIds] = useState<Map<string, string>>(new Map());
   const [filters, setFilters] = useState({ city: '', state: '' });
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Check for welcome parameter (post-onboarding)
+  const isWelcome = searchParams.get('welcome') === 'true';
+
+  // Check for provider identity (for profile completion nudges)
+  const { needsOnboarding, loading: identityLoading } = useProviderIdentity({
+    checkMode: true,
+  });
+
+  // Show welcome banner on first load if welcome param is present
+  useEffect(() => {
+    if (isWelcome && !loading) {
+      setShowWelcome(true);
+      // Clear the welcome param from URL without refresh
+      window.history.replaceState({}, '', '/providers/browse-organizations');
+    }
+  }, [isWelcome, loading]);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -187,52 +211,67 @@ export default function BrowseOrganizationsPage() {
   return (
     <>
       <MainNav />
+      <Breadcrumb />
 
       <div className="min-h-screen bg-gray-50">
-        {/* Compact Hero - White/Neutral per design standards */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-6xl mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Find Organizations Hiring
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Apply to 3-5 organizations, schedule interviews, get hired
-                </p>
-              </div>
-
-              {/* Progress toward goal */}
-              {inProgressCount > 0 && (
-                <div className="bg-primary-50 border border-primary-200 rounded-xl px-4 py-3">
-                  <div className="text-sm text-primary-800">
-                    <span className="font-semibold">{inProgressCount} of 5</span> applications in progress
+        {/* Hero using PageHero for consistency */}
+        <PageHero
+          title="Find Organizations Hiring"
+          subtitle="Apply to 3-5 organizations, schedule interviews, get hired"
+          variant="primary"
+          compact
+          stats={[
+            { value: organizations.length, label: "Organizations" },
+            { value: matchedOrgs.length, label: "Matched to You" },
+            { value: inProgressCount, label: "In Progress" },
+          ]}
+          actions={
+            inProgressCount > 0 ? (
+              <div className="flex items-center gap-3">
+                <div className="bg-white/10 px-4 py-2 rounded-lg">
+                  <span className="text-white/90 text-sm">
+                    <span className="font-semibold">{inProgressCount} of 5</span> applications
                     {targetRemaining > 0 && (
-                      <span className="text-primary-600 ml-1">• Apply to {targetRemaining} more</span>
+                      <span className="text-white/70 ml-1">• {targetRemaining} more to go</span>
                     )}
-                  </div>
+                  </span>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
+                <Link
+                  href="/provider/opportunities"
+                  className="hidden md:flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  View Applications
+                </Link>
+              </div>
+            ) : (
+              <Link
+                href="/provider/opportunities"
+                className="hidden md:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                My Opportunities
+              </Link>
+            )
+          }
+        />
 
         <div className="max-w-6xl mx-auto px-4 py-8">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
-              <div className="text-2xl font-bold text-gray-900">{organizations.length}</div>
-              <div className="text-sm text-gray-600">Organizations</div>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
-              <div className="text-2xl font-bold text-primary-600">{matchedOrgs.length}</div>
-              <div className="text-sm text-gray-600">Matched to You</div>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
-              <div className="text-2xl font-bold text-primary-600">{inProgressCount}</div>
-              <div className="text-sm text-gray-600">In Progress</div>
-            </div>
-          </div>
+          {/* Welcome banner for new users */}
+          <WelcomeBanner
+            variant="caregiver"
+            isVisible={showWelcome}
+            onDismiss={() => setShowWelcome(false)}
+          />
+
+          {/* Profile completion nudge for incomplete profiles */}
+          {!needsOnboarding && !showWelcome && (
+            <ProfileCompletionBanner />
+          )}
 
           {/* Matches Section */}
           {matchedOrgs.length > 0 && (
@@ -374,12 +413,39 @@ export default function BrowseOrganizationsPage() {
                 ))}
               </div>
             ) : organizations.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-                <svg className="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No organizations found</h3>
-                <p className="text-gray-600">Try adjusting your search filters</p>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="h-8 w-8 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Expand your search</h3>
+                <p className="text-gray-600 max-w-md mx-auto mb-6">
+                  No organizations match your current filters. Try removing location filters or check back soon as new employers join regularly.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={() => {
+                      setFilters({ city: '', state: '' });
+                      handleSearch();
+                    }}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-semibold transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Clear Filters
+                  </button>
+                  <Link
+                    href="/provider/profile/edit"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Update Profile
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -493,5 +559,38 @@ export default function BrowseOrganizationsPage() {
 
       <Footer variant="light" />
     </>
+  );
+}
+
+export default function BrowseOrganizationsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50">
+          <MainNav />
+          <div className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
+            <div className="max-w-7xl mx-auto px-4 py-12">
+              <div className="animate-pulse">
+                <div className="h-8 bg-white/20 rounded w-1/3 mb-4"></div>
+                <div className="h-5 bg-white/20 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="animate-pulse bg-white rounded-xl p-6">
+                  <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <BrowseOrganizationsContent />
+    </Suspense>
   );
 }

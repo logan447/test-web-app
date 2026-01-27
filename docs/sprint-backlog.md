@@ -1345,6 +1345,132 @@ Additional polish items completed after self-critique:
 - [x] Added ProfileCompletionBanner to leads, opportunities, hire-staff, and candidates pages
 - [x] Mobile layout improvements for ProfileCompletionBanner and empty states
 
+### Handoff Note
+Sprint 8 is complete. Provider onboarding flow improved with dual marketplace messaging, leads page enhanced, and hiring marketplace integrated. All Sprint 8 polish items completed including PageHero standardization, ProfileCompletionBanner, and mobile improvements. Ready for Sprint 9.
+
+---
+
+## Sprint 9 — In Progress
+
+**Date**: January 27, 2026
+**Type**: Deep Sprint (Hiring Marketplace - Caregiver Side)
+**Focus**: Perfect the caregiver job-seeking experience with A+ quality patterns
+
+### Core Purpose
+
+Every change must serve this goal: **Caregivers can easily find organizations to work for, apply with confidence, and track their opportunities.**
+
+### Issues Addressed
+
+- A-153 through A-163: Find Organizations (Phase 14)
+- A-187 through A-191: My Opportunities (Phase 18)
+- A-192 through A-194: Browse Organizations Polish (Phase 19)
+- A-195 through A-201: Organization Detail/Apply (Phase 20)
+
+Note: Phases 15-17 (Provider Requests, Provider Profile) were completed in Sprint 3 and Sprint 8.
+
+### Expanded Scope (A+ Quality Bar)
+
+In addition to documented issues, Sprint 9 includes:
+
+1. **Pattern Consistency**: Apply established patterns (PageHero, ProfileCompletionBanner, WelcomeBanner, action-oriented empty states) to ALL caregiver job-seeking pages
+2. **Route Consolidation**: Clean up redundant paths and ensure canonical URLs
+3. **OrganizationCard Gold Standard**: Create/refine reusable component matching ProviderCard quality
+4. **Mobile-First Polish**: Touch-friendly for mobile job seekers
+
+### Implementation Phases
+
+**Phase 1: Pattern Consistency**
+- Apply PageHero to browse-organizations page
+- Add ProfileCompletionBanner for caregiver profile completion
+- Add WelcomeBanner for post-onboarding welcome
+- Improve empty states with action-oriented messaging
+
+**Phase 2: Route Consolidation**
+- Audit all organization browsing routes
+- Ensure `/providers/browse-organizations` is canonical
+- Set up proper redirects from legacy paths
+- Update all internal links to canonical URLs
+
+**Phase 3: Browse Organizations Polish (A-192 to A-194)**
+- BO-1: Add semantic page hero (Why browse organizations)
+- BO-2: Standardize filter UX
+- BO-3: Improve organization cards
+
+**Phase 4: Organization Detail / Apply Flow (A-195 to A-201)**
+- OD-1: Clear organization value proposition
+- OD-2: Application form UX
+- OD-3: What happens next guidance
+- OD-4: Structured application prompts
+- OD-5: Organization response expectations
+- OD-6: Confirmation flow
+- OD-7: Application tracking entry point
+
+**Phase 5: My Opportunities Enhancement (A-187 to A-191)**
+- MO-1: Clear page purpose/hero
+- MO-2: Status indicators for applications
+- MO-3: Calendar integration
+- MO-4: Response tracking
+- MO-5: Empty state with clear CTA
+
+**Phase 6: OrganizationCard Standardization**
+- Create gold standard OrganizationCard component
+- Consistent with ProviderCard patterns
+- Include: name, type, location, rating, key info
+- Mobile-optimized layout
+
+**Phase 7: Mobile Optimization Pass**
+- Test all pages at mobile breakpoints
+- Ensure touch-friendly tap targets
+- Verify responsive layouts
+- Test application flow on mobile
+
+### Definition of Done
+
+**Phase 1: Pattern Consistency**
+- [ ] PageHero on browse-organizations with stats
+- [ ] ProfileCompletionBanner for caregivers
+- [ ] WelcomeBanner on first visit
+- [ ] Empty states are action-oriented
+
+**Phase 2: Route Consolidation**
+- [ ] All browse routes audited
+- [ ] Canonical URL is `/providers/browse-organizations`
+- [ ] Redirects working properly
+- [ ] No broken internal links
+
+**Phase 3: Browse Organizations**
+- [ ] Semantic hero explains value
+- [ ] Filters are intuitive
+- [ ] Cards show relevant info
+
+**Phase 4: Organization Detail/Apply**
+- [ ] Clear organization presentation
+- [ ] Application form is user-friendly
+- [ ] Confirmation provides next steps
+- [ ] User knows what to expect
+
+**Phase 5: My Opportunities**
+- [ ] Clear page purpose
+- [ ] Status visible at a glance
+- [ ] Empty state drives action
+
+**Phase 6: OrganizationCard**
+- [ ] Component is reusable
+- [ ] Consistent with design system
+- [ ] Mobile-optimized
+
+**Phase 7: Mobile**
+- [ ] All pages pass mobile review
+- [ ] Touch targets are adequate
+- [ ] Forms work on mobile
+
+**Quality Gates**
+- [ ] TypeScript compilation passes
+- [ ] No regressions in existing flows
+- [ ] A+ quality check on each phase
+- [ ] All code committed and pushed
+
 ---
 
 ### Safeguards
@@ -1866,15 +1992,17 @@ Rollover (if any):
 - **NEW**: Care types source of truth (lib/careTypes.ts)
 - **NEW**: Benefits page care types alignment with Prisma schema
 
-**Sprint 8: Provider Onboarding + Leads** — PLANNED
+**Sprint 8: Provider Onboarding + Leads** — COMPLETE ✅
 - Type: Mixed Sprint
 - A-131 through A-152 (22 issues)
-- Focus: Improve provider onboarding flow, fix leads page, integrate LocationAutocomplete
+- Focus: Provider onboarding, leads page, hiring marketplace
+- **Completed**: 7 phases + post-critique polish (PageHero, ProfileCompletionBanner, empty states)
 
-**Sprint 9: Hiring Marketplace (Caregiver Side)**
+**Sprint 9: Hiring Marketplace (Caregiver Side)** — IN PROGRESS
 - Type: Deep Sprint
-- G-5 (Find Organizations GASH)
-- A-153 through A-201
+- A-153 through A-201 (caregiver job-seeking)
+- Focus: Browse organizations, apply flow, my opportunities
+- **Expanded**: Pattern consistency, route consolidation, mobile optimization
 
 **Sprint 10: Hiring Marketplace (Organization Side)**
 - Type: Deep Sprint
