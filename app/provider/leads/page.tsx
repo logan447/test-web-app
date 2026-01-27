@@ -64,6 +64,7 @@ function ProviderLeadsPageContent() {
   const [requestedProfileIds, setRequestedProfileIds] = useState<Map<string, string>>(new Map());
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [sortBy, setSortBy] = useState<string>('newest');
+  const [showAllMatches, setShowAllMatches] = useState(false);
 
   const onboardingParam = searchParams.get('onboarding');
   const welcomeParam = searchParams.get('welcome');
@@ -138,9 +139,12 @@ function ProviderLeadsPageContent() {
       if (response.ok) {
         const data = await response.json();
         setProfiles(data);
+      } else {
+        showToast.error('Unable to load family inquiries. Please try again.');
       }
     } catch (err) {
       console.error('Error fetching profiles:', err);
+      showToast.error('Unable to load family inquiries. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -154,8 +158,10 @@ function ProviderLeadsPageContent() {
         const data = await response.json();
         setMatchedFamilies(data);
       }
+      // Silent fail for matches - not critical, user can still browse all inquiries
     } catch (err) {
       console.error('Error fetching matched families:', err);
+      // Silent fail for matches - not critical
     } finally {
       setMatchesLoading(false);
     }
@@ -464,9 +470,12 @@ function ProviderLeadsPageContent() {
                 </div>
               </div>
               {matchedFamilies.length > 6 && (
-                <button className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center gap-1">
-                  View all
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button
+                  onClick={() => setShowAllMatches(!showAllMatches)}
+                  className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center gap-1"
+                >
+                  {showAllMatches ? 'Show less' : `View all ${matchedFamilies.length}`}
+                  <svg className={`w-4 h-4 transition-transform ${showAllMatches ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -499,7 +508,7 @@ function ProviderLeadsPageContent() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {matchedFamilies.slice(0, 6).map((family) => (
+                {(showAllMatches ? matchedFamilies : matchedFamilies.slice(0, 6)).map((family) => (
                   <div key={family.id} className="bg-white rounded-xl shadow-sm border border-emerald-200 p-5 hover:shadow-md hover:border-primary-200 transition-all duration-200">
                     <div className="flex items-start justify-between mb-3">
                       <div>

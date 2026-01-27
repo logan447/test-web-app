@@ -11,6 +11,7 @@ import { LocationAutocomplete } from "@/components/Location";
 import FilterBar, { FilterConfig } from "@/components/Layout/FilterBar";
 import WelcomeBanner from "@/components/Provider/WelcomeBanner";
 import { useSavedProviders } from "@/hooks/useSavedProviders";
+import { showToast } from "@/lib/toast";
 
 // Dynamically import map to avoid SSR issues
 const MapView = dynamic(() => import("@/components/Directory/MapView"), {
@@ -210,6 +211,7 @@ function BrowseContent() {
       }
     } catch (error) {
       console.error("Error fetching providers:", error);
+      showToast.error("Unable to load providers. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -166,11 +166,13 @@ export default function ProviderDetailPage() {
         const data = await response.json();
         setProvider(data);
       } else {
-        router.push("/");
+        showToast.error("Provider not found");
+        router.push("/browse");
       }
     } catch (error) {
       console.error("Error fetching provider:", error);
-      router.push("/");
+      showToast.error("Unable to load provider. Please try again.");
+      router.push("/browse");
     } finally {
       setLoading(false);
     }

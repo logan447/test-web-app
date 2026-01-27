@@ -9,6 +9,7 @@ import Footer from "@/components/Navigation/Footer";
 import Tooltip from "@/components/UI/Tooltip";
 import PageHero from "@/components/UI/PageHero";
 import EmptyState from "@/components/UI/EmptyState";
+import { showToast } from "@/lib/toast";
 
 type ConsultRequest = {
   id: string;
@@ -72,6 +73,7 @@ export default function RequestsPage() {
       }
     } catch (err) {
       console.error("Error fetching requests:", err);
+      showToast.error("Unable to load requests. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -87,9 +89,13 @@ export default function RequestsPage() {
 
       if (response.ok) {
         fetchRequests();
+        showToast.success("Request updated successfully.");
+      } else {
+        showToast.error("Unable to update request. Please try again.");
       }
     } catch (err) {
       console.error("Error updating request:", err);
+      showToast.error("Unable to update request. Please try again.");
     }
   };
 
@@ -106,10 +112,14 @@ export default function RequestsPage() {
       });
 
       if (!response.ok) {
+        showToast.error("Unable to delete request. Please try again.");
         fetchRequests();
+      } else {
+        showToast.success("Request removed.");
       }
     } catch (err) {
       console.error("Error deleting request:", err);
+      showToast.error("Unable to delete request. Please try again.");
       fetchRequests();
     }
   };

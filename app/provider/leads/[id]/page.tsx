@@ -123,10 +123,12 @@ export default function FamilyProfileDetail() {
         const data = await response.json();
         setProfile(data);
       } else {
+        showToast.error('Family inquiry not found');
         router.push('/provider/leads');
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
+      showToast.error('Unable to load family inquiry. Please try again.');
       router.push('/provider/leads');
     } finally {
       setLoading(false);
