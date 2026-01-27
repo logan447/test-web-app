@@ -497,16 +497,10 @@ export default function Home() {
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                {/* Step number + icon side by side */}
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <span className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {item.step}
-                  </span>
-                  <div className="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
-                    {item.icon}
-                  </div>
+                <div className="w-12 h-12 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 mx-auto mb-4">
+                  {item.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.step}. {item.title}</h3>
                 <p className="text-base text-gray-600 leading-relaxed max-w-xs mx-auto">{item.description}</p>
               </div>
             ))}
