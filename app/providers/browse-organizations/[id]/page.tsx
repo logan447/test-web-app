@@ -335,61 +335,108 @@ export default function OrganizationDetailPage() {
         {/* Apply Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Apply to {organization.name}</h2>
-
-          {/* What happens when you apply */}
-          <div className="bg-primary-50 border border-primary-100 rounded-lg p-4 mb-6">
-            <h3 className="text-sm font-medium text-primary-900 mb-2">What happens when you apply:</h3>
-            <ul className="text-sm text-primary-800 space-y-1">
-              <li className="flex items-start gap-2">
-                <svg className="w-4 h-4 mt-0.5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>Your profile is shared with {organization.name}</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <svg className="w-4 h-4 mt-0.5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>They can review your experience and skills</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <svg className="w-4 h-4 mt-0.5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>If interested, they&apos;ll schedule an interview with you</span>
-              </li>
-            </ul>
-          </div>
+          <p className="text-sm text-gray-600 mb-6">
+            Stand out by sharing why you&apos;re a great fit for their team.
+          </p>
 
           <form onSubmit={handleSendRequest}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Introduce yourself
+            {/* Structured prompts */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Your introduction
               </label>
+
+              {/* Suggested topics */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">Consider including:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Years of caregiving experience</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Types of care you specialize in</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Relevant certifications</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Your availability</span>
+                  </div>
+                </div>
+              </div>
+
               <textarea
                 value={requestMessage}
                 onChange={(e) => setRequestMessage(e.target.value)}
-                rows={4}
+                rows={5}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="Hi, I'm interested in joining your team. I have experience in..."
+                placeholder={`Hi, I'm interested in joining ${organization.name}. I have [X years] of experience in caregiving, specializing in [care types]. I hold [certifications] and am available [availability]. I'd love to discuss how I can contribute to your team.`}
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Share relevant experience. More detail helps them evaluate your fit.
-              </p>
+            </div>
+
+            {/* What happens next */}
+            <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-4 mb-6">
+              <h3 className="text-sm font-medium text-emerald-900 mb-2 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                What happens next
+              </h3>
+              <ul className="text-sm text-emerald-800 space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-200 text-emerald-800 text-xs font-semibold shrink-0">1</span>
+                  <span>Your profile and message are sent to {organization.name}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-200 text-emerald-800 text-xs font-semibold shrink-0">2</span>
+                  <span>They review your experience (typically within 2-3 business days)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-200 text-emerald-800 text-xs font-semibold shrink-0">3</span>
+                  <span>If interested, they&apos;ll reach out to schedule an interview</span>
+                </li>
+              </ul>
             </div>
 
             <div className="flex gap-3">
               <button
                 type="submit"
                 disabled={sending}
-                className="flex-1 bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 disabled:opacity-50 font-medium transition-colors"
+                className="flex-1 bg-primary-600 text-white py-3.5 rounded-xl hover:bg-primary-700 disabled:opacity-50 font-semibold transition-colors flex items-center justify-center gap-2"
               >
-                {sending ? 'Sending...' : 'Send Application'}
+                {sending ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sending Application...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    Send Application
+                  </>
+                )}
               </button>
               <Link
                 href={backHref}
-                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors"
+                className="px-6 py-3.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-medium transition-colors"
               >
                 Cancel
               </Link>
@@ -397,10 +444,33 @@ export default function OrganizationDetailPage() {
           </form>
         </div>
 
-        {/* Tip */}
-        <div className="mt-6 text-center text-sm text-gray-500">
-          Tip: Apply to 3-5 organizations to increase your chances of getting hired quickly.
+        {/* Application Tracking */}
+        <div className="mt-6 bg-gray-50 rounded-xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">Track all your applications</p>
+              <p className="text-sm text-gray-600">View status and responses in My Opportunities</p>
+            </div>
+          </div>
+          <Link
+            href="/provider/opportunities"
+            className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center gap-1"
+          >
+            View
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
         </div>
+
+        {/* Tip */}
+        <div className="mt-4 text-center text-sm text-gray-500">
+          Tip: Caregivers who apply to 3-5 organizations get hired 2x faster.</div>
       </div>
 
       <PaywallModal
