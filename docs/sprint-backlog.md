@@ -1822,17 +1822,19 @@ All 217 issues with immutable IDs, organized by execution phase.
 | A-162 | FO-10: Cards must follow gold standard | CUT | Open |
 | A-163 | FO-11: CTAs should be "Apply now" | CUT | Open |
 
-### Phase 15: Provider Requests (`/provider/requests`)
+### Phase 15: Provider Requests (`/provider/requests`) — COMPLETE ✅
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| A-164 | PR-1: Yet another new card style | CUT | Open |
-| A-165 | PR-2: "View profile" is wrong CTA | CUT | Open |
-| A-166 | PR-3: Too much vertical space in header | PAPER CUT | Open |
-| A-167 | PR-4: Color too dark, inconsistent | CUT | Open |
-| A-168 | PR-5: "35% match" badge needs verification | CUT | Open |
-| A-169 | PR-6: Inconsistent color usage | PAPER CUT | Open |
-| A-170 | PR-7: Need more explicit guidance | CUT | Open |
+| A-164 | PR-1: Yet another new card style | CUT | **Done** (Sprint 10) |
+| A-165 | PR-2: "View profile" is wrong CTA | CUT | **Done** (Sprint 10) |
+| A-166 | PR-3: Too much vertical space in header | PAPER CUT | **Done** (Sprint 10) |
+| A-167 | PR-4: Color too dark, inconsistent | CUT | **Done** (Sprint 10) |
+| A-168 | PR-5: "35% match" badge needs verification | CUT | **Done** (Sprint 10) |
+| A-169 | PR-6: Inconsistent color usage | PAPER CUT | **Done** (Sprint 10) |
+| A-170 | PR-7: Need more explicit guidance | CUT | **Done** (Sprint 10) |
+
+**Note**: Audited and verified already A+ quality - uses PageHero, consistent colors, proper CTAs.
 
 ### Phase 16: Provider My Profile (`/provider/profile`) — GASH ✓ COMPLETED
 
@@ -1890,40 +1892,46 @@ All 217 issues with immutable IDs, organized by execution phase.
 | A-200 | OA-6: No guidance to apply to more orgs | PAPER CUT | Open |
 | A-201 | OA-7: No reinforcement of core loop | PAPER CUT | Open |
 
-### Phase 21: Hire Care Staff — Organization (`/provider/hire-staff`)
+### Phase 21: Hire Care Staff — Organization (`/provider/hire-staff`) — COMPLETE ✅
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| A-202 | HS-1: Purple hero/header inconsistent | CUT | Open |
-| A-203 | HS-2: Hero takes excessive vertical space | CUT | Open |
-| A-204 | HS-3: "View applications" is incorrect terminology | PAPER CUT | Open |
-| A-205 | HS-5: Caregiver cards need gold standard | CUT | Open |
-| A-206 | HS-6: Overall presentation feels disconnected | CUT | Open |
+| A-202 | HS-1: Purple hero/header inconsistent | CUT | **Done** (Sprint 10) |
+| A-203 | HS-2: Hero takes excessive vertical space | CUT | **Done** (Sprint 10) |
+| A-204 | HS-3: "View applications" is incorrect terminology | PAPER CUT | **Done** (Sprint 10) |
+| A-205 | HS-5: Caregiver cards need gold standard | CUT | **Done** (Sprint 10) |
+| A-206 | HS-6: Overall presentation feels disconnected | CUT | **Done** (Sprint 10) |
 
-### Phase 22: Hire Staff Request (`/provider/hire-staff/[id]`) — GASH
+**Resolution**: PageHero added, primary colors, CaregiverCard updated, EmptyState component.
 
-| ID | Issue | Severity | Status |
-|----|-------|----------|--------|
-| A-207 | HR-1: Page severely underdeveloped | GASH | Open |
-| A-208 | HR-2: No clear framing for interview request | GASH | Open |
-| A-209 | HR-3: Blank message field instead of structured prompts | GASH | Open |
-| A-210 | HR-4: No explicit confirmation of next steps | GASH | Open |
-| A-211 | HR-5: No inline rendering of caregiver profile | CUT | Open |
-| A-212 | HR-6: No ability to open full caregiver profile | PAPER CUT | Open |
-| A-213 | HR-7: Doesn't support org hiring goal | CUT | Open |
-| A-214 | HR-8: Disconnected from platform engagement flows | CUT | Open |
-
-### Phase 23: My Candidates (`/provider/candidates`) — GASH
+### Phase 22: Hire Staff Request (`/provider/hire-staff/[id]`) — COMPLETE ✅
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| A-215 | MC-1: No matches or candidate cards visible | GASH | Open |
-| A-216 | MC-2: Page feels unfinished and outdated | GASH | Open |
-| A-217 | MC-3: Doesn't communicate what user should do next | GASH | Open |
-| A-218 | MC-4: Doesn't reinforce core purpose | GASH | Open |
-| A-219 | MC-5: No pipeline dashboard view | GASH | Open |
-| A-220 | MC-6: No dedicated calendar/schedule view | GASH | Open |
-| A-221 | MC-7: No seeded demo data | CUT | Open |
+| A-207 | HR-1: Page severely underdeveloped | GASH | **Done** (Sprint 10) |
+| A-208 | HR-2: No clear framing for interview request | GASH | **Done** (Sprint 10) |
+| A-209 | HR-3: Blank message field instead of structured prompts | GASH | **Done** (Sprint 10) |
+| A-210 | HR-4: No explicit confirmation of next steps | GASH | **Done** (Sprint 10) |
+| A-211 | HR-5: No inline rendering of caregiver profile | CUT | **Done** (Sprint 10) |
+| A-212 | HR-6: No ability to open full caregiver profile | PAPER CUT | **Done** (Sprint 10) |
+| A-213 | HR-7: Doesn't support org hiring goal | CUT | **Done** (Sprint 10) |
+| A-214 | HR-8: Disconnected from platform engagement flows | CUT | **Done** (Sprint 10) |
+
+**Resolution**: Complete GASH redesign with PageHero, message templates (Schedule/Position/Learn), inline profile preview, "What Happens Next" guidance, breadcrumb navigation.
+
+### Phase 23: My Candidates (`/provider/candidates`) — COMPLETE ✅
+
+| ID | Issue | Severity | Status |
+|----|-------|----------|--------|
+| A-215 | MC-1: No matches or candidate cards visible | GASH | **Done** (Sprint 10) |
+| A-216 | MC-2: Page feels unfinished and outdated | GASH | **Done** (Sprint 10) |
+| A-217 | MC-3: Doesn't communicate what user should do next | GASH | **Done** (Sprint 10) |
+| A-218 | MC-4: Doesn't reinforce core purpose | GASH | **Done** (Sprint 10) |
+| A-219 | MC-5: No pipeline dashboard view | GASH | **Done** (Sprint 10) |
+| A-220 | MC-6: No dedicated calendar/schedule view | GASH | **Done** (Sprint 10) |
+| A-221 | MC-7: No seeded demo data | CUT | **Done** (Sprint 10) |
+
+**Resolution**: Complete GASH redesign with pipeline dashboard (status filters), tabbed view (All/Applied/Outreach), enhanced candidate cards, Quick Actions, seed data with 12 hiring requests + interviews.
 
 ---
 
@@ -2010,7 +2018,7 @@ Rollover (if any):
 ## Sprint 10 — A+ Polish + Communications + Demo Readiness
 
 **Date**: January 27, 2026
-**Status**: Phases 0-4 Complete ✅
+**Status**: All Phases Complete ✅ (Emails deferred)
 **Type**: Deep Sprint (Multi-Phase)
 **Theme**: "Calm, Complete, Confident" — Every flow finished, every notification centralized, every demo scenario exercised
 **Commits**: `fd5c1db`, `c433150`, `6d0d99c`, `7319d68`, `488fd0a`
@@ -2209,35 +2217,32 @@ Create `docs/demo-walkthrough.md`:
 
 ---
 
-### Phase 5: Communications (Email Notifications)
+### Phase 5: Communications (Email Notifications) — DEFERRED
 **Focus**: Professional emails for key events
 
 | Email | Trigger | Status |
 |-------|---------|--------|
-| **Welcome** | Signup | Open |
-| **New Request** | Family contacts provider | Open |
-| **Request Accepted** | Provider accepts | Open |
-| **Meeting Scheduled** | Meeting confirmed | Open |
-| **Meeting Reminder** | 24h before | Open |
+| **Welcome** | Signup | Deferred |
+| **New Request** | Family contacts provider | Deferred |
+| **Request Accepted** | Provider accepts | Deferred |
+| **Meeting Scheduled** | Meeting confirmed | Deferred |
+| **Meeting Reminder** | 24h before | Deferred |
 
-**Technical Setup**:
-- Resend integration
-- React Email templates (clean, minimal)
-- Notification preferences in Settings
+**Status**: Deferred per user decision (requires Resend/email infrastructure setup).
 
 ---
 
-### Phase 6: Reviews System (If Time Permits)
+### Phase 6: Reviews System — COMPLETE ✅
 **Focus**: Trust signal through social proof
 
 | Task | Description | Status |
 |------|-------------|--------|
-| **6.1** | Write review flow (COMPLETED engagements) | Open |
-| **6.2** | Display reviews on provider detail | Open |
-| **6.3** | Star ratings on cards (subtle) | Open |
-| **6.4** | Provider response to reviews | Open |
+| **6.1** | Write review flow (COMPLETED engagements) | **Done** |
+| **6.2** | Display reviews on provider detail | **Done** |
+| **6.3** | Star ratings on cards (subtle) | **Done** |
+| **6.4** | Provider response to reviews | Deferred |
 
-**Note**: Lower priority than Phases 0-5.
+**Resolution**: ReviewModal and ReviewsSection components fully implemented. API routes for GET/POST reviews and helpful voting complete. Integrated on provider detail pages.
 
 ---
 
