@@ -634,6 +634,143 @@ async function main(externalPrisma?: PrismaClient) {
   console.log('   - 40 saved providers\n');
 
   // ============================================================================
+  // HIRING PIPELINE DATA (for hire-staff and candidates pages)
+  // ============================================================================
+  console.log('👔 Creating hiring pipeline data...\n');
+
+  // Get organizations (facilities) that might hire caregivers
+  const hiringOrganizations = await prisma.provider.findMany({
+    where: {
+      providerType: { in: ['HOME_CARE', 'HOME_HEALTH', 'HOSPICE', 'ASSISTED_LIVING'] },
+      userId: { not: null },
+    },
+    include: { user: true },
+    take: 10,
+  });
+
+  // Get caregivers who are available for organization employment
+  const hiringCaregivers = await prisma.provider.findMany({
+    where: {
+      providerType: 'INDEPENDENT_CAREGIVER',
+      availableForOrganizations: true,
+      userId: { not: null },
+    },
+    include: { user: true },
+    take: 10,
+  });
+
+  // Create hiring requests between organizations and caregivers
+  const hiringStatuses: ConsultRequestStatus[] = ['PENDING', 'ACCEPTED', 'ACCEPTED', 'COMPLETED', 'DECLINED'];
+  const hiringMessages = [
+    'We are impressed by your experience and would like to discuss a potential position at our facility. Are you available for an interview?',
+    'I noticed your profile and believe you would be a great fit for our team. We are looking for caregivers with your certifications.',
+    'Our organization is expanding and we need experienced caregivers like yourself. Would you be interested in joining our team?',
+    'Your dementia care specialization caught our attention. We have an opening that matches your skills perfectly.',
+    'We are building a new team for our memory care unit and your experience would be invaluable. Lets connect!',
+    'Based on your qualifications, we think you would excel at our facility. Can we schedule a time to talk?',
+    'We have a full-time position that seems perfect for your skillset. Are you currently looking for opportunities?',
+    'Your background in hospice care aligns with our mission. We would love to learn more about you.',
+    'We are always looking for talented caregivers. Your reviews are excellent - lets discuss opportunities.',
+    'Our residents would benefit from your specialized care. Would you consider joining our team?',
+  ];
+
+  const hiringRequests: any[] = [];
+  for (let i = 0; i < Math.min(hiringOrganizations.length, hiringCaregivers.length, 12); i++) {
+    const org = hiringOrganizations[i % hiringOrganizations.length];
+    const caregiver = hiringCaregivers[i % hiringCaregivers.length];
+    const status = hiringStatuses[i % hiringStatuses.length];
+    const daysAgo = Math.floor(Math.random() * 21) + 1;
+
+    if (!org.user || !caregiver.user) continue;
+
+    // Organization needs a family profile to send hiring request (reuse or create minimal one)
+    let orgFamilyProfile = await prisma.familyProfile.findFirst({
+      where: { userId: org.user.id },
+    });
+
+    if (!orgFamilyProfile) {
+      orgFamilyProfile = await prisma.familyProfile.create({
+        data: {
+          userId: org.user.id,
+          lovedOneName: 'Organization Hiring',
+          careTypes: ['PERSONAL_CARE'],
+          location: org.city,
+          city: org.city,
+          state: org.state,
+          zipCode: org.zipCode || '90210',
+          description: `Hiring profile for ${org.name}`,
+          isPublic: false,
+        },
+      });
+    }
+
+    const hiringRequest = await prisma.consultRequest.create({
+      data: {
+        senderId: org.user.id,
+        familyProfileId: orgFamilyProfile.id,
+        providerId: caregiver.id,
+        requestType: 'HIRING',
+        message: hiringMessages[i % hiringMessages.length],
+        status,
+        createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
+      },
+    });
+    hiringRequests.push({ request: hiringRequest, org, caregiver, status, daysAgo });
+
+    // Add messages for accepted/completed requests
+    if (status === 'ACCEPTED' || status === 'COMPLETED') {
+      await prisma.message.createMany({
+        data: [
+          {
+            consultRequestId: hiringRequest.id,
+            senderId: caregiver.user.id,
+            content: 'Thank you for reaching out! I am very interested in learning more about this opportunity. When would be a good time to discuss?',
+            createdAt: new Date(Date.now() - (daysAgo - 1) * 24 * 60 * 60 * 1000),
+            status: 'READ',
+            readAt: new Date(Date.now() - (daysAgo - 1) * 24 * 60 * 60 * 1000 + 3600000),
+          },
+          {
+            consultRequestId: hiringRequest.id,
+            senderId: org.user.id,
+            content: 'Excellent! I would like to schedule an interview. Are you available this week? We can do it in-person at our facility or via video call.',
+            createdAt: new Date(Date.now() - (daysAgo - 2) * 24 * 60 * 60 * 1000),
+            status: 'READ',
+            readAt: new Date(Date.now() - (daysAgo - 2) * 24 * 60 * 60 * 1000 + 1800000),
+          },
+          {
+            consultRequestId: hiringRequest.id,
+            senderId: caregiver.user.id,
+            content: 'I can come to your facility. I am available Tuesday or Wednesday afternoon.',
+            createdAt: new Date(Date.now() - (daysAgo - 3) * 24 * 60 * 60 * 1000),
+            status: 'READ',
+            readAt: new Date(Date.now() - (daysAgo - 3) * 24 * 60 * 60 * 1000 + 900000),
+          },
+        ],
+      });
+
+      // Add interview appointments to some accepted requests
+      if (i % 2 === 0) {
+        const appointmentStatus = status === 'COMPLETED' ? 'COMPLETED' : 'ACCEPTED';
+        await prisma.tourAppointment.create({
+          data: {
+            requestId: hiringRequest.id,
+            proposedBy: org.user.id,
+            proposedDate: new Date(Date.now() + (3 + i % 7) * 24 * 60 * 60 * 1000),
+            proposedTime: `${10 + (i % 4)}:00 ${i % 2 === 0 ? 'AM' : 'PM'}`,
+            status: appointmentStatus,
+            notes: 'Interview for caregiver position. Please bring your certifications and ID.',
+          },
+        });
+      }
+    }
+  }
+
+  console.log('✅ Created hiring pipeline data:');
+  console.log(`   - ${hiringRequests.length} hiring requests between orgs and caregivers`);
+  console.log('   - Messages for accepted/completed requests');
+  console.log('   - Interview appointments for active candidates\n');
+
+  // ============================================================================
   // NOTIFICATIONS (for notification bell testing)
   // ============================================================================
   console.log('🔔 Creating notification data...');
@@ -664,6 +801,15 @@ async function main(externalPrisma?: PrismaClient) {
     { userId: caregivers[0].id, type: 'REQUEST_NEW', title: 'Job inquiry', body: 'A family is interested in hiring you', linkHref: '/provider/requests', read: false },
     { userId: caregivers[0].id, type: 'MESSAGE', title: 'New message', body: 'Emily Davis sent you a message', linkHref: '/provider/requests', read: false },
     { userId: caregivers[3].id, type: 'REQUEST_NEW', title: 'Job opportunity', body: 'Hillcrest Assisted Living wants to interview you', linkHref: '/provider/requests', read: false },
+
+    // Hiring pipeline notifications
+    { userId: caregivers[3].id, type: 'TOUR_ACCEPTED', title: 'Interview scheduled', body: 'Your interview at Hillcrest Assisted Living is confirmed for Tuesday', linkHref: '/provider/requests', read: false },
+    { userId: caregivers[4].id, type: 'REQUEST_NEW', title: 'New job opportunity', body: 'San Diego Home Care wants to discuss a position with you', linkHref: '/provider/requests', read: false },
+    { userId: caregivers[6].id, type: 'REQUEST_ACCEPTED', title: 'Application accepted!', body: 'Your application to Oceanview Care has been accepted', linkHref: '/provider/requests', read: false },
+    { userId: caregivers[6].id, type: 'MESSAGE', title: 'Interview details', body: 'Please confirm your availability for an interview', linkHref: '/provider/requests', read: false },
+    { userId: facilities[5].id, type: 'REQUEST_NEW', title: 'New candidate', body: 'Nancy Foster applied to join your team', linkHref: '/provider/candidates', read: false },
+    { userId: facilities[5].id, type: 'MESSAGE', title: 'Candidate response', body: 'Angela Brooks responded to your interview request', linkHref: '/provider/candidates', read: false },
+    { userId: facilities[8].id, type: 'REQUEST_NEW', title: 'Interested caregiver', body: 'An experienced caregiver wants to work with you', linkHref: '/provider/candidates', read: false },
   ];
 
   for (const notif of notificationData) {
@@ -680,7 +826,7 @@ async function main(externalPrisma?: PrismaClient) {
     });
   }
 
-  console.log('✅ Created 17 notifications for demo accounts\n');
+  console.log('✅ Created 24 notifications for demo accounts\n');
 
   console.log('📊 MEGA Seed Summary:');
   console.log('   - 36 family accounts (all with photos)');
@@ -688,7 +834,8 @@ async function main(externalPrisma?: PrismaClient) {
   console.log('   - 18 individual caregiver accounts (all with photos)');
   console.log('   - 4 unclaimed providers for claiming flow');
   console.log('   - 90+ total user accounts');
-  console.log('   - 17 notifications (for bell dropdown testing)');
+  console.log('   - 12 hiring requests with interview appointments');
+  console.log('   - 24 notifications (for bell dropdown testing)');
   console.log('   - Password for all accounts: demo123\n');
 
   console.log('✅ MEGA seed completed successfully!\n');

@@ -101,8 +101,8 @@ export default function CaregiverCard({
               sizes="(max-width: 640px) 100vw, 192px"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
-              <svg className="w-12 h-12 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+              <svg className="w-12 h-12 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
@@ -150,7 +150,7 @@ export default function CaregiverCard({
 
           {/* Type & Certifications Badges */}
           <div className="flex flex-wrap gap-1.5 mb-3">
-            <span className="px-2 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-700">
+            <span className="px-2 py-0.5 text-xs font-medium rounded bg-primary-100 text-primary-700">
               Independent Caregiver
             </span>
             {certifications.slice(0, 2).map((cert) => (

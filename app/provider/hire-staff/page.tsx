@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
-import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import CaregiverCard from '@/components/Directory/CaregiverCard';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
 import WelcomeBanner from '@/components/Provider/WelcomeBanner';
+import PageHero from '@/components/UI/PageHero';
+import EmptyState from '@/components/UI/EmptyState';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 import { showToast } from '@/lib/toast';
 
@@ -145,7 +146,7 @@ export default function HireStaffPage() {
       <div className="min-h-screen bg-gray-50">
         <MainNav />
         {/* Skeleton Hero */}
-        <div className="bg-gradient-to-br from-violet-600 via-violet-700 to-purple-800">
+        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="animate-pulse">
               <div className="h-10 bg-white/20 rounded-lg w-1/3 mb-4"></div>
@@ -163,53 +164,30 @@ export default function HireStaffPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
-      <Breadcrumb />
 
-      {/* Hero Header */}
-      <div className="bg-gradient-to-br from-violet-600 via-violet-700 to-purple-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <h1 className="text-3xl md:text-4xl font-bold">Hire Care Staff</h1>
-              </div>
-              <p className="text-violet-100 text-lg">
-                Browse qualified independent caregivers available for employment
-              </p>
-            </div>
-            <Link
-              href="/provider/candidates"
-              className="inline-flex items-center gap-2 bg-white text-violet-700 px-6 py-3 rounded-xl font-semibold hover:bg-violet-50 transition-colors shadow-lg"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              View Candidates
-            </Link>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-8 max-w-lg">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold">{caregivers.length}</div>
-              <div className="text-violet-100 text-sm">Available</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold">{verifiedCount}</div>
-              <div className="text-violet-100 text-sm">Verified</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold">{contactedCount}</div>
-              <div className="text-violet-100 text-sm">Contacted</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Hero Header - Using PageHero for consistency */}
+      <PageHero
+        title="Hire Care Staff"
+        subtitle="Browse qualified independent caregivers available for employment"
+        variant="primary"
+        compact
+        stats={[
+          { value: caregivers.length, label: "Available" },
+          { value: verifiedCount, label: "Verified" },
+          { value: contactedCount, label: "Contacted" },
+        ]}
+        actions={
+          <Link
+            href="/provider/candidates"
+            className="inline-flex items-center gap-2 bg-white text-primary-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-50 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            View Candidates
+          </Link>
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome banner for new users */}
@@ -278,47 +256,29 @@ export default function HireStaffPage() {
 
         {/* Results */}
         {caregivers.length === 0 ? (
-          <div className="bg-white shadow-sm rounded-2xl border border-gray-100 p-12 text-center">
-            <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg
-                className="w-10 h-10 text-violet-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
+          <EmptyState
+            variant="default"
+            size="large"
+            title="Caregivers coming soon"
+            description="We're building a network of qualified independent caregivers. In the meantime, connect directly with families who are seeking care."
+            icon={
+              <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Caregivers coming soon</h3>
-            <p className="text-gray-600 max-w-md mx-auto mb-6">
-              We&apos;re building a network of qualified independent caregivers. In the meantime, connect directly with families who are seeking care.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/provider/leads"
-                className="inline-flex items-center justify-center gap-2 bg-violet-600 text-white px-6 py-3 rounded-xl hover:bg-violet-700 font-semibold transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Browse Family Inquiries
-              </Link>
-              <Link
-                href="/provider/candidates"
-                className="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-50 font-semibold transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                View Your Candidates
-              </Link>
-            </div>
-          </div>
+            }
+            actions={[
+              {
+                label: "Browse Family Inquiries",
+                href: "/provider/leads",
+                variant: "primary",
+              },
+              {
+                label: "View Your Candidates",
+                href: "/provider/candidates",
+                variant: "secondary",
+              },
+            ]}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {caregivers.map((caregiver) => {
