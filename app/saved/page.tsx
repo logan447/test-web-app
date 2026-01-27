@@ -322,12 +322,10 @@ export default function SavedProvidersPage() {
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 text-base">
-                  Your next step: Share your care profile
+                  {notContactedCount} saved provider{notContactedCount !== 1 ? 's' : ''} you haven&apos;t contacted yet
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  You have {notContactedCount} saved provider{notContactedCount !== 1 ? 's' : ''} you haven&apos;t contacted yet.
-                  Sharing your care profile lets providers understand your needs and respond faster.
-                  Experts recommend reaching out to 3–5 providers before deciding.
+                  Share your care profile to start conversations. Meeting 3–5 providers helps you feel confident in your choice.
                 </p>
               </div>
             </div>

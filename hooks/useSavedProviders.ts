@@ -10,11 +10,12 @@ const PENDING_SAVE_KEY = "pendingSaveProvider";
  * useSavedProviders - Unified hook for managing saved providers
  *
  * Requires authentication to save:
- * - If not signed in, clicking save stores the provider ID and redirects to login
+ * - If onAuthRequired callback provided, calls it instead of redirecting (for modal flows)
+ * - Otherwise, stores provider ID and redirects to login
  * - After login, the pending save is completed and user returns to the original page
  * - All persistence is server-side for authenticated users
  */
-export function useSavedProviders() {
+export function useSavedProviders(options?: { onAuthRequired?: () => void }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -86,11 +87,15 @@ export function useSavedProviders() {
    */
   const toggleSave = useCallback(
     async (providerId: string): Promise<void> => {
-      // If not authenticated, store pending save and redirect to login
+      // If not authenticated, show auth modal or redirect to login
       if (!session?.user) {
         localStorage.setItem(PENDING_SAVE_KEY, providerId);
-        const callbackUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
-        router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        if (options?.onAuthRequired) {
+          options.onAuthRequired();
+        } else {
+          const callbackUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+          router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        }
         return;
       }
 

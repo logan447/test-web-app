@@ -10,6 +10,7 @@ import { LocationAutocomplete } from "@/components/Location";
 import { FilterConfig } from "@/components/Layout/FilterBar";
 import WelcomeBanner from "@/components/Provider/WelcomeBanner";
 import { useSavedProviders } from "@/hooks/useSavedProviders";
+import AuthModal from "@/components/Auth/AuthModal";
 import { showToast } from "@/lib/toast";
 
 // Dynamically import map to avoid SSR issues
@@ -110,7 +111,10 @@ const SORT_OPTIONS = [
 function BrowseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { savedIds, isSaved, toggleSave } = useSavedProviders();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { savedIds, isSaved, toggleSave } = useSavedProviders({
+    onAuthRequired: () => setAuthModalOpen(true),
+  });
 
   // Helper functions for initial state (must be declared before useState calls)
   const getInitialLocation = (): string => {
@@ -501,6 +505,14 @@ function BrowseContent() {
 
       {/* Footer */}
       <Footer variant="light" />
+
+      {/* Auth Modal — shown when unauthenticated user clicks save */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultView="signup"
+        intent="family"
+      />
     </>
   );
 }

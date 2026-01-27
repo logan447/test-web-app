@@ -142,7 +142,7 @@ export default function CareProfilePage() {
     );
   }
 
-  const displayName = familyProfile?.lovedOneName || session?.user?.name?.split(" ")[0] || "there";
+  const displayName = session?.user?.name?.split(" ")[0] || "there";
   const hasScheduledEvents = calendarEvents.length > 0;
   const hasPendingActions = stats.pendingRequests > 0;
 
@@ -159,7 +159,7 @@ export default function CareProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Welcome back, {displayName}</h1>
-              <p className="text-gray-500 mt-1">Your care profile and meeting hub</p>
+              <p className="text-gray-500 mt-1">Your care profile and upcoming meetings</p>
             </div>
             <div className="flex gap-3">
               <Link
@@ -188,19 +188,19 @@ export default function CareProfilePage() {
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Contextual Next Step Guidance */}
         {hasPendingActions && (
-          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 text-base">
-                  You have {stats.pendingRequests} pending request{stats.pendingRequests !== 1 ? 's' : ''}
+                  {stats.pendingRequests} pending request{stats.pendingRequests !== 1 ? 's' : ''}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  Review and respond to provider messages to confirm meeting times.{' '}
+                  Review provider messages and confirm meeting times.{' '}
                   <Link href="/matches" className="text-primary-600 hover:text-primary-700 font-medium">
                     View your matches
                   </Link>

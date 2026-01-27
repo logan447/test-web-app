@@ -68,15 +68,15 @@ type ConsultRequest = {
 function getRequestLabel(providerType: ProviderType): { label: string; noun: string } {
   const pt = providerType as string;
   if ((FACILITY_PROVIDER_TYPES as readonly string[]).includes(pt)) {
-    return { label: "Visit request", noun: "visit" };
+    return { label: "Tour request", noun: "tour" };
   }
   if ((HOME_CARE_PROVIDER_TYPES as readonly string[]).includes(pt)) {
-    return { label: "Call request", noun: "call" };
+    return { label: "Consultation request", noun: "consultation" };
   }
   if ((CAREGIVER_PROVIDER_TYPES as readonly string[]).includes(pt)) {
-    return { label: "Meeting request", noun: "meeting" };
+    return { label: "Interview request", noun: "interview" };
   }
-  return { label: "Meeting request", noun: "meeting" };
+  return { label: "Consultation request", noun: "consultation" };
 }
 
 export default function RequestDetailPage() {
@@ -97,6 +97,7 @@ export default function RequestDetailPage() {
   const [showScheduler, setShowScheduler] = useState(false);
   const [proposedDate, setProposedDate] = useState("");
   const [proposedTime, setProposedTime] = useState("");
+  const [meetingFormat, setMeetingFormat] = useState<"in_person" | "video">("in_person");
   const [schedulingNote, setSchedulingNote] = useState("");
   const [proposing, setProposing] = useState(false);
 
@@ -194,6 +195,7 @@ export default function RequestDetailPage() {
         body: JSON.stringify({
           proposedDate: new Date(proposedDate).toISOString(),
           proposedTime,
+          isVideoCall: meetingFormat === "video",
           notes: schedulingNote || undefined,
         }),
       });
@@ -203,6 +205,7 @@ export default function RequestDetailPage() {
         setShowScheduler(false);
         setProposedDate("");
         setProposedTime("");
+        setMeetingFormat("in_person");
         setSchedulingNote("");
         setShowNextSteps(true);
         fetchRequest();
@@ -562,6 +565,40 @@ export default function RequestDetailPage() {
                     </div>
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Format</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setMeetingFormat("in_person")}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-[15px] font-medium transition-colors ${
+                          meetingFormat === "in_person"
+                            ? "border-primary-500 bg-primary-50 text-primary-700"
+                            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        In person
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMeetingFormat("video")}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-[15px] font-medium transition-colors ${
+                          meetingFormat === "video"
+                            ? "border-primary-500 bg-primary-50 text-primary-700"
+                            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Video call
+                      </button>
+                    </div>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Note (optional)
                     </label>
@@ -910,6 +947,40 @@ export default function RequestDetailPage() {
                         className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 text-base"
                         required
                       />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Format</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setMeetingFormat("in_person")}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-[15px] font-medium transition-colors ${
+                          meetingFormat === "in_person"
+                            ? "border-primary-500 bg-primary-50 text-primary-700"
+                            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        In person
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMeetingFormat("video")}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-[15px] font-medium transition-colors ${
+                          meetingFormat === "video"
+                            ? "border-primary-500 bg-primary-50 text-primary-700"
+                            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Video call
+                      </button>
                     </div>
                   </div>
                   <div>

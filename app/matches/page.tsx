@@ -480,13 +480,13 @@ export default function MatchesPage() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Contextual Next Step Guidance */}
-        {needsResponseCount > 0 && (
-          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+        {/* Contextual Next Step — one banner at most */}
+        {needsResponseCount > 0 ? (
+          <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
               <div className="flex-1">
@@ -494,37 +494,30 @@ export default function MatchesPage() {
                   {needsResponseCount} provider{needsResponseCount !== 1 ? 's' : ''} waiting for your response
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  Review their messages and confirm meeting times below to keep things moving.
+                  Review their messages and confirm meeting times below.
                 </p>
               </div>
             </div>
           </div>
-        )}
-
-        {needsResponseCount === 0 && pendingCount > 0 && (
-          <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
+        ) : pendingCount > 0 ? (
+          <div className="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 text-base">
-                  Waiting on {pendingCount} provider{pendingCount !== 1 ? 's' : ''} to respond
+                  Waiting on {pendingCount} provider{pendingCount !== 1 ? 's' : ''}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  In the meantime, explore more providers below or{' '}
-                  <Link href="/saved" className="text-primary-600 hover:text-primary-700 font-medium">
-                    review your saved list
-                  </Link>.
+                  Providers usually respond in 1–2 days. Browse more providers below while you wait.
                 </p>
               </div>
             </div>
           </div>
-        )}
-
-        {activeRequests.length === 0 && matchedProviders.length > 0 && (
+        ) : activeRequests.length === 0 && matchedProviders.length > 0 ? (
           <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -534,17 +527,15 @@ export default function MatchesPage() {
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 text-base">
-                  Your next step: Share your care profile with providers
+                  We found {matchedProviders.length} match{matchedProviders.length !== 1 ? 'es' : ''} for you
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  We found {matchedProviders.length} match{matchedProviders.length !== 1 ? 'es' : ''} for you.
-                  Contact providers to share your needs and set up tours or consultations.
-                  Experts recommend reaching out to 3–5 before deciding.
+                  Contact providers to set up tours or consultations. Meeting 3–5 helps you feel confident in your choice.
                 </p>
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Section 1: Active Connections — shown first when present */}
         {activeRequests.length > 0 && (
