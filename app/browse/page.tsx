@@ -449,7 +449,7 @@ function BrowseContent() {
 
             {/* Map + Tip */}
             {showMap && (
-              <div className="hidden lg:flex lg:flex-col lg:w-1/2 lg:gap-3 sticky top-32" style={{ height: "calc(100vh - 180px)" }}>
+              <div className="hidden lg:flex lg:flex-col lg:w-1/2 lg:gap-1.5 sticky top-32" style={{ height: "calc(100vh - 200px)" }}>
                 <div className="flex-1 rounded-xl overflow-hidden border border-gray-200">
                   {mappableProviders.length > 0 ? (
                     <MapView
