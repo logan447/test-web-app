@@ -233,14 +233,14 @@ export default function Home() {
             <form
               ref={searchFormRef}
               onSubmit={handleSearch}
-              className={`max-w-3xl mx-auto mb-8 transition-shadow duration-300 ${
+              className={`max-w-3xl mx-auto mb-8 transition-all duration-300 ${
                 showStickySearch
-                  ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b px-4 py-3 max-w-none'
+                  ? 'fixed top-0 left-0 right-0 z-50 px-4 py-3'
                   : ''
               }`}
             >
               <div className={`bg-white rounded-2xl shadow-lg border border-gray-200 p-2 ${
-                showStickySearch ? 'max-w-3xl mx-auto shadow-none border-0 p-0' : ''
+                showStickySearch ? 'max-w-3xl mx-auto shadow-xl border-gray-200' : ''
               }`}>
                 <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
                   {/* Location */}
@@ -548,19 +548,6 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Book tours and calls directly */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
-              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600 mx-auto mb-4">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Book tours and calls directly</h3>
-              <p className="text-base text-gray-600">
-                Schedule 2–3 video or in-person consultations to compare providers, assess fit, and understand pricing.
-              </p>
-            </div>
-
             {/* No spam. No pressure. */}
             <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
               <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 mx-auto mb-4">
@@ -574,6 +561,19 @@ export default function Home() {
               </p>
             </div>
 
+            {/* Book meetings directly */}
+            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
+              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600 mx-auto mb-4">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Book meetings directly</h3>
+              <p className="text-base text-gray-600">
+                Schedule tours or calls with 2–3 providers to compare options and find the right fit.
+              </p>
+            </div>
+
             {/* Help paying for care */}
             <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
               <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mx-auto mb-4">
@@ -583,7 +583,7 @@ export default function Home() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Help paying for care</h3>
               <p className="text-base text-gray-600">
-                Find benefits and resources to make senior care more affordable.
+                Find benefits and resources to make care more affordable.
               </p>
             </div>
           </div>
@@ -636,7 +636,7 @@ export default function Home() {
               </div>
               <h3 className="text-white font-semibold mb-2">Hiring marketplace</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Agencies and facilities can find staff. Individual caregivers can find work with families.
+                Facilities find staff. Caregivers find work.
               </p>
             </div>
           </div>
