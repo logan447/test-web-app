@@ -216,7 +216,7 @@ export default function Home() {
             </h1>
 
             <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-              Search trusted care options, compare them side by side, and connect directly with providers.
+              Home care, assisted living, memory care, nursing homes, and more. Compare options and schedule tours or calls to find the right fit.
             </p>
 
             {/* Search bar — all fields left-aligned, same height */}
@@ -527,43 +527,43 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* You're in control */}
-            <div className="bg-white rounded-xl border border-gray-100 p-8 text-center shadow-sm">
-              <div className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 mx-auto mb-5">
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">You&apos;re in control</h3>
-              <p className="text-base text-gray-600 leading-relaxed">
-                Schedule tours, calls, and meetings directly. No spam, no sales calls, no selling your information.
-              </p>
-            </div>
-
-            {/* All senior care in one place */}
-            <div className="bg-white rounded-xl border border-gray-100 p-8 text-center shadow-sm">
-              <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mx-auto mb-5">
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* All care in one place */}
+            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
+              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mx-auto mb-4">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">All senior care in one place</h3>
-              <p className="text-base text-gray-600 leading-relaxed">
-                Home care, assisted living, memory care, nursing homes, and more. Come back anytime as needs change.
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Every type of care, one place</h3>
+              <p className="text-base text-gray-600">
+                See all your options side by side. Come back as needs change.
               </p>
             </div>
 
-            {/* Help paying for care */}
-            <div className="bg-white rounded-xl border border-gray-100 p-8 text-center shadow-sm">
-              <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 mx-auto mb-5">
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            {/* Schedule directly */}
+            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
+              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600 mx-auto mb-4">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Help paying for care</h3>
-              <p className="text-base text-gray-600 leading-relaxed">
-                Our benefits finder helps you discover programs that can lower the cost of care.
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Book visits and calls directly</h3>
+              <p className="text-base text-gray-600">
+                Schedule tours, video calls, and meetings on your own time.
+              </p>
+            </div>
+
+            {/* No spam */}
+            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
+              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 mx-auto mb-4">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No spam, no pressure</h3>
+              <p className="text-base text-gray-600">
+                We never sell your information or make unwanted calls.
               </p>
             </div>
           </div>
