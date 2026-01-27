@@ -282,7 +282,7 @@ export default function HireStaffPage() {
               href="/provider/leads"
               className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-xl hover:bg-primary-700 font-semibold transition-colors"
             >
-              Browse Family Requests Instead
+              Browse Family Inquiries Instead
             </Link>
           </div>
         ) : (

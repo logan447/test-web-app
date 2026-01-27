@@ -32,10 +32,10 @@ export default function OnboardingPrompt({
     dashboard: {
       title: "Complete your provider profile",
       description:
-        "Set up your profile to appear in family searches and receive care requests.",
+        "Set up your profile to appear in family searches and receive inquiries.",
     },
     requests: {
-      title: "Start receiving family requests",
+      title: "Start receiving family inquiries",
       description:
         "Complete your provider profile to connect with families looking for care.",
     },

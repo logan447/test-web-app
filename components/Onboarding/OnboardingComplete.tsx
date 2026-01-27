@@ -305,7 +305,7 @@ export default function OnboardingComplete({
             ? `Continue in ${countdown}s`
             : userType === "family"
             ? "Start Browsing Providers"
-            : "View Family Leads"}
+            : "View Family Inquiries"}
         </button>
       </div>
     </div>

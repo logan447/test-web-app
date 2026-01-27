@@ -91,7 +91,7 @@ export default function PricingComparison({
     {
       name: "Lead Generation",
       features: [
-        { name: "View family requests", free: true, pro: true, enterprise: true },
+        { name: "View family inquiries", free: true, pro: true, enterprise: true },
         { name: "Consultation requests", free: "5/month", pro: "Unlimited", enterprise: "Unlimited" },
         { name: "View contact info", free: false, pro: true, enterprise: true },
         { name: "Lead notifications", free: "Email only", pro: "Email + SMS", enterprise: "All channels" },

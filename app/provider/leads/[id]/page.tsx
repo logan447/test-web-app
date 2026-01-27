@@ -337,7 +337,7 @@ export default function FamilyProfileDetail() {
               )}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Care Request in {profile.city}, {profile.state}
+                  Family Inquiry from {profile.city}, {profile.state}
                 </h1>
                 <p className="text-gray-600">
                   Posted {new Date(profile.createdAt).toLocaleDateString()}

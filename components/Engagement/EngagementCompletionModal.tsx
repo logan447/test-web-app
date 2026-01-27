@@ -141,7 +141,7 @@ export default function EngagementCompletionModal({
                       <svg className="w-4 h-4 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>View other family requests in your area</span>
+                      <span>View other family inquiries in your area</span>
                     </li>
                   </>
                 )}

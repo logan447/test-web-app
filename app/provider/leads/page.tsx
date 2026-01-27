@@ -599,12 +599,12 @@ function ProviderLeadsPageContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-lg font-semibold text-gray-900">
-                {filteredProfiles.length} Care Request{filteredProfiles.length !== 1 ? 's' : ''}
+                {filteredProfiles.length} Family Inquir{filteredProfiles.length !== 1 ? 'ies' : 'y'}
               </p>
               <p className="text-sm text-gray-600">
                 {filteredProfiles.length === profiles.length
-                  ? 'Showing all available requests'
-                  : `Filtered from ${profiles.length} total requests`}
+                  ? 'Showing all available inquiries'
+                  : `Filtered from ${profiles.length} total inquiries`}
               </p>
             </div>
             {filteredProfiles.length !== profiles.length && (

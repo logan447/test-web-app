@@ -556,7 +556,7 @@ export default function ProviderRequestsPage() {
                     href="/provider/leads"
                     className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-medium transition-colors"
                   >
-                    Browse Family Requests
+                    Browse Family Inquiries
                   </Link>
                 )}
               </div>
