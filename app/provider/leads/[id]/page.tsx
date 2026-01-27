@@ -190,7 +190,7 @@ export default function FamilyProfileDetail() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast.success('Consultation request sent!');
+        showToast.success('Consultation scheduled! Check your conversations for details.');
         setRequestMessage('');
         // Redirect to the engagement page for this request
         router.push(`/provider/requests/${data.id}`);
@@ -198,12 +198,12 @@ export default function FamilyProfileDetail() {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
         } else {
-          showToast.error(data.error || 'Failed to send request');
+          showToast.error(data.error || 'Failed to schedule consultation');
         }
       }
     } catch (err) {
-      console.error('Error sending request:', err);
-      showToast.error('Failed to send consultation request');
+      console.error('Error scheduling consultation:', err);
+      showToast.error('Failed to schedule consultation');
     } finally {
       setSending(false);
     }

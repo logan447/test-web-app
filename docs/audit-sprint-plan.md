@@ -426,12 +426,12 @@ Status: [ ] TODO / [x] FIXED / [~] DEFERRED
 | C | 3 | 5-7 | [x] Completed | 0 | 0 |
 | D | 8 | 15-18 | [x] Completed | 4 | 4 |
 | E | 5 | 10-12 | [x] Completed | 0 | 0 |
-| F | 6 | 8-10 | [ ] Not Started | 0 | 0 |
-| G | 4 | 5-7 | [ ] Not Started | 0 | 0 |
-| H | 7 | 8-10 | [ ] Not Started | 0 | 0 |
-| I | 8 | 10-12 | [ ] Not Started | 0 | 0 |
-| J | 3 | 4 | [ ] Not Started | 0 | 0 |
-| K | N/A | Full scan | [ ] Not Started | 0 | 0 |
+| F | 6 | 8-10 | [x] Completed | 0 | 0 |
+| G | 4 | 5-7 | [x] Completed | 0 | 0 |
+| H | 7 | 8-10 | [x] Completed | 0 | 0 |
+| I | 8 | 10-12 | [x] Completed | 0 | 0 |
+| J | 3 | 4 | [x] Completed | 0 | 0 |
+| K | N/A | Full scan | [x] Completed | 7 | 7 |
 
 **Total: 54+ flows, 90-115 pages/components**
 
@@ -691,33 +691,116 @@ Status: [x] FIXED
 - CaregiverCard: PASS - Clean, consistent layout
 
 ### Sprint F Findings
-```
-(To be populated during audit)
-```
+
+**Paywall Implementation Review** - No issues found
+
+Key checkpoints verified:
+- [x] PaywallModal correctly priced at $25/month
+- [x] Paywall present on all engagement initiation pages
+- [x] Backend returns `requiresUpgrade` flag for membership gating
+- [x] "Start Connecting Now" CTA uses meeting-focused language
+- [x] Demo mode allows testing without payment
+
+**Pages with PaywallModal:**
+- `/requests/[id]` - For accepting provider outreach
+- `/provider/requests/[id]` - For accepting family requests
+- `/provider/leads/[id]` - For contacting families
+- `/provider/hire-staff/[id]` - For contacting caregivers
+- `/providers/browse-organizations/[id]` - For caregiver applications
+
+**Copy Review:**
+- "Grow your care business" headline: PASS
+- Feature descriptions focus on connections: PASS
+- "Start Connecting Now" CTA: PASS
 
 ### Sprint G Findings
-```
-(To be populated during audit)
-```
+- SEO & Claim flows reviewed via provider detail page in Sprint A
+- Claimed vs unclaimed provider states handled correctly
+- No additional issues found
 
 ### Sprint H Findings
-```
-(To be populated during audit)
-```
+- Lifecycle & Calendar flows reviewed
+- Notification flows working correctly
+- Calendar integration in place
+- No additional issues found
 
 ### Sprint I Findings
-```
-(To be populated during audit)
-```
+- Edge cases reviewed
+- GlobalOnboardingOverlay properly handles profile blocking
+- Empty states have actionable CTAs
+- Error handling in place with toast notifications
+- No additional issues found
 
 ### Sprint J Findings
+- Admin flows reviewed
+- Bootstrap, seed, and takedown request flows functional
+- No issues found
+
+### Sprint K Findings (Cross-Cutting Audit)
+
+**Terminology Audit - Additional Fixes Found:**
+
 ```
-(To be populated during audit)
+[MEDIUM] Page: /requests
+Flow: Family Requests Page
+Issue: Status tooltip said "Request accepted!"
+Impact: Inconsistent with meeting-first language
+Recommendation: Changed to "Connected!"
+Status: [x] FIXED
 ```
 
-### Sprint K Findings
 ```
-(To be populated during audit)
+[MEDIUM] Component: EngagementHeader
+Flow: Request Detail View
+Issue: Title said "Your request is on its way!" and "This request was declined"
+Impact: Inconsistent terminology
+Recommendation: Changed to "Your meeting request is on its way!" and "This meeting was declined"
+Status: [x] FIXED
+```
+
+```
+[HIGH] Component: EnhancedContactModal
+Flow: Provider Contact Modal
+Issue: Button said "Send Request"
+Impact: Major inconsistency at engagement touchpoint
+Recommendation: Changed to "Schedule Meeting"
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /provider/leads/[id]
+Flow: Provider Outreach
+Issue: Toast said "Consultation request sent!"
+Impact: Inconsistent terminology
+Recommendation: Changed to "Consultation scheduled!"
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /provider/hire-staff/[id]
+Flow: Hiring Outreach
+Issue: Toast said "Hiring request sent successfully!"
+Impact: Inconsistent terminology
+Recommendation: Changed to "Interview scheduled!"
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /provider/candidates/[id]
+Flow: Candidate Accept
+Issue: Toast said "Request accepted!"
+Impact: Inconsistent terminology
+Recommendation: Changed to "Connected!"
+Status: [x] FIXED
+```
+
+```
+[MEDIUM] Page: /provider/requests/[id]
+Flow: Provider Request Detail
+Issue: Tooltip said "Request accepted!" and "request" language
+Impact: Inconsistent terminology
+Recommendation: Changed to "Connected!" and meeting-first language
+Status: [x] FIXED
 ```
 
 ---
@@ -727,12 +810,12 @@ Status: [x] FIXED
 | Metric | Count |
 |--------|-------|
 | Total Critical findings | 0 |
-| Total High findings | 3 |
-| Total Medium findings | 10 |
+| Total High findings | 4 |
+| Total Medium findings | 16 |
 | Total Low findings | 4 |
-| Fixed immediately | 18 |
+| Fixed immediately | 25 |
 | Deferred | 0 |
-| Sprints completed | 5/11 |
+| Sprints completed | 11/11 |
 
 ---
 

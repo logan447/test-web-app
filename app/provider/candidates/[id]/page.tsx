@@ -117,12 +117,12 @@ export default function CandidateDetailPage() {
 
       if (response.ok) {
         setRequest({ ...request, status: "ACCEPTED" });
-        showToast.success("Request accepted! You can now view contact details.");
+        showToast.success("Connected! You can now view contact details.");
       } else {
-        showToast.error("Failed to accept request");
+        showToast.error("Failed to connect");
       }
     } catch (error) {
-      console.error("Error accepting request:", error);
+      console.error("Error connecting:", error);
       showToast.error("An error occurred");
     }
   };

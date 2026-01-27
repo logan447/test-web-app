@@ -161,9 +161,9 @@ export default function RequestsPage() {
           return "Waiting for the provider to respond to your request.";
         }
       case "ACCEPTED":
-        return "Request accepted! Contact information is now unlocked.";
+        return "Connected! Contact information is now unlocked.";
       case "DECLINED":
-        return "This request was declined.";
+        return "This meeting was declined.";
       case "COMPLETED":
         return "This engagement has been marked as completed.";
       default:

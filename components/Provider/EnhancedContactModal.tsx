@@ -287,7 +287,7 @@ export default function EnhancedContactModal({
               className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Sending..." : "Send Request"}
+              {isSubmitting ? "Scheduling..." : "Schedule Meeting"}
             </button>
           </div>
         </form>

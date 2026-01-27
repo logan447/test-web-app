@@ -248,19 +248,19 @@ export default function CaregiverHireDetailPage() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast.success('Hiring request sent successfully!');
+        showToast.success('Interview scheduled! Check your candidates for details.');
         setRequestMessage('');
         router.push('/provider/candidates');
       } else {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
         } else {
-          showToast.error(data.error || 'Failed to send request');
+          showToast.error(data.error || 'Failed to schedule interview');
         }
       }
     } catch (err) {
-      console.error('Error sending request:', err);
-      showToast.error('Failed to send hiring request');
+      console.error('Error scheduling interview:', err);
+      showToast.error('Failed to schedule interview');
     } finally {
       setSending(false);
     }

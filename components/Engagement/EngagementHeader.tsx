@@ -33,7 +33,7 @@ function getHeaderMessage(status: string, providerName: string, hasTourScheduled
   switch (status) {
     case "PENDING":
       return {
-        title: "Your request is on its way!",
+        title: "Your meeting request is on its way!",
         subtitle: `Waiting for ${providerName} to respond`,
       };
     case "ACCEPTED":
@@ -43,7 +43,7 @@ function getHeaderMessage(status: string, providerName: string, hasTourScheduled
       };
     case "DECLINED":
       return {
-        title: "This request was declined",
+        title: "This meeting was declined",
         subtitle: "You can explore other providers that might be a good fit",
       };
     case "COMPLETED":

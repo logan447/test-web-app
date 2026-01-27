@@ -664,14 +664,14 @@ export default function RequestDetailPage() {
     switch (status) {
       case "PENDING":
         if (!isSender) {
-          return "This request is awaiting your response. Accept or decline to continue.";
+          return "Awaiting your response. Confirm or decline to continue.";
         } else {
-          return "Waiting for the other party to respond to your request.";
+          return "Waiting for the other party to respond.";
         }
       case "ACCEPTED":
-        return "Request accepted! Contact information is now unlocked. Continue the conversation in messages.";
+        return "Connected! Contact information is now unlocked. Continue the conversation in messages.";
       case "DECLINED":
-        return "This request was declined. No further action is needed.";
+        return "This meeting was declined. No further action is needed.";
       case "COMPLETED":
         return "This conversation has been marked as completed.";
       default:
