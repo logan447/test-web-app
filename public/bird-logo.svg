@@ -1,20 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
   <!--
-    Olera Bird Logo — Stock teal bird placeholder
-    Replace with final brand asset when ready
+    Olera Bird Logo — Geometric teal hummingbird in flight
+    Faceted low-poly style with layered teal shading
   -->
-  <!-- Bird body — simple rounded songbird facing right -->
-  <ellipse cx="30" cy="34" rx="16" ry="13" fill="#0D9488"/>
+  <!-- Body / torso -->
+  <polygon points="128,200 108,148 138,130 152,155" fill="#0D9488"/>
+  <polygon points="128,200 152,155 160,170" fill="#0F766E"/>
+
   <!-- Head -->
-  <circle cx="46" cy="24" r="9" fill="#0D9488"/>
-  <!-- Eye -->
-  <circle cx="49" cy="22" r="2.5" fill="white"/>
-  <circle cx="49.5" cy="21.8" r="1.2" fill="#1a1a2e"/>
+  <polygon points="138,130 155,112 162,128 152,138" fill="#0D9488"/>
+  <polygon points="155,112 168,105 162,128" fill="#0F766E"/>
+
   <!-- Beak -->
-  <polygon points="55,23 62,21 55,25" fill="#F59E0B"/>
-  <!-- Wing -->
-  <ellipse cx="26" cy="32" rx="11" ry="8" fill="#14B8A6" transform="rotate(-10 26 32)"/>
+  <polygon points="155,112 168,105 175,95" fill="#115E59"/>
+
+  <!-- Left wing (upper, spread wide) -->
+  <polygon points="108,148 60,88 95,110 118,132" fill="#14B8A6"/>
+  <polygon points="60,88 40,55 80,82 95,110" fill="#0D9488"/>
+  <polygon points="40,55 28,30 65,62 80,82" fill="#0F766E"/>
+  <polygon points="28,30 22,12 50,42 65,62" fill="#115E59"/>
+
+  <!-- Right wing (upper, spread wide) -->
+  <polygon points="152,138 200,80 175,108 158,130" fill="#14B8A6"/>
+  <polygon points="200,80 222,50 190,78 175,108" fill="#0D9488"/>
+  <polygon points="222,50 238,28 210,58 190,78" fill="#0F766E"/>
+  <polygon points="238,28 245,15 228,40 210,58" fill="#115E59"/>
+
+  <!-- Left wing (lower layer) -->
+  <polygon points="108,148 72,108 60,88 95,110" fill="#0D9488"/>
+  <polygon points="95,110 72,108 60,88" fill="#0F766E"/>
+
+  <!-- Right wing (lower layer) -->
+  <polygon points="152,138 188,100 200,80 175,108" fill="#0D9488"/>
+  <polygon points="175,108 188,100 200,80" fill="#0F766E"/>
+
   <!-- Tail feathers -->
-  <polygon points="14,36 4,30 6,38 14,40" fill="#0F766E"/>
-  <polygon points="14,38 2,36 6,42 14,42" fill="#0D9488"/>
+  <polygon points="128,200 110,230 120,215 135,225" fill="#0F766E"/>
+  <polygon points="128,200 135,225 145,235 140,210" fill="#115E59"/>
+  <polygon points="128,200 105,240 110,230" fill="#134E4A"/>
+
+  <!-- Wing detail highlights -->
+  <polygon points="60,88 80,82 95,110" fill="#2DD4BF" opacity="0.3"/>
+  <polygon points="200,80 190,78 175,108" fill="#2DD4BF" opacity="0.3"/>
 </svg>

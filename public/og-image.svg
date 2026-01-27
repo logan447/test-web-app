@@ -14,20 +14,43 @@
   <!-- Main content area -->
   <rect x="100" y="100" width="1000" height="430" rx="20" fill="white" opacity="0.95"/>
 
-  <!-- Bird logo (scaled version of bird-logo.svg) -->
-  <g transform="translate(220, 235) scale(5)">
-    <path d="M6 26 Q2 22, 6 16 Q10 10, 18 6 Q22 4, 26 6 Q22 10, 16 14 Q10 18, 8 24 Q7 26, 6 26 Z" fill="#0D9488"/>
-    <path d="M14 10 Q18 8, 22 10 Q18 12, 14 12 Q12 11, 14 10 Z" fill="#0F766E"/>
+  <!-- Bird logo (geometric hummingbird, scaled from bird-logo.svg) -->
+  <g transform="translate(180, 190) scale(0.8)">
+    <!-- Body / torso -->
+    <polygon points="128,200 108,148 138,130 152,155" fill="#0D9488"/>
+    <polygon points="128,200 152,155 160,170" fill="#0F766E"/>
+    <!-- Head -->
+    <polygon points="138,130 155,112 162,128 152,138" fill="#0D9488"/>
+    <polygon points="155,112 168,105 162,128" fill="#0F766E"/>
+    <!-- Beak -->
+    <polygon points="155,112 168,105 175,95" fill="#115E59"/>
+    <!-- Left wing -->
+    <polygon points="108,148 60,88 95,110 118,132" fill="#14B8A6"/>
+    <polygon points="60,88 40,55 80,82 95,110" fill="#0D9488"/>
+    <polygon points="40,55 28,30 65,62 80,82" fill="#0F766E"/>
+    <polygon points="28,30 22,12 50,42 65,62" fill="#115E59"/>
+    <!-- Right wing -->
+    <polygon points="152,138 200,80 175,108 158,130" fill="#14B8A6"/>
+    <polygon points="200,80 222,50 190,78 175,108" fill="#0D9488"/>
+    <polygon points="222,50 238,28 210,58 190,78" fill="#0F766E"/>
+    <polygon points="238,28 245,15 228,40 210,58" fill="#115E59"/>
+    <!-- Tail feathers -->
+    <polygon points="128,200 110,230 120,215 135,225" fill="#0F766E"/>
+    <polygon points="128,200 135,225 145,235 140,210" fill="#115E59"/>
+    <polygon points="128,200 105,240 110,230" fill="#134E4A"/>
+    <!-- Wing highlights -->
+    <polygon points="60,88 80,82 95,110" fill="#2DD4BF" opacity="0.3"/>
+    <polygon points="200,80 190,78 175,108" fill="#2DD4BF" opacity="0.3"/>
   </g>
 
   <!-- Text -->
-  <text x="450" y="280" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="72" font-weight="bold" fill="#111827">
+  <text x="480" y="280" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="72" font-weight="bold" fill="#111827">
     Olera
   </text>
-  <text x="450" y="340" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="36" fill="#0D9488">
+  <text x="480" y="340" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="36" fill="#0D9488">
     Find the Perfect Care
   </text>
-  <text x="450" y="395" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="28" fill="#6B7280">
+  <text x="480" y="395" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="28" fill="#6B7280">
     Connect with trusted senior living providers
   </text>
 </svg>
