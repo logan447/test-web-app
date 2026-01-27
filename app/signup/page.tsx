@@ -14,6 +14,7 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
 
   const intent = searchParams.get("intent");
+  const callbackUrl = searchParams.get("callbackUrl");
   const isProviderIntent = intent === "provider";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,6 +56,12 @@ function SignupForm() {
       if (signInResult?.error) {
         setError("Account created but login failed. Please try logging in.");
         setLoading(false);
+        return;
+      }
+
+      // If there's a callbackUrl, return to the original page after signup
+      if (callbackUrl) {
+        window.location.href = callbackUrl;
         return;
       }
 
@@ -173,7 +180,7 @@ function SignupForm() {
             </h2>
             <p className="text-gray-600">
               Already have an account?{" "}
-              <Link href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+              <Link href={callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"} className="text-primary-600 hover:text-primary-700 font-medium">
                 Sign in
               </Link>
             </p>

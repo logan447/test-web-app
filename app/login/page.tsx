@@ -1,13 +1,15 @@
 "use client";
 
 import { signIn, getSession } from "next-auth/react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +32,12 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Invalid email or password. Please try again.");
         setLoading(false);
+        return;
+      }
+
+      // If there's a callbackUrl, return to the original page
+      if (callbackUrl) {
+        window.location.href = callbackUrl;
         return;
       }
 
@@ -125,7 +133,7 @@ export default function LoginPage() {
             </h2>
             <p className="text-gray-600">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-primary-600 hover:text-primary-700 font-medium">
+              <Link href={callbackUrl ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signup"} className="text-primary-600 hover:text-primary-700 font-medium">
                 Create one free
               </Link>
             </p>
@@ -238,5 +246,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

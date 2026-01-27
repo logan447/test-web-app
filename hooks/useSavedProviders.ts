@@ -2,72 +2,73 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
-const LOCAL_STORAGE_KEY = "savedProviders";
+const PENDING_SAVE_KEY = "pendingSaveProvider";
 
 /**
  * useSavedProviders - Unified hook for managing saved providers
  *
- * Provides consistent localStorage + server sync behavior:
- * - Always stores in localStorage for immediate persistence
- * - If authenticated, also syncs with server
- * - Merges server data on mount for cross-device sync
- *
- * This ensures consistent UX across browse page, provider detail, etc.
+ * Requires authentication to save:
+ * - If not signed in, clicking save stores the provider ID and redirects to login
+ * - After login, the pending save is completed and user returns to the original page
+ * - All persistence is server-side for authenticated users
  */
 export function useSavedProviders() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load saved providers from localStorage and merge with server (if authenticated)
+  // Load saved providers from server and process any pending save from pre-login redirect
   useEffect(() => {
     const loadSavedProviders = async () => {
-      // 1. First load from localStorage for immediate display
-      try {
-        const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (stored) {
-          const ids = JSON.parse(stored);
-          if (Array.isArray(ids)) {
-            setSavedIds(new Set(ids));
-          }
-        }
-      } catch (e) {
-        console.error("Failed to parse saved providers from localStorage:", e);
+      if (!session?.user) {
+        setIsLoading(false);
+        return;
       }
 
-      // 2. If authenticated, merge with server data
-      if (session?.user) {
-        try {
-          const response = await fetch("/api/saved-providers");
-          if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data) && data.length > 0) {
-              const serverIds = data.map(
-                (s: { providerId: string }) => s.providerId
-              );
-
-              setSavedIds((prev) => {
-                const merged = new Set([...prev, ...serverIds]);
-                // Sync merged set back to localStorage
-                localStorage.setItem(
-                  LOCAL_STORAGE_KEY,
-                  JSON.stringify([...merged])
-                );
-                return merged;
-              });
-            }
+      // 1. Load from server
+      try {
+        const response = await fetch("/api/saved-providers");
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const serverIds = data.map(
+              (s: { providerId: string }) => s.providerId
+            );
+            setSavedIds(new Set(serverIds));
           }
-        } catch (err) {
-          console.error("Failed to fetch saved providers from server:", err);
         }
+      } catch (err) {
+        console.error("Failed to fetch saved providers from server:", err);
+      }
+
+      // 2. Process any pending save from pre-login redirect
+      try {
+        const pendingId = localStorage.getItem(PENDING_SAVE_KEY);
+        if (pendingId) {
+          localStorage.removeItem(PENDING_SAVE_KEY);
+          await fetch("/api/saved-providers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ providerId: pendingId }),
+          });
+          setSavedIds((prev) => new Set([...prev, pendingId]));
+        }
+      } catch (err) {
+        console.error("Failed to process pending save:", err);
       }
 
       setIsLoading(false);
     };
 
-    loadSavedProviders();
-  }, [session?.user]);
+    if (status !== "loading") {
+      loadSavedProviders();
+    }
+  }, [session?.user, status]);
 
   /**
    * Check if a provider is saved
@@ -81,13 +82,21 @@ export function useSavedProviders() {
 
   /**
    * Toggle save/unsave a provider
-   * Updates both localStorage and server (if authenticated)
+   * Requires authentication — redirects to login if not signed in
    */
   const toggleSave = useCallback(
     async (providerId: string): Promise<void> => {
+      // If not authenticated, store pending save and redirect to login
+      if (!session?.user) {
+        localStorage.setItem(PENDING_SAVE_KEY, providerId);
+        const callbackUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+        router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        return;
+      }
+
       const isCurrentlySaved = savedIds.has(providerId);
 
-      // Optimistically update UI and localStorage
+      // Optimistically update UI
       setSavedIds((prev) => {
         const newSet = new Set(prev);
         if (newSet.has(providerId)) {
@@ -95,34 +104,37 @@ export function useSavedProviders() {
         } else {
           newSet.add(providerId);
         }
-        // Persist to localStorage
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([...newSet]));
         return newSet;
       });
 
-      // If authenticated, also sync to server
-      if (session?.user) {
-        try {
-          if (isCurrentlySaved) {
-            // Remove from server
-            await fetch(`/api/saved-providers?providerId=${providerId}`, {
-              method: "DELETE",
-            });
-          } else {
-            // Save to server
-            await fetch("/api/saved-providers", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ providerId }),
-            });
-          }
-        } catch (err) {
-          console.error("Failed to sync save to server:", err);
-          // Don't revert - localStorage still has the change
+      // Sync to server
+      try {
+        if (isCurrentlySaved) {
+          await fetch(`/api/saved-providers?providerId=${providerId}`, {
+            method: "DELETE",
+          });
+        } else {
+          await fetch("/api/saved-providers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ providerId }),
+          });
         }
+      } catch (err) {
+        console.error("Failed to sync save to server:", err);
+        // Revert on failure
+        setSavedIds((prev) => {
+          const reverted = new Set(prev);
+          if (isCurrentlySaved) {
+            reverted.add(providerId);
+          } else {
+            reverted.delete(providerId);
+          }
+          return reverted;
+        });
       }
     },
-    [savedIds, session?.user]
+    [savedIds, session?.user, pathname, searchParams, router]
   );
 
   /**
