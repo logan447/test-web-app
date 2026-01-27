@@ -12,6 +12,7 @@ import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBann
 import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import PageHero from '@/components/UI/PageHero';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
+import { showToast } from '@/lib/toast';
 
 type HiringRequest = {
   id: string;
@@ -92,6 +93,7 @@ export default function CandidatesPage() {
       }
     } catch (err) {
       console.error('Error fetching hiring requests:', err);
+      showToast.error('Unable to load candidates');
     } finally {
       setLoading(false);
     }

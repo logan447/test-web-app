@@ -10,6 +10,7 @@ import Tooltip from "@/components/UI/Tooltip";
 import PageHero from "@/components/UI/PageHero";
 import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
 import { useProviderIdentity } from "@/hooks/useProviderIdentity";
+import { showToast } from "@/lib/toast";
 
 type ConsultRequest = {
   id: string;
@@ -111,9 +112,12 @@ export default function ProviderRequestsPage() {
         const data = await response.json();
         // Filter out DECLINED requests so deleted requests don't reappear
         setRequests(data.filter((req: ConsultRequest) => req.status !== "DECLINED"));
+      } else {
+        showToast.error("Unable to load requests");
       }
     } catch (err) {
       console.error("Error fetching requests:", err);
+      showToast.error("Unable to load requests");
     } finally {
       setLoading(false);
     }
@@ -130,6 +134,7 @@ export default function ProviderRequestsPage() {
       }
     } catch (err) {
       console.error("Error fetching matched families:", err);
+      // Silent fail for matches - non-critical secondary data
     } finally {
       setMatchesLoading(false);
     }
@@ -145,9 +150,12 @@ export default function ProviderRequestsPage() {
 
       if (response.ok) {
         fetchRequests();
+      } else {
+        showToast.error("Failed to update request");
       }
     } catch (err) {
       console.error("Error updating request:", err);
+      showToast.error("Failed to update request");
     }
   };
 
@@ -165,11 +173,13 @@ export default function ProviderRequestsPage() {
       });
 
       if (!response.ok) {
+        showToast.error("Failed to delete request");
         // If delete failed, refetch to restore state
         fetchRequests();
       }
     } catch (err) {
       console.error("Error deleting request:", err);
+      showToast.error("Failed to delete request");
       // Refetch to restore state on error
       fetchRequests();
     }

@@ -8,6 +8,7 @@ import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import EngagementCalendar, { ScheduledEvent } from "@/components/Engagement/EngagementCalendar";
 import { useProviderIdentity } from "@/hooks/useProviderIdentity";
+import { showToast } from "@/lib/toast";
 
 interface TourData {
   id: string;
@@ -150,6 +151,7 @@ export default function ProviderProfilePage() {
       }
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
+      showToast.error("Unable to load dashboard data");
     } finally {
       setLoading(false);
     }

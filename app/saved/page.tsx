@@ -74,9 +74,12 @@ export default function SavedProvidersPage() {
       if (response.ok) {
         const data = await response.json();
         setProviders(data);
+      } else {
+        showToast.error('Unable to load saved providers');
       }
     } catch (err) {
       console.error('Error fetching saved providers:', err);
+      showToast.error('Unable to load saved providers');
     } finally {
       setLoading(false);
     }

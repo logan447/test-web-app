@@ -9,6 +9,7 @@ import Footer from "@/components/Navigation/Footer";
 import PageHero from "@/components/UI/PageHero";
 import EmptyState from "@/components/UI/EmptyState";
 import EngagementCalendar, { ScheduledEvent } from "@/components/Engagement/EngagementCalendar";
+import { showToast } from "@/lib/toast";
 
 interface DashboardStats {
   pendingRequests: number;
@@ -110,6 +111,7 @@ export default function CareProfilePage() {
       }
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
+      showToast.error("Unable to load dashboard data");
     } finally {
       setLoading(false);
     }

@@ -13,6 +13,7 @@ import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
 import OrganizationCard from '@/components/Directory/OrganizationCard';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
+import { showToast } from '@/lib/toast';
 
 type Organization = {
   id: string;
@@ -120,9 +121,12 @@ function BrowseOrganizationsContent() {
           p.providerType !== 'INDEPENDENT_CAREGIVER'
         );
         setOrganizations(orgs);
+      } else {
+        showToast.error('Unable to load organizations');
       }
     } catch (err) {
       console.error('Error fetching organizations:', err);
+      showToast.error('Unable to load organizations');
     } finally {
       setLoading(false);
     }

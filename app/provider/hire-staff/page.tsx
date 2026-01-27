@@ -13,6 +13,7 @@ import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
 import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
+import { showToast } from '@/lib/toast';
 
 type Caregiver = {
   id: string;
@@ -88,9 +89,12 @@ export default function HireStaffPage() {
       if (response.ok) {
         const data = await response.json();
         setCaregivers(data.providers || []);
+      } else {
+        showToast.error('Unable to load caregivers');
       }
     } catch (err) {
       console.error('Error fetching caregivers:', err);
+      showToast.error('Unable to load caregivers');
     } finally {
       setLoading(false);
     }

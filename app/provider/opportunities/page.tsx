@@ -12,6 +12,7 @@ import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
 import PageHero from '@/components/UI/PageHero';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
+import { showToast } from '@/lib/toast';
 
 type HiringRequest = {
   id: string;
@@ -123,6 +124,7 @@ function OpportunitiesPageContent() {
       }
     } catch (err) {
       console.error('Error fetching hiring requests:', err);
+      showToast.error('Unable to load opportunities');
     } finally {
       setLoading(false);
     }
@@ -138,6 +140,7 @@ function OpportunitiesPageContent() {
       }
     } catch (err) {
       console.error('Error fetching organization matches:', err);
+      // Silent fail for matches - non-critical secondary data
     } finally {
       setMatchesLoading(false);
     }
