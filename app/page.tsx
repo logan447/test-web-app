@@ -463,14 +463,14 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-10">
             {[
               {
                 step: "1",
                 title: "Search your area",
                 description: "Type your city and see nearby providers with photos, reviews, and prices.",
                 icon: (
-                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 ),
@@ -480,8 +480,8 @@ export default function Home() {
                 title: "Talk to providers",
                 description: "Book tours or consultations to talk directly with providers.",
                 icon: (
-                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 ),
               },
@@ -490,21 +490,24 @@ export default function Home() {
                 title: "Compare and choose",
                 description: "Compare your favorites and pick the best fit for your loved one.",
                 icon: (
-                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 ),
               },
             ].map((item) => (
-              <div key={item.step} className="relative text-center">
-                <div className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 mx-auto mb-4">
-                  {item.icon}
-                </div>
-                <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1 w-7 h-7 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  {item.step}
+              <div key={item.step} className="text-center">
+                {/* Step number + icon side by side */}
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <span className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                    {item.step}
+                  </span>
+                  <div className="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
+                    {item.icon}
+                  </div>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-base text-gray-600 leading-relaxed">{item.description}</p>
+                <p className="text-base text-gray-600 leading-relaxed max-w-xs mx-auto">{item.description}</p>
               </div>
             ))}
           </div>
