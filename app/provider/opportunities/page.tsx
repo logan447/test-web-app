@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
+import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type HiringRequest = {
@@ -59,8 +60,9 @@ type OrganizationMatch = {
   careTypesOffered: string[];
 };
 
-export default function OpportunitiesPage() {
+function OpportunitiesPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [receivedRequests, setReceivedRequests] = useState<HiringRequest[]>([]);
   const [sentRequests, setSentRequests] = useState<HiringRequest[]>([]);
@@ -68,10 +70,23 @@ export default function OpportunitiesPage() {
   const [loading, setLoading] = useState(true);
   const [matchesLoading, setMatchesLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Check for welcome parameter (post-onboarding)
+  const isWelcome = searchParams.get('welcome') === 'true';
 
   const { needsOnboarding, hasIdentity, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
+
+  // Show welcome banner on first load if welcome param is present
+  useEffect(() => {
+    if (isWelcome && !loading) {
+      setShowWelcome(true);
+      // Clear the welcome param from URL without refresh
+      window.history.replaceState({}, '', '/provider/opportunities');
+    }
+  }, [isWelcome, loading]);
 
   useEffect(() => {
     if (status === 'loading' || identityLoading) return;
@@ -237,8 +252,15 @@ export default function OpportunitiesPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Welcome banner for new users */}
+        <WelcomeBanner
+          variant="caregiver"
+          isVisible={showWelcome}
+          onDismiss={() => setShowWelcome(false)}
+        />
+
         {/* Onboarding prompt for incomplete profiles */}
-        {needsOnboarding && (
+        {needsOnboarding && !showWelcome && (
           <div className="mb-8">
             <OnboardingPrompt context="requests" />
           </div>
@@ -571,5 +593,27 @@ export default function OpportunitiesPage() {
       {/* Footer */}
       <Footer variant="light" />
     </div>
+  );
+}
+
+export default function OpportunitiesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50">
+          <MainNav />
+          <div className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
+            <div className="max-w-7xl mx-auto px-4 py-12">
+              <div className="animate-pulse">
+                <div className="h-8 bg-white/20 rounded w-1/3 mb-4"></div>
+                <div className="h-5 bg-white/20 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <OpportunitiesPageContent />
+    </Suspense>
   );
 }

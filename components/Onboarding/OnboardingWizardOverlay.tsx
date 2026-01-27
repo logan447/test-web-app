@@ -1367,17 +1367,18 @@ export default function OnboardingWizardOverlay({
         onClose();
 
         // Redirect based on user type and subtype
+        // Include ?welcome=true to trigger welcome experience on landing page
         // Families: browse providers
         // Organizations: leads page (families interested in them)
         // Individual caregivers: opportunities page (jobs for them)
         if (data.intent === "family") {
-          router.push("/browse");
+          router.push("/browse?welcome=true");
         } else if (data.providerSubtype === "individual") {
           // Caregivers are job seekers - send them to find jobs
-          router.push("/provider/opportunities");
+          router.push("/provider/opportunities?welcome=true");
         } else {
           // Organizations - send them to see family inquiries
-          router.push("/provider/leads");
+          router.push("/provider/leads?welcome=true");
         }
         break;
     }

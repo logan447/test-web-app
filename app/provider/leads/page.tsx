@@ -12,6 +12,7 @@ import EnhancedFamilyCard from '@/components/Directory/EnhancedFamilyCard';
 import FamilyFiltersBar, { FamilyFilters } from '@/components/Directory/FamilyFiltersBar';
 import ScrollToTop from '@/components/Directory/ScrollToTop';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
+import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 import PageHero from '@/components/UI/PageHero';
 
@@ -63,12 +64,27 @@ function ProviderLeadsPageContent() {
   const [sortBy, setSortBy] = useState<string>('newest');
 
   const onboardingParam = searchParams.get('onboarding');
+  const welcomeParam = searchParams.get('welcome');
   const isOnboarding = onboardingParam === 'true';
+  const isWelcome = welcomeParam === 'true';
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
+
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const { hasIdentity, needsOnboarding, loading: identityLoading } = useProviderIdentity({
     checkMode: true,
   });
+
+  // Show welcome banner on first load if welcome param is present
+  useEffect(() => {
+    if (isWelcome && !loading) {
+      setShowWelcome(true);
+      // Clear the welcome param from URL without refresh
+      const url = new URL(window.location.href);
+      url.searchParams.delete('welcome');
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+    }
+  }, [isWelcome, loading]);
 
   const [filters, setFilters] = useState<FamilyFilters>({
     city: '',
@@ -384,8 +400,15 @@ function ProviderLeadsPageContent() {
       />
 
       <main className="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+        {/* Welcome banner for new users */}
+        <WelcomeBanner
+          variant="organization"
+          isVisible={showWelcome}
+          onDismiss={() => setShowWelcome(false)}
+        />
+
         {/* Gentle nudge for onboarding */}
-        {needsOnboarding && (
+        {needsOnboarding && !showWelcome && (
           <div className="mb-8">
             <OnboardingPrompt context="requests" />
           </div>
