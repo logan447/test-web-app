@@ -8,6 +8,10 @@ async function main() {
 
   // Clear existing data
   console.log('🗑️  Clearing existing data...');
+  await prisma.notification.deleteMany();
+  await prisma.review.deleteMany();
+  await prisma.subscription.deleteMany();
+  await prisma.takedownRequest.deleteMany();
   await prisma.message.deleteMany();
   await prisma.tourAppointment.deleteMany();
   await prisma.consultRequest.deleteMany();
@@ -1548,26 +1552,378 @@ async function main() {
   console.log('   - 8 saved providers\n');
 
   // ============================================================================
-  // NOTIFICATIONS (for notification bell testing)
+  // ADDITIONAL ENGAGEMENT STATES (DECLINED, CANCELLED)
   // ============================================================================
-  console.log('🔔 Creating notification data...');
+  console.log('🚫 Creating declined/cancelled engagement scenarios...');
 
+  // Family 2 contacts Org 4 (Budget AL) - DECLINED
+  const request10 = await prisma.consultRequest.create({
+    data: {
+      senderId: family2.id,
+      familyProfileId: familyProfiles.find(fp => fp.userId === family2.id)!.id,
+      providerId: providers.find(p => p.userId === org4.id)!.id,
+      requestType: 'CONSULTATION',
+      message: 'Looking for budget-friendly assisted living for my father.',
+      status: 'DECLINED',
+      createdAt: new Date('2026-01-04T09:00:00Z'),
+    },
+  });
+
+  // Family 8 contacts Org 9 (Independent Living) - CANCELLED by family
+  const request11 = await prisma.consultRequest.create({
+    data: {
+      senderId: family8.id,
+      familyProfileId: familyProfiles.find(fp => fp.userId === family8.id)!.id,
+      providerId: providers.find(p => p.userId === org9.id)!.id,
+      requestType: 'CONSULTATION',
+      message: 'Interested in your independent living community.',
+      status: 'CANCELLED',
+      createdAt: new Date('2026-01-02T11:00:00Z'),
+    },
+  });
+
+  // Family 9 contacts Caregiver 6 - DECLINED by caregiver
+  const request12 = await prisma.consultRequest.create({
+    data: {
+      senderId: family9.id,
+      familyProfileId: familyProfiles.find(fp => fp.userId === family9.id)!.id,
+      providerId: providers.find(p => p.userId === caregiver6.id)!.id,
+      requestType: 'HIRING',
+      message: 'Need part-time companion care for my mother.',
+      status: 'DECLINED',
+      createdAt: new Date('2026-01-05T14:00:00Z'),
+    },
+  });
+
+  console.log('✅ Created 3 declined/cancelled engagement scenarios\n');
+
+  // ============================================================================
+  // REVIEWS (Family reviews of providers)
+  // ============================================================================
+  console.log('⭐ Creating review data...');
+
+  const reviewsData = [
+    // Reviews for Sunshine Manor (org1)
+    { providerId: providers.find(p => p.userId === org1.id)!.id, userId: family1.id, rating: 5, title: 'Exceptional care for my mother', content: 'Sunshine Manor has been wonderful for my mother. The staff is attentive, caring, and treats her like family. The facilities are clean and modern, and the activities keep her engaged and happy.', relationship: 'Daughter of resident', lengthOfStay: '6 months' },
+    { providerId: providers.find(p => p.userId === org1.id)!.id, userId: family2.id, rating: 4, title: 'Great community atmosphere', content: 'We chose Sunshine Manor after visiting several facilities. The community atmosphere stood out - residents genuinely seem happy here. Only minor issue is parking can be limited during busy visiting hours.', relationship: 'Son looking for care' },
+    { providerId: providers.find(p => p.userId === org1.id)!.id, userId: family8.id, rating: 5, title: 'Peace of mind knowing mom is safe', content: 'After years of worrying about my mom living alone, Sunshine Manor gave us peace of mind. The 24/7 care, emergency response system, and regular updates from staff are invaluable.', relationship: 'Daughter of resident', lengthOfStay: '1 year' },
+
+    // Reviews for La Jolla Estates (org3)
+    { providerId: providers.find(p => p.userId === org3.id)!.id, userId: family10.id, rating: 5, title: 'Worth every penny', content: 'Yes, La Jolla Estates is premium-priced, but the quality is unmatched. Ocean views, gourmet dining, spa services - my father feels like he is at a five-star resort while receiving excellent care.', relationship: 'Daughter of resident', lengthOfStay: '8 months' },
+    { providerId: providers.find(p => p.userId === org3.id)!.id, userId: family1.id, rating: 5, title: 'Luxury and care combined', content: 'If you can afford it, La Jolla Estates is the best choice. The staff-to-resident ratio is excellent, and the amenities are top-notch. My parents have never been happier.', relationship: 'Daughter of residents', lengthOfStay: '4 months' },
+
+    // Reviews for Memory Haven (org5)
+    { providerId: providers.find(p => p.userId === org5.id)!.id, userId: family3.id, rating: 5, title: 'Specialized care that makes a difference', content: 'Memory Haven truly understands dementia care. The secured environment gives us peace of mind, and the specialized activities help keep my mother engaged. The staff is trained specifically for memory care.', relationship: 'Son of resident', lengthOfStay: '3 months' },
+    { providerId: providers.find(p => p.userId === org5.id)!.id, userId: family4.id, rating: 4, title: 'Good memory care facility', content: 'Very professional staff with good dementia training. The wandering paths and sensory garden are great features. Would give 5 stars but wish visiting hours were more flexible.', relationship: 'Daughter of resident', lengthOfStay: '2 months' },
+
+    // Reviews for San Diego Skilled Nursing (org7)
+    { providerId: providers.find(p => p.userId === org7.id)!.id, userId: family7.id, rating: 5, title: 'Excellent skilled nursing care', content: 'After my mother\'s stroke, San Diego Skilled Nursing provided exceptional rehabilitation care. The physical therapists are skilled and the nursing staff is available 24/7. Highly recommend.', relationship: 'Son of patient', lengthOfStay: '2 months' },
+
+    // Reviews for CareFirst Home Services (org8)
+    { providerId: providers.find(p => p.userId === org8.id)!.id, userId: family5.id, rating: 5, title: 'Reliable home care agency', content: 'CareFirst has been providing in-home care for my father for 6 months. They matched us with a wonderful caregiver who understands Parkinsons. Very professional agency.', relationship: 'Daughter' },
+    { providerId: providers.find(p => p.userId === org8.id)!.id, userId: family6.id, rating: 4, title: 'Good caregivers, responsive agency', content: 'We use CareFirst for part-time companion care. The caregivers have been reliable and kind. Communication with the agency is good. Pricing is competitive.', relationship: 'Nephew' },
+
+    // Reviews for individual caregivers
+    { providerId: providers.find(p => p.userId === caregiver1.id)!.id, userId: family5.id, rating: 5, title: 'Maria is amazing!', content: 'Maria Santos has been caring for my father with Parkinsons for 3 months. She is patient, skilled, and treats him with such kindness. She has become part of our family.', relationship: 'Daughter' },
+    { providerId: providers.find(p => p.userId === caregiver3.id)!.id, userId: family7.id, rating: 5, title: 'Outstanding nursing skills', content: 'Rachel is an exceptional RN. Her wound care expertise helped my mother heal faster. She is professional, knowledgeable, and genuinely cares about her patients.', relationship: 'Son' },
+  ];
+
+  for (const review of reviewsData) {
+    await prisma.review.create({
+      data: {
+        ...review,
+        helpfulCount: Math.floor(Math.random() * 15),
+        createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
+  console.log('✅ Created 12 reviews across providers\n');
+
+  // ============================================================================
+  // UNCLAIMED PROVIDERS (for SEO/Claim testing)
+  // ============================================================================
+  console.log('📋 Creating unclaimed provider listings...');
+
+  // Unclaimed provider 1 - AL facility (from public data)
+  const unclaimedOrg1 = await prisma.user.create({
+    data: {
+      email: 'unclaimed-al-1@placeholder.olera.com',
+      name: 'Unclaimed Provider',
+      passwordHash: demoPassword,
+      role: 'PROVIDER',
+      activeMode: 'PROVIDER',
+      provider: {
+        create: {
+          name: 'Oceanview Senior Living',
+          providerType: 'ASSISTED_LIVING',
+          description: 'Assisted living community with ocean views.',
+          phone: '(760) 555-9001',
+          address: '100 Ocean Dr',
+          city: 'Oceanside',
+          state: 'CA',
+          zipCode: '92054',
+          careTypesOffered: ['PERSONAL_CARE', 'COMPANION_CARE'],
+          priceMin: 4000,
+          priceMax: 6000,
+          photos: ['https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800'],
+          claimed: false, // UNCLAIMED
+          verified: false,
+          active: true,
+          averageRating: 4.2,
+          reviewCount: 8,
+        },
+      },
+    },
+  });
+
+  // Unclaimed provider 2 - Home care agency
+  const unclaimedOrg2 = await prisma.user.create({
+    data: {
+      email: 'unclaimed-hc-1@placeholder.olera.com',
+      name: 'Unclaimed Provider',
+      passwordHash: demoPassword,
+      role: 'PROVIDER',
+      activeMode: 'PROVIDER',
+      provider: {
+        create: {
+          name: 'Comfort Home Care Services',
+          providerType: 'HOME_CARE',
+          description: 'In-home care services for seniors.',
+          phone: '(619) 555-9002',
+          address: '200 Care Blvd',
+          city: 'San Diego',
+          state: 'CA',
+          zipCode: '92105',
+          serviceRadius: 20,
+          careTypesOffered: ['COMPANION_CARE', 'PERSONAL_CARE'],
+          priceMin: 22,
+          priceMax: 35,
+          claimed: false, // UNCLAIMED
+          verified: false,
+          active: true,
+        },
+      },
+    },
+  });
+
+  // Unclaimed provider 3 - Memory care
+  const unclaimedOrg3 = await prisma.user.create({
+    data: {
+      email: 'unclaimed-mc-1@placeholder.olera.com',
+      name: 'Unclaimed Provider',
+      passwordHash: demoPassword,
+      role: 'PROVIDER',
+      activeMode: 'PROVIDER',
+      provider: {
+        create: {
+          name: 'Serenity Memory Care',
+          providerType: 'MEMORY_CARE',
+          description: 'Specialized memory care for Alzheimers and dementia.',
+          phone: '(858) 555-9003',
+          address: '300 Memory Way',
+          city: 'La Mesa',
+          state: 'CA',
+          zipCode: '91942',
+          careTypesOffered: ['MEMORY_CARE'],
+          priceMin: 5500,
+          priceMax: 7500,
+          photos: ['https://images.unsplash.com/photo-1584515933487-779824d29309?w=800'],
+          claimed: false, // UNCLAIMED
+          verified: false,
+          active: true,
+          averageRating: 4.5,
+          reviewCount: 5,
+        },
+      },
+    },
+  });
+
+  console.log('✅ Created 3 unclaimed provider listings\n');
+
+  // ============================================================================
+  // TAKEDOWN REQUESTS
+  // ============================================================================
+  console.log('🗑️  Creating takedown request scenarios...');
+
+  const unclaimedProviders = await prisma.provider.findMany({
+    where: { claimed: false },
+    select: { id: true },
+  });
+
+  if (unclaimedProviders.length >= 2) {
+    // Pending takedown request
+    await prisma.takedownRequest.create({
+      data: {
+        providerId: unclaimedProviders[0].id,
+        reason: 'NOT_MY_BUSINESS',
+        details: 'This listing does not represent our business. We are not affiliated with this provider.',
+        contactName: 'John Smith',
+        contactEmail: 'john.smith@example.com',
+        contactPhone: '(619) 555-0000',
+        status: 'PENDING',
+      },
+    });
+
+    // Approved takedown request
+    await prisma.takedownRequest.create({
+      data: {
+        providerId: unclaimedProviders[1].id,
+        reason: 'BUSINESS_CLOSED',
+        details: 'This business permanently closed in 2024.',
+        contactName: 'Jane Doe',
+        contactEmail: 'jane.doe@example.com',
+        status: 'APPROVED',
+        reviewedAt: new Date('2026-01-10T10:00:00Z'),
+        reviewNotes: 'Verified closure through business records.',
+      },
+    });
+  }
+
+  console.log('✅ Created 2 takedown request scenarios\n');
+
+  // ============================================================================
+  // SUBSCRIPTION STATES (for paywall testing)
+  // ============================================================================
+  console.log('💳 Creating subscription data for paywall testing...');
+
+  // PRO subscription for org1 (Sunshine Manor)
+  await prisma.subscription.create({
+    data: {
+      userId: org1.id,
+      tier: 'PRO',
+      status: 'ACTIVE',
+      contactViewsUsed: 15,
+      contactViewsLimit: null, // Unlimited for PRO
+      currentPeriodStart: new Date('2026-01-01T00:00:00Z'),
+      currentPeriodEnd: new Date('2026-02-01T00:00:00Z'),
+    },
+  });
+
+  // PRO subscription for org3 (La Jolla Estates)
+  await prisma.subscription.create({
+    data: {
+      userId: org3.id,
+      tier: 'PRO',
+      status: 'ACTIVE',
+      contactViewsUsed: 8,
+      contactViewsLimit: null,
+      currentPeriodStart: new Date('2026-01-01T00:00:00Z'),
+      currentPeriodEnd: new Date('2026-02-01T00:00:00Z'),
+    },
+  });
+
+  // FREE tier for org2 (Parkside Living) - hitting limits
+  await prisma.subscription.create({
+    data: {
+      userId: org2.id,
+      tier: 'FREE',
+      status: 'ACTIVE',
+      contactViewsUsed: 3,
+      contactViewsLimit: 3, // At limit, will trigger paywall
+      currentPeriodStart: new Date('2026-01-01T00:00:00Z'),
+      currentPeriodEnd: new Date('2026-02-01T00:00:00Z'),
+    },
+  });
+
+  // FREE tier for org4 (Riverside Senior Care) - under limit
+  await prisma.subscription.create({
+    data: {
+      userId: org4.id,
+      tier: 'FREE',
+      status: 'ACTIVE',
+      contactViewsUsed: 1,
+      contactViewsLimit: 3,
+      currentPeriodStart: new Date('2026-01-01T00:00:00Z'),
+      currentPeriodEnd: new Date('2026-02-01T00:00:00Z'),
+    },
+  });
+
+  // PRO subscription for caregiver1 (Maria Santos)
+  await prisma.subscription.create({
+    data: {
+      userId: caregiver1.id,
+      tier: 'PRO',
+      status: 'ACTIVE',
+      contactViewsUsed: 5,
+      contactViewsLimit: null,
+      currentPeriodStart: new Date('2026-01-01T00:00:00Z'),
+      currentPeriodEnd: new Date('2026-02-01T00:00:00Z'),
+    },
+  });
+
+  // FREE tier for caregiver4 (Angela Brooks) - at limit
+  await prisma.subscription.create({
+    data: {
+      userId: caregiver4.id,
+      tier: 'FREE',
+      status: 'ACTIVE',
+      contactViewsUsed: 3,
+      contactViewsLimit: 3,
+      currentPeriodStart: new Date('2026-01-01T00:00:00Z'),
+      currentPeriodEnd: new Date('2026-02-01T00:00:00Z'),
+    },
+  });
+
+  // Expired PRO subscription for org11 (Hillcrest AL)
+  await prisma.subscription.create({
+    data: {
+      userId: org11.id,
+      tier: 'PRO',
+      status: 'EXPIRED',
+      contactViewsUsed: 20,
+      contactViewsLimit: 3, // Reverted to FREE limits
+      currentPeriodStart: new Date('2025-12-01T00:00:00Z'),
+      currentPeriodEnd: new Date('2026-01-01T00:00:00Z'),
+    },
+  });
+
+  console.log('✅ Created 7 subscription records for paywall testing\n');
+
+  // ============================================================================
+  // NOTIFICATIONS (comprehensive for notification bell testing)
+  // ============================================================================
+  console.log('🔔 Creating comprehensive notification data...');
+
+  const now = new Date();
   const notificationData = [
-    // Family notifications
-    { userId: family1.id, type: 'MESSAGE', title: 'New message', body: 'Sunshine Manor replied to your inquiry', linkHref: '/requests', read: false },
-    { userId: family1.id, type: 'REQUEST_ACCEPTED', title: 'Request accepted!', body: 'Sunshine Manor accepted your consultation request', linkHref: '/requests', read: false },
-    { userId: family1.id, type: 'TOUR_PROPOSED', title: 'Tour proposed', body: 'Sunshine Manor proposed a tour for Thursday at 2pm', linkHref: '/requests', read: true },
-    { userId: family3.id, type: 'REQUEST_ACCEPTED', title: 'Request accepted!', body: 'Memory Haven is ready to connect', linkHref: '/requests', read: false },
-    { userId: family5.id, type: 'MESSAGE', title: 'New message', body: 'Maria Santos sent you a message', linkHref: '/requests', read: false },
+    // === TODAY - Family notifications ===
+    { userId: family1.id, type: 'MESSAGE', title: 'New message', body: 'Sunshine Manor replied to your inquiry', linkHref: '/requests', read: false, createdAt: new Date(now.getTime() - 1 * 60 * 60 * 1000) }, // 1 hour ago
+    { userId: family1.id, type: 'REQUEST_ACCEPTED', title: 'Request accepted!', body: 'Sunshine Manor accepted your consultation request', linkHref: '/requests', read: false, createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000) }, // 2 hours ago
+    { userId: family1.id, type: 'TOUR_PROPOSED', title: 'Tour proposed', body: 'Sunshine Manor proposed a tour for Thursday at 2pm', linkHref: '/requests', read: true, createdAt: new Date(now.getTime() - 4 * 60 * 60 * 1000) }, // 4 hours ago
+    { userId: family3.id, type: 'REQUEST_ACCEPTED', title: 'Request accepted!', body: 'Memory Haven is ready to connect', linkHref: '/requests', read: false, createdAt: new Date(now.getTime() - 30 * 60 * 1000) }, // 30 min ago
+    { userId: family5.id, type: 'MESSAGE', title: 'New message', body: 'Maria Santos sent you a message', linkHref: '/requests', read: false, createdAt: new Date(now.getTime() - 15 * 60 * 1000) }, // 15 min ago
 
-    // Provider notifications
-    { userId: org1.id, type: 'REQUEST_NEW', title: 'New inquiry', body: 'Sarah Johnson is interested in your services', linkHref: '/provider/requests', read: false },
-    { userId: org1.id, type: 'MESSAGE', title: 'New message', body: 'You have a message from a family', linkHref: '/provider/requests', read: false },
-    { userId: org5.id, type: 'REQUEST_NEW', title: 'Memory care inquiry', body: 'Family seeking memory care services', linkHref: '/provider/requests', read: false },
+    // === YESTERDAY - More family notifications ===
+    { userId: family1.id, type: 'TOUR_ACCEPTED', title: 'Tour confirmed!', body: 'Your tour with Sunshine Manor is confirmed for Thursday at 2pm', linkHref: '/requests', read: true, createdAt: new Date(now.getTime() - 28 * 60 * 60 * 1000) }, // Yesterday
+    { userId: family4.id, type: 'MESSAGE', title: 'New message', body: 'Orange County Senior Living sent you a message', linkHref: '/requests', read: true, createdAt: new Date(now.getTime() - 30 * 60 * 60 * 1000) },
+    { userId: family7.id, type: 'REQUEST_COMPLETED', title: 'Engagement completed', body: 'Your engagement with San Diego Skilled Nursing has been marked complete', linkHref: '/requests', read: true, createdAt: new Date(now.getTime() - 26 * 60 * 60 * 1000) },
 
-    // Caregiver notifications
-    { userId: caregiver1.id, type: 'REQUEST_NEW', title: 'Job inquiry', body: 'A family is interested in hiring you', linkHref: '/provider/requests', read: false },
-    { userId: caregiver4.id, type: 'REQUEST_NEW', title: 'Job opportunity', body: 'Hillcrest Assisted Living wants to interview you', linkHref: '/provider/requests', read: false },
+    // === THIS WEEK - Provider notifications ===
+    { userId: org1.id, type: 'REQUEST_NEW', title: 'New inquiry', body: 'Sarah Johnson is interested in your services', linkHref: '/provider/requests', read: false, createdAt: new Date(now.getTime() - 3 * 60 * 60 * 1000) }, // 3 hours ago
+    { userId: org1.id, type: 'MESSAGE', title: 'New message', body: 'You have a message from a family', linkHref: '/provider/requests', read: false, createdAt: new Date(now.getTime() - 5 * 60 * 60 * 1000) },
+    { userId: org5.id, type: 'REQUEST_NEW', title: 'Memory care inquiry', body: 'Family seeking memory care services', linkHref: '/provider/requests', read: false, createdAt: new Date(now.getTime() - 48 * 60 * 60 * 1000) }, // 2 days ago
+    { userId: org3.id, type: 'REQUEST_NEW', title: 'New inquiry', body: 'A family is interested in premium assisted living', linkHref: '/provider/requests', read: true, createdAt: new Date(now.getTime() - 72 * 60 * 60 * 1000) }, // 3 days ago
+    { userId: org6.id, type: 'MESSAGE', title: 'New message', body: 'Lisa Thompson sent you a message about memory care', linkHref: '/provider/requests', read: false, createdAt: new Date(now.getTime() - 24 * 60 * 60 * 1000) },
+
+    // === Caregiver notifications ===
+    { userId: caregiver1.id, type: 'REQUEST_NEW', title: 'Job inquiry', body: 'Emily Davis is interested in hiring you', linkHref: '/provider/requests', read: false, createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000) },
+    { userId: caregiver1.id, type: 'MESSAGE', title: 'New message', body: 'You have a new message about a live-in position', linkHref: '/provider/requests', read: true, createdAt: new Date(now.getTime() - 50 * 60 * 60 * 1000) },
+    { userId: caregiver4.id, type: 'REQUEST_NEW', title: 'Job opportunity', body: 'Hillcrest Assisted Living wants to interview you', linkHref: '/provider/requests', read: false, createdAt: new Date(now.getTime() - 6 * 60 * 60 * 1000) },
+    { userId: caregiver5.id, type: 'REQUEST_NEW', title: 'Memory care position', body: 'Memory Haven is interested in your profile', linkHref: '/provider/requests', read: false, createdAt: new Date(now.getTime() - 20 * 60 * 60 * 1000) },
+    { userId: caregiver3.id, type: 'MESSAGE', title: 'New message', body: 'William Lee sent you a message about skilled nursing care', linkHref: '/provider/requests', read: true, createdAt: new Date(now.getTime() - 96 * 60 * 60 * 1000) }, // 4 days ago
+
+    // === EARLIER (older than a week) ===
+    { userId: family2.id, type: 'REQUEST_DECLINED', title: 'Request update', body: 'Riverside Senior Care was unable to accommodate your request', linkHref: '/requests', read: true, createdAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000) }, // 10 days ago
+    { userId: family8.id, type: 'SYSTEM', title: 'Welcome to Olera!', body: 'Start your care search by browsing providers in your area', linkHref: '/browse', read: true, createdAt: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000) }, // 2 weeks ago
+    { userId: org7.id, type: 'PROFILE_VIEW', title: 'Profile viewed', body: 'A family viewed your profile', linkHref: '/provider/profile', read: true, createdAt: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000) },
+
+    // === Tour reminders ===
+    { userId: family1.id, type: 'TOUR_REMINDER', title: 'Tour reminder', body: 'Your tour with Sunshine Manor is tomorrow at 2pm', linkHref: '/requests', read: false, createdAt: new Date(now.getTime() - 12 * 60 * 60 * 1000) },
+
+    // === System notifications ===
+    { userId: org2.id, type: 'SYSTEM', title: 'Complete your profile', body: 'Add photos and pricing to attract more families', linkHref: '/provider/profile', read: false, createdAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000) },
+    { userId: caregiver6.id, type: 'SYSTEM', title: 'Tip: Add certifications', body: 'Profiles with certifications get 2x more inquiries', linkHref: '/provider/profile', read: true, createdAt: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000) },
   ];
 
   for (const notif of notificationData) {
@@ -1579,19 +1935,48 @@ async function main() {
         body: notif.body,
         linkHref: notif.linkHref,
         read: notif.read,
-        createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+        createdAt: notif.createdAt,
       },
     });
   }
 
-  console.log('✅ Created 10 notifications for demo accounts\n');
+  console.log('✅ Created 24 notifications across all time periods\n');
 
-  console.log('📊 Seed Summary:');
-  console.log('   - 30 total user accounts (12 families, 12 orgs, 6 caregivers)');
-  console.log('   - All profiles with varying completion levels');
-  console.log('   - All 3 engagement scenarios covered');
-  console.log('   - 10 notifications (for bell dropdown testing)');
-  console.log('   - Password for all accounts: demo123\n');
+  // ============================================================================
+  // SEED SUMMARY
+  // ============================================================================
+  console.log('📊 Comprehensive Seed Summary:');
+  console.log('   ┌─────────────────────────────────────────────────┐');
+  console.log('   │  ACCOUNTS                                       │');
+  console.log('   │  - 12 family accounts                           │');
+  console.log('   │  - 12 organization/facility providers           │');
+  console.log('   │  - 6 individual caregivers                      │');
+  console.log('   │  - 3 unclaimed providers (SEO listings)         │');
+  console.log('   ├─────────────────────────────────────────────────┤');
+  console.log('   │  ENGAGEMENTS                                    │');
+  console.log('   │  - 12 consultation/hiring requests              │');
+  console.log('   │  - 12 messages across conversations             │');
+  console.log('   │  - 1 scheduled tour                             │');
+  console.log('   │  - 8 saved providers                            │');
+  console.log('   │  - 3 declined/cancelled scenarios               │');
+  console.log('   ├─────────────────────────────────────────────────┤');
+  console.log('   │  REVIEWS & RATINGS                              │');
+  console.log('   │  - 12 reviews with ratings                      │');
+  console.log('   │  - Various relationship types                   │');
+  console.log('   ├─────────────────────────────────────────────────┤');
+  console.log('   │  SUBSCRIPTIONS (Paywall Testing)                │');
+  console.log('   │  - 3 PRO subscriptions (unlimited)              │');
+  console.log('   │  - 3 FREE subscriptions (at/near limit)         │');
+  console.log('   │  - 1 EXPIRED subscription                       │');
+  console.log('   ├─────────────────────────────────────────────────┤');
+  console.log('   │  ADMIN SCENARIOS                                │');
+  console.log('   │  - 2 takedown requests (pending + approved)     │');
+  console.log('   ├─────────────────────────────────────────────────┤');
+  console.log('   │  NOTIFICATIONS                                  │');
+  console.log('   │  - 24 notifications (Today/Yesterday/Earlier)   │');
+  console.log('   │  - All notification types covered               │');
+  console.log('   └─────────────────────────────────────────────────┘');
+  console.log('\n   Password for all accounts: demo123\n');
 
   console.log('✅ Comprehensive seed completed successfully!\n');
 }
