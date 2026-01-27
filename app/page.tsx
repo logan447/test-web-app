@@ -331,7 +331,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              Senior Care Near You
+              Explore Local Care Options
             </h2>
           </div>
 
