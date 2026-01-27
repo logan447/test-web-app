@@ -8,6 +8,7 @@ import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
+import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type HiringRequest = {
@@ -158,6 +159,11 @@ export default function CandidatesPage() {
           <OnboardingPrompt context="requests" />
         )}
 
+        {/* Profile completion nudge for users who have onboarded but profile isn't complete */}
+        {!needsOnboarding && (
+          <ProfileCompletionBanner />
+        )}
+
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex space-x-8">
@@ -186,42 +192,50 @@ export default function CandidatesPage() {
 
         {/* Requests List */}
         {requests.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <h3 className="mt-4 text-lg font-semibold text-gray-900">
-              {activeTab === 'received' ? 'No candidates yet' : 'No outreach sent yet'}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+            <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="h-8 w-8 text-violet-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              {activeTab === 'received' ? 'Build your team' : 'Ready to find talent?'}
             </h3>
-            <p className="mt-2 text-gray-600 max-w-md mx-auto">
+            <p className="text-gray-600 max-w-md mx-auto mb-6">
               {activeTab === 'received'
                 ? needsOnboarding
-                  ? 'Complete your organization profile to be discovered by caregivers looking for positions.'
-                  : 'Caregivers who are interested in working with your organization will appear here.'
-                : 'Browse available caregivers and reach out to start a conversation.'}
+                  ? 'Complete your organization profile so caregivers can discover you and express interest in joining your team.'
+                  : 'Caregivers who are interested in joining your team will appear here. Browse available caregivers to start building connections.'
+                : 'Find qualified caregivers who are open to employment opportunities. Browse profiles and reach out to start a conversation.'}
             </p>
             {activeTab === 'received' && needsOnboarding ? (
               <Link
                 href="/provider/profile/edit"
-                className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-semibold transition-colors"
               >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
                 Complete Your Profile
               </Link>
             ) : (
               <Link
                 href="/provider/hire-staff"
-                className="mt-6 inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-xl hover:bg-violet-700 font-semibold transition-colors"
               >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
                 Browse Caregivers
               </Link>
             )}

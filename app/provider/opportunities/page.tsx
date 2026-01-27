@@ -8,6 +8,8 @@ import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import WelcomeBanner from '@/components/Provider/WelcomeBanner';
+import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
+import PageHero from '@/components/UI/PageHero';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type HiringRequest = {
@@ -212,44 +214,29 @@ function OpportunitiesPageContent() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Header */}
-      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">My Opportunities</h1>
-              <p className="text-primary-100 text-lg">
-                Manage your job opportunities and connect with care organizations
-              </p>
-            </div>
-            <Link
-              href="/providers/browse-organizations"
-              className="hidden md:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Find Organizations
-            </Link>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">{activeRequests.length}</div>
-              <div className="text-primary-100 text-sm">Active Conversations</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">{pendingReceived.length}</div>
-              <div className="text-primary-100 text-sm">Pending Responses</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">{organizationMatches.length}</div>
-              <div className="text-primary-100 text-sm">Organization Matches</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Hero Header - Using PageHero for consistency */}
+      <PageHero
+        title="My Opportunities"
+        subtitle="Manage your job opportunities and connect with care organizations"
+        variant="primary"
+        compact
+        stats={[
+          { value: activeRequests.length, label: "Active Conversations" },
+          { value: pendingReceived.length, label: "Pending Responses" },
+          { value: organizationMatches.length, label: "Organization Matches" },
+        ]}
+        actions={
+          <Link
+            href="/providers/browse-organizations"
+            className="hidden md:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Find Organizations
+          </Link>
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome banner for new users */}
@@ -264,6 +251,11 @@ function OpportunitiesPageContent() {
           <div className="mb-8">
             <OnboardingPrompt context="requests" />
           </div>
+        )}
+
+        {/* Profile completion nudge for users who have onboarded but profile isn't complete */}
+        {!needsOnboarding && !showWelcome && (
+          <ProfileCompletionBanner />
         )}
 
         {/* Organization Matches Section */}
@@ -307,8 +299,8 @@ function OpportunitiesPageContent() {
                 <svg className="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
-                <h3 className="font-semibold text-gray-900 mb-1">No matches yet</h3>
-                <p className="text-gray-600 text-sm mb-4">Complete your profile to get matched with organizations</p>
+                <h3 className="font-semibold text-gray-900 mb-1">Build your profile to get matched</h3>
+                <p className="text-gray-600 text-sm mb-4">Organizations hire from profiles like yours every day. Add your skills and experience to start receiving matches.</p>
                 <Link
                   href="/provider/profile/edit"
                   className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors"
@@ -461,15 +453,15 @@ function OpportunitiesPageContent() {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {activeTab === 'sent'
-                    ? 'No applications sent yet'
-                    : 'No opportunities received yet'}
+                    ? 'Ready to find your next opportunity?'
+                    : 'Get discovered by employers'}
                 </h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
                   {activeTab === 'received'
                     ? needsOnboarding
-                      ? 'Complete your caregiver profile to be discovered by organizations looking to hire.'
-                      : 'Organizations looking for caregivers will appear here when they reach out.'
-                    : 'Browse organizations and apply to positions that interest you.'}
+                      ? 'Complete your profile to appear in searches. Organizations hire caregivers with complete profiles 3x more often.'
+                      : 'Your profile is live! Organizations will reach out when they find a match. Check back regularly.'
+                    : 'Browse hiring organizations in your area. Apply to 3-5 that match your skills for the best results.'}
                 </p>
                 {activeTab === 'received' && needsOnboarding ? (
                   <Link

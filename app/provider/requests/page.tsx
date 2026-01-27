@@ -7,6 +7,7 @@ import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import Tooltip from "@/components/UI/Tooltip";
+import PageHero from "@/components/UI/PageHero";
 import OnboardingPrompt from "@/components/Provider/OnboardingPrompt";
 import { useProviderIdentity } from "@/hooks/useProviderIdentity";
 
@@ -298,71 +299,19 @@ export default function ProviderRequestsPage() {
     <div className="min-h-screen bg-gray-50">
       <MainNav />
 
-      {/* Hero Header with Gradient */}
-      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold mb-3">Family Connections</h1>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl">
-            Manage your family connections and discover new care opportunities
-          </p>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-xl">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{matchedFamilies.length}</p>
-                  <p className="text-sm text-blue-200">Matched Families</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-500/30 rounded-xl">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{pendingCount}</p>
-                  <p className="text-sm text-blue-200">Pending</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-500/30 rounded-xl">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{activeCount}</p>
-                  <p className="text-sm text-blue-200">Active</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-xl">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{totalMessages}</p>
-                  <p className="text-sm text-blue-200">Messages</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Hero Header - Using PageHero for consistency */}
+      <PageHero
+        title="Conversations"
+        subtitle="Manage your family connections and discover new care opportunities"
+        variant="primary"
+        compact
+        stats={[
+          { value: matchedFamilies.length, label: "Matched Families" },
+          { value: pendingCount, label: "Pending" },
+          { value: activeCount, label: "Active" },
+          { value: totalMessages, label: "Messages" },
+        ]}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Onboarding prompt for incomplete profiles */}
@@ -455,17 +404,23 @@ export default function ProviderRequestsPage() {
               </>
             ) : (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <p className="text-gray-600 mb-4">No matched families yet. Complete your profile to appear in search results.</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Find your first family match</h3>
+                <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                  Families are matched based on your services and location. Browse family inquiries to find families who need your care.
+                </p>
                 <Link
                   href="/provider/leads"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="inline-flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl hover:bg-emerald-700 font-medium transition-colors"
                 >
-                  Browse All Families →
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Browse Family Inquiries
                 </Link>
               </div>
             )}
@@ -516,9 +471,9 @@ export default function ProviderRequestsPage() {
               </div>
             ) : requests.length === 0 ? (
               <div className="py-12 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg
-                    className="h-8 w-8 text-gray-400"
+                    className="h-8 w-8 text-blue-500"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -533,29 +488,47 @@ export default function ProviderRequestsPage() {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {activeTab === "sent"
-                    ? "No outreach sent yet"
-                    : "No requests received yet"}
+                    ? "Ready to connect with families?"
+                    : "Start receiving family requests"}
                 </h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
                   {activeTab === "received"
                     ? needsOnboarding
                       ? "Complete your provider profile to appear in family searches and start receiving care requests."
-                      : "Families looking for care providers will appear here when they reach out to you."
-                    : "Browse family care requests and reach out to families who need your services."}
+                      : "Make sure your profile is complete and up-to-date so families can find you. New families join every day!"
+                    : "Browse family inquiries to find families who need your care services. Reach out to start a conversation."}
                 </p>
                 {activeTab === "received" && needsOnboarding && (
                   <Link
                     href="/provider/profile/edit"
-                    className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-medium transition-colors"
+                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-medium transition-colors"
                   >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                     Complete Your Profile
+                  </Link>
+                )}
+                {activeTab === "received" && !needsOnboarding && (
+                  <Link
+                    href="/provider/profile"
+                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-medium transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Review Your Profile
                   </Link>
                 )}
                 {activeTab === "sent" && (
                   <Link
                     href="/provider/leads"
-                    className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-medium transition-colors"
+                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-medium transition-colors"
                   >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                     Browse Family Inquiries
                   </Link>
                 )}

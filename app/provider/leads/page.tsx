@@ -13,6 +13,7 @@ import FamilyFiltersBar, { FamilyFilters } from '@/components/Directory/FamilyFi
 import ScrollToTop from '@/components/Directory/ScrollToTop';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import WelcomeBanner from '@/components/Provider/WelcomeBanner';
+import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 import PageHero from '@/components/UI/PageHero';
 
@@ -414,6 +415,11 @@ function ProviderLeadsPageContent() {
           </div>
         )}
 
+        {/* Profile completion nudge for users who have onboarded but profile isn't complete */}
+        {!needsOnboarding && !showWelcome && (
+          <ProfileCompletionBanner />
+        )}
+
         {/* Hiring Marketplace CTA for Organizations (A-150) */}
         {hasIdentity && (
           <div className="mb-8 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-4 flex items-center justify-between">
@@ -637,12 +643,12 @@ function ProviderLeadsPageContent() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No care requests found
+              No family inquiries found
             </h3>
             <p className="text-gray-600 mb-6">
               {profiles.length === 0
-                ? 'No families have posted care requests yet. Check back soon!'
-                : 'Try adjusting your search filters to see more results.'}
+                ? 'New families are joining every day. Make sure your profile is complete so they can find you!'
+                : 'Try adjusting your filters, or clear them to see all available inquiries.'}
             </p>
             {(filters.city || filters.state || filters.careTypes.length > 0) && (
               <button

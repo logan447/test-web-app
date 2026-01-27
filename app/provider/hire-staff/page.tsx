@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import CaregiverCard from '@/components/Directory/CaregiverCard';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
+import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type Caregiver = {
@@ -210,6 +211,11 @@ export default function HireStaffPage() {
           </div>
         )}
 
+        {/* Profile completion nudge for users who have onboarded but profile isn't complete */}
+        {!needsOnboarding && (
+          <ProfileCompletionBanner />
+        )}
+
         {/* Info banner for independent caregivers */}
         {isIndependentCaregiver && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-6">
@@ -257,7 +263,7 @@ export default function HireStaffPage() {
 
         {/* Results */}
         {caregivers.length === 0 ? (
-          <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-12 text-center">
+          <div className="bg-white shadow-sm rounded-2xl border border-gray-100 p-12 text-center">
             <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg
                 className="w-10 h-10 text-violet-500"
@@ -273,17 +279,30 @@ export default function HireStaffPage() {
                 />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">No caregivers available yet</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Caregivers coming soon</h3>
             <p className="text-gray-600 max-w-md mx-auto mb-6">
-              Independent caregivers who are available for organization employment will appear here.
-              Check back soon as more caregivers join the platform.
+              We&apos;re building a network of qualified independent caregivers. In the meantime, connect directly with families who are seeking care.
             </p>
-            <Link
-              href="/provider/leads"
-              className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-xl hover:bg-primary-700 font-semibold transition-colors"
-            >
-              Browse Family Inquiries Instead
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/provider/leads"
+                className="inline-flex items-center justify-center gap-2 bg-violet-600 text-white px-6 py-3 rounded-xl hover:bg-violet-700 font-semibold transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Browse Family Inquiries
+              </Link>
+              <Link
+                href="/provider/candidates"
+                className="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-50 font-semibold transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                View Your Candidates
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
