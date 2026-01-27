@@ -6,6 +6,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import { showToast } from '@/lib/toast';
 import PaywallModal from '@/components/Paywall/PaywallModal';
 import EnhancedFamilyCard from '@/components/Directory/EnhancedFamilyCard';
@@ -375,6 +376,7 @@ function ProviderLeadsPageContent() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <MainNav />
+      <Breadcrumb />
 
       {/* PageHero - Clear page purpose (A-146) */}
       <PageHero

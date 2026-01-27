@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
@@ -213,6 +214,7 @@ function OpportunitiesPageContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       {/* Hero Header - Using PageHero for consistency */}
       <PageHero

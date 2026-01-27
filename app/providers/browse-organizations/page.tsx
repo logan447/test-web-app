@@ -11,6 +11,7 @@ import AuthModal from '@/components/Auth/AuthModal';
 import PageHero from '@/components/UI/PageHero';
 import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
+import OrganizationCard from '@/components/Directory/OrganizationCard';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type Organization = {
@@ -448,94 +449,37 @@ function BrowseOrganizationsContent() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-4">
                 {organizations.map((org) => {
                   const requestId = requestedOrgIds.get(org.id);
                   return (
-                    <div
+                    <OrganizationCard
                       key={org.id}
-                      className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all flex flex-col"
-                    >
-                      {/* Image */}
-                      <div className="relative h-36 bg-gradient-to-br from-gray-100 to-gray-200">
-                        {org.coverPhoto || org.photos?.[0] ? (
-                          <img
-                            src={org.coverPhoto || org.photos?.[0]}
-                            alt={org.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <svg className="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                          </div>
-                        )}
-                        {/* Status Badge */}
-                        {requestId && (
-                          <div className="absolute top-3 right-3 bg-primary-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                            In Progress
-                          </div>
-                        )}
-                        {/* Type Badge */}
-                        <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium text-gray-700">
-                          {formatProviderType(org.providerType)}
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-4 flex-1 flex flex-col">
-                        <h3 className="font-semibold text-gray-900 mb-1">
-                          {org.name}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {org.city}, {org.state}
-                        </p>
-
-                        {org.description && (
-                          <p className="text-sm text-gray-500 line-clamp-2 mb-3 flex-1">
-                            {org.description}
-                          </p>
-                        )}
-
-                        {/* Trust Badges */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {org.licensed && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                              Licensed
-                            </span>
-                          )}
-                          {org.verified && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                              Verified
-                            </span>
-                          )}
-                        </div>
-
-                        {/* CTA */}
-                        {requestId ? (
-                          <Link
-                            href={`/provider/opportunities/${requestId}`}
-                            className="block w-full text-center py-2.5 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-                          >
-                            View Conversation
-                          </Link>
-                        ) : (
-                          <Link
-                            href={`/providers/browse-organizations/${org.id}`}
-                            className="block w-full text-center py-2.5 px-4 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
-                          >
-                            Apply Now
-                          </Link>
-                        )}
-                      </div>
-                    </div>
+                      organization={{
+                        id: org.id,
+                        name: org.name,
+                        providerType: org.providerType,
+                        description: org.description,
+                        careTypesOffered: org.careTypesOffered,
+                        city: org.city,
+                        state: org.state,
+                        yearsInBusiness: org.yearsInBusiness,
+                        licensed: org.licensed,
+                        email: org.email,
+                        phone: org.phone,
+                        coverPhoto: org.coverPhoto,
+                        photos: org.photos,
+                        verified: org.verified,
+                        backgroundChecked: org.backgroundChecked,
+                        insuranceVerified: org.insuranceVerified,
+                      }}
+                      hasRequest={!!requestId}
+                      linkHref={
+                        requestId
+                          ? `/provider/opportunities/${requestId}`
+                          : `/providers/browse-organizations/${org.id}`
+                      }
+                    />
                   );
                 })}
               </div>

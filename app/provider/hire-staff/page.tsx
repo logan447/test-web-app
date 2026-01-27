@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import MainNav from '@/components/Navigation/MainNav';
 import Footer from '@/components/Navigation/Footer';
+import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import Link from 'next/link';
 import { ProfileCardsSkeleton } from '@/components/UI/Skeleton';
 import CaregiverCard from '@/components/Directory/CaregiverCard';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
+import WelcomeBanner from '@/components/Provider/WelcomeBanner';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type Caregiver = {
@@ -43,6 +45,7 @@ export default function HireStaffPage() {
     city: '',
     careType: '',
   });
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const isProviderMode = session?.user?.activeMode === 'PROVIDER';
   const { needsOnboarding, loading: identityLoading } = useProviderIdentity({
@@ -156,6 +159,7 @@ export default function HireStaffPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
+      <Breadcrumb />
 
       {/* Hero Header */}
       <div className="bg-gradient-to-br from-violet-600 via-violet-700 to-purple-800 text-white">
@@ -204,15 +208,22 @@ export default function HireStaffPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome banner for new users */}
+        <WelcomeBanner
+          variant="organization"
+          isVisible={showWelcome}
+          onDismiss={() => setShowWelcome(false)}
+        />
+
         {/* Onboarding Prompt */}
-        {needsOnboarding && (
+        {needsOnboarding && !showWelcome && (
           <div className="mb-8">
             <OnboardingPrompt context="hire" />
           </div>
         )}
 
         {/* Profile completion nudge for users who have onboarded but profile isn't complete */}
-        {!needsOnboarding && (
+        {!needsOnboarding && !showWelcome && (
           <ProfileCompletionBanner />
         )}
 

@@ -9,6 +9,8 @@ import Footer from '@/components/Navigation/Footer';
 import Breadcrumb from '@/components/Navigation/Breadcrumb';
 import OnboardingPrompt from '@/components/Provider/OnboardingPrompt';
 import ProfileCompletionBanner from '@/components/Provider/ProfileCompletionBanner';
+import WelcomeBanner from '@/components/Provider/WelcomeBanner';
+import PageHero from '@/components/UI/PageHero';
 import { useProviderIdentity } from '@/hooks/useProviderIdentity';
 
 type HiringRequest = {
@@ -52,6 +54,7 @@ export default function CandidatesPage() {
   const [sentRequests, setSentRequests] = useState<HiringRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
+  const [showWelcome, setShowWelcome] = useState(false);
 
   // Check for provider identity (Manual Ch 8: gentle nudges, not forced redirects)
   const { needsOnboarding, loading: identityLoading } = useProviderIdentity({
@@ -141,18 +144,46 @@ export default function CandidatesPage() {
 
   const requests = activeTab === 'received' ? receivedRequests : sentRequests;
 
+  const totalCandidates = receivedRequests.length + sentRequests.length;
+  const pendingCount = [...receivedRequests, ...sentRequests].filter(r => r.status === 'PENDING').length;
+  const acceptedCount = [...receivedRequests, ...sentRequests].filter(r => r.status === 'ACCEPTED').length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MainNav />
       <Breadcrumb />
 
+      {/* Hero using PageHero for consistency */}
+      <PageHero
+        title="My Candidates"
+        subtitle="Manage your hiring conversations with independent caregivers"
+        variant="primary"
+        compact
+        stats={[
+          { value: totalCandidates, label: "Total Candidates" },
+          { value: pendingCount, label: "Pending" },
+          { value: acceptedCount, label: "In Conversation" },
+        ]}
+        actions={
+          <Link
+            href="/provider/hire-staff"
+            className="hidden md:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Browse Caregivers
+          </Link>
+        }
+      />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Candidates</h1>
-          <p className="text-lg text-gray-600">
-            Manage your hiring conversations with independent caregivers
-          </p>
-        </div>
+        {/* Welcome banner for new users */}
+        <WelcomeBanner
+          variant="organization"
+          isVisible={showWelcome}
+          onDismiss={() => setShowWelcome(false)}
+        />
 
         {/* Onboarding prompt for incomplete profiles */}
         {needsOnboarding && (
@@ -160,7 +191,7 @@ export default function CandidatesPage() {
         )}
 
         {/* Profile completion nudge for users who have onboarded but profile isn't complete */}
-        {!needsOnboarding && (
+        {!needsOnboarding && !showWelcome && (
           <ProfileCompletionBanner />
         )}
 
