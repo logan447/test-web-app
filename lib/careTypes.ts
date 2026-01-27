@@ -27,43 +27,43 @@ export const CARE_TYPE_CONFIG: Record<
     description:
       "Help with daily activities like bathing, dressing, and grooming",
     icon: "✋",
-    familyLabel: "Help with daily activities (bathing, dressing)",
+    familyLabel: "Daily living help",
   },
   COMPANION_CARE: {
     label: "Companion Care",
     description: "Companionship, conversation, and social support",
     icon: "👥",
-    familyLabel: "Companionship and social support",
+    familyLabel: "Companionship",
   },
   SKILLED_NURSING: {
     label: "Skilled Nursing",
     description: "Medical care from a licensed nurse",
     icon: "🏥",
-    familyLabel: "Medical care from a nurse",
+    familyLabel: "Nursing care",
   },
   MEMORY_CARE: {
     label: "Memory Care",
     description: "Specialized support for memory conditions and dementia",
     icon: "🧠",
-    familyLabel: "Memory or dementia support",
+    familyLabel: "Memory support",
   },
   HOSPICE_CARE: {
     label: "Hospice Care",
     description: "Comfort-focused end-of-life care",
     icon: "💜",
-    familyLabel: "End-of-life comfort care",
+    familyLabel: "End-of-life care",
   },
   RESPITE_CARE: {
     label: "Respite Care",
     description: "Short-term relief for family caregivers",
     icon: "🔄",
-    familyLabel: "Short-term relief for family caregivers",
+    familyLabel: "Short-term relief",
   },
   LIVE_IN_CARE: {
     label: "Live-In Care",
     description: "Around-the-clock in-home care",
     icon: "🏠",
-    familyLabel: "24/7 in-home care",
+    familyLabel: "24/7 home care",
   },
 };
 

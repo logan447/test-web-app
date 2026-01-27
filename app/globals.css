@@ -201,6 +201,25 @@ body {
   }
 }
 
+/* Confetti animation for celebration screens */
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(-20px) rotate(0deg) scale(1);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(300px) rotate(720deg) scale(0.3);
+  }
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall 2s ease-out forwards;
+}
+
 /* Loading skeleton */
 @keyframes shimmer {
   0% {

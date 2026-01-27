@@ -456,14 +456,20 @@ function FamilyFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepProps)
           <label htmlFor="familyName" className="block text-sm font-medium text-gray-700 mb-1">
             Who needs care?
           </label>
-          <input
+          <select
             id="familyName"
-            type="text"
-            placeholder="e.g., My mother, My father, Myself"
             value={localData.familyName}
             onChange={(e) => setLocalData({ ...localData, familyName: e.target.value })}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          />
+          >
+            <option value="">Select...</option>
+            <option value="My mother">My mother</option>
+            <option value="My father">My father</option>
+            <option value="My spouse">My spouse</option>
+            <option value="Myself">Myself</option>
+            <option value="Another family member">Another family member</option>
+            <option value="A friend">A friend</option>
+          </select>
         </div>
 
         <div>
@@ -800,28 +806,20 @@ function FamilyVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
         Can providers reach out to you?
       </p>
 
-      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={isPublic}
-            onChange={(e) => setIsPublic(e.target.checked)}
-            className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-          />
-          <div>
-            <span className="font-medium text-gray-900">Yes, let providers contact me</span>
-            <p className="text-sm text-gray-600 mt-1">
-              You decide who to respond to.
-            </p>
-          </div>
-        </label>
-      </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
-        <p className="text-sm text-blue-800">
-          Your contact info stays private until you choose to share it.
-        </p>
-      </div>
+      <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
+        <input
+          type="checkbox"
+          checked={isPublic}
+          onChange={(e) => setIsPublic(e.target.checked)}
+          className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+        />
+        <div>
+          <span className="font-medium text-gray-900">Yes, let providers contact me</span>
+          <p className="text-sm text-gray-500 mt-1">
+            Your contact info stays private until you choose to share it.
+          </p>
+        </div>
+      </label>
 
       <div className="flex gap-3 pt-4">
         {onBack && (
@@ -880,18 +878,18 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <p className="text-gray-600 text-center">
         {isOrganization
           ? "Choose how you want to use Olera."
           : "Where do you want to find work?"}
       </p>
 
-      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-        {/* Organization options - two equal-level checkboxes */}
+      <div className="space-y-3">
+        {/* Organization options */}
         {isOrganization && (
           <>
-            <label className="flex items-start gap-3 cursor-pointer">
+            <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
               <input
                 type="checkbox"
                 checked={visibleToFamilies}
@@ -900,10 +898,10 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
               />
               <div>
                 <span className="font-medium text-gray-900">Get found by families</span>
-                <p className="text-sm text-gray-500">Families searching for care can discover your organization</p>
+                <p className="text-sm text-gray-500">Families can discover your organization</p>
               </div>
             </label>
-            <label className="flex items-start gap-3 cursor-pointer">
+            <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
               <input
                 type="checkbox"
                 checked={hiringCaregivers}
@@ -912,16 +910,16 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
               />
               <div>
                 <span className="font-medium text-gray-900">Hire caregivers</span>
-                <p className="text-sm text-gray-500">Access our marketplace of caregivers looking for work</p>
+                <p className="text-sm text-gray-500">Find caregivers looking for work</p>
               </div>
             </label>
           </>
         )}
 
-        {/* Individual caregiver options - two equal-level checkboxes */}
+        {/* Individual caregiver options */}
         {isIndividual && (
           <>
-            <label className="flex items-start gap-3 cursor-pointer">
+            <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
               <input
                 type="checkbox"
                 checked={availableForOrganizations}
@@ -929,11 +927,11 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
                 className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <div>
-                <span className="font-medium text-gray-900">Jobs at care organizations</span>
-                <p className="text-sm text-gray-500">Agencies and facilities can see your profile and hire you</p>
+                <span className="font-medium text-gray-900">Jobs at organizations</span>
+                <p className="text-sm text-gray-500">Agencies and facilities can hire you</p>
               </div>
             </label>
-            <label className="flex items-start gap-3 cursor-pointer">
+            <label className="flex items-start gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors">
               <input
                 type="checkbox"
                 checked={availableForFamilies}
@@ -942,20 +940,16 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
               />
               <div>
                 <span className="font-medium text-gray-900">Direct hire by families</span>
-                <p className="text-sm text-gray-500">Families can hire you directly for private care</p>
+                <p className="text-sm text-gray-500">Families can hire you for private care</p>
               </div>
             </label>
           </>
         )}
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
-        <p className="text-sm text-blue-800">
-          You can change these settings anytime in your profile.
-        </p>
-      </div>
+      <p className="text-xs text-gray-400 text-center">You can change these anytime in your profile.</p>
 
-      <div className="flex gap-3 pt-4">
+      <div className="flex gap-3 pt-2">
         {onBack && (
           <button
             type="button"
@@ -977,8 +971,15 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
 }
 
 function CompleteStep({ data, onNext, pendingAction }: StepProps) {
-  const [countdown, setCountdown] = useState(4);
+  const [countdown, setCountdown] = useState(3);
   const hasTriggeredRef = useRef(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // Trigger confetti on mount
+  useEffect(() => {
+    const t = setTimeout(() => setShowConfetti(true), 200);
+    return () => clearTimeout(t);
+  }, []);
 
   // Auto-redirect after countdown
   useEffect(() => {
@@ -1001,108 +1002,65 @@ function CompleteStep({ data, onNext, pendingAction }: StepProps) {
     return () => clearInterval(timer);
   }, [onNext]);
 
-  const getMessage = () => {
-    // Contextual message when there's a pending action (engagement will be created)
-    if (pendingAction) {
-      if (pendingAction.type === 'contact') {
-        return `Your profile has been shared with ${pendingAction.providerName}. Redirecting to your conversation...`;
-      }
-      if (pendingAction.type === 'save') {
-        return `Saving ${pendingAction.providerName} to your list...`;
-      }
-      if (pendingAction.type === 'review') {
-        return `Opening review form for ${pendingAction.providerName}...`;
-      }
+  const getSubtext = () => {
+    if (pendingAction?.type === 'contact') {
+      return `Connecting you with ${pendingAction.providerName}...`;
     }
-    return null; // Will show value props instead
-  };
-
-  const getRedirectText = () => {
-    if (pendingAction) {
-      return "Redirecting to your conversation...";
+    if (pendingAction?.type === 'save') {
+      return `Saving ${pendingAction.providerName}...`;
     }
-    if (data.intent === "provider") {
-      if (data.providerSubtype === "individual") {
-        return "Taking you to find work...";
-      }
-      return "Taking you to see family inquiries...";
-    }
-    return "Taking you to browse providers...";
-  };
-
-  const getLocation = () => {
     if (data.intent === "family") {
-      return data.familyLocation || "your area";
+      return "Your profile is ready. Let\u2019s find the right care.";
     }
-    if (data.providerSubtype === "organization") {
-      return data.orgLocation || "your area";
+    if (data.providerSubtype === "individual") {
+      return "Your profile is live. Let\u2019s find work.";
     }
-    return data.caregiverLocation || "your area";
+    return "Your profile is live. Families can find you now.";
   };
-
-  // Value props based on user type
-  const getValueProps = () => {
-    if (data.intent === "family") {
-      return [
-        { icon: "🔍", text: "Browse care providers in your area" },
-        { icon: "📅", text: "Schedule tours and consultations" },
-        { icon: "💬", text: "Message providers directly" },
-      ];
-    }
-    if (data.providerSubtype === "organization") {
-      return [
-        { icon: "👨‍👩‍👧", text: "Families can now find and contact you" },
-        { icon: "👥", text: "Access caregivers looking for work" },
-        { icon: "📅", text: "Schedule meetings with interested families" },
-      ];
-    }
-    // Individual caregiver
-    return [
-      { icon: "🏢", text: "Agencies and facilities can see your profile" },
-      { icon: "👨‍👩‍👧", text: "Families can hire you directly" },
-      { icon: "💼", text: "Apply to open positions" },
-    ];
-  };
-
-  const pendingMessage = getMessage();
 
   return (
-    <div className="space-y-6 text-center">
-      {/* Celebration icon */}
-      <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-        <span className="text-4xl">🎉</span>
-      </div>
-
-      <div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">
-          {pendingAction ? "You're connected!" : "You're all set!"}
-        </h3>
-        {pendingMessage ? (
-          <p className="text-gray-600">{pendingMessage}</p>
-        ) : (
-          <p className="text-gray-600">
-            Your profile is ready in <span className="font-medium">{getLocation()}</span>.
-          </p>
-        )}
-      </div>
-
-      {/* Value props - only show if no pending action */}
-      {!pendingAction && (
-        <div className="bg-gray-50 rounded-xl p-4 text-left space-y-3">
-          <p className="text-sm font-medium text-gray-700 text-center mb-3">What&apos;s next:</p>
-          {getValueProps().map((prop, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <span className="text-xl">{prop.icon}</span>
-              <span className="text-sm text-gray-700">{prop.text}</span>
-            </div>
+    <div className="space-y-6 text-center relative overflow-hidden">
+      {/* Confetti animation */}
+      {showConfetti && (
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          {Array.from({ length: 24 }).map((_, i) => (
+            <span
+              key={i}
+              className="absolute rounded-full animate-confetti-fall"
+              style={{
+                left: `${Math.random() * 100}%`,
+                width: `${4 + Math.random() * 6}px`,
+                height: `${4 + Math.random() * 6}px`,
+                backgroundColor: [
+                  '#0D9488', '#14B8A6', '#2DD4BF',
+                  '#F59E0B', '#8B5CF6', '#EC4899',
+                  '#3B82F6', '#10B981',
+                ][i % 8],
+                animationDelay: `${Math.random() * 0.8}s`,
+                animationDuration: `${1.2 + Math.random() * 1}s`,
+              }}
+            />
           ))}
         </div>
       )}
 
+      {/* Celebration icon */}
+      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+        <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          {pendingAction ? "You\u2019re connected!" : "You\u2019re all set!"}
+        </h3>
+        <p className="text-gray-600">{getSubtext()}</p>
+      </div>
+
       {/* Auto-redirect indicator */}
       <div className="flex flex-col items-center gap-2 pt-2">
         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
-        <p className="text-sm text-gray-500">{getRedirectText()}</p>
       </div>
 
       {/* Skip waiting button */}
