@@ -149,9 +149,9 @@ export default function OrganizationDetailPage() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast.success('Application sent! Check My Candidates to track responses.');
+        showToast.success('Application sent! Track responses in My Opportunities.');
         setRequestMessage('');
-        router.push('/provider/candidates');
+        router.push('/provider/opportunities');
       } else {
         if (data.requiresUpgrade) {
           setPaywallOpen(true);
