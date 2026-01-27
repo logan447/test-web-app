@@ -45,20 +45,16 @@ type Provider = {
   claimed?: boolean;
 };
 
-// Main category filter buttons (shown in expanded toolbar)
-const CARE_CATEGORIES = [
+// All category filter buttons (shown in expanded toolbar — no "More" dropdown)
+const ALL_CARE_CATEGORIES = [
   { label: "Home Care", type: "HOME_CARE" },
   { label: "Assisted Living", type: "ASSISTED_LIVING" },
   { label: "Memory Care", type: "MEMORY_CARE" },
   { label: "Nursing Homes", type: "NURSING_HOME" },
-];
-
-const MORE_CATEGORIES = [
-  { label: "Home Health", type: "HOME_HEALTH" },
   { label: "Independent Living", type: "INDEPENDENT_LIVING" },
+  { label: "Rehab", type: "REHABILITATION" },
   { label: "Hospice", type: "HOSPICE" },
-  { label: "Rehabilitation", type: "REHABILITATION" },
-  { label: "Caregiver", type: "INDEPENDENT_CAREGIVER" },
+  { label: "Private Caregivers", type: "INDEPENDENT_CAREGIVER" },
 ];
 
 // Care services for search bar
@@ -135,7 +131,6 @@ function BrowseContent() {
 
   // Toolbar state
   const [searchExpanded, setSearchExpanded] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
@@ -239,7 +234,6 @@ function BrowseContent() {
     const handleClick = (e: MouseEvent) => {
       if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node)) {
         setSearchExpanded(false);
-        setMoreOpen(false);
       }
     };
     // Delay to avoid catching the focus click itself
@@ -251,18 +245,6 @@ function BrowseContent() {
       document.removeEventListener("click", handleClick);
     };
   }, [searchExpanded]);
-
-  // Close more dropdown on outside click
-  useEffect(() => {
-    if (!moreOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest("[data-more-menu]")) {
-        setMoreOpen(false);
-      }
-    };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, [moreOpen]);
 
   // Mode switching handler
   const handleModeSwitch = async (newMode: "FAMILY" | "PROVIDER") => {
@@ -383,7 +365,6 @@ function BrowseContent() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchExpanded(false);
-    setMoreOpen(false);
     // Fetching is automatic via useEffect when state changes
   };
 
@@ -403,23 +384,23 @@ function BrowseContent() {
       {searchExpanded && (
         <div
           className="fixed inset-0 bg-black/20 z-30 transition-opacity"
-          onClick={() => { setSearchExpanded(false); setMoreOpen(false); }}
+          onClick={() => setSearchExpanded(false)}
         />
       )}
 
       {/* Sticky Browse Toolbar */}
       <div ref={toolbarRef} className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        {/* Category row — visible when expanded */}
+        {/* Category row — visible when expanded, all types flat */}
         <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
           searchExpanded ? "max-h-16 opacity-100" : "max-h-0 opacity-0"
         }`}>
           <div className="max-w-7xl mx-auto px-4 pt-3 pb-1">
-            <div className="flex items-center justify-center gap-1">
-              {CARE_CATEGORIES.map((cat) => (
+            <div className="flex items-center justify-center gap-1 flex-wrap">
+              {ALL_CARE_CATEGORIES.map((cat) => (
                 <button
                   key={cat.type}
                   onClick={() => handleCategoryClick(cat.type)}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
                     filterValues.providerType === cat.type
                       ? "bg-gray-900 text-white"
                       : "text-gray-700 hover:bg-gray-100"
@@ -428,40 +409,6 @@ function BrowseContent() {
                   {cat.label}
                 </button>
               ))}
-
-              {/* More dropdown */}
-              <div className="relative" data-more-menu>
-                <button
-                  onClick={() => setMoreOpen(!moreOpen)}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors flex items-center gap-1 ${
-                    MORE_CATEGORIES.some((c) => c.type === filterValues.providerType)
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  More
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {moreOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-48 bg-white shadow-lg rounded-xl border border-gray-100 py-1 z-50">
-                    {MORE_CATEGORIES.map((cat) => (
-                      <button
-                        key={cat.type}
-                        onClick={() => { handleCategoryClick(cat.type); setMoreOpen(false); }}
-                        className={`block w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                          filterValues.providerType === cat.type
-                            ? "bg-primary-50 text-primary-700 font-medium"
-                            : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        {cat.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -476,56 +423,66 @@ function BrowseContent() {
               <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
             </Link>
 
-            {/* Search bar */}
+            {/* Search bar — matches homepage design */}
             <div className="flex-1 min-w-0" onFocus={() => setSearchExpanded(true)}>
-              <form onSubmit={handleSearch} className="flex items-center bg-white rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-                {/* Location */}
-                <div className="flex-1 min-w-0 pl-4 pr-2 py-2 border-r border-gray-200">
-                  <LocationAutocomplete
-                    value={location}
-                    onChange={handleLocationChange}
-                    placeholder="City, State"
-                    showIcon={false}
-                    inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-sm text-gray-900 placeholder:text-gray-400 h-5 leading-5"
-                    className="w-full"
-                  />
-                </div>
+              <form onSubmit={handleSearch}>
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
+                  <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
+                    {/* Location */}
+                    <div className="flex-1 px-4 py-3">
+                      <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Where</label>
+                      <LocationAutocomplete
+                        value={location}
+                        onChange={handleLocationChange}
+                        placeholder="Enter city"
+                        showIcon={false}
+                        inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
+                        className="w-full"
+                      />
+                    </div>
 
-                {/* Type of Care */}
-                <div className="hidden md:block px-2 py-2 border-r border-gray-200">
-                  <select
-                    value={filterValues.providerType}
-                    onChange={(e) => handleFilterChange("providerType", e.target.value)}
-                    className="text-sm text-gray-700 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer appearance-none pr-5 h-5 leading-5"
-                  >
-                    {PROVIDER_TYPE_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
+                    {/* Type of Care */}
+                    <div className="flex-1 px-4 py-3">
+                      <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Type of Care</label>
+                      <select
+                        value={filterValues.providerType}
+                        onChange={(e) => handleFilterChange("providerType", e.target.value)}
+                        className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                      >
+                        {PROVIDER_TYPE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                {/* Care Service */}
-                <div className="hidden lg:block px-2 py-2 border-r border-gray-200">
-                  <select
-                    value={filterValues.careService}
-                    onChange={(e) => handleFilterChange("careService", e.target.value)}
-                    className="text-sm text-gray-700 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer appearance-none pr-5 h-5 leading-5"
-                  >
-                    {CARE_SERVICE_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
+                    {/* Care Services */}
+                    <div className="flex-1 px-4 py-3">
+                      <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Care Services</label>
+                      <select
+                        value={filterValues.careService}
+                        onChange={(e) => handleFilterChange("careService", e.target.value)}
+                        className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                      >
+                        {CARE_SERVICE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                {/* Search button */}
-                <button
-                  type="submit"
-                  className="m-1.5 p-2 bg-primary-600 hover:bg-primary-700 text-white rounded-full transition-colors shrink-0"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
+                    {/* Search Button */}
+                    <div className="px-2 py-2 md:py-0 flex items-center">
+                      <button
+                        type="submit"
+                        className="w-full md:w-auto px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span>Search</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </form>
             </div>
 
