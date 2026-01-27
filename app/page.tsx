@@ -262,7 +262,7 @@ export default function Home() {
                     <select
                       value={careType}
                       onChange={(e) => setCareType(e.target.value)}
-                      className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${careType ? 'text-gray-900' : 'text-gray-400'}`}
                     >
                       <option value="">Any type</option>
                       {CARE_TYPES.map((type) => (
@@ -277,7 +277,7 @@ export default function Home() {
                     <select
                       value={careService}
                       onChange={(e) => setCareService(e.target.value)}
-                      className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${careService ? 'text-gray-900' : 'text-gray-400'}`}
                     >
                       {CARE_SERVICE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
@@ -364,6 +364,8 @@ export default function Home() {
                 <Link
                   key={provider.id}
                   href={`/providers/${provider.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all bg-white"
                 >
                   {/* Provider image */}

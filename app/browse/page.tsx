@@ -459,7 +459,7 @@ function BrowseContent() {
                       onChange={handleLocationChange}
                       placeholder="Enter city"
                       showIcon={false}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-500"
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
                       className="w-full"
                     />
                   </div>
@@ -468,7 +468,7 @@ function BrowseContent() {
                     <select
                       value={filterValues.providerType}
                       onChange={(e) => handleFilterChange("providerType", e.target.value)}
-                      className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${filterValues.providerType ? 'text-gray-900' : 'text-gray-400'}`}
                     >
                       {PROVIDER_TYPE_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -480,7 +480,7 @@ function BrowseContent() {
                     <select
                       value={filterValues.careService}
                       onChange={(e) => handleFilterChange("careService", e.target.value)}
-                      className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${filterValues.careService ? 'text-gray-900' : 'text-gray-400'}`}
                     >
                       {CARE_SERVICE_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -525,13 +525,13 @@ function BrowseContent() {
                   className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div className="flex-1 min-w-0 flex items-center divide-x divide-gray-200">
-                    <span className="px-4 py-2.5 text-sm font-medium truncate text-gray-800 flex-1">
+                    <span className={`px-4 py-2.5 text-sm font-medium truncate flex-1 ${location ? 'text-gray-800' : 'text-gray-400'}`}>
                       {location || "Enter city"}
                     </span>
-                    <span className="hidden md:block px-4 py-2.5 text-sm font-medium truncate text-gray-800 flex-1">
+                    <span className={`hidden md:block px-4 py-2.5 text-sm font-medium truncate flex-1 ${filterValues.providerType ? 'text-gray-800' : 'text-gray-400'}`}>
                       {PROVIDER_TYPE_OPTIONS.find(o => o.value === filterValues.providerType)?.label || "Any type"}
                     </span>
-                    <span className="hidden lg:block px-4 py-2.5 text-sm font-medium truncate text-gray-800 flex-1">
+                    <span className={`hidden lg:block px-4 py-2.5 text-sm font-medium truncate flex-1 ${filterValues.careService ? 'text-gray-800' : 'text-gray-400'}`}>
                       {CARE_SERVICE_OPTIONS.find(o => o.value === filterValues.careService)?.label || "Any service"}
                     </span>
                   </div>
