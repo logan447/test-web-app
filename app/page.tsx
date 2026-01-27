@@ -8,13 +8,16 @@ import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
 
-// Timeline/urgency options for search
-const URGENCY_OPTIONS = [
-  { value: "", label: "When do you need care?" },
-  { value: "immediate", label: "As soon as possible" },
-  { value: "1-2-weeks", label: "Within 1-2 weeks" },
-  { value: "1-3-months", label: "Within 1-3 months" },
-  { value: "researching", label: "Just researching" },
+// Care services options for search
+const CARE_SERVICE_OPTIONS = [
+  { value: "", label: "Any service" },
+  { value: "COMPANION_CARE", label: "Companion Care" },
+  { value: "PERSONAL_CARE", label: "Personal Care" },
+  { value: "SKILLED_NURSING", label: "Skilled Nursing" },
+  { value: "MEMORY_CARE", label: "Memory Care" },
+  { value: "HOSPICE_CARE", label: "Hospice Care" },
+  { value: "RESPITE_CARE", label: "Respite Care" },
+  { value: "LIVE_IN_CARE", label: "Live-in Care" },
 ];
 
 // Care Type Categories - simplified for clarity
@@ -134,7 +137,7 @@ export default function Home() {
   const [location, setLocation] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(null);
   const [careType, setCareType] = useState("");
-  const [urgency, setUrgency] = useState("");
+  const [careService, setCareService] = useState("");
   const [featuredProviders, setFeaturedProviders] = useState<FeaturedProvider[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [providersError, setProvidersError] = useState(false);
@@ -214,8 +217,8 @@ export default function Home() {
     if (careType) {
       params.set("type", careType);
     }
-    if (urgency) {
-      params.set("urgency", urgency);
+    if (careService) {
+      params.set("care", careService);
     }
 
     router.push(`/browse?${params.toString()}`);
@@ -255,9 +258,9 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Care Type */}
+                  {/* Provider Type */}
                   <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Care Type</label>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Provider Type</label>
                     <select
                       value={careType}
                       onChange={(e) => setCareType(e.target.value)}
@@ -270,15 +273,15 @@ export default function Home() {
                     </select>
                   </div>
 
-                  {/* Urgency */}
+                  {/* Care Services */}
                   <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">When</label>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Care Services</label>
                     <select
-                      value={urgency}
-                      onChange={(e) => setUrgency(e.target.value)}
+                      value={careService}
+                      onChange={(e) => setCareService(e.target.value)}
                       className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer text-center"
                     >
-                      {URGENCY_OPTIONS.map((option) => (
+                      {CARE_SERVICE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
                       ))}
                     </select>

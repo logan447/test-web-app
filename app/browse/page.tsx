@@ -3,12 +3,11 @@
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import { ProviderCard } from "@/components/Cards";
 import { LocationAutocomplete } from "@/components/Location";
-import FilterBar, { FilterConfig } from "@/components/Layout/FilterBar";
+import { FilterConfig } from "@/components/Layout/FilterBar";
 import WelcomeBanner from "@/components/Provider/WelcomeBanner";
 import { useSavedProviders } from "@/hooks/useSavedProviders";
 import { showToast } from "@/lib/toast";
@@ -43,11 +42,11 @@ type Provider = {
   claimed?: boolean;
 };
 
-// Primary filters (always visible)
-const PRIMARY_FILTER_CONFIGS: FilterConfig[] = [
+// Unified filter configs — single flat row, no layering
+const FILTER_CONFIGS: FilterConfig[] = [
   {
     id: "providerType",
-    label: "Care Type",
+    label: "Provider Type",
     options: [
       { value: "", label: "All Types" },
       { value: "HOME_CARE", label: "Home Care" },
@@ -61,10 +60,20 @@ const PRIMARY_FILTER_CONFIGS: FilterConfig[] = [
       { value: "INDEPENDENT_CAREGIVER", label: "Caregiver" },
     ],
   },
-];
-
-// Secondary filters (hidden behind "More Filters")
-const SECONDARY_FILTER_CONFIGS: FilterConfig[] = [
+  {
+    id: "careService",
+    label: "Care Services",
+    options: [
+      { value: "", label: "All Services" },
+      { value: "COMPANION_CARE", label: "Companion" },
+      { value: "PERSONAL_CARE", label: "Personal Care" },
+      { value: "SKILLED_NURSING", label: "Skilled Nursing" },
+      { value: "MEMORY_CARE", label: "Memory Care" },
+      { value: "HOSPICE_CARE", label: "Hospice" },
+      { value: "RESPITE_CARE", label: "Respite" },
+      { value: "LIVE_IN_CARE", label: "Live-in" },
+    ],
+  },
   {
     id: "rating",
     label: "Rating",
@@ -87,24 +96,7 @@ const SECONDARY_FILTER_CONFIGS: FilterConfig[] = [
       { value: "insurance", label: "Long-term Insurance" },
     ],
   },
-  {
-    id: "careService",
-    label: "Services",
-    options: [
-      { value: "", label: "All Services" },
-      { value: "COMPANION_CARE", label: "Companion" },
-      { value: "PERSONAL_CARE", label: "Personal Care" },
-      { value: "SKILLED_NURSING", label: "Skilled Nursing" },
-      { value: "MEMORY_CARE", label: "Memory Care" },
-      { value: "HOSPICE_CARE", label: "Hospice" },
-      { value: "RESPITE_CARE", label: "Respite" },
-      { value: "LIVE_IN_CARE", label: "Live-in" },
-    ],
-  },
 ];
-
-// Combined for reference
-const FILTER_CONFIGS: FilterConfig[] = [...PRIMARY_FILTER_CONFIGS, ...SECONDARY_FILTER_CONFIGS];
 
 // Sort options
 const SORT_OPTIONS = [
@@ -113,15 +105,6 @@ const SORT_OPTIONS = [
   { value: "price_low", label: "Price: Low to High" },
   { value: "price_high", label: "Price: High to Low" },
   { value: "newest", label: "Newest" },
-];
-
-// Quick filter chips for common searches (using existing filter fields)
-const QUICK_FILTERS: Array<{ id: string; label: string; filter: Record<string, string> }> = [
-  { id: "top_rated", label: "Top Rated (4.5+)", filter: { rating: "4.5" } },
-  { id: "memory", label: "Memory Care", filter: { providerType: "MEMORY_CARE" } },
-  { id: "home", label: "In-Home Care", filter: { providerType: "HOME_CARE" } },
-  { id: "assisted", label: "Assisted Living", filter: { providerType: "ASSISTED_LIVING" } },
-  { id: "nursing", label: "Nursing Home", filter: { providerType: "NURSING_HOME" } },
 ];
 
 function BrowseContent() {
@@ -153,7 +136,6 @@ function BrowseContent() {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [showMap, setShowMap] = useState(true);
-  const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(getInitialSelectedLocation());
   const [location, setLocation] = useState(getInitialLocation());
   const [filterValues, setFilterValues] = useState<Record<string, string>>({
@@ -268,22 +250,21 @@ function BrowseContent() {
   // Providers with coordinates for map
   const mappableProviders = providers.filter((p) => p.latitude && p.longitude);
 
-  // Build title
+  // Build title — single clear heading
   const title = location
-    ? `${totalCount} Provider${totalCount !== 1 ? "s" : ""} in ${location}`
-    : `${totalCount} Provider${totalCount !== 1 ? "s" : ""} Found`;
+    ? `Care Providers in ${location}`
+    : "Care Providers";
 
   return (
     <>
       <MainNav />
 
       <div className="min-h-screen bg-gray-50">
-        {/* Compact Filter Bar */}
+        {/* Unified Filter Bar — single row, no layers */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
           <div className="max-w-7xl mx-auto px-4 py-3">
-            {/* Primary Filter Row */}
             <div className="flex flex-wrap items-center gap-2">
-              {/* Location Input with Autocomplete */}
+              {/* Location */}
               <div className="w-44 sm:w-52">
                 <LocationAutocomplete
                   value={location}
@@ -295,8 +276,8 @@ function BrowseContent() {
                 />
               </div>
 
-              {/* Primary Filter - Care Type */}
-              {PRIMARY_FILTER_CONFIGS.map((filter) => (
+              {/* All filters in one row */}
+              {FILTER_CONFIGS.map((filter) => (
                 <select
                   key={filter.id}
                   value={filterValues[filter.id] || ""}
@@ -315,27 +296,7 @@ function BrowseContent() {
                 </select>
               ))}
 
-              {/* More Filters Button */}
-              <button
-                onClick={() => setShowMoreFilters(!showMoreFilters)}
-                className={`flex items-center gap-1 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
-                  showMoreFilters || filterValues.rating || filterValues.payment || filterValues.careService
-                    ? "border-primary-500 bg-primary-50 text-primary-700"
-                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-                Filters
-                {(filterValues.rating || filterValues.payment || filterValues.careService) && (
-                  <span className="ml-1 w-5 h-5 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">
-                    {[filterValues.rating, filterValues.payment, filterValues.careService].filter(Boolean).length}
-                  </span>
-                )}
-              </button>
-
-              {/* Clear All */}
+              {/* Clear */}
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -345,7 +306,6 @@ function BrowseContent() {
                 </button>
               )}
 
-              {/* Spacer */}
               <div className="flex-1" />
 
               {/* Sort */}
@@ -364,30 +324,6 @@ function BrowseContent() {
                 </select>
               </div>
             </div>
-
-            {/* Secondary Filters (Expandable) */}
-            {showMoreFilters && (
-              <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                {SECONDARY_FILTER_CONFIGS.map((filter) => (
-                  <select
-                    key={filter.id}
-                    value={filterValues[filter.id] || ""}
-                    onChange={(e) => handleFilterChange(filter.id, e.target.value)}
-                    className={`px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
-                      filterValues[filter.id]
-                        ? "border-primary-500 bg-primary-50 text-primary-700"
-                        : "border-gray-300 bg-white text-gray-700"
-                    }`}
-                  >
-                    {filter.options.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
@@ -402,121 +338,26 @@ function BrowseContent() {
           </div>
         )}
 
-        {/* Results Header */}
+        {/* Results Header — single clean title */}
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex flex-col gap-4">
-            {/* Title Row */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-                {location && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Showing care providers near {location}
-                  </p>
-                )}
-              </div>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-gray-900">
+              {title}
+              <span className="ml-2 text-base font-normal text-gray-500">
+                {totalCount} result{totalCount !== 1 ? "s" : ""}
+              </span>
+            </h1>
 
-              <div className="flex items-center gap-3">
-              {/* Map Toggle (mobile) */}
-              <button
-                onClick={() => setShowMap(!showMap)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                </svg>
-                {showMap ? "Hide Map" : "Show Map"}
-              </button>
-              </div>
-            </div>
-
-            {/* Quick Filter Chips */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-gray-500 mr-1">Quick filters:</span>
-              {QUICK_FILTERS.map((quickFilter) => {
-                const isActive = Object.entries(quickFilter.filter).some(
-                  ([key, value]) => filterValues[key] === value
-                );
-                return (
-                  <button
-                    key={quickFilter.id}
-                    onClick={() => {
-                      if (isActive) {
-                        // Remove the filter
-                        const newValues = { ...filterValues };
-                        Object.keys(quickFilter.filter).forEach((key) => {
-                          newValues[key] = "";
-                        });
-                        setFilterValues(newValues);
-                      } else {
-                        // Apply the filter
-                        setFilterValues({
-                          ...filterValues,
-                          ...quickFilter.filter,
-                        });
-                      }
-                    }}
-                    className={`px-3 py-1.5 text-sm rounded-full transition-all ${
-                      isActive
-                        ? "bg-primary-600 text-white"
-                        : "bg-white border border-gray-300 text-gray-700 hover:border-primary-300 hover:text-primary-600"
-                    }`}
-                  >
-                    {quickFilter.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Active Filters Display */}
-            {hasActiveFilters && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm text-gray-500">Active:</span>
-                {location && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full">
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    </svg>
-                    {location}
-                    <button
-                      onClick={() => setLocation("")}
-                      className="ml-1 hover:text-primary-900"
-                    >
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </span>
-                )}
-                {Object.entries(filterValues).map(([key, value]) => {
-                  if (!value) return null;
-                  const config = FILTER_CONFIGS.find((c) => c.id === key);
-                  const option = config?.options.find((o) => o.value === value);
-                  return (
-                    <span
-                      key={key}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full"
-                    >
-                      {option?.label || value}
-                      <button
-                        onClick={() => handleFilterChange(key, "")}
-                        className="ml-1 hover:text-primary-900"
-                      >
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </span>
-                  );
-                })}
-                <button
-                  onClick={clearFilters}
-                  className="text-sm text-gray-500 hover:text-gray-700 underline"
-                >
-                  Clear all
-                </button>
-              </div>
-            )}
+            {/* Map Toggle (mobile) */}
+            <button
+              onClick={() => setShowMap(!showMap)}
+              className="lg:hidden flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+              {showMap ? "Hide Map" : "Show Map"}
+            </button>
           </div>
         </div>
 
@@ -546,28 +387,6 @@ function BrowseContent() {
               ) : providers.length > 0 ? (
                 // Results - list view
                 <div className="space-y-4">
-                  {/* Guidance Nudge */}
-                  {providers.length >= 3 && (
-                    <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 flex items-center gap-4">
-                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
-                        <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm text-primary-800">
-                          <span className="font-medium">Tip:</span> Meet with 3-5 providers to compare and find the best fit for your family.
-                        </p>
-                      </div>
-                      <Link
-                        href="/care-profile/edit"
-                        className="shrink-0 text-sm font-medium text-primary-700 hover:text-primary-800"
-                      >
-                        Create profile
-                      </Link>
-                    </div>
-                  )}
-
                   {providers.map((provider) => (
                     <ProviderCard
                       key={provider.id}
@@ -593,9 +412,23 @@ function BrowseContent() {
                       onSave={toggleSave}
                     />
                   ))}
+
+                  {/* Tip — shown below results */}
+                  {providers.length >= 3 && (
+                    <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 flex items-center gap-4">
+                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
+                        <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-sm text-primary-800 flex-1">
+                        <span className="font-medium">Tip:</span> Meet with 3-5 providers to compare and find the best fit for your family.
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : (
-                // Empty state - improved with more helpful messaging
+                // Empty state
                 <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
                     <svg className="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
