@@ -24,16 +24,71 @@ interface TourData {
 interface QuickStats {
   pendingRequests: number;
   activeConversations: number;
+  newLeads?: number;
+  matchedFamilies?: number;
 }
+
+interface Provider {
+  id: string;
+  name: string;
+  providerType: string;
+  city?: string;
+  state?: string;
+  profilePhoto?: string;
+  description?: string;
+  careTypesOffered?: string[];
+  isVisible?: boolean;
+}
+
+// Helper to determine if provider is an individual caregiver
+const isIndividualCaregiver = (type: string) => type === "INDEPENDENT_CAREGIVER";
+
+// Calculate profile completion percentage
+const calculateProfileCompletion = (provider: Provider | null): { percentage: number; missing: string[] } => {
+  if (!provider) return { percentage: 0, missing: [] };
+
+  const fields = [
+    { key: "name", label: "Organization/Name", weight: 20 },
+    { key: "city", label: "Location", weight: 15 },
+    { key: "description", label: "Description", weight: 20 },
+    { key: "profilePhoto", label: "Profile photo", weight: 25 },
+    { key: "careTypesOffered", label: "Care types", weight: 20, isArray: true },
+  ];
+
+  let completed = 0;
+  const missing: string[] = [];
+
+  for (const field of fields) {
+    const value = provider[field.key as keyof Provider];
+    if (field.isArray) {
+      if (Array.isArray(value) && value.length > 0) {
+        completed += field.weight;
+      } else {
+        missing.push(field.label);
+      }
+    } else if (value) {
+      completed += field.weight;
+    } else {
+      missing.push(field.label);
+    }
+  }
+
+  return { percentage: completed, missing };
+};
 
 export default function ProviderProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [calendarEvents, setCalendarEvents] = useState<ScheduledEvent[]>([]);
-  const [stats, setStats] = useState<QuickStats>({ pendingRequests: 0, activeConversations: 0 });
+  const [stats, setStats] = useState<QuickStats>({ pendingRequests: 0, activeConversations: 0, newLeads: 0, matchedFamilies: 0 });
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { needsOnboarding, loading: identityLoading } = useProviderIdentity({ checkMode: true });
+
+  // Determine if this is a caregiver (job-seeker) vs organization
+  const isCaregiver = provider ? isIndividualCaregiver(provider.providerType) : false;
+  const profileCompletion = calculateProfileCompletion(provider);
 
   useEffect(() => {
     if (status === "loading" || identityLoading) return;
@@ -48,17 +103,33 @@ export default function ProviderProfilePage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsRes, toursRes] = await Promise.all([
+      const [statsRes, toursRes, providerRes, leadsRes] = await Promise.all([
         fetch("/api/dashboard/stats"),
         fetch("/api/dashboard/tours"),
+        fetch("/api/providers/me"),
+        fetch("/api/provider/matches"),
       ]);
 
       if (statsRes.ok) {
         const data = await statsRes.json();
-        setStats({
+        setStats(prev => ({
+          ...prev,
           pendingRequests: data.stats?.pendingRequests ?? 0,
           activeConversations: data.stats?.activeConversations ?? 0,
-        });
+        }));
+      }
+
+      if (providerRes.ok) {
+        const data = await providerRes.json();
+        setProvider(data);
+      }
+
+      if (leadsRes.ok) {
+        const data = await leadsRes.json();
+        setStats(prev => ({
+          ...prev,
+          matchedFamilies: Array.isArray(data) ? data.length : 0,
+        }));
       }
 
       if (toursRes.ok) {
@@ -112,7 +183,7 @@ export default function ProviderProfilePage() {
               Welcome back, {userName}
             </h1>
             <p className="text-gray-600 mt-1">
-              Your provider dashboard
+              {isCaregiver ? "Your job search dashboard" : "Your provider dashboard"}
             </p>
           </div>
           <Link
@@ -126,6 +197,85 @@ export default function ProviderProfilePage() {
           </Link>
         </div>
 
+        {/* Priorities Section - Shows items needing attention */}
+        {(stats.pendingRequests > 0 || (stats.matchedFamilies ?? 0) > 0) && (
+          <div className="mb-6 space-y-3">
+            {stats.pendingRequests > 0 && (
+              <Link
+                href="/provider/requests"
+                className="block bg-amber-50 border border-amber-200 rounded-xl p-4 hover:bg-amber-100 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                    <span className="text-lg">🔔</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-amber-900">
+                      {stats.pendingRequests} {stats.pendingRequests === 1 ? "request" : "requests"} awaiting response
+                    </p>
+                    <p className="text-sm text-amber-700">Respond to keep conversations moving</p>
+                  </div>
+                  <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Link>
+            )}
+            {!isCaregiver && (stats.matchedFamilies ?? 0) > 0 && (
+              <Link
+                href="/provider/leads"
+                className="block bg-emerald-50 border border-emerald-200 rounded-xl p-4 hover:bg-emerald-100 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <span className="text-lg">👨‍👩‍👧</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-emerald-900">
+                      {stats.matchedFamilies} {stats.matchedFamilies === 1 ? "family" : "families"} matched to you
+                    </p>
+                    <p className="text-sm text-emerald-700">Respond to start a conversation</p>
+                  </div>
+                  <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Profile Strength Indicator */}
+        {profileCompletion.percentage < 100 && (
+          <div className="mb-6 bg-white border border-gray-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="font-medium text-gray-900">Profile strength: {profileCompletion.percentage}%</p>
+                <p className="text-sm text-gray-600">Complete your profile to get more responses</p>
+              </div>
+              <Link
+                href="/provider/profile/edit"
+                className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+              >
+                Complete →
+              </Link>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+              <div
+                className="bg-emerald-500 h-2 rounded-full transition-all"
+                style={{ width: `${profileCompletion.percentage}%` }}
+              />
+            </div>
+            {profileCompletion.missing.length > 0 && (
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">Add:</span>{" "}
+                {profileCompletion.missing.slice(0, 3).join(", ")}
+                {profileCompletion.missing.length > 3 && ` +${profileCompletion.missing.length - 3} more`}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Onboarding Alert */}
         {needsOnboarding && (
           <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
@@ -136,7 +286,7 @@ export default function ProviderProfilePage() {
               <div>
                 <p className="font-medium text-amber-800">Complete your profile</p>
                 <p className="text-sm text-amber-700 mt-1">
-                  Add details to help families find you.
+                  {isCaregiver ? "Add details so employers can find you." : "Add details to help families find you."}
                 </p>
                 <Link
                   href="/provider/profile/edit"
@@ -193,17 +343,29 @@ export default function ProviderProfilePage() {
           )}
         </div>
 
-        {/* Quick Links */}
+        {/* Quick Links - Subtype-aware */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Link
-            href="/provider/leads"
-            className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
-          >
-            <svg className="w-6 h-6 mx-auto mb-2 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="text-sm font-medium text-gray-700">Find Families</span>
-          </Link>
+          {isCaregiver ? (
+            <Link
+              href="/provider/opportunities"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
+            >
+              <svg className="w-6 h-6 mx-auto mb-2 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span className="text-sm font-medium text-gray-700">Find Work</span>
+            </Link>
+          ) : (
+            <Link
+              href="/provider/leads"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
+            >
+              <svg className="w-6 h-6 mx-auto mb-2 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="text-sm font-medium text-gray-700">Find Families</span>
+            </Link>
+          )}
           <Link
             href="/provider/requests"
             className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
@@ -213,15 +375,27 @@ export default function ProviderProfilePage() {
             </svg>
             <span className="text-sm font-medium text-gray-700">Messages</span>
           </Link>
-          <Link
-            href="/provider/requests"
-            className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
-          >
-            <svg className="w-6 h-6 mx-auto mb-2 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span className="text-sm font-medium text-gray-700">Requests</span>
-          </Link>
+          {isCaregiver ? (
+            <Link
+              href="/provider/requests"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
+            >
+              <svg className="w-6 h-6 mx-auto mb-2 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-sm font-medium text-gray-700">Requests</span>
+            </Link>
+          ) : (
+            <Link
+              href="/hire-staff"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
+            >
+              <svg className="w-6 h-6 mx-auto mb-2 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              <span className="text-sm font-medium text-gray-700">Hire Staff</span>
+            </Link>
+          )}
           <Link
             href="/provider/profile/edit"
             className="bg-white rounded-lg p-4 border border-gray-200 hover:border-emerald-300 transition-colors text-center"
