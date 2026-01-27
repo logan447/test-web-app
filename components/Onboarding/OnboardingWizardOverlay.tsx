@@ -153,13 +153,13 @@ function getStepTitle(step: WizardStep): string {
     case "family-visibility":
       return "Profile visibility";
     case "provider-org-fields":
-      return "About your organization";
+      return "Your organization";
     case "provider-individual-fields":
-      return "About your services";
+      return "Find care work";
     case "provider-visibility":
-      return "Profile visibility";
+      return "How do you want to work?";
     case "complete":
-      return "You're all set!";
+      return "Welcome to Olera!";
     default:
       return "Onboarding";
   }
@@ -188,7 +188,7 @@ function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
   return (
     <div className="space-y-6">
       <p className="text-gray-600 text-center">
-        What brings you to Olera?
+        Olera connects families with care providers. How can we help you?
       </p>
 
       <div className="space-y-4">
@@ -212,7 +212,7 @@ function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
                 I&apos;m looking for care
               </h3>
               <p className="text-sm text-gray-600 mt-1">
-                Find quality care providers for yourself or a loved one
+                Find and meet with care providers for yourself or a loved one
               </p>
             </div>
           </div>
@@ -238,7 +238,7 @@ function IntentStep({ data, onUpdate, onNext, onSkip }: StepProps) {
                 I&apos;m a care provider
               </h3>
               <p className="text-sm text-gray-600 mt-1">
-                Connect with families seeking care services
+                Get found by families and access the caregiver hiring marketplace
               </p>
             </div>
           </div>
@@ -292,7 +292,10 @@ function ProviderSubtypeStep({ data, onUpdate, onNext, onBack, onSkip }: StepPro
                 Care Organization
               </h3>
               <p className="text-sm text-gray-600 mt-1">
-                Facility, agency, or healthcare organization
+                Facility, agency, or home care company
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Get found by families • Hire caregivers
               </p>
             </div>
           </div>
@@ -315,10 +318,13 @@ function ProviderSubtypeStep({ data, onUpdate, onNext, onBack, onSkip }: StepPro
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                Individual Caregiver
+                Independent Caregiver
               </h3>
               <p className="text-sm text-gray-600 mt-1">
-                Independent caregiver or healthcare professional
+                Professional caregiver looking for work
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Find jobs at agencies • Work directly with families
               </p>
             </div>
           </div>
@@ -568,7 +574,7 @@ function ProviderOrgFieldsStep({ data, onUpdate, onNext, onBack, onSkip }: StepP
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <p className="text-gray-600 text-center">
-        Help families find your organization.
+        Tell us about your organization so families can find you.
       </p>
 
       <div className="space-y-4">
@@ -693,7 +699,7 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <p className="text-gray-600 text-center">
-        Help families find you.
+        Tell us about yourself so employers and families can find you.
       </p>
 
       <div className="space-y-4">
@@ -713,7 +719,7 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
 
         <div>
           <label htmlFor="caregiverLocation" className="block text-sm font-medium text-gray-700 mb-1">
-            Location
+            Where are you looking for work?
           </label>
           <LocationAutocomplete
             value={localData.caregiverLocation}
@@ -726,7 +732,7 @@ function ProviderIndividualFieldsStep({ data, onUpdate, onNext, onBack, onSkip }
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Services you offer (select all that apply)
+            What type of care work are you looking for?
           </label>
           <div className="grid grid-cols-2 gap-2">
             {CAREGIVER_SERVICES.map((service) => (
@@ -876,7 +882,9 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <p className="text-gray-600 text-center">
-        Who should be able to find you?
+        {isOrganization
+          ? "Choose how you want to use Olera."
+          : "Where do you want to find work?"}
       </p>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-4">
@@ -891,7 +899,8 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
                 className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <div>
-                <span className="font-medium text-gray-900">Families looking for care</span>
+                <span className="font-medium text-gray-900">Get found by families</span>
+                <p className="text-sm text-gray-500">Families searching for care can discover your organization</p>
               </div>
             </label>
             <label className="flex items-start gap-3 cursor-pointer">
@@ -902,7 +911,8 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
                 className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <div>
-                <span className="font-medium text-gray-900">Caregivers looking for work</span>
+                <span className="font-medium text-gray-900">Hire caregivers</span>
+                <p className="text-sm text-gray-500">Access our marketplace of caregivers looking for work</p>
               </div>
             </label>
           </>
@@ -914,23 +924,25 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                checked={availableForFamilies}
-                onChange={(e) => setAvailableForFamilies(e.target.checked)}
-                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <div>
-                <span className="font-medium text-gray-900">Families hiring directly</span>
-              </div>
-            </label>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
                 checked={availableForOrganizations}
                 onChange={(e) => setAvailableForOrganizations(e.target.checked)}
                 className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <div>
-                <span className="font-medium text-gray-900">Care organizations hiring staff</span>
+                <span className="font-medium text-gray-900">Jobs at care organizations</span>
+                <p className="text-sm text-gray-500">Agencies and facilities can see your profile and hire you</p>
+              </div>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={availableForFamilies}
+                onChange={(e) => setAvailableForFamilies(e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="font-medium text-gray-900">Direct hire by families</span>
+                <p className="text-sm text-gray-500">Families can hire you directly for private care</p>
               </div>
             </label>
           </>
@@ -939,7 +951,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
         <p className="text-sm text-blue-800">
-          You can change these settings anytime.
+          You can change these settings anytime in your profile.
         </p>
       </div>
 
@@ -965,7 +977,7 @@ function ProviderVisibilityStep({ data, onUpdate, onNext, onBack }: StepProps) {
 }
 
 function CompleteStep({ data, onNext, pendingAction }: StepProps) {
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(4);
   const hasTriggeredRef = useRef(false);
 
   // Auto-redirect after countdown
@@ -1002,14 +1014,7 @@ function CompleteStep({ data, onNext, pendingAction }: StepProps) {
         return `Opening review form for ${pendingAction.providerName}...`;
       }
     }
-    // Default messages with redirect indication
-    if (data.intent === "family") {
-      return "You're ready to start exploring care providers in your area.";
-    }
-    if (data.providerSubtype === "organization") {
-      return "Your organization profile is set up. Families can now find you.";
-    }
-    return "Your caregiver profile is set up. Families can now find you.";
+    return null; // Will show value props instead
   };
 
   const getRedirectText = () => {
@@ -1017,28 +1022,85 @@ function CompleteStep({ data, onNext, pendingAction }: StepProps) {
       return "Redirecting to your conversation...";
     }
     if (data.intent === "provider") {
-      return "Redirecting to find families...";
+      if (data.providerSubtype === "individual") {
+        return "Taking you to find work...";
+      }
+      return "Taking you to see family inquiries...";
     }
-    return "Redirecting...";
+    return "Taking you to browse providers...";
   };
+
+  const getLocation = () => {
+    if (data.intent === "family") {
+      return data.familyLocation || "your area";
+    }
+    if (data.providerSubtype === "organization") {
+      return data.orgLocation || "your area";
+    }
+    return data.caregiverLocation || "your area";
+  };
+
+  // Value props based on user type
+  const getValueProps = () => {
+    if (data.intent === "family") {
+      return [
+        { icon: "🔍", text: "Browse care providers in your area" },
+        { icon: "📅", text: "Schedule tours and consultations" },
+        { icon: "💬", text: "Message providers directly" },
+      ];
+    }
+    if (data.providerSubtype === "organization") {
+      return [
+        { icon: "👨‍👩‍👧", text: "Families can now find and contact you" },
+        { icon: "👥", text: "Access caregivers looking for work" },
+        { icon: "📅", text: "Schedule meetings with interested families" },
+      ];
+    }
+    // Individual caregiver
+    return [
+      { icon: "🏢", text: "Agencies and facilities can see your profile" },
+      { icon: "👨‍👩‍👧", text: "Families can hire you directly" },
+      { icon: "💼", text: "Apply to open positions" },
+    ];
+  };
+
+  const pendingMessage = getMessage();
 
   return (
     <div className="space-y-6 text-center">
-      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-        <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
+      {/* Celebration icon */}
+      <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+        <span className="text-4xl">🎉</span>
       </div>
 
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          {pendingAction ? "You're connected!" : "Welcome to Olera!"}
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          {pendingAction ? "You're connected!" : "You're all set!"}
         </h3>
-        <p className="text-gray-600">{getMessage()}</p>
+        {pendingMessage ? (
+          <p className="text-gray-600">{pendingMessage}</p>
+        ) : (
+          <p className="text-gray-600">
+            Your profile is ready in <span className="font-medium">{getLocation()}</span>.
+          </p>
+        )}
       </div>
 
+      {/* Value props - only show if no pending action */}
+      {!pendingAction && (
+        <div className="bg-gray-50 rounded-xl p-4 text-left space-y-3">
+          <p className="text-sm font-medium text-gray-700 text-center mb-3">What&apos;s next:</p>
+          {getValueProps().map((prop, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <span className="text-xl">{prop.icon}</span>
+              <span className="text-sm text-gray-700">{prop.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Auto-redirect indicator */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 pt-2">
         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
         <p className="text-sm text-gray-500">{getRedirectText()}</p>
       </div>
@@ -1301,9 +1363,22 @@ export default function OnboardingWizardOverlay({
         }
 
         // Notify parent and close
-        // Parent page handles URL param removal and any navigation
         onComplete?.(data);
         onClose();
+
+        // Redirect based on user type and subtype
+        // Families: browse providers
+        // Organizations: leads page (families interested in them)
+        // Individual caregivers: opportunities page (jobs for them)
+        if (data.intent === "family") {
+          router.push("/browse");
+        } else if (data.providerSubtype === "individual") {
+          // Caregivers are job seekers - send them to find jobs
+          router.push("/provider/opportunities");
+        } else {
+          // Organizations - send them to see family inquiries
+          router.push("/provider/leads");
+        }
         break;
     }
   }, [currentStep, data, onClose, onComplete, router, update]);
