@@ -19,12 +19,11 @@ const CARE_SERVICE_OPTIONS = [
   { value: "LIVE_IN_CARE", label: "Live-in Care" },
 ];
 
-// Care entry options - situation-based language that reflects how people experience the journey
+// Situational care entry cards
 const CARE_TYPES = [
   {
     id: "help-at-home",
     name: "Help at Home",
-    description: "Stay independent with support in your own space",
     slug: "HOME_CARE",
     color: "bg-blue-50 text-blue-600 border-blue-100",
     icon: (
@@ -36,7 +35,6 @@ const CARE_TYPES = [
   {
     id: "after-hospital",
     name: "After a Hospital Stay",
-    description: "Find rehab or recovery care nearby",
     slug: "REHABILITATION",
     color: "bg-green-50 text-green-600 border-green-100",
     icon: (
@@ -48,7 +46,6 @@ const CARE_TYPES = [
   {
     id: "memory-concerns",
     name: "Memory Concerns",
-    description: "Specialized care for memory or safety needs",
     slug: "MEMORY_CARE",
     color: "bg-purple-50 text-purple-600 border-purple-100",
     icon: (
@@ -60,7 +57,6 @@ const CARE_TYPES = [
   {
     id: "planning-ahead",
     name: "Planning Ahead",
-    description: "Explore options before you need them",
     slug: "ASSISTED_LIVING",
     color: "bg-primary-50 text-primary-600 border-primary-100",
     icon: (
@@ -72,7 +68,6 @@ const CARE_TYPES = [
   {
     id: "long-term-care",
     name: "Long-term Options",
-    description: "24/7 nursing or assisted living communities",
     slug: "NURSING_HOME",
     color: "bg-red-50 text-red-600 border-red-100",
     icon: (
@@ -84,7 +79,6 @@ const CARE_TYPES = [
   {
     id: "end-of-life",
     name: "Comfort Care",
-    description: "Compassionate hospice and palliative support",
     slug: "HOSPICE",
     color: "bg-amber-50 text-amber-600 border-amber-100",
     icon: (
@@ -95,7 +89,7 @@ const CARE_TYPES = [
   },
 ];
 
-// Testimonials - real, emotional stories from families across the US
+// Testimonials
 const TESTIMONIALS = [
   {
     quote: "After Dad's stroke, I was overwhelmed. Olera helped us find a rehab center that got him walking again. They made a scary time less scary.",
@@ -117,35 +111,55 @@ const TESTIMONIALS = [
   },
 ];
 
-// Featured care categories - each links to a filtered browse page
-const FEATURED_CARE_CATEGORIES = [
+// Featured provider cards — one from each major category
+const FEATURED_PROVIDERS = [
   {
-    label: "Featured Home Care",
+    label: "Home Care",
     type: "HOME_CARE",
-    color: "bg-blue-50 border-blue-100",
+    color: "bg-blue-50 border-blue-100 hover:border-blue-300",
+    iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
-    description: "Caregivers who come to your home",
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
   },
   {
-    label: "Featured Assisted Living",
+    label: "Assisted Living",
     type: "ASSISTED_LIVING",
-    color: "bg-green-50 border-green-100",
+    color: "bg-green-50 border-green-100 hover:border-green-300",
+    iconBg: "bg-green-100",
     iconColor: "text-green-600",
-    description: "Communities with daily living support",
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
   },
   {
-    label: "Featured Memory Care",
+    label: "Memory Care",
     type: "MEMORY_CARE",
-    color: "bg-purple-50 border-purple-100",
+    color: "bg-purple-50 border-purple-100 hover:border-purple-300",
+    iconBg: "bg-purple-100",
     iconColor: "text-purple-600",
-    description: "Specialized care for Alzheimer's and dementia",
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    ),
   },
   {
-    label: "Featured Nursing Homes",
+    label: "Nursing Homes",
     type: "NURSING_HOME",
-    color: "bg-red-50 border-red-100",
+    color: "bg-red-50 border-red-100 hover:border-red-300",
+    iconBg: "bg-red-100",
     iconColor: "text-red-600",
-    description: "24/7 skilled nursing and medical care",
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
   },
 ];
 
@@ -194,43 +208,42 @@ export default function Home() {
     <>
       <MainNav />
 
-      {/* Hero Section - Emotionally resonant for families seeking care */}
+      {/* Hero — clear, calm, simple for 65+ families */}
       <section className="relative bg-white overflow-hidden">
-        <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-8 lg:pt-20 lg:pb-12">
+        <div className="relative max-w-7xl mx-auto px-6 pt-14 pb-10 lg:pt-24 lg:pb-14">
           <div className="max-w-3xl mx-auto text-center">
-            {/* Headline - plain language for 65+ families seeking care */}
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Find trusted senior care near you
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-5 leading-tight">
+              Find Senior Care Near You
             </h1>
 
             <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-              Whether you need help at home, assisted living, memory care, or a nursing home — search, compare, and connect with verified care options in your area.
+              Search trusted care options, compare them side by side, and connect directly with providers.
             </p>
 
-            {/* Search Form - Integrated LocationAutocomplete */}
+            {/* Search bar — vertically aligned inputs */}
             <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-8">
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
-                <div className="flex flex-col md:flex-row md:items-center md:divide-x divide-gray-200">
-                  {/* Location with Autocomplete */}
-                  <div className="flex-1 px-4 py-3">
+                <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
+                  {/* Location */}
+                  <div className="flex-1 px-4 py-3 flex flex-col justify-center">
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Where</label>
                     <LocationAutocomplete
                       value={location}
                       onChange={handleLocationChange}
                       placeholder="Enter city"
                       showIcon={false}
-                      inputClassName="border-0 p-0 focus:ring-0 text-base text-center"
+                      inputClassName="border-0 p-0 focus:ring-0 text-base leading-6"
                       className="w-full"
                     />
                   </div>
 
                   {/* Provider Type */}
-                  <div className="flex-1 px-4 py-3">
+                  <div className="flex-1 px-4 py-3 flex flex-col justify-center">
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Type of Care</label>
                     <select
                       value={careType}
                       onChange={(e) => setCareType(e.target.value)}
-                      className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer text-center"
+                      className="w-full text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
                     >
                       <option value="">Any type</option>
                       {CARE_TYPES.map((type) => (
@@ -240,12 +253,12 @@ export default function Home() {
                   </div>
 
                   {/* Care Services */}
-                  <div className="flex-1 px-4 py-3">
+                  <div className="flex-1 px-4 py-3 flex flex-col justify-center">
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Care Services</label>
                     <select
                       value={careService}
                       onChange={(e) => setCareService(e.target.value)}
-                      className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer text-center"
+                      className="w-full text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
                     >
                       {CARE_SERVICE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
@@ -254,10 +267,10 @@ export default function Home() {
                   </div>
 
                   {/* Search Button */}
-                  <div className="px-2 py-2 md:py-0">
+                  <div className="px-2 py-2 md:py-0 flex items-center">
                     <button
                       type="submit"
-                      className="w-full md:w-auto px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+                      className="w-full md:w-auto px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -269,7 +282,7 @@ export default function Home() {
               </div>
             </form>
 
-            {/* Trust signals - simplified */}
+            {/* Trust signals */}
             <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
@@ -294,53 +307,41 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Types of Care - Category cards that explain what each type means */}
+      {/* Explore Every Type of Senior Care — featured provider cards */}
       <section className="pt-8 pb-16 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Explore types of senior care
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              Explore Every Type of Senior Care
             </h2>
-            <p className="text-gray-600 mt-2 max-w-xl mx-auto">
-              Not sure what kind of care you need? Start here to learn what&apos;s available.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURED_CARE_CATEGORIES.map((cat) => (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            {FEATURED_PROVIDERS.map((provider) => (
               <Link
-                key={cat.type}
-                href={`/browse?type=${cat.type}`}
-                className={`group rounded-xl border p-6 hover:shadow-lg hover:border-primary-200 transition-all ${cat.color}`}
+                key={provider.type}
+                href={`/browse?type=${provider.type}`}
+                className={`group rounded-xl border-2 p-6 transition-all hover:shadow-lg ${provider.color}`}
               >
-                <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors mb-2">
-                  {cat.label}
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${provider.iconBg} ${provider.iconColor}`}>
+                  {provider.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                  {provider.label}
                 </h3>
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                  {cat.description}
-                </p>
-                <span className="text-sm font-medium text-primary-600 flex items-center gap-1">
-                  Browse options
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </span>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Browse by Care Type */}
+      {/* What best describes your situation? — no subtitle */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
               What best describes your situation?
             </h2>
-            <p className="text-gray-600 max-w-xl mx-auto">
-              Choose a starting point and we&apos;ll help you explore the right options.
-            </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {CARE_TYPES.map((type) => (
@@ -352,19 +353,16 @@ export default function Home() {
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${type.color} border transition-transform group-hover:scale-105`}>
                   {type.icon}
                 </div>
-                <h3 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors mb-1">
+                <h3 className="text-base font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
                   {type.name}
                 </h3>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  {type.description}
-                </p>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Guidance Section - For unsure users */}
+      {/* Not sure where to start? — trimmed to two short lines */}
       <section className="py-12 bg-primary-50 border-y border-primary-100">
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
@@ -377,13 +375,13 @@ export default function Home() {
               <h2 className="text-xl font-bold text-gray-900 mb-2">
                 Not sure where to start?
               </h2>
-              <p className="text-gray-600">
-                Tell us about your loved one&apos;s situation and we&apos;ll suggest care options that fit — whether they need help at home, a safe community, or something in between.
+              <p className="text-gray-600 text-base leading-relaxed">
+                Answer a few simple questions and we&apos;ll show you the types of care that fit your situation.
               </p>
             </div>
             <Link
               href="/care-profile/edit"
-              className="shrink-0 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all"
+              className="shrink-0 px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all text-base"
             >
               Help me find care
             </Link>
@@ -391,11 +389,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works - Simplified */}
+      {/* How It Works — plain, scannable, third-grade language */}
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
               How it works
             </h2>
           </div>
@@ -404,8 +402,8 @@ export default function Home() {
             {[
               {
                 step: "1",
-                title: "Search by location and care type",
-                description: "Find verified options near you with reviews and pricing.",
+                title: "Search your area",
+                description: "Type your city. See nearby providers with photos, reviews, and prices.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -414,8 +412,8 @@ export default function Home() {
               },
               {
                 step: "2",
-                title: "Save 3-5 options and reach out",
-                description: "Contact your favorites to ask questions and share your family's needs.",
+                title: "Save and reach out",
+                description: "Heart the ones you like. Share your needs to start a conversation.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -424,8 +422,8 @@ export default function Home() {
               },
               {
                 step: "3",
-                title: "Visit, compare, and choose",
-                description: "Schedule visits with your top choices and pick the best fit for your loved one.",
+                title: "Visit and choose",
+                description: "Schedule tours or calls. Pick the best fit for your loved one.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -441,25 +439,77 @@ export default function Home() {
                   {item.step}
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{item.description}</p>
+                <p className="text-base text-gray-600 leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Why Olera Is Different — differentiation block */}
       <section className="py-16 bg-gray-50">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              Why Olera is different
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* You're in control */}
+            <div className="bg-white rounded-xl border border-gray-100 p-8 text-center shadow-sm">
+              <div className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 mx-auto mb-5">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">You&apos;re in control</h3>
+              <p className="text-base text-gray-600 leading-relaxed">
+                Schedule tours, calls, and meetings directly. No spam, no sales calls, no selling your information.
+              </p>
+            </div>
+
+            {/* All senior care in one place */}
+            <div className="bg-white rounded-xl border border-gray-100 p-8 text-center shadow-sm">
+              <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mx-auto mb-5">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">All senior care in one place</h3>
+              <p className="text-base text-gray-600 leading-relaxed">
+                Home care, assisted living, memory care, nursing homes, and more. Come back anytime as needs change.
+              </p>
+            </div>
+
+            {/* Help paying for care */}
+            <div className="bg-white rounded-xl border border-gray-100 p-8 text-center shadow-sm">
+              <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 mx-auto mb-5">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Help paying for care</h3>
+              <p className="text-base text-gray-600 leading-relaxed">
+                Our benefits finder helps you discover programs that can lower the cost of care.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
               Families like yours found care they trust
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((testimonial, idx) => (
-              <div key={idx} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div key={idx} className="bg-gray-50 rounded-xl p-6 border border-gray-100">
                 <div className="flex gap-1 mb-4">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
@@ -467,7 +517,7 @@ export default function Home() {
                     </svg>
                   ))}
                 </div>
-                <blockquote className="text-gray-700 mb-4 leading-relaxed">
+                <blockquote className="text-base text-gray-700 mb-4 leading-relaxed">
                   &ldquo;{testimonial.quote}&rdquo;
                 </blockquote>
                 <div className="flex items-center gap-3">
@@ -476,7 +526,7 @@ export default function Home() {
                   </div>
                   <div>
                     <div className="font-medium text-gray-900">{testimonial.author}</div>
-                    <div className="text-sm text-gray-500">{testimonial.role} • {testimonial.location}</div>
+                    <div className="text-sm text-gray-500">{testimonial.role} &middot; {testimonial.location}</div>
                   </div>
                 </div>
               </div>
@@ -485,26 +535,69 @@ export default function Home() {
         </div>
       </section>
 
-      {/* For Providers CTA */}
+      {/* For Providers — laser-targeted, concise */}
       <section className="py-16 bg-gray-900">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Are you a care provider?
-          </h2>
-          <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-            Join Olera to connect with families looking for care.
-            Get verified, build your reputation, and grow your business.
-          </p>
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+              For Care Providers
+            </h2>
+            <p className="text-lg text-gray-400">
+              Grow your business without pay-per-lead fees.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
+            {/* Flat membership */}
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center text-primary-400 mb-4">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-white font-semibold mb-2">Flat membership</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                One simple price. No per-lead fees. No surprises.
+              </p>
+            </div>
+
+            {/* Direct scheduling */}
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center text-primary-400 mb-4">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-white font-semibold mb-2">Direct scheduling</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Families book tours, calls, and interviews right on your profile.
+              </p>
+            </div>
+
+            {/* Hiring marketplace */}
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="w-10 h-10 bg-primary-900 rounded-xl flex items-center justify-center text-primary-400 mb-4">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="text-white font-semibold mb-2">Hiring marketplace</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Find staff for your facility or agency. Caregivers can find jobs with families too.
+              </p>
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/for-providers"
-              className="px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
+              className="px-6 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-colors text-base text-center"
             >
               Learn more
             </Link>
             <Link
               href="/signup?intent=provider"
-              className="px-6 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
+              className="px-6 py-3.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors text-base text-center"
             >
               List your services
             </Link>
