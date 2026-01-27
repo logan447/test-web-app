@@ -390,26 +390,59 @@ function BrowseContent() {
 
       {/* Sticky Browse Toolbar */}
       <div ref={toolbarRef} className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        {/* Expanded state: category row + full search card */}
+        {/* Expanded state: top bar (logo + categories + hamburger) + full search card */}
         <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          searchExpanded ? "max-h-[200px] opacity-100" : "max-h-0 opacity-0"
+          searchExpanded ? "max-h-[280px] opacity-100" : "max-h-0 opacity-0"
         }`}>
-          {/* Category buttons */}
+          {/* Top bar: Logo + category buttons + hamburger */}
           <div className="max-w-7xl mx-auto px-4 pt-3 pb-1">
-            <div className="flex items-center justify-center gap-1 flex-wrap">
-              {ALL_CARE_CATEGORIES.map((cat) => (
+            <div className="flex items-center gap-4">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/bird-logo.svg" alt="" className="w-7 h-7" aria-hidden="true" />
+                <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
+              </Link>
+
+              {/* Category buttons — centered in remaining space */}
+              <div className="flex-1 flex items-center justify-center gap-1 flex-wrap overflow-hidden">
+                {ALL_CARE_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.type}
+                    onClick={() => handleCategoryClick(cat.type)}
+                    className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+                      filterValues.providerType === cat.type
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Hamburger pill */}
+              <div className="relative shrink-0" data-hamburger-menu>
                 <button
-                  key={cat.type}
-                  onClick={() => handleCategoryClick(cat.type)}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
-                    filterValues.providerType === cat.type
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                  onClick={() => setHamburgerOpen(!hamburgerOpen)}
+                  className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
                 >
-                  {cat.label}
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
+                    {session ? (
+                      <span className="text-xs font-medium text-white">
+                        {session.user?.name?.charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
+                    )}
+                  </div>
                 </button>
-              ))}
+              </div>
             </div>
           </div>
 
@@ -470,7 +503,7 @@ function BrowseContent() {
           </div>
         </div>
 
-        {/* Collapsed toolbar row: compact search pill + Filters + hamburger */}
+        {/* Collapsed toolbar row: logo + condensed search bar (centered) + Filters + hamburger */}
         <div className={`transition-all duration-300 ease-in-out ${
           searchExpanded ? "max-h-0 opacity-0 overflow-hidden" : "max-h-20 opacity-100"
         }`}>
@@ -483,11 +516,14 @@ function BrowseContent() {
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
 
-              {/* Compact search pill */}
+              {/* Spacer — pushes search bar to center on desktop */}
+              <div className="hidden lg:block flex-1" />
+
+              {/* Compact search bar — condensed, centered at desktop, max-width constrained */}
               <button
                 type="button"
                 onClick={() => setSearchExpanded(true)}
-                className="flex-1 min-w-0 flex items-center bg-white rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                className="flex-1 lg:flex-none min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer lg:min-w-[480px] lg:max-w-[560px]"
               >
                 <div className="flex-1 min-w-0 flex items-center divide-x divide-gray-200">
                   <span className="px-4 py-2.5 text-sm truncate text-gray-900 flex-1">
@@ -500,12 +536,15 @@ function BrowseContent() {
                     {CARE_SERVICE_OPTIONS.find(o => o.value === filterValues.careService)?.label || "Any service"}
                   </span>
                 </div>
-                <div className="m-1.5 p-2 bg-primary-600 rounded-full shrink-0">
+                <div className="m-1.5 p-2 bg-primary-600 rounded-xl shrink-0">
                   <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
               </button>
+
+              {/* Spacer — balances centering on desktop */}
+              <div className="hidden lg:block flex-1" />
 
               {/* Filters pill */}
               <button
