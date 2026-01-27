@@ -6,11 +6,12 @@ import { prisma } from "@/lib/prisma";
 // GET /api/providers/[id]/questions — fetch questions for a provider
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const questions = await prisma.question.findMany({
-      where: { providerId: params.id },
+      where: { providerId: id },
       include: {
         user: { select: { name: true } },
       },
@@ -27,7 +28,7 @@ export async function GET(
 // POST /api/providers/[id]/questions — post a new question
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -35,6 +36,7 @@ export async function POST(
   }
 
   try {
+    const { id } = await params;
     const { content } = await request.json();
 
     if (!content || typeof content !== "string" || content.trim().length < 5) {
@@ -43,7 +45,7 @@ export async function POST(
 
     const question = await prisma.question.create({
       data: {
-        providerId: params.id,
+        providerId: id,
         userId: session.user.id,
         content: content.trim(),
       },
