@@ -390,10 +390,11 @@ function BrowseContent() {
 
       {/* Sticky Browse Toolbar */}
       <div ref={toolbarRef} className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        {/* Category row — visible when expanded, all types flat */}
+        {/* Expanded state: category row + full search card */}
         <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          searchExpanded ? "max-h-16 opacity-100" : "max-h-0 opacity-0"
+          searchExpanded ? "max-h-[200px] opacity-100" : "max-h-0 opacity-0"
         }`}>
+          {/* Category buttons */}
           <div className="max-w-7xl mx-auto px-4 pt-3 pb-1">
             <div className="flex items-center justify-center gap-1 flex-wrap">
               {ALL_CARE_CATEGORIES.map((cat) => (
@@ -411,83 +412,123 @@ function BrowseContent() {
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Main toolbar row */}
-        <div className="max-w-7xl mx-auto px-4 py-2.5">
-          <div className="flex items-center gap-3">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/bird-logo.svg" alt="" className="w-7 h-7" aria-hidden="true" />
-              <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
-            </Link>
-
-            {/* Search bar — matches homepage design */}
-            <div className="flex-1 min-w-0" onFocus={() => setSearchExpanded(true)}>
-              <form onSubmit={handleSearch}>
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
-                  <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
-                    {/* Location */}
-                    <div className="flex-1 px-4 py-3">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Where</label>
-                      <LocationAutocomplete
-                        value={location}
-                        onChange={handleLocationChange}
-                        placeholder="Enter city"
-                        showIcon={false}
-                        inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Type of Care */}
-                    <div className="flex-1 px-4 py-3">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Type of Care</label>
-                      <select
-                        value={filterValues.providerType}
-                        onChange={(e) => handleFilterChange("providerType", e.target.value)}
-                        className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
-                      >
-                        {PROVIDER_TYPE_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Care Services */}
-                    <div className="flex-1 px-4 py-3">
-                      <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Care Services</label>
-                      <select
-                        value={filterValues.careService}
-                        onChange={(e) => handleFilterChange("careService", e.target.value)}
-                        className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
-                      >
-                        {CARE_SERVICE_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Search Button */}
-                    <div className="px-2 py-2 md:py-0 flex items-center">
-                      <button
-                        type="submit"
-                        className="w-full md:w-auto px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <span>Search</span>
-                      </button>
-                    </div>
+          {/* Full search bar (homepage style) */}
+          <div className="max-w-3xl mx-auto px-4 pt-2 pb-3">
+            <form onSubmit={handleSearch}>
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
+                <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Where</label>
+                    <LocationAutocomplete
+                      value={location}
+                      onChange={handleLocationChange}
+                      placeholder="Enter city"
+                      showIcon={false}
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Type of Care</label>
+                    <select
+                      value={filterValues.providerType}
+                      onChange={(e) => handleFilterChange("providerType", e.target.value)}
+                      className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                    >
+                      {PROVIDER_TYPE_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Care Services</label>
+                    <select
+                      value={filterValues.careService}
+                      onChange={(e) => handleFilterChange("careService", e.target.value)}
+                      className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                    >
+                      {CARE_SERVICE_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="px-2 py-2 md:py-0 flex items-center">
+                    <button
+                      type="submit"
+                      className="w-full md:w-auto px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <span>Search</span>
+                    </button>
                   </div>
                 </div>
-              </form>
-            </div>
+              </div>
+            </form>
+          </div>
+        </div>
 
-            {/* Hamburger pill */}
-            <div className="relative shrink-0" data-hamburger-menu>
+        {/* Collapsed toolbar row: compact search pill + Filters + hamburger */}
+        <div className={`transition-all duration-300 ease-in-out ${
+          searchExpanded ? "max-h-0 opacity-0 overflow-hidden" : "max-h-20 opacity-100"
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 py-2.5">
+            <div className="flex items-center gap-3">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/bird-logo.svg" alt="" className="w-7 h-7" aria-hidden="true" />
+                <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
+              </Link>
+
+              {/* Compact search pill */}
+              <button
+                type="button"
+                onClick={() => setSearchExpanded(true)}
+                className="flex-1 min-w-0 flex items-center bg-white rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              >
+                <div className="flex-1 min-w-0 flex items-center divide-x divide-gray-200">
+                  <span className="px-4 py-2.5 text-sm truncate text-gray-900 flex-1">
+                    {location || <span className="text-gray-400">Enter city</span>}
+                  </span>
+                  <span className="hidden md:block px-4 py-2.5 text-sm truncate text-gray-700 flex-1">
+                    {PROVIDER_TYPE_OPTIONS.find(o => o.value === filterValues.providerType)?.label || "Any type"}
+                  </span>
+                  <span className="hidden lg:block px-4 py-2.5 text-sm truncate text-gray-700 flex-1">
+                    {CARE_SERVICE_OPTIONS.find(o => o.value === filterValues.careService)?.label || "Any service"}
+                  </span>
+                </div>
+                <div className="m-1.5 p-2 bg-primary-600 rounded-full shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </button>
+
+              {/* Filters pill */}
+              <button
+                onClick={() => setFilterModalOpen(true)}
+                className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-colors shrink-0 ${
+                  advancedFilterCount > 0
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                <span className="hidden sm:inline">Filters</span>
+                {advancedFilterCount > 0 && (
+                  <span className="bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {advancedFilterCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Hamburger pill */}
+              <div className="relative shrink-0" data-hamburger-menu>
               <button
                 onClick={() => setHamburgerOpen(!hamburgerOpen)}
                 className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
@@ -632,6 +673,7 @@ function BrowseContent() {
           </div>
         </div>
       </div>
+      </div>
 
       {/* Filter Modal */}
       {filterModalOpen && (
@@ -751,26 +793,6 @@ function BrowseContent() {
             </h1>
 
             <div className="flex items-center gap-2 shrink-0">
-              {/* Filters button */}
-              <button
-                onClick={() => setFilterModalOpen(true)}
-                className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-medium transition-colors ${
-                  advancedFilterCount > 0
-                    ? "border-primary-500 bg-primary-50 text-primary-700"
-                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-                Filters
-                {advancedFilterCount > 0 && (
-                  <span className="bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {advancedFilterCount}
-                  </span>
-                )}
-              </button>
-
               {/* Map toggle (mobile) */}
               <button
                 onClick={() => setShowMap(!showMap)}
