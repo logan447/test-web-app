@@ -231,12 +231,11 @@ export default function Home() {
           <div className="max-w-3xl mx-auto text-center">
             {/* Simplified headline - speaks to the emotional reality */}
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Find the right care for someone you love
+              Find care you can trust
             </h1>
 
             <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-              Compare verified providers, read reviews from other families, and schedule visits.
-              We help you find care you can trust.
+              Compare verified providers, read family reviews, and connect directly — all in one place.
             </p>
 
             {/* Search Form - Integrated LocationAutocomplete */}
@@ -251,7 +250,7 @@ export default function Home() {
                       onChange={handleLocationChange}
                       placeholder="Enter city"
                       showIcon={false}
-                      inputClassName="border-0 p-0 focus:ring-0 text-base"
+                      inputClassName="border-0 p-0 focus:ring-0 text-base text-center"
                       className="w-full"
                     />
                   </div>
@@ -262,7 +261,7 @@ export default function Home() {
                     <select
                       value={careType}
                       onChange={(e) => setCareType(e.target.value)}
-                      className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer"
+                      className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer text-center"
                     >
                       <option value="">Any type</option>
                       {CARE_TYPES.map((type) => (
@@ -277,7 +276,7 @@ export default function Home() {
                     <select
                       value={urgency}
                       onChange={(e) => setUrgency(e.target.value)}
-                      className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer"
+                      className="w-full text-gray-900 focus:outline-none text-base bg-transparent appearance-none cursor-pointer text-center"
                     >
                       {URGENCY_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
@@ -322,34 +321,6 @@ export default function Home() {
                 <span>Real reviews</span>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Guidance Section - Prominent for unsure users */}
-      <section className="py-12 bg-primary-50 border-y border-primary-100">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-              <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="text-center md:text-left flex-1">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                Not sure what type of care you need?
-              </h2>
-              <p className="text-gray-600">
-                Answer a few questions and we&apos;ll help you understand your options.
-                It takes about 5 minutes and helps providers understand your situation.
-              </p>
-            </div>
-            <Link
-              href="/care-profile/edit"
-              className="shrink-0 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all"
-            >
-              Get personalized help
-            </Link>
           </div>
         </div>
       </section>
@@ -498,7 +469,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              What type of care are you looking for?
+              Already know what you&apos;re looking for?
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto">
               Every situation is different. Explore options to find what works for your family.
@@ -522,6 +493,33 @@ export default function Home() {
                 </p>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Guidance Section - For unsure users */}
+      <section className="py-12 bg-primary-50 border-y border-primary-100">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+              <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="text-center md:text-left flex-1">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                Get matched with the right care
+              </h2>
+              <p className="text-gray-600">
+                Answer a few questions and we&apos;ll match you with providers that fit your needs.
+              </p>
+            </div>
+            <Link
+              href="/care-profile/edit"
+              className="shrink-0 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all"
+            >
+              Get personalized help
+            </Link>
           </div>
         </div>
       </section>

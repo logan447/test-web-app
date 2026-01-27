@@ -271,7 +271,7 @@ function MainNavContent() {
               </div>
             ))}
 
-            {/* Other Dropdown */}
+            {/* More Dropdown */}
             <div
               className="relative"
               onMouseEnter={() => setOpenDropdown("other")}
@@ -281,7 +281,7 @@ function MainNavContent() {
               }}
             >
               <button className="px-3 py-2 text-gray-700 hover:text-primary-600 font-medium text-sm flex items-center">
-                Other
+                More
                 <svg
                   className="ml-1 w-4 h-4"
                   fill="none"
@@ -653,13 +653,13 @@ function MainNavContent() {
               </div>
             ))}
 
-            {/* Other Dropdown for Mobile */}
+            {/* More Dropdown for Mobile */}
             <div className="py-2">
               <button
                 onClick={() => setOpenDropdown(openDropdown === "other" ? null : "other")}
                 className="w-full text-left px-3 py-2 text-gray-700 font-medium flex justify-between items-center"
               >
-                Other
+                More
                 <svg
                   className={`w-4 h-4 transform transition-transform ${openDropdown === "other" ? "rotate-180" : ""}`}
                   fill="none"
