@@ -454,33 +454,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Not sure where to start? */}
-      <section className="py-12 bg-primary-50 border-y border-primary-100">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-              <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="text-center md:text-left flex-1">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                Not sure where to start?
-              </h2>
-              <p className="text-gray-600 text-base">
-                Answer a few simple questions and we&apos;ll help you choose a provider.
-              </p>
-            </div>
-            <Link
-              href="/care-profile/edit"
-              className="shrink-0 px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all text-base"
-            >
-              Help me choose
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* How It Works — Search, Schedule, Compare */}
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-6">
@@ -504,8 +477,8 @@ export default function Home() {
               },
               {
                 step: "2",
-                title: "Schedule meetings",
-                description: "Book tours, video calls, or consultations directly with providers.",
+                title: "Talk to providers",
+                description: "Book tours or consultations to talk directly with providers.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -568,9 +541,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Book meetings directly</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Book free consultations and tours</h3>
               <p className="text-base text-gray-600">
-                Schedule tours or calls directly with providers to compare options.
+                Talk directly with providers to get pricing and care details.
               </p>
             </div>
 
