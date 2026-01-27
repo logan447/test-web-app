@@ -1,25 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <!--
-    Olera Bird Logo
-    Stylized bird/leaf mark representing care, growth, and guidance
-    Primary color: Olera Teal #0D9488
-
-    Design intent: Minimal, elegant bird mark matching reference screenshots.
-    Approximation created for Sprint 0 visual foundation.
+    Olera Bird Logo — Official
+    Geometric/faceted bird mark in teal
+    Primary: #0D9488, accents via shade variation
 
     @see docs/ui-style-guide.md
     @see docs/master-platform-manual.md Chapter 4
   -->
 
-  <!-- Main bird shape - elegant curved form suggesting flight/care -->
-  <path
-    d="M6 26 Q2 22, 6 16 Q10 10, 18 6 Q22 4, 26 6 Q22 10, 16 14 Q10 18, 8 24 Q7 26, 6 26 Z"
-    fill="#0D9488"
-  />
+  <!-- Body core — darkest -->
+  <polygon points="28,34 18,44 24,52 34,44" fill="#0A6B62"/>
+  <polygon points="28,34 34,44 40,36" fill="#0C7F74"/>
 
-  <!-- Wing accent - smaller leaf shape -->
-  <path
-    d="M14 10 Q18 8, 22 10 Q18 12, 14 12 Q12 11, 14 10 Z"
-    fill="#0F766E"
-  />
+  <!-- Left wing — lower feathers -->
+  <polygon points="18,44 8,38 14,30 28,34" fill="#0D9488"/>
+  <polygon points="8,38 4,28 14,30" fill="#0F766E"/>
+  <polygon points="14,30 4,28 12,20" fill="#0D9488"/>
+
+  <!-- Left wing — upper feathers -->
+  <polygon points="14,30 12,20 22,22" fill="#14B8A6"/>
+  <polygon points="12,20 8,12 18,14" fill="#0D9488"/>
+  <polygon points="12,20 18,14 22,22" fill="#10A396"/>
+
+  <!-- Right wing — lower -->
+  <polygon points="28,34 40,36 46,28" fill="#0D9488"/>
+  <polygon points="40,36 50,34 46,28" fill="#0F766E"/>
+
+  <!-- Right wing — upper feathers -->
+  <polygon points="28,34 46,28 38,20" fill="#14B8A6"/>
+  <polygon points="46,28 50,34 54,24" fill="#0A6B62"/>
+  <polygon points="46,28 54,24 48,16" fill="#0D9488"/>
+  <polygon points="38,20 46,28 48,16" fill="#10A396"/>
+
+  <!-- Top crest feathers -->
+  <polygon points="22,22 28,34 38,20" fill="#2DD4BF"/>
+  <polygon points="22,22 38,20 30,12" fill="#14B8A6"/>
+  <polygon points="30,12 38,20 40,10" fill="#0D9488"/>
+  <polygon points="38,20 48,16 40,10" fill="#0F766E"/>
+
+  <!-- Head -->
+  <polygon points="40,10 48,16 50,8" fill="#0A6B62"/>
+  <polygon points="48,16 54,24 56,14 50,8" fill="#0C7F74"/>
+
+  <!-- Beak -->
+  <polygon points="50,8 56,14 60,10" fill="#0A5F57"/>
+
+  <!-- Tail feathers -->
+  <polygon points="18,44 24,52 16,56 10,48" fill="#0F766E"/>
+  <polygon points="10,48 16,56 8,54" fill="#0D9488"/>
 </svg>
