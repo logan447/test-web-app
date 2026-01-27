@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
+import { formatProviderType } from "@/lib/comparisonUtils";
 
 // Care services options for search
 const CARE_SERVICE_OPTIONS = [
@@ -111,57 +112,19 @@ const TESTIMONIALS = [
   },
 ];
 
-// Featured provider cards — one from each major category
-const FEATURED_PROVIDERS = [
-  {
-    label: "Home Care",
-    type: "HOME_CARE",
-    color: "bg-blue-50 border-blue-100 hover:border-blue-300",
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
-    icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    ),
-  },
-  {
-    label: "Assisted Living",
-    type: "ASSISTED_LIVING",
-    color: "bg-green-50 border-green-100 hover:border-green-300",
-    iconBg: "bg-green-100",
-    iconColor: "text-green-600",
-    icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
-    ),
-  },
-  {
-    label: "Memory Care",
-    type: "MEMORY_CARE",
-    color: "bg-purple-50 border-purple-100 hover:border-purple-300",
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600",
-    icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-      </svg>
-    ),
-  },
-  {
-    label: "Nursing Homes",
-    type: "NURSING_HOME",
-    color: "bg-red-50 border-red-100 hover:border-red-300",
-    iconBg: "bg-red-100",
-    iconColor: "text-red-600",
-    icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
-  },
-];
+// Featured provider type for display
+interface FeaturedProvider {
+  id: string;
+  name: string;
+  type: string;
+  typeLabel: string;
+  city: string;
+  state: string;
+  rating: number;
+  reviewCount: number;
+  image: string;
+  priceFrom?: number;
+}
 
 export default function Home() {
   const router = useRouter();
@@ -169,6 +132,42 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(null);
   const [careType, setCareType] = useState("");
   const [careService, setCareService] = useState("");
+  const [featuredProviders, setFeaturedProviders] = useState<FeaturedProvider[]>([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
+  const [providersError, setProvidersError] = useState(false);
+
+  // Fetch featured providers on mount
+  useEffect(() => {
+    const fetchFeaturedProviders = async () => {
+      try {
+        const res = await fetch("/api/providers?limit=4&sortBy=rating");
+        if (res.ok) {
+          const data = await res.json();
+          const providers = (data.providers || []).slice(0, 4).map((p: Record<string, unknown>) => ({
+            id: p.id as string,
+            name: p.name as string,
+            type: p.providerType as string,
+            typeLabel: formatProviderType(p.providerType as string),
+            city: p.city as string,
+            state: p.state as string,
+            rating: (p.averageRating as number) || 4.5,
+            reviewCount: (p.reviewCount as number) || 0,
+            image: (p.coverPhoto as string) || (p.photos as string[])?.[0] || "/placeholder-facility.jpg",
+            priceFrom: (p.priceMin as number) || (p.privateRoomMin as number) || undefined,
+          }));
+          setFeaturedProviders(providers);
+        }
+      } catch (err) {
+        console.error("Failed to fetch featured providers:", err);
+        setProvidersError(true);
+      } finally {
+        setLoadingProviders(false);
+      }
+    };
+
+    fetchFeaturedProviders();
+  }, []);
+
   const handleLocationChange = (value: string, loc?: { city: string; state: string }) => {
     setLocation(value);
     if (loc) {
@@ -220,30 +219,30 @@ export default function Home() {
               Search trusted care options, compare them side by side, and connect directly with providers.
             </p>
 
-            {/* Search bar — vertically aligned inputs */}
+            {/* Search bar — all fields left-aligned, same height */}
             <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-8">
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
                 <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
                   {/* Location */}
-                  <div className="flex-1 px-4 py-3 flex flex-col justify-center">
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Where</label>
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Where</label>
                     <LocationAutocomplete
                       value={location}
                       onChange={handleLocationChange}
                       placeholder="Enter city"
                       showIcon={false}
-                      inputClassName="border-0 p-0 focus:ring-0 text-base leading-6"
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
                       className="w-full"
                     />
                   </div>
 
                   {/* Provider Type */}
-                  <div className="flex-1 px-4 py-3 flex flex-col justify-center">
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Type of Care</label>
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Type of Care</label>
                     <select
                       value={careType}
                       onChange={(e) => setCareType(e.target.value)}
-                      className="w-full text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                      className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
                     >
                       <option value="">Any type</option>
                       {CARE_TYPES.map((type) => (
@@ -253,12 +252,12 @@ export default function Home() {
                   </div>
 
                   {/* Care Services */}
-                  <div className="flex-1 px-4 py-3 flex flex-col justify-center">
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">Care Services</label>
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Care Services</label>
                     <select
                       value={careService}
                       onChange={(e) => setCareService(e.target.value)}
-                      className="w-full text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
+                      className="w-full h-6 text-gray-900 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer"
                     >
                       {CARE_SERVICE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
@@ -307,30 +306,103 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Explore Every Type of Senior Care — featured provider cards */}
+      {/* Explore Every Type of Senior Care — real featured providers */}
       <section className="pt-8 pb-16 bg-white">
-        <div className="max-w-5xl mx-auto px-6">
+        <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
               Explore Every Type of Senior Care
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {FEATURED_PROVIDERS.map((provider) => (
-              <Link
-                key={provider.type}
-                href={`/browse?type=${provider.type}`}
-                className={`group rounded-xl border-2 p-6 transition-all hover:shadow-lg ${provider.color}`}
-              >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${provider.iconBg} ${provider.iconColor}`}>
-                  {provider.icon}
+          {loadingProviders ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="animate-pulse rounded-xl border border-gray-100 overflow-hidden">
+                  <div className="h-40 bg-gray-200" />
+                  <div className="p-4">
+                    <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
+                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
+                    <div className="h-3 bg-gray-200 rounded w-1/2" />
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                  {provider.label}
-                </h3>
+              ))}
+            </div>
+          ) : providersError || featuredProviders.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-4">Unable to load featured providers right now.</p>
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
+              >
+                Browse All Providers
               </Link>
-            ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProviders.map((provider) => (
+                <Link
+                  key={provider.id}
+                  href={`/providers/${provider.id}`}
+                  className="group rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all bg-white"
+                >
+                  {/* Provider image */}
+                  <div className="relative h-40 bg-gray-100 overflow-hidden">
+                    <img
+                      src={provider.image}
+                      alt={provider.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/placeholder-facility.jpg";
+                      }}
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-block px-2.5 py-1 bg-white/90 backdrop-blur-sm text-xs font-semibold text-gray-700 rounded-lg">
+                        {provider.typeLabel}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Provider info */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 text-base group-hover:text-primary-600 transition-colors mb-1 line-clamp-1">
+                      {provider.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-2">
+                      {provider.city}, {provider.state}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-900">{provider.rating.toFixed(1)}</span>
+                        {provider.reviewCount > 0 && (
+                          <span className="text-sm text-gray-400">({provider.reviewCount})</span>
+                        )}
+                      </div>
+                      {provider.priceFrom && (
+                        <span className="text-sm text-gray-500">
+                          From ${provider.priceFrom.toLocaleString()}/mo
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <div className="text-center mt-8">
+            <Link
+              href="/browse"
+              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-semibold text-base"
+            >
+              View all providers
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>
