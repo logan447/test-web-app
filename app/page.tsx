@@ -20,12 +20,12 @@ const CARE_SERVICE_OPTIONS = [
   { value: "LIVE_IN_CARE", label: "Live-in Care" },
 ];
 
-// Care Type Categories - simplified for clarity
+// Care entry options - situation-based language that reflects how people experience the journey
 const CARE_TYPES = [
   {
-    id: "home-care",
+    id: "help-at-home",
     name: "Help at Home",
-    description: "Daily assistance while staying in your own home",
+    description: "Stay independent with support in your own space",
     slug: "HOME_CARE",
     color: "bg-blue-50 text-blue-600 border-blue-100",
     icon: (
@@ -35,21 +35,21 @@ const CARE_TYPES = [
     ),
   },
   {
-    id: "assisted-living",
-    name: "Assisted Living",
-    description: "Independent living with daily support nearby",
-    slug: "ASSISTED_LIVING",
-    color: "bg-primary-50 text-primary-600 border-primary-100",
+    id: "after-hospital",
+    name: "After a Hospital Stay",
+    description: "Find rehab or recovery care nearby",
+    slug: "REHABILITATION",
+    color: "bg-green-50 text-green-600 border-green-100",
     icon: (
       <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
       </svg>
     ),
   },
   {
-    id: "memory-care",
-    name: "Memory Care",
-    description: "Specialized support for memory loss",
+    id: "memory-concerns",
+    name: "Memory Concerns",
+    description: "Specialized care for memory or safety needs",
     slug: "MEMORY_CARE",
     color: "bg-purple-50 text-purple-600 border-purple-100",
     icon: (
@@ -59,9 +59,21 @@ const CARE_TYPES = [
     ),
   },
   {
-    id: "nursing-home",
-    name: "Nursing Home",
-    description: "24/7 nursing and medical care",
+    id: "planning-ahead",
+    name: "Planning Ahead",
+    description: "Explore options before you need them",
+    slug: "ASSISTED_LIVING",
+    color: "bg-primary-50 text-primary-600 border-primary-100",
+    icon: (
+      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "long-term-care",
+    name: "Long-term Options",
+    description: "24/7 nursing or assisted living communities",
     slug: "NURSING_HOME",
     color: "bg-red-50 text-red-600 border-red-100",
     icon: (
@@ -71,26 +83,14 @@ const CARE_TYPES = [
     ),
   },
   {
-    id: "hospice",
-    name: "Hospice Care",
-    description: "Compassionate end-of-life comfort",
+    id: "end-of-life",
+    name: "Comfort Care",
+    description: "Compassionate hospice and palliative support",
     slug: "HOSPICE",
     color: "bg-amber-50 text-amber-600 border-amber-100",
     icon: (
       <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    ),
-  },
-  {
-    id: "rehabilitation",
-    name: "Rehab Care",
-    description: "Recovery after hospital or surgery",
-    slug: "REHABILITATION",
-    color: "bg-green-50 text-green-600 border-green-100",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
       </svg>
     ),
   },
@@ -230,15 +230,15 @@ export default function Home() {
 
       {/* Hero Section - Emotionally resonant for families seeking care */}
       <section className="relative bg-white overflow-hidden">
-        <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-16 lg:pt-20 lg:pb-24">
+        <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-8 lg:pt-20 lg:pb-12">
           <div className="max-w-3xl mx-auto text-center">
-            {/* Simplified headline - speaks to the emotional reality */}
+            {/* Headline - communicates our core value proposition */}
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Find care you can trust
+              Compare care options, your way
             </h1>
 
             <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-              Compare verified providers, read family reviews, and connect directly — all in one place.
+              Search verified providers, schedule visits, and make confident decisions — without repeating your story.
             </p>
 
             {/* Search Form - Integrated LocationAutocomplete */}
@@ -329,7 +329,7 @@ export default function Home() {
       </section>
 
       {/* Featured Providers - Real providers from the database */}
-      <section className="py-16 bg-white">
+      <section className="pt-8 pb-16 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -472,10 +472,10 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              Already know what you&apos;re looking for?
+              What best describes your situation?
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto">
-              Every situation is different. Explore options to find what works for your family.
+              Choose a starting point and we&apos;ll help you explore the right options.
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -521,7 +521,7 @@ export default function Home() {
               href="/care-profile/edit"
               className="shrink-0 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all"
             >
-              Get personalized help
+              Get matched now
             </Link>
           </div>
         </div>
@@ -531,12 +531,9 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            <h2 className="text-2xl font-bold text-gray-900">
               How it works
             </h2>
-            <p className="text-gray-600">
-              Finding care doesn&apos;t have to be overwhelming
-            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -544,7 +541,7 @@ export default function Home() {
               {
                 step: "1",
                 title: "Search and compare",
-                description: "Browse verified providers with photos, reviews, and pricing. Filter by location and care type.",
+                description: "Browse verified providers with reviews and pricing. Filter by location and care type.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -554,7 +551,7 @@ export default function Home() {
               {
                 step: "2",
                 title: "Reach out directly",
-                description: "Contact providers to ask questions and learn more. Share your needs so they understand your situation.",
+                description: "Contact providers directly to ask questions and share your needs.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -563,8 +560,8 @@ export default function Home() {
               },
               {
                 step: "3",
-                title: "Visit and decide",
-                description: "Schedule tours and consultations. Meet with 3-5 providers to find the right fit for your family.",
+                title: "Meet and decide",
+                description: "Schedule tours or consultations and choose the right fit for your family.",
                 icon: (
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
