@@ -217,7 +217,7 @@ function MainNavContent({ hidden }: MainNavContentProps) {
   return (
     <nav className={`bg-white shadow-sm border-b sticky top-0 z-50 transition-transform duration-300 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="relative flex items-center justify-between h-16">
 
           {/* Left: Logo */}
           <div className="flex items-center shrink-0">
@@ -228,8 +228,8 @@ function MainNavContent({ hidden }: MainNavContentProps) {
             </Link>
           </div>
 
-          {/* Center: Care type hover dropdowns (desktop) */}
-          <div className="hidden lg:flex items-center gap-1">
+          {/* Center: Care type hover dropdowns (desktop) — absolutely centered */}
+          <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
             {MAIN_CATEGORIES.map((category) => (
               <div
                 key={category.slug}
