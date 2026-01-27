@@ -324,7 +324,7 @@ function MainNavContent({ hidden }: MainNavContentProps) {
 
             <Link
               href="/for-providers"
-              className="text-sm font-bold text-gray-900 hover:text-primary-600 transition-colors"
+              className="text-sm font-bold text-primary-600 hover:text-primary-700 transition-colors"
             >
               Become a provider
             </Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MainNav from "@/components/Navigation/MainNav";
@@ -114,28 +114,35 @@ export default function Home() {
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [providersError, setProvidersError] = useState(false);
 
-  // Sticky search state
+  // Sticky search: observe hero text (h1 + subtitle) to trigger sticky mode
   const [showStickySearch, setShowStickySearch] = useState(false);
-  const heroSearchRef = useRef<HTMLFormElement>(null);
+  const [searchBarHeight, setSearchBarHeight] = useState(0);
+  const heroTextRef = useRef<HTMLDivElement>(null);
+  const searchFormRef = useRef<HTMLFormElement>(null);
 
-  // Sticky search: location + care type for the compact bar
-  const [stickyLocation, setStickyLocation] = useState("");
-  const [stickySelectedLocation, setStickySelectedLocation] = useState<{ city: string; state: string } | null>(null);
-
-  // Observe when the hero search form leaves the viewport
   useEffect(() => {
-    const searchForm = heroSearchRef.current;
-    if (!searchForm) return;
+    const heroText = heroTextRef.current;
+    if (!heroText) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         setShowStickySearch(!entry.isIntersecting);
       },
-      { threshold: 0, rootMargin: "-64px 0px 0px 0px" } // 64px = nav height
+      { threshold: 0 }
     );
 
-    observer.observe(searchForm);
+    observer.observe(heroText);
     return () => observer.disconnect();
+  }, []);
+
+  // Measure search bar height for placeholder
+  useEffect(() => {
+    const form = searchFormRef.current;
+    if (!form) return;
+    const measure = () => setSearchBarHeight(form.offsetHeight);
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
   }, []);
 
   // Fetch featured providers on mount
@@ -177,44 +184,26 @@ export default function Home() {
     }
   };
 
-  const handleStickyLocationChange = (value: string, loc?: { city: string; state: string }) => {
-    setStickyLocation(value);
-    if (loc) {
-      setStickySelectedLocation({ city: loc.city, state: loc.state });
-    }
-  };
-
-  const buildSearchParams = useCallback((loc: string, selLoc: { city: string; state: string } | null, type: string, service: string) => {
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
     const params = new URLSearchParams();
 
-    if (selLoc) {
-      params.set("city", selLoc.city);
-      params.set("state", selLoc.state);
-    } else if (loc) {
-      const parts = loc.split(",").map((s) => s.trim());
+    if (selectedLocation) {
+      params.set("city", selectedLocation.city);
+      params.set("state", selectedLocation.state);
+    } else if (location) {
+      const parts = location.split(",").map((s) => s.trim());
       if (parts.length >= 2) {
         params.set("city", parts[0]);
         params.set("state", parts[1]);
       } else {
-        params.set("city", loc);
+        params.set("city", location);
       }
     }
 
-    if (type) params.set("type", type);
-    if (service) params.set("care", service);
+    if (careType) params.set("type", careType);
+    if (careService) params.set("care", careService);
 
-    return params;
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = buildSearchParams(location, selectedLocation, careType, careService);
-    router.push(`/browse?${params.toString()}`);
-  };
-
-  const handleStickySearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = buildSearchParams(stickyLocation, stickySelectedLocation, careType, careService);
     router.push(`/browse?${params.toString()}`);
   };
 
@@ -222,70 +211,41 @@ export default function Home() {
     <>
       <MainNav hidden={showStickySearch} />
 
-      {/* Sticky compact search bar — replaces toolbar on scroll */}
-      <div
-        className={`fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b transition-transform duration-300 ${
-          showStickySearch ? 'translate-y-0' : '-translate-y-full'
-        }`}
-      >
-        <div className="max-w-5xl mx-auto px-4 py-2">
-          <form onSubmit={handleStickySearch} className="flex items-center gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-xl border border-gray-200 px-3 py-1.5">
-              <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <LocationAutocomplete
-                value={stickyLocation}
-                onChange={handleStickyLocationChange}
-                placeholder="City or zip code"
-                showIcon={false}
-                inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-sm h-6 leading-6 text-gray-900 placeholder:text-gray-400 bg-transparent"
-                className="flex-1"
-              />
-            </div>
-            <select
-              value={careType}
-              onChange={(e) => setCareType(e.target.value)}
-              className="hidden md:block h-9 px-3 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary-300 cursor-pointer"
-            >
-              <option value="">Any type</option>
-              {CARE_TYPES.map((type) => (
-                <option key={type.id} value={type.slug}>{type.name}</option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center gap-1.5 text-sm"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <span className="hidden sm:inline">Search</span>
-            </button>
-          </form>
-        </div>
-      </div>
-
       {/* Hero — clear, calm, simple for 65+ families */}
       <section className="relative bg-white overflow-hidden">
         <div className="relative max-w-7xl mx-auto px-6 pt-14 pb-10 lg:pt-24 lg:pb-14">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-5 leading-tight">
-              Find Senior Care Near You
-            </h1>
+            {/* Hero text — observed for sticky trigger */}
+            <div ref={heroTextRef}>
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-5 leading-tight">
+                Find Senior Care Near You
+              </h1>
 
-            <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-              Home care, assisted living, memory care, nursing homes, and more.
-            </p>
+              <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
+                Home care, assisted living, memory care, nursing homes, and more.
+              </p>
+            </div>
 
-            {/* Search bar — all fields left-aligned, same height */}
-            <form ref={heroSearchRef} onSubmit={handleSearch} className="max-w-3xl mx-auto mb-8">
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
+            {/* Search bar — becomes sticky when hero text scrolls out */}
+            {/* Placeholder to prevent layout jump when form goes fixed */}
+            {showStickySearch && <div style={{ height: searchBarHeight }} className="mb-8" />}
+
+            <form
+              ref={searchFormRef}
+              onSubmit={handleSearch}
+              className={`max-w-3xl mx-auto mb-8 transition-shadow duration-300 ${
+                showStickySearch
+                  ? 'fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b px-4 py-3 max-w-none'
+                  : ''
+              }`}
+            >
+              <div className={`bg-white rounded-2xl shadow-lg border border-gray-200 p-2 ${
+                showStickySearch ? 'max-w-3xl mx-auto shadow-none border-0 p-0' : ''
+              }`}>
                 <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
                   {/* Location */}
                   <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Where</label>
+                    <label className={`block text-xs font-semibold text-gray-500 mb-1.5 text-left ${showStickySearch ? 'sr-only' : ''}`}>Where</label>
                     <LocationAutocomplete
                       value={location}
                       onChange={handleLocationChange}
@@ -298,7 +258,7 @@ export default function Home() {
 
                   {/* Provider Type */}
                   <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Type of Care</label>
+                    <label className={`block text-xs font-semibold text-gray-500 mb-1.5 text-left ${showStickySearch ? 'sr-only' : ''}`}>Type of Care</label>
                     <select
                       value={careType}
                       onChange={(e) => setCareType(e.target.value)}
@@ -313,7 +273,7 @@ export default function Home() {
 
                   {/* Care Services */}
                   <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Care Services</label>
+                    <label className={`block text-xs font-semibold text-gray-500 mb-1.5 text-left ${showStickySearch ? 'sr-only' : ''}`}>Care Services</label>
                     <select
                       value={careService}
                       onChange={(e) => setCareService(e.target.value)}
@@ -597,7 +557,7 @@ export default function Home() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Book tours and calls directly</h3>
               <p className="text-base text-gray-600">
-                Video or in-person, on your terms.
+                Schedule 2–3 video or in-person consultations to compare providers, assess fit, and understand pricing.
               </p>
             </div>
 
@@ -623,7 +583,7 @@ export default function Home() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Help paying for care</h3>
               <p className="text-base text-gray-600">
-                We help families find benefits and resources to make senior care more affordable.
+                Find benefits and resources to make senior care more affordable.
               </p>
             </div>
           </div>
