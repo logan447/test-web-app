@@ -8,6 +8,12 @@ export interface TourSchedulerProps {
   onCancel: () => void;
   disabled?: boolean;
   engagementLabel?: string; // e.g., "Tour", "Consultation", "Interview"
+  /** Default meeting format - in-person or video */
+  defaultFormat?: "in-person" | "video";
+  /** Provider location for in-person meetings */
+  providerLocation?: string;
+  /** Hide format selector (for facility tours which are always in-person) */
+  hideFormatSelector?: boolean;
 }
 
 // Pre-defined time slots
@@ -36,9 +42,14 @@ export default function TourScheduler({
   onCancel,
   disabled = false,
   engagementLabel = "Tour",
+  defaultFormat = "in-person",
+  providerLocation,
+  hideFormatSelector = false,
 }: TourSchedulerProps) {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
+  const [meetingFormat, setMeetingFormat] = useState<"in-person" | "video">(defaultFormat);
+  const [location, setLocation] = useState<string>(providerLocation || "");
   const [notes, setNotes] = useState<string>("");
 
   // Get minimum date (today)
@@ -47,15 +58,27 @@ export default function TourScheduler({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedDate && selectedTime) {
-      onPropose(new Date(selectedDate), selectedTime, notes || undefined);
+      // Build the notes with meeting details
+      let fullNotes = "";
+      if (meetingFormat === "video") {
+        fullNotes = "[Video Call]\n";
+      } else if (location) {
+        fullNotes = `[Location: ${location}]\n`;
+      }
+      if (notes) {
+        fullNotes += notes;
+      }
+
+      onPropose(new Date(selectedDate), selectedTime, fullNotes.trim() || undefined);
       // Reset form
       setSelectedDate("");
       setSelectedTime("");
       setNotes("");
+      setLocation(providerLocation || "");
     }
   };
 
-  const isValid = selectedDate && selectedTime;
+  const isValid = selectedDate && selectedTime && (meetingFormat === "video" || !hideFormatSelector || location || engagementLabel === "Tour");
 
   return (
     <div className="bg-white border-2 border-primary-300 rounded-xl shadow-lg p-5 max-w-md">
@@ -134,6 +157,97 @@ export default function TourScheduler({
           </select>
         </div>
 
+        {/* Meeting Format Selector */}
+        {!hideFormatSelector && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Meeting Format
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setMeetingFormat("in-person")}
+                disabled={disabled}
+                className={`
+                  flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-colors
+                  ${meetingFormat === "in-person"
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                  }
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                `}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-sm font-medium">In Person</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMeetingFormat("video")}
+                disabled={disabled}
+                className={`
+                  flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-colors
+                  ${meetingFormat === "video"
+                    ? "border-primary-500 bg-primary-50 text-primary-700"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                  }
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                `}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm font-medium">Video Call</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Location Field (for in-person) */}
+        {meetingFormat === "in-person" && !hideFormatSelector && (
+          <div>
+            <label htmlFor="tour-location" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Meeting Location
+            </label>
+            <input
+              type="text"
+              id="tour-location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              disabled={disabled}
+              placeholder="Enter address or meeting place"
+              className="
+                w-full px-4 py-2.5
+                border border-gray-300 rounded-lg
+                focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                disabled:opacity-50 disabled:cursor-not-allowed
+                text-gray-900
+              "
+            />
+            {providerLocation && (
+              <p className="mt-1 text-xs text-gray-500">
+                Suggested: {providerLocation}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Video Call Notice */}
+        {meetingFormat === "video" && !hideFormatSelector && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-sm text-blue-800">
+                A video call link will be shared once the {engagementLabel.toLowerCase()} is confirmed.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Notes (Optional) */}
         <div>
           <label htmlFor="tour-notes" className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -166,7 +280,7 @@ export default function TourScheduler({
         {selectedDate && selectedTime && (
           <div className="bg-primary-50 border border-primary-200 rounded-lg p-3">
             <p className="text-xs font-medium text-primary-700 mb-1.5">{engagementLabel} Preview:</p>
-            <div className="flex items-center gap-2 text-sm text-gray-900">
+            <div className="flex items-center gap-2 text-sm text-gray-900 mb-1">
               <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
@@ -179,6 +293,26 @@ export default function TourScheduler({
                 {format(new Date(selectedDate), "EEEE, MMMM d, yyyy")} at {selectedTime}
               </span>
             </div>
+            {!hideFormatSelector && (
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                {meetingFormat === "video" ? (
+                  <>
+                    <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span>Video Call</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>{location || "In Person"}</span>
+                  </>
+                )}
+              </div>
+            )}
             {notes && (
               <p className="text-xs text-gray-600 mt-2 italic">&quot;{notes}&quot;</p>
             )}

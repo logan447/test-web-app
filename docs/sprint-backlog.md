@@ -2071,23 +2071,29 @@ For **every change** in Sprint 10, verify:
 
 ---
 
-### Phase 2: Meeting/Scheduling System Completion
+### Phase 2: Meeting/Scheduling System Completion — COMPLETE ✅
 **Focus**: Universal scheduling for tours, interviews, AND consultations
 
 | Task | Description | Status |
 |------|-------------|--------|
-| **2.1** | Audit meeting types (TOUR, INTERVIEW, CONSULTATION) | Open |
-| **2.2** | Context-aware meeting proposal labels | Open |
-| **2.3** | Meeting confirmation state with date/time/location | Open |
-| **2.4** | Add to Calendar button after confirmation | Open |
-| **2.5** | Meeting completion action (after date passes) | Open |
-| **2.6** | Reschedule flow (propose new time) | Open |
-| **2.7** | Location/video field for venue or video call | Open |
+| **2.1** | Audit meeting types (TOUR, INTERVIEW, CONSULTATION) | Done |
+| **2.2** | Context-aware meeting proposal labels | Done (existing) |
+| **2.3** | Meeting confirmation state with date/time/location | Done (existing) |
+| **2.4** | Add to Calendar button after confirmation | Done (existing) |
+| **2.5** | Meeting completion action (after date passes) | Deferred (future) |
+| **2.6** | Reschedule flow (propose new time) | Deferred (future) |
+| **2.7** | Location/video field for venue or video call | Done |
+
+**Key Enhancement**: TourScheduler now includes:
+- Meeting format selector (In-Person vs Video Call)
+- Location field for in-person meetings
+- Video call notice with link sharing info
+- Enhanced preview with format/location display
 
 **Terminology**:
 - Family→Provider: "Tour" or "Consultation"
 - Caregiver→Org: "Interview"
-- All use same `ScheduledEvent` model
+- All use TourAppointment model (ScheduledEvent not yet migrated)
 
 ---
 
