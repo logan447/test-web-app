@@ -205,9 +205,9 @@
   - Profile incomplete → "Complete profile for better matches" prompt
   - No matches found → Empty state with "Browse All Providers" CTA
 
-#### Flow F8: Write Review
-- **Entry Points**: Provider detail page, post-engagement prompt
-- **Path**: `/providers/[id]` → ReviewModal
+#### Flow F8: Write Review (Two-Way System)
+- **Entry Points**: Provider detail page, post-meeting prompt, meeting detail page
+- **Path**: `/providers/[id]` → ReviewModal OR `/requests/[id]` → Review section
 - **Key Actions**:
   - Click "Write a Review"
   - Rate (1-5 stars), add title, content
@@ -217,6 +217,12 @@
 - **Failure Cases**:
   - Already reviewed this provider → Error message
   - Content too short → Validation error (min 50 chars)
+
+**Review System Rules (Airbnb-style):**
+- **Two-way**: Families review providers, providers review families
+- **Immutable**: Reviews cannot be edited or deleted by users
+- **Reportable**: Reviews can be flagged for moderation
+- **Respondable**: Providers can post a public response to reviews
 
 #### Flow F9: Switch to Provider Mode
 - **Entry Points**: Profile dropdown "Switch to Provider Mode"
@@ -290,17 +296,37 @@
 - **Failure Cases**:
   - No applications → Empty state with "Post Opportunities" guidance
 
-#### Flow PO6: Manage Active Engagements
-- **Entry Points**: Dashboard, "Requests" nav link
+#### Flow PO6: Manage Active Meetings
+- **Entry Points**: Dashboard, "Meetings" nav link
 - **Path**: `/provider/requests` → `/provider/requests/[id]`
 - **Key Actions**:
-  - View all sent/received requests (tabbed)
+  - View all sent/received meetings (tabbed)
   - Continue conversations
   - Propose/confirm appointments
-  - Mark engagements complete
-- **Expected Outcome**: Engagements progress through lifecycle (PENDING → ACCEPTED → COMPLETED)
+  - Mark meetings complete
+- **Expected Outcome**: Meetings progress through lifecycle (PENDING → ACCEPTED → COMPLETED)
 - **Failure Cases**:
-  - Stale PENDING engagements → Consider auto-expire logic
+  - Stale PENDING meetings → Consider auto-expire logic
+
+#### Flow PO7: Review Family (Two-Way)
+- **Entry Points**: Completed meeting detail page
+- **Path**: `/provider/requests/[id]` → Review section
+- **Key Actions**:
+  - After meeting COMPLETED, "Review this family" section appears
+  - Rate (1-5 stars), add content
+  - Submit
+- **Expected Outcome**: Review published on family's profile
+- **Note**: Only available after meeting marked COMPLETED
+
+#### Flow PO8: Respond to Review
+- **Entry Points**: Provider profile, notification
+- **Path**: `/provider/profile` → Reviews section → "Respond"
+- **Key Actions**:
+  - View review left by family
+  - Click "Respond publicly"
+  - Write response (one response per review)
+  - Submit
+- **Expected Outcome**: Response appears below review on provider profile
 
 ---
 
