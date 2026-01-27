@@ -90,28 +90,6 @@ const CARE_TYPES = [
   },
 ];
 
-// Testimonials
-const TESTIMONIALS = [
-  {
-    quote: "After Dad's stroke, I was overwhelmed. Olera helped us find a rehab center that got him walking again. They made a scary time less scary.",
-    author: "Sarah M.",
-    role: "Daughter",
-    location: "Arizona",
-  },
-  {
-    quote: "Mom needed memory care but wouldn't leave her neighborhood. We found a place 10 minutes away. She's thriving and I visit every day.",
-    author: "Michael R.",
-    role: "Son",
-    location: "California",
-  },
-  {
-    quote: "I didn't know where to start. Olera showed me options I never knew existed. Now Dad has help at home and keeps his independence.",
-    author: "Jennifer L.",
-    role: "Daughter",
-    location: "Florida",
-  },
-];
-
 // Featured provider type for display
 interface FeaturedProvider {
   id: string;
@@ -434,6 +412,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Not sure where to start? */}
+      <section className="py-12 bg-primary-50 border-y border-primary-100">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+              <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="text-center md:text-left flex-1">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                Not sure where to start?
+              </h2>
+              <p className="text-gray-600 text-base">
+                Answer a few simple questions and we&apos;ll help you choose a provider.
+              </p>
+            </div>
+            <Link
+              href="/care-profile/edit"
+              className="shrink-0 px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all text-base"
+            >
+              Help me choose
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works — Search, Schedule, Compare */}
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-6">
@@ -491,33 +496,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Not sure where to start? */}
-      <section className="py-12 bg-primary-50 border-y border-primary-100">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-              <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="text-center md:text-left flex-1">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                Not sure where to start?
-              </h2>
-              <p className="text-gray-600 text-base">
-                Answer a few simple questions and we&apos;ll help you choose a provider.
-              </p>
-            </div>
-            <Link
-              href="/care-profile/edit"
-              className="shrink-0 px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all text-base"
-            >
-              Help me choose
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Why Olera Is Different — differentiation block */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-5xl mx-auto px-6">
@@ -570,49 +548,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              Families like yours found care they trust
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((testimonial, idx) => (
-              <div key={idx} className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-                <div className="flex gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <blockquote className="text-base text-gray-700 mb-4 leading-relaxed">
-                  &ldquo;{testimonial.quote}&rdquo;
-                </blockquote>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
-                    {testimonial.author.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{testimonial.author}</div>
-                    <div className="text-sm text-gray-500">{testimonial.role} &middot; {testimonial.location}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* For Providers */}
+      {/* Become a Provider */}
       <section className="py-16 bg-gray-900">
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-white">
-              For Care Providers
+              Become a Provider
             </h2>
           </div>
 
