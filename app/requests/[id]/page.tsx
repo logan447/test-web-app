@@ -10,6 +10,12 @@ import PaywallModal from "@/components/Paywall/PaywallModal";
 import ContactInfoDisplay from "@/components/Provider/ContactInfoDisplay";
 import { showToast } from "@/lib/toast";
 import { ProviderType } from "@prisma/client";
+import {
+  getEngagementConfigForProvider,
+  FACILITY_PROVIDER_TYPES,
+  HOME_CARE_PROVIDER_TYPES,
+  CAREGIVER_PROVIDER_TYPES,
+} from "@/lib/engagementUtils";
 
 type ConsultRequest = {
   id: string;
@@ -55,6 +61,24 @@ type ConsultRequest = {
   }[];
 };
 
+/**
+ * Get provider-type-specific request label
+ * e.g., "Visit request" for facilities, "Call request" for home care, "Meeting request" for caregivers
+ */
+function getRequestLabel(providerType: ProviderType): { label: string; noun: string } {
+  const pt = providerType as string;
+  if ((FACILITY_PROVIDER_TYPES as readonly string[]).includes(pt)) {
+    return { label: "Visit request", noun: "visit" };
+  }
+  if ((HOME_CARE_PROVIDER_TYPES as readonly string[]).includes(pt)) {
+    return { label: "Call request", noun: "call" };
+  }
+  if ((CAREGIVER_PROVIDER_TYPES as readonly string[]).includes(pt)) {
+    return { label: "Meeting request", noun: "meeting" };
+  }
+  return { label: "Meeting request", noun: "meeting" };
+}
+
 export default function RequestDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -69,7 +93,7 @@ export default function RequestDetailPage() {
   const [showMessages, setShowMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Tour scheduling state
+  // Meeting scheduling state
   const [showScheduler, setShowScheduler] = useState(false);
   const [proposedDate, setProposedDate] = useState("");
   const [proposedTime, setProposedTime] = useState("");
@@ -111,7 +135,7 @@ export default function RequestDetailPage() {
 
       if (response.ok) {
         fetchRequest();
-        showToast.success(newStatus === "ACCEPTED" ? "Connected!" : "Meeting declined");
+        showToast.success(newStatus === "ACCEPTED" ? "Connected!" : "Request declined");
       } else {
         const data = await response.json();
         if (data.requiresUpgrade) {
@@ -171,17 +195,17 @@ export default function RequestDetailPage() {
       });
 
       if (response.ok) {
-        showToast.success("Meeting time proposed!");
+        showToast.success("Your preferred time has been sent!");
         setShowScheduler(false);
         setProposedDate("");
         setProposedTime("");
         setSchedulingNote("");
         fetchRequest();
       } else {
-        showToast.error("Failed to propose meeting time");
+        showToast.error("Could not send your preferred time");
       }
     } catch (err) {
-      showToast.error("Failed to propose meeting time");
+      showToast.error("Could not send your preferred time");
     } finally {
       setProposing(false);
     }
@@ -213,11 +237,11 @@ export default function RequestDetailPage() {
       });
 
       if (response.ok) {
-        showToast.success("Meeting time declined");
+        showToast.success("Time declined");
         fetchRequest();
       }
     } catch (err) {
-      showToast.error("Failed to decline meeting");
+      showToast.error("Failed to decline time");
     }
   };
 
@@ -243,28 +267,6 @@ export default function RequestDetailPage() {
   };
 
   // Helper functions
-  const getEngagementType = (providerType: ProviderType) => {
-    if (
-      providerType === "ASSISTED_LIVING" ||
-      providerType === "INDEPENDENT_LIVING" ||
-      providerType === "MEMORY_CARE" ||
-      providerType === "NURSING_HOME" ||
-      providerType === "HOSPICE" ||
-      providerType === "REHABILITATION"
-    ) {
-      return "tour";
-    }
-    if (providerType === "HOME_CARE" || providerType === "HOME_HEALTH") {
-      return "consultation";
-    }
-    return "interview";
-  };
-
-  const getEngagementCTA = (providerType: ProviderType) => {
-    const type = getEngagementType(providerType);
-    return type === "tour" ? "Schedule Tour" : type === "consultation" ? "Schedule Consultation" : "Schedule Interview";
-  };
-
   const formatProviderType = (type: string) => {
     return type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   };
@@ -319,7 +321,8 @@ export default function RequestDetailPage() {
   const pendingTours = tours.filter(t => t.status === "PROPOSED" || t.status === "PENDING");
   const confirmedTour = tours.find(t => t.status === "ACCEPTED" || t.status === "CONFIRMED");
 
-  const engagementType = getEngagementType(request.provider.providerType);
+  const engagementConfig = getEngagementConfigForProvider(request.provider.providerType);
+  const requestLabel = getRequestLabel(request.provider.providerType);
 
   const allMessages = [
     { id: "initial", senderId: request.sender.id, content: request.message, createdAt: request.createdAt },
@@ -335,7 +338,7 @@ export default function RequestDetailPage() {
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
-          <Link href="/care-profile" className="hover:text-gray-600 transition-colors">
+          <Link href="/requests" className="hover:text-gray-600 transition-colors">
             My Requests
           </Link>
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -345,10 +348,10 @@ export default function RequestDetailPage() {
         </nav>
 
         {/* ============================================ */}
-        {/* HERO: Success Banner + Provider Card         */}
+        {/* HERO: Status Banner + Provider Card          */}
         {/* ============================================ */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
-          {/* Success / Status Banner */}
+          {/* Status Banner */}
           {isPending && (
             <div className="bg-primary-50 px-6 py-4 flex items-center gap-3 border-b border-primary-100">
               <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -357,9 +360,9 @@ export default function RequestDetailPage() {
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-primary-900">Request sent</p>
+                <p className="font-semibold text-primary-900">{requestLabel.label} sent</p>
                 <p className="text-sm text-primary-700">
-                  {request.provider.name} will review and respond. You&apos;ll get an email.
+                  {request.provider.name} will review and respond, usually within 1–2 days.
                 </p>
               </div>
             </div>
@@ -372,9 +375,9 @@ export default function RequestDetailPage() {
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-green-900">Connected</p>
+                <p className="font-semibold text-green-900">{request.provider.name} accepted</p>
                 <p className="text-sm text-green-700">
-                  {request.provider.name} accepted. Schedule your {engagementType} below.
+                  Now pick a time for your {requestLabel.noun}.
                 </p>
               </div>
             </div>
@@ -388,7 +391,7 @@ export default function RequestDetailPage() {
               </div>
               <div>
                 <p className="font-semibold text-primary-900">
-                  {engagementType.charAt(0).toUpperCase() + engagementType.slice(1)} confirmed
+                  Your {requestLabel.noun} is confirmed
                 </p>
                 <p className="text-sm text-primary-700">
                   {formatDate(confirmedTour.proposedDate)} at {formatTime(confirmedTour.proposedTime)}
@@ -397,25 +400,24 @@ export default function RequestDetailPage() {
             </div>
           )}
           {isDeclined && (
-            <div className="bg-gray-50 px-6 py-4 flex items-center gap-3 border-b border-gray-200">
+            <div className="bg-gray-100 px-6 py-4 flex items-center gap-3 border-b border-gray-200">
               <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-gray-700">Request declined</p>
+                <p className="font-semibold text-gray-700">This request is no longer active</p>
                 <p className="text-sm text-gray-500">
-                  This request is no longer active.
+                  Don&apos;t worry — there are other great options in your area.
                 </p>
               </div>
             </div>
           )}
 
-          {/* Provider Card */}
+          {/* Provider Info */}
           <div className="p-6">
             <div className="flex items-start gap-4">
-              {/* Provider avatar/initial */}
               <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
                 <span className="text-xl font-bold text-primary-700">
                   {request.provider.name.charAt(0)}
@@ -446,61 +448,160 @@ export default function RequestDetailPage() {
         </div>
 
         {/* ============================================ */}
-        {/* PROGRESS TIMELINE (for pending requests)    */}
+        {/* PRIMARY ACTION: Suggest meeting times        */}
+        {/* Shows for PENDING sender — the key next step */}
         {/* ============================================ */}
         {isPending && isSender && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-4">What happens next</h2>
-            <div className="space-y-4">
-              {[
-                { label: "Request sent", done: true, detail: "Your care profile was shared" },
-                { label: `${request.provider.name} reviews your request`, done: false, detail: "Usually 24\u201348 hours" },
-                { label: `Schedule your ${engagementType}`, done: false, detail: "Pick a time that works for you" },
-              ].map((step, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      step.done
-                        ? "bg-primary-600"
-                        : "border-2 border-gray-300 bg-white"
-                    }`}>
-                      {step.done ? (
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                        </svg>
-                      ) : (
-                        <span className="text-xs font-semibold text-gray-400">{i + 1}</span>
+            <h2 className="font-semibold text-gray-900 mb-1">
+              Suggest times for your {requestLabel.noun}
+            </h2>
+            <p className="text-sm text-gray-500 mb-5">
+              While {request.provider.name} reviews your request, you can get ahead by sharing when you&apos;re available. This helps schedule faster.
+            </p>
+
+            {/* Pending proposals already sent */}
+            {pendingTours.length > 0 && (
+              <div className="mb-4 space-y-3">
+                {pendingTours.map((tour) => (
+                  <div key={tour.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {formatDate(tour.proposedDate)} at {formatTime(tour.proposedTime)}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {tour.proposedBy === session?.user?.id ? "Sent — waiting for response" : "Proposed by them"}
+                        </p>
+                      </div>
+                      {tour.proposedBy !== session?.user?.id && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleAcceptTour(tour.id)}
+                            className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleDeclineTour(tour.id)}
+                            className="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50"
+                          >
+                            Decline
+                          </button>
+                        </div>
                       )}
                     </div>
-                    {i < 2 && (
-                      <div className={`w-0.5 h-6 mt-1 ${step.done ? "bg-primary-200" : "bg-gray-200"}`} />
-                    )}
                   </div>
-                  <div className="pt-0.5">
-                    <p className={`text-sm font-medium ${step.done ? "text-gray-900" : "text-gray-600"}`}>
-                      {step.label}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">{step.detail}</p>
+                ))}
+              </div>
+            )}
+
+            {/* Suggest a time form */}
+            {!showScheduler ? (
+              <button
+                onClick={() => setShowScheduler(true)}
+                className="w-full bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+              >
+                Suggest a Time
+              </button>
+            ) : (
+              <form onSubmit={handleProposeTour} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input
+                      type="date"
+                      value={proposedDate}
+                      onChange={(e) => setProposedDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                    <input
+                      type="time"
+                      value={proposedTime}
+                      onChange={(e) => setProposedTime(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
+                      required
+                    />
                   </div>
                 </div>
-              ))}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Note (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={schedulingNote}
+                    onChange={(e) => setSchedulingNote(e.target.value)}
+                    placeholder="e.g., Mornings work best for me"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={proposing}
+                    className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                  >
+                    {proposing ? "Sending..." : "Send Preferred Time"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowScheduler(false)}
+                    className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* What to expect — inline, not collapsible */}
+            <div className="mt-5 pt-5 border-t border-gray-100">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">What happens next</h3>
+              <ol className="space-y-2">
+                {[
+                  { text: "Your request was sent", done: true },
+                  { text: `${request.provider.name} reviews it (1–2 days)`, done: false },
+                  { text: `You schedule your ${requestLabel.noun}`, done: false },
+                ].map((step, i) => (
+                  <li key={i} className="flex items-center gap-2.5 text-sm">
+                    {step.done ? (
+                      <div className="w-5 h-5 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[10px] font-semibold text-gray-400">{i + 1}</span>
+                      </div>
+                    )}
+                    <span className={step.done ? "text-gray-900" : "text-gray-500"}>{step.text}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         )}
 
         {/* ============================================ */}
-        {/* ACCEPT/DECLINE (for pending recipients)     */}
+        {/* ACCEPT/DECLINE (for pending recipients)      */}
         {/* ============================================ */}
         {isPending && !isSender && (
           <div className="bg-white rounded-xl border-2 border-primary-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-2">Respond to this request</h2>
+            <h2 className="font-semibold text-gray-900 mb-2">Respond to this {requestLabel.noun} request</h2>
             <p className="text-sm text-gray-500 mb-4">
               Accept to share contact info and start scheduling.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => handleStatusUpdate("ACCEPTED")}
-                className="flex-1 bg-primary-600 text-white py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
               >
                 Accept
               </button>
@@ -515,34 +616,36 @@ export default function RequestDetailPage() {
         )}
 
         {/* ============================================ */}
-        {/* PRIMARY ACTION: Schedule Meeting             */}
+        {/* SCHEDULE MEETING (accepted, no confirmed)    */}
         {/* ============================================ */}
         {(isAccepted || isCompleted) && !confirmedTour && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-1">{getEngagementCTA(request.provider.providerType)}</h2>
+            <h2 className="font-semibold text-gray-900 mb-1">
+              Pick a time for your {requestLabel.noun}
+            </h2>
             <p className="text-sm text-gray-500 mb-4">
-              Propose a time. {request.provider.name} will confirm.
+              Choose a date and time. {request.provider.name} will confirm.
             </p>
 
             {/* Pending tour proposals */}
             {pendingTours.length > 0 && (
               <div className="mb-4 space-y-3">
                 {pendingTours.map((tour) => (
-                  <div key={tour.id} className="border border-gray-200 rounded-lg p-4">
+                  <div key={tour.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-gray-900">
                           {formatDate(tour.proposedDate)} at {formatTime(tour.proposedTime)}
                         </p>
                         <p className="text-sm text-gray-500">
-                          {tour.proposedBy === session?.user?.id ? "Waiting for response" : "Proposed by them"}
+                          {tour.proposedBy === session?.user?.id ? "Sent — waiting for response" : "Proposed by them"}
                         </p>
                       </div>
                       {tour.proposedBy !== session?.user?.id && (
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleAcceptTour(tour.id)}
-                            className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700"
+                            className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800"
                           >
                             Accept
                           </button>
@@ -564,9 +667,9 @@ export default function RequestDetailPage() {
             {!showScheduler ? (
               <button
                 onClick={() => setShowScheduler(true)}
-                className="w-full bg-primary-600 text-white py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                className="w-full bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
               >
-                Propose a Time
+                Suggest a Time
               </button>
             ) : (
               <form onSubmit={handleProposeTour} className="space-y-4">
@@ -578,7 +681,7 @@ export default function RequestDetailPage() {
                       value={proposedDate}
                       onChange={(e) => setProposedDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
                       required
                     />
                   </div>
@@ -588,7 +691,7 @@ export default function RequestDetailPage() {
                       type="time"
                       value={proposedTime}
                       onChange={(e) => setProposedTime(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
                       required
                     />
                   </div>
@@ -599,22 +702,22 @@ export default function RequestDetailPage() {
                     type="text"
                     value={schedulingNote}
                     onChange={(e) => setSchedulingNote(e.target.value)}
-                    placeholder="e.g., I prefer morning times"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                    placeholder="e.g., Mornings work best for me"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-base"
                   />
                 </div>
                 <div className="flex gap-3">
                   <button
                     type="submit"
                     disabled={proposing}
-                    className="flex-1 bg-primary-600 text-white py-3 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50"
+                    className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
                   >
-                    {proposing ? "Sending..." : "Send Proposal"}
+                    {proposing ? "Sending..." : "Send Preferred Time"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowScheduler(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50"
+                    className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
@@ -625,17 +728,32 @@ export default function RequestDetailPage() {
         )}
 
         {/* ============================================ */}
-        {/* CONFIRMED MEETING DETAILS                   */}
+        {/* CONFIRMED MEETING DETAILS                    */}
         {/* ============================================ */}
-        {confirmedTour && confirmedTour.notes && (
+        {confirmedTour && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="font-semibold text-gray-900 mb-2">Meeting Details</h2>
-            <p className="text-sm text-gray-600">{confirmedTour.notes}</p>
+            <h2 className="font-semibold text-gray-900 mb-3">Your {requestLabel.noun} details</h2>
+            <div className="flex items-center gap-3 mb-2">
+              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-gray-900 font-medium">
+                {formatDate(confirmedTour.proposedDate)} at {formatTime(confirmedTour.proposedTime)}
+              </p>
+            </div>
+            {confirmedTour.notes && (
+              <p className="text-sm text-gray-500 ml-8">{confirmedTour.notes}</p>
+            )}
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">
+                Prepare a few questions to make the most of your time. It&apos;s okay to bring a family member.
+              </p>
+            </div>
           </div>
         )}
 
         {/* ============================================ */}
-        {/* CONTACT INFO (once accepted)                */}
+        {/* CONTACT INFO (once accepted)                 */}
         {/* ============================================ */}
         {(isAccepted || isCompleted) && (
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
@@ -655,7 +773,7 @@ export default function RequestDetailPage() {
         )}
 
         {/* ============================================ */}
-        {/* MESSAGES                                     */}
+        {/* MESSAGES                                      */}
         {/* ============================================ */}
         {!isDeclined && (
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
@@ -694,12 +812,12 @@ export default function RequestDetailPage() {
                         <div
                           className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                             isOwn
-                              ? "bg-primary-600 text-white rounded-br-md"
+                              ? "bg-gray-900 text-white rounded-br-md"
                               : "bg-white border border-gray-200 text-gray-900 rounded-bl-md"
                           }`}
                         >
                           <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                          <p className={`text-xs mt-1 ${isOwn ? "text-primary-200" : "text-gray-400"}`}>
+                          <p className={`text-xs mt-1 ${isOwn ? "text-gray-400" : "text-gray-400"}`}>
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
                           </p>
                         </div>
@@ -716,13 +834,13 @@ export default function RequestDetailPage() {
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type a message..."
-                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Ask a question or add details..."
+                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
                       />
                       <button
                         type="submit"
                         disabled={sending || !newMessage.trim()}
-                        className="px-5 py-2.5 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                        className="px-5 py-2.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 disabled:opacity-50 transition-colors"
                       >
                         {sending ? "..." : "Send"}
                       </button>
@@ -735,7 +853,7 @@ export default function RequestDetailPage() {
         )}
 
         {/* ============================================ */}
-        {/* KEEP EXPLORING                               */}
+        {/* BROWSE MORE — always last                    */}
         {/* ============================================ */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 text-center">
           <p className="text-sm text-gray-500 mb-3">
