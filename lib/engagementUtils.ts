@@ -76,13 +76,13 @@ const ENGAGEMENT_CONFIGS: Record<EngagementType, EngagementConfig> = {
   CONSULTATION: {
     type: "CONSULTATION",
     label: "Consultation",
-    actionLabel: "Request a Call",
+    actionLabel: "Request a Consultation",
     scheduleLabel: "Schedule Consultation",
     proposalLabel: "Consultation Invitation",
     completedLabel: "Consultation Completed",
     icon: "message-circle",
     supportsScheduling: true,
-    description: "Discuss care options",
+    description: "Discuss care needs and services",
   },
   INTERVIEW: {
     type: "INTERVIEW",
