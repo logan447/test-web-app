@@ -273,7 +273,7 @@ export default function EnhancedProviderCard({
           {/* Price and Rating Row */}
           <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
             <div>
-              <p className="text-xs text-gray-500">Starting at</p>
+              {price && <p className="text-xs text-gray-500">Starting at</p>}
               <p className="font-semibold text-gray-900">
                 {price || "Contact for pricing"}
               </p>

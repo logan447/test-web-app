@@ -476,16 +476,17 @@ export default function ProviderDetailPage() {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   {/* Pricing Card */}
                   <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 relative group/price">
-                    <p className="text-sm text-gray-500 mb-1">
-                      Starting at
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {provider.priceMin
-                        ? `$${provider.priceMin.toLocaleString()}${(HOME_CARE_TYPES.includes(provider.providerType) || provider.providerType === 'INDEPENDENT_CAREGIVER') ? ' / hr' : ' / mo'}`
-                        : 'Contact for pricing'}
-                    </p>
-                    {provider.priceMin && (
-                      <p className="text-xs text-gray-400 mt-1">Actual cost depends on care needs</p>
+                    {provider.priceMin != null && provider.priceMin > 0 ? (
+                      <>
+                        <p className="text-sm text-gray-500 mb-1">Starting at</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          ${provider.priceMin.toLocaleString()}
+                          {(HOME_CARE_TYPES.includes(provider.providerType) || provider.providerType === 'INDEPENDENT_CAREGIVER') ? ' / hr' : ' / mo'}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">Actual cost depends on care needs</p>
+                      </>
+                    ) : (
+                      <p className="text-lg font-semibold text-gray-900">Contact for pricing</p>
                     )}
                   </div>
 
@@ -590,66 +591,61 @@ export default function ProviderDetailPage() {
 
               return (
                 <div className="space-y-8">
-                  {/* How It Works — First section, answering "What do I do next?" */}
-                  <section id="how-it-works" className="scroll-mt-36 space-y-6">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">How It Works</h2>
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                      <div className="grid gap-5">
+                  {/* How It Works */}
+                  <section id="how-it-works" className="scroll-mt-36 space-y-4">
+                    <h2 className="text-xl font-bold text-gray-900 pb-2 border-b border-gray-200">How It Works</h2>
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                      <ol className="grid grid-cols-2 gap-4">
                         {(isFacility ? [
-                          { step: "1", title: "Schedule a tour", desc: "Visit in person to see the community and meet the staff." },
-                          { step: "2", title: "Meet the care team", desc: "Discuss your specific needs, medical requirements, and budget." },
-                          { step: "3", title: "Compare options", desc: "Visit 3–5 providers to find the best fit for your family." },
-                          { step: "4", title: "Make your decision", desc: "Choose the right community and start the move-in process." },
+                          { step: "1", title: "Schedule a tour", desc: "Visit to see the community and meet the staff." },
+                          { step: "2", title: "Meet the care team", desc: "Discuss needs, medical requirements, and budget." },
+                          { step: "3", title: "Compare options", desc: "Visit 3–5 providers to find the best fit." },
+                          { step: "4", title: "Make your decision", desc: "Choose the right community and begin move-in." },
                         ] : isHomeCare ? [
                           { step: "1", title: "Request a consultation", desc: "Share your care needs so the agency can prepare." },
-                          { step: "2", title: "Meet your care team", desc: "Discuss scheduling, services, and communication preferences." },
+                          { step: "2", title: "Meet your care team", desc: "Discuss scheduling, services, and preferences." },
                           { step: "3", title: "Compare options", desc: "Talk to 3–5 agencies to compare services and fit." },
                           { step: "4", title: "Start care", desc: "Begin a trial period and adjust as needed." },
                         ] : [
                           { step: "1", title: "Review their profile", desc: "Check experience, certifications, and specialties." },
                           { step: "2", title: "Schedule a meeting", desc: "Meet in person or by video to discuss care needs." },
                           { step: "3", title: "Compare candidates", desc: "Meet 3–5 caregivers to find the right fit." },
-                          { step: "4", title: "Start a trial", desc: "Begin with a short trial before committing long-term." },
+                          { step: "4", title: "Start a trial", desc: "Begin with a short trial before committing." },
                         ]).map((item) => (
-                          <div key={item.step} className="flex gap-4">
-                            <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
-                              <span className="text-primary-700 font-bold text-sm">{item.step}</span>
+                          <li key={item.step} className="flex gap-3">
+                            <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                              <span className="text-primary-700 font-bold text-xs">{item.step}</span>
                             </div>
                             <div>
-                              <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                              <p className="text-sm text-gray-600 mt-0.5">{item.desc}</p>
+                              <h4 className="font-semibold text-gray-900 text-sm">{item.title}</h4>
+                              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
                             </div>
-                          </div>
+                          </li>
                         ))}
-                      </div>
+                      </ol>
                     </div>
-                    <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 flex items-start gap-3">
-                      <svg className="w-5 h-5 text-primary-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p className="text-sm text-primary-800">
-                        <span className="font-medium">Why meet with 3–5 providers?</span>{' '}
-                        Comparing options helps you see different care styles, ask better questions, and feel confident in your final choice.
-                      </p>
-                    </div>
+                    <p className="text-xs text-gray-500 px-1">
+                      <span className="font-medium text-gray-600">Tip:</span>{' '}
+                      Comparing 3–5 providers helps you see different care styles and feel confident in your choice.
+                    </p>
                   </section>
 
                   {/* Rating & Reviews Section */}
                   <section id="rating" className="space-y-6 scroll-mt-36">
                       {/* Olera Score Panel */}
-                      <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl border border-primary-100 p-6">
+                      <div className="bg-white rounded-xl border border-gray-200 p-5">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Olera Score</h3>
-                            <p className="text-sm text-gray-600 max-w-md">
-                              A transparent score based on reviews, profile completeness, and verification to help you make informed decisions.
+                            <h3 className="font-semibold text-gray-900">Olera Score</h3>
+                            <p className="text-xs text-gray-500 mt-1 max-w-sm">
+                              Based on reviews, profile completeness, and verification.
                             </p>
                             <button
                               onClick={() => setShowScoreBreakdown(!showScoreBreakdown)}
-                              className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-2 inline-flex items-center gap-1"
+                              className="text-xs text-primary-600 hover:text-primary-700 font-medium mt-1.5 inline-flex items-center gap-1"
                             >
                               {showScoreBreakdown ? 'Hide details' : 'How the Olera Score works'}
-                              <svg className={`w-4 h-4 transition-transform ${showScoreBreakdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg className={`w-3.5 h-3.5 transition-transform ${showScoreBreakdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
                             </button>
@@ -665,7 +661,7 @@ export default function ProviderDetailPage() {
                           />
                         </div>
                         {showScoreBreakdown && (
-                          <div className="mt-4 pt-4 border-t border-primary-100">
+                          <div className="mt-4 pt-4 border-t border-gray-200">
                             <OleraScore
                               provider={provider}
                               averageRating={provider.averageRating}
@@ -1411,7 +1407,7 @@ export default function ProviderDetailPage() {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+                      className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
                     >
                       {submitting ? 'Sending...' : getProviderCTAs(provider.providerType).primary}
                     </button>
