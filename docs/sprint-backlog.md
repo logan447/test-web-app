@@ -1136,9 +1136,10 @@ Self-critique revealed 3 additional files needed updating:
 
 ---
 
-## Sprint 8 — In Progress
+## Sprint 8 — Complete ✅
 
-**Date**: January 27, 2025
+**Date**: January 27, 2026
+**Completed**: January 27, 2026
 **Type**: Deep Sprint (Provider Onboarding + Leads + Hiring Marketplace)
 **Focus**: Ambitious, disciplined improvements to provider experience with A+ quality bar
 
@@ -1284,53 +1285,65 @@ Every change must:
 ### Definition of Done
 
 **Phase 1: Provider Onboarding**
-- [ ] Value proposition unmistakable from first screen
-- [ ] LocationAutocomplete in all location inputs
-- [ ] Care types use `lib/careTypes.ts`
-- [ ] Dual marketplace explained during onboarding
-- [ ] Caregiver framing reoriented to job-seeking
-- [ ] Completion state celebrates and directs to right destination
-- [ ] All A-131 through A-144 addressed
+- [x] Value proposition unmistakable from first screen
+- [x] LocationAutocomplete in all location inputs
+- [x] Care types use `lib/careTypes.ts`
+- [x] Dual marketplace explained during onboarding
+- [x] Caregiver framing reoriented to job-seeking
+- [x] Completion state celebrates and directs to right destination
+- [x] All A-131 through A-144 addressed
 
 **Phase 2: Provider Leads**
-- [ ] Page purpose obvious within 3 seconds
-- [ ] Cards use consistent pattern with trust signals
-- [ ] CTAs are provider-type specific and actionable
-- [ ] No duplicate sections or clutter
-- [ ] Hiring marketplace surfaced for applicable providers
-- [ ] All A-145 through A-152 addressed
+- [x] Page purpose obvious within 3 seconds
+- [x] Cards use consistent pattern with trust signals
+- [x] CTAs are provider-type specific and actionable
+- [x] No duplicate sections or clutter
+- [x] Hiring marketplace surfaced for applicable providers
+- [x] All A-145 through A-152 addressed
 
 **Phase 3: Provider Profile Enhancement**
-- [ ] Priorities section shows lead count + links
-- [ ] Subtype-aware content renders correctly
-- [ ] Profile strength provides actionable guidance
-- [ ] Quick actions route to correct destinations
+- [x] Priorities section shows lead count + links
+- [x] Subtype-aware content renders correctly
+- [x] Profile strength provides actionable guidance
+- [x] Quick actions route to correct destinations
 
 **Phase 4: Lead Response Flow**
-- [ ] Response templates available
-- [ ] Context summary shown when responding
-- [ ] Scheduling can be proposed inline
-- [ ] Professional decline option exists
+- [x] Response templates available
+- [x] Context summary shown when responding
+- [x] Scheduling can be proposed inline
+- [x] Professional decline option exists
 
 **Phase 5: Post-Onboarding Value**
-- [ ] Demand visibility shown after completion
-- [ ] Subtype-specific messaging
-- [ ] Clear next step CTA
+- [x] Demand visibility shown after completion
+- [x] Subtype-specific messaging
+- [x] Clear next step CTA
 
 **Phase 6: Caregiver Job Experience**
-- [ ] Job-seeker language throughout
-- [ ] Job cards feel appropriate
-- [ ] Application status visible where data exists
+- [x] Job-seeker language throughout
+- [x] Job cards feel appropriate
+- [x] Application status visible where data exists
 
 **Phase 7: Naming Consistency**
-- [ ] All surfaces audited
-- [ ] No semantic drift
+- [x] All surfaces audited
+- [x] No semantic drift
 
 **Quality Gates**
-- [ ] TypeScript compilation passes
-- [ ] No regressions in existing flows
-- [ ] A+ quality check on each phase
-- [ ] All code committed and pushed
+- [x] TypeScript compilation passes
+- [x] No regressions in existing flows
+- [x] A+ quality check on each phase
+- [x] All code committed and pushed
+
+### Sprint 8 Polish (Post-Critique)
+
+Additional polish items completed after self-critique:
+
+- [x] Fixed wrong hire-staff link in provider profile (`/hire-staff` → `/provider/hire-staff`)
+- [x] Added WelcomeBanner to family browse page
+- [x] Standardized PageHero across provider pages (opportunities, requests)
+- [x] Improved empty state messaging to be more action-oriented across all provider pages
+- [x] Created ProfileCompletionBanner component for profile completion nudges
+- [x] Added ProfileCompletionBanner to leads, opportunities, hire-staff, and candidates pages
+- [x] Mobile layout improvements for ProfileCompletionBanner and empty states
 
 ---
 

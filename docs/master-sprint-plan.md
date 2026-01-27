@@ -1,7 +1,7 @@
 # Olera Platform — Master Sprint Plan
 
-> **Version**: 1.4 — Sprint 2 In Progress
-> **Last Updated**: January 22, 2026
+> **Version**: 1.5 — Sprint 8 Complete
+> **Last Updated**: January 27, 2026
 > **Purpose**: Execution-focused roadmap translating the Master Platform Manual into clear build tasks and sprint sequences.
 
 ## Planning Approach
@@ -24,7 +24,7 @@
 
 ## Implementation Status Audit
 
-> Based on codebase analysis against Master Platform Manual (January 22, 2026 — Sprint 2 In Progress)
+> Based on codebase analysis against Master Platform Manual (January 27, 2026 — Sprint 8 Complete)
 
 ### Legend
 - ✅ **Built** — Core functionality works
@@ -37,29 +37,29 @@
 |------|---------|--------|------------|
 | **I: Foundation** | 1. Auth | ✅ Built | Login, signup, password, intent routing working |
 | | 2. Mode System | ✅ Built | DB-driven mode, persistence verified (Sprint 0-1) |
-| | 3. Onboarding | ✅ Built | Family + Provider onboarding with visibility step (Sprint 2) |
-| | 4. UI/Design | ✅ Built | TailwindCSS, design tokens, footer working |
-| | 5. Navigation | ✅ Built | MainNav, breadcrumbs (simplified), footer (Sprint 0-2) |
-| **II: Profiles** | 6. Family Profiles | ✅ Built | Simplified form + visibility controls working (Sprint 2) |
-| | 7. Provider Profiles | ✅ Built | Streamlined editing with Two-Threshold Model (Sprint 2) |
-| | 8. Provider Identity | ✅ Built | Gating via gentle nudges working (Sprint 0-1) |
-| **III: Discovery** | 9. Directory & Search | ✅ Built | Filters, pagination, unclaimed badges (Sprint 1) |
+| | 3. Onboarding | ✅ Built | Family + Provider onboarding with visibility step, dual marketplace explained (Sprint 8) |
+| | 4. UI/Design | ✅ Built | TailwindCSS, design tokens, PageHero, EmptyState components |
+| | 5. Navigation | ✅ Built | MainNav, breadcrumbs, footer, consistent naming (Sprint 8) |
+| **II: Profiles** | 6. Family Profiles | ✅ Built | Simplified form + visibility controls + care types consolidated (Sprint 7-8) |
+| | 7. Provider Profiles | ✅ Built | Two-Threshold Model, subtype-aware content, profile completion prompts (Sprint 8) |
+| | 8. Provider Identity | ✅ Built | Gating via gentle nudges, OnboardingPrompt component |
+| **III: Discovery** | 9. Directory & Search | ✅ Built | Filters, pagination, unclaimed badges, family leads browse |
 | | 10. Provider Claiming | 🟡 Partial | Model exists; verification flow incomplete |
-| | 11. Matching | ⬜ Not Built | No matching algorithm |
-| **IV: Experience** | 12. Family Dashboard | ✅ Built | Care profile, My Providers, Saved (Sprint 1) |
-| | 13. Provider Dashboard | 🟡 Partial | Find Families works; profile editing is Sprint 2 |
+| | 11. Matching | 🟡 Partial | Basic matching by location/care types (Sprint 8) |
+| **IV: Experience** | 12. Family Dashboard | ✅ Built | Care profile, My Providers, Saved, welcome banners |
+| | 13. Provider Dashboard | ✅ Built | Profile page with priorities, subtype-aware quick actions (Sprint 8) |
 | | 14. Settings | ✅ Built | Account settings working |
-| **V: Engagement** | 15. Engagements | 🟡 Partial | Contact initiation works (Sprint 1); response flow is Sprint 2 |
-| | 16. Messaging | 🟡 Partial | Message model exists; full messaging is Sprint 2-3 |
-| | 17. Scheduling | 🟡 Partial | TourAppointment model; UI incomplete |
-| | 18. Saved/Favorites | ✅ Built | Save/unsave providers, list view (Sprint 1) |
-| | 19. Notifications | ⬜ Not Built | No delivery infrastructure |
-| **VI: Hiring** | 20. Hiring Marketplace | 🟡 Partial | Routes exist; flow incomplete |
+| **V: Engagement** | 15. Engagements | ✅ Built | Contact initiation, response flow, templates, scheduling integration (Sprint 8) |
+| | 16. Messaging | ✅ Built | Message threads, inline responses (Sprint 8) |
+| | 17. Scheduling | ✅ Built | Tour scheduling, calendar integration (Sprint 8) |
+| | 18. Saved/Favorites | ✅ Built | Save/unsave providers, list view |
+| | 19. Notifications | 🟡 Partial | In-app notifications exist; email/SMS infrastructure pending |
+| **VI: Hiring** | 20. Hiring Marketplace | ✅ Built | Hire Staff, Candidates, Organizations browse, job-seeker framing (Sprint 8) |
 | **VII: Monetization** | 21. Subscriptions | ⬜ Not Built | Model exists; no Stripe integration |
 | **VIII: Trust** | 22. Reviews | ⬜ Not Built | Model exists; no UI |
-| | 23. Trust & Safety | ⬜ Not Built | No badges, reporting, moderation |
-| **IX: Data** | 24. Data Management | 🟡 Partial | Basic CRUD exists |
-| | 25. Data Acquisition | ⬜ Not Built | No demo data seeding |
+| | 23. Trust & Safety | 🟡 Partial | OleraScore badges exist; reporting/moderation pending |
+| **IX: Data** | 24. Data Management | ✅ Built | CRUD, care types constants, benefits integration |
+| | 25. Data Acquisition | 🟡 Partial | Seed data exists; enrichment pending |
 | **X: Admin** | 26. Admin System | 🟡 Partial | Basic pages only |
 | | 27. SOPs | ⬜ Not Built | Documented; not implemented |
 | **XI: Marketing** | 28. Marketing & SEO | ⬜ Not Built | No SEO pages |
@@ -72,7 +72,7 @@
 | | 35. Error Handling | ✅ Built | Good patterns in place |
 | | 36. Performance | ✅ Built | Caching patterns defined |
 | | 37. Analytics | ⬜ Not Built | No audit logging |
-| | 38. Third-Party | 🟡 Partial | Some integrations working |
+| | 38. Third-Party | 🟡 Partial | LocationAutocomplete, some integrations working |
 | **XIV: Legal** | 39. Legal Framework | 🟡 Partial | Pages exist; content needs completion |
 
 ---
@@ -576,7 +576,7 @@ The following tasks are queued for Sprint 2 based on Sprint 1 deferrals and the 
 ## Sprint 2 Progress Record
 
 > **Last Updated**: January 22, 2026
-> **Status**: 🔄 In Progress
+> **Status**: ✅ Complete
 
 ### Completed Tasks
 
@@ -639,10 +639,67 @@ The following tasks are queued for Sprint 2 based on Sprint 1 deferrals and the 
 
 | Task | Status | Notes |
 |------|--------|-------|
-| 2.0.3 Contact submission redirect | ⬜ Pending | Redirect to engagement detail after ConsultRequest |
-| 2.3 Incoming requests list polish | ⬜ Pending | Provider view of family requests |
-| 2.4 Request response (Accept/Decline) | ⬜ Pending | Status transitions and messaging |
-| 2.5 Provider claiming (basic) | ⬜ Pending | Link unclaimed provider to user |
+| 2.0.3 Contact submission redirect | ✅ Complete | Redirect to engagement detail after ConsultRequest |
+| 2.3 Incoming requests list polish | ✅ Complete | Provider view of family requests |
+| 2.4 Request response (Accept/Decline) | ✅ Complete | Status transitions and messaging |
+| 2.5 Provider claiming (basic) | ✅ Complete | Link unclaimed provider to user |
+
+---
+
+## Sprint 3-7 Summary
+
+> Sprints 3-7 completed between January 22-27, 2026. See `docs/sprint-backlog.md` for detailed records.
+
+---
+
+## Sprint 8 Completion Record
+
+> **Date**: January 27, 2026
+> **Status**: ✅ Complete
+> **Type**: Deep Sprint (Provider Onboarding + Leads + Hiring Marketplace)
+
+### Goal
+**Providers clearly understand this is a place to meet with families and with each other to hire caregivers and get hired.**
+
+### Phases Completed
+
+| Phase | Focus | Status |
+|-------|-------|--------|
+| Phase 1 | Provider Onboarding (A-131 to A-144) | ✅ Complete |
+| Phase 2 | Provider Leads (A-145 to A-152) | ✅ Complete |
+| Phase 3 | Provider Profile Enhancement | ✅ Complete |
+| Phase 4 | Lead Response Flow | ✅ Complete |
+| Phase 5 | Post-Onboarding Value Screen | ✅ Complete |
+| Phase 6 | Caregiver Job Experience | ✅ Complete |
+| Phase 7 | Naming Consistency Sweep | ✅ Complete |
+
+### Key Accomplishments
+
+- **Onboarding**: Value proposition clear, LocationAutocomplete integrated, care types from `lib/careTypes.ts`, dual marketplace explained
+- **Leads Page**: PageHero consistency, action-oriented empty states, hiring marketplace surfaced for orgs
+- **Profile Enhancement**: Subtype-aware content, profile strength with actionable guidance
+- **Response Flow**: Templates available, scheduling integration, professional decline option
+- **Caregiver Experience**: Job-seeker language, "Find Work" / "My Opportunities" framing
+- **Naming Consistency**: Full audit completed, no semantic drift
+
+### Post-Critique Polish
+
+After Sprint 8 self-critique, additional items completed:
+- Fixed wrong hire-staff link in provider profile (`/hire-staff` → `/provider/hire-staff`)
+- Added WelcomeBanner to family browse page
+- Standardized PageHero across provider pages (opportunities, requests)
+- Improved empty state messaging to be more action-oriented
+- Created ProfileCompletionBanner component for profile completion nudges
+- Mobile layout improvements
+
+### Key Commits (Sprint 8)
+
+- `f3a9a27` Add Sprint 8 planning: Provider Onboarding + Leads
+- `5825906` Sprint 7 fixes: Consolidate care types and add Voice UI accessibility
+- `eb102aa` Sprint 7: Care Profile + Benefits + Data Foundation
+- `a2e5b9e` Sprint 7 planning: Care Profile + Benefits + Data Foundation
+- `a773bc3` Sprint 8 Self-Critique: Fix issues found in review
+- `9e57171` Sprint 8 Polish: Empty states, profile prompts, mobile improvements
 
 ---
 
