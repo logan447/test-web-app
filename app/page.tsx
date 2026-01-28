@@ -261,11 +261,6 @@ export default function Home() {
             <div className="flex-1 h-px bg-gray-300" />
           </div>
 
-          {/* Section heading */}
-          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
-            What&apos;s your situation?
-          </h2>
-
           {/* Situation cards — 2x2 grid with emoji illustrations */}
           <div className="grid grid-cols-2 gap-4">
             {CARE_SITUATIONS.map((situation) => (
