@@ -17,8 +17,8 @@ const CARE_SITUATIONS = [
     name: "Help at Home",
     slug: "HOME_CARE",
     description: "Daily support in your home",
-    // Warm, smiling elderly woman at home - approachable, domestic, non-clinical
-    image: "https://images.unsplash.com/photo-1581579186913-45ac3e6efe93?w=400&h=300&fit=crop&crop=faces",
+    // Older couple relaxed at home together - warm, safe, everyday domestic life
+    image: "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-primary-50",
   },
   {
@@ -35,8 +35,8 @@ const CARE_SITUATIONS = [
     name: "Memory Concerns",
     slug: "MEMORY_CARE",
     description: "Specialized memory care",
-    // Older adult in quiet, reflective moment - gentle, supportive, not clinical
-    image: "https://images.unsplash.com/photo-1493894473891-10fc1e5dbd22?w=400&h=300&fit=crop&crop=faces",
+    // Senior woman in thoughtful, quiet moment - gentle contemplation, not clinical
+    image: "https://images.unsplash.com/photo-1484517186945-df8151a1a871?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-amber-50",
   },
   {
