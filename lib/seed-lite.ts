@@ -288,6 +288,26 @@ export async function seedLite(prisma: PrismaClient) {
         base.allStaffBackgroundChecked = true;
         base.visitingDoctorFrequency = type === 'NURSING_HOME' || type === 'REHABILITATION' ? 'Daily' : 'Weekly';
 
+        // Neighborhood & nearby amenities
+        const neighborhoods = [
+          'A quiet residential area with tree-lined streets, close to parks and local shops. Families appreciate the easy freeway access for visits.',
+          'Located in a peaceful neighborhood with well-maintained sidewalks and nearby medical facilities. A grocery store and pharmacy are within walking distance.',
+          'Situated in a family-friendly community near a hospital and several restaurants. The area has low traffic and plenty of green space.',
+          'Nestled in a welcoming neighborhood with nearby churches, a public library, and a community center. Excellent access to public transit.',
+        ];
+        base.neighborhoodDescription = neighborhoods[idx % neighborhoods.length];
+
+        const amenitySets = [
+          ['Hospital - 0.8 miles', 'Park - 0.3 miles', 'Grocery Store - 0.5 miles', 'Pharmacy - 0.4 miles', 'Coffee Shop - 0.2 miles'],
+          ['Medical Clinic - 0.5 miles', 'Nature Trail - 0.6 miles', 'Shopping Center - 1.2 miles', 'Church - 0.3 miles', 'Restaurant Row - 0.7 miles'],
+          ['Urgent Care - 1.0 miles', 'Community Park - 0.2 miles', 'Pharmacy - 0.3 miles', 'Library - 0.5 miles', 'Grocery Store - 0.8 miles'],
+          ['Hospital - 1.5 miles', 'Garden Center - 0.4 miles', 'Cafe - 0.2 miles', 'Farmer\'s Market - 0.6 miles', 'Medical Office - 0.3 miles'],
+        ];
+        base.nearbyAmenities = amenitySets[idx % amenitySets.length];
+
+        // Languages — some facilities are multilingual
+        base.languagesSpoken = idx % 3 === 0 ? ['English', 'Spanish', 'Tagalog'] : idx % 3 === 1 ? ['English', 'Spanish'] : ['English'];
+
         if (type === 'MEMORY_CARE') {
           base.hasMemoryCare = true;
           base.specialtyPrograms = ['Structured Day Program', 'Music Therapy', 'Sensory Stimulation'];
