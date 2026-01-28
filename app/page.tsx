@@ -17,8 +17,8 @@ const CARE_SITUATIONS = [
     name: "Help at Home",
     slug: "HOME_CARE",
     description: "Daily support in your home",
-    // Caregiver assisting elderly person at home - clearly domestic, warm
-    image: "https://images.unsplash.com/photo-1607748862156-7c548e7e98f4?w=400&h=300&fit=crop&crop=faces",
+    // Caregiver or family member helping older adult at home - warm, domestic, non-clinical
+    image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-primary-50",
   },
   {
@@ -35,8 +35,8 @@ const CARE_SITUATIONS = [
     name: "Memory Concerns",
     slug: "MEMORY_CARE",
     description: "Specialized memory care",
-    // Elderly person with caring family member - warm, reassuring connection
-    image: "https://images.unsplash.com/photo-1516534775068-ba3e7458af70?w=400&h=300&fit=crop&crop=faces",
+    // Older adult in caring conversation with family member - human, reassuring
+    image: "https://images.unsplash.com/photo-1447069387593-a5de0862481e?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-amber-50",
   },
   {
@@ -44,7 +44,7 @@ const CARE_SITUATIONS = [
     name: "Planning Ahead",
     slug: "ASSISTED_LIVING",
     description: "Explore options early",
-    // Family having calm discussion/planning together
+    // Person reviewing documents/laptop - calm planning and research
     image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-sky-50",
   },
@@ -169,7 +169,7 @@ export default function Home() {
 
       {/* Hero — clear, calm, simple for 65+ families */}
       <section className="relative bg-white">
-        <div className="relative max-w-7xl mx-auto px-6 pt-14 pb-10 lg:pt-24 lg:pb-14">
+        <div className="relative max-w-7xl mx-auto px-6 pt-10 pb-6 lg:pt-16 lg:pb-10">
           <div className="max-w-3xl mx-auto text-center">
             {/* Hero text — observed for sticky trigger */}
             <div ref={heroTextRef}>
@@ -177,7 +177,7 @@ export default function Home() {
                 Find Senior Care Near You
               </h1>
 
-              <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
+              <p className="text-xl text-gray-600 mb-6 leading-relaxed max-w-2xl mx-auto">
                 Home care, assisted living, memory care, nursing homes, and more.
               </p>
             </div>
@@ -265,25 +265,25 @@ export default function Home() {
       </section>
 
       {/* Dual-path guidance + Situation cards */}
-      <section className="pt-6 pb-10 bg-white">
+      <section className="pt-4 pb-8 bg-white">
         <div className="max-w-2xl mx-auto px-6">
           {/* "Or" divider with guidance text */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 h-px bg-gray-300" />
             <span className="text-gray-600 text-base font-medium">or tell us what brings you here</span>
             <div className="flex-1 h-px bg-gray-300" />
           </div>
 
           {/* Situation cards — compact, accessible layout with text below images */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {CARE_SITUATIONS.map((situation) => (
               <Link
                 key={situation.id}
                 href={`/browse?type=${situation.slug}`}
-                className="group block rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200"
+                className="group block rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200"
               >
-                {/* Image container - 16:10 aspect ratio for compact view */}
-                <div className={`aspect-[16/10] overflow-hidden ${situation.fallbackColor}`}>
+                {/* Image container - 2:1 aspect ratio for compact view */}
+                <div className={`aspect-[2/1] overflow-hidden ${situation.fallbackColor}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={situation.image}
@@ -294,11 +294,11 @@ export default function Home() {
                 </div>
 
                 {/* Text area below image - minimal, scannable */}
-                <div className="p-3">
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 group-hover:text-primary-600 transition-colors leading-tight">
+                <div className="p-2.5">
+                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors leading-tight">
                     {situation.name}
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-500 mt-1 leading-snug">
+                  <p className="text-xs text-gray-500 mt-0.5 leading-snug">
                     {situation.description}
                   </p>
                 </div>
