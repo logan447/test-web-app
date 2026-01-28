@@ -202,7 +202,8 @@ function BrowseContent() {
   }, [arrivedFromSituationCard]);
 
   // Auto-expand search and trigger category animation for homepage search arrivals
-  // Sequence: wave animation (0-1.2s) → demo tap on first pill (1.3s) → cleanup
+  // Sequence: wave (0-1.2s) → demo tap (1.3s) → auto-select Home Care (1.8s)
+  // The auto-selection teaches the interaction by example: "this is what clicking does"
   useEffect(() => {
     if (arrivedFromHomepageSearch) {
       setSearchExpanded(true);
@@ -212,15 +213,17 @@ function BrowseContent() {
         setShowDemoTap(true);
       }, 1300);
 
-      // Clear all animation states after complete
-      const cleanupTimer = setTimeout(() => {
+      // Auto-select Home Care after demo tap completes (~1.8s)
+      // This shows the result of "pressing" the pill, teaching the interaction
+      const selectTimer = setTimeout(() => {
+        setFilterValues((prev) => ({ ...prev, providerType: "HOME_CARE" }));
         setShowCategoryAnimation(false);
         setShowDemoTap(false);
-      }, 2500);
+      }, 1800);
 
       return () => {
         clearTimeout(demoTapTimer);
-        clearTimeout(cleanupTimer);
+        clearTimeout(selectTimer);
       };
     }
   }, [arrivedFromHomepageSearch]);
