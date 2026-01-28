@@ -193,6 +193,7 @@ function BrowseContent() {
   // These users need gentle visual guidance toward the care category options
   const arrivedFromHomepageSearch = (searchParams.get("city") || searchParams.get("location")) && !searchParams.get("type");
   const [showCategoryAnimation, setShowCategoryAnimation] = useState(!!arrivedFromHomepageSearch);
+  const [showDemoTap, setShowDemoTap] = useState(false);
 
   useEffect(() => {
     if (arrivedFromSituationCard) {
@@ -201,14 +202,26 @@ function BrowseContent() {
   }, [arrivedFromSituationCard]);
 
   // Auto-expand search and trigger category animation for homepage search arrivals
+  // Sequence: wave animation (0-1.2s) → demo tap on first pill (1.3s) → cleanup
   useEffect(() => {
     if (arrivedFromHomepageSearch) {
       setSearchExpanded(true);
-      // Clear animation state after it completes (animation duration + buffer)
-      const timer = setTimeout(() => {
+
+      // Trigger demo tap after wave animation passes (~1.3s)
+      const demoTapTimer = setTimeout(() => {
+        setShowDemoTap(true);
+      }, 1300);
+
+      // Clear all animation states after complete
+      const cleanupTimer = setTimeout(() => {
         setShowCategoryAnimation(false);
+        setShowDemoTap(false);
       }, 2500);
-      return () => clearTimeout(timer);
+
+      return () => {
+        clearTimeout(demoTapTimer);
+        clearTimeout(cleanupTimer);
+      };
     }
   }, [arrivedFromHomepageSearch]);
 
@@ -443,12 +456,15 @@ function BrowseContent() {
                     onClick={() => {
                       handleCategoryClick(cat.type);
                       setShowCategoryAnimation(false);
+                      setShowDemoTap(false);
                     }}
                     className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
                       filterValues.providerType === cat.type
                         ? "bg-primary-600 text-white"
                         : "text-gray-700 hover:bg-gray-100"
-                    } ${showCategoryAnimation ? "category-highlight-animation" : ""}`}
+                    } ${showCategoryAnimation ? "category-highlight-animation" : ""} ${
+                      showDemoTap && index === 0 ? "category-demo-tap-animation" : ""
+                    }`}
                     style={showCategoryAnimation ? { animationDelay: `${index * 120}ms` } : undefined}
                   >
                     {cat.label}
