@@ -409,7 +409,7 @@ function ForProvidersContent() {
                 </div>
                 <div className="ml-4">
                   <p className="font-semibold text-gray-900">Elena Park</p>
-                  <p className="text-sm text-gray-600">Independent Caregiver</p>
+                  <p className="text-sm text-gray-600">Private Caregiver</p>
                 </div>
               </div>
             </div>

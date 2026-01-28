@@ -58,7 +58,7 @@ export function formatProviderType(type: string): string {
     NURSING_HOME: "Nursing Home",
     HOSPICE: "Hospice",
     REHABILITATION: "Rehabilitation",
-    INDEPENDENT_CAREGIVER: "Independent Caregiver",
+    INDEPENDENT_CAREGIVER: "Private Caregiver",
   };
   return typeMap[type] || type.replace(/_/g, " ");
 }

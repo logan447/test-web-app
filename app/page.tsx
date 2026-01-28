@@ -16,24 +16,33 @@ const CARE_SITUATIONS = [
     name: "Help at home",
     slug: "HOME_CARE",
     emoji: "🏠",
+    icon: null,
   },
   {
     id: "memory-care",
     name: "Memory care",
     slug: "MEMORY_CARE",
     emoji: "🧠",
+    icon: null,
   },
   {
     id: "nursing-rehab",
     name: "Nursing & Rehab",
     slug: "NURSING_HOME",
-    emoji: "👩‍⚕️",
+    emoji: null,
+    // Neutral healthcare icon (stethoscope) instead of gendered emoji
+    icon: (
+      <svg className="w-12 h-12 sm:w-14 sm:h-14 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+      </svg>
+    ),
   },
   {
     id: "assisted-living",
     name: "Assisted living",
     slug: "ASSISTED_LIVING",
     emoji: "🏢",
+    icon: null,
   },
 ];
 
@@ -234,7 +243,7 @@ export default function Home() {
             <div className="flex-1 h-px bg-gray-300" />
           </div>
 
-          {/* Situation cards — 2x2 grid with emoji illustrations */}
+          {/* Situation cards — 2x2 grid with emoji/icon illustrations */}
           <div className="grid grid-cols-2 gap-4">
             {CARE_SITUATIONS.map((situation) => (
               <Link
@@ -242,10 +251,14 @@ export default function Home() {
                 href={`/browse?type=${situation.slug}`}
                 className="group flex flex-col items-center justify-center bg-stone-100 hover:bg-stone-200 rounded-2xl p-6 sm:p-8 transition-colors duration-200"
               >
-                {/* Emoji illustration */}
-                <span className="text-5xl sm:text-6xl mb-4" role="img" aria-label={situation.name}>
-                  {situation.emoji}
-                </span>
+                {/* Emoji or icon illustration */}
+                {situation.icon ? (
+                  <div className="mb-4">{situation.icon}</div>
+                ) : (
+                  <span className="text-5xl sm:text-6xl mb-4" role="img" aria-label={situation.name}>
+                    {situation.emoji}
+                  </span>
+                )}
 
                 {/* Card title */}
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 text-center">
@@ -299,7 +312,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="group rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all bg-white"
                 >
-                  {/* Provider image */}
+                  {/* Provider image — clean, no overlay */}
                   <div className="relative h-40 bg-gray-100 overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -310,37 +323,34 @@ export default function Home() {
                         (e.target as HTMLImageElement).src = "/placeholder-facility.svg";
                       }}
                     />
-                    <div className="absolute top-3 left-3">
-                      <span className="inline-block px-2.5 py-1 bg-white/90 backdrop-blur-sm text-xs font-semibold text-gray-700 rounded-lg">
-                        {provider.typeLabel}
-                      </span>
-                    </div>
                   </div>
 
                   {/* Provider info */}
                   <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 text-base group-hover:text-primary-600 transition-colors mb-1 line-clamp-1">
+                    <h3 className="font-semibold text-gray-900 text-base group-hover:text-primary-600 transition-colors mb-0.5 line-clamp-1">
                       {provider.name}
                     </h3>
-                    <p className="text-sm text-gray-500 mb-2">
-                      {provider.city}, {provider.state}
+                    {/* Care type below name */}
+                    <p className="text-sm text-gray-500 mb-1.5">
+                      {provider.typeLabel}
                     </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    {/* Location with star rating inline */}
+                    <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                      <span>{provider.city}, {provider.state}</span>
+                      <span className="text-gray-300">·</span>
+                      <div className="flex items-center gap-0.5">
+                        <svg className="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
-                        <span className="text-sm font-medium text-gray-900">{provider.rating.toFixed(1)}</span>
-                        {provider.reviewCount > 0 && (
-                          <span className="text-sm text-gray-400">({provider.reviewCount})</span>
-                        )}
+                        <span className="font-medium text-gray-700">{provider.rating.toFixed(1)}</span>
                       </div>
-                      {provider.priceFrom && (
-                        <span className="text-sm text-gray-500">
-                          From ${provider.priceFrom.toLocaleString()}/mo
-                        </span>
-                      )}
                     </div>
+                    {/* Price if available */}
+                    {provider.priceFrom && (
+                      <p className="text-sm text-gray-500 mt-2">
+                        From ${provider.priceFrom.toLocaleString()}/mo
+                      </p>
+                    )}
                   </div>
                 </Link>
               ))}
@@ -407,38 +417,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Olera Is Different — Compact trust strip */}
-      <section className="py-10 bg-primary-600">
+      {/* Why Olera Is Different — Subtle trust strip */}
+      <section className="py-8 bg-gray-100 border-y border-gray-200">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-5 md:gap-10">
             {/* No spam */}
-            <div className="flex items-center gap-3 text-white">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-base font-medium">No spam or pressure</span>
+            <div className="flex items-center gap-2.5 text-gray-700">
+              <svg className="w-5 h-5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium">No spam or pressure</span>
             </div>
 
-            {/* Free tours */}
-            <div className="flex items-center gap-3 text-white">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-base font-medium">Free consultations and tours</span>
+            {/* Free details */}
+            <div className="flex items-center gap-2.5 text-gray-700">
+              <svg className="w-5 h-5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium">Get pricing and care details for free</span>
             </div>
 
-            {/* Help paying */}
-            <div className="flex items-center gap-3 text-white">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-base font-medium">Help paying for care</span>
+            {/* All options */}
+            <div className="flex items-center gap-2.5 text-gray-700">
+              <svg className="w-5 h-5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium">All your options in one place</span>
             </div>
           </div>
         </div>

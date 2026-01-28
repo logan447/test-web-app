@@ -75,7 +75,7 @@ const PROVIDER_TYPES = {
     { value: "HOME_HEALTH", label: "Home Health Agency", description: "Medical care at home" },
   ],
   individual: [
-    { value: "INDEPENDENT_CAREGIVER", label: "Independent Caregiver", description: "Self-employed caregiver" },
+    { value: "INDEPENDENT_CAREGIVER", label: "Private Caregiver", description: "Self-employed caregiver" },
   ],
 };
 

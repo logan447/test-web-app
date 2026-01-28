@@ -123,7 +123,7 @@ export default function ProviderCard({
       HOSPICE: "Hospice",
       INDEPENDENT_LIVING: "Independent Living",
       REHABILITATION: "Rehabilitation",
-      INDEPENDENT_CAREGIVER: "Independent Caregiver",
+      INDEPENDENT_CAREGIVER: "Private Caregiver",
     };
     return typeMap[type] || type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
   };

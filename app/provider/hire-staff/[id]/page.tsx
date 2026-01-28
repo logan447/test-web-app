@@ -576,7 +576,7 @@ export default function CaregiverHireDetailPage() {
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   <span className="px-2 py-0.5 text-xs font-medium rounded bg-primary-100 text-primary-700">
-                    Independent Caregiver
+                    Private Caregiver
                   </span>
                   {caregiver.licensed && (
                     <span className="px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded border border-green-200">

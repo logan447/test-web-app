@@ -151,7 +151,7 @@ export default function CaregiverCard({
           {/* Type & Certifications Badges */}
           <div className="flex flex-wrap gap-1.5 mb-3">
             <span className="px-2 py-0.5 text-xs font-medium rounded bg-primary-100 text-primary-700">
-              Independent Caregiver
+              Private Caregiver
             </span>
             {certifications.slice(0, 2).map((cert) => (
               <span key={cert} className="px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded border border-green-200">
