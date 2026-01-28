@@ -415,7 +415,7 @@ function BrowseContent() {
                     onClick={() => handleCategoryClick(cat.type)}
                     className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
                       filterValues.providerType === cat.type
-                        ? "bg-gray-900 text-white"
+                        ? "bg-primary-600 text-white"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -524,14 +524,21 @@ function BrowseContent() {
                 <button
                   type="button"
                   onClick={() => setSearchExpanded(true)}
-                  className="flex-1 min-w-0 flex items-center bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer p-1.5"
                 >
-                  <span className={`flex-1 pl-4 pr-2 py-2 text-sm font-medium truncate text-left ${location ? 'text-gray-800' : 'text-gray-500'}`}>
-                    {location || "City or zip code"}
+                  <div className="p-2 text-primary-500 shrink-0">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <span className={`flex-1 py-1.5 text-sm font-medium truncate text-left ${location ? 'text-gray-800' : 'text-gray-500'}`}>
+                    {location || "Enter city or ZIP code"}
                   </span>
-                  <div className="m-1 p-2 bg-primary-600 rounded-full shrink-0">
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <div className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors flex items-center gap-1.5 shrink-0 text-sm">
+                    <span>Search</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
                 </button>
@@ -742,7 +749,7 @@ function BrowseContent() {
                       onClick={() => handleFilterChange("providerType", opt.value)}
                       className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
                         filterValues.providerType === opt.value
-                          ? "border-gray-900 bg-gray-900 text-white"
+                          ? "border-primary-600 bg-primary-600 text-white"
                           : "border-gray-300 text-gray-700 hover:border-gray-400"
                       }`}
                     >
@@ -762,7 +769,7 @@ function BrowseContent() {
                       onClick={() => handleFilterChange("careService", opt.value)}
                       className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
                         filterValues.careService === opt.value
-                          ? "border-gray-900 bg-gray-900 text-white"
+                          ? "border-primary-600 bg-primary-600 text-white"
                           : "border-gray-300 text-gray-700 hover:border-gray-400"
                       }`}
                     >
@@ -782,7 +789,7 @@ function BrowseContent() {
                       onClick={() => setSortBy(opt.value)}
                       className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
                         sortBy === opt.value
-                          ? "border-gray-900 bg-gray-900 text-white"
+                          ? "border-primary-600 bg-primary-600 text-white"
                           : "border-gray-300 text-gray-700 hover:border-gray-400"
                       }`}
                     >
@@ -802,7 +809,7 @@ function BrowseContent() {
                       onClick={() => handleFilterChange("rating", opt.value)}
                       className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
                         filterValues.rating === opt.value
-                          ? "border-gray-900 bg-gray-900 text-white"
+                          ? "border-primary-600 bg-primary-600 text-white"
                           : "border-gray-300 text-gray-700 hover:border-gray-400"
                       }`}
                     >
@@ -822,7 +829,7 @@ function BrowseContent() {
                       onClick={() => handleFilterChange("payment", opt.value)}
                       className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
                         filterValues.payment === opt.value
-                          ? "border-gray-900 bg-gray-900 text-white"
+                          ? "border-primary-600 bg-primary-600 text-white"
                           : "border-gray-300 text-gray-700 hover:border-gray-400"
                       }`}
                     >
@@ -843,7 +850,7 @@ function BrowseContent() {
               </button>
               <button
                 onClick={() => setFilterModalOpen(false)}
-                className="px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors text-sm"
+                className="px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors text-sm"
               >
                 Show {totalCount} provider{totalCount !== 1 ? "s" : ""}
               </button>
