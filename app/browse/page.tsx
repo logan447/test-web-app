@@ -896,6 +896,19 @@ function BrowseContent() {
               Meet with at least 5 providers to compare and find the best fit.
             </p>
           )}
+
+          {/* Helper text when browsing all types — helps with jargon for 65+ users */}
+          {!loading && !filterValues.providerType && providers.length > 0 && (
+            <p className="text-sm text-gray-500 mt-1">
+              Not sure which type of care? <span className="font-medium text-gray-600">Home Care</span> means help at home. <span className="font-medium text-gray-600">Assisted Living</span> is a residential community.{" "}
+              <button
+                onClick={() => setFilterModalOpen(true)}
+                className="text-primary-600 hover:text-primary-700 font-medium underline underline-offset-2"
+              >
+                Use filters to narrow down
+              </button>
+            </p>
+          )}
         </div>
 
         {/* Main content */}
