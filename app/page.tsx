@@ -8,44 +8,44 @@ import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
 import { formatProviderType } from "@/lib/comparisonUtils";
 
-// Situational care entry cards — clear, relevant photography for 65+ users
-// Each image must unmistakably reinforce the situation it represents
-// Text below images (not overlaid) for reduced cognitive load
+// Situational care entry cards — literal, unmistakable imagery for 65+ users
+// Photos must instantly communicate the situation without reading
+// Compact cards with minimal text for reduced cognitive load
 const CARE_SITUATIONS = [
   {
     id: "help-at-home",
     name: "Help at Home",
     slug: "HOME_CARE",
-    description: "Assistance with meals, medication, and daily routines",
-    // Caregiver helping senior in home setting - clearly domestic scene
-    image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&h=450&fit=crop&crop=faces",
+    description: "Daily support in your home",
+    // Caregiver assisting elderly person at home - clearly domestic, warm
+    image: "https://images.unsplash.com/photo-1607748862156-7c548e7e98f4?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-primary-50",
   },
   {
     id: "after-hospital",
     name: "After a Hospital Stay",
     slug: "REHABILITATION",
-    description: "Short-term rehab and recovery support",
-    // Physical therapy / rehabilitation - clearly medical recovery
-    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=450&fit=crop&crop=faces",
+    description: "Rehab and recovery help",
+    // Physical therapist helping elderly patient with exercises - clearly rehab
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-teal-50",
   },
   {
     id: "memory-concerns",
     name: "Memory Concerns",
     slug: "MEMORY_CARE",
-    description: "Specialized care for Alzheimer's and dementia",
-    // Caring hands / gentle support - connection and warmth
-    image: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=600&h=450&fit=crop&crop=faces",
+    description: "Specialized memory care",
+    // Elderly person with caring family member - warm, reassuring connection
+    image: "https://images.unsplash.com/photo-1516534775068-ba3e7458af70?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-amber-50",
   },
   {
     id: "planning-ahead",
     name: "Planning Ahead",
     slug: "ASSISTED_LIVING",
-    description: "Explore senior living options before you need them",
-    // Active seniors / community - positive, forward-looking
-    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&h=450&fit=crop&crop=faces",
+    description: "Explore options early",
+    // Family having calm discussion/planning together
+    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-sky-50",
   },
 ];
@@ -265,25 +265,25 @@ export default function Home() {
       </section>
 
       {/* Dual-path guidance + Situation cards */}
-      <section className="pt-8 pb-14 bg-white">
-        <div className="max-w-3xl mx-auto px-6">
+      <section className="pt-6 pb-10 bg-white">
+        <div className="max-w-2xl mx-auto px-6">
           {/* "Or" divider with guidance text */}
-          <div className="flex items-center gap-4 mb-10">
+          <div className="flex items-center gap-4 mb-8">
             <div className="flex-1 h-px bg-gray-300" />
-            <span className="text-gray-600 text-lg font-medium">or tell us what brings you here</span>
+            <span className="text-gray-600 text-base font-medium">or tell us what brings you here</span>
             <div className="flex-1 h-px bg-gray-300" />
           </div>
 
-          {/* Situation cards — clean, accessible layout with text below images */}
-          <div className="grid grid-cols-2 gap-5 sm:gap-6">
+          {/* Situation cards — compact, accessible layout with text below images */}
+          <div className="grid grid-cols-2 gap-4">
             {CARE_SITUATIONS.map((situation) => (
               <Link
                 key={situation.id}
                 href={`/browse?type=${situation.slug}`}
-                className="group block rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-lg hover:border-primary-200 transition-all duration-200"
+                className="group block rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200"
               >
-                {/* Image container - 4:3 aspect ratio */}
-                <div className={`aspect-[4/3] overflow-hidden ${situation.fallbackColor}`}>
+                {/* Image container - 16:10 aspect ratio for compact view */}
+                <div className={`aspect-[16/10] overflow-hidden ${situation.fallbackColor}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={situation.image}
@@ -293,12 +293,12 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Text area below image - clean, scannable */}
-                <div className="p-4 sm:p-5">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors leading-snug">
+                {/* Text area below image - minimal, scannable */}
+                <div className="p-3">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 group-hover:text-primary-600 transition-colors leading-tight">
                     {situation.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1 leading-snug">
                     {situation.description}
                   </p>
                 </div>
