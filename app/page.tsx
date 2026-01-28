@@ -8,45 +8,32 @@ import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
 import { formatProviderType } from "@/lib/comparisonUtils";
 
-// Situational care entry cards — literal, unmistakable imagery for 65+ users
-// Photos must instantly communicate the situation without reading
-// Compact cards with minimal text for reduced cognitive load
+// Situation cards — simple, clear options for 65+ users
+// Emoji-style illustrations for instant recognition
 const CARE_SITUATIONS = [
   {
     id: "help-at-home",
-    name: "Help at Home",
+    name: "Help at home",
     slug: "HOME_CARE",
-    description: "Daily support in your home",
-    // Caregiver helping older adult - warm, supportive, clearly shows care being provided
-    image: "https://images.unsplash.com/photo-1576765607924-3f7b8410a787?w=400&h=300&fit=crop&crop=faces",
-    fallbackColor: "bg-primary-50",
+    emoji: "🏠",
   },
   {
-    id: "after-hospital",
-    name: "After a Hospital Stay",
-    slug: "REHABILITATION",
-    description: "Rehab and recovery help",
-    // Physical therapist helping elderly patient with exercises - clearly rehab
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=faces",
-    fallbackColor: "bg-teal-50",
-  },
-  {
-    id: "memory-concerns",
-    name: "Memory Concerns",
+    id: "memory-care",
+    name: "Memory care",
     slug: "MEMORY_CARE",
-    description: "Specialized memory care",
-    // Older couple together at home - calm, supportive, relatable for families facing memory concerns
-    image: "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=300&fit=crop&crop=faces",
-    fallbackColor: "bg-amber-50",
+    emoji: "🧠",
   },
   {
-    id: "planning-ahead",
-    name: "Planning Ahead",
+    id: "nursing-rehab",
+    name: "Nursing & Rehab",
+    slug: "NURSING_HOME",
+    emoji: "👩‍⚕️",
+  },
+  {
+    id: "assisted-living",
+    name: "Assisted living",
     slug: "ASSISTED_LIVING",
-    description: "Explore options early",
-    // Older couple reviewing documents together - calm, thoughtful planning
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop&crop=faces",
-    fallbackColor: "bg-sky-50",
+    emoji: "🏢",
   },
 ];
 
@@ -265,43 +252,37 @@ export default function Home() {
       </section>
 
       {/* Dual-path guidance + Situation cards */}
-      <section className="pt-4 pb-8 bg-white">
+      <section className="pt-4 pb-10 bg-white">
         <div className="max-w-3xl mx-auto px-6">
           {/* "Or" divider with guidance text */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-8">
             <div className="flex-1 h-px bg-gray-300" />
-            <span className="text-gray-600 text-base font-medium whitespace-nowrap">or tell us what brings you here</span>
+            <span className="text-gray-600 text-base font-medium whitespace-nowrap">or tell us about your situation</span>
             <div className="flex-1 h-px bg-gray-300" />
           </div>
 
-          {/* Situation cards — compact, accessible layout with text below images */}
-          <div className="grid grid-cols-2 gap-4 lg:gap-5">
+          {/* Section heading */}
+          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
+            What&apos;s your situation?
+          </h2>
+
+          {/* Situation cards — 2x2 grid with emoji illustrations */}
+          <div className="grid grid-cols-2 gap-4">
             {CARE_SITUATIONS.map((situation) => (
               <Link
                 key={situation.id}
                 href={`/browse?type=${situation.slug}`}
-                className="group block rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200"
+                className="group flex flex-col items-center justify-center bg-stone-100 hover:bg-stone-200 rounded-2xl p-6 sm:p-8 transition-colors duration-200"
               >
-                {/* Image container - 2:1 aspect ratio for compact view */}
-                <div className={`aspect-[2/1] overflow-hidden ${situation.fallbackColor}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={situation.image}
-                    alt={situation.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                </div>
+                {/* Emoji illustration */}
+                <span className="text-5xl sm:text-6xl mb-4" role="img" aria-label={situation.name}>
+                  {situation.emoji}
+                </span>
 
-                {/* Text area below image - readable for 65+ users */}
-                <div className="p-3">
-                  <h3 className="text-base font-semibold text-gray-900 group-hover:text-primary-600 transition-colors leading-tight">
-                    {situation.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1 leading-snug">
-                    {situation.description}
-                  </p>
-                </div>
+                {/* Card title */}
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 text-center">
+                  {situation.name}
+                </h3>
               </Link>
             ))}
           </div>
