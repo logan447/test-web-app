@@ -8,49 +8,36 @@ import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
 import { formatProviderType } from "@/lib/comparisonUtils";
 
-// Situational care entry cards — human-centered, descriptive
+// Situational care entry cards — simplified for 65+ clarity
+// Reduced to 4 most common entry points, warm gradient backgrounds
 const CARE_SITUATIONS = [
   {
     id: "help-at-home",
     name: "Help at Home",
-    description: "Assistance with daily tasks while staying independent",
     slug: "HOME_CARE",
+    gradient: "from-sky-400 to-blue-500",
     image: "/images/situations/help-at-home.jpg",
   },
   {
     id: "after-hospital",
     name: "After a Hospital Stay",
-    description: "Short-term recovery and rehabilitation support",
     slug: "REHABILITATION",
+    gradient: "from-emerald-400 to-teal-500",
     image: "/images/situations/after-hospital.jpg",
   },
   {
     id: "memory-concerns",
     name: "Memory Concerns",
-    description: "Specialized care for Alzheimer's and dementia",
     slug: "MEMORY_CARE",
+    gradient: "from-violet-400 to-purple-500",
     image: "/images/situations/memory-concerns.jpg",
   },
   {
     id: "planning-ahead",
     name: "Planning Ahead",
-    description: "Exploring options before care is urgently needed",
     slug: "ASSISTED_LIVING",
+    gradient: "from-amber-400 to-orange-500",
     image: "/images/situations/planning-ahead.jpg",
-  },
-  {
-    id: "long-term-care",
-    name: "Long-term Care",
-    description: "24/7 skilled nursing and medical support",
-    slug: "NURSING_HOME",
-    image: "/images/situations/long-term-care.jpg",
-  },
-  {
-    id: "end-of-life",
-    name: "Comfort Care",
-    description: "Compassionate end-of-life support for families",
-    slug: "HOSPICE",
-    image: "/images/situations/comfort-care.jpg",
   },
 ];
 
@@ -193,43 +180,80 @@ export default function Home() {
             <form
               ref={searchFormRef}
               onSubmit={handleSearch}
-              className={`max-w-xl mx-auto mb-8 transition-all duration-300 ${
+              className={`max-w-lg mx-auto mb-6 transition-all duration-300 ${
                 showStickySearch
                   ? 'fixed top-0 left-0 right-0 z-50 px-4 py-3'
                   : ''
               }`}
             >
-              <div className={`bg-white rounded-full shadow-lg border border-gray-200 ${
+              <div className={`bg-white rounded-2xl shadow-lg border border-gray-200 p-2 ${
                 showStickySearch ? 'max-w-md mx-auto shadow-xl' : ''
               }`}>
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
                   {/* Location input */}
-                  <div className="flex-1 pl-5 pr-2 py-3">
+                  <div className="flex-1 px-4 py-2.5">
                     <LocationAutocomplete
                       value={location}
                       onChange={handleLocationChange}
-                      placeholder="City or zip code"
+                      placeholder="Enter your city or ZIP code"
                       showIcon={false}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base text-gray-900 placeholder:text-gray-500"
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-lg text-gray-900 placeholder:text-gray-400"
                       className="w-full"
                     />
                   </div>
 
                   {/* Search Button */}
-                  <div className="pr-1.5 shrink-0">
-                    <button
-                      type="submit"
-                      className="p-3 bg-primary-600 hover:bg-primary-700 text-white rounded-full transition-all flex items-center justify-center"
-                      aria-label="Search"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </button>
-                  </div>
+                  <button
+                    type="submit"
+                    className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span className="hidden sm:inline">Search</span>
+                  </button>
                 </div>
               </div>
             </form>
+
+            {/* Use my location — clear secondary action */}
+            {!showStickySearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                      async (position) => {
+                        try {
+                          const res = await fetch(
+                            `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
+                          );
+                          const data = await res.json();
+                          const city = data.address?.city || data.address?.town || data.address?.village || "";
+                          const state = data.address?.state || "";
+                          if (city && state) {
+                            setLocation(`${city}, ${state}`);
+                            setSelectedLocation({ city, state });
+                          }
+                        } catch {
+                          // Silently fail - user can still type manually
+                        }
+                      },
+                      () => {
+                        // Permission denied or error - do nothing
+                      }
+                    );
+                  }
+                }}
+                className="mb-8 text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1.5 mx-auto"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Use my current location
+              </button>
+            )}
 
             {/* Trust signals */}
             <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
@@ -256,41 +280,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* What best describes your situation? — moved above featured providers */}
-      <section className="pt-8 pb-12 bg-white">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-8">
+      {/* What brings you here today? — simplified cards for 65+ clarity */}
+      <section className="pt-10 pb-14 bg-white">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-10">
             <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
               What brings you here today?
             </h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-5">
             {CARE_SITUATIONS.map((situation) => (
               <Link
                 key={situation.id}
                 href={`/browse?type=${situation.slug}`}
-                className="group relative rounded-2xl overflow-hidden bg-gray-100 aspect-[4/3] hover:shadow-lg transition-all"
+                className={`group relative rounded-2xl overflow-hidden bg-gradient-to-br ${situation.gradient} min-h-[140px] sm:min-h-[160px] hover:shadow-xl hover:scale-[1.02] transition-all duration-200`}
               >
-                {/* Background image with overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/30 to-transparent z-10" />
+                {/* Optional: Background image overlay if image exists */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={situation.image}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-20 transition-opacity duration-300"
                   onError={(e) => {
-                    // Fallback to solid color if image doesn't exist
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
-                {/* Text content */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-                  <h3 className="text-lg font-semibold text-white mb-1">
+                {/* Title — centered, large, clear */}
+                <div className="absolute inset-0 flex items-center justify-center p-5">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white text-center leading-tight drop-shadow-sm">
                     {situation.name}
                   </h3>
-                  <p className="text-sm text-white/80 line-clamp-2">
-                    {situation.description}
-                  </p>
                 </div>
               </Link>
             ))}
