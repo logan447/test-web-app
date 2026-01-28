@@ -322,9 +322,10 @@ export async function seedDemo(prisma: PrismaClient) {
     const data = claimedIncompleteData[i];
     const photos = data.hasPhotos ? ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'] : [];
 
-    console.log(`[DEMO SEED] Creating claimed-incomplete: ${data.name} | photos: ${photos.length > 0} | lat: ${data.lat} | lng: ${data.lng}`);
+    console.log(`\n[DEMO SEED] Creating claimed-incomplete: ${data.name}`);
+    console.log(`  INPUT: lat=${data.lat}, lng=${data.lng}, photos=${photos.length}`);
 
-    await prisma.provider.create({
+    const created = await prisma.provider.create({
       data: {
         name: data.name,
         providerType: data.type,
@@ -344,13 +345,19 @@ export async function seedDemo(prisma: PrismaClient) {
         longitude: data.lng,
         claimed: true,
         claimedAt: new Date(),
-        verified: false, // Not yet verified
+        verified: false,
         active: true,
         isVisible: true,
       },
     });
+
+    // Verify stored values
+    console.log(`  OUTPUT: id=${created.id}, latitude=${created.latitude}, longitude=${created.longitude}`);
+    if (created.latitude === null || created.longitude === null) {
+      console.error(`  *** ERROR: Coordinates NOT stored! Check Prisma schema. ***`);
+    }
   }
-  console.log(`[DEMO SEED] Created ${claimedIncompleteData.length} claimed-incomplete providers\n`);
+  console.log(`\n[DEMO SEED] Created ${claimedIncompleteData.length} claimed-incomplete providers\n`);
 
   // ============================================================================
   // REVIEWS (35 reviews across 20 providers)
