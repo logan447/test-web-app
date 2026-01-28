@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 
 /**
  * Footer - Unified footer component for all pages
@@ -49,20 +48,9 @@ export default function Footer({ variant = "light", showNewsletter = false }: Fo
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand Column */}
           <div className="col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className={`w-8 h-8 rounded-lg overflow-hidden ${isDark ? "bg-white p-0.5" : ""}`}>
-                <Image
-                  src="/olera-logo.jpg"
-                  alt="Olera"
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-cover rounded"
-                />
-              </div>
-              <span className={`text-xl font-bold ${headingStyles}`}>Olera</span>
-            </div>
+            <p className={`text-xl font-bold ${headingStyles} mb-2`}>Olera, Inc.</p>
             <p className={`text-sm leading-relaxed mb-6 max-w-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-              We help families find the right care for their loved ones.
+              Find the right care for your loved ones.
             </p>
 
             {/* Newsletter Signup */}

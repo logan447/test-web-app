@@ -300,7 +300,7 @@ export default function LocationAutocomplete({
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => {
+          onFocus={(e) => {
             // Open dropdown on focus if showCurrentLocation is enabled
             if (showCurrentLocation) {
               setIsOpen(true);
@@ -308,6 +308,11 @@ export default function LocationAutocomplete({
             if (inputValue.length >= 2) {
               searchLocations(inputValue);
             }
+            // Move cursor to end without selecting text (prevents blue highlight)
+            const len = e.target.value.length;
+            setTimeout(() => {
+              e.target.setSelectionRange(len, len);
+            }, 0);
             onFocus?.();
           }}
           onBlur={onBlur}
@@ -316,8 +321,9 @@ export default function LocationAutocomplete({
           required={required}
           className={`
             w-full border rounded-lg
-            focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+            focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none
             disabled:bg-gray-100 disabled:cursor-not-allowed
+            caret-primary-600
             ${showIcon ? "pl-11" : ""}
             ${sizeClasses}
             ${error ? "border-red-500 bg-red-50" : "border-gray-300"}

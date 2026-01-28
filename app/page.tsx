@@ -16,33 +16,24 @@ const CARE_SITUATIONS = [
     name: "Help at home",
     slug: "HOME_CARE",
     emoji: "🏠",
-    icon: null,
   },
   {
     id: "memory-care",
     name: "Memory care",
     slug: "MEMORY_CARE",
     emoji: "🧠",
-    icon: null,
   },
   {
     id: "nursing-rehab",
     name: "Nursing & Rehab",
     slug: "NURSING_HOME",
-    emoji: null,
-    // Neutral healthcare icon (stethoscope) instead of gendered emoji
-    icon: (
-      <svg className="w-12 h-12 sm:w-14 sm:h-14 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
-      </svg>
-    ),
+    emoji: "🏥",
   },
   {
     id: "assisted-living",
     name: "Assisted living",
     slug: "ASSISTED_LIVING",
     emoji: "🏢",
-    icon: null,
   },
 ];
 
@@ -211,7 +202,7 @@ export default function Home() {
                       placeholder="Enter your city or ZIP code"
                       showIcon={false}
                       showCurrentLocation={true}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-lg text-gray-900 placeholder:text-gray-400 truncate"
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 focus:!outline-none !shadow-none text-lg text-gray-900 placeholder:text-gray-400 truncate search-input-clean"
                       className="w-full"
                     />
                   </div>
@@ -233,17 +224,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Dual-path guidance + Situation cards */}
+      {/* Situation cards */}
       <section className="pt-4 pb-10 bg-white">
         <div className="max-w-3xl mx-auto px-6">
-          {/* "Or" divider with guidance text */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex-1 h-px bg-gray-300" />
-            <span className="text-gray-600 text-base font-medium whitespace-nowrap">or tell us about your situation</span>
-            <div className="flex-1 h-px bg-gray-300" />
-          </div>
+          <p className="text-gray-600 text-base font-medium text-center mb-6">
+            Tell us about your situation
+          </p>
 
-          {/* Situation cards — 2x2 grid with emoji/icon illustrations */}
+          {/* Situation cards — 2x2 grid with emoji illustrations */}
           <div className="grid grid-cols-2 gap-4">
             {CARE_SITUATIONS.map((situation) => (
               <Link
@@ -251,16 +239,9 @@ export default function Home() {
                 href={`/browse?type=${situation.slug}`}
                 className="group flex flex-col items-center justify-center bg-stone-100 hover:bg-stone-200 rounded-2xl p-6 sm:p-8 transition-colors duration-200"
               >
-                {/* Emoji or icon illustration */}
-                {situation.icon ? (
-                  <div className="mb-4">{situation.icon}</div>
-                ) : (
-                  <span className="text-5xl sm:text-6xl mb-4" role="img" aria-label={situation.name}>
-                    {situation.emoji}
-                  </span>
-                )}
-
-                {/* Card title */}
+                <span className="text-5xl sm:text-6xl mb-4" role="img" aria-label={situation.name}>
+                  {situation.emoji}
+                </span>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 text-center">
                   {situation.name}
                 </h3>
@@ -270,12 +251,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Explore Local Care Options — featured providers */}
+      {/* All your options in one place — featured providers */}
       <section className="py-12 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              Explore Local Care Options
+              All your options in one place
             </h2>
           </div>
 
@@ -345,12 +326,6 @@ export default function Home() {
                         <span className="font-medium text-gray-700">{provider.rating.toFixed(1)}</span>
                       </div>
                     </div>
-                    {/* Price if available */}
-                    {provider.priceFrom && (
-                      <p className="text-sm text-gray-500 mt-2">
-                        From ${provider.priceFrom.toLocaleString()}/mo
-                      </p>
-                    )}
                   </div>
                 </Link>
               ))}
@@ -390,17 +365,17 @@ export default function Home() {
                 {
                   step: 1,
                   title: "Search your area",
-                  description: "See nearby providers with photos, reviews, and prices.",
+                  description: "Browse nearby care providers. See photos, services, and payment details.",
                 },
                 {
                   step: 2,
-                  title: "Talk to providers",
-                  description: "Book tours or calls to ask questions and confirm fit.",
+                  title: "Meet your favorites",
+                  description: "Book free in-person or virtual meetings to check availability and costs.",
                 },
                 {
                   step: 3,
-                  title: "Start care",
-                  description: "Choose the provider that works best for your needs.",
+                  title: "Get the help you need",
+                  description: "Start care with providers that fit your needs and situation.",
                 },
               ].map((item) => (
                 <div key={item.step} className="relative flex flex-col items-center text-center">
@@ -412,37 +387,6 @@ export default function Home() {
                   <p className="text-base text-gray-600 leading-relaxed max-w-xs">{item.description}</p>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Olera Is Different — Subtle trust strip */}
-      <section className="py-8 bg-gray-100 border-y border-gray-200">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-5 md:gap-10">
-            {/* No spam */}
-            <div className="flex items-center gap-2.5 text-gray-700">
-              <svg className="w-5 h-5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-sm font-medium">No spam or pressure</span>
-            </div>
-
-            {/* Free details */}
-            <div className="flex items-center gap-2.5 text-gray-700">
-              <svg className="w-5 h-5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-sm font-medium">Get pricing and care details for free</span>
-            </div>
-
-            {/* All options */}
-            <div className="flex items-center gap-2.5 text-gray-700">
-              <svg className="w-5 h-5 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-sm font-medium">All your options in one place</span>
             </div>
           </div>
         </div>

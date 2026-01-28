@@ -743,7 +743,7 @@ export default function ProviderDetailPage() {
                       placeholder="Enter your city or ZIP code"
                       showIcon={false}
                       showCurrentLocation={true}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-lg text-gray-900 placeholder:text-gray-400 truncate"
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 focus:!outline-none !shadow-none text-lg text-gray-900 placeholder:text-gray-400 truncate search-input-clean"
                       className="w-full"
                     />
                   </div>
