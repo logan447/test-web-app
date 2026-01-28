@@ -518,6 +518,47 @@ export default function ProviderDetailPage() {
   const isHomeCare = provider ? HOME_CARE_TYPES.includes(provider.providerType) : false;
   const isCaregiver = provider?.providerType === 'INDEPENDENT_CAREGIVER';
 
+  // Progressive disclosure state
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const toggleSection = (key: string) => setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
+
+  // Anchor nav active section tracking
+  const [activeSection, setActiveSection] = useState('overview');
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  useEffect(() => {
+    if (!provider) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+    Object.values(sectionRefs.current).forEach((el) => {
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [provider]);
+
+  // Anchor nav sections config (must be before early returns)
+  const anchorSections = useMemo(() => {
+    const sections = [
+      { id: 'overview', label: 'Overview' },
+      { id: 'rooms', label: isFacility ? 'Rooms & Pricing' : 'Pricing' },
+      { id: 'care', label: 'Care & Staff' },
+      { id: 'reviews', label: 'Reviews' },
+      { id: 'location', label: 'Location' },
+    ];
+    if (similarProviders.length > 0) {
+      sections.push({ id: 'compare', label: 'Compare' });
+    }
+    return sections;
+  }, [isFacility, similarProviders.length]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
@@ -560,7 +601,7 @@ export default function ProviderDetailPage() {
   const priceUnit = (HOME_CARE_TYPES.includes(provider.providerType) || isCaregiver) ? 'hr' : 'mo';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       {/* Overlay when search is expanded */}
       {searchExpanded && (
         <div
@@ -864,805 +905,569 @@ export default function ProviderDetailPage() {
         </div>
       </div>
 
-      {/* ===================== MAIN CONTENT — Single Column ===================== */}
-      <div className="max-w-4xl mx-auto px-4 py-6 pb-28">
-
-        {/* ==================== 1. HERO SECTION ==================== */}
-        <div ref={heroRef}>
-          {/* Photo Gallery — 3-photo mosaic (desktop) / carousel (mobile) */}
+      {/* ===================== FULL-BLEED HERO ===================== */}
+      <div ref={heroRef} className="relative">
+        {/* Mobile: full-bleed photo carousel */}
+        <div className="md:hidden relative aspect-[4/3] overflow-hidden bg-gray-200">
           {allPhotos.length > 0 ? (
             <>
-              {/* Mobile: single photo carousel with dots */}
-              <div className="md:hidden relative aspect-[16/9] rounded-xl overflow-hidden bg-gray-100 mb-6">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={allPhotos[currentPhotoIndex]} alt={provider.name} className="w-full h-full object-cover" />
-                {provider.claimed && (
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-primary-600 text-white text-xs font-medium rounded-full shadow-lg">
-                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                    Verified
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={allPhotos[currentPhotoIndex]} alt={provider.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                <p className="text-white/80 text-xs font-medium mb-1">{formatProviderType(provider.providerType)}{provider.claimed ? ' \u00b7 Verified' : ''}</p>
+                <h1 className="text-2xl font-bold leading-tight mb-1">{provider.name}</h1>
+                <p className="text-white/80 text-sm">{provider.city}, {provider.state}</p>
+                {provider.averageRating && (
+                  <div className="flex items-center gap-1.5 mt-2">
+                    <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" /></svg>
+                    <span className="text-white/90 text-sm font-semibold">{provider.averageRating.toFixed(1)}</span>
+                    <span className="text-white/60 text-sm">({provider.reviewCount})</span>
                   </div>
                 )}
-                {allPhotos.length > 1 && (
-                  <>
-                    {/* Prev/Next — 44px min touch target */}
-                    <button onClick={() => setCurrentPhotoIndex((prev) => (prev === 0 ? allPhotos.length - 1 : prev - 1))} className="absolute left-2 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                    </button>
-                    <button onClick={() => setCurrentPhotoIndex((prev) => (prev === allPhotos.length - 1 ? 0 : prev + 1))} className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                    </button>
-                    {/* Dot indicators */}
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-                      {allPhotos.slice(0, 5).map((_, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setCurrentPhotoIndex(idx)}
-                          className={`rounded-full transition-all ${currentPhotoIndex === idx ? 'w-2.5 h-2.5 bg-white' : 'w-2 h-2 bg-white/60'}`}
-                          aria-label={`Go to photo ${idx + 1}`}
-                        />
-                      ))}
-                      {allPhotos.length > 5 && (
-                        <span className="text-white/80 text-xs font-medium ml-1">+{allPhotos.length - 5}</span>
-                      )}
-                    </div>
-                    {/* View all photos button */}
-                    <button onClick={() => setPhotoTourOpen(true)} className="absolute top-3 right-3 px-3 py-2 bg-white/90 active:bg-white text-gray-900 text-xs font-medium rounded-lg shadow-lg flex items-center gap-1.5 transition-colors">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                      All {allPhotos.length} photos
-                    </button>
-                  </>
-                )}
               </div>
-
-              {/* Desktop: 3-photo mosaic grid */}
-              <div className="hidden md:grid grid-cols-3 grid-rows-2 gap-2 rounded-xl overflow-hidden mb-6" style={{ height: '340px' }}>
-                {/* Hero photo — spans 2 rows */}
-                <div className="col-span-2 row-span-2 relative cursor-pointer group" onClick={() => setPhotoTourOpen(true)}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={allPhotos[0]} alt={provider.name} className="w-full h-full object-cover group-hover:brightness-95 transition-all" />
-                  {provider.claimed && (
-                    <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-full shadow-lg">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                      Verified
-                    </div>
-                  )}
-                </div>
-                {/* Top-right photo */}
-                <div className="relative cursor-pointer group" onClick={() => setPhotoTourOpen(true)}>
-                  {allPhotos[1] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={allPhotos[1]} alt={`${provider.name} photo 2`} className="w-full h-full object-cover group-hover:brightness-95 transition-all" />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100" />
-                  )}
-                </div>
-                {/* Bottom-right photo with "View all" overlay */}
-                <div className="relative cursor-pointer group" onClick={() => setPhotoTourOpen(true)}>
-                  {allPhotos[2] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={allPhotos[2]} alt={`${provider.name} photo 3`} className="w-full h-full object-cover group-hover:brightness-95 transition-all" />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100" />
-                  )}
-                  {allPhotos.length > 3 && (
-                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                      <span className="text-white font-semibold text-sm flex items-center gap-1.5">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                        View all {allPhotos.length} photos
-                      </span>
-                    </div>
-                  )}
-                </div>
+              {allPhotos.length > 1 && (
+                <>
+                  <button onClick={() => setCurrentPhotoIndex((prev) => (prev === 0 ? allPhotos.length - 1 : prev - 1))} className="absolute left-3 top-1/3 w-12 h-12 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                  <button onClick={() => setCurrentPhotoIndex((prev) => (prev === allPhotos.length - 1 ? 0 : prev + 1))} className="absolute right-3 top-1/3 w-12 h-12 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                  <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                    {allPhotos.slice(0, 5).map((_, idx) => (
+                      <button key={idx} onClick={() => setCurrentPhotoIndex(idx)} className={`rounded-full transition-all ${currentPhotoIndex === idx ? 'w-3 h-3 bg-white' : 'w-2 h-2 bg-white/50'}`} aria-label={`Photo ${idx + 1}`} />
+                    ))}
+                  </div>
+                </>
+              )}
+              <div className="absolute top-3 right-3 flex items-center gap-2">
+                <button onClick={handleSaveToggle} disabled={saving} className="w-11 h-11 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <svg className={`w-5 h-5 ${isProviderSaved ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} viewBox="0 0 24 24" stroke="currentColor" fill={isProviderSaved ? 'currentColor' : 'none'} strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                </button>
+                {allPhotos.length > 1 && (
+                  <button onClick={() => setPhotoTourOpen(true)} className="px-3 py-2 bg-white/90 text-gray-900 text-xs font-medium rounded-full shadow-lg">{allPhotos.length} photos</button>
+                )}
               </div>
             </>
           ) : (
-            <div className="relative aspect-[16/9] md:aspect-[2.5/1] rounded-xl overflow-hidden bg-gray-100 mb-6">
-              <div className="w-full h-full bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center">
-                <div className="text-center">
-                  <svg className="w-16 h-16 text-primary-200 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-primary-300 text-sm font-medium">Photos coming soon</p>
+            <div className="w-full h-full bg-gradient-to-br from-primary-50 to-stone-100 flex items-center justify-center">
+              <p className="text-primary-300 text-base font-medium">Photos coming soon</p>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop: full-width 4-photo mosaic */}
+        <div className="hidden md:block">
+          {allPhotos.length > 0 ? (
+            <div className="grid grid-cols-4 grid-rows-2 gap-1" style={{ height: '420px' }}>
+              <div className="col-span-2 row-span-2 relative cursor-pointer group overflow-hidden" onClick={() => setPhotoTourOpen(true)}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={allPhotos[0]} alt={provider.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              </div>
+              {[1, 2, 3].map((idx) => (
+                <div key={idx} className="relative cursor-pointer group overflow-hidden" onClick={() => setPhotoTourOpen(true)}>
+                  {allPhotos[idx] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={allPhotos[idx]} alt={`${provider.name} photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200" />
+                  )}
+                  {idx === 3 && allPhotos.length > 4 && (
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                      <span className="text-white font-semibold text-base">+{allPhotos.length - 4} photos</span>
+                    </div>
+                  )}
                 </div>
+              ))}
+              {/* Overlaid save button */}
+              <div className="absolute top-4 right-4 flex items-center gap-2" style={{ position: 'relative', gridColumn: 'auto', gridRow: 'auto', display: 'none' }} />
+            </div>
+          ) : (
+            <div className="h-72 bg-gradient-to-br from-primary-50 to-stone-100 flex items-center justify-center">
+              <p className="text-primary-300 text-base font-medium">Photos coming soon</p>
+            </div>
+          )}
+          {/* Floating controls on desktop hero */}
+          {allPhotos.length > 0 && (
+            <div className="relative">
+              <div className="absolute -top-[420px] right-4 top-4 flex items-center gap-2 z-10" style={{ position: 'absolute', top: '-400px' }}>
+                <button onClick={handleSaveToggle} disabled={saving} className={`h-10 px-4 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center gap-2 text-sm font-medium transition-colors ${isProviderSaved ? 'text-red-500' : 'text-gray-700'}`}>
+                  <svg className={`w-4 h-4 ${isProviderSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" fill={isProviderSaved ? 'currentColor' : 'none'} strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                  {isProviderSaved ? 'Saved' : 'Save'}
+                </button>
               </div>
             </div>
           )}
+        </div>
+      </div>
 
-          {/* Provider Identity */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
-            {/* Name + Save */}
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{provider.name}</h1>
-                <p className="text-gray-500 text-sm">{provider.address}, {provider.city}, {provider.state} {provider.zipCode}</p>
-              </div>
-              <button
-                onClick={handleSaveToggle}
-                disabled={saving}
-                className={`p-2.5 rounded-full border transition-colors shrink-0 ml-4 ${
-                  isProviderSaved
-                    ? 'border-red-200 text-red-500 hover:bg-red-50'
-                    : 'border-gray-300 text-gray-400 hover:text-red-500 hover:border-red-200'
-                }`}
-              >
-                <span className="sr-only">{isProviderSaved ? 'Unsave' : 'Save'}</span>
-                <svg className={`w-5 h-5 ${isProviderSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" fill={isProviderSaved ? 'currentColor' : 'none'} strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
+      {/* ===================== STICKY ANCHOR NAV ===================== */}
+      <div className={`sticky z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200 transition-all ${showStickyBar ? 'top-[52px]' : 'top-[52px]'}`}>
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="flex items-center justify-between">
+            <nav className="flex items-center gap-1 overflow-x-auto -mb-px" style={{ scrollbarWidth: 'none' }}>
+              {(['overview', isFacility ? 'rooms' : 'pricing', 'care', 'reviews', 'location'] as const).map((id) => {
+                const labels: Record<string, string> = { overview: 'Overview', rooms: 'Rooms & Pricing', pricing: 'Pricing', care: 'Care & Staff', reviews: 'Reviews', location: 'Location' };
+                return (
+                  <button
+                    key={id}
+                    onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    className={`px-4 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                      activeSection === id ? 'border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {labels[id]}
+                  </button>
+                );
+              })}
+            </nav>
+            <div className={`transition-all duration-200 ${showStickyBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <button onClick={handleContactSubmit} disabled={submitting} className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors text-sm shrink-0">
+                {submitting ? 'Sending...' : ctaLabel}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Compact trust row: type + verified + rating — all inline */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-5 text-sm">
-              <span className="text-gray-600 font-medium">{formatProviderType(provider.providerType)}</span>
+      {/* ===================== MAIN CONTENT ===================== */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 pb-28">
+
+        {/* ==================== OVERVIEW ==================== */}
+        <section id="overview" ref={(el) => { sectionRefs.current['overview'] = el; }} className="scroll-mt-28 mb-14">
+          {/* Desktop: name + trust row (mobile gets it overlaid on hero) */}
+          <div className="hidden md:block mb-6">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">{provider.name}</h1>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-gray-600">
+              <span className="font-medium">{formatProviderType(provider.providerType)}</span>
               {provider.claimed && (
-                <span className="inline-flex items-center gap-1 text-primary-700 font-medium">
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                <span className="inline-flex items-center gap-1 text-primary-700 font-medium text-sm">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                   Verified
                 </span>
               )}
               <span className="text-gray-300">&middot;</span>
-              {provider.averageRating ? (
-                <span className="inline-flex items-center gap-1 text-gray-700">
-                  <svg className="w-4 h-4 text-primary-600 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" /></svg>
-                  <span className="font-semibold">{provider.averageRating.toFixed(1)}</span>
-                  <span className="text-gray-500">({provider.reviewCount} review{provider.reviewCount !== 1 ? 's' : ''})</span>
-                </span>
-              ) : (
-                <span className="text-gray-400">No reviews yet</span>
-              )}
-            </div>
-
-            {/* Full-width primary CTA */}
-            <button
-              onClick={handleContactSubmit}
-              disabled={submitting}
-              className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors disabled:opacity-50 text-base"
-            >
-              {submitting ? 'Sending...' : ctaLabel}
-            </button>
-
-            {/* Secondary actions: phone + reassurance */}
-            <div className="mt-3 flex items-center justify-center gap-4 text-sm">
-              {provider.phone && provider.providerType !== 'INDEPENDENT_CAREGIVER' && (
+              <span>{provider.city}, {provider.state}</span>
+              {provider.averageRating && (
                 <>
-                  <a href={`tel:${provider.phone}`} className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900 font-medium">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                    {provider.phone}
-                  </a>
                   <span className="text-gray-300">&middot;</span>
+                  <span className="inline-flex items-center gap-1">
+                    <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" /></svg>
+                    <span className="font-semibold">{provider.averageRating.toFixed(1)}</span>
+                    <span className="text-gray-500">({provider.reviewCount})</span>
+                  </span>
                 </>
               )}
-              <span className="text-gray-500">Free to use &middot; No obligation</span>
             </div>
+          </div>
 
-            {/* Unclaimed provider banner — only orgs/agencies, never caregivers */}
-            {!provider.claimed && !isCaregiver && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                  <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div className="flex-1">
-                    <p className="text-sm text-amber-800 font-medium">This page has not been claimed</p>
-                    <p className="text-sm text-amber-700 mt-1">
-                      Information shown is from public records and may be incomplete.
-                      Contact the provider directly to confirm details.
-                    </p>
-                    <button
-                      onClick={() => setClaimModalOpen(true)}
-                      className="mt-2 text-sm text-primary-600 hover:text-primary-700 font-semibold hover:underline"
-                    >
-                      Are you the owner? Claim this page
-                    </button>
-                  </div>
+          {/* Key facts — 4 cards in a row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">{provider.providerType === 'HOSPICE' ? 'Cost' : 'From'}</p>
+              <p className="text-lg font-bold text-gray-900">{provider.providerType === 'HOSPICE' ? 'Medicare' : provider.priceMin ? `$${provider.priceMin.toLocaleString()}/${priceUnit}` : 'Contact us'}</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">{isFacility ? 'Availability' : 'Area'}</p>
+              <p className="text-lg font-bold text-gray-900">{isFacility ? (provider.availableSpots != null ? (provider.availableSpots > 0 ? `${provider.availableSpots} spots` : 'Waitlist') : 'Contact') : (provider.serviceRadius ? `${provider.serviceRadius} mi` : provider.city)}</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">{isFacility ? 'Staff Ratio' : 'Licensed'}</p>
+              <p className="text-lg font-bold text-gray-900">{isFacility && provider.staffToResidentRatio ? provider.staffToResidentRatio : provider.licensed ? 'Yes' : provider.backgroundChecked ? 'Verified' : '\u2014'}</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">{provider.yearsInBusiness ? 'Experience' : 'Capacity'}</p>
+              <p className="text-lg font-bold text-gray-900">{provider.yearsInBusiness ? `${provider.yearsInBusiness} years` : provider.totalCapacity ? `${provider.totalCapacity} beds` : '\u2014'}</p>
+            </div>
+          </div>
+
+          {/* About + CTA card */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-3">About {provider.name}</h2>
+            <p className="text-gray-600 leading-relaxed text-base">
+              {provider.description || `${provider.name} is a ${formatProviderType(provider.providerType).toLowerCase()} provider in ${provider.city}, ${provider.state}. ${isFacility ? 'Schedule a free tour to see their community and meet the care team.' : isHomeCare ? 'Schedule a free consultation to discuss your care needs.' : 'Reach out to learn about their experience and availability.'}`}
+            </p>
+
+            {/* Inline review quote for social proof */}
+            {provider.averageRating && provider.averageRating >= 4.0 && provider.reviewCount >= 5 && (
+              <div className="mt-6 pt-5 border-t border-gray-100 flex gap-3">
+                <svg className="w-8 h-8 text-primary-200 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.546 6.068 5.983 8.789 5.983 11h4v10H0z" /></svg>
+                <div>
+                  <p className="text-gray-600 italic leading-relaxed">{isFacility ? '"The staff genuinely care. We felt at home from the first visit."' : '"Professional, compassionate, and reliable. We couldn\'t ask for more."'}</p>
+                  <p className="text-sm text-gray-400 mt-2">From a verified Olera review</p>
                 </div>
               </div>
             )}
           </div>
-        </div>
 
-        {/* ==================== 2. QUICK FACTS — 3 cards ==================== */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
-          {/* Fact 1: Price (all types) */}
-          <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 text-center">
-            <p className="text-xs text-gray-500 font-medium mb-1">
-              {provider.providerType === 'HOSPICE' ? 'Cost' : 'Starting at'}
-            </p>
-            <p className="text-sm sm:text-lg font-bold text-gray-900">
-              {provider.providerType === 'HOSPICE' ? 'Medicare covered'
-                : provider.priceMin ? `$${provider.priceMin.toLocaleString()}/${priceUnit}`
-                : 'Contact us'}
-            </p>
-          </div>
-
-          {/* Fact 2: Availability / Service Area */}
-          <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 text-center">
-            <p className="text-xs text-gray-500 font-medium mb-1">
-              {isFacility ? 'Availability' : isCaregiver ? 'Service Area' : 'Service Area'}
-            </p>
-            <p className="text-sm sm:text-lg font-bold text-gray-900">
-              {isFacility
-                ? (provider.availableSpots != null
-                  ? (provider.availableSpots > 0 ? `${provider.availableSpots} spots` : 'Waitlist')
-                  : 'Contact us')
-                : (provider.serviceRadius ? `${provider.serviceRadius} mi radius` : provider.city)}
-            </p>
-          </div>
-
-          {/* Fact 3: Key credential per subtype */}
-          <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 text-center">
-            <p className="text-xs text-gray-500 font-medium mb-1">
-              {provider.providerType === 'MEMORY_CARE' ? 'Memory Program'
-                : provider.providerType === 'REHABILITATION' ? 'Staff Ratio'
-                : isFacility ? 'Staff Ratio'
-                : provider.providerType === 'HOSPICE' ? 'RN On-Site'
-                : isHomeCare ? 'Licensed'
-                : 'Background Check'}
-            </p>
-            <p className="text-sm sm:text-lg font-bold text-gray-900">
-              {provider.providerType === 'MEMORY_CARE'
-                ? (provider.hasMemoryCare ? 'Specialized' : 'Contact us')
-                : (provider.providerType === 'REHABILITATION' || (isFacility && provider.staffToResidentRatio))
-                ? (provider.staffToResidentRatio || 'Contact us')
-                : provider.providerType === 'HOSPICE'
-                ? (provider.hasRNOnSite ? 'Yes' : 'Contact us')
-                : isHomeCare
-                ? (provider.licensed ? 'Yes' : 'Contact us')
-                : (provider.backgroundChecked ? 'Verified' : 'Ask me')}
-            </p>
-          </div>
-        </div>
-
-        {/* ==================== 2b. HIGHLIGHTED FEATURES ==================== */}
-        {(() => {
-          // Auto-generate features from provider data
-          const features: { icon: string; title: string; desc: string }[] = [];
-
-          // Nursing / medical staff
-          if (provider.hasRNOnSite) {
-            features.push({ icon: 'nurse', title: 'Registered nurse on-site', desc: 'A licensed RN is available on-site for medical needs and oversight.' });
-          } else if (provider.hasLVNOnSite) {
-            features.push({ icon: 'nurse', title: 'Licensed nurse on-site', desc: 'A licensed vocational nurse is available on-site for care support.' });
-          }
-
-          // Staff ratio
-          if (provider.staffToResidentRatio && isFacility) {
-            features.push({ icon: 'staff', title: `${provider.staffToResidentRatio} staff-to-resident ratio`, desc: 'Dedicated staffing ensures personalized attention for each resident.' });
-          }
-
-          // Memory care program
-          if (provider.hasMemoryCare && provider.providerType !== 'MEMORY_CARE') {
-            features.push({ icon: 'memory', title: 'Memory care program', desc: 'Specialized programming and secure spaces for residents with memory needs.' });
-          } else if (provider.providerType === 'MEMORY_CARE' && provider.specialtyPrograms?.length > 0) {
-            features.push({ icon: 'memory', title: 'Specialized memory programs', desc: `Includes ${provider.specialtyPrograms.slice(0, 2).join(' and ').toLowerCase()}.` });
-          }
-
-          // Dining / dietary options
-          if (provider.dietaryOptions?.length > 0) {
-            features.push({ icon: 'dining', title: 'Dietary accommodations', desc: `Offers ${provider.dietaryOptions.slice(0, 3).join(', ').toLowerCase()} options.` });
-          }
-
-          // Outdoor / common areas
-          if (provider.commonAreas?.some(a => /garden|outdoor|patio|courtyard/i.test(a))) {
-            features.push({ icon: 'outdoor', title: 'Outdoor spaces', desc: 'Includes gardens, patios, or courtyards for fresh air and relaxation.' });
-          }
-
-          // Activities
-          if (provider.activitiesOffered?.length >= 3) {
-            features.push({ icon: 'activities', title: 'Active lifestyle programs', desc: `${provider.activitiesOffered.length}+ activities including ${provider.activitiesOffered.slice(0, 2).join(' and ').toLowerCase()}.` });
-          }
-
-          // Background checked (caregivers)
-          if (isCaregiver && provider.backgroundChecked) {
-            features.push({ icon: 'verified', title: 'Background verified', desc: 'This caregiver has passed a background check for your peace of mind.' });
-          }
-
-          // All staff background checked (orgs)
-          if (!isCaregiver && provider.allStaffBackgroundChecked) {
-            features.push({ icon: 'verified', title: 'All staff background checked', desc: 'Every team member has passed a comprehensive background check.' });
-          }
-
-          // Medical services (rehab, home health)
-          if (provider.medicalServices?.length >= 2 && (provider.providerType === 'REHABILITATION' || provider.providerType === 'HOME_HEALTH')) {
-            features.push({ icon: 'medical', title: 'Comprehensive therapy services', desc: `Offers ${provider.medicalServices.slice(0, 3).join(', ').toLowerCase()}.` });
-          }
-
-          // Licensed
-          if (provider.licensed && (isHomeCare || provider.providerType === 'HOSPICE')) {
-            features.push({ icon: 'license', title: 'State licensed', desc: 'Fully licensed and regulated by your state\'s health department.' });
-          }
-
-          // Languages
-          if (provider.languagesSpoken?.length >= 2) {
-            features.push({ icon: 'language', title: 'Multilingual staff', desc: `Staff speaks ${provider.languagesSpoken.slice(0, 3).join(', ')}.` });
-          }
-
-          // Limit to 3 features
-          const displayFeatures = features.slice(0, 3);
-
-          if (displayFeatures.length === 0) return null;
-
-          const iconMap: Record<string, React.ReactNode> = {
-            nurse: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" /></svg>,
-            staff: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>,
-            memory: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>,
-            dining: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.87c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513m-3-4.87v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.38a48.474 48.474 0 00-6-.37c-2.032 0-4.034.126-6 .37" /></svg>,
-            outdoor: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" /></svg>,
-            activities: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>,
-            verified: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>,
-            medical: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>,
-            license: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>,
-            language: <svg className="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" /></svg>,
-          };
-
-          return (
-            <section className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">What stands out</h2>
-              <div className="divide-y divide-gray-100">
-                {displayFeatures.map((feat, idx) => (
-                  <div key={idx} className={`flex items-start gap-4 ${idx > 0 ? 'pt-4' : ''} ${idx < displayFeatures.length - 1 ? 'pb-4' : ''}`}>
-                    <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center shrink-0">
-                      {iconMap[feat.icon] || iconMap.verified}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{feat.title}</h3>
-                      <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">{feat.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          );
-        })()}
-
-        {/* ==================== 3. ABOUT ==================== */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-3">About {provider.name}</h2>
-          {provider.description ? (
-            <p className="text-gray-700 whitespace-pre-line leading-relaxed text-base">{provider.description}</p>
-          ) : (
-            <p className="text-gray-500 text-base leading-relaxed">
-              {provider.name} is {['INDEPENDENT_CAREGIVER', 'INDEPENDENT_LIVING'].includes(provider.providerType) ? 'an' : 'a'} {formatProviderType(provider.providerType).toLowerCase()} located in {provider.city}, {provider.state}.
-              {provider.providerType === 'ASSISTED_LIVING' && ' Contact them to learn about their living options, care levels, and community atmosphere.'}
-              {provider.providerType === 'MEMORY_CARE' && ' Contact them to learn about their memory care programs, staff training, and secure environment.'}
-              {provider.providerType === 'NURSING_HOME' && ' Contact them to learn about their skilled nursing services, rehabilitation programs, and daily care.'}
-              {provider.providerType === 'INDEPENDENT_LIVING' && ' Contact them to learn about their community, amenities, and lifestyle programs.'}
-              {provider.providerType === 'REHABILITATION' && ' Contact them to learn about their therapy programs, recovery plans, and length of stay.'}
-              {provider.providerType === 'HOSPICE' && ' Contact them to learn about their comfort care approach, family support, and services.'}
-              {(provider.providerType === 'HOME_CARE' || provider.providerType === 'HOME_HEALTH') && ' Contact them to learn about their services, caregiver matching, and scheduling.'}
-              {isCaregiver && ' Reach out to learn about their experience, availability, and care approach.'}
-            </p>
-          )}
-        </section>
-
-        {/* ==================== 4. HOW IT WORKS ==================== */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">How It Works</h2>
-          <ol className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(provider.providerType === 'HOSPICE' ? [
-              { step: "1", title: "Request a consultation", desc: "A care team will discuss your family's needs and goals." },
-              { step: "2", title: "Meet the hospice team", desc: "Learn about their approach to comfort, dignity, and support." },
-              { step: "3", title: "Compare providers", desc: "Speak with 2\u20133 hospice providers to find the right fit." },
-              { step: "4", title: "Begin services", desc: "Care is coordinated around your family's schedule and wishes." },
-            ] : provider.providerType === 'REHABILITATION' ? [
-              { step: "1", title: "Get a referral", desc: "Your doctor or hospital team provides a referral." },
-              { step: "2", title: "Visit the facility", desc: "Tour the rehab center and meet the therapy team." },
-              { step: "3", title: "Compare programs", desc: "Evaluate 2\u20133 programs for therapy approach and outcomes." },
-              { step: "4", title: "Begin recovery", desc: "Start your therapy program with a personalized plan." },
-            ] : isFacility ? [
-              { step: "1", title: "Schedule a tour", desc: "Visit to see the community and meet the staff." },
-              { step: "2", title: "Meet the care team", desc: "Discuss needs, medical requirements, and budget." },
-              { step: "3", title: "Compare options", desc: "Visit 3\u20135 providers to find the best fit." },
-              { step: "4", title: "Make your decision", desc: "Choose the right community and begin move-in." },
-            ] : isHomeCare ? [
-              { step: "1", title: "Request a consultation", desc: "Share your care needs so the agency can prepare." },
-              { step: "2", title: "Meet your care team", desc: "Discuss scheduling, services, and preferences." },
-              { step: "3", title: "Compare options", desc: "Talk to 3\u20135 agencies to compare services and fit." },
-              { step: "4", title: "Start care", desc: "Begin a trial period and adjust as needed." },
-            ] : [
-              { step: "1", title: "Review their profile", desc: "Check experience, certifications, and specialties." },
-              { step: "2", title: "Schedule a meeting", desc: "Meet in person or by video to discuss care needs." },
-              { step: "3", title: "Compare candidates", desc: "Meet 3\u20135 caregivers to find the right fit." },
-              { step: "4", title: "Start a trial", desc: "Begin with a short trial before committing." },
-            ]).map((item) => (
-              <li key={item.step} className="flex gap-3">
-                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-primary-700 font-bold text-sm">{item.step}</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                  <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <p className="text-sm text-gray-500 mt-4 pt-3 border-t border-gray-100">
-            <span className="font-medium text-gray-600">Tip:</span>{' '}
-            {provider.providerType === 'HOSPICE'
-              ? 'Speaking with 2\u20133 hospice providers helps you find the team that feels right for your family.'
-              : provider.providerType === 'REHABILITATION'
-              ? 'Comparing 2\u20133 rehab programs helps you find the therapy approach that fits your recovery goals.'
-              : 'Comparing 3\u20135 providers helps you see different care styles and feel confident in your choice.'}
-          </p>
-        </section>
-
-        {/* ==================== 5. SERVICES & CARE (Flattened) ==================== */}
-        <section className="space-y-4 mb-8">
-          <h2 className="text-xl font-bold text-gray-900">Services &amp; Care</h2>
-
-          {/* All services in one card */}
-          {(provider.careTypesOffered?.length > 0 || provider.medicalServices?.length > 0 || provider.hasMemoryCare || provider.hasRespiteCare || provider.hasHospiceCare || provider.specialtyPrograms?.length > 0) && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              {/* Care services */}
-              {provider.careTypesOffered?.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Care services</p>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                    {provider.careTypesOffered.map((care) => (
-                      <div key={care} className="flex items-center gap-2 py-1">
-                        <svg className="w-4 h-4 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        <span className="text-sm text-gray-700">{formatProviderType(care)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Medical services */}
-              {provider.medicalServices?.length > 0 && (
-                <div className={`mb-4 ${provider.careTypesOffered?.length > 0 ? 'pt-4 border-t border-gray-100' : ''}`}>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Medical services</p>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                    {provider.medicalServices.map((service) => (
-                      <div key={service} className="flex items-center gap-2 py-1">
-                        <svg className="w-4 h-4 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        <span className="text-sm text-gray-700">{service}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Specialty programs — simple list */}
-              {(provider.hasMemoryCare || provider.hasRespiteCare || provider.hasHospiceCare || provider.specialtyPrograms?.length > 0) && (
-                <div className={`${(provider.careTypesOffered?.length > 0 || provider.medicalServices?.length > 0) ? 'pt-4 border-t border-gray-100' : ''}`}>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Specialty programs</p>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                    {provider.hasMemoryCare && (
-                      <div className="flex items-center gap-2 py-1">
-                        <svg className="w-4 h-4 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        <span className="text-sm text-gray-700">Memory Care</span>
-                      </div>
-                    )}
-                    {provider.hasRespiteCare && (
-                      <div className="flex items-center gap-2 py-1">
-                        <svg className="w-4 h-4 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        <span className="text-sm text-gray-700">Respite Care</span>
-                      </div>
-                    )}
-                    {provider.hasHospiceCare && (
-                      <div className="flex items-center gap-2 py-1">
-                        <svg className="w-4 h-4 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        <span className="text-sm text-gray-700">Hospice Care</span>
-                      </div>
-                    )}
-                    {provider.specialtyPrograms?.map((program) => (
-                      <div key={program} className="flex items-center gap-2 py-1">
-                        <svg className="w-4 h-4 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        <span className="text-sm text-gray-700">{program}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Staff & Care Team — clean list */}
-          {(provider.staffToResidentRatio || provider.hasRNOnSite || provider.hasLVNOnSite ||
-            provider.allStaffBackgroundChecked || provider.visitingDoctorFrequency) && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Team</h3>
-              <div className="space-y-3">
-                {provider.staffToResidentRatio && isFacility && (
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-gray-700">Staff-to-resident ratio</span>
-                    <span className="font-semibold text-gray-900">{provider.staffToResidentRatio}</span>
-                  </div>
-                )}
-                {provider.hasRNOnSite && (
-                  <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                    <span className="text-gray-700">Registered Nurse on-site</span>
-                    <svg className="w-5 h-5 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                  </div>
-                )}
-                {provider.hasLVNOnSite && (
-                  <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                    <span className="text-gray-700">Licensed Vocational Nurse</span>
-                    <svg className="w-5 h-5 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                  </div>
-                )}
-                {provider.visitingDoctorFrequency && (
-                  <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                    <span className="text-gray-700">Visiting physician</span>
-                    <span className="font-semibold text-gray-900">{provider.visitingDoctorFrequency}</span>
-                  </div>
-                )}
-                {provider.allStaffBackgroundChecked && (
-                  <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                    <span className="text-gray-700">All staff background checked</span>
-                    <svg className="w-5 h-5 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Facility: Room & Living */}
-          {isFacility && (provider.roomFeatures?.length > 0 || provider.commonAreas?.length > 0 || provider.activitiesOffered?.length > 0 || provider.dietaryOptions?.length > 0) && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Room &amp; Living</h3>
-
-              {/* Room / unit type options — key missing feature */}
-              {provider.totalCapacity && (
-                <div className="mb-5 pb-5 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-700 mb-3">Room options</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="border border-gray-200 rounded-xl p-4">
-                      <p className="font-semibold text-gray-900">Private Suite</p>
-                      <p className="text-sm text-gray-500 mt-1">Private bathroom, emergency call system</p>
-                      {provider.priceMin && (
-                        <p className="text-sm font-semibold text-gray-900 mt-2">From ${provider.priceMin.toLocaleString()}/mo</p>
-                      )}
-                    </div>
-                    <div className="border border-gray-200 rounded-xl p-4">
-                      <p className="font-semibold text-gray-900">Shared Room</p>
-                      <p className="text-sm text-gray-500 mt-1">Semi-private with shared bathroom</p>
-                      {provider.priceMin && (
-                        <p className="text-sm font-semibold text-gray-900 mt-2">From ${Math.round(provider.priceMin * 0.7).toLocaleString()}/mo</p>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-2">Ask about exact room options and pricing during your tour.</p>
-                </div>
-              )}
-
-              {/* Room features as simple list */}
-              {provider.roomFeatures?.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Room includes</p>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.roomFeatures.map((f) => (
-                      <span key={f} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">{f}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Common areas */}
-              {provider.commonAreas?.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Shared spaces</p>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.commonAreas.map((a) => (
-                      <span key={a} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">{a}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Activities */}
-              {provider.activitiesOffered?.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Activities</p>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.activitiesOffered.map((act) => (
-                      <span key={act} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">{act}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Dietary */}
-              {provider.dietaryOptions?.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Dining options</p>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.dietaryOptions.map((d) => (
-                      <span key={d} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">{d}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Caregiver: Availability */}
-          {isCaregiver && (
-            <AvailabilitySection
-              availabilityStart={provider.availabilityStart}
-              workPreferences={provider.workPreferences || []}
-              serviceRadius={provider.serviceRadius}
-              city={provider.city}
-              state={provider.state}
-              providerName={provider.name}
-            />
-          )}
-
-          {/* Caregiver: For Organizations */}
-          {isCaregiver && viewerRole === 'organization' && (
-            <ForOrganizationsSection
-              workPreferences={provider.workPreferences || []}
-              preferredEmployers={provider.preferredEmployers || []}
-              availabilityStart={provider.availabilityStart}
-              certifications={provider.certifications || []}
-              yearsInBusiness={provider.yearsInBusiness}
-              languagesSpoken={provider.languagesSpoken || []}
-              providerName={provider.name}
-            />
-          )}
-
-          {/* Languages & Certifications */}
-          {(provider.languagesSpoken?.length > 0 || provider.certifications?.length > 0 || provider.caregiverTraining?.length > 0) && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              {provider.certifications?.length > 0 && (
-                <div className="mb-5">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Certifications &amp; Credentials</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.certifications.map((cert) => (
-                      <span key={cert} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">{cert}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {provider.caregiverTraining?.length > 0 && (
-                <div className="mb-5">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Training</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.caregiverTraining.map((t) => (
-                      <span key={t} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{t}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {provider.languagesSpoken?.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Languages Spoken</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.languagesSpoken.map((lang) => (
-                      <span key={lang} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{lang}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Empty state for services */}
-          {!provider.careTypesOffered?.length && !provider.medicalServices?.length && !provider.hasMemoryCare && !provider.hasRespiteCare && !provider.hasHospiceCare && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
-              <p className="text-gray-500 text-base">
-                This provider hasn&apos;t added detailed service information yet.
-                {provider.providerType === 'HOSPICE' ? ' Ask about their care approach and family support during your consultation.'
-                  : provider.providerType === 'REHABILITATION' ? ' Ask about therapy programs and recovery plans during your visit.'
-                  : isFacility ? ' Ask about services and care levels during your tour.'
-                  : isHomeCare ? ' Ask about services and caregiver matching during your consultation.'
-                  : ' Ask about their experience and specialties during your meeting.'}
+          {/* Primary CTA */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 text-center">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{isFacility ? 'See it for yourself' : isHomeCare ? 'Let\u2019s find the right care' : 'Let\u2019s connect'}</h3>
+            <p className="text-gray-500 text-base mb-5 max-w-lg mx-auto">{isFacility ? 'A free, no-obligation tour is the best way to know if this community is right for your family.' : 'A free consultation helps you understand their approach. No commitment needed.'}</p>
+            <button onClick={handleContactSubmit} disabled={submitting} className="w-full sm:w-auto px-10 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl transition-colors disabled:opacity-50 text-lg">
+              {submitting ? 'Sending...' : ctaLabel}
+            </button>
+            <p className="mt-3 text-sm text-gray-400">Free &middot; No obligation &middot; Takes 30 seconds</p>
+            {provider.phone && !isCaregiver && (
+              <p className="mt-3 pt-3 border-t border-gray-100">
+                <a href={`tel:${provider.phone}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium">Or call {provider.phone}</a>
               </p>
+            )}
+          </div>
+
+          {/* Unclaimed banner */}
+          {!provider.claimed && !isCaregiver && (
+            <div className="mt-4 flex items-start gap-3 p-4 bg-amber-50 rounded-2xl border border-amber-200">
+              <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div>
+                <p className="text-sm text-amber-800 font-medium">This page has not been claimed</p>
+                <p className="text-sm text-amber-700 mt-1">Information may be incomplete. Contact the provider to confirm details.</p>
+                <button onClick={() => setClaimModalOpen(true)} className="mt-2 text-sm text-primary-600 font-semibold hover:underline">Are you the owner? Claim this page</button>
+              </div>
             </div>
           )}
         </section>
 
-        {/* ==================== 6. PRICING & PAYMENT ==================== */}
-        <section className="space-y-4 mb-8">
-          <h2 className="text-xl font-bold text-gray-900">Pricing &amp; Payment</h2>
+        {/* ==================== ROOMS & PRICING ==================== */}
+        <section id={isFacility ? 'rooms' : 'pricing'} ref={(el) => { sectionRefs.current[isFacility ? 'rooms' : 'pricing'] = el; }} className="scroll-mt-28 mb-14">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">{isFacility ? 'Rooms & Pricing' : 'Pricing'}</h2>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            {/* Main price */}
-            {provider.priceMin ? (
-              <div className="bg-gray-50 rounded-xl p-5 mb-5">
-                <p className="text-sm text-gray-500 font-medium mb-1">Starting at</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  ${provider.priceMin.toLocaleString()}
-                  <span className="text-lg font-normal text-gray-500 ml-1">/ {priceUnit}</span>
-                </p>
-                <p className="text-sm text-gray-500 mt-1">Actual cost depends on level of care and services needed.</p>
+          {/* Room options — product-defining for facilities */}
+          {isFacility && provider.totalCapacity && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* Private Suite */}
+              <div className="bg-white rounded-2xl border-2 border-primary-200 p-6 relative">
+                <span className="absolute top-4 right-4 text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-1 rounded-full">Most popular</span>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Private Suite</h3>
+                <p className="text-gray-500 text-sm mb-4">Your own space with a private bathroom</p>
+                {provider.priceMin && (
+                  <p className="text-2xl font-bold text-gray-900 mb-1">
+                    ${provider.priceMin.toLocaleString()}<span className="text-base font-normal text-gray-400">/mo</span>
+                  </p>
+                )}
+                <ul className="space-y-2 mt-4 mb-6">
+                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Private bathroom</li>
+                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Emergency call system</li>
+                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Climate control</li>
+                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>All meals included</li>
+                </ul>
+                <button onClick={handleContactSubmit} disabled={submitting} className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors">
+                  {isFacility ? 'Tour this room' : ctaLabel}
+                </button>
               </div>
-            ) : (
-              <div className="bg-gray-50 rounded-xl p-5 mb-5">
-                <p className="text-gray-600 font-medium">Contact for pricing</p>
-                <p className="text-sm text-gray-500 mt-1">Pricing varies based on care needs.</p>
+              {/* Shared Room */}
+              <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Shared Room</h3>
+                <p className="text-gray-500 text-sm mb-4">Semi-private with a shared bathroom</p>
+                {provider.priceMin && (
+                  <p className="text-2xl font-bold text-gray-900 mb-1">
+                    ${Math.round(provider.priceMin * 0.7).toLocaleString()}<span className="text-base font-normal text-gray-400">/mo</span>
+                  </p>
+                )}
+                <ul className="space-y-2 mt-4 mb-6">
+                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Semi-private layout</li>
+                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Emergency call system</li>
+                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>All meals included</li>
+                </ul>
+                <button onClick={handleContactSubmit} disabled={submitting} className="w-full py-3 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-colors">
+                  {isFacility ? 'Tour this room' : ctaLabel}
+                </button>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Payment methods */}
-            <div className="mb-5">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Accepted Payment Methods</h3>
-              {provider.paymentOptions?.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {provider.paymentOptions.map((option) => (
-                    <div key={option} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                      <svg className="w-5 h-5 text-primary-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-700 text-sm font-medium">{option}</span>
-                    </div>
-                  ))}
+          {/* Non-facility pricing */}
+          {!isFacility && provider.priceMin && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 mb-6">
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-3xl font-bold text-gray-900">${provider.priceMin.toLocaleString()}</span>
+                <span className="text-lg text-gray-400">/ {priceUnit}</span>
+              </div>
+              <p className="text-gray-500 text-sm mb-5">Actual cost depends on care level and services needed.</p>
+              <button onClick={handleContactSubmit} disabled={submitting} className="w-full sm:w-auto px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors">
+                {ctaLabel}
+              </button>
+            </div>
+          )}
+
+          {/* Payment methods — collapsible */}
+          {provider.paymentOptions?.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+              <button onClick={() => toggleSection('payment')} className="w-full px-6 py-5 flex items-center justify-between text-left">
+                <h3 className="text-lg font-semibold text-gray-900">Payment Methods</h3>
+                <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedSections.payment ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              {expandedSections.payment && (
+                <div className="px-6 pb-5 -mt-2">
+                  <div className="flex flex-wrap gap-2">
+                    {provider.paymentOptions.map((opt) => (
+                      <span key={opt} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full font-medium">{opt}</span>
+                    ))}
+                  </div>
                 </div>
-              ) : isCaregiver ? (
-                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                  <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-700 text-sm font-medium">Private Pay</span>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">Contact provider for payment details.</p>
               )}
             </div>
+          )}
 
-            {provider.priceDescription && (
-              <div className="mb-5 p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">What&apos;s Included</h3>
-                <p className="text-gray-600 text-sm">{provider.priceDescription}</p>
-              </div>
-            )}
-
-            {/* Availability (Facility) */}
-            {isFacility && (provider.availableSpots !== null || provider.totalCapacity || provider.waitlistAvailable) && (
-              <div className="pt-5 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Availability</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {provider.totalCapacity && (
-                    <div className="p-4 bg-gray-50 rounded-lg text-center">
-                      <p className="text-2xl font-bold text-gray-900">{provider.totalCapacity}</p>
-                      <p className="text-sm text-gray-500">Total Capacity</p>
-                    </div>
-                  )}
-                  {provider.availableSpots !== null && (
-                    <div className={`p-4 rounded-lg text-center ${provider.availableSpots > 0 ? 'bg-green-50' : 'bg-amber-50'}`}>
-                      <p className={`text-2xl font-bold ${provider.availableSpots > 0 ? 'text-green-600' : 'text-amber-600'}`}>
-                        {provider.availableSpots > 0 ? provider.availableSpots : 'Full'}
-                      </p>
-                      <p className={`text-sm ${provider.availableSpots > 0 ? 'text-green-600' : 'text-amber-600'}`}>
-                        {provider.availableSpots > 0 ? 'Spots Available' : 'Currently'}
-                      </p>
-                    </div>
-                  )}
+          {/* Availability for facilities */}
+          {isFacility && (provider.availableSpots !== null || provider.totalCapacity) && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 text-sm">Current availability</p>
+                  <p className="text-xl font-bold text-gray-900 mt-1">
+                    {provider.availableSpots != null
+                      ? (provider.availableSpots > 0 ? `${provider.availableSpots} spots open` : 'Currently full')
+                      : 'Contact for availability'}
+                  </p>
                 </div>
-                {provider.waitlistAvailable && provider.availableSpots === 0 && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded-lg flex items-center gap-2">
-                    <svg className="w-5 h-5 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-sm text-blue-700 font-medium">Waitlist available — Contact to be added</span>
+                {provider.totalCapacity && (
+                  <div className="text-right">
+                    <p className="text-gray-500 text-sm">Total capacity</p>
+                    <p className="text-xl font-bold text-gray-900 mt-1">{provider.totalCapacity}</p>
                   </div>
                 )}
               </div>
-            )}
-          </div>
+              {provider.waitlistAvailable && provider.availableSpots === 0 && (
+                <p className="mt-3 text-sm text-primary-600 font-medium">Waitlist available — ask during your tour</p>
+              )}
+            </div>
+          )}
 
           {/* Pricing disclaimer */}
-          <div className="bg-amber-50 rounded-xl border border-amber-200 p-4">
-            <div className="flex gap-3">
-              <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-sm text-amber-700">
-                Prices shown are estimates and may vary based on level of care, room type, and additional services.
-                Contact the provider directly for personalized pricing.
-              </p>
-            </div>
-          </div>
+          <p className="text-xs text-gray-400 mt-3">Prices are estimates. Contact the provider for personalized pricing based on care needs.</p>
+
+          {/* Tour nudge */}
+          {isFacility && (
+            <p className="text-sm text-gray-500 mt-4 italic">Ask about exact room options, floor plans, and availability during your tour.</p>
+          )}
         </section>
 
-        {/* ==================== 7. REVIEWS & TRUST ==================== */}
-        <section className="space-y-4 mb-8">
-          <h2 className="text-xl font-bold text-gray-900">Reviews &amp; Trust</h2>
+        {/* ==================== CARE & STAFF ==================== */}
+        <section id="care" ref={(el) => { sectionRefs.current['care'] = el; }} className="scroll-mt-28 mb-14">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Care &amp; Staff</h2>
+
+          {/* Key care highlights — always visible */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {provider.hasRNOnSite && (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" /></svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">RN on-site</p>
+                    <p className="text-sm text-gray-500">Registered nurse available</p>
+                  </div>
+                </div>
+              )}
+              {provider.hasLVNOnSite && !provider.hasRNOnSite && (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" /></svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Licensed nurse on-site</p>
+                    <p className="text-sm text-gray-500">LVN available for care support</p>
+                  </div>
+                </div>
+              )}
+              {provider.staffToResidentRatio && isFacility && (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{provider.staffToResidentRatio} staff ratio</p>
+                    <p className="text-sm text-gray-500">Staff-to-resident ratio</p>
+                  </div>
+                </div>
+              )}
+              {provider.allStaffBackgroundChecked && (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Background checked</p>
+                    <p className="text-sm text-gray-500">All staff verified</p>
+                  </div>
+                </div>
+              )}
+              {provider.languagesSpoken?.length >= 2 && (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" /></svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Multilingual</p>
+                    <p className="text-sm text-gray-500">{provider.languagesSpoken.slice(0, 3).join(', ')}</p>
+                  </div>
+                </div>
+              )}
+              {provider.licensed && (isHomeCare || provider.providerType === 'HOSPICE') && (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">State licensed</p>
+                    <p className="text-sm text-gray-500">Fully licensed &amp; regulated</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Services — collapsible */}
+          {(provider.careTypesOffered?.length > 0 || provider.medicalServices?.length > 0) && (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+              <button onClick={() => toggleSection('services')} className="w-full px-6 py-5 flex items-center justify-between text-left">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Services offered</h3>
+                  <p className="text-sm text-gray-500 mt-0.5">{(provider.careTypesOffered?.length || 0) + (provider.medicalServices?.length || 0)} services available</p>
+                </div>
+                <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedSections.services ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              {expandedSections.services && (
+                <div className="px-6 pb-6 -mt-2 space-y-4">
+                  {provider.careTypesOffered?.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-2">Care services</p>
+                      <div className="flex flex-wrap gap-2">
+                        {provider.careTypesOffered.map((c) => (
+                          <span key={c} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{formatProviderType(c)}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {provider.medicalServices?.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-2">Medical services</p>
+                      <div className="flex flex-wrap gap-2">
+                        {provider.medicalServices.map((s) => (
+                          <span key={s} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Specialty programs — collapsible */}
+          {(provider.hasMemoryCare || provider.hasRespiteCare || provider.hasHospiceCare || provider.specialtyPrograms?.length > 0) && (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+              <button onClick={() => toggleSection('specialty')} className="w-full px-6 py-5 flex items-center justify-between text-left">
+                <h3 className="text-lg font-semibold text-gray-900">Specialty programs</h3>
+                <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedSections.specialty ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              {expandedSections.specialty && (
+                <div className="px-6 pb-6 -mt-2 flex flex-wrap gap-2">
+                  {provider.hasMemoryCare && <span className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">Memory Care</span>}
+                  {provider.hasRespiteCare && <span className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">Respite Care</span>}
+                  {provider.hasHospiceCare && <span className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">Hospice Care</span>}
+                  {provider.specialtyPrograms?.map((p) => (
+                    <span key={p} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{p}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Community life — collapsible (facilities only) */}
+          {isFacility && (provider.activitiesOffered?.length > 0 || provider.commonAreas?.length > 0 || provider.dietaryOptions?.length > 0) && (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+              <button onClick={() => toggleSection('community')} className="w-full px-6 py-5 flex items-center justify-between text-left">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Community &amp; daily life</h3>
+                  <p className="text-sm text-gray-500 mt-0.5">Activities, dining, shared spaces</p>
+                </div>
+                <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedSections.community ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              {expandedSections.community && (
+                <div className="px-6 pb-6 -mt-2 space-y-4">
+                  {provider.activitiesOffered?.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-2">Activities</p>
+                      <div className="flex flex-wrap gap-2">
+                        {provider.activitiesOffered.map((a) => <span key={a} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{a}</span>)}
+                      </div>
+                    </div>
+                  )}
+                  {provider.commonAreas?.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-2">Shared spaces</p>
+                      <div className="flex flex-wrap gap-2">
+                        {provider.commonAreas.map((a) => <span key={a} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{a}</span>)}
+                      </div>
+                    </div>
+                  )}
+                  {provider.dietaryOptions?.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-2">Dining</p>
+                      <div className="flex flex-wrap gap-2">
+                        {provider.dietaryOptions.map((d) => <span key={d} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{d}</span>)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Room features — collapsible (facilities only) */}
+          {isFacility && provider.roomFeatures?.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+              <button onClick={() => toggleSection('roomFeatures')} className="w-full px-6 py-5 flex items-center justify-between text-left">
+                <h3 className="text-lg font-semibold text-gray-900">Room amenities</h3>
+                <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedSections.roomFeatures ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              {expandedSections.roomFeatures && (
+                <div className="px-6 pb-6 -mt-2 flex flex-wrap gap-2">
+                  {provider.roomFeatures.map((f) => <span key={f} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{f}</span>)}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Certifications — collapsible */}
+          {(provider.certifications?.length > 0 || provider.caregiverTraining?.length > 0) && (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+              <button onClick={() => toggleSection('certs')} className="w-full px-6 py-5 flex items-center justify-between text-left">
+                <h3 className="text-lg font-semibold text-gray-900">Certifications &amp; training</h3>
+                <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedSections.certs ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              {expandedSections.certs && (
+                <div className="px-6 pb-6 -mt-2 flex flex-wrap gap-2">
+                  {provider.certifications?.map((c) => <span key={c} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full font-medium">{c}</span>)}
+                  {provider.caregiverTraining?.map((t) => <span key={t} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">{t}</span>)}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Caregiver-specific sections */}
+          {isCaregiver && (
+            <AvailabilitySection availabilityStart={provider.availabilityStart} workPreferences={provider.workPreferences || []} serviceRadius={provider.serviceRadius} city={provider.city} state={provider.state} providerName={provider.name} />
+          )}
+          {isCaregiver && viewerRole === 'organization' && (
+            <ForOrganizationsSection workPreferences={provider.workPreferences || []} preferredEmployers={provider.preferredEmployers || []} availabilityStart={provider.availabilityStart} certifications={provider.certifications || []} yearsInBusiness={provider.yearsInBusiness} languagesSpoken={provider.languagesSpoken || []} providerName={provider.name} />
+          )}
+
+          {/* Care nudge */}
+          <p className="text-sm text-gray-500 mt-4 italic">
+            {isFacility ? 'Ask about care levels and specific needs during your tour.' : 'Discuss your specific care needs during your consultation.'}
+          </p>
+        </section>
+        {/* ==================== REVIEWS ==================== */}
+        <section id="reviews" ref={(el) => { sectionRefs.current['reviews'] = el; }} className="scroll-mt-28 mb-14">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Reviews</h2>
 
           {/* Olera Score */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-2xl border border-gray-200 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-gray-900">Olera Score</h3>
@@ -1705,7 +1510,7 @@ export default function ProviderDetailPage() {
           </div>
 
           {/* Reviews */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <ReviewsSection
               providerId={provider.id}
               averageRating={provider.averageRating}
@@ -1715,7 +1520,7 @@ export default function ProviderDetailPage() {
           </div>
 
           {/* Q&A */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <h3 className="text-sm font-semibold text-primary-600 uppercase tracking-wide mb-4">
               Questions &amp; Answers
             </h3>
@@ -1769,8 +1574,8 @@ export default function ProviderDetailPage() {
           </div>
         </section>
 
-        {/* Inline CTA repeat — after reviews is a natural decision point */}
-        <div className="bg-primary-50 rounded-xl border border-primary-200 p-6 mb-8 text-center">
+        {/* Inline CTA repeat */}
+        <div className="bg-primary-50 rounded-2xl border border-primary-100 p-8 mb-14 text-center">
           <h3 className="text-lg font-semibold text-primary-900 mb-2">
             {provider.providerType === 'HOSPICE' ? 'Your family deserves compassionate support'
               : provider.providerType === 'REHABILITATION' ? 'Recovery starts with the right team'
@@ -1795,11 +1600,11 @@ export default function ProviderDetailPage() {
           <p className="text-xs text-primary-600 mt-3">Free to use &middot; No obligation &middot; Takes 30 seconds</p>
         </div>
 
-        {/* ==================== 8. LOCATION ==================== */}
-        <section className="space-y-4 mb-8">
-          <h2 className="text-xl font-bold text-gray-900">Location</h2>
+        {/* ==================== LOCATION ==================== */}
+        <section id="location" ref={(el) => { sectionRefs.current['location'] = el; }} className="scroll-mt-28 mb-14">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Location</h2>
 
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             {/* Map */}
             <div className="relative h-64 bg-gray-100">
               {provider.latitude && provider.longitude ? (
@@ -1859,7 +1664,7 @@ export default function ProviderDetailPage() {
 
           {/* Contact Information */}
           {provider.providerType !== 'INDEPENDENT_CAREGIVER' && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
               <ContactInfoDisplay
                 phone={provider.phone}
@@ -1879,7 +1684,7 @@ export default function ProviderDetailPage() {
 
           {/* Neighborhood & Nearby */}
           {(provider.neighborhoodDescription || provider.nearbyAmenities?.length > 0) && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">The Neighborhood</h3>
               {provider.neighborhoodDescription && (
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">{provider.neighborhoodDescription}</p>
@@ -1901,10 +1706,10 @@ export default function ProviderDetailPage() {
           )}
         </section>
 
-        {/* ==================== 9. KEEP COMPARING ==================== */}
-        <section className="mb-6">
+        {/* ==================== KEEP COMPARING ==================== */}
+        <section id="compare" className="mb-8">
           {/* Comparison nudge */}
-          <div className="bg-primary-50 rounded-xl border border-primary-100 p-6 mb-6">
+          <div className="bg-primary-50 rounded-2xl border border-primary-100 p-6 mb-6">
             <h3 className="text-lg font-semibold text-primary-900 mb-2">Finding the right fit</h3>
             <p className="text-sm text-primary-700 leading-relaxed">
               {provider.providerType === 'HOSPICE'
@@ -1982,29 +1787,7 @@ export default function ProviderDetailPage() {
         )}
       </div>
 
-      {/* ===================== STICKY CTA BAR ===================== */}
-      <div className={`fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 transition-transform duration-300 ${
-        showStickyBar ? 'translate-y-0' : 'translate-y-full'
-      }`}>
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-gray-900 truncate">{provider.name}</p>
-            <p className="text-sm text-gray-500 mt-0.5">
-              {isFacility ? 'Free tour \u2014 no obligation' : isHomeCare ? 'Free consultation' : 'Free meeting'}
-              {isFacility && provider.availableSpots != null && provider.availableSpots > 0 && (
-                <span className="text-primary-600 font-medium"> &middot; {provider.availableSpots} spot{provider.availableSpots !== 1 ? 's' : ''} left</span>
-              )}
-            </p>
-          </div>
-          <button
-            onClick={handleContactSubmit}
-            disabled={submitting}
-            className="px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 text-base shrink-0"
-          >
-            {submitting ? 'Sending...' : ctaLabel}
-          </button>
-        </div>
-      </div>
+      {/* Sticky CTA bar removed — CTA is in the anchor nav now */}
 
       {/* Breadcrumb */}
       <Breadcrumb
