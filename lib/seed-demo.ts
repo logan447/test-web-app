@@ -20,6 +20,29 @@ import { seedLite } from './seed-lite';
 export async function seedDemo(prisma: PrismaClient) {
   console.log('[DEMO SEED] Starting comprehensive demo seed...\n');
 
+  // Step 0: Delete stale unclaimed/claimed-incomplete providers from previous runs
+  // This must happen BEFORE seedLite so they don't pollute the provider queries
+  const staleProviderNames = [
+    // Unclaimed providers
+    'Bay Area Senior Living',
+    'Peninsula Memory Gardens',
+    'Sacramento Care Center',
+    'Napa Valley Rehabilitation',
+    'Sierra Foothills Independent Living',
+    'Grace Hospice House',
+    'Valley Senior Home',
+    'Downtown LA Senior Residence',
+    'Central Coast Home Health',
+    // Claimed-incomplete providers
+    'Sunrise Gardens (Incomplete)',
+    'Valley View Memory Care (Incomplete)',
+    'Coastal Nursing & Rehab (Incomplete)',
+  ];
+  const deleted = await prisma.provider.deleteMany({
+    where: { name: { in: staleProviderNames } },
+  });
+  console.log(`[DEMO SEED] Cleared ${deleted.count} stale providers from previous runs\n`);
+
   // Step 1: Run base seed (90 accounts)
   await seedLite(prisma);
 
@@ -64,23 +87,6 @@ export async function seedDemo(prisma: PrismaClient) {
   // UNCLAIMED PROVIDERS (for claiming flow)
   // ============================================================================
   console.log('[DEMO SEED] Creating unclaimed providers...');
-
-  // Delete existing unclaimed providers to prevent duplicates on re-seed
-  const unclaimedNames = [
-    'Bay Area Senior Living',
-    'Peninsula Memory Gardens',
-    'Sacramento Care Center',
-    'Napa Valley Rehabilitation',
-    'Sierra Foothills Independent Living',
-    'Grace Hospice House',
-    'Valley Senior Home',
-    'Downtown LA Senior Residence',
-    'Central Coast Home Health',
-  ];
-  await prisma.provider.deleteMany({
-    where: { name: { in: unclaimedNames } },
-  });
-  console.log('[DEMO SEED] Cleared existing unclaimed providers');
 
   // Unclaimed providers — one per facility subtype + diverse scenarios
   // These have NO user account, NO photos/units, and sparse data (community-reported)
@@ -284,17 +290,6 @@ export async function seedDemo(prisma: PrismaClient) {
   // These providers have claimed their listing but haven't finished their profile.
   // They have varying levels of completeness to test card rendering.
   console.log('[DEMO SEED] Creating claimed-incomplete providers...');
-
-  // Delete existing claimed-incomplete providers to prevent duplicates on re-seed
-  const claimedIncompleteNames = [
-    'Sunrise Gardens (Incomplete)',
-    'Valley View Memory Care (Incomplete)',
-    'Coastal Nursing & Rehab (Incomplete)',
-  ];
-  await prisma.provider.deleteMany({
-    where: { name: { in: claimedIncompleteNames } },
-  });
-  console.log('[DEMO SEED] Cleared existing claimed-incomplete providers');
 
   const claimedIncompleteData = [
     // Has photos, no pricing, no payment modes
