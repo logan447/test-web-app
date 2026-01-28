@@ -163,11 +163,20 @@ function BrowseContent() {
   const [showMap, setShowMap] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(getInitialSelectedLocation());
   const [location, setLocation] = useState(getInitialLocation());
-  const [filterValues, setFilterValues] = useState<Record<string, string>>({
-    providerType: searchParams.get("type") || "",
-    rating: searchParams.get("rating") || "",
-    payment: searchParams.get("payment") || "",
-    careService: searchParams.get("care") || "",
+
+  // Initialize filter with default "Home Care" when arriving from homepage search
+  // This ensures the page renders with correct filter from the start (no flicker)
+  const [filterValues, setFilterValues] = useState<Record<string, string>>(() => {
+    const typeParam = searchParams.get("type");
+    const hasLocation = searchParams.get("city") || searchParams.get("location");
+    const isHomepageSearchArrival = hasLocation && !typeParam;
+
+    return {
+      providerType: typeParam || (isHomepageSearchArrival ? "HOME_CARE" : ""),
+      rating: searchParams.get("rating") || "",
+      payment: searchParams.get("payment") || "",
+      careService: searchParams.get("care") || "",
+    };
   });
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "");
   const [showWelcome, setShowWelcome] = useState(false);
@@ -201,9 +210,9 @@ function BrowseContent() {
     }
   }, [arrivedFromSituationCard]);
 
-  // Auto-expand search and trigger category animation for homepage search arrivals
-  // Sequence: wave (0-1.2s) → demo tap (1.3s) → auto-select Home Care (1.8s)
-  // The auto-selection teaches the interaction by example: "this is what clicking does"
+  // Auto-expand search and trigger purely visual animation for homepage search arrivals
+  // Filter is already set to "Home Care" on initialization — animation just reinforces this
+  // Sequence: wave (0-1.2s) → demo tap on selected pill (1.3s) → cleanup (1.8s)
   useEffect(() => {
     if (arrivedFromHomepageSearch) {
       setSearchExpanded(true);
@@ -213,17 +222,16 @@ function BrowseContent() {
         setShowDemoTap(true);
       }, 1300);
 
-      // Auto-select Home Care after demo tap completes (~1.8s)
-      // This shows the result of "pressing" the pill, teaching the interaction
-      const selectTimer = setTimeout(() => {
-        setFilterValues((prev) => ({ ...prev, providerType: "HOME_CARE" }));
+      // Clean up animation states after demo tap completes
+      // No filter change needed — already initialized to Home Care
+      const cleanupTimer = setTimeout(() => {
         setShowCategoryAnimation(false);
         setShowDemoTap(false);
       }, 1800);
 
       return () => {
         clearTimeout(demoTapTimer);
-        clearTimeout(selectTimer);
+        clearTimeout(cleanupTimer);
       };
     }
   }, [arrivedFromHomepageSearch]);
