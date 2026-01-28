@@ -43,6 +43,8 @@ type Provider = {
   latitude: number | null;
   longitude: number | null;
   claimed?: boolean;
+  availableSpots?: number | null;
+  paymentModesAccepted?: string[];
 };
 
 // All category filter buttons (shown in expanded toolbar — no "More" dropdown)
@@ -893,7 +895,6 @@ function BrowseContent() {
                         city: provider.city,
                         state: provider.state,
                         description: provider.description,
-                        careTypesOffered: provider.careTypesOffered,
                         averageRating: provider.averageRating,
                         reviewCount: provider.reviewCount,
                         priceMin: provider.priceMin,
@@ -901,6 +902,8 @@ function BrowseContent() {
                         coverPhoto: provider.coverPhoto,
                         photos: provider.photos,
                         claimed: provider.claimed,
+                        availableSpots: provider.availableSpots,
+                        paymentModesAccepted: provider.paymentModesAccepted,
                       }}
                       variant="horizontal"
                       showSaveButton={true}

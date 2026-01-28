@@ -278,6 +278,8 @@ export async function GET(req: Request) {
       hasRespiteCare: true,
       hasHospiceCare: true,
       claimed: true,
+      // Payment & affordability
+      paymentModesAccepted: true,
       // Sprint 5: Caregiver work preferences
       workPreferences: true,
       preferredEmployers: true,

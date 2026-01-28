@@ -2,10 +2,19 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { BadgeStyles, SaveButton, RatingDisplay, LocationDisplay } from "./UnifiedCard";
-import { OleraScoreBadge } from "@/components/Trust/OleraScore";
 
-// Provider type categories for styling
+// =============================================================================
+// ProviderCard - Browse Page Card Component
+// =============================================================================
+// Design principles:
+// 1. Clean, minimal design inspired by Airbnb
+// 2. Three-state awareness: unclaimed, claimed incomplete, claimed complete
+// 3. Affordability signals via payment badges (Medicare, Medicaid, VA, etc.)
+// 4. Mobile-first responsive layout
+// 5. Optimized for 65+ users: clarity, trust, simplicity
+// =============================================================================
+
+// Provider type categories
 const FACILITY_TYPES = [
   "ASSISTED_LIVING",
   "MEMORY_CARE",
@@ -16,44 +25,38 @@ const FACILITY_TYPES = [
 const HOME_CARE_TYPES = ["HOME_CARE", "HOME_HEALTH", "HOSPICE"];
 const CAREGIVER_TYPES = ["INDEPENDENT_CAREGIVER"];
 
+// Payment mode display configuration
+const PAYMENT_MODE_CONFIG: Record<string, { label: string; className: string; priority: number }> = {
+  MEDICARE: { label: "Medicare", className: "bg-green-100 text-green-800", priority: 1 },
+  MEDICAID: { label: "Medicaid", className: "bg-blue-100 text-blue-800", priority: 2 },
+  VA_BENEFITS: { label: "VA Benefits", className: "bg-indigo-100 text-indigo-800", priority: 3 },
+  LONG_TERM_CARE_INSURANCE: { label: "LTC Insurance", className: "bg-purple-100 text-purple-800", priority: 4 },
+  STATE_WAIVER_PROGRAM: { label: "State Programs", className: "bg-teal-100 text-teal-800", priority: 5 },
+  PRIVATE_PAY: { label: "Private Pay", className: "bg-gray-100 text-gray-700", priority: 6 },
+};
+
 export interface ProviderCardProps {
   provider: {
     id: string;
     name: string;
     providerType: string;
-    address?: string;
     city: string;
     state: string;
     description?: string | null;
-    careTypesOffered?: string[];
     averageRating?: number | null;
     reviewCount?: number;
     priceMin?: number | null;
     priceMax?: number | null;
-    priceDescription?: string | null;
     photos?: string[];
     coverPhoto?: string | null;
     verified?: boolean;
     claimed?: boolean;
     availableSpots?: number | null;
-    hasMemoryCare?: boolean;
-    hasRespiteCare?: boolean;
-    hasHospiceCare?: boolean;
-    responseTime?: string | null;
-    serviceRadius?: number | null;
-    // Trust/verification fields for Olera Score
-    phone?: string | null;
-    email?: string | null;
-    website?: string | null;
-    licensed?: boolean;
-    backgroundChecked?: boolean;
-    insuranceVerified?: boolean;
-    // Cached Olera Score from database
-    oleraScore?: number | null;
+    totalCapacity?: number | null;
+    // Payment modes for affordability signals
+    paymentModesAccepted?: string[];
   };
   variant?: "horizontal" | "vertical";
-  showRequestStatus?: boolean;
-  hasRequestSent?: boolean;
   showSaveButton?: boolean;
   isSaved?: boolean;
   onSave?: (providerId: string) => void;
@@ -63,17 +66,22 @@ export interface ProviderCardProps {
 export default function ProviderCard({
   provider,
   variant = "horizontal",
-  showRequestStatus = false,
-  hasRequestSent = false,
   showSaveButton = false,
   isSaved = false,
   onSave,
   className = "",
 }: ProviderCardProps) {
-  // Determine provider category for styling
+  // Determine provider category
   const isFacility = FACILITY_TYPES.includes(provider.providerType);
   const isHomeCare = HOME_CARE_TYPES.includes(provider.providerType);
   const isCaregiver = CAREGIVER_TYPES.includes(provider.providerType);
+
+  // Determine data state
+  const isClaimed = provider.claimed === true;
+  const hasPrice = provider.priceMin !== null && provider.priceMin !== undefined;
+  const hasPaymentModes = provider.paymentModesAccepted && provider.paymentModesAccepted.length > 0;
+  const hasReviews = (provider.reviewCount ?? 0) > 0;
+  const hasPhoto = provider.coverPhoto || (provider.photos && provider.photos.length > 0);
 
   // Format provider type for display
   const formatProviderType = (type: string) => {
@@ -91,333 +99,246 @@ export default function ProviderCard({
     return typeMap[type] || type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  // Format care type for display
-  const formatCareType = (type: string) => {
-    return type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
-  };
-
   // Get image URL
   const imageUrl = provider.coverPhoto || provider.photos?.[0] || null;
 
+  // Get sorted payment badges (by priority, max 3)
+  const getPaymentBadges = () => {
+    if (!provider.paymentModesAccepted || provider.paymentModesAccepted.length === 0) {
+      return [];
+    }
+    return provider.paymentModesAccepted
+      .filter((mode) => PAYMENT_MODE_CONFIG[mode])
+      .sort((a, b) => PAYMENT_MODE_CONFIG[a].priority - PAYMENT_MODE_CONFIG[b].priority)
+      .slice(0, 3)
+      .map((mode) => PAYMENT_MODE_CONFIG[mode]);
+  };
+
   // Format price based on provider type
-  // Returns { label, value } for proper display
-  // "Starting at" should only pair with a single minimum price, not a range
   const formatPrice = (): { label: string; value: string } | null => {
-    const { priceMin, priceMax } = provider;
-    if (!priceMin && !priceMax) return null;
+    const { priceMin } = provider;
+    if (!priceMin) return null;
 
     const isHourly = isHomeCare || isCaregiver;
     const suffix = isHourly ? "/hr" : "/mo";
 
-    // If we have a minimum price, show "Starting at $X"
-    if (priceMin) {
-      return {
-        label: "Starting at",
-        value: `$${priceMin.toLocaleString()}${suffix}`,
-      };
-    }
-    // If we only have a max (rare), show "Up to $X"
-    if (priceMax) {
-      return {
-        label: "Up to",
-        value: `$${priceMax.toLocaleString()}${suffix}`,
-      };
-    }
-    return null;
-  };
-
-  // Get provider type badge colors
-  const getTypeBadgeClasses = () => {
-    if (isFacility) return "bg-primary-100 text-primary-700";
-    if (isHomeCare) return "bg-blue-100 text-blue-700";
-    if (isCaregiver) return "bg-purple-100 text-purple-700";
-    return "bg-gray-100 text-gray-700";
-  };
-
-  // Get specialty badges
-  const getSpecialtyBadges = () => {
-    const badges: { label: string; className: string }[] = [];
-    if (provider.hasMemoryCare) {
-      badges.push({ label: "Memory Care", className: "bg-purple-50 text-purple-700 border border-purple-200" });
-    }
-    if (provider.hasRespiteCare) {
-      badges.push({ label: "Respite Care", className: "bg-green-50 text-green-700 border border-green-200" });
-    }
-    if (provider.hasHospiceCare) {
-      badges.push({ label: "Hospice Care", className: "bg-blue-50 text-blue-700 border border-blue-200" });
-    }
-    return badges;
-  };
-
-  // Get provider-type-specific CTA text
-  const getProviderCTA = () => {
-    const typeMap: Record<string, string> = {
-      ASSISTED_LIVING: "Schedule a Tour",
-      MEMORY_CARE: "Schedule a Tour",
-      NURSING_HOME: "Schedule a Tour",
-      INDEPENDENT_LIVING: "Schedule a Tour",
-      REHABILITATION: "Schedule a Tour",
-      HOME_CARE: "Request a Consultation",
-      HOME_HEALTH: "Request a Consultation",
-      HOSPICE: "Request a Consultation",
-      INDEPENDENT_CAREGIVER: "Schedule an Interview",
+    return {
+      label: "Starting at",
+      value: `$${priceMin.toLocaleString()}${suffix}`,
     };
-    return typeMap[provider.providerType] || "View Details";
   };
 
-  const specialtyBadges = getSpecialtyBadges();
-  const careTypes = provider.careTypesOffered || [];
+  // Get availability text for facilities
+  const getAvailabilityText = () => {
+    if (!isFacility) return null;
+    const spots = provider.availableSpots;
+    if (spots === null || spots === undefined) return null;
+    if (spots === 0) return { text: "Waitlist available", className: "text-amber-700 bg-amber-50" };
+    return { text: `${spots} ${spots === 1 ? "spot" : "spots"} available`, className: "text-green-700 bg-green-50" };
+  };
+
+  const paymentBadges = getPaymentBadges();
   const price = formatPrice();
+  const availability = getAvailabilityText();
   const linkHref = `/providers/${provider.id}`;
 
-  // Horizontal variant (for list views like browse page)
+  // ==========================================================================
+  // Horizontal variant (default for browse page)
+  // ==========================================================================
   if (variant === "horizontal") {
     return (
       <Link
         href={linkHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`group block bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 relative ${className}`}
+        className={`group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all duration-200 ${className}`}
       >
         <div className="flex flex-col sm:flex-row">
-          {/* Image */}
-          <div className="relative sm:w-48 h-48 sm:h-auto shrink-0 bg-gray-100">
+          {/* Photo */}
+          <div className="relative sm:w-56 h-48 sm:h-auto shrink-0 bg-stone-100">
             {imageUrl ? (
               <Image
                 src={imageUrl}
                 alt={provider.name}
                 fill
                 className="object-cover"
-                sizes="(max-width: 640px) 100vw, 192px"
+                sizes="(max-width: 640px) 100vw, 224px"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                <svg className="w-12 h-12 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center text-stone-400">
+                  <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <span className="text-xs">Photo not available</span>
+                </div>
               </div>
             )}
 
-            {/* Verified Badge */}
-            {(provider.verified || provider.claimed) && (
-              <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded-full">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Verified
+            {/* Claimed/Verified badge */}
+            {isClaimed && (
+              <div className="absolute top-3 left-3">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm text-xs font-medium text-gray-700 rounded-full shadow-sm">
+                  <svg className="w-3.5 h-3.5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Claimed
+                </span>
               </div>
             )}
 
-            {/* Request Sent Badge */}
-            {showRequestStatus && hasRequestSent && (
-              <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-green-600 text-white text-xs font-medium rounded-full">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            {/* Save button */}
+            {showSaveButton && onSave && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSave(provider.id);
+                }}
+                className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white shadow-sm transition-colors"
+                aria-label={isSaved ? "Remove from saved" : "Save"}
+              >
+                <svg
+                  className={`w-5 h-5 ${isSaved ? "text-red-500 fill-current" : "text-gray-600"}`}
+                  viewBox="0 0 24 24"
+                  fill={isSaved ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
-                Contacted
-              </div>
-            )}
-
-            {/* Availability Badge (for facilities) */}
-            {isFacility && provider.availableSpots !== undefined && provider.availableSpots !== null && provider.availableSpots > 0 && (
-              <div className="absolute bottom-2 right-2 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-md">
-                {provider.availableSpots} {provider.availableSpots === 1 ? "spot" : "spots"} available
-              </div>
+              </button>
             )}
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-4">
-            {/* Location */}
-            <p className="text-sm text-gray-500 mb-1">
-              {provider.address ? `${provider.address}, ` : ""}{provider.city}, {provider.state}
-            </p>
-
-            {/* Name */}
-            <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
-              {provider.name}
-            </h3>
-
-            {/* Type & Care Badges */}
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              <span className={`px-2 py-0.5 text-xs font-medium rounded ${getTypeBadgeClasses()}`}>
+          <div className="flex-1 p-4 sm:p-5 flex flex-col">
+            {/* Top section: Type + Location */}
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <span className="text-sm font-medium text-gray-500">
                 {formatProviderType(provider.providerType)}
               </span>
-              {careTypes.slice(0, 2).map((care) => (
-                <span key={care} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
-                  {formatCareType(care)}
-                </span>
-              ))}
-              {careTypes.length > 2 && (
-                <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">
-                  +{careTypes.length - 2} more
-                </span>
+              {!isClaimed && (
+                <span className="text-xs text-gray-400">Community listing</span>
               )}
             </div>
 
-            {/* Description */}
-            {provider.description && (
-              <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                {provider.description}
-              </p>
+            {/* Name */}
+            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-700 transition-colors mb-1 line-clamp-1">
+              {provider.name}
+            </h3>
+
+            {/* Location */}
+            <p className="text-sm text-gray-600 mb-3">
+              {provider.city}, {provider.state}
+            </p>
+
+            {/* Rating (if reviews exist) */}
+            {hasReviews && (
+              <div className="flex items-center gap-1.5 mb-3">
+                <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="text-sm font-medium text-gray-900">
+                  {provider.averageRating?.toFixed(1)}
+                </span>
+                <span className="text-sm text-gray-500">
+                  ({provider.reviewCount} {provider.reviewCount === 1 ? "review" : "reviews"})
+                </span>
+              </div>
             )}
 
-            {/* Specialty Badges */}
-            {specialtyBadges.length > 0 && (
+            {/* Payment badges (affordability signals) */}
+            {paymentBadges.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-3">
-                {specialtyBadges.map((badge) => (
-                  <span key={badge.label} className={`px-2 py-0.5 text-xs font-medium rounded ${badge.className}`}>
+                {paymentBadges.map((badge) => (
+                  <span
+                    key={badge.label}
+                    className={`px-2 py-0.5 text-xs font-medium rounded-full ${badge.className}`}
+                  >
                     {badge.label}
                   </span>
                 ))}
               </div>
             )}
 
-            {/* Price and Olera Score Row */}
-            <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+            {/* Spacer to push footer to bottom */}
+            <div className="flex-1" />
+
+            {/* Footer: Price/Affordability + Availability */}
+            <div className="flex items-end justify-between pt-3 border-t border-gray-100 mt-auto">
               <div>
-                {price && <p className="text-xs text-gray-500">{price.label}</p>}
-                <p className="font-semibold text-gray-900">
-                  {price ? price.value : "Contact for pricing"}
-                </p>
+                {price ? (
+                  <>
+                    <p className="text-xs text-gray-500">{price.label}</p>
+                    <p className="text-base font-semibold text-gray-900">{price.value}</p>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // Navigation happens through the card link
+                    }}
+                  >
+                    Explore affordability →
+                  </button>
+                )}
               </div>
-              <OleraScoreBadge
-                provider={{
-                  name: provider.name,
-                  providerType: provider.providerType as any,
-                  description: provider.description,
-                  address: provider.address,
-                  city: provider.city,
-                  state: provider.state,
-                  phone: provider.phone,
-                  email: provider.email,
-                  website: provider.website,
-                  careTypesOffered: provider.careTypesOffered,
-                  licensed: provider.licensed,
-                  backgroundChecked: provider.backgroundChecked,
-                  insuranceVerified: provider.insuranceVerified,
-                  coverPhoto: provider.coverPhoto,
-                  photos: provider.photos,
-                  priceMin: provider.priceMin,
-                  priceMax: provider.priceMax,
-                  priceDescription: provider.priceDescription,
-                  claimed: provider.claimed,
-                }}
-                averageRating={provider.averageRating ?? null}
-                reviewCount={provider.reviewCount ?? 0}
-                cachedScore={provider.oleraScore}
-              />
-            </div>
 
-            {/* Response Time (for home care) */}
-            {isHomeCare && provider.responseTime && (
-              <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Typically responds {provider.responseTime}
-              </div>
-            )}
-
-            {/* Service Radius (for caregivers/home care) */}
-            {(isHomeCare || isCaregiver) && provider.serviceRadius && (
-              <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                Serves within {provider.serviceRadius} miles
-              </div>
-            )}
-
-            {/* CTA Text */}
-            <div className="mt-4 flex items-center text-sm font-medium text-primary-600">
-              <span>{getProviderCTA()}</span>
-              <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              {availability && (
+                <span className={`text-xs font-medium px-2 py-1 rounded-full ${availability.className}`}>
+                  {availability.text}
+                </span>
+              )}
             </div>
           </div>
-
-          {/* Save Button (if enabled) */}
-          {showSaveButton && onSave && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onSave(provider.id);
-              }}
-              className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white shadow-sm transition-colors"
-              title={isSaved ? "Remove from saved" : "Save"}
-            >
-              <svg
-                className={`w-5 h-5 ${isSaved ? "text-red-500 fill-current" : "text-gray-600"}`}
-                viewBox="0 0 24 24"
-                fill={isSaved ? "currentColor" : "none"}
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </button>
-          )}
         </div>
       </Link>
     );
   }
 
-  // Vertical variant (for grid views)
+  // ==========================================================================
+  // Vertical variant (for grid views, homepage)
+  // ==========================================================================
   return (
     <Link
       href={linkHref}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`group block bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 ${className}`}
+      className={`group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all duration-200 ${className}`}
     >
-      {/* Image */}
-      <div className="relative h-48 bg-gray-100">
+      {/* Photo */}
+      <div className="relative h-48 bg-stone-100">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={provider.name}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-            <svg className="w-12 h-12 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-center text-stone-400">
+              <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              <span className="text-xs">Photo not available</span>
+            </div>
           </div>
         )}
 
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-          {(provider.verified || provider.claimed) && (
-            <span className="flex items-center gap-1 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded-full">
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+        {/* Claimed badge */}
+        {isClaimed && (
+          <div className="absolute top-3 left-3">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm text-xs font-medium text-gray-700 rounded-full shadow-sm">
+              <svg className="w-3.5 h-3.5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              Verified
-            </span>
-          )}
-          {showRequestStatus && hasRequestSent && (
-            <span className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white text-xs font-medium rounded-full">
-              Contacted
-            </span>
-          )}
-        </div>
-
-        {/* Availability Badge */}
-        {isFacility && provider.availableSpots !== undefined && provider.availableSpots !== null && provider.availableSpots > 0 && (
-          <div className="absolute top-3 right-3">
-            <span className="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded-md">
-              {provider.availableSpots} available
+              Claimed
             </span>
           </div>
         )}
 
-        {/* Save Button */}
+        {/* Save button */}
         {showSaveButton && onSave && (
           <button
             onClick={(e) => {
@@ -426,7 +347,7 @@ export default function ProviderCard({
               onSave(provider.id);
             }}
             className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white shadow-sm transition-colors"
-            title={isSaved ? "Remove from saved" : "Save"}
+            aria-label={isSaved ? "Remove from saved" : "Save"}
           >
             <svg
               className={`w-5 h-5 ${isSaved ? "text-red-500 fill-current" : "text-gray-600"}`}
@@ -439,84 +360,85 @@ export default function ProviderCard({
             </svg>
           </button>
         )}
+
+        {/* Availability badge */}
+        {availability && (
+          <div className="absolute bottom-3 right-3">
+            <span className={`text-xs font-medium px-2 py-1 rounded-full shadow-sm ${availability.className}`}>
+              {availability.text}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="p-5">
-        {/* Header */}
-        <div className="mb-2">
-          <p className={`text-sm font-medium mb-1 ${getTypeBadgeClasses().replace("bg-", "text-").split(" ")[1]}`}>
+      <div className="p-4">
+        {/* Type + Community listing indicator */}
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <span className="text-sm font-medium text-gray-500">
             {formatProviderType(provider.providerType)}
-          </p>
-          <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-1">
-            {provider.name}
-          </h3>
-          <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </span>
+          {!isClaimed && (
+            <span className="text-xs text-gray-400">Community listing</span>
+          )}
+        </div>
+
+        {/* Name */}
+        <h3 className="text-base font-semibold text-gray-900 group-hover:text-primary-700 transition-colors mb-1 line-clamp-1">
+          {provider.name}
+        </h3>
+
+        {/* Location */}
+        <p className="text-sm text-gray-600 mb-2">
+          {provider.city}, {provider.state}
+        </p>
+
+        {/* Rating */}
+        {hasReviews && (
+          <div className="flex items-center gap-1.5 mb-2">
+            <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
-            {provider.city}, {provider.state}
-          </p>
-        </div>
-
-        {/* Olera Score */}
-        <div className="mb-3">
-          <OleraScoreBadge
-            provider={{
-              name: provider.name,
-              providerType: provider.providerType as any,
-              description: provider.description,
-              address: provider.address,
-              city: provider.city,
-              state: provider.state,
-              phone: provider.phone,
-              email: provider.email,
-              website: provider.website,
-              careTypesOffered: provider.careTypesOffered,
-              licensed: provider.licensed,
-              backgroundChecked: provider.backgroundChecked,
-              insuranceVerified: provider.insuranceVerified,
-              coverPhoto: provider.coverPhoto,
-              photos: provider.photos,
-              priceMin: provider.priceMin,
-              priceMax: provider.priceMax,
-              priceDescription: provider.priceDescription,
-              claimed: provider.claimed,
-            }}
-            averageRating={provider.averageRating ?? null}
-            reviewCount={provider.reviewCount ?? 0}
-            cachedScore={provider.oleraScore}
-          />
-        </div>
-
-        {/* Pricing */}
-        {price && (
-          <div className="mb-3">
-            <p className="text-xs text-gray-500">{price.label}</p>
-            <p className="text-lg font-bold text-gray-900">{price.value}</p>
+            <span className="text-sm font-medium text-gray-900">
+              {provider.averageRating?.toFixed(1)}
+            </span>
+            <span className="text-sm text-gray-500">
+              ({provider.reviewCount})
+            </span>
           </div>
         )}
 
-        {/* Specialty Badges */}
-        {specialtyBadges.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {specialtyBadges.slice(0, 3).map((badge) => (
-              <span key={badge.label} className={`px-2 py-1 text-xs font-medium rounded ${badge.className}`}>
+        {/* Payment badges */}
+        {paymentBadges.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {paymentBadges.slice(0, 2).map((badge) => (
+              <span
+                key={badge.label}
+                className={`px-2 py-0.5 text-xs font-medium rounded-full ${badge.className}`}
+              >
                 {badge.label}
               </span>
             ))}
+            {paymentBadges.length > 2 && (
+              <span className="px-2 py-0.5 text-xs text-gray-500 rounded-full bg-gray-100">
+                +{paymentBadges.length - 2}
+              </span>
+            )}
           </div>
         )}
 
-        {/* CTA Link */}
-        <div className="pt-3 border-t border-gray-100">
-          <div className="flex items-center justify-between text-sm font-medium text-primary-600">
-            <span>{getProviderCTA()}</span>
-            <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
+        {/* Price or Affordability CTA */}
+        <div className="pt-2 border-t border-gray-100">
+          {price ? (
+            <div>
+              <span className="text-xs text-gray-500">{price.label} </span>
+              <span className="font-semibold text-gray-900">{price.value}</span>
+            </div>
+          ) : (
+            <span className="text-sm font-medium text-primary-600">
+              Explore affordability →
+            </span>
+          )}
         </div>
       </div>
     </Link>

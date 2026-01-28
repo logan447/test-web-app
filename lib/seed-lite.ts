@@ -374,6 +374,72 @@ export async function seedLite(prisma: PrismaClient) {
     { name: 'Pacific Home Health', type: 'HOME_HEALTH', email: 'info@pacifichomehealth.com', care: ['SKILLED_NURSING'], price: [45, 75], rating: 4.7, desc: 'Medicare-certified home health agency providing skilled nursing visits, physical therapy, occupational therapy, and wound care — all in the comfort of your home, ordered by your physician.' },
     ];
 
+    // Helper: get payment modes based on provider type
+    // Realistic payment modes by provider type:
+    // - Hospice: Medicare (99% covered), Medicaid
+    // - Nursing Home: Medicare (short-term), Medicaid (long-term), Private Pay
+    // - Assisted Living: Private Pay primary, some Medicaid waivers, LTC Insurance
+    // - Memory Care: Private Pay, LTC Insurance, some Medicaid
+    // - Home Health: Medicare (if physician-ordered), Medicaid
+    // - Home Care: Private Pay, Medicaid waivers, LTC Insurance, VA
+    // - Independent Living: Private Pay, VA Benefits
+    const getPaymentModes = (type: string, idx: number): string[] => {
+      const modes: string[] = [];
+
+      switch (type) {
+        case 'HOSPICE':
+          // Hospice is almost always Medicare/Medicaid covered
+          modes.push('MEDICARE', 'MEDICAID');
+          if (idx % 3 === 0) modes.push('VA_BENEFITS');
+          break;
+        case 'NURSING_HOME':
+          // Nursing homes accept Medicare (short-term rehab), Medicaid (long-term), Private Pay
+          modes.push('MEDICARE', 'MEDICAID', 'PRIVATE_PAY');
+          if (idx % 2 === 0) modes.push('LONG_TERM_CARE_INSURANCE');
+          if (idx % 4 === 0) modes.push('VA_BENEFITS');
+          break;
+        case 'REHABILITATION':
+          // Rehab is often Medicare-covered post-hospital
+          modes.push('MEDICARE', 'PRIVATE_PAY');
+          if (idx % 2 === 0) modes.push('LONG_TERM_CARE_INSURANCE');
+          break;
+        case 'ASSISTED_LIVING':
+          // Assisted living is primarily private pay, some accept Medicaid waivers
+          modes.push('PRIVATE_PAY');
+          if (idx % 2 === 0) modes.push('LONG_TERM_CARE_INSURANCE');
+          if (idx % 3 === 0) modes.push('MEDICAID'); // State waiver programs
+          if (idx % 5 === 0) modes.push('VA_BENEFITS');
+          break;
+        case 'MEMORY_CARE':
+          // Memory care is mostly private pay
+          modes.push('PRIVATE_PAY');
+          if (idx % 2 === 0) modes.push('LONG_TERM_CARE_INSURANCE');
+          if (idx % 4 === 0) modes.push('MEDICAID'); // Some accept waivers
+          break;
+        case 'INDEPENDENT_LIVING':
+          // Independent living is private pay, some VA
+          modes.push('PRIVATE_PAY');
+          if (idx % 3 === 0) modes.push('VA_BENEFITS');
+          break;
+        case 'HOME_HEALTH':
+          // Home health is often Medicare-covered if physician-ordered
+          modes.push('MEDICARE', 'MEDICAID');
+          if (idx % 2 === 0) modes.push('PRIVATE_PAY');
+          break;
+        case 'HOME_CARE':
+          // Home care is primarily private pay with some waivers
+          modes.push('PRIVATE_PAY');
+          if (idx % 2 === 0) modes.push('LONG_TERM_CARE_INSURANCE');
+          if (idx % 3 === 0) modes.push('MEDICAID'); // Waiver programs
+          if (idx % 4 === 0) modes.push('VA_BENEFITS');
+          break;
+        default:
+          modes.push('PRIVATE_PAY');
+      }
+
+      return modes;
+    };
+
     // Helper: build type-specific fields for each facility/agency
     const getFacilityFields = (type: string, idx: number) => {
       const isFacilityType = ['ASSISTED_LIVING', 'MEMORY_CARE', 'NURSING_HOME', 'INDEPENDENT_LIVING', 'REHABILITATION', 'HOSPICE'].includes(type);
@@ -382,6 +448,7 @@ export async function seedLite(prisma: PrismaClient) {
       const base: Record<string, any> = {
         licensed: true,
         yearsInBusiness: 8 + (idx % 15),
+        paymentModesAccepted: getPaymentModes(type, idx),
       };
 
       if (isFacilityType) {
