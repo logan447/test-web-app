@@ -149,7 +149,8 @@ export default function Home() {
   useEffect(() => {
     const fetchFeaturedProviders = async () => {
       try {
-        const res = await fetch("/api/providers?limit=4&sortBy=rating_high");
+        // Only fetch providers with photos for homepage (polished experience)
+        const res = await fetch("/api/providers?limit=4&sortBy=rating_high&hasPhotos=true");
         if (res.ok) {
           const data = await res.json();
           const providers = (data.providers || []).slice(0, 4).map((p: Record<string, unknown>) => ({

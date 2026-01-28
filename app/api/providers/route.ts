@@ -173,6 +173,22 @@ export async function GET(req: Request) {
       }
     }
 
+    // Photo filter - for homepage and curated displays
+    const hasPhotosParam = searchParams.get("hasPhotos");
+    if (hasPhotosParam === "true") {
+      where.OR = where.OR || [];
+      // Override OR to require photos (coverPhoto OR non-empty photos array)
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [
+            { coverPhoto: { not: null } },
+            { photos: { isEmpty: false } },
+          ],
+        },
+      ];
+    }
+
     // Amenities filter (specialty care)
     if (amenitiesParam) {
       const amenitiesList = amenitiesParam.split(",");

@@ -904,6 +904,8 @@ function BrowseContent() {
                         claimed: provider.claimed,
                         availableSpots: provider.availableSpots,
                         paymentModesAccepted: provider.paymentModesAccepted,
+                        latitude: provider.latitude,
+                        longitude: provider.longitude,
                       }}
                       variant="horizontal"
                       showSaveButton={true}

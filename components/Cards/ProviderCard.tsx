@@ -73,6 +73,9 @@ export interface ProviderCardProps {
     totalCapacity?: number | null;
     // Payment modes for affordability signals
     paymentModesAccepted?: string[];
+    // Location for map fallback when no photos
+    latitude?: number | null;
+    longitude?: number | null;
   };
   variant?: "horizontal" | "vertical";
   showSaveButton?: boolean;
@@ -121,8 +124,23 @@ export default function ProviderCard({
     return typeMap[type] || type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  // Get image URL
-  const imageUrl = provider.coverPhoto || provider.photos?.[0] || null;
+  // Get image URL - use static map as fallback when no photos but lat/lng exists
+  const getImageUrl = (): string | null => {
+    // First try actual photos
+    if (provider.coverPhoto) return provider.coverPhoto;
+    if (provider.photos && provider.photos.length > 0) return provider.photos[0];
+
+    // Fall back to static map if we have coordinates
+    if (provider.latitude && provider.longitude) {
+      // Using OpenStreetMap static map service (no API key required)
+      return `https://staticmap.openstreetmap.de/staticmap.php?center=${provider.latitude},${provider.longitude}&zoom=15&size=400x300&maptype=mapnik`;
+    }
+
+    return null;
+  };
+
+  const imageUrl = getImageUrl();
+  const isMapFallback = !provider.coverPhoto && (!provider.photos || provider.photos.length === 0) && imageUrl !== null;
 
   // Format price based on provider type and data state
   // Insurance-based types (Hospice, Nursing Home, Rehab, Home Health) should NOT show prices
@@ -206,13 +224,27 @@ export default function ProviderCard({
           {/* Photo */}
           <div className="relative sm:w-56 h-48 sm:h-auto shrink-0 bg-stone-100">
             {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt={provider.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, 224px"
-              />
+              <>
+                <Image
+                  src={imageUrl}
+                  alt={isMapFallback ? `Map of ${provider.name} location` : provider.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 224px"
+                />
+                {/* Map view indicator when using map fallback */}
+                {isMapFallback && (
+                  <div className="absolute bottom-2 left-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/60 backdrop-blur-sm text-xs font-medium text-white rounded">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Map view
+                    </span>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center text-stone-400">
@@ -352,13 +384,27 @@ export default function ProviderCard({
       {/* Photo */}
       <div className="relative h-48 bg-stone-100">
         {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={provider.name}
-            fill
-            className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
+          <>
+            <Image
+              src={imageUrl}
+              alt={isMapFallback ? `Map of ${provider.name} location` : provider.name}
+              fill
+              className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+            {/* Map view indicator when using map fallback */}
+            {isMapFallback && (
+              <div className="absolute bottom-2 left-2">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/60 backdrop-blur-sm text-xs font-medium text-white rounded">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Map view
+                </span>
+              </div>
+            )}
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-center text-stone-400">
