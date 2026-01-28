@@ -149,7 +149,7 @@ export default function Home() {
   useEffect(() => {
     const fetchFeaturedProviders = async () => {
       try {
-        const res = await fetch("/api/providers?limit=4&sortBy=rating");
+        const res = await fetch("/api/providers?limit=4&sortBy=rating_high");
         if (res.ok) {
           const data = await res.json();
           const providers = (data.providers || []).slice(0, 4).map((p: Record<string, unknown>) => ({
@@ -161,7 +161,7 @@ export default function Home() {
             state: p.state as string,
             rating: (p.averageRating as number) || 4.5,
             reviewCount: (p.reviewCount as number) || 0,
-            image: (p.coverPhoto as string) || (p.photos as string[])?.[0] || "/placeholder-facility.jpg",
+            image: (p.coverPhoto as string) || (p.photos as string[])?.[0] || "/placeholder-facility.svg",
             priceFrom: (p.priceMin as number) || (p.privateRoomMin as number) || undefined,
           }));
           setFeaturedProviders(providers);
@@ -375,7 +375,7 @@ export default function Home() {
                       alt={provider.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder-facility.jpg";
+                        (e.target as HTMLImageElement).src = "/placeholder-facility.svg";
                       }}
                     />
                     <div className="absolute top-3 left-3">
