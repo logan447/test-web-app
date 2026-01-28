@@ -26,6 +26,7 @@ interface LocationAutocompleteProps {
   size?: "default" | "large";
   showIcon?: boolean;
   showCurrentLocation?: boolean; // Show "Use current location" option in dropdown
+  autoFocus?: boolean; // Auto-focus the input on mount
   onFocus?: () => void;
   onBlur?: () => void;
 }
@@ -51,6 +52,7 @@ export default function LocationAutocomplete({
   size = "default",
   showIcon = true,
   showCurrentLocation = false,
+  autoFocus = false,
   onFocus,
   onBlur,
 }: LocationAutocompleteProps) {
@@ -113,6 +115,21 @@ export default function LocationAutocomplete({
   useEffect(() => {
     setInputValue(value);
   }, [value]);
+
+  // Auto-focus the input when autoFocus prop is true
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      // Small delay to ensure DOM is ready (especially after navigation)
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+        // Open dropdown to show "Use current location" option
+        if (showCurrentLocation) {
+          setIsOpen(true);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [autoFocus, showCurrentLocation]);
 
   // Search locations with debounce
   const searchLocations = useCallback(async (query: string) => {

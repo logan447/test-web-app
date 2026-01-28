@@ -184,6 +184,17 @@ function BrowseContent() {
     }
   }, [isWelcome, loading]);
 
+  // Auto-expand search when arriving from situation cards (has type but no location)
+  // This provides continuity from homepage selection and prompts for location entry
+  const arrivedFromSituationCard = searchParams.get("type") && !searchParams.get("city") && !searchParams.get("location");
+  const [shouldAutoFocus, setShouldAutoFocus] = useState(!!arrivedFromSituationCard);
+
+  useEffect(() => {
+    if (arrivedFromSituationCard) {
+      setSearchExpanded(true);
+    }
+  }, [arrivedFromSituationCard]);
+
   // Fetch provider type for hamburger menu
   useEffect(() => {
     if (!session) return;
@@ -470,8 +481,10 @@ function BrowseContent() {
                       placeholder="Enter your city or ZIP code"
                       showIcon={false}
                       showCurrentLocation={true}
+                      autoFocus={shouldAutoFocus}
                       inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 focus:!outline-none !shadow-none text-lg text-gray-900 placeholder:text-gray-400 truncate search-input-clean"
                       className="w-full"
+                      onFocus={() => setShouldAutoFocus(false)}
                     />
                   </div>
 
