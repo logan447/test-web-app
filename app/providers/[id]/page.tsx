@@ -700,57 +700,68 @@ export default function ProviderDetailPage() {
             </div>
           </div>
 
-          {/* Full search bar */}
-          <div className="max-w-3xl mx-auto px-4 pt-2 pb-3">
+          {/* Full search bar (location-only, matching homepage) */}
+          <div className="max-w-lg mx-auto px-4 pt-2 pb-3">
             <form onSubmit={handleToolbarSearch}>
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
-                <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
-                  <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Where</label>
+                <div className="flex items-center gap-2">
+                  {/* Geolocation button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                          async (position) => {
+                            try {
+                              const res = await fetch(
+                                `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
+                              );
+                              const data = await res.json();
+                              const city = data.address?.city || data.address?.town || data.address?.village || "";
+                              const state = data.address?.state || "";
+                              if (city && state) {
+                                setSearchLocation(`${city}, ${state}`);
+                              }
+                            } catch {
+                              // Silently fail
+                            }
+                          },
+                          () => {}
+                        );
+                      }
+                    }}
+                    className="p-3 text-primary-500 hover:text-primary-700 hover:bg-primary-50 rounded-xl transition-colors shrink-0 group"
+                    title="Use my current location"
+                    aria-label="Use my current location"
+                  >
+                    <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+
+                  {/* Location input */}
+                  <div className="flex-1 py-2">
                     <LocationAutocomplete
                       value={searchLocation}
                       onChange={handleSearchLocationChange}
-                      placeholder="City or zip code"
+                      placeholder="Enter your city or ZIP code"
                       showIcon={false}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-lg text-gray-900 placeholder:text-gray-400"
                       className="w-full"
                     />
                   </div>
-                  <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Type of Care</label>
-                    <select
-                      value={searchProviderType}
-                      onChange={(e) => setSearchProviderType(e.target.value)}
-                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${searchProviderType ? 'text-gray-900' : 'text-gray-400'}`}
-                    >
-                      {PROVIDER_TYPE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Care Services</label>
-                    <select
-                      value={searchCareService}
-                      onChange={(e) => setSearchCareService(e.target.value)}
-                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${searchCareService ? 'text-gray-900' : 'text-gray-400'}`}
-                    >
-                      {CARE_SERVICE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="px-2 py-2 md:py-0 flex items-center">
-                    <button
-                      type="submit"
-                      className="w-full md:w-auto px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                      <span>Search</span>
-                    </button>
-                  </div>
+
+                  {/* Search Button */}
+                  <button
+                    type="submit"
+                    className="px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0"
+                  >
+                    <span>Search</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </form>
@@ -771,11 +782,11 @@ export default function ProviderDetailPage() {
               </Link>
 
               {/* Search bar — expands on click */}
-              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[360px] lg:max-w-[440px]">
+              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[400px] lg:max-w-[480px]">
                 <button
                   type="button"
                   onClick={() => setSearchExpanded(true)}
-                  className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer p-1.5"
+                  className="flex-1 min-w-0 flex items-center gap-1 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer pl-1.5 pr-1.5 py-1.5"
                 >
                   <div className="p-2 text-primary-500 shrink-0">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -783,10 +794,10 @@ export default function ProviderDetailPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <span className={`flex-1 py-1.5 text-sm font-medium truncate text-left ${searchLocation ? 'text-gray-800' : 'text-gray-500'}`}>
+                  <span className={`flex-1 min-w-0 py-1.5 pr-2 text-sm font-medium truncate text-left ${searchLocation ? 'text-gray-800' : 'text-gray-500'}`}>
                     {searchLocation || "Enter city or ZIP code"}
                   </span>
-                  <div className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors flex items-center gap-1.5 shrink-0 text-sm">
+                  <div className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors flex items-center gap-1.5 shrink-0 text-sm whitespace-nowrap">
                     <span>Search</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
