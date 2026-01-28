@@ -33,6 +33,61 @@ enum ProviderType {
   INDEPENDENT_CAREGIVER
 }
 
+// ============================================
+// Provider Detail: Unit & Photo Models
+// ============================================
+
+enum UnitType {
+  STUDIO
+  PRIVATE
+  SEMI_PRIVATE
+  SHARED
+  ONE_BEDROOM
+  TWO_BEDROOM
+  SUITE
+  COMPANION
+}
+
+enum UnitStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  COMING_SOON
+  WAITLIST
+}
+
+enum CareLevel {
+  INDEPENDENT
+  ASSISTED
+  ENHANCED
+  MEMORY
+  SKILLED
+  REHABILITATION_LEVEL
+  HOSPICE_LEVEL
+}
+
+enum PhotoCategory {
+  EXTERIOR
+  ENTRANCE
+  LOBBY
+  COMMON_AREA
+  LIVING_ROOM
+  DINING
+  BEDROOM
+  BATHROOM
+  KITCHEN
+  OUTDOOR
+  GARDEN
+  COURTYARD
+  ACTIVITY
+  THERAPY
+  FITNESS
+  SALON
+  CHAPEL
+  STAFF
+  OTHER
+}
+
 enum CareType {
   COMPANION_CARE
   PERSONAL_CARE
@@ -437,9 +492,10 @@ model Provider {
   floorPlanUrls     String[] @default([]) // URLs to floor plan images/PDFs
 
   // Status
-  claimed  Boolean @default(false)
-  verified Boolean @default(false)
-  active   Boolean @default(true)
+  claimed   Boolean   @default(false)
+  claimedAt DateTime? // null = unclaimed; timestamp of when claimed
+  verified  Boolean   @default(false)
+  active    Boolean   @default(true)
 
   // Sprint 2: Profile Visibility & Completion
   isVisible             Boolean @default(false) // Controlled by visibility gate (requires required fields)
@@ -472,6 +528,8 @@ model Provider {
   hiringAsOrg         HiringEngagement[]     @relation("HiringOrganization") // Sprint 2: Org hiring caregivers
   hiringAsCaregiver   HiringEngagement[]     @relation("HiringCaregiver")      // Sprint 2: Caregiver seeking work
   takedownRequests    TakedownRequest[]  // Sprint 5: Takedown requests for this provider
+  units               ProviderUnit[]     // Room/unit options for facility providers
+  providerPhotos      ProviderPhoto[]    // Categorized photos with captions
 
   @@index([city, state])
   @@index([providerType])
@@ -487,6 +545,83 @@ model SavedProvider {
   createdAt       DateTime      @default(now())
 
   @@unique([familyProfileId, providerId])
+}
+
+// ============================================
+// Provider Detail: Room/Unit Options
+// Production-ready model for facility room types, pricing, and availability
+// ============================================
+
+model ProviderUnit {
+  id              String     @id @default(cuid())
+  providerId      String
+  provider        Provider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Unit details
+  name            String     // e.g., "Sunrise Suite", "Garden View Private"
+  unitType        UnitType
+  description     String?    @db.Text
+  sqFt            Int?
+  floor           String?    // e.g., "1st Floor", "Ground"
+  bedrooms        Int?
+  bathrooms       Float?     // 1, 1.5, 2
+
+  // Pricing
+  basePrice       Int?       // Monthly base price in dollars
+  maxPrice        Int?       // Upper range
+  priceNote       String?    // e.g., "Includes meals and basic care"
+
+  // Availability
+  status          UnitStatus @default(AVAILABLE)
+  availableFrom   DateTime?
+
+  // Features & care
+  features        String[]   // e.g., ["Private bathroom", "Kitchenette", "Patio"]
+  careLevel       CareLevel?
+
+  // Photos (relation to ProviderPhoto)
+  photos          ProviderPhoto[]
+  floorPlanUrl    String?
+
+  // Display
+  highlighted     Boolean    @default(false) // Featured/recommended unit
+  sortOrder       Int        @default(0)
+  visible         Boolean    @default(true)
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([providerId])
+}
+
+// ============================================
+// Provider Detail: Categorized Photos
+// Photos with categories, captions, and optional unit associations
+// ============================================
+
+model ProviderPhoto {
+  id          String        @id @default(cuid())
+  providerId  String
+  provider    Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Photo data
+  url         String
+  category    PhotoCategory
+  caption     String?
+  altText     String?
+
+  // Optional unit association
+  unitId      String?
+  unit        ProviderUnit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
+
+  // Display
+  sortOrder   Int           @default(0)
+  featured    Boolean       @default(false) // Show in hero/highlights
+
+  createdAt   DateTime      @default(now())
+
+  @@index([providerId])
+  @@index([unitId])
 }
 
 // Sprint 5: Takedown Request for DMCA-compliant provider page removal

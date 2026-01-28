@@ -13,6 +13,15 @@ export async function GET(
 
     const provider = await prisma.provider.findUnique({
       where: { id },
+      include: {
+        units: {
+          where: { visible: true },
+          orderBy: { sortOrder: 'asc' },
+        },
+        providerPhotos: {
+          orderBy: { sortOrder: 'asc' },
+        },
+      },
     });
 
     if (!provider) {

@@ -1,4 +1,4 @@
-import { PrismaClient, ProviderType, CareType } from '@prisma/client';
+import { PrismaClient, ProviderType, CareType, UnitType, UnitStatus, CareLevel, PhotoCategory } from '@prisma/client';
 import { hash } from 'bcryptjs';
 
 /**
@@ -59,6 +59,68 @@ const FACILITY_PHOTOS = [
   'https://images.unsplash.com/photo-1562141961-8d219c6dd062?w=800',
   'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800',
 ];
+
+// Subtype-appropriate photos for ProviderPhoto records
+const CATEGORIZED_PHOTOS: Record<string, { url: string; category: PhotoCategory; caption: string; altText: string }[]> = {
+  ASSISTED_LIVING: [
+    { url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800', category: 'EXTERIOR', caption: 'Welcome to our community', altText: 'Assisted living facility exterior view' },
+    { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800', category: 'LOBBY', caption: 'Our welcoming lobby and reception area', altText: 'Bright, inviting lobby with comfortable seating' },
+    { url: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800', category: 'BEDROOM', caption: 'Private suite with natural light', altText: 'Spacious private bedroom with large windows' },
+    { url: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800', category: 'LIVING_ROOM', caption: 'Comfortable common living area', altText: 'Bright living room with comfortable furnishings' },
+    { url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800', category: 'DINING', caption: 'Restaurant-style dining room', altText: 'Well-lit dining area with table settings' },
+    { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800', category: 'GARDEN', caption: 'Beautiful garden and walking paths', altText: 'Landscaped garden with walking path' },
+    { url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800', category: 'ACTIVITY', caption: 'Daily activities and social gatherings', altText: 'Residents enjoying group activity' },
+    { url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800', category: 'BATHROOM', caption: 'Accessible private bathroom', altText: 'Modern accessible bathroom' },
+  ],
+  MEMORY_CARE: [
+    { url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800', category: 'EXTERIOR', caption: 'A peaceful, secure environment', altText: 'Memory care facility exterior' },
+    { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800', category: 'LOBBY', caption: 'Warm and familiar welcome area', altText: 'Comforting lobby designed for memory care' },
+    { url: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800', category: 'BEDROOM', caption: 'Safe, comfortable private room', altText: 'Memory care resident bedroom' },
+    { url: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800', category: 'COMMON_AREA', caption: 'Calming common area with familiar touches', altText: 'Common area designed for memory care residents' },
+    { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800', category: 'GARDEN', caption: 'Secure courtyard garden', altText: 'Enclosed garden space for safe outdoor time' },
+    { url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800', category: 'ACTIVITY', caption: 'Therapeutic activities program', altText: 'Memory care activity session' },
+  ],
+  NURSING_HOME: [
+    { url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800', category: 'EXTERIOR', caption: 'Our skilled nursing facility', altText: 'Nursing home exterior view' },
+    { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800', category: 'LOBBY', caption: 'Reception and welcome area', altText: 'Clean, professional lobby' },
+    { url: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800', category: 'BEDROOM', caption: 'Private room with nursing call system', altText: 'Nursing home private room' },
+    { url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800', category: 'DINING', caption: 'Nutritionist-planned dining area', altText: 'Dining room with dietary accommodations' },
+    { url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800', category: 'THERAPY', caption: 'On-site therapy and rehabilitation', altText: 'Physical therapy equipment and space' },
+  ],
+  REHABILITATION: [
+    { url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800', category: 'EXTERIOR', caption: 'Our rehabilitation center', altText: 'Rehabilitation facility exterior' },
+    { url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800', category: 'THERAPY', caption: 'State-of-the-art therapy gym', altText: 'Physical therapy and rehabilitation equipment' },
+    { url: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800', category: 'BEDROOM', caption: 'Recovery room for your stay', altText: 'Comfortable recovery room' },
+    { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800', category: 'LOBBY', caption: 'Welcoming entrance and check-in', altText: 'Rehabilitation center lobby' },
+  ],
+  HOSPICE: [
+    { url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800', category: 'EXTERIOR', caption: 'A place of comfort and peace', altText: 'Hospice facility exterior' },
+    { url: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800', category: 'BEDROOM', caption: 'Peaceful, homelike rooms', altText: 'Hospice patient room with natural light' },
+    { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800', category: 'GARDEN', caption: 'Tranquil garden for families', altText: 'Peaceful garden space' },
+    { url: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800', category: 'COMMON_AREA', caption: 'Family gathering space', altText: 'Comfortable family room' },
+  ],
+};
+
+// Unit templates by provider type
+const UNIT_TEMPLATES: Record<string, { name: string; unitType: UnitType; features: string[]; sqFt: number; bedrooms: number; bathrooms: number; priceMultiplier: number; careLevel: CareLevel; highlighted: boolean }[]> = {
+  ASSISTED_LIVING: [
+    { name: 'Private Suite', unitType: 'PRIVATE', features: ['Private bathroom', 'Kitchenette', 'Emergency call system', 'Climate control', 'Cable TV'], sqFt: 450, bedrooms: 1, bathrooms: 1, priceMultiplier: 1.0, careLevel: 'ASSISTED', highlighted: true },
+    { name: 'Companion Suite', unitType: 'COMPANION', features: ['Semi-private bathroom', 'Emergency call system', 'Climate control', 'Daily housekeeping'], sqFt: 350, bedrooms: 1, bathrooms: 1, priceMultiplier: 0.75, careLevel: 'ASSISTED', highlighted: false },
+    { name: 'Studio Apartment', unitType: 'STUDIO', features: ['Private bathroom', 'Emergency call system', 'Walk-in closet', 'Natural light'], sqFt: 320, bedrooms: 0, bathrooms: 1, priceMultiplier: 0.85, careLevel: 'ASSISTED', highlighted: false },
+  ],
+  MEMORY_CARE: [
+    { name: 'Private Memory Suite', unitType: 'PRIVATE', features: ['Private bathroom', 'Secured entry', 'Calming color palette', 'Emergency call system', 'Personal item space'], sqFt: 380, bedrooms: 1, bathrooms: 1, priceMultiplier: 1.0, careLevel: 'MEMORY', highlighted: true },
+    { name: 'Shared Memory Suite', unitType: 'SHARED', features: ['Shared bathroom', 'Secured entry', 'Emergency call system', 'Visual orientation aids'], sqFt: 280, bedrooms: 1, bathrooms: 0.5, priceMultiplier: 0.7, careLevel: 'MEMORY', highlighted: false },
+  ],
+  NURSING_HOME: [
+    { name: 'Private Room', unitType: 'PRIVATE', features: ['Private bathroom', 'Nursing call system', 'Adjustable bed', 'Oxygen hookup', 'Daily monitoring'], sqFt: 300, bedrooms: 1, bathrooms: 1, priceMultiplier: 1.0, careLevel: 'SKILLED', highlighted: true },
+    { name: 'Semi-Private Room', unitType: 'SEMI_PRIVATE', features: ['Shared bathroom', 'Nursing call system', 'Adjustable bed', 'Privacy curtain'], sqFt: 220, bedrooms: 1, bathrooms: 0.5, priceMultiplier: 0.7, careLevel: 'SKILLED', highlighted: false },
+  ],
+  REHABILITATION: [
+    { name: 'Recovery Suite', unitType: 'PRIVATE', features: ['Private bathroom', 'In-room therapy space', 'Adjustable bed', 'Emergency call system', 'Daily PT access'], sqFt: 350, bedrooms: 1, bathrooms: 1, priceMultiplier: 1.0, careLevel: 'REHABILITATION_LEVEL', highlighted: true },
+    { name: 'Standard Recovery Room', unitType: 'SEMI_PRIVATE', features: ['Shared bathroom', 'Adjustable bed', 'Emergency call system', 'Therapy access'], sqFt: 250, bedrooms: 1, bathrooms: 0.5, priceMultiplier: 0.75, careLevel: 'REHABILITATION_LEVEL', highlighted: false },
+  ],
+};
 
 const CAREGIVER_PHOTOS = [
   'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400',
@@ -134,6 +196,10 @@ export async function seedLite(prisma: PrismaClient) {
     await prisma.savedFamilyProfile.deleteMany();
     console.log('[SEED]   - Deleting contactView...');
     await prisma.contactView.deleteMany();
+    console.log('[SEED]   - Deleting providerPhoto...');
+    await prisma.providerPhoto.deleteMany();
+    console.log('[SEED]   - Deleting providerUnit...');
+    await prisma.providerUnit.deleteMany();
     console.log('[SEED]   - Deleting review...');
     await prisma.review.deleteMany();
     console.log('[SEED]   - Deleting subscription (non-admin)...');
@@ -361,7 +427,7 @@ export async function seedLite(prisma: PrismaClient) {
       const photos = FACILITY_PHOTOS.slice(i % 6, (i % 6) + 4);
       const typeFields = getFacilityFields(data.type, i);
 
-      await prisma.user.create({
+      const facilityUser = await prisma.user.create({
         data: {
           email: data.email,
           name: `${data.name} Admin`,
@@ -389,6 +455,7 @@ export async function seedLite(prisma: PrismaClient) {
               photos: photos,
               coverPhoto: photos[0],
               claimed: true,
+              claimedAt: new Date(Date.now() - (30 + i * 7) * 24 * 60 * 60 * 1000), // Claimed 1-9 months ago
               verified: true,
               active: true,
               isVisible: true,
@@ -402,9 +469,57 @@ export async function seedLite(prisma: PrismaClient) {
             },
           },
         },
+        include: { provider: true },
       });
+
+      // Create ProviderPhoto records for this facility
+      const providerTypeKey = data.type as string;
+      const photoTemplates = CATEGORIZED_PHOTOS[providerTypeKey] || CATEGORIZED_PHOTOS.ASSISTED_LIVING;
+      if (facilityUser.provider) {
+        for (let p = 0; p < photoTemplates.length; p++) {
+          const pt = photoTemplates[p];
+          await prisma.providerPhoto.create({
+            data: {
+              providerId: facilityUser.provider.id,
+              url: pt.url,
+              category: pt.category,
+              caption: pt.caption,
+              altText: pt.altText,
+              sortOrder: p,
+              featured: p < 4, // First 4 photos are featured
+            },
+          });
+        }
+
+        // Create ProviderUnit records for this facility
+        const unitTemplates = UNIT_TEMPLATES[providerTypeKey] || UNIT_TEMPLATES.ASSISTED_LIVING;
+        for (let u = 0; u < unitTemplates.length; u++) {
+          const ut = unitTemplates[u];
+          const basePrice = data.price[0] ? Math.round(data.price[0] * ut.priceMultiplier) : null;
+          const maxPrice = data.price[1] ? Math.round(data.price[1] * ut.priceMultiplier) : null;
+          await prisma.providerUnit.create({
+            data: {
+              providerId: facilityUser.provider.id,
+              name: ut.name,
+              unitType: ut.unitType,
+              description: `${ut.name} at ${data.name} — ${ut.features.slice(0, 3).join(', ')}.`,
+              sqFt: ut.sqFt + Math.round((Math.random() - 0.5) * 50), // Slight variation
+              bedrooms: ut.bedrooms,
+              bathrooms: ut.bathrooms,
+              basePrice,
+              maxPrice,
+              priceNote: basePrice ? 'Includes meals, housekeeping, and basic care' : null,
+              status: u === 0 ? 'AVAILABLE' as UnitStatus : (Math.random() > 0.5 ? 'AVAILABLE' as UnitStatus : 'WAITLIST' as UnitStatus),
+              features: ut.features,
+              careLevel: ut.careLevel,
+              highlighted: ut.highlighted,
+              sortOrder: u,
+            },
+          });
+        }
+      }
     }
-    console.log('[SEED] ✅ Created 36 facility accounts');
+    console.log('[SEED] ✅ Created 36 facility accounts with units & photos');
 
     // 18 Caregiver accounts
     console.log('[SEED] Step 6: Creating 18 caregiver accounts...');

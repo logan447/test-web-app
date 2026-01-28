@@ -14,7 +14,6 @@ import ReviewsSection from "@/components/Reviews/ReviewsSection";
 import ClaimProviderModal from "@/components/Provider/ClaimProviderModal";
 import TakedownRequestModal from "@/components/Provider/TakedownRequestModal";
 import ContactInfoDisplay from "@/components/Provider/ContactInfoDisplay";
-import OleraScore from "@/components/Trust/OleraScore";
 import { ViewerRole, EngagementStatus } from "@/lib/contactVisibility";
 import { showToast } from "@/lib/toast";
 import EngagementConfirmationModal from "@/components/Engagement/EngagementConfirmationModal";
@@ -121,11 +120,67 @@ type Provider = {
   hasHospiceCare: boolean;
   specialtyPrograms: string[];
   claimed?: boolean;
+  claimedAt?: string | null;
   verified?: boolean;
   // Caregiver work preferences (Sprint 5)
   workPreferences: string[];
   preferredEmployers: string[];
   availabilityStart: Date | null;
+  // Units and photos (provider detail redesign)
+  units?: ProviderUnit[];
+  providerPhotos?: ProviderPhoto[];
+};
+
+type ProviderUnit = {
+  id: string;
+  name: string;
+  unitType: string;
+  description: string | null;
+  sqFt: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  basePrice: number | null;
+  maxPrice: number | null;
+  priceNote: string | null;
+  status: string;
+  features: string[];
+  careLevel: string | null;
+  highlighted: boolean;
+  sortOrder: number;
+};
+
+type ProviderPhoto = {
+  id: string;
+  url: string;
+  category: string;
+  caption: string | null;
+  altText: string | null;
+  featured: boolean;
+  sortOrder: number;
+};
+
+// Subtype-specific "What to Expect" content for unclaimed pages
+const WHAT_TO_EXPECT: Record<string, { heading: string; body: string }> = {
+  ASSISTED_LIVING: {
+    heading: 'What to expect at an assisted living community',
+    body: 'Assisted living communities provide a home-like setting with support for daily activities like bathing, dressing, and medication management. Most offer private or shared apartments, communal dining, social activities, and 24-hour staff. Residents typically maintain independence while having help available when needed.',
+  },
+  MEMORY_CARE: {
+    heading: 'What to expect at a memory care community',
+    body: 'Memory care communities specialize in supporting people living with Alzheimer\u2019s, dementia, or other memory conditions. They feature secured environments, structured daily routines, and staff trained in memory care techniques. Programs often include cognitive therapies, sensory activities, and personalized care plans.',
+  },
+  NURSING_HOME: {
+    heading: 'What to expect at a skilled nursing facility',
+    body: 'Skilled nursing facilities provide round-the-clock medical care supervised by registered nurses and physicians. They serve residents who need ongoing medical attention, rehabilitation after surgery or illness, or long-term care for chronic conditions. Most accept Medicare and Medicaid.',
+  },
+  REHABILITATION: {
+    heading: 'What to expect at a rehabilitation center',
+    body: 'Rehabilitation centers provide short-term intensive therapy \u2014 physical, occupational, and speech \u2014 to help patients recover after surgery, stroke, injury, or illness. Stays typically range from a few days to several weeks. The goal is returning home safely and independently.',
+  },
+  HOSPICE: {
+    heading: 'What to expect at an inpatient hospice facility',
+    body: 'Inpatient hospice facilities provide comfort-focused care for people with terminal illness when symptoms can\u2019t be managed at home. The focus is on pain management, emotional support, and quality of life \u2014 for both patients and families. Most stays are covered by Medicare hospice benefit.',
+  },
 };
 
 type ActiveEngagement = {
@@ -166,7 +221,6 @@ export default function ProviderDetailPage() {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [activeEngagement, setActiveEngagement] = useState<ActiveEngagement>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
   const [questions, setQuestions] = useState<Array<{ id: string; content: string; likeCount: number; answer: string | null; answeredAt: string | null; createdAt: string; user: { name: string | null } }>>([]);
   const [newQuestion, setNewQuestion] = useState("");
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
@@ -905,125 +959,120 @@ export default function ProviderDetailPage() {
         </div>
       </div>
 
-      {/* ===================== FULL-BLEED HERO ===================== */}
+      {/* ===================== HERO ===================== */}
       <div ref={heroRef} className="relative">
-        {/* Mobile: full-bleed photo carousel */}
-        <div className="md:hidden relative aspect-[4/3] overflow-hidden bg-gray-200">
-          {allPhotos.length > 0 ? (
-            <>
+        {/* Unclaimed providers: Leaflet map as contextual hero */}
+        {!provider.claimed && provider.latitude && provider.longitude ? (
+          <div className="relative bg-stone-100" style={{ height: '340px' }}>
+            <iframe
+              className="w-full h-full border-0 grayscale opacity-80"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${provider.longitude - 0.01}%2C${provider.latitude - 0.005}%2C${provider.longitude + 0.01}%2C${provider.latitude + 0.005}&layer=mapnik&marker=${provider.latitude}%2C${provider.longitude}`}
+              title="Location"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-50 via-transparent to-transparent pointer-events-none" />
+          </div>
+        ) : provider.claimed && allPhotos.length > 0 ? (
+          <>
+            {/* Mobile: gentle carousel */}
+            <div className="md:hidden relative aspect-[4/3] overflow-hidden bg-stone-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={allPhotos[currentPhotoIndex]} alt={provider.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
-                <p className="text-white/80 text-xs font-medium mb-1">{formatProviderType(provider.providerType)}{provider.claimed ? ' \u00b7 Verified' : ''}</p>
-                <h1 className="text-2xl font-bold leading-tight mb-1">{provider.name}</h1>
-                <p className="text-white/80 text-sm">{provider.city}, {provider.state}</p>
-                {provider.averageRating && (
-                  <div className="flex items-center gap-1.5 mt-2">
-                    <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" /></svg>
-                    <span className="text-white/90 text-sm font-semibold">{provider.averageRating.toFixed(1)}</span>
-                    <span className="text-white/60 text-sm">({provider.reviewCount})</span>
-                  </div>
-                )}
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <p className="text-white/70 text-sm font-medium mb-1">{formatProviderType(provider.providerType)}</p>
+                <h1 className="text-2xl font-bold leading-tight">{provider.name}</h1>
+                <p className="text-white/70 text-sm mt-1">{provider.city}, {provider.state}</p>
               </div>
               {allPhotos.length > 1 && (
                 <>
-                  <button onClick={() => setCurrentPhotoIndex((prev) => (prev === 0 ? allPhotos.length - 1 : prev - 1))} className="absolute left-3 top-1/3 w-12 h-12 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <button onClick={() => setCurrentPhotoIndex((prev) => (prev === 0 ? allPhotos.length - 1 : prev - 1))} className="absolute left-3 top-1/3 w-12 h-12 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg" aria-label="Previous photo">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                   </button>
-                  <button onClick={() => setCurrentPhotoIndex((prev) => (prev === allPhotos.length - 1 ? 0 : prev + 1))} className="absolute right-3 top-1/3 w-12 h-12 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <button onClick={() => setCurrentPhotoIndex((prev) => (prev === allPhotos.length - 1 ? 0 : prev + 1))} className="absolute right-3 top-1/3 w-12 h-12 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg" aria-label="Next photo">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                   </button>
-                  <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                    {allPhotos.slice(0, 5).map((_, idx) => (
-                      <button key={idx} onClick={() => setCurrentPhotoIndex(idx)} className={`rounded-full transition-all ${currentPhotoIndex === idx ? 'w-3 h-3 bg-white' : 'w-2 h-2 bg-white/50'}`} aria-label={`Photo ${idx + 1}`} />
-                    ))}
-                  </div>
                 </>
               )}
-              <div className="absolute top-3 right-3 flex items-center gap-2">
-                <button onClick={handleSaveToggle} disabled={saving} className="w-11 h-11 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg">
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <button onClick={handleSaveToggle} disabled={saving} className="w-11 h-11 bg-white/80 active:bg-white rounded-full flex items-center justify-center shadow-lg" aria-label={isProviderSaved ? 'Unsave' : 'Save'}>
                   <svg className={`w-5 h-5 ${isProviderSaved ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} viewBox="0 0 24 24" stroke="currentColor" fill={isProviderSaved ? 'currentColor' : 'none'} strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                 </button>
-                {allPhotos.length > 1 && (
-                  <button onClick={() => setPhotoTourOpen(true)} className="px-3 py-2 bg-white/90 text-gray-900 text-xs font-medium rounded-full shadow-lg">{allPhotos.length} photos</button>
-                )}
               </div>
-            </>
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary-50 to-stone-100 flex items-center justify-center">
-              <p className="text-primary-300 text-base font-medium">Photos coming soon</p>
+              {/* See all photos — large, obvious for 65+ */}
+              {allPhotos.length > 1 && (
+                <button onClick={() => setPhotoTourOpen(true)} className="absolute bottom-6 right-6 px-5 py-2.5 bg-white text-gray-900 text-sm font-semibold rounded-xl shadow-lg">
+                  See all {allPhotos.length} photos
+                </button>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Desktop: full-width 4-photo mosaic */}
-        <div className="hidden md:block">
-          {allPhotos.length > 0 ? (
-            <div className="grid grid-cols-4 grid-rows-2 gap-1" style={{ height: '420px' }}>
-              <div className="col-span-2 row-span-2 relative cursor-pointer group overflow-hidden" onClick={() => setPhotoTourOpen(true)}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={allPhotos[0]} alt={provider.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            {/* Desktop: 4-photo mosaic with generous gaps */}
+            <div className="hidden md:block">
+              <div className="grid grid-cols-4 grid-rows-2 gap-2 rounded-none overflow-hidden" style={{ height: '420px' }}>
+                <div className="col-span-2 row-span-2 relative cursor-pointer group overflow-hidden" onClick={() => setPhotoTourOpen(true)}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={allPhotos[0]} alt={provider.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                {[1, 2, 3].map((idx) => (
+                  <div key={idx} className="relative cursor-pointer group overflow-hidden" onClick={() => setPhotoTourOpen(true)}>
+                    {allPhotos[idx] ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={allPhotos[idx]} alt={`${provider.name} photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="w-full h-full bg-stone-200" />
+                    )}
+                  </div>
+                ))}
               </div>
-              {[1, 2, 3].map((idx) => (
-                <div key={idx} className="relative cursor-pointer group overflow-hidden" onClick={() => setPhotoTourOpen(true)}>
-                  {allPhotos[idx] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={allPhotos[idx]} alt={`${provider.name} photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200" />
-                  )}
-                  {idx === 3 && allPhotos.length > 4 && (
-                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                      <span className="text-white font-semibold text-base">+{allPhotos.length - 4} photos</span>
-                    </div>
+              {/* Desktop controls below the mosaic, not overlaid */}
+              <div className="max-w-5xl mx-auto px-6 -mt-14 relative z-10 flex items-center justify-between">
+                <div />
+                <div className="flex items-center gap-3">
+                  <button onClick={handleSaveToggle} disabled={saving} className={`h-10 px-5 bg-white/95 hover:bg-white rounded-full shadow-lg flex items-center gap-2 text-sm font-semibold transition-colors ${isProviderSaved ? 'text-red-500' : 'text-gray-700'}`}>
+                    <svg className={`w-4 h-4 ${isProviderSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" fill={isProviderSaved ? 'currentColor' : 'none'} strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                    {isProviderSaved ? 'Saved' : 'Save'}
+                  </button>
+                  {allPhotos.length > 1 && (
+                    <button onClick={() => setPhotoTourOpen(true)} className="h-10 px-5 bg-white/95 hover:bg-white rounded-full shadow-lg text-sm font-semibold text-gray-700 transition-colors">
+                      See all {allPhotos.length} photos
+                    </button>
                   )}
                 </div>
-              ))}
-              {/* Overlaid save button */}
-              <div className="absolute top-4 right-4 flex items-center gap-2" style={{ position: 'relative', gridColumn: 'auto', gridRow: 'auto', display: 'none' }} />
-            </div>
-          ) : (
-            <div className="h-72 bg-gradient-to-br from-primary-50 to-stone-100 flex items-center justify-center">
-              <p className="text-primary-300 text-base font-medium">Photos coming soon</p>
-            </div>
-          )}
-          {/* Floating controls on desktop hero */}
-          {allPhotos.length > 0 && (
-            <div className="relative">
-              <div className="absolute -top-[420px] right-4 top-4 flex items-center gap-2 z-10" style={{ position: 'absolute', top: '-400px' }}>
-                <button onClick={handleSaveToggle} disabled={saving} className={`h-10 px-4 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center gap-2 text-sm font-medium transition-colors ${isProviderSaved ? 'text-red-500' : 'text-gray-700'}`}>
-                  <svg className={`w-4 h-4 ${isProviderSaved ? 'fill-current' : ''}`} viewBox="0 0 24 24" stroke="currentColor" fill={isProviderSaved ? 'currentColor' : 'none'} strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                  {isProviderSaved ? 'Saved' : 'Save'}
-                </button>
               </div>
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          /* No photos, no coordinates — gentle placeholder */
+          <div className="h-48 md:h-64 bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
+            <div className="text-center">
+              <svg className="w-12 h-12 text-stone-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+              <p className="text-stone-400 text-base font-medium">{provider.name}</p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ===================== STICKY ANCHOR NAV ===================== */}
-      <div className={`sticky z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200 transition-all ${showStickyBar ? 'top-[52px]' : 'top-[52px]'}`}>
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex items-center justify-between">
-            <nav className="flex items-center gap-1 overflow-x-auto -mb-px" style={{ scrollbarWidth: 'none' }}>
-              {(['overview', isFacility ? 'rooms' : 'pricing', 'care', 'reviews', 'location'] as const).map((id) => {
-                const labels: Record<string, string> = { overview: 'Overview', rooms: 'Rooms & Pricing', pricing: 'Pricing', care: 'Care & Staff', reviews: 'Reviews', location: 'Location' };
-                return (
-                  <button
-                    key={id}
-                    onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                    className={`px-4 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                      activeSection === id ? 'border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    {labels[id]}
-                  </button>
-                );
-              })}
+      {/* ===================== ANCHOR NAV ===================== */}
+      <div className={`sticky z-30 bg-white border-b border-gray-200 transition-all top-[52px]`}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center gap-4">
+            <nav className="flex-1 flex items-center gap-1 overflow-x-auto -mb-px" style={{ scrollbarWidth: 'none' }}>
+              {anchorSections.map((sec) => (
+                <button
+                  key={sec.id}
+                  onClick={() => document.getElementById(sec.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className={`px-4 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                    activeSection === sec.id ? 'border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {sec.label}
+                </button>
+              ))}
             </nav>
-            <div className={`transition-all duration-200 ${showStickyBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-              <button onClick={handleContactSubmit} disabled={submitting} className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors text-sm shrink-0">
+            <div className={`shrink-0 transition-all duration-200 py-2 ${showStickyBar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <button onClick={handleContactSubmit} disabled={submitting} className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors text-sm whitespace-nowrap">
                 {submitting ? 'Sending...' : ctaLabel}
               </button>
             </div>
@@ -1035,156 +1084,238 @@ export default function ProviderDetailPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 pb-28">
 
         {/* ==================== OVERVIEW ==================== */}
-        <section id="overview" ref={(el) => { sectionRefs.current['overview'] = el; }} className="scroll-mt-28 mb-14">
-          {/* Desktop: name + trust row (mobile gets it overlaid on hero) */}
-          <div className="hidden md:block mb-6">
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">{provider.name}</h1>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-gray-600">
-              <span className="font-medium">{formatProviderType(provider.providerType)}</span>
-              {provider.claimed && (
-                <span className="inline-flex items-center gap-1 text-primary-700 font-medium text-sm">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                  Verified
-                </span>
-              )}
-              <span className="text-gray-300">&middot;</span>
-              <span>{provider.city}, {provider.state}</span>
-              {provider.averageRating && (
-                <>
-                  <span className="text-gray-300">&middot;</span>
-                  <span className="inline-flex items-center gap-1">
-                    <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" /></svg>
-                    <span className="font-semibold">{provider.averageRating.toFixed(1)}</span>
-                    <span className="text-gray-500">({provider.reviewCount})</span>
-                  </span>
-                </>
-              )}
+        <section id="overview" ref={(el) => { sectionRefs.current['overview'] = el; }} className="scroll-mt-28 mb-16">
+
+          {/* Trust bar — one signal, calm */}
+          <div className="mb-8">
+            <p className="text-sm text-gray-500">
+              {provider.claimed
+                ? <span className="inline-flex items-center gap-1.5"><svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg><span className="text-primary-700 font-medium">Verified provider</span></span>
+                : 'Community-reported information'}
+            </p>
+          </div>
+
+          {/* Name + location — Desktop (mobile gets it in hero overlay or below map) */}
+          <div className="mb-8">
+            {/* Mobile name for unclaimed (no hero overlay) */}
+            {!provider.claimed && (
+              <div className="md:hidden mb-6">
+                <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-1">{provider.name}</h1>
+                <p className="text-base text-gray-600">{formatProviderType(provider.providerType)} &middot; {provider.city}, {provider.state}</p>
+              </div>
+            )}
+            {/* Desktop name */}
+            <div className="hidden md:block">
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">{provider.name}</h1>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-gray-600">
+                <span>{formatProviderType(provider.providerType)}</span>
+                <span className="text-gray-300">&middot;</span>
+                <span>{provider.city}, {provider.state}</span>
+                {provider.averageRating != null && provider.reviewCount > 0 && (
+                  <>
+                    <span className="text-gray-300">&middot;</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" /></svg>
+                      <span className="font-semibold text-gray-900">{provider.averageRating.toFixed(1)}</span>
+                      <span>({provider.reviewCount} {provider.reviewCount === 1 ? 'review' : 'reviews'})</span>
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Key facts — 4 cards in a row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">{provider.providerType === 'HOSPICE' ? 'Cost' : 'From'}</p>
-              <p className="text-lg font-bold text-gray-900">{provider.providerType === 'HOSPICE' ? 'Medicare' : provider.priceMin ? `$${provider.priceMin.toLocaleString()}/${priceUnit}` : 'Contact us'}</p>
+          {/* Key facts — generous cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 text-center">
+              <p className="text-sm text-gray-500 mb-1">{provider.providerType === 'HOSPICE' ? 'Cost' : 'Starting from'}</p>
+              <p className="text-xl font-bold text-gray-900">{provider.providerType === 'HOSPICE' ? 'Medicare' : provider.priceMin ? `$${provider.priceMin.toLocaleString()}/${priceUnit}` : 'Contact us'}</p>
             </div>
-            <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">{isFacility ? 'Availability' : 'Area'}</p>
-              <p className="text-lg font-bold text-gray-900">{isFacility ? (provider.availableSpots != null ? (provider.availableSpots > 0 ? `${provider.availableSpots} spots` : 'Waitlist') : 'Contact') : (provider.serviceRadius ? `${provider.serviceRadius} mi` : provider.city)}</p>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 text-center">
+              <p className="text-sm text-gray-500 mb-1">{isFacility ? 'Availability' : 'Service area'}</p>
+              <p className="text-xl font-bold text-gray-900">{isFacility ? (provider.availableSpots != null ? (provider.availableSpots > 0 ? `${provider.availableSpots} spots` : 'Waitlist') : 'Contact') : (provider.serviceRadius ? `${provider.serviceRadius} mi` : provider.city)}</p>
             </div>
-            <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">{isFacility ? 'Staff Ratio' : 'Licensed'}</p>
-              <p className="text-lg font-bold text-gray-900">{isFacility && provider.staffToResidentRatio ? provider.staffToResidentRatio : provider.licensed ? 'Yes' : provider.backgroundChecked ? 'Verified' : '\u2014'}</p>
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">{provider.yearsInBusiness ? 'Experience' : 'Capacity'}</p>
-              <p className="text-lg font-bold text-gray-900">{provider.yearsInBusiness ? `${provider.yearsInBusiness} years` : provider.totalCapacity ? `${provider.totalCapacity} beds` : '\u2014'}</p>
-            </div>
+            {isFacility && provider.staffToResidentRatio && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 text-center">
+                <p className="text-sm text-gray-500 mb-1">Staff ratio</p>
+                <p className="text-xl font-bold text-gray-900">{provider.staffToResidentRatio}</p>
+              </div>
+            )}
+            {(provider.yearsInBusiness || provider.totalCapacity) && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 text-center">
+                <p className="text-sm text-gray-500 mb-1">{provider.yearsInBusiness ? 'Experience' : 'Capacity'}</p>
+                <p className="text-xl font-bold text-gray-900">{provider.yearsInBusiness ? `${provider.yearsInBusiness} years` : `${provider.totalCapacity} beds`}</p>
+              </div>
+            )}
           </div>
 
-          {/* About + CTA card */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-3">About {provider.name}</h2>
-            <p className="text-gray-600 leading-relaxed text-base">
+          {/* About — warm, spacious */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 md:p-10 mb-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">About {provider.name}</h2>
+            <p className="text-gray-700 leading-loose text-base max-w-3xl">
               {provider.description || `${provider.name} is a ${formatProviderType(provider.providerType).toLowerCase()} provider in ${provider.city}, ${provider.state}. ${isFacility ? 'Schedule a free tour to see their community and meet the care team.' : isHomeCare ? 'Schedule a free consultation to discuss your care needs.' : 'Reach out to learn about their experience and availability.'}`}
             </p>
 
-            {/* Inline review quote for social proof */}
-            {provider.averageRating && provider.averageRating >= 4.0 && provider.reviewCount >= 5 && (
-              <div className="mt-6 pt-5 border-t border-gray-100 flex gap-3">
-                <svg className="w-8 h-8 text-primary-200 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.546 6.068 5.983 8.789 5.983 11h4v10H0z" /></svg>
+            {/* Inline review quote */}
+            {provider.averageRating != null && provider.averageRating >= 4.0 && provider.reviewCount >= 5 && (
+              <div className="mt-8 pt-6 border-t border-gray-100 flex gap-4">
+                <svg className="w-8 h-8 text-stone-300 shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.546 6.068 5.983 8.789 5.983 11h4v10H0z" /></svg>
                 <div>
-                  <p className="text-gray-600 italic leading-relaxed">{isFacility ? '"The staff genuinely care. We felt at home from the first visit."' : '"Professional, compassionate, and reliable. We couldn\'t ask for more."'}</p>
-                  <p className="text-sm text-gray-400 mt-2">From a verified Olera review</p>
+                  <p className="text-gray-600 italic leading-relaxed text-base">{isFacility ? '"The staff genuinely care. We felt at home from the first visit."' : '"Professional, compassionate, and reliable. We couldn\'t ask for more."'}</p>
+                  <p className="text-sm text-gray-400 mt-3">From a family review on Olera</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Primary CTA */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 text-center">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">{isFacility ? 'See it for yourself' : isHomeCare ? 'Let\u2019s find the right care' : 'Let\u2019s connect'}</h3>
-            <p className="text-gray-500 text-base mb-5 max-w-lg mx-auto">{isFacility ? 'A free, no-obligation tour is the best way to know if this community is right for your family.' : 'A free consultation helps you understand their approach. No commitment needed.'}</p>
+          {/* What to Expect — unclaimed pages only, warm editorial */}
+          {!provider.claimed && isFacility && WHAT_TO_EXPECT[provider.providerType] && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 md:p-10 mb-8">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">{WHAT_TO_EXPECT[provider.providerType].heading}</h2>
+              <p className="text-gray-700 leading-loose text-base max-w-3xl">
+                {WHAT_TO_EXPECT[provider.providerType].body}
+              </p>
+            </div>
+          )}
+
+          {/* How It Works — gentle reassurance */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+              <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Browse communities</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">Compare options in your area. Save the ones that feel right.</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+              <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{isFacility ? 'Schedule a free tour' : 'Request a consultation'}</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">{isFacility ? 'Visit in person to see the community and meet the team.' : 'Connect directly to discuss your care needs.'}</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+              <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Choose the right fit</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">Take your time. The right fit matters more than the first fit.</p>
+            </div>
+          </div>
+
+          {/* Primary CTA — warm, not transactional */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 md:p-10 text-center">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">{isFacility ? 'See it for yourself' : isHomeCare ? 'Let\u2019s find the right care' : 'Let\u2019s connect'}</h3>
+            <p className="text-gray-600 text-base mb-6 max-w-lg mx-auto leading-relaxed">{isFacility ? 'A free, no-obligation tour is the best way to know if this community is right for your family.' : 'A free consultation helps you understand their approach. No commitment needed.'}</p>
             <button onClick={handleContactSubmit} disabled={submitting} className="w-full sm:w-auto px-10 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl transition-colors disabled:opacity-50 text-lg">
               {submitting ? 'Sending...' : ctaLabel}
             </button>
-            <p className="mt-3 text-sm text-gray-400">Free &middot; No obligation &middot; Takes 30 seconds</p>
+            <p className="mt-4 text-sm text-gray-400">Free &middot; No obligation &middot; Takes 30 seconds</p>
             {provider.phone && !isCaregiver && (
-              <p className="mt-3 pt-3 border-t border-gray-100">
-                <a href={`tel:${provider.phone}`} className="text-sm text-gray-500 hover:text-gray-700 font-medium">Or call {provider.phone}</a>
+              <p className="mt-4 pt-4 border-t border-gray-100">
+                <a href={`tel:${provider.phone}`} className="text-base text-gray-600 hover:text-gray-800 font-medium">Or call {provider.phone}</a>
               </p>
             )}
           </div>
 
-          {/* Unclaimed banner */}
+          {/* Claim banner — prominent for unclaimed, motivating not shaming */}
           {!provider.claimed && !isCaregiver && (
-            <div className="mt-4 flex items-start gap-3 p-4 bg-amber-50 rounded-2xl border border-amber-200">
-              <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <div>
-                <p className="text-sm text-amber-800 font-medium">This page has not been claimed</p>
-                <p className="text-sm text-amber-700 mt-1">Information may be incomplete. Contact the provider to confirm details.</p>
-                <button onClick={() => setClaimModalOpen(true)} className="mt-2 text-sm text-primary-600 font-semibold hover:underline">Are you the owner? Claim this page</button>
-              </div>
+            <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-8 text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Do you manage {provider.name}?</h3>
+              <p className="text-gray-600 text-sm mb-4 max-w-md mx-auto leading-relaxed">Claim this page to update your information, add photos, and connect with families looking for care.</p>
+              <button onClick={() => setClaimModalOpen(true)} className="px-8 py-3 border-2 border-primary-600 text-primary-700 font-semibold rounded-2xl hover:bg-primary-50 transition-colors">
+                Claim this page
+              </button>
             </div>
           )}
         </section>
 
         {/* ==================== ROOMS & PRICING ==================== */}
-        <section id={isFacility ? 'rooms' : 'pricing'} ref={(el) => { sectionRefs.current[isFacility ? 'rooms' : 'pricing'] = el; }} className="scroll-mt-28 mb-14">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">{isFacility ? 'Rooms & Pricing' : 'Pricing'}</h2>
+        <section id={isFacility ? 'rooms' : 'pricing'} ref={(el) => { sectionRefs.current[isFacility ? 'rooms' : 'pricing'] = el; }} className="scroll-mt-28 mb-16">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8">{isFacility ? 'Rooms & pricing' : 'Pricing'}</h2>
 
-          {/* Room options — product-defining for facilities */}
-          {isFacility && provider.totalCapacity && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {/* Private Suite */}
-              <div className="bg-white rounded-2xl border-2 border-primary-200 p-6 relative">
-                <span className="absolute top-4 right-4 text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-1 rounded-full">Most popular</span>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">Private Suite</h3>
-                <p className="text-gray-500 text-sm mb-4">Your own space with a private bathroom</p>
-                {provider.priceMin && (
-                  <p className="text-2xl font-bold text-gray-900 mb-1">
-                    ${provider.priceMin.toLocaleString()}<span className="text-base font-normal text-gray-400">/mo</span>
-                  </p>
-                )}
-                <ul className="space-y-2 mt-4 mb-6">
-                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Private bathroom</li>
-                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Emergency call system</li>
-                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Climate control</li>
-                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>All meals included</li>
-                </ul>
-                <button onClick={handleContactSubmit} disabled={submitting} className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors">
-                  {isFacility ? 'Tour this room' : ctaLabel}
-                </button>
-              </div>
-              {/* Shared Room */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">Shared Room</h3>
-                <p className="text-gray-500 text-sm mb-4">Semi-private with a shared bathroom</p>
-                {provider.priceMin && (
-                  <p className="text-2xl font-bold text-gray-900 mb-1">
-                    ${Math.round(provider.priceMin * 0.7).toLocaleString()}<span className="text-base font-normal text-gray-400">/mo</span>
-                  </p>
-                )}
-                <ul className="space-y-2 mt-4 mb-6">
-                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Semi-private layout</li>
-                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Emergency call system</li>
-                  <li className="flex items-center gap-2 text-sm text-gray-600"><svg className="w-4 h-4 text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>All meals included</li>
-                </ul>
-                <button onClick={handleContactSubmit} disabled={submitting} className="w-full py-3 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-colors">
-                  {isFacility ? 'Tour this room' : ctaLabel}
-                </button>
-              </div>
+          {/* Unit cards from ProviderUnit data — calm, photo + name + price */}
+          {isFacility && provider.units && provider.units.length > 0 ? (
+            <div className="space-y-6 mb-8">
+              {provider.units.map((unit) => (
+                <div key={unit.id} className="bg-white rounded-2xl border border-gray-200 p-8">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-1">{unit.name}</h3>
+                      {unit.description && (
+                        <p className="text-gray-600 text-sm leading-relaxed mb-3">{unit.description}</p>
+                      )}
+                      {/* Availability — simple text, not dots */}
+                      <p className={`text-sm font-medium ${unit.status === 'AVAILABLE' ? 'text-emerald-700' : unit.status === 'WAITLIST' ? 'text-amber-700' : 'text-gray-500'}`}>
+                        {unit.status === 'AVAILABLE' ? 'Available' : unit.status === 'WAITLIST' ? 'Waitlist' : unit.status === 'COMING_SOON' ? 'Coming soon' : 'Occupied'}
+                      </p>
+                    </div>
+                    <div className="md:text-right shrink-0">
+                      {unit.basePrice ? (
+                        <p className="text-2xl font-bold text-gray-900">
+                          ${unit.basePrice.toLocaleString()}<span className="text-base font-normal text-gray-400">/mo</span>
+                        </p>
+                      ) : (
+                        <p className="text-lg font-medium text-gray-500">Contact for pricing</p>
+                      )}
+                      {unit.priceNote && (
+                        <p className="text-sm text-gray-500 mt-1">{unit.priceNote}</p>
+                      )}
+                    </div>
+                  </div>
+                  {/* Details — progressive reveal */}
+                  {(unit.sqFt || unit.features.length > 0) && (
+                    <>
+                      <button onClick={() => toggleSection(`unit-${unit.id}`)} className="mt-4 text-sm text-primary-600 font-medium hover:text-primary-700 transition-colors">
+                        {expandedSections[`unit-${unit.id}`] ? 'Hide details' : 'View details'}
+                      </button>
+                      {expandedSections[`unit-${unit.id}`] && (
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 mb-4">
+                            {unit.sqFt && <span>{unit.sqFt} sq ft</span>}
+                            {unit.bedrooms != null && <span>{unit.bedrooms === 0 ? 'Studio' : `${unit.bedrooms} bed`}</span>}
+                            {unit.bathrooms != null && <span>{unit.bathrooms} bath</span>}
+                          </div>
+                          {unit.features.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {unit.features.map((f) => (
+                                <span key={f} className="px-3 py-1.5 bg-stone-50 text-gray-700 text-sm rounded-full">{f}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          )}
+          ) : isFacility && !provider.claimed ? (
+            /* Unclaimed facility: generic prompt */
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-8 text-center">
+              <p className="text-gray-600 text-base mb-2">Pricing varies by room type and care level.</p>
+              <p className="text-gray-500 text-sm">Contact {provider.name} directly to learn about room options and current pricing.</p>
+            </div>
+          ) : isFacility ? (
+            /* Claimed facility without units: fallback with price range */
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-8">
+              {provider.priceMin && (
+                <p className="text-2xl font-bold text-gray-900 mb-2">
+                  From ${provider.priceMin.toLocaleString()}<span className="text-base font-normal text-gray-400">/mo</span>
+                </p>
+              )}
+              <p className="text-gray-600 text-sm">Ask about specific room options and pricing during your tour.</p>
+            </div>
+          ) : null}
 
           {/* Non-facility pricing */}
           {!isFacility && provider.priceMin && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 mb-6">
-              <div className="flex items-baseline gap-2 mb-2">
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-8">
+              <div className="flex items-baseline gap-2 mb-3">
                 <span className="text-3xl font-bold text-gray-900">${provider.priceMin.toLocaleString()}</span>
                 <span className="text-lg text-gray-400">/ {priceUnit}</span>
               </div>
-              <p className="text-gray-500 text-sm mb-5">Actual cost depends on care level and services needed.</p>
+              <p className="text-gray-600 text-sm mb-6">Actual cost depends on care level and services needed.</p>
               <button onClick={handleContactSubmit} disabled={submitting} className="w-full sm:w-auto px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors">
                 {ctaLabel}
               </button>
@@ -1193,16 +1324,16 @@ export default function ProviderDetailPage() {
 
           {/* Payment methods — collapsible */}
           {provider.paymentOptions?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
-              <button onClick={() => toggleSection('payment')} className="w-full px-6 py-5 flex items-center justify-between text-left">
-                <h3 className="text-lg font-semibold text-gray-900">Payment Methods</h3>
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <button onClick={() => toggleSection('payment')} className="w-full px-8 py-6 flex items-center justify-between text-left">
+                <h3 className="text-lg font-semibold text-gray-900">Payment methods accepted</h3>
                 <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedSections.payment ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </button>
               {expandedSections.payment && (
-                <div className="px-6 pb-5 -mt-2">
+                <div className="px-8 pb-6 -mt-2">
                   <div className="flex flex-wrap gap-2">
                     {provider.paymentOptions.map((opt) => (
-                      <span key={opt} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full font-medium">{opt}</span>
+                      <span key={opt} className="px-3 py-1.5 bg-stone-50 text-gray-700 text-sm rounded-full">{opt}</span>
                     ))}
                   </div>
                 </div>
@@ -1210,73 +1341,42 @@ export default function ProviderDetailPage() {
             </div>
           )}
 
-          {/* Availability for facilities */}
-          {isFacility && (provider.availableSpots !== null || provider.totalCapacity) && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm">Current availability</p>
-                  <p className="text-xl font-bold text-gray-900 mt-1">
-                    {provider.availableSpots != null
-                      ? (provider.availableSpots > 0 ? `${provider.availableSpots} spots open` : 'Currently full')
-                      : 'Contact for availability'}
-                  </p>
-                </div>
-                {provider.totalCapacity && (
-                  <div className="text-right">
-                    <p className="text-gray-500 text-sm">Total capacity</p>
-                    <p className="text-xl font-bold text-gray-900 mt-1">{provider.totalCapacity}</p>
-                  </div>
-                )}
-              </div>
-              {provider.waitlistAvailable && provider.availableSpots === 0 && (
-                <p className="mt-3 text-sm text-primary-600 font-medium">Waitlist available — ask during your tour</p>
-              )}
-            </div>
-          )}
-
-          {/* Pricing disclaimer */}
-          <p className="text-xs text-gray-400 mt-3">Prices are estimates. Contact the provider for personalized pricing based on care needs.</p>
-
-          {/* Tour nudge */}
-          {isFacility && (
-            <p className="text-sm text-gray-500 mt-4 italic">Ask about exact room options, floor plans, and availability during your tour.</p>
-          )}
+          <p className="text-sm text-gray-400 mt-6">Prices are estimates. Contact the provider for personalized pricing based on care needs.</p>
         </section>
 
         {/* ==================== CARE & STAFF ==================== */}
-        <section id="care" ref={(el) => { sectionRefs.current['care'] = el; }} className="scroll-mt-28 mb-14">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Care &amp; Staff</h2>
+        <section id="care" ref={(el) => { sectionRefs.current['care'] = el; }} className="scroll-mt-28 mb-16">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8">Care &amp; staff</h2>
 
-          {/* Key care highlights — always visible */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 mb-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Key care highlights — always visible, calm stone icons */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {provider.hasRNOnSite && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" /></svg>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-stone-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" /></svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">RN on-site</p>
-                    <p className="text-sm text-gray-500">Registered nurse available</p>
+                    <p className="text-sm text-gray-600">Registered nurse available</p>
                   </div>
                 </div>
               )}
               {provider.hasLVNOnSite && !provider.hasRNOnSite && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" /></svg>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-stone-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" /></svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Licensed nurse on-site</p>
-                    <p className="text-sm text-gray-500">LVN available for care support</p>
+                    <p className="text-sm text-gray-600">LVN available for care support</p>
                   </div>
                 </div>
               )}
               {provider.staffToResidentRatio && isFacility && (
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+                  <div className="w-10 h-10 bg-stone-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">{provider.staffToResidentRatio} staff ratio</p>
@@ -1286,8 +1386,8 @@ export default function ProviderDetailPage() {
               )}
               {provider.allStaffBackgroundChecked && (
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+                  <div className="w-10 h-10 bg-stone-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Background checked</p>
@@ -1297,8 +1397,8 @@ export default function ProviderDetailPage() {
               )}
               {provider.languagesSpoken?.length >= 2 && (
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" /></svg>
+                  <div className="w-10 h-10 bg-stone-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" /></svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Multilingual</p>
@@ -1308,8 +1408,8 @@ export default function ProviderDetailPage() {
               )}
               {provider.licensed && (isHomeCare || provider.providerType === 'HOSPICE') && (
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                  <div className="w-10 h-10 bg-stone-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">State licensed</p>
@@ -1463,54 +1563,30 @@ export default function ProviderDetailPage() {
           </p>
         </section>
         {/* ==================== REVIEWS ==================== */}
-        <section id="reviews" ref={(el) => { sectionRefs.current['reviews'] = el; }} className="scroll-mt-28 mb-14">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Reviews</h2>
+        <section id="reviews" ref={(el) => { sectionRefs.current['reviews'] = el; }} className="scroll-mt-28 mb-16">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8">Reviews</h2>
 
-          {/* Olera Score */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-gray-900">Olera Score</h3>
-                <p className="text-xs text-gray-500 mt-1 max-w-sm">
-                  Based on reviews, profile completeness, and verification.
-                </p>
-                <button
-                  onClick={() => setShowScoreBreakdown(!showScoreBreakdown)}
-                  className="text-xs text-primary-600 hover:text-primary-700 font-medium mt-1.5 inline-flex items-center gap-1"
-                >
-                  {showScoreBreakdown ? 'Hide details' : 'How the Olera Score works'}
-                  <svg className={`w-3.5 h-3.5 transition-transform ${showScoreBreakdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+          {/* Simplified rating header — one number, one count */}
+          {provider.averageRating != null && provider.reviewCount > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-gray-900">{provider.averageRating.toFixed(1)}</p>
+                  <div className="flex items-center gap-0.5 mt-1 justify-center">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <svg key={star} className={`w-5 h-5 ${star <= Math.round(provider.averageRating!) ? 'text-amber-400 fill-current' : 'text-gray-200 fill-current'}`} viewBox="0 0 20 20">
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">Based on {provider.reviewCount} {provider.reviewCount === 1 ? 'review' : 'reviews'}</p>
+                </div>
               </div>
-              <OleraScore
-                provider={provider}
-                averageRating={provider.averageRating}
-                reviewCount={provider.reviewCount}
-                size="large"
-                showLabel={true}
-                showBreakdown={false}
-                showBadges={true}
-              />
             </div>
-            {showScoreBreakdown && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <OleraScore
-                  provider={provider}
-                  averageRating={provider.averageRating}
-                  reviewCount={provider.reviewCount}
-                  size="medium"
-                  showLabel={false}
-                  showBreakdown={true}
-                  showBadges={false}
-                />
-              </div>
-            )}
-          </div>
+          )}
 
-          {/* Reviews */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          {/* Reviews list */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-8">
             <ReviewsSection
               providerId={provider.id}
               averageRating={provider.averageRating}
@@ -1519,71 +1595,76 @@ export default function ProviderDetailPage() {
             />
           </div>
 
-          {/* Q&A */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-primary-600 uppercase tracking-wide mb-4">
-              Questions &amp; Answers
-            </h3>
-
-            {questions.length > 0 ? (
-              <div className="space-y-4 mb-4">
-                {questions.map((q) => (
-                  <div key={q.id} className="py-4 border-b border-gray-100 last:border-0">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-medium text-sm shrink-0">
-                        Q
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-gray-900 font-medium">{q.content}</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {q.user.name || 'Anonymous'} &middot; {new Date(q.createdAt).toLocaleDateString()}
-                        </p>
-                        {q.answer && (
-                          <div className="mt-3 ml-2 pl-4 border-l-2 border-primary-200">
-                            <div className="flex items-center gap-1 mb-1">
-                              <span className="text-xs font-semibold text-primary-600">Provider Answer</span>
-                            </div>
-                            <p className="text-sm text-gray-700">{q.answer}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          {/* Q&A — collapsible, calmer styling */}
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mt-6">
+            <button onClick={() => toggleSection('qa')} className="w-full px-8 py-6 flex items-center justify-between text-left">
+              <h3 className="text-lg font-semibold text-gray-900">Questions &amp; answers</h3>
+              <div className="flex items-center gap-3">
+                {questions.length > 0 && <span className="text-sm text-gray-500">{questions.length}</span>}
+                <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedSections.qa ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </div>
-            ) : (
-              <p className="text-sm text-gray-500 mb-4">No questions yet. Be the first to ask!</p>
-            )}
+            </button>
+            {expandedSections.qa && (
+              <div className="px-8 pb-8 -mt-2">
+                {questions.length > 0 ? (
+                  <div className="space-y-4 mb-6">
+                    {questions.map((q) => (
+                      <div key={q.id} className="py-4 border-b border-gray-100 last:border-0">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 bg-stone-100 rounded-full flex items-center justify-center text-gray-600 font-medium text-sm shrink-0">
+                            Q
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-gray-900 font-medium">{q.content}</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {q.user.name || 'Anonymous'} &middot; {new Date(q.createdAt).toLocaleDateString()}
+                            </p>
+                            {q.answer && (
+                              <div className="mt-3 ml-2 pl-4 border-l-2 border-gray-200">
+                                <p className="text-sm font-semibold text-gray-700 mb-1">Provider answer</p>
+                                <p className="text-sm text-gray-600 leading-relaxed">{q.answer}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 mb-6">No questions yet. Be the first to ask!</p>
+                )}
 
-            <div className="pt-4 border-t border-gray-100">
-              <textarea
-                value={newQuestion}
-                onChange={(e) => setNewQuestion(e.target.value)}
-                placeholder="Ask a question about this provider..."
-                rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none mb-2"
-              />
-              <button
-                onClick={handleSubmitQuestion}
-                disabled={submittingQuestion || newQuestion.trim().length < 5}
-                className="w-full py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-              >
-                {submittingQuestion ? 'Posting...' : 'Post Your Question'}
-              </button>
-            </div>
+                <div className="pt-4 border-t border-gray-100">
+                  <textarea
+                    value={newQuestion}
+                    onChange={(e) => setNewQuestion(e.target.value)}
+                    placeholder="Ask a question about this provider..."
+                    rows={2}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none mb-3"
+                  />
+                  <button
+                    onClick={handleSubmitQuestion}
+                    disabled={submittingQuestion || newQuestion.trim().length < 5}
+                    className="w-full py-3 bg-stone-100 text-gray-700 font-medium rounded-xl hover:bg-stone-200 transition-colors disabled:opacity-50"
+                  >
+                    {submittingQuestion ? 'Posting...' : 'Post your question'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Inline CTA repeat */}
-        <div className="bg-primary-50 rounded-2xl border border-primary-100 p-8 mb-14 text-center">
-          <h3 className="text-lg font-semibold text-primary-900 mb-2">
+        {/* Inline CTA repeat — warm, not colored background */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-10 mb-16 text-center">
+          <h3 className="text-2xl font-semibold text-gray-900 mb-3">
             {provider.providerType === 'HOSPICE' ? 'Your family deserves compassionate support'
               : provider.providerType === 'REHABILITATION' ? 'Recovery starts with the right team'
               : isFacility ? `Interested in ${provider.name}?`
               : isHomeCare ? 'Find the right care for your loved one'
               : 'Find the right caregiver'}
           </h3>
-          <p className="text-sm text-primary-700 mb-4">
+          <p className="text-base text-gray-600 mb-6 max-w-lg mx-auto leading-relaxed">
             {provider.providerType === 'HOSPICE' ? 'A free consultation helps you understand their approach — no commitment needed.' :
              provider.providerType === 'REHABILITATION' ? 'Visit to meet the therapy team and see the facility firsthand.' :
              isFacility ? 'A tour is the best way to see if this community feels right. It\'s free and there\'s no obligation.' :
@@ -1593,16 +1674,16 @@ export default function ProviderDetailPage() {
           <button
             onClick={handleContactSubmit}
             disabled={submitting}
-            className="inline-flex items-center gap-2 px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-10 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl transition-colors disabled:opacity-50 text-lg"
           >
             {submitting ? 'Sending...' : ctaLabel}
           </button>
-          <p className="text-xs text-primary-600 mt-3">Free to use &middot; No obligation &middot; Takes 30 seconds</p>
+          <p className="text-sm text-gray-400 mt-4">Free &middot; No obligation &middot; Takes 30 seconds</p>
         </div>
 
         {/* ==================== LOCATION ==================== */}
-        <section id="location" ref={(el) => { sectionRefs.current['location'] = el; }} className="scroll-mt-28 mb-14">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Location</h2>
+        <section id="location" ref={(el) => { sectionRefs.current['location'] = el; }} className="scroll-mt-28 mb-16">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8">Location</h2>
 
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             {/* Map */}
@@ -1612,7 +1693,7 @@ export default function ProviderDetailPage() {
                   className="w-full h-full border-0"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(`${provider.address}, ${provider.city}, ${provider.state} ${provider.zipCode}`)}&zoom=15`}
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${provider.longitude - 0.008}%2C${provider.latitude - 0.005}%2C${provider.longitude + 0.008}%2C${provider.latitude + 0.005}&layer=mapnik&marker=${provider.latitude}%2C${provider.longitude}`}
                   title="Location Map"
                 />
               ) : (
@@ -1639,7 +1720,7 @@ export default function ProviderDetailPage() {
                   href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${provider.address}, ${provider.city}, ${provider.state} ${provider.zipCode}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 shrink-0 ml-4"
+                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-gray-700 text-sm font-medium rounded-xl transition-colors flex items-center gap-2 shrink-0 ml-4"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -1708,10 +1789,10 @@ export default function ProviderDetailPage() {
 
         {/* ==================== KEEP COMPARING ==================== */}
         <section id="compare" className="mb-8">
-          {/* Comparison nudge */}
-          <div className="bg-primary-50 rounded-2xl border border-primary-100 p-6 mb-6">
-            <h3 className="text-lg font-semibold text-primary-900 mb-2">Finding the right fit</h3>
-            <p className="text-sm text-primary-700 leading-relaxed">
+          {/* Comparison nudge — warm, not primary-colored */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Finding the right fit</h3>
+            <p className="text-base text-gray-600 leading-relaxed">
               {provider.providerType === 'HOSPICE'
                 ? 'Finding the right hospice team is deeply personal. We encourage you to speak with 2\u20133 providers to find the team that best supports your family. Save providers you like, and use your consultations to ask about their approach, staff, and family support.'
                 : provider.providerType === 'REHABILITATION'
@@ -1822,60 +1903,71 @@ export default function ProviderDetailPage() {
               </div>
             </div>
           </div>
-          {/* Photo grid with labeled categories */}
-          <div className="max-w-5xl mx-auto px-4 py-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Photo tour</h2>
-            <p className="text-sm text-gray-500 mb-6">{allPhotos.length} photo{allPhotos.length !== 1 ? 's' : ''}</p>
+          {/* Photo grid — uses ProviderPhoto data when available, else falls back to allPhotos */}
+          <div className="max-w-4xl mx-auto px-6 py-10">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Photos</h2>
+            <p className="text-sm text-gray-500 mb-10">{allPhotos.length} photo{allPhotos.length !== 1 ? 's' : ''}</p>
 
-            {(() => {
-              // Group photos into labeled categories based on provider type
-              const categoryLabels = isFacility
-                ? ['Exterior & Entrance', 'Living Spaces', 'Common Areas', 'Dining & Kitchen']
-                : isHomeCare
-                ? ['Office & Team', 'Care in Action', 'Equipment & Resources']
-                : ['Profile', 'Work Environment'];
-
-              // Distribute photos across categories
-              const grouped: { label: string; photos: string[] }[] = [];
-              if (allPhotos.length <= 2) {
-                // Too few to categorize — show flat
-                grouped.push({ label: '', photos: allPhotos });
-              } else {
-                const perCategory = Math.max(1, Math.ceil(allPhotos.length / categoryLabels.length));
-                categoryLabels.forEach((label, catIdx) => {
-                  const start = catIdx * perCategory;
-                  const slice = allPhotos.slice(start, start + perCategory);
-                  if (slice.length > 0) grouped.push({ label, photos: slice });
+            {provider.providerPhotos && provider.providerPhotos.length > 0 ? (
+              (() => {
+                // Group by category from ProviderPhoto data
+                const categoryNames: Record<string, string> = {
+                  EXTERIOR: 'Exterior', ENTRANCE: 'Entrance', LOBBY: 'Lobby & reception',
+                  COMMON_AREA: 'Common areas', LIVING_ROOM: 'Living spaces', DINING: 'Dining',
+                  BEDROOM: 'Rooms', BATHROOM: 'Bathrooms', KITCHEN: 'Kitchen', OUTDOOR: 'Outdoors',
+                  GARDEN: 'Garden & grounds', COURTYARD: 'Courtyard', ACTIVITY: 'Activities',
+                  THERAPY: 'Therapy & wellness', FITNESS: 'Fitness', SALON: 'Salon',
+                  CHAPEL: 'Chapel', STAFF: 'Team', OTHER: 'More photos',
+                };
+                const groups = new Map<string, ProviderPhoto[]>();
+                provider.providerPhotos.forEach((p) => {
+                  const label = categoryNames[p.category] || 'More photos';
+                  if (!groups.has(label)) groups.set(label, []);
+                  groups.get(label)!.push(p);
                 });
-              }
-
-              return (
-                <div className="space-y-8">
-                  {grouped.map((group, gIdx) => (
-                    <div key={gIdx}>
-                      {group.label && (
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">{group.label}</h3>
-                      )}
-                      <div className={`grid gap-3 ${group.photos.length >= 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
-                        {group.photos.map((photo, idx) => (
-                          <div key={idx} className="rounded-xl overflow-hidden">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={photo} alt={`${provider.name} — ${group.label || 'Photo'} ${idx + 1}`} className="w-full object-cover" style={{ maxHeight: '400px' }} />
-                          </div>
-                        ))}
+                return (
+                  <div className="space-y-12">
+                    {Array.from(groups.entries()).map(([label, photos]) => (
+                      <div key={label}>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">{label}</h3>
+                        <div className={`grid gap-5 ${photos.length >= 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 max-w-2xl'}`}>
+                          {photos.map((photo) => (
+                            <div key={photo.id}>
+                              <div className="rounded-2xl overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={photo.url} alt={photo.altText || `${provider.name} — ${label}`} className="w-full object-cover" style={{ maxHeight: '420px' }} />
+                              </div>
+                              {photo.caption && (
+                                <p className="text-sm text-gray-500 mt-2 px-1">{photo.caption}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                );
+              })()
+            ) : (
+              /* Fallback: ungrouped allPhotos */
+              <div className="space-y-6">
+                {allPhotos.map((photo, idx) => (
+                  <div key={idx}>
+                    <div className="rounded-2xl overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={photo} alt={`${provider.name} photo ${idx + 1}`} className="w-full object-cover" style={{ maxHeight: '420px' }} />
                     </div>
-                  ))}
-                </div>
-              );
-            })()}
+                  </div>
+                ))}
+              </div>
+            )}
 
-            {/* CTA at bottom of photo tour */}
-            <div className="mt-8 text-center pb-8">
-              <p className="text-gray-600 mb-3">Like what you see?</p>
+            {/* CTA at bottom */}
+            <div className="mt-12 text-center pb-10">
+              <p className="text-gray-600 text-base mb-4">Like what you see?</p>
               <button
                 onClick={() => { setPhotoTourOpen(false); handleContactSubmit(new Event('click') as unknown as React.FormEvent); }}
-                className="px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors"
+                className="px-10 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl transition-colors text-lg"
               >
                 {ctaLabel}
               </button>
