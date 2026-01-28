@@ -186,50 +186,23 @@ export default function Home() {
                 showStickySearch ? 'max-w-md mx-auto shadow-xl' : ''
               }`}>
                 <div className="flex items-center gap-2">
-                  {/* Geolocation button - prominent, easy to discover */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                          async (position) => {
-                            try {
-                              const res = await fetch(
-                                `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
-                              );
-                              const data = await res.json();
-                              const city = data.address?.city || data.address?.town || data.address?.village || "";
-                              const state = data.address?.state || "";
-                              if (city && state) {
-                                setLocation(`${city}, ${state}`);
-                                setSelectedLocation({ city, state });
-                              }
-                            } catch {
-                              // Silently fail
-                            }
-                          },
-                          () => {}
-                        );
-                      }
-                    }}
-                    className="p-3 text-primary-500 hover:text-primary-700 hover:bg-primary-50 rounded-xl transition-colors shrink-0 group"
-                    title="Use my current location"
-                    aria-label="Use my current location"
-                  >
-                    <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {/* Location icon */}
+                  <div className="p-3 text-primary-500 shrink-0">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                  </button>
+                  </div>
 
-                  {/* Location input */}
-                  <div className="flex-1 py-2">
+                  {/* Location input with Zillow-style dropdown */}
+                  <div className="flex-1 min-w-0 py-2">
                     <LocationAutocomplete
                       value={location}
                       onChange={handleLocationChange}
                       placeholder="Enter your city or ZIP code"
                       showIcon={false}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-lg text-gray-900 placeholder:text-gray-400"
+                      showCurrentLocation={true}
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-lg text-gray-900 placeholder:text-gray-400 truncate"
                       className="w-full"
                     />
                   </div>
@@ -237,7 +210,7 @@ export default function Home() {
                   {/* Get Started Button */}
                   <button
                     type="submit"
-                    className="px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0"
+                    className="px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
                   >
                     <span>Get Started</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

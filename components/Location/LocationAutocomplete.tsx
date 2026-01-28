@@ -25,6 +25,7 @@ interface LocationAutocompleteProps {
   error?: string;
   size?: "default" | "large";
   showIcon?: boolean;
+  showCurrentLocation?: boolean; // Show "Use current location" option in dropdown
   onFocus?: () => void;
   onBlur?: () => void;
 }
@@ -49,6 +50,7 @@ export default function LocationAutocomplete({
   error,
   size = "default",
   showIcon = true,
+  showCurrentLocation = false,
   onFocus,
   onBlur,
 }: LocationAutocompleteProps) {
@@ -59,11 +61,53 @@ export default function LocationAutocomplete({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchHint, setSearchHint] = useState<string | null>(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const listboxId = "location-listbox";
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle geolocation request
+  const handleUseCurrentLocation = useCallback(async () => {
+    if (!navigator.geolocation) {
+      return;
+    }
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
+          );
+          const data = await res.json();
+          const city = data.address?.city || data.address?.town || data.address?.village || "";
+          const state = data.address?.state || "";
+          if (city && state) {
+            const displayName = `${city}, ${state}`;
+            setInputValue(displayName);
+            onChange(displayName, {
+              id: `geo-${city}-${state}`,
+              city,
+              state,
+              stateName: state,
+              displayName,
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+            setIsOpen(false);
+          }
+        } catch {
+          // Silently fail
+        } finally {
+          setIsGettingLocation(false);
+        }
+      },
+      () => {
+        setIsGettingLocation(false);
+      }
+    );
+  }, [onChange]);
 
   // Sync external value changes
   useEffect(() => {
@@ -257,6 +301,10 @@ export default function LocationAutocomplete({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
+            // Open dropdown on focus if showCurrentLocation is enabled
+            if (showCurrentLocation) {
+              setIsOpen(true);
+            }
             if (inputValue.length >= 2) {
               searchLocations(inputValue);
             }
@@ -318,6 +366,63 @@ export default function LocationAutocomplete({
           className="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto"
           role="listbox"
         >
+          {/* "Use current location" option - shown at top when enabled */}
+          {showCurrentLocation && (
+            <button
+              type="button"
+              onClick={handleUseCurrentLocation}
+              disabled={isGettingLocation}
+              className={`
+                w-full px-4 py-3 text-left flex items-center gap-3
+                transition-colors hover:bg-gray-50
+                ${results.length > 0 || hasSearched ? "border-b border-gray-100" : ""}
+              `}
+            >
+              {isGettingLocation ? (
+                <svg
+                  className="animate-spin w-5 h-5 text-primary-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5 text-primary-500 shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <circle cx="12" cy="12" r="3" strokeWidth={2} />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 2v2m0 16v2m10-10h-2M4 12H2"
+                  />
+                </svg>
+              )}
+              <div>
+                <div className="font-medium text-gray-900">
+                  {isGettingLocation ? "Getting location..." : "Current Location"}
+                </div>
+                <div className="text-sm text-gray-500">Use your device location</div>
+              </div>
+            </button>
+          )}
+
           {results.length > 0 ? (
             results.map((location, index) => (
               <button

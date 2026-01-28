@@ -55,6 +55,18 @@ const CARE_SERVICE_OPTIONS = [
   { value: "LIVE_IN_CARE", label: "Live-in Care" },
 ];
 
+// All category filter buttons (shown in expanded toolbar — matching browse page)
+const ALL_CARE_CATEGORIES = [
+  { label: "Home Care", type: "HOME_CARE" },
+  { label: "Assisted Living", type: "ASSISTED_LIVING" },
+  { label: "Memory Care", type: "MEMORY_CARE" },
+  { label: "Nursing Homes", type: "NURSING_HOME" },
+  { label: "Independent Living", type: "INDEPENDENT_LIVING" },
+  { label: "Rehab", type: "REHABILITATION" },
+  { label: "Hospice", type: "HOSPICE" },
+  { label: "Private Caregivers", type: "INDEPENDENT_CAREGIVER" },
+];
+
 type Provider = {
   id: string;
   name: string;
@@ -662,12 +674,13 @@ export default function ProviderDetailPage() {
 
       {/* ===================== STICKY TOOLBAR ===================== */}
       <div ref={toolbarRef} className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        {/* Expanded state: logo + full search form + hamburger */}
+        {/* Expanded state: top bar (logo + categories + hamburger) + full search card */}
         <div className={`transition-all duration-300 ease-in-out ${
-          searchExpanded ? "max-h-[200px] opacity-100 overflow-visible" : "max-h-0 opacity-0 overflow-hidden"
+          searchExpanded ? "max-h-[280px] opacity-100 overflow-visible" : "max-h-0 opacity-0 overflow-hidden"
         }`}>
+          {/* Top bar: Logo + category buttons + hamburger */}
           <div className="max-w-7xl mx-auto px-4 pt-3 pb-1">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2 shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -675,7 +688,24 @@ export default function ProviderDetailPage() {
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
 
-              {/* Hamburger (also in expanded state for consistency) */}
+              {/* Category buttons — centered in remaining space */}
+              <div className="flex-1 flex items-center justify-center gap-1 flex-wrap overflow-hidden">
+                {ALL_CARE_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.type}
+                    onClick={() => setSearchProviderType(searchProviderType === cat.type ? "" : cat.type)}
+                    className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+                      searchProviderType === cat.type
+                        ? "bg-primary-600 text-white"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Hamburger pill */}
               <div className="relative shrink-0" data-hamburger-menu>
                 <button
                   onClick={() => setHamburgerOpen(!hamburgerOpen)}
@@ -705,49 +735,23 @@ export default function ProviderDetailPage() {
             <form onSubmit={handleToolbarSearch}>
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
                 <div className="flex items-center gap-2">
-                  {/* Geolocation button */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                          async (position) => {
-                            try {
-                              const res = await fetch(
-                                `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
-                              );
-                              const data = await res.json();
-                              const city = data.address?.city || data.address?.town || data.address?.village || "";
-                              const state = data.address?.state || "";
-                              if (city && state) {
-                                setSearchLocation(`${city}, ${state}`);
-                              }
-                            } catch {
-                              // Silently fail
-                            }
-                          },
-                          () => {}
-                        );
-                      }
-                    }}
-                    className="p-3 text-primary-500 hover:text-primary-700 hover:bg-primary-50 rounded-xl transition-colors shrink-0 group"
-                    title="Use my current location"
-                    aria-label="Use my current location"
-                  >
-                    <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {/* Location icon */}
+                  <div className="p-3 text-primary-500 shrink-0">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                  </button>
+                  </div>
 
-                  {/* Location input */}
-                  <div className="flex-1 py-2">
+                  {/* Location input with Zillow-style dropdown */}
+                  <div className="flex-1 min-w-0 py-2">
                     <LocationAutocomplete
                       value={searchLocation}
                       onChange={handleSearchLocationChange}
                       placeholder="Enter your city or ZIP code"
                       showIcon={false}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-lg text-gray-900 placeholder:text-gray-400"
+                      showCurrentLocation={true}
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-lg text-gray-900 placeholder:text-gray-400 truncate"
                       className="w-full"
                     />
                   </div>
@@ -755,7 +759,7 @@ export default function ProviderDetailPage() {
                   {/* Search Button */}
                   <button
                     type="submit"
-                    className="px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0"
+                    className="px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
                   >
                     <span>Search</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
