@@ -8,45 +8,45 @@ import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
 import { formatProviderType } from "@/lib/comparisonUtils";
 
-// Situational care entry cards — photography-based for emotional connection
-// 4 most common entry points with warm imagery that 65+ users can relate to
-// Images from Unsplash (free, high-quality stock photography)
+// Situational care entry cards — clear, relevant photography for 65+ users
+// Each image must unmistakably reinforce the situation it represents
+// Text below images (not overlaid) for reduced cognitive load
 const CARE_SITUATIONS = [
   {
     id: "help-at-home",
     name: "Help at Home",
     slug: "HOME_CARE",
-    description: "Assistance with daily activities",
-    // Warm home care scene - caregiver with senior
-    image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&h=400&fit=crop&crop=faces",
-    fallbackColor: "bg-primary-100",
+    description: "Assistance with meals, medication, and daily routines",
+    // Caregiver helping senior in home setting - clearly domestic scene
+    image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&h=450&fit=crop&crop=faces",
+    fallbackColor: "bg-primary-50",
   },
   {
     id: "after-hospital",
     name: "After a Hospital Stay",
     slug: "REHABILITATION",
-    description: "Recovery and rehabilitation",
-    // Recovery/rehabilitation - supportive care
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=400&fit=crop&crop=faces",
-    fallbackColor: "bg-teal-100",
+    description: "Short-term rehab and recovery support",
+    // Physical therapy / rehabilitation - clearly medical recovery
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=450&fit=crop&crop=faces",
+    fallbackColor: "bg-teal-50",
   },
   {
     id: "memory-concerns",
     name: "Memory Concerns",
     slug: "MEMORY_CARE",
-    description: "Specialized memory support",
-    // Gentle, caring moment - hands holding or connection
-    image: "https://images.unsplash.com/photo-1516307365426-bea591f05011?w=600&h=400&fit=crop&crop=faces",
-    fallbackColor: "bg-amber-100",
+    description: "Specialized care for Alzheimer's and dementia",
+    // Caring hands / gentle support - connection and warmth
+    image: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=600&h=450&fit=crop&crop=faces",
+    fallbackColor: "bg-amber-50",
   },
   {
     id: "planning-ahead",
     name: "Planning Ahead",
     slug: "ASSISTED_LIVING",
-    description: "Explore your options early",
-    // Senior living community - happy, social scene
-    image: "https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?w=600&h=400&fit=crop&crop=faces",
-    fallbackColor: "bg-sky-100",
+    description: "Explore senior living options before you need them",
+    // Active seniors / community - positive, forward-looking
+    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&h=450&fit=crop&crop=faces",
+    fallbackColor: "bg-sky-50",
   },
 ];
 
@@ -274,34 +274,31 @@ export default function Home() {
             <div className="flex-1 h-px bg-gray-300" />
           </div>
 
-          {/* Situation cards — photography-based for emotional connection */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Situation cards — clean, accessible layout with text below images */}
+          <div className="grid grid-cols-2 gap-5 sm:gap-6">
             {CARE_SITUATIONS.map((situation) => (
               <Link
                 key={situation.id}
                 href={`/browse?type=${situation.slug}`}
-                className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 min-h-[160px] sm:min-h-[180px]"
+                className="group block rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-lg hover:border-primary-200 transition-all duration-200"
               >
-                {/* Background image */}
-                <div className={`absolute inset-0 ${situation.fallbackColor}`}>
+                {/* Image container - 4:3 aspect ratio */}
+                <div className={`aspect-[4/3] overflow-hidden ${situation.fallbackColor}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={situation.image}
-                    alt=""
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    alt={situation.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
                 </div>
 
-                {/* Gradient overlay for text legibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/40 to-gray-900/10 group-hover:from-gray-900/85 transition-colors duration-300" />
-
-                {/* Content */}
-                <div className="relative h-full flex flex-col justify-end p-5 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-bold text-white leading-tight drop-shadow-sm">
+                {/* Text area below image - clean, scannable */}
+                <div className="p-4 sm:p-5">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors leading-snug">
                     {situation.name}
                   </h3>
-                  <p className="text-sm text-white/80 mt-1 hidden sm:block">
+                  <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">
                     {situation.description}
                   </p>
                 </div>
