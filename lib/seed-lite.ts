@@ -99,6 +99,15 @@ const CATEGORIZED_PHOTOS: Record<string, { url: string; category: PhotoCategory;
     { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800', category: 'GARDEN', caption: 'Tranquil garden for families', altText: 'Peaceful garden space' },
     { url: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800', category: 'COMMON_AREA', caption: 'Family gathering space', altText: 'Comfortable family room' },
   ],
+  INDEPENDENT_LIVING: [
+    { url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800', category: 'EXTERIOR', caption: 'Welcome to our community', altText: 'Independent living community exterior' },
+    { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800', category: 'LOBBY', caption: 'Bright, welcoming lobby', altText: 'Community lobby and concierge desk' },
+    { url: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800', category: 'BEDROOM', caption: 'Spacious apartment bedroom', altText: 'One-bedroom apartment with natural light' },
+    { url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800', category: 'DINING', caption: 'Restaurant-style dining', altText: 'Community dining room with table service' },
+    { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800', category: 'GARDEN', caption: 'Community garden and walking paths', altText: 'Landscaped grounds with walking trail' },
+    { url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800', category: 'FITNESS', caption: 'Fitness center and pool', altText: 'Modern fitness center and pool area' },
+    { url: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800', category: 'LIVING_ROOM', caption: 'Spacious living area', altText: 'Apartment living room with comfortable furnishings' },
+  ],
 };
 
 // Unit templates by provider type
@@ -119,6 +128,15 @@ const UNIT_TEMPLATES: Record<string, { name: string; unitType: UnitType; feature
   REHABILITATION: [
     { name: 'Recovery Suite', unitType: 'PRIVATE', features: ['Private bathroom', 'In-room therapy space', 'Adjustable bed', 'Emergency call system', 'Daily PT access'], sqFt: 350, bedrooms: 1, bathrooms: 1, priceMultiplier: 1.0, careLevel: 'REHABILITATION_LEVEL', highlighted: true },
     { name: 'Standard Recovery Room', unitType: 'SEMI_PRIVATE', features: ['Shared bathroom', 'Adjustable bed', 'Emergency call system', 'Therapy access'], sqFt: 250, bedrooms: 1, bathrooms: 0.5, priceMultiplier: 0.75, careLevel: 'REHABILITATION_LEVEL', highlighted: false },
+  ],
+  INDEPENDENT_LIVING: [
+    { name: 'One-Bedroom Apartment', unitType: 'ONE_BEDROOM', features: ['Full kitchen', 'Washer/dryer in unit', 'Private patio', 'Walk-in closet', 'Emergency pull cord'], sqFt: 650, bedrooms: 1, bathrooms: 1, priceMultiplier: 1.0, careLevel: 'INDEPENDENT', highlighted: true },
+    { name: 'Two-Bedroom Apartment', unitType: 'TWO_BEDROOM', features: ['Full kitchen', 'Washer/dryer in unit', 'Balcony', 'Guest bathroom', 'Den/office area'], sqFt: 950, bedrooms: 2, bathrooms: 2, priceMultiplier: 1.4, careLevel: 'INDEPENDENT', highlighted: false },
+    { name: 'Studio Cottage', unitType: 'STUDIO', features: ['Kitchenette', 'Private entrance', 'Garden access', 'Emergency pull cord'], sqFt: 420, bedrooms: 0, bathrooms: 1, priceMultiplier: 0.7, careLevel: 'INDEPENDENT', highlighted: false },
+  ],
+  HOSPICE: [
+    { name: 'Private Comfort Suite', unitType: 'PRIVATE', features: ['Private bathroom', 'Family sleeping area', 'Garden view', 'Adjustable bed', 'Comfort care amenities'], sqFt: 400, bedrooms: 1, bathrooms: 1, priceMultiplier: 1.0, careLevel: 'HOSPICE_LEVEL', highlighted: true },
+    { name: 'Shared Comfort Room', unitType: 'SEMI_PRIVATE', features: ['Shared bathroom', 'Privacy curtain', 'Adjustable bed', 'Family seating area', 'Comfort care amenities'], sqFt: 250, bedrooms: 1, bathrooms: 0.5, priceMultiplier: 0.6, careLevel: 'HOSPICE_LEVEL', highlighted: false },
   ],
 };
 
@@ -196,6 +214,12 @@ export async function seedLite(prisma: PrismaClient) {
     await prisma.savedFamilyProfile.deleteMany();
     console.log('[SEED]   - Deleting contactView...');
     await prisma.contactView.deleteMany();
+    console.log('[SEED]   - Deleting takedownRequest...');
+    await prisma.takedownRequest.deleteMany();
+    console.log('[SEED]   - Deleting notification...');
+    await prisma.notification.deleteMany();
+    console.log('[SEED]   - Deleting question...');
+    await prisma.question.deleteMany();
     console.log('[SEED]   - Deleting providerPhoto...');
     await prisma.providerPhoto.deleteMany();
     console.log('[SEED]   - Deleting providerUnit...');
@@ -292,51 +316,68 @@ export async function seedLite(prisma: PrismaClient) {
     }
     console.log('[SEED] ✅ Created 36 family accounts');
 
-    // 36 Facility accounts
+    // 36 Facility accounts — balanced across all subtypes with rich descriptions
     console.log('[SEED] Step 5: Creating 36 facility accounts...');
   const facilityData = [
-    { name: 'Sunshine Manor', type: 'ASSISTED_LIVING', email: 'admin@sunshinemanor.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4500, 7000], rating: 4.8 },
-    { name: 'Memory Haven', type: 'MEMORY_CARE', email: 'info@memoryhaven.com', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [6500, 9000], rating: 4.7 },
-    { name: 'La Jolla Estates', type: 'ASSISTED_LIVING', email: 'info@lajollaestates.com', care: ['PERSONAL_CARE'], price: [8000, 12000], rating: 4.9 },
-    { name: 'CareFirst Home Services', type: 'HOME_CARE', email: 'info@carefirsthome.com', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'LIVE_IN_CARE'], price: [25, 45], rating: 4.8 },
-    { name: 'San Diego Skilled Nursing', type: 'NURSING_HOME', email: 'info@sdskilled.com', care: ['SKILLED_NURSING'], price: [7000, 11000], rating: 4.6 },
-    { name: 'Pacific Gardens', type: 'ASSISTED_LIVING', email: 'info@pacificgardens.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [5000, 7500], rating: 4.6 },
-    { name: 'Coastal Memory Care', type: 'MEMORY_CARE', email: 'care@coastalmemory.com', care: ['MEMORY_CARE'], price: [7500, 11000], rating: 4.6 },
-    { name: 'Del Mar Active Living', type: 'INDEPENDENT_LIVING', email: 'info@delmaractive.com', care: ['COMPANION_CARE'], price: [2500, 4500], rating: 4.7 },
-    { name: 'Home Instead San Diego', type: 'HOME_CARE', email: 'info@homeinsteadsd.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [24, 42], rating: 4.7 },
-    { name: 'Golden Years Residence', type: 'ASSISTED_LIVING', email: 'info@goldenyears.com', care: ['PERSONAL_CARE'], price: [3500, 5000], rating: 4.5 },
-    { name: 'Bayview Hospice', type: 'HOSPICE', email: 'info@bayviewhospice.com', care: ['HOSPICE_CARE'], price: [0, 0], rating: 4.8 },
-    { name: 'Encinitas Life Plan', type: 'INDEPENDENT_LIVING', email: 'info@encinitaslifeplan.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [5000, 15000], rating: 4.9 },
-    { name: 'Parkside Living', type: 'ASSISTED_LIVING', email: 'director@parksideliving.com', care: ['PERSONAL_CARE'], price: [3800, 5500], rating: 4.2 },
-    { name: 'Riverside Senior Care', type: 'ASSISTED_LIVING', email: 'info@riversideseniorcare.com', care: ['PERSONAL_CARE'], price: [2500, 3500], rating: 4.3 },
-    { name: 'Hillcrest Assisted Living', type: 'ASSISTED_LIVING', email: 'hr@hillcrestassisted.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4000, 6500], rating: 4.4 },
-    { name: 'Golden Gate Rehab', type: 'REHABILITATION', email: 'info@goldengaterehab.com', care: ['SKILLED_NURSING'], price: [8000, 13000], rating: 4.7 },
-    { name: 'Sunrise Senior Living', type: 'ASSISTED_LIVING', email: 'contact@sunrisesl.com', care: ['PERSONAL_CARE', 'COMPANION_CARE', 'MEMORY_CARE'], price: [5500, 8500], rating: 4.7 },
-    { name: 'Coastal Comfort Care', type: 'ASSISTED_LIVING', email: 'info@coastalcomfort.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [6000, 9000], rating: 4.6 },
-    { name: 'Mountain View Senior', type: 'ASSISTED_LIVING', email: 'info@mountainviewsenior.com', care: ['PERSONAL_CARE'], price: [4000, 6000], rating: 4.4 },
-    { name: 'Heritage House', type: 'ASSISTED_LIVING', email: 'info@heritagehouse.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [5500, 8000], rating: 4.8 },
-    { name: 'Serenity Springs', type: 'ASSISTED_LIVING', email: 'info@serenitysprings.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4500, 7000], rating: 4.5 },
-    { name: 'Alzheimers Care Center', type: 'MEMORY_CARE', email: 'info@alzcenter.com', care: ['MEMORY_CARE'], price: [7000, 10000], rating: 4.8 },
-    { name: 'Peaceful Minds', type: 'MEMORY_CARE', email: 'info@peacefulminds.com', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [6000, 8500], rating: 4.9 },
-    { name: 'Remember When', type: 'MEMORY_CARE', email: 'info@rememberwhen.com', care: ['MEMORY_CARE'], price: [5500, 8000], rating: 4.5 },
-    { name: 'Clarity Care', type: 'MEMORY_CARE', email: 'info@claritycare.com', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [7000, 9500], rating: 4.7 },
-    { name: 'Safe Harbor Memory', type: 'MEMORY_CARE', email: 'info@safeharbor.com', care: ['MEMORY_CARE'], price: [6500, 9000], rating: 4.6 },
-    { name: 'Mindful Living', type: 'MEMORY_CARE', email: 'info@mindfulliving.com', care: ['MEMORY_CARE', 'COMPANION_CARE'], price: [6000, 8500], rating: 4.4 },
-    { name: 'Bay View Nursing Center', type: 'NURSING_HOME', email: 'info@bayviewnursing.com', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], price: [7500, 12000], rating: 4.5 },
-    { name: 'Valley Care Nursing', type: 'NURSING_HOME', email: 'info@valleycarenursing.com', care: ['SKILLED_NURSING', 'MEMORY_CARE'], price: [6500, 10000], rating: 4.4 },
-    { name: 'Specialized Care Partners', type: 'HOME_CARE', email: 'info@specializedcarepartners.com', care: ['PERSONAL_CARE', 'MEMORY_CARE', 'SKILLED_NURSING'], price: [30, 50], rating: 4.9 },
-    { name: 'Comfort Keepers LA', type: 'HOME_CARE', email: 'info@comfortkeepersla.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [22, 38], rating: 4.6 },
-    { name: 'Pacific Home Health', type: 'HOME_HEALTH', email: 'info@pacifichomehealth.com', care: ['SKILLED_NURSING'], price: [45, 75], rating: 4.7 },
-    { name: 'Elite Senior Care', type: 'HOME_CARE', email: 'info@eliteseniorcare.com', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'LIVE_IN_CARE'], price: [35, 60], rating: 4.9 },
-    { name: 'Loving Hearts Home Care', type: 'HOME_CARE', email: 'info@lovinghearts.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [20, 32], rating: 4.5 },
-    { name: 'Right at Home OC', type: 'HOME_CARE', email: 'info@rightathomeoc.com', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'SKILLED_NURSING'], price: [26, 44], rating: 4.6 },
-    { name: 'Peaceful Journey Hospice', type: 'HOSPICE', email: 'info@peacefuljourney.com', care: ['HOSPICE_CARE'], price: [0, 0], rating: 4.9 },
+    // === ASSISTED_LIVING (8) ===
+    { name: 'Sunshine Manor', type: 'ASSISTED_LIVING', email: 'admin@sunshinemanor.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4500, 7000], rating: 4.8, desc: 'A warm, sun-filled community where residents enjoy daily activities, chef-prepared meals, and 24-hour personal care support. Our courtyard garden is a favorite gathering spot.' },
+    { name: 'La Jolla Estates', type: 'ASSISTED_LIVING', email: 'info@lajollaestates.com', care: ['PERSONAL_CARE'], price: [8000, 12000], rating: 4.9, desc: 'An upscale assisted living community perched above the coast, offering spacious private suites, farm-to-table dining, and concierge-level personal care in a resort-like setting.' },
+    { name: 'Pacific Gardens', type: 'ASSISTED_LIVING', email: 'info@pacificgardens.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [5000, 7500], rating: 4.6, desc: 'Surrounded by native California landscaping, Pacific Gardens blends indoor comfort with outdoor beauty. Residents appreciate the walking paths, raised garden beds, and weekly farmers market visits.' },
+    { name: 'Golden Years Residence', type: 'ASSISTED_LIVING', email: 'info@goldenyears.com', care: ['PERSONAL_CARE'], price: [3500, 5000], rating: 4.5, desc: 'A cozy, family-run community with 32 residents. Golden Years is known for its home-cooked meals, movie nights, and staff who know every resident by name.' },
+    { name: 'Hillcrest Assisted Living', type: 'ASSISTED_LIVING', email: 'hr@hillcrestassisted.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4000, 6500], rating: 4.4, desc: 'Located in a walkable urban neighborhood, Hillcrest offers easy access to shops, cafes, and parks. The community features modern apartments with full kitchenettes and a rooftop terrace.' },
+    { name: 'Sunrise Senior Living', type: 'ASSISTED_LIVING', email: 'contact@sunrisesl.com', care: ['PERSONAL_CARE', 'COMPANION_CARE', 'MEMORY_CARE'], price: [5500, 8500], rating: 4.7, desc: 'A large, well-established community offering both assisted living and memory care under one roof. Families value the continuity of care as needs change over time.' },
+    { name: 'Heritage House', type: 'ASSISTED_LIVING', email: 'info@heritagehouse.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [5500, 8000], rating: 4.8, desc: 'A beautifully restored 1920s estate converted into an intimate assisted living residence. Heritage House combines historic charm with modern safety features and attentive personal care.' },
+    { name: 'Riverside Senior Care', type: 'ASSISTED_LIVING', email: 'info@riversideseniorcare.com', care: ['PERSONAL_CARE'], price: [2500, 3500], rating: 3.8, desc: 'An affordable option for seniors who need light personal care assistance. Riverside offers clean, comfortable rooms and three daily meals in a no-frills, friendly environment.' },
+
+    // === MEMORY_CARE (6) ===
+    { name: 'Memory Haven', type: 'MEMORY_CARE', email: 'info@memoryhaven.com', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [6500, 9000], rating: 4.7, desc: 'Purpose-built for residents with Alzheimer\'s and dementia, Memory Haven features secured outdoor gardens, sensory stimulation rooms, and a structured daily program designed to reduce anxiety and promote engagement.' },
+    { name: 'Coastal Memory Care', type: 'MEMORY_CARE', email: 'care@coastalmemory.com', care: ['MEMORY_CARE'], price: [7500, 11000], rating: 4.6, desc: 'A small, specialized community with a 1:4 staff-to-resident ratio. Coastal Memory Care uses Montessori-based programming to help residents maintain dignity and independence through meaningful daily activities.' },
+    { name: 'Peaceful Minds', type: 'MEMORY_CARE', email: 'info@peacefulminds.com', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [6000, 8500], rating: 4.9, desc: 'Consistently rated among the top memory care communities in the region. Peaceful Minds combines music therapy, art programs, and a calming environment designed by dementia care specialists.' },
+    { name: 'Remember When', type: 'MEMORY_CARE', email: 'info@rememberwhen.com', care: ['MEMORY_CARE'], price: [5500, 8000], rating: 4.5, desc: 'A homelike memory care community with a focus on reminiscence therapy. Each hallway is themed to evoke familiar eras, helping residents feel oriented and at ease.' },
+    { name: 'Clarity Care', type: 'MEMORY_CARE', email: 'info@claritycare.com', care: ['MEMORY_CARE', 'PERSONAL_CARE'], price: [7000, 9500], rating: 4.7, desc: 'Clarity Care takes a clinical-plus-compassion approach, with a full-time neuropsychologist on staff and individualized care plans that adapt as each resident\'s needs evolve.' },
+    { name: 'Safe Harbor Memory', type: 'MEMORY_CARE', email: 'info@safeharbor.com', care: ['MEMORY_CARE'], price: [6500, 9000], rating: 4.6, desc: 'Built around a central courtyard with walking loops and raised garden beds, Safe Harbor encourages gentle movement and outdoor time. The secured community gives families peace of mind.' },
+
+    // === NURSING_HOME (4) ===
+    { name: 'San Diego Skilled Nursing', type: 'NURSING_HOME', email: 'info@sdskilled.com', care: ['SKILLED_NURSING'], price: [7000, 11000], rating: 4.6, desc: 'A 120-bed skilled nursing facility with a strong clinical reputation. San Diego Skilled Nursing provides 24-hour RN coverage, wound care, IV therapy, and post-acute rehabilitation.' },
+    { name: 'Bay View Nursing Center', type: 'NURSING_HOME', email: 'info@bayviewnursing.com', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], price: [7500, 12000], rating: 4.5, desc: 'Overlooking the bay, this skilled nursing facility pairs excellent medical care with a healing environment. On-site physical therapy, occupational therapy, and speech therapy are available daily.' },
+    { name: 'Valley Care Nursing', type: 'NURSING_HOME', email: 'info@valleycarenursing.com', care: ['SKILLED_NURSING', 'MEMORY_CARE'], price: [6500, 10000], rating: 4.4, desc: 'Valley Care serves residents with complex medical needs including ventilator management and dialysis. A dedicated memory care wing provides additional support for residents with dementia.' },
+    { name: 'Oakwood Skilled Nursing', type: 'NURSING_HOME', email: 'info@oakwoodskilled.com', care: ['SKILLED_NURSING', 'PERSONAL_CARE'], price: [6000, 9500], rating: 4.2, desc: 'A mid-size skilled nursing facility known for its rehabilitation outcomes. Oakwood has an above-average discharge-to-home rate and partners with local hospitals for seamless post-surgical care.' },
+
+    // === REHABILITATION (3) ===
+    { name: 'Golden Gate Rehab', type: 'REHABILITATION', email: 'info@goldengaterehab.com', care: ['SKILLED_NURSING'], price: [8000, 13000], rating: 4.7, desc: 'A premier short-stay rehabilitation center specializing in post-surgical recovery, stroke rehabilitation, and orthopedic therapy. Most patients return home within 2-4 weeks.' },
+    { name: 'Pacific Coast Rehabilitation', type: 'REHABILITATION', email: 'info@pacificcoastrehab.com', care: ['SKILLED_NURSING'], price: [9000, 14000], rating: 4.8, desc: 'State-of-the-art rehabilitation facility with a fully equipped therapy gym, aquatic therapy pool, and dedicated cardiac rehab program. Board-certified physiatrist on staff.' },
+    { name: 'Valley Recovery Center', type: 'REHABILITATION', email: 'info@valleyrecovery.com', care: ['SKILLED_NURSING'], price: [7000, 11000], rating: 4.3, desc: 'Focused on getting patients back to their daily routines after hip or knee replacement, fractures, and neurological events. Offers both inpatient and outpatient rehabilitation programs.' },
+
+    // === ADDITIONAL for count balance ===
+    { name: 'Serenity Springs', type: 'ASSISTED_LIVING', email: 'info@serenitysprings.com', care: ['PERSONAL_CARE', 'COMPANION_CARE'], price: [4500, 7000], rating: 4.5, desc: 'Tucked among natural hot springs, Serenity Springs offers a tranquil environment with warm mineral baths, meditation classes, and holistic wellness programs alongside traditional assisted living care.' },
+    { name: 'Coastal Comfort Care', type: 'MEMORY_CARE', email: 'info@coastalcomfort.com', care: ['MEMORY_CARE', 'COMPANION_CARE'], price: [6000, 8500], rating: 4.4, desc: 'A newer memory care community with an innovative "neighborhood" design — residents live in small groups of 12, each with a shared kitchen, living room, and courtyard, fostering familiarity and routine.' },
+
+    // === INDEPENDENT_LIVING (3) ===
+    { name: 'Del Mar Active Living', type: 'INDEPENDENT_LIVING', email: 'info@delmaractive.com', care: ['COMPANION_CARE'], price: [2500, 4500], rating: 4.7, desc: 'An active adult community steps from the beach. Residents enjoy an Olympic-size pool, weekly excursions, a full social calendar, and the freedom to live independently with optional support services.' },
+    { name: 'Encinitas Life Plan', type: 'INDEPENDENT_LIVING', email: 'info@encinitaslifeplan.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [5000, 15000], rating: 4.9, desc: 'A life plan community offering independent living with the security of on-site assisted living and skilled nursing if needs change. Features golf, fine dining, a performing arts center, and continuing education.' },
+    { name: 'Harbor Pointe Village', type: 'INDEPENDENT_LIVING', email: 'info@harborpointe.com', care: ['COMPANION_CARE'], price: [3000, 5500], rating: 4.5, desc: 'A mid-range independent living community popular with active retirees. Harbor Pointe features a woodworking shop, community garden, dog park, and regular potluck dinners.' },
+
+    // === HOSPICE (2) ===
+    { name: 'Bayview Hospice', type: 'HOSPICE', email: 'info@bayviewhospice.com', care: ['HOSPICE_CARE'], price: [0, 0], rating: 4.8, desc: 'An inpatient hospice residence providing compassionate end-of-life care in a peaceful, homelike setting. Private rooms with garden views, 24-hour comfort care, and comprehensive family support services.' },
+    { name: 'Peaceful Journey Hospice', type: 'HOSPICE', email: 'info@peacefuljourney.com', care: ['HOSPICE_CARE'], price: [0, 0], rating: 4.9, desc: 'Peaceful Journey provides both inpatient and home hospice services. Their interdisciplinary team includes nurses, chaplains, social workers, and volunteers — all focused on comfort, dignity, and family support.' },
+
+    // === HOME_CARE (7) ===
+    { name: 'CareFirst Home Services', type: 'HOME_CARE', email: 'info@carefirsthome.com', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'LIVE_IN_CARE'], price: [25, 45], rating: 4.8, desc: 'A trusted home care agency with over 200 vetted caregivers. CareFirst provides everything from a few hours of companionship to full-time live-in care, with personalized care plans for every client.' },
+    { name: 'Home Instead San Diego', type: 'HOME_CARE', email: 'info@homeinsteadsd.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [24, 42], rating: 4.7, desc: 'Part of a nationally recognized franchise, Home Instead San Diego brings professional caregiving into your home. Services include meal preparation, medication reminders, light housekeeping, and transportation.' },
+    { name: 'Specialized Care Partners', type: 'HOME_CARE', email: 'info@specializedcarepartners.com', care: ['PERSONAL_CARE', 'MEMORY_CARE', 'SKILLED_NURSING'], price: [30, 50], rating: 4.9, desc: 'Specializing in complex care at home — Alzheimer\'s, Parkinson\'s, post-stroke, and ALS. Every caregiver is a certified nursing assistant with additional specialty training.' },
+    { name: 'Comfort Keepers LA', type: 'HOME_CARE', email: 'info@comfortkeepersla.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [22, 38], rating: 4.6, desc: 'Known for their "Interactive Caregiving" approach that keeps seniors active and engaged. Comfort Keepers helps clients maintain their routines while ensuring safety at home.' },
+    { name: 'Elite Senior Care', type: 'HOME_CARE', email: 'info@eliteseniorcare.com', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'LIVE_IN_CARE'], price: [35, 60], rating: 4.9, desc: 'A boutique home care agency serving affluent communities. Elite Senior Care provides highly experienced caregivers, a dedicated care manager for each family, and 24/7 on-call support.' },
+    { name: 'Loving Hearts Home Care', type: 'HOME_CARE', email: 'info@lovinghearts.com', care: ['COMPANION_CARE', 'PERSONAL_CARE'], price: [20, 32], rating: 4.5, desc: 'An affordable home care option with heart. Loving Hearts focuses on companionship, help with daily tasks, and making sure seniors feel connected and cared for.' },
+    { name: 'Right at Home OC', type: 'HOME_CARE', email: 'info@rightathomeoc.com', care: ['COMPANION_CARE', 'PERSONAL_CARE', 'SKILLED_NURSING'], price: [26, 44], rating: 4.6, desc: 'Serving Orange County families with flexible scheduling — from 4-hour shifts to 24/7 care. Right at Home provides companion care, personal care, and skilled nursing through their home health division.' },
+
+    // === HOME_HEALTH (1) ===
+    { name: 'Pacific Home Health', type: 'HOME_HEALTH', email: 'info@pacifichomehealth.com', care: ['SKILLED_NURSING'], price: [45, 75], rating: 4.7, desc: 'Medicare-certified home health agency providing skilled nursing visits, physical therapy, occupational therapy, and wound care — all in the comfort of your home, ordered by your physician.' },
     ];
 
     // Helper: build type-specific fields for each facility/agency
     const getFacilityFields = (type: string, idx: number) => {
-      const isFacilityType = ['ASSISTED_LIVING', 'MEMORY_CARE', 'NURSING_HOME', 'INDEPENDENT_LIVING', 'REHABILITATION'].includes(type);
-      const isHomeCareType = ['HOME_CARE', 'HOME_HEALTH', 'HOSPICE'].includes(type);
+      const isFacilityType = ['ASSISTED_LIVING', 'MEMORY_CARE', 'NURSING_HOME', 'INDEPENDENT_LIVING', 'REHABILITATION', 'HOSPICE'].includes(type);
+      const isHomeCareType = ['HOME_CARE', 'HOME_HEALTH'].includes(type);
 
       const base: Record<string, any> = {
         licensed: true,
@@ -396,17 +437,18 @@ export async function seedLite(prisma: PrismaClient) {
           base.commonAreas = ['Pool', 'Fitness Center', 'Clubhouse', 'Walking Trails'];
           base.activitiesOffered = ['Yoga', 'Book Club', 'Day Trips', 'Cooking Classes', 'Golf'];
         }
-      }
-
-      if (isHomeCareType) {
-        base.serviceRadius = 20 + (idx % 20);
-
         if (type === 'HOSPICE') {
           base.hasRNOnSite = true;
           base.hasHospiceCare = true;
           base.medicalServices = ['Pain Management', 'Symptom Control', 'Family Counseling', 'Spiritual Support'];
           base.specialtyPrograms = ['Bereavement Support', 'Respite Care', 'Veteran Honors'];
+          base.commonAreas = ['Family Gathering Room', 'Meditation Garden', 'Chapel', 'Kitchen for Families'];
+          base.dietaryOptions = ['Comfort Foods', 'Special Requests', 'Family Meals Available'];
         }
+      }
+
+      if (isHomeCareType) {
+        base.serviceRadius = 20 + (idx % 20);
         if (type === 'HOME_HEALTH') {
           base.hasRNOnSite = true;
           base.medicalServices = ['Skilled Nursing', 'Physical Therapy', 'Wound Care', 'Medication Management'];
@@ -438,7 +480,7 @@ export async function seedLite(prisma: PrismaClient) {
             create: {
               name: data.name,
               providerType: data.type as ProviderType,
-              description: `Quality ${data.type.toLowerCase().replace('_', ' ')} services in ${loc.city}.`,
+              description: (data as any).desc || `Quality ${data.type.toLowerCase().replace('_', ' ')} services in ${loc.city}.`,
               email: data.email,
               phone: `(${600 + i}) 555-${String(1000 + i).padStart(4, '0')}`,
               address: `${100 + i * 10} Main Street`,
