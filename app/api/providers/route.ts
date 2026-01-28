@@ -176,14 +176,24 @@ export async function GET(req: Request) {
     // Photo filter - for homepage and curated displays
     const hasPhotosParam = searchParams.get("hasPhotos");
     if (hasPhotosParam === "true") {
-      where.OR = where.OR || [];
-      // Override OR to require photos (coverPhoto OR non-empty photos array)
+      // Require providers that have either a coverPhoto or at least one photo
+      // Using AND to combine with existing where conditions
       where.AND = [
         ...(where.AND || []),
         {
           OR: [
-            { coverPhoto: { not: null } },
-            { photos: { isEmpty: false } },
+            // Has a non-empty coverPhoto
+            {
+              coverPhoto: {
+                not: null,
+              },
+            },
+            // Has at least one photo in the array
+            {
+              NOT: {
+                photos: { equals: [] }
+              }
+            },
           ],
         },
       ];
