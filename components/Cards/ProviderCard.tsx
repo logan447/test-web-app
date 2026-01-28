@@ -100,18 +100,29 @@ export default function ProviderCard({
   const imageUrl = provider.coverPhoto || provider.photos?.[0] || null;
 
   // Format price based on provider type
-  const formatPrice = () => {
-    const { priceMin, priceMax, providerType } = provider;
+  // Returns { label, value } for proper display
+  // "Starting at" should only pair with a single minimum price, not a range
+  const formatPrice = (): { label: string; value: string } | null => {
+    const { priceMin, priceMax } = provider;
     if (!priceMin && !priceMax) return null;
 
     const isHourly = isHomeCare || isCaregiver;
     const suffix = isHourly ? "/hr" : "/mo";
 
-    if (priceMin && priceMax) {
-      return `$${priceMin.toLocaleString()}-$${priceMax.toLocaleString()}${suffix}`;
+    // If we have a minimum price, show "Starting at $X"
+    if (priceMin) {
+      return {
+        label: "Starting at",
+        value: `$${priceMin.toLocaleString()}${suffix}`,
+      };
     }
-    if (priceMin) return `From $${priceMin.toLocaleString()}${suffix}`;
-    if (priceMax) return `Up to $${priceMax.toLocaleString()}${suffix}`;
+    // If we only have a max (rare), show "Up to $X"
+    if (priceMax) {
+      return {
+        label: "Up to",
+        value: `$${priceMax.toLocaleString()}${suffix}`,
+      };
+    }
     return null;
   };
 
@@ -265,9 +276,9 @@ export default function ProviderCard({
             {/* Price and Olera Score Row */}
             <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
               <div>
-                {price && <p className="text-xs text-gray-500">Starting at</p>}
+                {price && <p className="text-xs text-gray-500">{price.label}</p>}
                 <p className="font-semibold text-gray-900">
-                  {price || "Contact for pricing"}
+                  {price ? price.value : "Contact for pricing"}
                 </p>
               </div>
               <OleraScoreBadge
@@ -481,9 +492,10 @@ export default function ProviderCard({
 
         {/* Pricing */}
         {price && (
-          <p className="text-lg font-bold text-gray-900 mb-3">
-            {price}
-          </p>
+          <div className="mb-3">
+            <p className="text-xs text-gray-500">{price.label}</p>
+            <p className="text-lg font-bold text-gray-900">{price.value}</p>
+          </div>
         )}
 
         {/* Specialty Badges */}

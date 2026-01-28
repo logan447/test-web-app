@@ -95,18 +95,27 @@ export default function EnhancedProviderCard({
   const imageUrl = provider.coverPhoto || provider.photos?.[0] || null;
 
   // Format price based on provider type
-  const formatPrice = () => {
+  // Returns { label, value } for proper display
+  // "Starting at" should only pair with a single minimum price, not a range
+  const formatPrice = (): { label: string; value: string } | null => {
     const { priceMin, priceMax } = provider;
     if (!priceMin && !priceMax) return null;
 
     const isHourly = isHomeCare || isCaregiver;
     const suffix = isHourly ? "/hr" : "/mo";
 
-    if (priceMin && priceMax) {
-      return `$${priceMin.toLocaleString()}-$${priceMax.toLocaleString()}${suffix}`;
+    if (priceMin) {
+      return {
+        label: "Starting at",
+        value: `$${priceMin.toLocaleString()}${suffix}`,
+      };
     }
-    if (priceMin) return `From $${priceMin.toLocaleString()}${suffix}`;
-    if (priceMax) return `Up to $${priceMax.toLocaleString()}${suffix}`;
+    if (priceMax) {
+      return {
+        label: "Up to",
+        value: `$${priceMax.toLocaleString()}${suffix}`,
+      };
+    }
     return null;
   };
 
@@ -273,9 +282,9 @@ export default function EnhancedProviderCard({
           {/* Price and Rating Row */}
           <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
             <div>
-              {price && <p className="text-xs text-gray-500">Starting at</p>}
+              {price && <p className="text-xs text-gray-500">{price.label}</p>}
               <p className="font-semibold text-gray-900">
-                {price || "Contact for pricing"}
+                {price ? price.value : "Contact for pricing"}
               </p>
             </div>
             <OleraScoreBadge
