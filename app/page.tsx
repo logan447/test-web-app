@@ -183,7 +183,7 @@ export default function Home() {
               }`}
             >
               <div className={`bg-white rounded-2xl shadow-lg border border-gray-200 p-2 ${
-                showStickySearch ? 'max-w-md mx-auto shadow-xl' : ''
+                showStickySearch ? 'max-w-lg mx-auto shadow-xl' : ''
               }`}>
                 <div className="flex items-center gap-2">
                   {/* Location icon */}
@@ -207,12 +207,12 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Get Started Button */}
+                  {/* Search Button */}
                   <button
                     type="submit"
                     className="px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
                   >
-                    <span>Get Started</span>
+                    <span>Search</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                     </svg>
@@ -407,53 +407,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Olera Is Different — 3 core differentiators */}
-      <section className="py-16 bg-gray-50">
+      {/* Why Olera Is Different — Compact trust strip */}
+      <section className="py-10 bg-primary-600">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              Why Olera is different
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* No spam. No pressure. */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 mx-auto mb-4">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
+            {/* No spam */}
+            <div className="flex items-center gap-3 text-white">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No spam. No pressure.</h3>
-              <p className="text-base text-gray-600">
-                Your information is only shared with providers you choose.
-              </p>
+              <span className="text-base font-medium">No spam or pressure</span>
             </div>
 
-            {/* Book meetings directly */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
-              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600 mx-auto mb-4">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            {/* Free tours */}
+            <div className="flex items-center gap-3 text-white">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Free consultations and tours</h3>
-              <p className="text-base text-gray-600">
-                Talk directly with providers to get pricing and care details.
-              </p>
+              <span className="text-base font-medium">Free consultations and tours</span>
             </div>
 
-            {/* Help paying for care */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6 text-center shadow-sm">
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mx-auto mb-4">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            {/* Help paying */}
+            <div className="flex items-center gap-3 text-white">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Help paying for care</h3>
-              <p className="text-base text-gray-600">
-                Find benefits and resources to make care more affordable.
-              </p>
+              <span className="text-base font-medium">Help paying for care</span>
             </div>
           </div>
         </div>

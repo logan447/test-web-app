@@ -664,14 +664,6 @@ export default function ProviderDetailPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Overlay when search is expanded */}
-      {searchExpanded && (
-        <div
-          className="fixed inset-0 bg-black/20 z-30 transition-opacity"
-          onClick={() => setSearchExpanded(false)}
-        />
-      )}
-
       {/* ===================== STICKY TOOLBAR ===================== */}
       <div ref={toolbarRef} className="bg-white border-b border-gray-200 sticky top-0 z-40">
         {/* Expanded state: top bar (logo + categories + hamburger) + full search card */}
