@@ -520,23 +520,15 @@ function BrowseContent() {
               </Link>
 
               {/* Search bar + Filters — absolutely centered on desktop */}
-              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[540px] lg:max-w-[640px]">
+              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[400px] lg:max-w-[480px]">
                 <button
                   type="button"
                   onClick={() => setSearchExpanded(true)}
                   className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                 >
-                  <div className="flex-1 min-w-0 flex items-center divide-x divide-gray-200">
-                    <span className={`px-4 py-2.5 text-sm font-medium truncate flex-1 ${location ? 'text-gray-800' : 'text-gray-400'}`}>
-                      {location || "Enter city"}
-                    </span>
-                    <span className={`hidden md:block px-4 py-2.5 text-sm font-medium truncate flex-1 ${filterValues.providerType ? 'text-gray-800' : 'text-gray-400'}`}>
-                      {PROVIDER_TYPE_OPTIONS.find(o => o.value === filterValues.providerType)?.label || "Any type"}
-                    </span>
-                    <span className={`hidden lg:block px-4 py-2.5 text-sm font-medium truncate flex-1 ${filterValues.careService ? 'text-gray-800' : 'text-gray-400'}`}>
-                      {CARE_SERVICE_OPTIONS.find(o => o.value === filterValues.careService)?.label || "Any service"}
-                    </span>
-                  </div>
+                  <span className={`flex-1 px-4 py-2.5 text-sm font-medium truncate ${location ? 'text-gray-800' : 'text-gray-400'}`}>
+                    {location || "Enter city or zip code"}
+                  </span>
                   <div className="m-1.5 p-2 bg-primary-600 rounded-xl shrink-0">
                     <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

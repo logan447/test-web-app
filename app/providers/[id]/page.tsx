@@ -23,45 +23,6 @@ import { getProviderCTAs } from "@/lib/providerUtils";
 import { useProviderIdentity } from "@/hooks/useProviderIdentity";
 import ForOrganizationsSection from "@/components/Provider/ForOrganizationsSection";
 import AvailabilitySection from "@/components/Provider/AvailabilitySection";
-import { LocationAutocomplete } from "@/components/Location";
-
-// All category filter buttons (matches /browse)
-const ALL_CARE_CATEGORIES = [
-  { label: "Home Care", type: "HOME_CARE" },
-  { label: "Assisted Living", type: "ASSISTED_LIVING" },
-  { label: "Memory Care", type: "MEMORY_CARE" },
-  { label: "Nursing Homes", type: "NURSING_HOME" },
-  { label: "Independent Living", type: "INDEPENDENT_LIVING" },
-  { label: "Rehab", type: "REHABILITATION" },
-  { label: "Hospice", type: "HOSPICE" },
-  { label: "Private Caregivers", type: "INDEPENDENT_CAREGIVER" },
-];
-
-// Care services for search bar
-const CARE_SERVICE_OPTIONS = [
-  { value: "", label: "Any service" },
-  { value: "COMPANION_CARE", label: "Companion Care" },
-  { value: "PERSONAL_CARE", label: "Personal Care" },
-  { value: "SKILLED_NURSING", label: "Skilled Nursing" },
-  { value: "MEMORY_CARE", label: "Memory Care" },
-  { value: "HOSPICE_CARE", label: "Hospice Care" },
-  { value: "RESPITE_CARE", label: "Respite Care" },
-  { value: "LIVE_IN_CARE", label: "Live-in Care" },
-];
-
-// Provider type options for search bar select
-const PROVIDER_TYPE_OPTIONS = [
-  { value: "", label: "Any type" },
-  { value: "HOME_CARE", label: "Home Care" },
-  { value: "HOME_HEALTH", label: "Home Health" },
-  { value: "ASSISTED_LIVING", label: "Assisted Living" },
-  { value: "MEMORY_CARE", label: "Memory Care" },
-  { value: "NURSING_HOME", label: "Nursing Home" },
-  { value: "HOSPICE", label: "Hospice" },
-  { value: "INDEPENDENT_LIVING", label: "Independent Living" },
-  { value: "REHABILITATION", label: "Rehabilitation" },
-  { value: "INDEPENDENT_CAREGIVER", label: "Caregiver" },
-];
 
 // Provider type categories
 const FACILITY_TYPES = ["ASSISTED_LIVING", "MEMORY_CARE", "NURSING_HOME", "INDEPENDENT_LIVING", "REHABILITATION"];
@@ -236,16 +197,11 @@ export default function ProviderDetailPage() {
   // Photo tour overlay
   const [photoTourOpen, setPhotoTourOpen] = useState(false);
 
-  // Toolbar state (matches /browse)
+  // Toolbar state
   const [hamburgerOpen, setHamburgerOpen] = useState(false);
-  const [searchExpanded, setSearchExpanded] = useState(false);
   const [switchingMode, setSwitchingMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [menuProviderType, setMenuProviderType] = useState<string | null>(null);
-  const [searchLocation, setSearchLocation] = useState("");
-  const [searchProviderType, setSearchProviderType] = useState("");
-  const [searchCareService, setSearchCareService] = useState("");
-  const toolbarRef = useRef<HTMLDivElement>(null);
 
   // Get provider identity for accurate viewer role derivation (only fetches if in provider mode)
   const { identity: providerIdentity } = useProviderIdentity({ checkMode: true });
@@ -311,22 +267,6 @@ export default function ProviderDetailPage() {
     return () => document.removeEventListener("click", handleClick);
   }, [hamburgerOpen]);
 
-  useEffect(() => {
-    if (!searchExpanded) return;
-    const handleClick = (e: MouseEvent) => {
-      if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node)) {
-        setSearchExpanded(false);
-      }
-    };
-    const timer = setTimeout(() => {
-      document.addEventListener("click", handleClick);
-    }, 0);
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener("click", handleClick);
-    };
-  }, [searchExpanded]);
-
   // Show sticky CTA bar after scrolling past hero
   useEffect(() => {
     const handleScroll = () => {
@@ -374,20 +314,6 @@ export default function ProviderDetailPage() {
 
   const currentMode = session?.user?.activeMode || "FAMILY";
   const isProviderMode = currentMode === "PROVIDER";
-
-  const handleToolbarSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearchExpanded(false);
-    const params = new URLSearchParams();
-    if (searchLocation) params.set("location", searchLocation);
-    if (searchProviderType) params.set("type", searchProviderType);
-    if (searchCareService) params.set("care", searchCareService);
-    router.push(`/browse${params.toString() ? `?${params.toString()}` : ""}`);
-  };
-
-  const handleToolbarCategoryClick = (type: string) => {
-    router.push(`/browse?type=${type}`);
-  };
 
   useEffect(() => {
     fetchProvider();
@@ -656,163 +582,45 @@ export default function ProviderDetailPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Overlay when search is expanded */}
-      {searchExpanded && (
-        <div
-          className="fixed inset-0 bg-black/20 z-30 transition-opacity"
-          onClick={() => setSearchExpanded(false)}
-        />
-      )}
-
       {/* ===================== STICKY TOOLBAR ===================== */}
-      <div ref={toolbarRef} className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        {/* Expanded state: top bar (logo + categories + hamburger) + full search card */}
-        <div className={`transition-all duration-300 ease-in-out ${
-          searchExpanded ? "max-h-[280px] opacity-100 overflow-visible" : "max-h-0 opacity-0 overflow-hidden"
-        }`}>
-          {/* Top bar: Logo + category buttons + hamburger */}
-          <div className="max-w-7xl mx-auto px-4 pt-3 pb-1">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2 shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
-                <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
-              </Link>
-              <div className="flex-1 flex items-center justify-center gap-1 flex-wrap overflow-hidden">
-                {ALL_CARE_CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.type}
-                    onClick={() => handleToolbarCategoryClick(cat.type)}
-                    className="px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap text-gray-700 hover:bg-gray-100"
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-              <div className="relative shrink-0" data-hamburger-menu>
-                <button
-                  onClick={() => setHamburgerOpen(!hamburgerOpen)}
-                  className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
-                >
-                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                  <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
-                    {session ? (
-                      <span className="text-xs font-medium text-white">
-                        {session.user?.name?.charAt(0).toUpperCase()}
-                      </span>
-                    ) : (
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                      </svg>
-                    )}
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-2.5">
+          <div className="relative flex items-center gap-3">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
+              <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
+            </Link>
 
-          {/* Full search bar */}
-          <div className="max-w-3xl mx-auto px-4 pt-2 pb-3">
-            <form onSubmit={handleToolbarSearch}>
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
-                <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
-                  <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Where</label>
-                    <LocationAutocomplete
-                      value={searchLocation}
-                      onChange={(value) => setSearchLocation(value)}
-                      placeholder="Enter city"
-                      showIcon={false}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Type of Care</label>
-                    <select
-                      value={searchProviderType}
-                      onChange={(e) => setSearchProviderType(e.target.value)}
-                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${searchProviderType ? 'text-gray-900' : 'text-gray-400'}`}
-                    >
-                      {PROVIDER_TYPE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex-1 px-4 py-3">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Care Services</label>
-                    <select
-                      value={searchCareService}
-                      onChange={(e) => setSearchCareService(e.target.value)}
-                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${searchCareService ? 'text-gray-900' : 'text-gray-400'}`}
-                    >
-                      {CARE_SERVICE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="px-2 py-2 md:py-0 flex items-center">
-                    <button
-                      type="submit"
-                      className="w-full md:w-auto px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                      <span>Search</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        {/* Collapsed toolbar row */}
-        <div className={`transition-all duration-300 ease-in-out ${
-          searchExpanded ? "max-h-0 opacity-0 overflow-hidden" : "max-h-20 opacity-100"
-        }`}>
-          <div className="max-w-7xl mx-auto px-4 py-2.5">
-            <div className="relative flex items-center gap-3">
-              <Link href="/" className="flex items-center gap-2 shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
-                <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
-              </Link>
-              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[540px] lg:max-w-[640px]">
-                <button
-                  type="button"
-                  onClick={() => setSearchExpanded(true)}
-                  className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                >
-                  <div className="flex-1 min-w-0 flex items-center divide-x divide-gray-200">
-                    <span className={`px-4 py-2.5 text-sm font-medium truncate flex-1 ${searchLocation ? 'text-gray-800' : 'text-gray-400'}`}>
-                      {searchLocation || "Enter city"}
-                    </span>
-                    <span className={`hidden md:block px-4 py-2.5 text-sm font-medium truncate flex-1 ${searchProviderType ? 'text-gray-800' : 'text-gray-400'}`}>
-                      {PROVIDER_TYPE_OPTIONS.find(o => o.value === searchProviderType)?.label || "Any type"}
-                    </span>
-                    <span className={`hidden lg:block px-4 py-2.5 text-sm font-medium truncate flex-1 ${searchCareService ? 'text-gray-800' : 'text-gray-400'}`}>
-                      {CARE_SERVICE_OPTIONS.find(o => o.value === searchCareService)?.label || "Any service"}
-                    </span>
-                  </div>
-                  <div className="m-1.5 p-2 bg-primary-600 rounded-xl shrink-0">
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                </button>
-              </div>
-              <div className="hidden lg:block flex-1" />
+            {/* Search bar — navigates to /browse on click */}
+            <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[400px] lg:max-w-[480px]">
               <Link
-                href="/for-providers"
-                className="hidden md:block text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors shrink-0"
+                href="/browse"
+                className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
               >
-                Become a provider
+                <span className="flex-1 px-4 py-2.5 text-sm font-medium truncate text-gray-400">
+                  Search for care providers
+                </span>
+                <div className="m-1.5 p-2 bg-primary-600 rounded-xl shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
               </Link>
-              <div className="relative shrink-0" data-hamburger-menu>
+            </div>
+
+            {/* Right side */}
+            <div className="hidden lg:block flex-1" />
+            <Link
+              href="/for-providers"
+              className="hidden md:block text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors shrink-0"
+            >
+              Become a provider
+            </Link>
+
+            {/* Hamburger */}
+            <div className="relative shrink-0" data-hamburger-menu>
               <button
                 onClick={() => setHamburgerOpen(!hamburgerOpen)}
                 className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
@@ -955,7 +763,6 @@ export default function ProviderDetailPage() {
               )}
             </div>
           </div>
-        </div>
         </div>
       </div>
 

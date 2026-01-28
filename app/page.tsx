@@ -8,18 +8,6 @@ import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
 import { formatProviderType } from "@/lib/comparisonUtils";
 
-// Care services options for search
-const CARE_SERVICE_OPTIONS = [
-  { value: "", label: "Any service" },
-  { value: "COMPANION_CARE", label: "Companion Care" },
-  { value: "PERSONAL_CARE", label: "Personal Care" },
-  { value: "SKILLED_NURSING", label: "Skilled Nursing" },
-  { value: "MEMORY_CARE", label: "Memory Care" },
-  { value: "HOSPICE_CARE", label: "Hospice Care" },
-  { value: "RESPITE_CARE", label: "Respite Care" },
-  { value: "LIVE_IN_CARE", label: "Live-in Care" },
-];
-
 // Situational care entry cards
 const CARE_TYPES = [
   {
@@ -108,8 +96,6 @@ export default function Home() {
   const router = useRouter();
   const [location, setLocation] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<{ city: string; state: string } | null>(null);
-  const [careType, setCareType] = useState("");
-  const [careService, setCareService] = useState("");
   const [featuredProviders, setFeaturedProviders] = useState<FeaturedProvider[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [providersError, setProvidersError] = useState(false);
@@ -202,9 +188,6 @@ export default function Home() {
       }
     }
 
-    if (careType) params.set("type", careType);
-    if (careService) params.set("care", careService);
-
     router.push(`/browse?${params.toString()}`);
   };
 
@@ -241,61 +224,32 @@ export default function Home() {
               }`}
             >
               <div className={`bg-white rounded-2xl shadow-lg border border-gray-200 p-2 ${
-                showStickySearch ? 'max-w-3xl mx-auto shadow-xl border-gray-200' : ''
+                showStickySearch ? 'max-w-2xl mx-auto shadow-xl border-gray-200' : ''
               }`}>
-                <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
+                <div className="flex items-center gap-2">
                   {/* Location */}
                   <div className="flex-1 px-4 py-3">
-                    <label className={`block text-xs font-semibold text-gray-500 mb-1.5 text-left ${showStickySearch ? 'sr-only' : ''}`}>Where</label>
+                    <label className={`block text-xs font-semibold text-gray-500 mb-1.5 text-left ${showStickySearch ? 'sr-only' : ''}`}>Where do you need care?</label>
                     <LocationAutocomplete
                       value={location}
                       onChange={handleLocationChange}
-                      placeholder="Enter city"
+                      placeholder="Enter city or zip code"
                       showIcon={false}
                       inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
                       className="w-full"
                     />
                   </div>
 
-                  {/* Provider Type */}
-                  <div className="flex-1 px-4 py-3">
-                    <label className={`block text-xs font-semibold text-gray-500 mb-1.5 text-left ${showStickySearch ? 'sr-only' : ''}`}>Type of Care</label>
-                    <select
-                      value={careType}
-                      onChange={(e) => setCareType(e.target.value)}
-                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${careType ? 'text-gray-900' : 'text-gray-400'}`}
-                    >
-                      <option value="">Any type</option>
-                      {CARE_TYPES.map((type) => (
-                        <option key={type.id} value={type.slug}>{type.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Care Services */}
-                  <div className="flex-1 px-4 py-3">
-                    <label className={`block text-xs font-semibold text-gray-500 mb-1.5 text-left ${showStickySearch ? 'sr-only' : ''}`}>Care Services</label>
-                    <select
-                      value={careService}
-                      onChange={(e) => setCareService(e.target.value)}
-                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${careService ? 'text-gray-900' : 'text-gray-400'}`}
-                    >
-                      {CARE_SERVICE_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
                   {/* Search Button */}
-                  <div className="px-2 py-2 md:py-0 flex items-center">
+                  <div className="px-2 shrink-0">
                     <button
                       type="submit"
-                      className="w-full md:w-auto px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
+                      className="px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
-                      <span>Search</span>
+                      <span className="hidden sm:inline">Search</span>
                     </button>
                   </div>
                 </div>
