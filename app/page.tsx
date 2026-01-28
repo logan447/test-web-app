@@ -17,8 +17,8 @@ const CARE_SITUATIONS = [
     name: "Help at Home",
     slug: "HOME_CARE",
     description: "Daily support in your home",
-    // Caregiver or family member helping older adult at home - warm, domestic, non-clinical
-    image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&h=300&fit=crop&crop=faces",
+    // Caregiver helping elderly woman at home - warm, domestic, non-clinical
+    image: "https://images.unsplash.com/photo-1576765607924-3f7b8410a787?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-primary-50",
   },
   {
@@ -35,8 +35,8 @@ const CARE_SITUATIONS = [
     name: "Memory Concerns",
     slug: "MEMORY_CARE",
     description: "Specialized memory care",
-    // Older adult in caring conversation with family member - human, reassuring
-    image: "https://images.unsplash.com/photo-1447069387593-a5de0862481e?w=400&h=300&fit=crop&crop=faces",
+    // Adult daughter holding hands with elderly mother - supportive, reassuring connection
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-amber-50",
   },
   {
@@ -44,8 +44,8 @@ const CARE_SITUATIONS = [
     name: "Planning Ahead",
     slug: "ASSISTED_LIVING",
     description: "Explore options early",
-    // Person reviewing documents/laptop - calm planning and research
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=300&fit=crop&crop=faces",
+    // Older couple reviewing documents together - calm, thoughtful planning
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-sky-50",
   },
 ];
@@ -266,16 +266,16 @@ export default function Home() {
 
       {/* Dual-path guidance + Situation cards */}
       <section className="pt-4 pb-8 bg-white">
-        <div className="max-w-2xl mx-auto px-6">
+        <div className="max-w-3xl mx-auto px-6">
           {/* "Or" divider with guidance text */}
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 h-px bg-gray-300" />
-            <span className="text-gray-600 text-base font-medium">or tell us what brings you here</span>
+            <span className="text-gray-600 text-base font-medium whitespace-nowrap">or tell us what brings you here</span>
             <div className="flex-1 h-px bg-gray-300" />
           </div>
 
           {/* Situation cards — compact, accessible layout with text below images */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4 lg:gap-5">
             {CARE_SITUATIONS.map((situation) => (
               <Link
                 key={situation.id}
@@ -293,12 +293,12 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Text area below image - minimal, scannable */}
-                <div className="p-2.5">
-                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors leading-tight">
+                {/* Text area below image - readable for 65+ users */}
+                <div className="p-3">
+                  <h3 className="text-base font-semibold text-gray-900 group-hover:text-primary-600 transition-colors leading-tight">
                     {situation.name}
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-snug">
+                  <p className="text-sm text-gray-500 mt-1 leading-snug">
                     {situation.description}
                   </p>
                 </div>
