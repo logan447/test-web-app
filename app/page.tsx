@@ -9,35 +9,55 @@ import { LocationAutocomplete } from "@/components/Location";
 import { formatProviderType } from "@/lib/comparisonUtils";
 
 // Situational care entry cards — simplified for 65+ clarity
-// Reduced to 4 most common entry points, warm gradient backgrounds
+// 4 most common entry points with icons and soft brand-consistent colors
 const CARE_SITUATIONS = [
   {
     id: "help-at-home",
     name: "Help at Home",
     slug: "HOME_CARE",
-    gradient: "from-sky-400 to-blue-500",
-    image: "/images/situations/help-at-home.jpg",
+    bgColor: "bg-primary-50 hover:bg-primary-100",
+    iconColor: "text-primary-600",
+    icon: (
+      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
   },
   {
     id: "after-hospital",
     name: "After a Hospital Stay",
     slug: "REHABILITATION",
-    gradient: "from-emerald-400 to-teal-500",
-    image: "/images/situations/after-hospital.jpg",
+    bgColor: "bg-teal-50 hover:bg-teal-100",
+    iconColor: "text-teal-600",
+    icon: (
+      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    ),
   },
   {
     id: "memory-concerns",
     name: "Memory Concerns",
     slug: "MEMORY_CARE",
-    gradient: "from-violet-400 to-purple-500",
-    image: "/images/situations/memory-concerns.jpg",
+    bgColor: "bg-amber-50 hover:bg-amber-100",
+    iconColor: "text-amber-600",
+    icon: (
+      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    ),
   },
   {
     id: "planning-ahead",
     name: "Planning Ahead",
     slug: "ASSISTED_LIVING",
-    gradient: "from-amber-400 to-orange-500",
-    image: "/images/situations/planning-ahead.jpg",
+    bgColor: "bg-sky-50 hover:bg-sky-100",
+    iconColor: "text-sky-600",
+    icon: (
+      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
   },
 ];
 
@@ -180,7 +200,7 @@ export default function Home() {
             <form
               ref={searchFormRef}
               onSubmit={handleSearch}
-              className={`max-w-lg mx-auto mb-6 transition-all duration-300 ${
+              className={`max-w-lg mx-auto transition-all duration-300 ${
                 showStickySearch
                   ? 'fixed top-0 left-0 right-0 z-50 px-4 py-3'
                   : ''
@@ -190,8 +210,43 @@ export default function Home() {
                 showStickySearch ? 'max-w-md mx-auto shadow-xl' : ''
               }`}>
                 <div className="flex items-center gap-2">
+                  {/* Geolocation button - integrated into search bar */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                          async (position) => {
+                            try {
+                              const res = await fetch(
+                                `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
+                              );
+                              const data = await res.json();
+                              const city = data.address?.city || data.address?.town || data.address?.village || "";
+                              const state = data.address?.state || "";
+                              if (city && state) {
+                                setLocation(`${city}, ${state}`);
+                                setSelectedLocation({ city, state });
+                              }
+                            } catch {
+                              // Silently fail
+                            }
+                          },
+                          () => {}
+                        );
+                      }
+                    }}
+                    className="p-2.5 text-gray-400 hover:text-primary-600 hover:bg-gray-50 rounded-lg transition-colors shrink-0"
+                    title="Use my current location"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+
                   {/* Location input */}
-                  <div className="flex-1 px-4 py-2.5">
+                  <div className="flex-1 py-2">
                     <LocationAutocomplete
                       value={location}
                       onChange={handleLocationChange}
@@ -202,115 +257,49 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Search Button */}
+                  {/* Get Started Button */}
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0"
+                    className="px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shrink-0"
                   >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <span>Get Started</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                     </svg>
-                    <span className="hidden sm:inline">Search</span>
                   </button>
                 </div>
               </div>
             </form>
-
-            {/* Use my location — clear secondary action */}
-            {!showStickySearch && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                      async (position) => {
-                        try {
-                          const res = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
-                          );
-                          const data = await res.json();
-                          const city = data.address?.city || data.address?.town || data.address?.village || "";
-                          const state = data.address?.state || "";
-                          if (city && state) {
-                            setLocation(`${city}, ${state}`);
-                            setSelectedLocation({ city, state });
-                          }
-                        } catch {
-                          // Silently fail - user can still type manually
-                        }
-                      },
-                      () => {
-                        // Permission denied or error - do nothing
-                      }
-                    );
-                  }
-                }}
-                className="mb-8 text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1.5 mx-auto"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Use my current location
-              </button>
-            )}
-
-            {/* Trust signals */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>Verified providers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span>Free to use</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-                <span>Real reviews</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* What brings you here today? — simplified cards for 65+ clarity */}
-      <section className="pt-10 pb-14 bg-white">
+      {/* Dual-path guidance + Situation cards */}
+      <section className="pt-8 pb-14 bg-white">
         <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              What brings you here today?
-            </h2>
+          {/* "Or" divider with guidance text */}
+          <div className="flex items-center gap-4 mb-10">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-gray-500 text-base">or tell us what brings you here</span>
+            <div className="flex-1 h-px bg-gray-200" />
           </div>
-          <div className="grid grid-cols-2 gap-5">
+
+          {/* Situation cards — icons + soft brand colors for warmth and clarity */}
+          <div className="grid grid-cols-2 gap-4">
             {CARE_SITUATIONS.map((situation) => (
               <Link
                 key={situation.id}
                 href={`/browse?type=${situation.slug}`}
-                className={`group relative rounded-2xl overflow-hidden bg-gradient-to-br ${situation.gradient} min-h-[140px] sm:min-h-[160px] hover:shadow-xl hover:scale-[1.02] transition-all duration-200`}
+                className={`group flex flex-col items-center justify-center p-6 sm:p-8 rounded-2xl ${situation.bgColor} border border-transparent hover:border-gray-200 hover:shadow-lg transition-all duration-200 min-h-[140px] sm:min-h-[160px]`}
               >
-                {/* Optional: Background image overlay if image exists */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={situation.image}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-                {/* Title — centered, large, clear */}
-                <div className="absolute inset-0 flex items-center justify-center p-5">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white text-center leading-tight drop-shadow-sm">
-                    {situation.name}
-                  </h3>
+                {/* Icon */}
+                <div className={`${situation.iconColor} mb-3 group-hover:scale-110 transition-transform duration-200`}>
+                  {situation.icon}
                 </div>
+                {/* Title */}
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 text-center leading-tight">
+                  {situation.name}
+                </h3>
               </Link>
             ))}
           </div>
