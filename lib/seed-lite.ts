@@ -267,10 +267,79 @@ export async function seedLite(prisma: PrismaClient) {
     { name: 'Peaceful Journey Hospice', type: 'HOSPICE', email: 'info@peacefuljourney.com', care: ['HOSPICE_CARE'], price: [0, 0], rating: 4.9 },
     ];
 
+    // Helper: build type-specific fields for each facility/agency
+    const getFacilityFields = (type: string, idx: number) => {
+      const isFacilityType = ['ASSISTED_LIVING', 'MEMORY_CARE', 'NURSING_HOME', 'INDEPENDENT_LIVING', 'REHABILITATION'].includes(type);
+      const isHomeCareType = ['HOME_CARE', 'HOME_HEALTH', 'HOSPICE'].includes(type);
+
+      const base: Record<string, any> = {
+        licensed: true,
+        yearsInBusiness: 8 + (idx % 15),
+      };
+
+      if (isFacilityType) {
+        const capacity = 40 + (idx % 8) * 15;
+        base.totalCapacity = capacity;
+        base.availableSpots = idx % 5 === 0 ? 0 : 2 + (idx % 6);
+        base.waitlistAvailable = base.availableSpots === 0;
+        base.staffToResidentRatio = `1:${Math.floor(capacity / (6 + idx % 4))}`;
+        base.hasRNOnSite = type !== 'INDEPENDENT_LIVING';
+        base.hasLVNOnSite = true;
+        base.allStaffBackgroundChecked = true;
+        base.visitingDoctorFrequency = type === 'NURSING_HOME' || type === 'REHABILITATION' ? 'Daily' : 'Weekly';
+
+        if (type === 'MEMORY_CARE') {
+          base.hasMemoryCare = true;
+          base.specialtyPrograms = ['Structured Day Program', 'Music Therapy', 'Sensory Stimulation'];
+        }
+        if (type === 'REHABILITATION') {
+          base.medicalServices = ['Physical Therapy', 'Occupational Therapy', 'Speech Therapy', 'Post-Surgical Recovery'];
+        }
+        if (type === 'NURSING_HOME') {
+          base.medicalServices = ['Skilled Nursing', 'Wound Care', 'IV Therapy', 'Pain Management'];
+          base.hasMemoryCare = idx % 2 === 0;
+        }
+        if (type === 'ASSISTED_LIVING') {
+          base.roomFeatures = ['Private Bathroom', 'Kitchenette', 'Emergency Call System', 'Cable TV'];
+          base.commonAreas = ['Dining Room', 'Activity Room', 'Garden', 'Library'];
+          base.activitiesOffered = ['Exercise Classes', 'Arts & Crafts', 'Movie Nights', 'Social Hours', 'Gardening'];
+          base.dietaryOptions = ['Heart-Healthy', 'Diabetic-Friendly', 'Gluten-Free', 'Vegetarian'];
+        }
+        if (type === 'INDEPENDENT_LIVING') {
+          base.roomFeatures = ['Full Kitchen', 'Washer/Dryer', 'Patio/Balcony', 'Walk-In Closet'];
+          base.commonAreas = ['Pool', 'Fitness Center', 'Clubhouse', 'Walking Trails'];
+          base.activitiesOffered = ['Yoga', 'Book Club', 'Day Trips', 'Cooking Classes', 'Golf'];
+        }
+      }
+
+      if (isHomeCareType) {
+        base.serviceRadius = 20 + (idx % 20);
+
+        if (type === 'HOSPICE') {
+          base.hasRNOnSite = true;
+          base.hasHospiceCare = true;
+          base.medicalServices = ['Pain Management', 'Symptom Control', 'Family Counseling', 'Spiritual Support'];
+          base.specialtyPrograms = ['Bereavement Support', 'Respite Care', 'Veteran Honors'];
+        }
+        if (type === 'HOME_HEALTH') {
+          base.hasRNOnSite = true;
+          base.medicalServices = ['Skilled Nursing', 'Physical Therapy', 'Wound Care', 'Medication Management'];
+        }
+        if (type === 'HOME_CARE') {
+          base.allStaffBackgroundChecked = true;
+          base.caregiverTraining = ['CPR/First Aid', 'Dementia Care', 'Fall Prevention'];
+          base.priceDescription = `Hourly rates vary by service level. Includes caregiver matching, care plan, and ongoing supervision.`;
+        }
+      }
+
+      return base;
+    };
+
     for (let i = 0; i < facilityData.length; i++) {
       const data = facilityData[i];
       const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
       const photos = FACILITY_PHOTOS.slice(i % 6, (i % 6) + 4);
+      const typeFields = getFacilityFields(data.type, i);
 
       await prisma.user.create({
         data: {
@@ -303,6 +372,7 @@ export async function seedLite(prisma: PrismaClient) {
               verified: true,
               active: true,
               isVisible: true,
+              ...typeFields,
             },
           },
           providerIdentity: {
@@ -343,6 +413,27 @@ export async function seedLite(prisma: PrismaClient) {
       const data = caregiverData[i];
       const loc = CA_LOCATIONS[i % CA_LOCATIONS.length];
 
+      const cgCerts = [
+        ['CNA', 'CPR/First Aid'],
+        ['HHA', 'CPR/First Aid', 'Dementia Care'],
+        ['RN', 'BSN', 'ACLS'],
+        ['CNA', 'CPR/First Aid'],
+        ['HHA', 'Bilingual (Spanish)'],
+        ['CPR/First Aid'],
+        ['PTA', 'CPR/First Aid'],
+        ['CNA', 'Memory Care Certified', 'CPR/First Aid'],
+        ['HHA', 'CPR/First Aid', 'Live-In Training'],
+        ['CNA', 'Hospice Care Certified', 'CPR/First Aid'],
+        ['CNA', 'CPR/First Aid', 'Respite Care'],
+        ['HHA', 'CPR/First Aid'],
+        ['CNA', 'CPR/First Aid'],
+        ['CNA', 'Alzheimers Certified', 'CPR/First Aid'],
+        ['LVN', 'CPR/First Aid', 'IV Certification'],
+        ['HHA', 'CPR/First Aid'],
+        ['CNA', 'CPR/First Aid', 'Respite Care'],
+        ['CNA', 'Memory Care Certified', 'CPR/First Aid', 'Live-In Training'],
+      ];
+
       await prisma.user.create({
         data: {
           email: data.email,
@@ -361,7 +452,7 @@ export async function seedLite(prisma: PrismaClient) {
               city: loc.city,
               state: loc.state,
               zipCode: loc.zip,
-              serviceRadius: 15,
+              serviceRadius: 15 + (i % 15),
               careTypesOffered: data.care as CareType[],
               priceMin: data.price[0],
               priceMax: data.price[1],
@@ -371,6 +462,10 @@ export async function seedLite(prisma: PrismaClient) {
               claimed: true,
               active: true,
               isVisible: true,
+              backgroundChecked: true,
+              yearsInBusiness: 3 + (i % 12),
+              certifications: cgCerts[i % cgCerts.length],
+              languagesSpoken: i % 3 === 0 ? ['English', 'Spanish'] : ['English'],
             },
           },
           providerIdentity: {
