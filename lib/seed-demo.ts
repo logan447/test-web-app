@@ -322,6 +322,8 @@ export async function seedDemo(prisma: PrismaClient) {
     const data = claimedIncompleteData[i];
     const photos = data.hasPhotos ? ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'] : [];
 
+    console.log(`[DEMO SEED] Creating claimed-incomplete: ${data.name} | photos: ${photos.length > 0} | lat: ${data.lat} | lng: ${data.lng}`);
+
     await prisma.provider.create({
       data: {
         name: data.name,

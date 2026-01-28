@@ -960,20 +960,14 @@ export default function ProviderDetailPage() {
       </div>
 
       {/* ===================== HERO ===================== */}
+      {/*
+        Deterministic rendering rule (no claimed/unclaimed branching):
+        1. Has photos → Photo gallery
+        2. No photos but has coordinates → Map fallback
+        3. No photos and no coordinates → Building placeholder
+      */}
       <div ref={heroRef} className="relative">
-        {/* Unclaimed providers: Leaflet map as contextual hero */}
-        {!provider.claimed && provider.latitude && provider.longitude ? (
-          <div className="relative bg-stone-100" style={{ height: '340px' }}>
-            <iframe
-              className="w-full h-full border-0 grayscale opacity-80"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              src={`https://www.openstreetmap.org/export/embed.html?bbox=${provider.longitude - 0.01}%2C${provider.latitude - 0.005}%2C${provider.longitude + 0.01}%2C${provider.latitude + 0.005}&layer=mapnik&marker=${provider.latitude}%2C${provider.longitude}`}
-              title="Location"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-50 via-transparent to-transparent pointer-events-none" />
-          </div>
-        ) : provider.claimed && allPhotos.length > 0 ? (
+        {allPhotos.length > 0 ? (
           <>
             {/* Mobile: gentle carousel */}
             <div className="md:hidden relative aspect-[4/3] overflow-hidden bg-stone-100">
@@ -1043,8 +1037,8 @@ export default function ProviderDetailPage() {
               </div>
             </div>
           </>
-        ) : provider.claimed && allPhotos.length === 0 && provider.latitude && provider.longitude ? (
-          /* Claimed but no photos — show map as fallback with "Map view" badge */
+        ) : provider.latitude && provider.longitude ? (
+          /* No photos but has coordinates — show map fallback */
           <div className="relative bg-stone-100" style={{ height: '340px' }}>
             <iframe
               className="w-full h-full border-0"
@@ -1065,7 +1059,7 @@ export default function ProviderDetailPage() {
             </div>
           </div>
         ) : (
-          /* No photos, no coordinates — gentle placeholder */
+          /* No photos and no coordinates — building placeholder */
           <div className="h-48 md:h-64 bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
             <div className="text-center">
               <svg className="w-12 h-12 text-stone-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
