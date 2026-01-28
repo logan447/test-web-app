@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -92,6 +93,9 @@ export default function ProviderCard({
   onSave,
   className = "",
 }: ProviderCardProps) {
+  // Track if the image failed to load (e.g., network error, service unavailable)
+  const [imageError, setImageError] = useState(false);
+
   // Determine provider category
   const isFacility = FACILITY_TYPES.includes(provider.providerType);
   const isHomeCare = HOME_CARE_TYPES.includes(provider.providerType);
@@ -223,7 +227,7 @@ export default function ProviderCard({
         <div className="flex flex-col sm:flex-row">
           {/* Photo */}
           <div className="relative sm:w-56 h-48 sm:h-auto shrink-0 bg-stone-100">
-            {imageUrl ? (
+            {imageUrl && !imageError ? (
               <>
                 <Image
                   src={imageUrl}
@@ -231,6 +235,7 @@ export default function ProviderCard({
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 100vw, 224px"
+                  onError={() => setImageError(true)}
                 />
                 {/* Map view indicator when using map fallback */}
                 {isMapFallback && (
@@ -383,7 +388,7 @@ export default function ProviderCard({
     >
       {/* Photo */}
       <div className="relative h-48 bg-stone-100">
-        {imageUrl ? (
+        {imageUrl && !imageError ? (
           <>
             <Image
               src={imageUrl}
@@ -391,6 +396,7 @@ export default function ProviderCard({
               fill
               className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              onError={() => setImageError(true)}
             />
             {/* Map view indicator when using map fallback */}
             {isMapFallback && (
