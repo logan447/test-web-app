@@ -11,6 +11,7 @@ interface LocationResult {
   population?: number;
   latitude?: number;
   longitude?: number;
+  zipCode?: string; // Present when result came from ZIP code lookup
 }
 
 interface LocationAutocompleteProps {
@@ -57,6 +58,7 @@ export default function LocationAutocomplete({
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchHint, setSearchHint] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const listboxId = "location-listbox";
@@ -74,10 +76,12 @@ export default function LocationAutocomplete({
       setResults([]);
       setIsOpen(false);
       setHasSearched(false);
+      setSearchHint(null);
       return;
     }
 
     setIsLoading(true);
+    setSearchHint(null);
 
     try {
       const response = await fetch(
@@ -91,6 +95,11 @@ export default function LocationAutocomplete({
         setIsOpen(true); // Always open to show results or "no results" message
         setHighlightedIndex(-1);
         setHasSearched(true);
+
+        // Handle ZIP code hint from API
+        if (data.hint) {
+          setSearchHint(data.hint);
+        }
       }
     } catch (err) {
       console.error("Location search failed:", err);
@@ -352,27 +361,50 @@ export default function LocationAutocomplete({
                   <div className="font-medium text-gray-900">
                     {location.city}, {location.state}
                   </div>
-                  <div className="text-sm text-gray-500">{location.stateName}</div>
+                  <div className="text-sm text-gray-500">
+                    {location.zipCode ? `ZIP ${location.zipCode}` : location.stateName}
+                  </div>
                 </div>
               </button>
             ))
           ) : hasSearched && !isLoading ? (
             <div className="px-4 py-3 text-center text-gray-500">
-              <svg
-                className="w-6 h-6 mx-auto mb-2 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-              </svg>
-              <p className="text-sm">No cities found matching your search</p>
-              <p className="text-xs text-gray-400 mt-1">Try a different city name</p>
+              {searchHint ? (
+                <>
+                  <svg
+                    className="w-6 h-6 mx-auto mb-2 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
+                    />
+                  </svg>
+                  <p className="text-sm">{searchHint}</p>
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-6 h-6 mx-auto mb-2 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                  </svg>
+                  <p className="text-sm">No locations found</p>
+                  <p className="text-xs text-gray-400 mt-1">Try a city name or 5-digit ZIP code</p>
+                </>
+              )}
             </div>
           ) : null}
         </div>

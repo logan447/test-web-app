@@ -8,56 +8,45 @@ import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
 import { formatProviderType } from "@/lib/comparisonUtils";
 
-// Situational care entry cards — simplified for 65+ clarity
-// 4 most common entry points with icons and soft brand-consistent colors
+// Situational care entry cards — photography-based for emotional connection
+// 4 most common entry points with warm imagery that 65+ users can relate to
+// Images from Unsplash (free, high-quality stock photography)
 const CARE_SITUATIONS = [
   {
     id: "help-at-home",
     name: "Help at Home",
     slug: "HOME_CARE",
-    bgColor: "bg-primary-50 hover:bg-primary-100",
-    iconColor: "text-primary-600",
-    icon: (
-      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    ),
+    description: "Assistance with daily activities",
+    // Warm home care scene - caregiver with senior
+    image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&h=400&fit=crop&crop=faces",
+    fallbackColor: "bg-primary-100",
   },
   {
     id: "after-hospital",
     name: "After a Hospital Stay",
     slug: "REHABILITATION",
-    bgColor: "bg-teal-50 hover:bg-teal-100",
-    iconColor: "text-teal-600",
-    icon: (
-      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-      </svg>
-    ),
+    description: "Recovery and rehabilitation",
+    // Recovery/rehabilitation - supportive care
+    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=400&fit=crop&crop=faces",
+    fallbackColor: "bg-teal-100",
   },
   {
     id: "memory-concerns",
     name: "Memory Concerns",
     slug: "MEMORY_CARE",
-    bgColor: "bg-amber-50 hover:bg-amber-100",
-    iconColor: "text-amber-600",
-    icon: (
-      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    ),
+    description: "Specialized memory support",
+    // Gentle, caring moment - hands holding or connection
+    image: "https://images.unsplash.com/photo-1516307365426-bea591f05011?w=600&h=400&fit=crop&crop=faces",
+    fallbackColor: "bg-amber-100",
   },
   {
     id: "planning-ahead",
     name: "Planning Ahead",
     slug: "ASSISTED_LIVING",
-    bgColor: "bg-sky-50 hover:bg-sky-100",
-    iconColor: "text-sky-600",
-    icon: (
-      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
+    description: "Explore your options early",
+    // Senior living community - happy, social scene
+    image: "https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?w=600&h=400&fit=crop&crop=faces",
+    fallbackColor: "bg-sky-100",
   },
 ];
 
@@ -179,7 +168,7 @@ export default function Home() {
       <MainNav hidden={showStickySearch} />
 
       {/* Hero — clear, calm, simple for 65+ families */}
-      <section className="relative bg-white overflow-hidden">
+      <section className="relative bg-white">
         <div className="relative max-w-7xl mx-auto px-6 pt-14 pb-10 lg:pt-24 lg:pb-14">
           <div className="max-w-3xl mx-auto text-center">
             {/* Hero text — observed for sticky trigger */}
@@ -210,7 +199,7 @@ export default function Home() {
                 showStickySearch ? 'max-w-md mx-auto shadow-xl' : ''
               }`}>
                 <div className="flex items-center gap-2">
-                  {/* Geolocation button - integrated into search bar */}
+                  {/* Geolocation button - prominent, easy to discover */}
                   <button
                     type="button"
                     onClick={() => {
@@ -236,10 +225,11 @@ export default function Home() {
                         );
                       }
                     }}
-                    className="p-2.5 text-gray-400 hover:text-primary-600 hover:bg-gray-50 rounded-lg transition-colors shrink-0"
+                    className="p-3 text-primary-500 hover:text-primary-700 hover:bg-primary-50 rounded-xl transition-colors shrink-0 group"
                     title="Use my current location"
+                    aria-label="Use my current location"
                   >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -279,27 +269,42 @@ export default function Home() {
         <div className="max-w-3xl mx-auto px-6">
           {/* "Or" divider with guidance text */}
           <div className="flex items-center gap-4 mb-10">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-gray-500 text-base">or tell us what brings you here</span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px bg-gray-300" />
+            <span className="text-gray-600 text-lg font-medium">or tell us what brings you here</span>
+            <div className="flex-1 h-px bg-gray-300" />
           </div>
 
-          {/* Situation cards — icons + soft brand colors for warmth and clarity */}
+          {/* Situation cards — photography-based for emotional connection */}
           <div className="grid grid-cols-2 gap-4">
             {CARE_SITUATIONS.map((situation) => (
               <Link
                 key={situation.id}
                 href={`/browse?type=${situation.slug}`}
-                className={`group flex flex-col items-center justify-center p-6 sm:p-8 rounded-2xl ${situation.bgColor} border border-transparent hover:border-gray-200 hover:shadow-lg transition-all duration-200 min-h-[140px] sm:min-h-[160px]`}
+                className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 min-h-[160px] sm:min-h-[180px]"
               >
-                {/* Icon */}
-                <div className={`${situation.iconColor} mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                  {situation.icon}
+                {/* Background image */}
+                <div className={`absolute inset-0 ${situation.fallbackColor}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={situation.image}
+                    alt=""
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
                 </div>
-                {/* Title */}
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 text-center leading-tight">
-                  {situation.name}
-                </h3>
+
+                {/* Gradient overlay for text legibility */}
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/40 to-gray-900/10 group-hover:from-gray-900/85 transition-colors duration-300" />
+
+                {/* Content */}
+                <div className="relative h-full flex flex-col justify-end p-5 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-white leading-tight drop-shadow-sm">
+                    {situation.name}
+                  </h3>
+                  <p className="text-sm text-white/80 mt-1 hidden sm:block">
+                    {situation.description}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>

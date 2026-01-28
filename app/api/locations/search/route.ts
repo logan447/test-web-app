@@ -8,15 +8,18 @@ import {
   US_LOCATIONS,
   type LocationData,
 } from "@/prisma/data/us-locations";
+import { isValidZipFormat, isPartialZip, lookupZipCode } from "@/lib/zipcode";
 
 /**
  * Location Search API - Database-backed with static fallback
- * Provides autocomplete-style search for US cities
+ * Provides autocomplete-style search for US cities and ZIP codes
  *
- * GET /api/locations/search?q=san&limit=10
+ * GET /api/locations/search?q=san&limit=10     (city search)
+ * GET /api/locations/search?q=90210&limit=10   (ZIP code lookup)
  * GET /api/locations/search?state=CA
  * GET /api/locations/search?states=true
  *
+ * ZIP codes are resolved via Zippopotam.us API.
  * Falls back to static data if database Location table is empty
  * (ensures functionality even before seed runs)
  */
@@ -121,6 +124,48 @@ export async function GET(req: Request) {
 
     if (!query || query.length < 2) {
       return NextResponse.json({ locations: [] });
+    }
+
+    // Check if query looks like a ZIP code
+    const trimmedQuery = query.trim();
+    if (isValidZipFormat(trimmedQuery) || (isPartialZip(trimmedQuery) && trimmedQuery.length === 5)) {
+      // It's a complete ZIP code - look it up
+      const zipResult = await lookupZipCode(trimmedQuery);
+
+      if (zipResult) {
+        // Return the ZIP code result as a location
+        return NextResponse.json({
+          locations: [
+            {
+              id: `zip-${zipResult.zipCode}`,
+              city: zipResult.city,
+              state: zipResult.state,
+              stateName: zipResult.stateName,
+              displayName: `${zipResult.city}, ${zipResult.state}`,
+              zipCode: zipResult.zipCode,
+              latitude: zipResult.latitude,
+              longitude: zipResult.longitude,
+              // High "population" to ensure it shows first
+              population: 1000000,
+            },
+          ],
+        });
+      } else {
+        // Invalid ZIP code
+        return NextResponse.json({
+          locations: [],
+          message: "ZIP code not found",
+        });
+      }
+    }
+
+    // If it's a partial ZIP (user still typing), show a hint
+    if (isPartialZip(trimmedQuery) && trimmedQuery.length >= 3) {
+      // Return empty with a hint - don't search cities for partial ZIPs
+      return NextResponse.json({
+        locations: [],
+        hint: "Enter a 5-digit ZIP code",
+      });
     }
 
     if (useDatabase) {
