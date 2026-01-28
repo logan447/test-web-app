@@ -17,8 +17,8 @@ const CARE_SITUATIONS = [
     name: "Help at Home",
     slug: "HOME_CARE",
     description: "Daily support in your home",
-    // Older couple relaxed at home together - warm, safe, everyday domestic life
-    image: "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=300&fit=crop&crop=faces",
+    // Caregiver helping older adult - warm, supportive, clearly shows care being provided
+    image: "https://images.unsplash.com/photo-1576765607924-3f7b8410a787?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-primary-50",
   },
   {
@@ -35,8 +35,8 @@ const CARE_SITUATIONS = [
     name: "Memory Concerns",
     slug: "MEMORY_CARE",
     description: "Specialized memory care",
-    // Senior woman in thoughtful, quiet moment - gentle contemplation, not clinical
-    image: "https://images.unsplash.com/photo-1484517186945-df8151a1a871?w=400&h=300&fit=crop&crop=faces",
+    // Older couple together at home - calm, supportive, relatable for families facing memory concerns
+    image: "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=300&fit=crop&crop=faces",
     fallbackColor: "bg-amber-50",
   },
   {
@@ -108,10 +108,10 @@ export default function Home() {
     const fetchFeaturedProviders = async () => {
       try {
         // Only fetch providers with photos for homepage (polished experience)
-        const res = await fetch("/api/providers?limit=4&sortBy=rating_high&hasPhotos=true");
+        const res = await fetch("/api/providers?limit=8&sortBy=rating_high&hasPhotos=true");
         if (res.ok) {
           const data = await res.json();
-          const providers = (data.providers || []).slice(0, 4).map((p: Record<string, unknown>) => ({
+          const providers = (data.providers || []).slice(0, 8).map((p: Record<string, unknown>) => ({
             id: p.id as string,
             name: p.name as string,
             type: p.providerType as string,
@@ -319,7 +319,7 @@ export default function Home() {
 
           {loadingProviders ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                 <div key={i} className="animate-pulse rounded-xl border border-gray-100 overflow-hidden bg-white">
                   <div className="h-40 bg-gray-200" />
                   <div className="p-4">
@@ -412,8 +412,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works — Search, Schedule, Compare */}
-      <section className="py-16 bg-white">
+      {/* How It Works — Numbered horizontal timeline flow */}
+      <section className="py-16 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
@@ -421,44 +421,39 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10">
-            {[
-              {
-                title: "Search your area",
-                description: "See nearby providers with photos, reviews, and prices.",
-                icon: (
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                ),
-              },
-              {
-                title: "Talk to providers",
-                description: "Book tours or calls to ask questions and confirm fit.",
-                icon: (
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                ),
-              },
-              {
-                title: "Start care",
-                description: "Choose the provider that works best for your needs.",
-                icon: (
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                ),
-              },
-            ].map((item) => (
-              <div key={item.title} className="text-center">
-                <div className="w-12 h-12 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 mx-auto mb-4">
-                  {item.icon}
+          {/* Horizontal timeline with numbered steps */}
+          <div className="relative">
+            {/* Connecting line - hidden on mobile, visible on md+ */}
+            <div className="hidden md:block absolute top-8 left-[16.67%] right-[16.67%] h-0.5 bg-gray-200" />
+
+            <div className="grid md:grid-cols-3 gap-8 md:gap-6">
+              {[
+                {
+                  step: 1,
+                  title: "Search your area",
+                  description: "See nearby providers with photos, reviews, and prices.",
+                },
+                {
+                  step: 2,
+                  title: "Talk to providers",
+                  description: "Book tours or calls to ask questions and confirm fit.",
+                },
+                {
+                  step: 3,
+                  title: "Start care",
+                  description: "Choose the provider that works best for your needs.",
+                },
+              ].map((item) => (
+                <div key={item.step} className="relative flex flex-col items-center text-center">
+                  {/* Large numbered circle */}
+                  <div className="relative z-10 w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg mb-5">
+                    {item.step}
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-base text-gray-600 leading-relaxed max-w-xs">{item.description}</p>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-base text-gray-600 leading-relaxed max-w-xs mx-auto">{item.description}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
