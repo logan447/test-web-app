@@ -4,6 +4,90 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProviderType, CareType } from "@prisma/client";
 
+// ============================================================================
+// Quality Score Calculation for "Recommended" Sort
+// ============================================================================
+// Optimizes for: visual trust first, then quality signals, then completeness
+// Max score: 100 points
+//
+// Scoring breakdown:
+// - Photo presence (30 pts): Visual trust is critical for 65+ users
+// - Rating quality (25 pts): Weighted by review count to prevent gaming
+// - Profile completeness (25 pts): Pricing, contact, description, amenities
+// - Claimed/verified status (20 pts): More likely to be accurate and current
+//
+// Note: For production scale, consider caching this score on the Provider model
+// and updating it via a background job when provider data changes.
+// ============================================================================
+
+interface ProviderForScoring {
+  id: string;
+  name: string;
+  coverPhoto: string | null;
+  photos: string[];
+  averageRating: number | null;
+  reviewCount: number;
+  claimed: boolean;
+  verified: boolean;
+  description: string | null;
+  priceMin: number | null;
+  priceMax: number | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  careTypesOffered: string[];
+  totalCapacity: number | null;
+  availableSpots: number | null;
+  [key: string]: unknown; // Allow other fields
+}
+
+function calculateQualityScore(provider: ProviderForScoring): number {
+  let score = 0;
+
+  // 1. PHOTO PRESENCE (30 points) - Visual trust is critical
+  // Having any photo is the most important signal for first impressions
+  const hasPhotos = provider.coverPhoto || (provider.photos && provider.photos.length > 0);
+  if (hasPhotos) {
+    score += 30;
+  }
+
+  // 2. RATING QUALITY (25 points) - Weighted by review count
+  // This prevents a single 5-star review from outranking a provider with
+  // many solid reviews. Uses a dampened weight that caps at ~20 reviews.
+  // Formula: rating * min(1, sqrt(reviewCount) / 4.5) * 5
+  // Examples:
+  //   - 5.0 stars, 1 review  → 5 * (1/4.5) * 5 = 5.6 pts
+  //   - 4.5 stars, 4 reviews → 4.5 * (2/4.5) * 5 = 10 pts
+  //   - 4.5 stars, 20 reviews → 4.5 * 1 * 5 = 22.5 pts
+  //   - 4.0 stars, 50 reviews → 4.0 * 1 * 5 = 20 pts
+  if (provider.averageRating && provider.averageRating > 0) {
+    const reviewWeight = Math.min(1, Math.sqrt(provider.reviewCount || 0) / 4.5);
+    const ratingScore = provider.averageRating * reviewWeight * 5;
+    score += Math.min(25, ratingScore); // Cap at 25
+  }
+
+  // 3. PROFILE COMPLETENESS (25 points) - More complete = more trustworthy
+  // Each field contributes to confidence that this is a real, active provider
+  let completenessScore = 0;
+  if (provider.description && provider.description.length > 50) completenessScore += 4;
+  if (provider.priceMin || provider.priceMax) completenessScore += 5;
+  if (provider.phone) completenessScore += 3;
+  if (provider.email) completenessScore += 2;
+  if (provider.address) completenessScore += 3;
+  if (provider.careTypesOffered && provider.careTypesOffered.length > 0) completenessScore += 3;
+  if (provider.totalCapacity) completenessScore += 2;
+  if (provider.availableSpots !== null && provider.availableSpots !== undefined) completenessScore += 3;
+  score += Math.min(25, completenessScore); // Cap at 25
+
+  // 4. CLAIMED & VERIFIED STATUS (20 points) - More likely up-to-date
+  // Claimed providers have an owner who can update info
+  // Verified providers have been checked by Olera
+  if (provider.claimed) score += 10;
+  if (provider.verified) score += 10;
+
+  return score;
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -127,10 +211,14 @@ export async function GET(req: Request) {
     }
 
     // Determine sort order
-    let orderBy: any = { createdAt: "desc" }; // Default: newest first
+    // Default is "recommended" which uses quality scoring
+    const sortBy = sortByParam || "recommended";
+    const useQualitySort = sortBy === "recommended";
 
-    if (sortByParam) {
-      switch (sortByParam) {
+    let orderBy: any = { createdAt: "desc" }; // Fallback
+
+    if (!useQualitySort) {
+      switch (sortBy) {
         case "rating_high":
           orderBy = { averageRating: "desc" };
           break;
@@ -156,57 +244,107 @@ export async function GET(req: Request) {
       }
     }
 
-    // Get total count and providers in parallel
-    const [total, providers] = await Promise.all([
-      prisma.provider.count({ where }),
-      prisma.provider.findMany({
+    // Select fields needed for both display and scoring
+    const selectFields = {
+      id: true,
+      name: true,
+      providerType: true,
+      description: true,
+      city: true,
+      state: true,
+      zipCode: true,
+      address: true,
+      phone: true,
+      email: true,
+      website: true,
+      careTypesOffered: true,
+      licensed: true,
+      insuranceVerified: true,
+      backgroundChecked: true,
+      certifications: true,
+      averageRating: true,
+      reviewCount: true,
+      priceMin: true,
+      priceMax: true,
+      priceDescription: true,
+      availableSpots: true,
+      totalCapacity: true,
+      photos: true,
+      coverPhoto: true,
+      latitude: true,
+      longitude: true,
+      verified: true,
+      hasMemoryCare: true,
+      hasRespiteCare: true,
+      hasHospiceCare: true,
+      claimed: true,
+      // Sprint 5: Caregiver work preferences
+      workPreferences: true,
+      preferredEmployers: true,
+      availabilityStart: true,
+      // Sprint 5: Cached Olera Score
+      oleraScore: true,
+      oleraScoreUpdatedAt: true,
+    };
+
+    let providers: any[];
+    let total: number;
+
+    if (useQualitySort) {
+      // For quality-based sorting, we need to:
+      // 1. Fetch all matching providers (for accurate scoring and pagination)
+      // 2. Calculate quality scores
+      // 3. Sort by score (desc), then reviewCount (desc), then name (asc) for stability
+      // 4. Apply pagination
+      //
+      // Note: For large datasets (10k+ providers), consider:
+      // - Caching qualityScore on the Provider model
+      // - Using a background job to update scores periodically
+      // - Adding database indexes on the cached score field
+
+      const allProviders = await prisma.provider.findMany({
         where,
-        select: {
-          id: true,
-          name: true,
-          providerType: true,
-          description: true,
-          city: true,
-          state: true,
-          zipCode: true,
-          address: true,
-          phone: true,
-          email: true,
-          website: true,
-          careTypesOffered: true,
-          licensed: true,
-          insuranceVerified: true,
-          backgroundChecked: true,
-          certifications: true,
-          averageRating: true,
-          reviewCount: true,
-          priceMin: true,
-          priceMax: true,
-          priceDescription: true,
-          availableSpots: true,
-          totalCapacity: true,
-          photos: true,
-          coverPhoto: true,
-          latitude: true,
-          longitude: true,
-          verified: true,
-          hasMemoryCare: true,
-          hasRespiteCare: true,
-          hasHospiceCare: true,
-          claimed: true,
-          // Sprint 5: Caregiver work preferences
-          workPreferences: true,
-          preferredEmployers: true,
-          availabilityStart: true,
-          // Sprint 5: Cached Olera Score
-          oleraScore: true,
-          oleraScoreUpdatedAt: true,
-        },
-        orderBy,
-        skip,
-        take: limit,
-      }),
-    ]);
+        select: selectFields,
+      });
+
+      total = allProviders.length;
+
+      // Calculate scores and sort
+      const scoredProviders = allProviders.map((p) => ({
+        ...p,
+        _qualityScore: calculateQualityScore(p as ProviderForScoring),
+      }));
+
+      // Sort by: quality score (desc) → review count (desc) → name (asc)
+      // This ensures stable, deterministic ordering
+      scoredProviders.sort((a, b) => {
+        // Primary: quality score (higher is better)
+        if (b._qualityScore !== a._qualityScore) {
+          return b._qualityScore - a._qualityScore;
+        }
+        // Secondary: review count (more reviews = more trusted)
+        if ((b.reviewCount || 0) !== (a.reviewCount || 0)) {
+          return (b.reviewCount || 0) - (a.reviewCount || 0);
+        }
+        // Tertiary: name alphabetically for absolute stability
+        return (a.name || "").localeCompare(b.name || "");
+      });
+
+      // Apply pagination
+      providers = scoredProviders.slice(skip, skip + limit).map(({ _qualityScore, ...rest }) => rest);
+    } else {
+      // For other sorts, use Prisma's efficient orderBy with pagination
+      [total, providers] = await Promise.all([
+        prisma.provider.count({ where }),
+        prisma.provider.findMany({
+          where,
+          select: selectFields,
+          orderBy,
+          skip,
+          take: limit,
+        }),
+      ]);
+    }
 
     const totalPages = Math.ceil(total / limit);
     const hasMore = page < totalPages;
