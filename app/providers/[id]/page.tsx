@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
 import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
+import { LocationAutocomplete } from "@/components/Location";
 import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
 import SignOutModal from "@/components/Auth/SignOutModal";
 import ReviewModal from "@/components/Reviews/ReviewModal";
@@ -27,6 +28,32 @@ import AvailabilitySection from "@/components/Provider/AvailabilitySection";
 // Provider type categories
 const FACILITY_TYPES = ["ASSISTED_LIVING", "MEMORY_CARE", "NURSING_HOME", "INDEPENDENT_LIVING", "REHABILITATION"];
 const HOME_CARE_TYPES = ["HOME_CARE", "HOME_HEALTH", "HOSPICE"];
+
+// Provider type options for toolbar search
+const PROVIDER_TYPE_OPTIONS = [
+  { value: "", label: "Any type" },
+  { value: "HOME_CARE", label: "Home Care" },
+  { value: "HOME_HEALTH", label: "Home Health" },
+  { value: "ASSISTED_LIVING", label: "Assisted Living" },
+  { value: "MEMORY_CARE", label: "Memory Care" },
+  { value: "NURSING_HOME", label: "Nursing Home" },
+  { value: "HOSPICE", label: "Hospice" },
+  { value: "INDEPENDENT_LIVING", label: "Independent Living" },
+  { value: "REHABILITATION", label: "Rehabilitation" },
+  { value: "INDEPENDENT_CAREGIVER", label: "Caregiver" },
+];
+
+// Care services for toolbar search
+const CARE_SERVICE_OPTIONS = [
+  { value: "", label: "Any service" },
+  { value: "COMPANION_CARE", label: "Companion Care" },
+  { value: "PERSONAL_CARE", label: "Personal Care" },
+  { value: "SKILLED_NURSING", label: "Skilled Nursing" },
+  { value: "MEMORY_CARE", label: "Memory Care" },
+  { value: "HOSPICE_CARE", label: "Hospice Care" },
+  { value: "RESPITE_CARE", label: "Respite Care" },
+  { value: "LIVE_IN_CARE", label: "Live-in Care" },
+];
 
 type Provider = {
   id: string;
@@ -203,6 +230,13 @@ export default function ProviderDetailPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [menuProviderType, setMenuProviderType] = useState<string | null>(null);
 
+  // Toolbar search state
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [searchLocation, setSearchLocation] = useState("");
+  const [searchProviderType, setSearchProviderType] = useState("");
+  const [searchCareService, setSearchCareService] = useState("");
+  const toolbarRef = useRef<HTMLDivElement>(null);
+
   // Get provider identity for accurate viewer role derivation (only fetches if in provider mode)
   const { identity: providerIdentity } = useProviderIdentity({ checkMode: true });
 
@@ -267,6 +301,23 @@ export default function ProviderDetailPage() {
     return () => document.removeEventListener("click", handleClick);
   }, [hamburgerOpen]);
 
+  // Close expanded toolbar on outside click
+  useEffect(() => {
+    if (!searchExpanded) return;
+    const handleClick = (e: MouseEvent) => {
+      if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node)) {
+        setSearchExpanded(false);
+      }
+    };
+    const timer = setTimeout(() => {
+      document.addEventListener("click", handleClick);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("click", handleClick);
+    };
+  }, [searchExpanded]);
+
   // Show sticky CTA bar after scrolling past hero
   useEffect(() => {
     const handleScroll = () => {
@@ -310,6 +361,25 @@ export default function ProviderDetailPage() {
     setAuthProviderSubtype(subtype);
     setAuthModalView("signup");
     setAuthModalOpen(true);
+  };
+
+  // Toolbar search handlers
+  const handleSearchLocationChange = useCallback((value: string) => {
+    setSearchLocation(value);
+  }, []);
+
+  const handleToolbarSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchExpanded(false);
+    const params = new URLSearchParams();
+    if (searchLocation) {
+      const parts = searchLocation.split(",").map((s) => s.trim());
+      if (parts[0]) params.append("city", parts[0]);
+      if (parts[1]) params.append("state", parts[1]);
+    }
+    if (searchProviderType) params.append("type", searchProviderType);
+    if (searchCareService) params.append("care", searchCareService);
+    router.push(`/browse?${params.toString()}`);
   };
 
   const currentMode = session?.user?.activeMode || "FAMILY";
@@ -582,185 +652,294 @@ export default function ProviderDetailPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
+      {/* Overlay when search is expanded */}
+      {searchExpanded && (
+        <div
+          className="fixed inset-0 bg-black/20 z-30 transition-opacity"
+          onClick={() => setSearchExpanded(false)}
+        />
+      )}
+
       {/* ===================== STICKY TOOLBAR ===================== */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-2.5">
-          <div className="relative flex items-center gap-3">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
-              <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
-            </Link>
-
-            {/* Search bar — navigates to /browse on click */}
-            <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[400px] lg:max-w-[480px]">
-              <Link
-                href="/browse"
-                className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <span className="flex-1 px-4 py-2.5 text-sm font-medium truncate text-gray-400">
-                  Search for care providers
-                </span>
-                <div className="m-1.5 p-2 bg-primary-600 rounded-xl shrink-0">
-                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
+      <div ref={toolbarRef} className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        {/* Expanded state: logo + full search form + hamburger */}
+        <div className={`transition-all duration-300 ease-in-out ${
+          searchExpanded ? "max-h-[200px] opacity-100 overflow-visible" : "max-h-0 opacity-0 overflow-hidden"
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 pt-3 pb-1">
+            <div className="flex items-center justify-between gap-4">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
+                <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
+
+              {/* Hamburger (also in expanded state for consistency) */}
+              <div className="relative shrink-0" data-hamburger-menu>
+                <button
+                  onClick={() => setHamburgerOpen(!hamburgerOpen)}
+                  className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
+                >
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
+                    {session ? (
+                      <span className="text-xs font-medium text-white">
+                        {session.user?.name?.charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+              </div>
             </div>
+          </div>
 
-            {/* Right side */}
-            <div className="hidden lg:block flex-1" />
-            <Link
-              href="/for-providers"
-              className="hidden md:block text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors shrink-0"
-            >
-              Become a provider
-            </Link>
-
-            {/* Hamburger */}
-            <div className="relative shrink-0" data-hamburger-menu>
-              <button
-                onClick={() => setHamburgerOpen(!hamburgerOpen)}
-                className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
-              >
-                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
-                  {session ? (
-                    <span className="text-xs font-medium text-white">
-                      {session.user?.name?.charAt(0).toUpperCase()}
-                    </span>
-                  ) : (
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  )}
+          {/* Full search bar */}
+          <div className="max-w-3xl mx-auto px-4 pt-2 pb-3">
+            <form onSubmit={handleToolbarSearch}>
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2">
+                <div className="flex flex-col md:flex-row md:items-stretch md:divide-x divide-gray-200">
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Where</label>
+                    <LocationAutocomplete
+                      value={searchLocation}
+                      onChange={handleSearchLocationChange}
+                      placeholder="City or zip code"
+                      showIcon={false}
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Type of Care</label>
+                    <select
+                      value={searchProviderType}
+                      onChange={(e) => setSearchProviderType(e.target.value)}
+                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${searchProviderType ? 'text-gray-900' : 'text-gray-400'}`}
+                    >
+                      {PROVIDER_TYPE_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1 px-4 py-3">
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 text-left">Care Services</label>
+                    <select
+                      value={searchCareService}
+                      onChange={(e) => setSearchCareService(e.target.value)}
+                      className={`w-full h-6 focus:outline-none text-base leading-6 bg-transparent appearance-none cursor-pointer ${searchCareService ? 'text-gray-900' : 'text-gray-400'}`}
+                    >
+                      {CARE_SERVICE_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="px-2 py-2 md:py-0 flex items-center">
+                    <button
+                      type="submit"
+                      className="w-full md:w-auto px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <span>Search</span>
+                    </button>
+                  </div>
                 </div>
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                    {unreadCount > 9 ? "!" : unreadCount}
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Collapsed toolbar row: logo + condensed search bar (centered) + hamburger */}
+        <div className={`transition-all duration-300 ease-in-out ${
+          searchExpanded ? "max-h-0 opacity-0 overflow-hidden" : "max-h-20 opacity-100"
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 py-2.5">
+            <div className="relative flex items-center gap-3">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
+                <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
+              </Link>
+
+              {/* Search bar — expands on click */}
+              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[360px] lg:max-w-[440px]">
+                <button
+                  type="button"
+                  onClick={() => setSearchExpanded(true)}
+                  className="flex-1 min-w-0 flex items-center bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <span className={`flex-1 pl-4 pr-2 py-2 text-sm font-medium truncate text-left ${searchLocation ? 'text-gray-800' : 'text-gray-500'}`}>
+                    {searchLocation || "City or zip code"}
                   </span>
-                )}
-              </button>
+                  <div className="m-1 p-2 bg-primary-600 rounded-full shrink-0">
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </button>
+              </div>
 
-              {/* Hamburger dropdown */}
-              {hamburgerOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white shadow-xl rounded-xl border border-gray-100 py-2 z-50">
-                  {session ? (
-                    <>
-                      <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{session.user?.name}</p>
-                        <p className="text-xs text-gray-500 break-words">{session.user?.email}</p>
-                        <div className="mt-1.5">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                            isProviderMode ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
-                          }`}>
-                            {isProviderMode ? "Provider Mode" : "Family Mode"}
-                          </span>
-                        </div>
-                      </div>
+              {/* Right side */}
+              <div className="hidden lg:block flex-1" />
+              <Link
+                href="/for-providers"
+                className="hidden md:block text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors shrink-0"
+              >
+                Become a provider
+              </Link>
 
-                      {isProviderMode ? (
-                        <>
-                          {menuProviderType ? (
-                            <>
-                              <Link href="/provider/leads" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Leads</Link>
-                              <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>
-                                <span>Requests</span>
-                                {unreadCount > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{unreadCount > 9 ? "9+" : unreadCount}</span>}
-                              </Link>
-                              <Link href="/provider/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Profile</Link>
-                              <div className="border-t border-gray-100 my-1" />
-                              {menuProviderType === "INDEPENDENT_CAREGIVER" ? (
-                                <>
-                                  <Link href="/providers/browse-organizations" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Find Organizations</Link>
-                                  <Link href="/provider/opportunities" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Opportunities</Link>
-                                </>
-                              ) : (
-                                <>
-                                  <Link href="/provider/hire-staff" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Hire Care Staff</Link>
-                                  <Link href="/provider/candidates" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Candidates</Link>
-                                </>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <Link href="/provider/leads" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Leads</Link>
-                              <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>
-                                <span>Requests</span>
-                                {unreadCount > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{unreadCount > 9 ? "9+" : unreadCount}</span>}
-                              </Link>
-                              <Link href="/provider/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Profile</Link>
-                              <div className="border-t border-gray-100 my-1" />
-                              <Link href="/provider/hire-staff" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Hire Care Staff</Link>
-                              <button onClick={() => { setHamburgerOpen(false); triggerProviderOnboarding("individual"); }} className="block w-full text-left px-4 py-2.5 text-sm text-primary-600 hover:bg-gray-50 font-medium">Become a Caregiver</button>
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <Link href="/browse" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Browse Providers</Link>
-                          <Link href="/saved" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Saved</Link>
-                          <Link href="/matches" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>
-                            <span>Matches</span>
-                            {unreadCount > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{unreadCount > 9 ? "9+" : unreadCount}</span>}
-                          </Link>
-                          <Link href="/care-profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Care Profile</Link>
-                          <Link href="/benefits" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Benefits</Link>
-                        </>
-                      )}
-
-                      <div className="border-t border-gray-100 my-1" />
-                      {isProviderMode ? (
-                        <button onClick={() => { handleModeSwitch("FAMILY"); setHamburgerOpen(false); }} disabled={switchingMode} className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50">
-                          {switchingMode ? "Switching..." : "Switch to Family Mode"}
-                        </button>
-                      ) : (
-                        <button onClick={() => { handleModeSwitch("PROVIDER"); setHamburgerOpen(false); }} disabled={switchingMode} className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50">
-                          {switchingMode ? "Switching..." : "Switch to Provider Mode"}
-                        </button>
-                      )}
-                      <Link href="/settings" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Settings</Link>
-                      <div className="border-t border-gray-100 my-1" />
-                      <button onClick={() => { setHamburgerOpen(false); setSignOutModalOpen(true); }} className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">Log out</button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => { setHamburgerOpen(false); triggerProviderOnboarding("organization"); }}
-                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
-                      >
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        List your organization
-                      </button>
-                      <button
-                        onClick={() => { setHamburgerOpen(false); triggerProviderOnboarding("individual"); }}
-                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
-                      >
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        Find caregiver work
-                      </button>
-                      <div className="border-t border-gray-100 my-1" />
-                      <button
-                        onClick={() => { setHamburgerOpen(false); setAuthIntent("family"); setAuthProviderSubtype(undefined); setAuthModalView("signup"); setAuthModalOpen(true); }}
-                        className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
-                      >
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        Log in / Sign up
-                      </button>
-                    </>
+              {/* Hamburger */}
+              <div className="relative shrink-0" data-hamburger-menu>
+                <button
+                  onClick={() => setHamburgerOpen(!hamburgerOpen)}
+                  className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
+                >
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
+                    {session ? (
+                      <span className="text-xs font-medium text-white">
+                        {session.user?.name?.charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
+                    )}
+                  </div>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount > 9 ? "!" : unreadCount}
+                    </span>
                   )}
-                </div>
-              )}
+                </button>
+
+                {/* Hamburger dropdown */}
+                {hamburgerOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white shadow-xl rounded-xl border border-gray-100 py-2 z-50">
+                    {session ? (
+                      <>
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{session.user?.name}</p>
+                          <p className="text-xs text-gray-500 break-words">{session.user?.email}</p>
+                          <div className="mt-1.5">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                              isProviderMode ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
+                            }`}>
+                              {isProviderMode ? "Provider Mode" : "Family Mode"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {isProviderMode ? (
+                          <>
+                            {menuProviderType ? (
+                              <>
+                                <Link href="/provider/leads" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Leads</Link>
+                                <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>
+                                  <span>Requests</span>
+                                  {unreadCount > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+                                </Link>
+                                <Link href="/provider/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Profile</Link>
+                                <div className="border-t border-gray-100 my-1" />
+                                {menuProviderType === "INDEPENDENT_CAREGIVER" ? (
+                                  <>
+                                    <Link href="/providers/browse-organizations" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Find Organizations</Link>
+                                    <Link href="/provider/opportunities" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Opportunities</Link>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Link href="/provider/hire-staff" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Hire Care Staff</Link>
+                                    <Link href="/provider/candidates" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Candidates</Link>
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <Link href="/provider/leads" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Leads</Link>
+                                <Link href="/provider/requests" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>
+                                  <span>Requests</span>
+                                  {unreadCount > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+                                </Link>
+                                <Link href="/provider/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Profile</Link>
+                                <div className="border-t border-gray-100 my-1" />
+                                <Link href="/provider/hire-staff" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Hire Care Staff</Link>
+                                <button onClick={() => { setHamburgerOpen(false); triggerProviderOnboarding("individual"); }} className="block w-full text-left px-4 py-2.5 text-sm text-primary-600 hover:bg-gray-50 font-medium">Become a Caregiver</button>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <Link href="/browse" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Browse Providers</Link>
+                            <Link href="/saved" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Saved</Link>
+                            <Link href="/matches" className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>
+                              <span>Matches</span>
+                              {unreadCount > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+                            </Link>
+                            <Link href="/care-profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Care Profile</Link>
+                            <Link href="/benefits" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Benefits</Link>
+                          </>
+                        )}
+
+                        <div className="border-t border-gray-100 my-1" />
+                        {isProviderMode ? (
+                          <button onClick={() => { handleModeSwitch("FAMILY"); setHamburgerOpen(false); }} disabled={switchingMode} className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                            {switchingMode ? "Switching..." : "Switch to Family Mode"}
+                          </button>
+                        ) : (
+                          <button onClick={() => { handleModeSwitch("PROVIDER"); setHamburgerOpen(false); }} disabled={switchingMode} className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                            {switchingMode ? "Switching..." : "Switch to Provider Mode"}
+                          </button>
+                        )}
+                        <Link href="/settings" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Settings</Link>
+                        <div className="border-t border-gray-100 my-1" />
+                        <button onClick={() => { setHamburgerOpen(false); setSignOutModalOpen(true); }} className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">Log out</button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => { setHamburgerOpen(false); triggerProviderOnboarding("organization"); }}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
+                        >
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          List your organization
+                        </button>
+                        <button
+                          onClick={() => { setHamburgerOpen(false); triggerProviderOnboarding("individual"); }}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
+                        >
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          Find caregiver work
+                        </button>
+                        <div className="border-t border-gray-100 my-1" />
+                        <button
+                          onClick={() => { setHamburgerOpen(false); setAuthIntent("family"); setAuthProviderSubtype(undefined); setAuthModalView("signup"); setAuthModalOpen(true); }}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
+                        >
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          Log in / Sign up
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -356,7 +356,7 @@ function BrowseContent() {
   };
 
   const clearAdvancedFilters = () => {
-    setFilterValues((prev) => ({ ...prev, rating: "", payment: "" }));
+    setFilterValues({ providerType: "", rating: "", payment: "", careService: "" });
     setSortBy("");
   };
 
@@ -373,7 +373,7 @@ function BrowseContent() {
 
   // Derived values
   const hasActiveFilters = Boolean(location) || Object.values(filterValues).some((v) => v !== "") || Boolean(sortBy);
-  const advancedFilterCount = [filterValues.rating, filterValues.payment, sortBy].filter(Boolean).length;
+  const advancedFilterCount = [...Object.values(filterValues), sortBy].filter(Boolean).length;
   const mappableProviders = providers.filter((p) => p.latitude && p.longitude);
 
   const locationLabel = location || "the United States";
@@ -520,16 +520,16 @@ function BrowseContent() {
               </Link>
 
               {/* Search bar + Filters — absolutely centered on desktop */}
-              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[400px] lg:max-w-[480px]">
+              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[360px] lg:max-w-[440px]">
                 <button
                   type="button"
                   onClick={() => setSearchExpanded(true)}
-                  className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  className="flex-1 min-w-0 flex items-center bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                 >
-                  <span className={`flex-1 px-4 py-2.5 text-sm font-medium truncate ${location ? 'text-gray-800' : 'text-gray-400'}`}>
-                    {location || "Enter city or zip code"}
+                  <span className={`flex-1 pl-4 pr-2 py-2 text-sm font-medium truncate text-left ${location ? 'text-gray-800' : 'text-gray-500'}`}>
+                    {location || "City or zip code"}
                   </span>
-                  <div className="m-1.5 p-2 bg-primary-600 rounded-xl shrink-0">
+                  <div className="m-1 p-2 bg-primary-600 rounded-full shrink-0">
                     <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -539,7 +539,7 @@ function BrowseContent() {
                 {/* Filters pill — only visible in collapsed state */}
                 <button
                   onClick={() => setFilterModalOpen(true)}
-                  className={`flex items-center gap-2 px-4 py-2.5 border rounded-2xl text-sm font-medium transition-colors shrink-0 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-colors shrink-0 ${
                     advancedFilterCount > 0
                       ? "border-primary-500 bg-primary-50 text-primary-700"
                       : "border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -731,7 +731,47 @@ function BrowseContent() {
             </div>
 
             {/* Body */}
-            <div className="px-6 py-6 space-y-8 overflow-y-auto flex-1">
+            <div className="px-6 py-6 space-y-6 overflow-y-auto flex-1">
+              {/* Type of Care */}
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 mb-3">Type of Care</h3>
+                <div className="flex flex-wrap gap-2">
+                  {PROVIDER_TYPE_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleFilterChange("providerType", opt.value)}
+                      className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
+                        filterValues.providerType === opt.value
+                          ? "border-gray-900 bg-gray-900 text-white"
+                          : "border-gray-300 text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Care Services */}
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 mb-3">Care Services</h3>
+                <div className="flex flex-wrap gap-2">
+                  {CARE_SERVICE_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleFilterChange("careService", opt.value)}
+                      className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
+                        filterValues.careService === opt.value
+                          ? "border-gray-900 bg-gray-900 text-white"
+                          : "border-gray-300 text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Sort by */}
               <div>
                 <h3 className="text-base font-semibold text-gray-900 mb-3">Sort by</h3>

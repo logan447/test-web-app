@@ -8,73 +8,49 @@ import Footer from "@/components/Navigation/Footer";
 import { LocationAutocomplete } from "@/components/Location";
 import { formatProviderType } from "@/lib/comparisonUtils";
 
-// Situational care entry cards
-const CARE_TYPES = [
+// Situational care entry cards — human-centered, descriptive
+const CARE_SITUATIONS = [
   {
     id: "help-at-home",
     name: "Help at Home",
+    description: "Assistance with daily tasks while staying independent",
     slug: "HOME_CARE",
-    color: "bg-blue-50 text-blue-600 border-blue-100",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    ),
+    image: "/images/situations/help-at-home.jpg",
   },
   {
     id: "after-hospital",
     name: "After a Hospital Stay",
+    description: "Short-term recovery and rehabilitation support",
     slug: "REHABILITATION",
-    color: "bg-green-50 text-green-600 border-green-100",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-      </svg>
-    ),
+    image: "/images/situations/after-hospital.jpg",
   },
   {
     id: "memory-concerns",
     name: "Memory Concerns",
+    description: "Specialized care for Alzheimer's and dementia",
     slug: "MEMORY_CARE",
-    color: "bg-purple-50 text-purple-600 border-purple-100",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-      </svg>
-    ),
+    image: "/images/situations/memory-concerns.jpg",
   },
   {
     id: "planning-ahead",
     name: "Planning Ahead",
+    description: "Exploring options before care is urgently needed",
     slug: "ASSISTED_LIVING",
-    color: "bg-primary-50 text-primary-600 border-primary-100",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
+    image: "/images/situations/planning-ahead.jpg",
   },
   {
     id: "long-term-care",
-    name: "Long-term Options",
+    name: "Long-term Care",
+    description: "24/7 skilled nursing and medical support",
     slug: "NURSING_HOME",
-    color: "bg-red-50 text-red-600 border-red-100",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
-    ),
+    image: "/images/situations/long-term-care.jpg",
   },
   {
     id: "end-of-life",
     name: "Comfort Care",
+    description: "Compassionate end-of-life support for families",
     slug: "HOSPICE",
-    color: "bg-amber-50 text-amber-600 border-amber-100",
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    ),
+    image: "/images/situations/comfort-care.jpg",
   },
 ];
 
@@ -217,39 +193,38 @@ export default function Home() {
             <form
               ref={searchFormRef}
               onSubmit={handleSearch}
-              className={`max-w-3xl mx-auto mb-8 transition-all duration-300 ${
+              className={`max-w-xl mx-auto mb-8 transition-all duration-300 ${
                 showStickySearch
                   ? 'fixed top-0 left-0 right-0 z-50 px-4 py-3'
                   : ''
               }`}
             >
-              <div className={`bg-white rounded-2xl shadow-lg border border-gray-200 p-2 ${
-                showStickySearch ? 'max-w-2xl mx-auto shadow-xl border-gray-200' : ''
+              <div className={`bg-white rounded-full shadow-lg border border-gray-200 ${
+                showStickySearch ? 'max-w-md mx-auto shadow-xl' : ''
               }`}>
-                <div className="flex items-center gap-2">
-                  {/* Location */}
-                  <div className="flex-1 px-4 py-3">
-                    <label className={`block text-xs font-semibold text-gray-500 mb-1.5 text-left ${showStickySearch ? 'sr-only' : ''}`}>Where do you need care?</label>
+                <div className="flex items-center">
+                  {/* Location input */}
+                  <div className="flex-1 pl-5 pr-2 py-3">
                     <LocationAutocomplete
                       value={location}
                       onChange={handleLocationChange}
-                      placeholder="Enter city or zip code"
+                      placeholder="City or zip code"
                       showIcon={false}
-                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base h-6 leading-6 text-gray-900 placeholder:text-gray-400"
+                      inputClassName="!border-0 !p-0 !rounded-none focus:!ring-0 text-base text-gray-900 placeholder:text-gray-500"
                       className="w-full"
                     />
                   </div>
 
                   {/* Search Button */}
-                  <div className="px-2 shrink-0">
+                  <div className="pr-1.5 shrink-0">
                     <button
                       type="submit"
-                      className="px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-base"
+                      className="p-3 bg-primary-600 hover:bg-primary-700 text-white rounded-full transition-all flex items-center justify-center"
+                      aria-label="Search"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
-                      <span className="hidden sm:inline">Search</span>
                     </button>
                   </div>
                 </div>
@@ -281,8 +256,50 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Explore Every Type of Senior Care — real featured providers */}
-      <section className="pt-8 pb-16 bg-white">
+      {/* What best describes your situation? — moved above featured providers */}
+      <section className="pt-8 pb-12 bg-white">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              What brings you here today?
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {CARE_SITUATIONS.map((situation) => (
+              <Link
+                key={situation.id}
+                href={`/browse?type=${situation.slug}`}
+                className="group relative rounded-2xl overflow-hidden bg-gray-100 aspect-[4/3] hover:shadow-lg transition-all"
+              >
+                {/* Background image with overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/30 to-transparent z-10" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={situation.image}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    // Fallback to solid color if image doesn't exist
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                {/* Text content */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    {situation.name}
+                  </h3>
+                  <p className="text-sm text-white/80 line-clamp-2">
+                    {situation.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Explore Local Care Options — featured providers */}
+      <section className="py-12 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
@@ -293,7 +310,7 @@ export default function Home() {
           {loadingProviders ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="animate-pulse rounded-xl border border-gray-100 overflow-hidden">
+                <div key={i} className="animate-pulse rounded-xl border border-gray-100 overflow-hidden bg-white">
                   <div className="h-40 bg-gray-200" />
                   <div className="p-4">
                     <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
@@ -325,6 +342,7 @@ export default function Home() {
                 >
                   {/* Provider image */}
                   <div className="relative h-40 bg-gray-100 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={provider.image}
                       alt={provider.name}
@@ -380,33 +398,6 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* What best describes your situation? */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              What best describes your situation?
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {CARE_TYPES.map((type) => (
-              <Link
-                key={type.id}
-                href={`/browse?type=${type.slug}`}
-                className="group p-5 bg-white rounded-xl border border-gray-200 hover:border-primary-200 hover:shadow-md transition-all"
-              >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${type.color} border transition-transform group-hover:scale-105`}>
-                  {type.icon}
-                </div>
-                <h3 className="text-base font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                  {type.name}
-                </h3>
-              </Link>
-            ))}
           </div>
         </div>
       </section>
