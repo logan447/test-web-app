@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
-import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
@@ -366,7 +365,7 @@ export default function ProviderDetailPage() {
     const fetchSimilar = async () => {
       try {
         const searchParams = new URLSearchParams({
-          type: provider.providerType,
+          providerType: provider.providerType,
           city: provider.city,
           state: provider.state,
           limit: "4",
@@ -1025,21 +1024,35 @@ export default function ProviderDetailPage() {
               </div>
             </div>
 
-            {/* Claim / Takedown */}
-            {!provider.claimed && (
-              <p className="text-sm text-gray-500 mt-4 pt-4 border-t border-gray-100">
-                Is this your business?{' '}
-                <button onClick={() => setClaimModalOpen(true)} className="text-primary-600 hover:underline font-medium">
-                  Manage this page
-                </button>
-              </p>
+            {/* Unclaimed provider banner — only orgs/agencies, never caregivers */}
+            {!provider.claimed && !isCaregiver && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                  <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm text-amber-800 font-medium">This page has not been claimed</p>
+                    <p className="text-sm text-amber-700 mt-1">
+                      Information shown is from public records and may be incomplete.
+                      Contact the provider directly to confirm details.
+                    </p>
+                    <button
+                      onClick={() => setClaimModalOpen(true)}
+                      className="mt-2 text-sm text-primary-600 hover:text-primary-700 font-semibold hover:underline"
+                    >
+                      Are you the owner? Claim this page
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
 
         {/* ==================== 2. QUICK FACTS BAR ==================== */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          {/* Pricing fact */}
+          {/* Pricing fact — all types */}
           <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
             <p className="text-xs text-gray-500 font-medium mb-1">
               {provider.priceMin ? 'Starting at' : 'Pricing'}
@@ -1049,15 +1062,21 @@ export default function ProviderDetailPage() {
             </p>
           </div>
 
-          {/* Type-specific facts */}
+          {/* Facility subtypes: differentiate rehab, memory care, nursing home, etc. */}
           {isFacility && (
             <>
+              {/* Fact 2: Capacity for residential; Staff Ratio for rehab */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-                <p className="text-xs text-gray-500 font-medium mb-1">Capacity</p>
+                <p className="text-xs text-gray-500 font-medium mb-1">
+                  {provider.providerType === 'REHABILITATION' ? 'Staff Ratio' : 'Capacity'}
+                </p>
                 <p className="text-lg font-bold text-gray-900">
-                  {provider.totalCapacity ? `${provider.totalCapacity} residents` : 'Contact us'}
+                  {provider.providerType === 'REHABILITATION'
+                    ? (provider.staffToResidentRatio || 'Contact us')
+                    : (provider.totalCapacity ? `${provider.totalCapacity} residents` : 'Contact us')}
                 </p>
               </div>
+              {/* Fact 3: Availability */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
                 <p className="text-xs text-gray-500 font-medium mb-1">Availability</p>
                 <p className="text-lg font-bold text-gray-900">
@@ -1066,16 +1085,26 @@ export default function ProviderDetailPage() {
                     : 'Contact us'}
                 </p>
               </div>
+              {/* Fact 4: Memory Care shows specialty; others show established */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-                <p className="text-xs text-gray-500 font-medium mb-1">Established</p>
+                <p className="text-xs text-gray-500 font-medium mb-1">
+                  {provider.providerType === 'MEMORY_CARE' ? 'Memory Program'
+                    : provider.providerType === 'REHABILITATION' ? 'RN On-Site'
+                    : 'Established'}
+                </p>
                 <p className="text-lg font-bold text-gray-900">
-                  {provider.yearsInBusiness ? `${provider.yearsInBusiness}+ years` : 'Contact us'}
+                  {provider.providerType === 'MEMORY_CARE'
+                    ? (provider.hasMemoryCare ? 'Specialized' : 'Contact us')
+                    : provider.providerType === 'REHABILITATION'
+                    ? (provider.hasRNOnSite ? 'Yes' : 'Contact us')
+                    : (provider.yearsInBusiness ? `${provider.yearsInBusiness}+ years` : 'Contact us')}
                 </p>
               </div>
             </>
           )}
 
-          {isHomeCare && (
+          {/* Home Care and Home Health */}
+          {isHomeCare && provider.providerType !== 'HOSPICE' && (
             <>
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
                 <p className="text-xs text-gray-500 font-medium mb-1">Service Area</p>
@@ -1098,12 +1127,37 @@ export default function ProviderDetailPage() {
             </>
           )}
 
+          {/* Hospice — distinct needs */}
+          {provider.providerType === 'HOSPICE' && (
+            <>
+              <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                <p className="text-xs text-gray-500 font-medium mb-1">Service Area</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {provider.serviceRadius ? `${provider.serviceRadius} mi radius` : provider.city}
+                </p>
+              </div>
+              <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                <p className="text-xs text-gray-500 font-medium mb-1">RN On-Site</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {provider.hasRNOnSite ? 'Yes' : 'Contact us'}
+                </p>
+              </div>
+              <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                <p className="text-xs text-gray-500 font-medium mb-1">Licensed</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {provider.licensed ? 'Yes' : 'Contact us'}
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Individual Caregiver */}
           {isCaregiver && (
             <>
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
                 <p className="text-xs text-gray-500 font-medium mb-1">Experience</p>
                 <p className="text-lg font-bold text-gray-900">
-                  {provider.yearsInBusiness ? `${provider.yearsInBusiness}+ years` : 'Contact'}
+                  {provider.yearsInBusiness ? `${provider.yearsInBusiness}+ years` : 'Ask me'}
                 </p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
@@ -1113,9 +1167,9 @@ export default function ProviderDetailPage() {
                 </p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-                <p className="text-xs text-gray-500 font-medium mb-1">Background</p>
+                <p className="text-xs text-gray-500 font-medium mb-1">Background Check</p>
                 <p className="text-lg font-bold text-gray-900">
-                  {provider.backgroundChecked ? 'Verified' : 'Contact'}
+                  {provider.backgroundChecked ? 'Verified' : 'Ask me'}
                 </p>
               </div>
             </>
@@ -1126,12 +1180,17 @@ export default function ProviderDetailPage() {
         <section className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-bold text-gray-900 mb-3">About {provider.name}</h2>
           {provider.description ? (
-            <p className="text-gray-700 whitespace-pre-line leading-relaxed">{provider.description}</p>
+            <p className="text-gray-700 whitespace-pre-line leading-relaxed text-base">{provider.description}</p>
           ) : (
-            <p className="text-gray-500">
-              {provider.name} is {isFacility ? 'a' : 'an'} {formatProviderType(provider.providerType).toLowerCase()} provider located in {provider.city}, {provider.state}.
-              {isFacility && ' Contact them to learn about their community, care options, and availability.'}
-              {isHomeCare && ' Contact them to learn about their services, caregiver matching, and availability.'}
+            <p className="text-gray-500 text-base leading-relaxed">
+              {provider.name} is {['INDEPENDENT_CAREGIVER', 'INDEPENDENT_LIVING'].includes(provider.providerType) ? 'an' : 'a'} {formatProviderType(provider.providerType).toLowerCase()} located in {provider.city}, {provider.state}.
+              {provider.providerType === 'ASSISTED_LIVING' && ' Contact them to learn about their living options, care levels, and community atmosphere.'}
+              {provider.providerType === 'MEMORY_CARE' && ' Contact them to learn about their memory care programs, staff training, and secure environment.'}
+              {provider.providerType === 'NURSING_HOME' && ' Contact them to learn about their skilled nursing services, rehabilitation programs, and daily care.'}
+              {provider.providerType === 'INDEPENDENT_LIVING' && ' Contact them to learn about their community, amenities, and lifestyle programs.'}
+              {provider.providerType === 'REHABILITATION' && ' Contact them to learn about their therapy programs, recovery plans, and length of stay.'}
+              {provider.providerType === 'HOSPICE' && ' Contact them to learn about their comfort care approach, family support, and services.'}
+              {(provider.providerType === 'HOME_CARE' || provider.providerType === 'HOME_HEALTH') && ' Contact them to learn about their services, caregiver matching, and scheduling.'}
               {isCaregiver && ' Reach out to learn about their experience, availability, and care approach.'}
             </p>
           )}
@@ -1141,7 +1200,17 @@ export default function ProviderDetailPage() {
         <section className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">How It Works</h2>
           <ol className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(isFacility ? [
+            {(provider.providerType === 'HOSPICE' ? [
+              { step: "1", title: "Request a consultation", desc: "A care team will discuss your family's needs and goals." },
+              { step: "2", title: "Meet the hospice team", desc: "Learn about their approach to comfort, dignity, and support." },
+              { step: "3", title: "Compare providers", desc: "Speak with 2\u20133 hospice providers to find the right fit." },
+              { step: "4", title: "Begin services", desc: "Care is coordinated around your family's schedule and wishes." },
+            ] : provider.providerType === 'REHABILITATION' ? [
+              { step: "1", title: "Get a referral", desc: "Your doctor or hospital team provides a referral." },
+              { step: "2", title: "Visit the facility", desc: "Tour the rehab center and meet the therapy team." },
+              { step: "3", title: "Compare programs", desc: "Evaluate 2\u20133 programs for therapy approach and outcomes." },
+              { step: "4", title: "Begin recovery", desc: "Start your therapy program with a personalized plan." },
+            ] : isFacility ? [
               { step: "1", title: "Schedule a tour", desc: "Visit to see the community and meet the staff." },
               { step: "2", title: "Meet the care team", desc: "Discuss needs, medical requirements, and budget." },
               { step: "3", title: "Compare options", desc: "Visit 3\u20135 providers to find the best fit." },
@@ -1158,19 +1227,23 @@ export default function ProviderDetailPage() {
               { step: "4", title: "Start a trial", desc: "Begin with a short trial before committing." },
             ]).map((item) => (
               <li key={item.step} className="flex gap-3">
-                <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-primary-700 font-bold text-xs">{item.step}</span>
+                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-primary-700 font-bold text-sm">{item.step}</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 text-sm">{item.title}</h4>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
+                  <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                  <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
                 </div>
               </li>
             ))}
           </ol>
-          <p className="text-xs text-gray-500 mt-4 pt-3 border-t border-gray-100">
+          <p className="text-sm text-gray-500 mt-4 pt-3 border-t border-gray-100">
             <span className="font-medium text-gray-600">Tip:</span>{' '}
-            Comparing 3\u20135 providers helps you see different care styles and feel confident in your choice.
+            {provider.providerType === 'HOSPICE'
+              ? 'Speaking with 2\u20133 hospice providers helps you find the team that feels right for your family.'
+              : provider.providerType === 'REHABILITATION'
+              ? 'Comparing 2\u20133 rehab programs helps you find the therapy approach that fits your recovery goals.'
+              : 'Comparing 3\u20135 providers helps you see different care styles and feel confident in your choice.'}
           </p>
         </section>
 
@@ -1408,9 +1481,13 @@ export default function ProviderDetailPage() {
           {/* Empty state for services */}
           {!provider.careTypesOffered?.length && !provider.medicalServices?.length && !provider.hasMemoryCare && !provider.hasRespiteCare && !provider.hasHospiceCare && (
             <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
-              <p className="text-gray-500">
+              <p className="text-gray-500 text-base">
                 This provider hasn&apos;t added detailed service information yet.
-                Ask about services during your {isFacility ? 'tour' : isHomeCare ? 'consultation' : 'meeting'}.
+                {provider.providerType === 'HOSPICE' ? ' Ask about their care approach and family support during your consultation.'
+                  : provider.providerType === 'REHABILITATION' ? ' Ask about therapy programs and recovery plans during your visit.'
+                  : isFacility ? ' Ask about services and care levels during your tour.'
+                  : isHomeCare ? ' Ask about services and caregiver matching during your consultation.'
+                  : ' Ask about their experience and specialties during your meeting.'}
               </p>
             </div>
           )}
@@ -1637,7 +1714,9 @@ export default function ProviderDetailPage() {
             Ready to learn more about {provider.name}?
           </h3>
           <p className="text-sm text-primary-700 mb-4">
-            {isFacility ? 'Schedule a tour to see the community in person.' :
+            {provider.providerType === 'HOSPICE' ? 'Request a free consultation to learn about their comfort care approach.' :
+             provider.providerType === 'REHABILITATION' ? 'Schedule a visit to learn about their therapy programs.' :
+             isFacility ? 'Schedule a tour to see the community in person.' :
              isHomeCare ? 'Request a free consultation to discuss your care needs.' :
              'Request a meeting to discuss your care needs.'}
           </p>
@@ -1762,9 +1841,11 @@ export default function ProviderDetailPage() {
           <div className="bg-primary-50 rounded-xl border border-primary-100 p-6 mb-6">
             <h3 className="text-lg font-semibold text-primary-900 mb-2">Finding the right fit</h3>
             <p className="text-sm text-primary-700 leading-relaxed">
-              Most families speak with 5\u201310 providers before choosing. We encourage you to compare options \u2014
-              the right fit matters more than the first fit. Save providers you like, and use your{' '}
-              {isFacility ? 'tours' : isHomeCare ? 'consultations' : 'meetings'} to ask about care, pricing, and availability.
+              {provider.providerType === 'HOSPICE'
+                ? 'Finding the right hospice team is deeply personal. We encourage you to speak with 2\u20133 providers to find the team that best supports your family. Save providers you like, and use your consultations to ask about their approach, staff, and family support.'
+                : provider.providerType === 'REHABILITATION'
+                ? 'Your recovery depends on finding the right therapy program. Compare 2\u20133 rehab centers to evaluate their approach, outcomes, and environment. Save providers you like, and use your visits to ask about therapy plans and expected length of stay.'
+                : `Most families speak with 5\u201310 providers before choosing. We encourage you to compare options \u2014 the right fit matters more than the first fit. Save providers you like, and use your ${isFacility ? 'tours' : isHomeCare ? 'consultations' : 'meetings'} to ask about care, pricing, and availability.`}
             </p>
           </div>
 
