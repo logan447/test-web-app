@@ -6,7 +6,6 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ProviderType } from "@prisma/client";
-import MainNav from "@/components/Navigation/MainNav";
 import Footer from "@/components/Navigation/Footer";
 import Breadcrumb from "@/components/Navigation/Breadcrumb";
 import AuthModal, { PendingAction } from "@/components/Auth/AuthModal";
@@ -118,6 +117,7 @@ export default function ProviderDetailPage() {
   const [questions, setQuestions] = useState<Array<{ id: string; content: string; likeCount: number; answer: string | null; answeredAt: string | null; createdAt: string; user: { name: string | null } }>>([]);
   const [newQuestion, setNewQuestion] = useState("");
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
+  const [hamburgerOpen, setHamburgerOpen] = useState(false);
   const { getProfileSummary } = useFamilyProfile();
 
   // Get provider identity for accurate viewer role derivation (only fetches if in provider mode)
@@ -317,7 +317,19 @@ export default function ProviderDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <MainNav />
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-4 py-2.5">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="flex items-center gap-2 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
+                <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
+              </Link>
+              <div className="flex-1" />
+              <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
+            </div>
+          </div>
+        </div>
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
@@ -342,18 +354,102 @@ export default function ProviderDetailPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <MainNav />
+      {/* Condensed sticky toolbar — matches /browse collapsed bar */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-2.5">
+          <div className="relative flex items-center gap-3">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/olera-logo.jpg" alt="" className="w-7 h-7" aria-hidden="true" />
+              <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
+            </Link>
 
-      {/* Breadcrumb */}
-      <Breadcrumb
-        items={[
-          { label: "Home", href: "/" },
-          { label: formatProviderType(provider.providerType), href: `/browse?type=${provider.providerType}` },
-          { label: provider.state, href: `/browse?state=${provider.state}` },
-          { label: provider.city, href: `/browse?city=${provider.city}&state=${provider.state}` },
-          { label: provider.name, href: `/providers/${provider.id}` },
-        ]}
-      />
+            {/* Condensed search pill — centered, navigates to /browse on click */}
+            <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0 lg:min-w-[420px] lg:max-w-[540px]">
+              <Link
+                href="/browse"
+                className="flex-1 min-w-0 flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex-1 min-w-0 flex items-center divide-x divide-gray-200">
+                  <span className="px-4 py-2.5 text-sm font-medium truncate flex-1 text-gray-400">
+                    Search providers
+                  </span>
+                </div>
+                <div className="m-1.5 p-2 bg-primary-600 rounded-xl shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </Link>
+            </div>
+
+            {/* Hamburger menu pill */}
+            <div className="relative shrink-0" data-hamburger-menu>
+              <button
+                onClick={() => setHamburgerOpen(!hamburgerOpen)}
+                className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
+              >
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
+                  {session ? (
+                    <span className="text-xs font-medium text-white">
+                      {session.user?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  ) : (
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                  )}
+                </div>
+              </button>
+
+              {/* Dropdown menu */}
+              {hamburgerOpen && (
+                <>
+                  {/* Backdrop */}
+                  <div className="fixed inset-0 z-30" onClick={() => setHamburgerOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-40">
+                    {session ? (
+                      <>
+                        <div className="px-4 py-2 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
+                          <p className="text-xs text-gray-500">{session.user?.email}</p>
+                        </div>
+                        <Link href="/dashboard" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Dashboard</Link>
+                        <Link href="/saved" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Saved Providers</Link>
+                        <Link href="/requests" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>My Requests</Link>
+                        <Link href="/settings" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Settings</Link>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => { setHamburgerOpen(false); setAuthModalOpen(true); }}
+                          className="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          Log in
+                        </button>
+                        <button
+                          onClick={() => { setHamburgerOpen(false); setAuthModalOpen(true); }}
+                          className="block w-full text-left px-4 py-2.5 text-sm font-medium text-primary-600 hover:bg-gray-50"
+                        >
+                          Sign up
+                        </button>
+                      </>
+                    )}
+                    <div className="border-t border-gray-100 mt-1 pt-1">
+                      <Link href="/browse" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>Browse Providers</Link>
+                      <Link href="/for-providers" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setHamburgerOpen(false)}>For Providers</Link>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -1475,6 +1571,17 @@ export default function ProviderDetailPage() {
           providerName={provider.name}
         />
       )}
+
+      {/* Breadcrumb — bottom of page for orientation without top clutter */}
+      <Breadcrumb
+        items={[
+          { label: "Home", href: "/" },
+          { label: formatProviderType(provider.providerType), href: `/browse?type=${provider.providerType}` },
+          { label: provider.state, href: `/browse?state=${provider.state}` },
+          { label: provider.city, href: `/browse?city=${provider.city}&state=${provider.state}` },
+          { label: provider.name, href: `/providers/${provider.id}` },
+        ]}
+      />
 
       {/* Footer */}
       <Footer variant="light" />
