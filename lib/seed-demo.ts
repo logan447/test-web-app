@@ -281,6 +281,8 @@ export async function seedDemo(prisma: PrismaClient) {
       hasPhotos: true,
       hasPricing: false,
       hasPaymentModes: false,
+      lat: 32.7157,
+      lng: -117.1611,
     },
     // No photos, has pricing, no payment modes
     {
@@ -295,6 +297,8 @@ export async function seedDemo(prisma: PrismaClient) {
       hasPricing: true,
       priceMin: 6500,
       hasPaymentModes: false,
+      lat: 32.8328,
+      lng: -117.2713,
     },
     // No photos, no pricing, has payment modes (insurance-based)
     {
@@ -309,6 +313,8 @@ export async function seedDemo(prisma: PrismaClient) {
       hasPricing: false,
       hasPaymentModes: true,
       paymentModes: ['MEDICARE', 'MEDICAID'],
+      lat: 33.1581,
+      lng: -117.3506,
     },
   ];
 
@@ -332,6 +338,8 @@ export async function seedDemo(prisma: PrismaClient) {
         coverPhoto: photos[0] || null,
         priceMin: data.hasPricing ? data.priceMin : null,
         paymentModesAccepted: data.hasPaymentModes ? (data as any).paymentModes : [],
+        latitude: data.lat,
+        longitude: data.lng,
         claimed: true,
         claimedAt: new Date(),
         verified: false, // Not yet verified
