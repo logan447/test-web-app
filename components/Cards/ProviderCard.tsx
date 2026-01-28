@@ -25,6 +25,24 @@ const FACILITY_TYPES = [
 const HOME_CARE_TYPES = ["HOME_CARE", "HOME_HEALTH", "HOSPICE"];
 const CAREGIVER_TYPES = ["INDEPENDENT_CAREGIVER"];
 
+// Insurance-based subtypes: these are primarily covered by Medicare/Medicaid
+// Showing "Starting at $X" would be misleading since families don't typically pay out-of-pocket
+const INSURANCE_BASED_TYPES = [
+  "HOSPICE",        // Medicare Hospice Benefit covers ~100%
+  "NURSING_HOME",   // Medicare (short-term), Medicaid (long-term)
+  "REHABILITATION", // Medicare post-acute, commercial insurance
+  "HOME_HEALTH",    // Medicare when physician-ordered
+];
+
+// Private-pay subtypes: families pay directly, price transparency is helpful
+const PRIVATE_PAY_TYPES = [
+  "ASSISTED_LIVING",
+  "MEMORY_CARE",
+  "INDEPENDENT_LIVING",
+  "HOME_CARE",
+  "INDEPENDENT_CAREGIVER",
+];
+
 // Payment mode display configuration
 const PAYMENT_MODE_CONFIG: Record<string, { label: string; className: string; priority: number }> = {
   MEDICARE: { label: "Medicare", className: "bg-green-100 text-green-800", priority: 1 },
@@ -76,6 +94,10 @@ export default function ProviderCard({
   const isHomeCare = HOME_CARE_TYPES.includes(provider.providerType);
   const isCaregiver = CAREGIVER_TYPES.includes(provider.providerType);
 
+  // Insurance-based vs private-pay determines pricing display strategy
+  const isInsuranceBased = INSURANCE_BASED_TYPES.includes(provider.providerType);
+  const isPrivatePay = PRIVATE_PAY_TYPES.includes(provider.providerType);
+
   // Determine data state
   const isClaimed = provider.claimed === true;
   const hasPrice = provider.priceMin !== null && provider.priceMin !== undefined;
@@ -115,17 +137,31 @@ export default function ProviderCard({
   };
 
   // Format price based on provider type
+  // Insurance-based types (Hospice, Nursing Home, Rehab, Home Health) should NOT show prices
+  // because families don't typically pay out-of-pocket for these services
   const formatPrice = (): { label: string; value: string } | null => {
+    // Never show prices for insurance-based provider types
+    if (isInsuranceBased) return null;
+
     const { priceMin } = provider;
     if (!priceMin) return null;
 
-    const isHourly = isHomeCare || isCaregiver;
+    // Home care and caregivers use hourly rates; facilities use monthly
+    const isHourly = provider.providerType === "HOME_CARE" || isCaregiver;
     const suffix = isHourly ? "/hr" : "/mo";
 
     return {
       label: "Starting at",
       value: `$${priceMin.toLocaleString()}${suffix}`,
     };
+  };
+
+  // Get the appropriate CTA text based on provider type
+  const getAffordabilityCta = (): string => {
+    if (isInsuranceBased) {
+      return "Explore coverage →";
+    }
+    return "Explore affordability →";
   };
 
   // Get availability text for facilities
@@ -263,7 +299,7 @@ export default function ProviderCard({
             {/* Spacer to push footer to bottom */}
             <div className="flex-1" />
 
-            {/* Footer: Price/Affordability + Availability */}
+            {/* Footer: Price/Coverage + Availability */}
             <div className="flex items-end justify-between pt-3 border-t border-gray-100 mt-auto">
               <div>
                 {price ? (
@@ -272,16 +308,9 @@ export default function ProviderCard({
                     <p className="text-base font-semibold text-gray-900">{price.value}</p>
                   </>
                 ) : (
-                  <button
-                    type="button"
-                    className="text-sm font-medium text-primary-600 hover:text-primary-700"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // Navigation happens through the card link
-                    }}
-                  >
-                    Explore affordability →
-                  </button>
+                  <span className="text-sm font-medium text-primary-600">
+                    {getAffordabilityCta()}
+                  </span>
                 )}
               </div>
 
@@ -427,7 +456,7 @@ export default function ProviderCard({
           </div>
         )}
 
-        {/* Price or Affordability CTA */}
+        {/* Price or Coverage CTA */}
         <div className="pt-2 border-t border-gray-100">
           {price ? (
             <div>
@@ -436,7 +465,7 @@ export default function ProviderCard({
             </div>
           ) : (
             <span className="text-sm font-medium text-primary-600">
-              Explore affordability →
+              {getAffordabilityCta()}
             </span>
           )}
         </div>
