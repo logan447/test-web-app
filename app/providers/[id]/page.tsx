@@ -1043,6 +1043,27 @@ export default function ProviderDetailPage() {
               </div>
             </div>
           </>
+        ) : provider.claimed && allPhotos.length === 0 && provider.latitude && provider.longitude ? (
+          /* Claimed but no photos — show map as fallback with "Map view" badge */
+          <div className="relative bg-stone-100" style={{ height: '340px' }}>
+            <iframe
+              className="w-full h-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${provider.longitude - 0.01}%2C${provider.latitude - 0.005}%2C${provider.longitude + 0.01}%2C${provider.latitude + 0.005}&layer=mapnik&marker=${provider.latitude}%2C${provider.longitude}`}
+              title="Location"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-50 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-sm font-medium text-gray-700 rounded-lg shadow-sm">
+                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Map view
+              </span>
+            </div>
+          </div>
         ) : (
           /* No photos, no coordinates — gentle placeholder */
           <div className="h-48 md:h-64 bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
