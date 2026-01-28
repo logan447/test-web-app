@@ -27,7 +27,7 @@ const CARE_SITUATIONS = [
     id: "nursing-rehab",
     name: "Nursing & Rehab",
     slug: "NURSING_HOME",
-    emoji: "🏥",
+    emoji: "🩺",
   },
   {
     id: "assisted-living",
@@ -227,9 +227,12 @@ export default function Home() {
       {/* Situation cards */}
       <section className="pt-4 pb-10 bg-white">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-gray-600 text-base font-medium text-center mb-6">
-            Tell us about your situation
-          </p>
+          {/* Divider with guidance text */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex-1 h-px bg-gray-300" />
+            <span className="text-gray-600 text-base font-medium whitespace-nowrap">Tell us about your situation</span>
+            <div className="flex-1 h-px bg-gray-300" />
+          </div>
 
           {/* Situation cards — 2x2 grid with emoji illustrations */}
           <div className="grid grid-cols-2 gap-4">
