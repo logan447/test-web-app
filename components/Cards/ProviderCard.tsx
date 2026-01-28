@@ -124,22 +124,14 @@ export default function ProviderCard({
   // Get image URL
   const imageUrl = provider.coverPhoto || provider.photos?.[0] || null;
 
-  // Get sorted payment badges (by priority, max 3)
-  const getPaymentBadges = () => {
-    if (!provider.paymentModesAccepted || provider.paymentModesAccepted.length === 0) {
-      return [];
-    }
-    return provider.paymentModesAccepted
-      .filter((mode) => PAYMENT_MODE_CONFIG[mode])
-      .sort((a, b) => PAYMENT_MODE_CONFIG[a].priority - PAYMENT_MODE_CONFIG[b].priority)
-      .slice(0, 3)
-      .map((mode) => PAYMENT_MODE_CONFIG[mode]);
-  };
-
-  // Format price based on provider type
+  // Format price based on provider type and data state
   // Insurance-based types (Hospice, Nursing Home, Rehab, Home Health) should NOT show prices
   // because families don't typically pay out-of-pocket for these services
+  // Unclaimed providers: we don't know their pricing, so don't show
   const formatPrice = (): { label: string; value: string } | null => {
+    // Never show prices for unclaimed providers (we don't have verified pricing)
+    if (!isClaimed) return null;
+
     // Never show prices for insurance-based provider types
     if (isInsuranceBased) return null;
 
@@ -156,17 +148,40 @@ export default function ProviderCard({
     };
   };
 
-  // Get the appropriate CTA text based on provider type
+  // Get the appropriate CTA text based on provider type and claim status
   const getAffordabilityCta = (): string => {
+    // Unclaimed providers: neutral CTA since we don't know their payment model
+    if (!isClaimed) {
+      return "Learn more →";
+    }
+    // Insurance-based claimed providers
     if (isInsuranceBased) {
       return "Explore coverage →";
     }
+    // Private-pay claimed providers without pricing
     return "Explore affordability →";
   };
 
+  // Get payment badges - only for claimed providers (we don't know unclaimed payment models)
+  const getPaymentBadges = () => {
+    // Don't show payment badges for unclaimed providers
+    if (!isClaimed) return [];
+
+    if (!provider.paymentModesAccepted || provider.paymentModesAccepted.length === 0) {
+      return [];
+    }
+    return provider.paymentModesAccepted
+      .filter((mode) => PAYMENT_MODE_CONFIG[mode])
+      .sort((a, b) => PAYMENT_MODE_CONFIG[a].priority - PAYMENT_MODE_CONFIG[b].priority)
+      .slice(0, 3)
+      .map((mode) => PAYMENT_MODE_CONFIG[mode]);
+  };
+
   // Get availability text for facilities
+  // Only show for claimed providers (unclaimed providers don't have verified availability)
   const getAvailabilityText = () => {
     if (!isFacility) return null;
+    if (!isClaimed) return null; // Don't show availability for unclaimed
     const spots = provider.availableSpots;
     if (spots === null || spots === undefined) return null;
     if (spots === 0) return { text: "Waitlist available", className: "text-amber-700 bg-amber-50" };

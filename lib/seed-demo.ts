@@ -262,6 +262,87 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log(`[DEMO SEED] Created ${unclaimedData.length} unclaimed providers\n`);
 
   // ============================================================================
+  // CLAIMED BUT INCOMPLETE PROVIDERS (for testing graceful degradation)
+  // ============================================================================
+  // These providers have claimed their listing but haven't finished their profile.
+  // They have varying levels of completeness to test card rendering.
+  console.log('[DEMO SEED] Creating claimed-incomplete providers...');
+
+  const claimedIncompleteData = [
+    // Has photos, no pricing, no payment modes
+    {
+      name: 'Sunrise Gardens (Incomplete)',
+      type: 'ASSISTED_LIVING' as const,
+      city: 'San Diego',
+      state: 'CA',
+      zip: '92101',
+      desc: 'A newly claimed listing - pricing and payment information coming soon.',
+      care: ['PERSONAL_CARE' as const],
+      hasPhotos: true,
+      hasPricing: false,
+      hasPaymentModes: false,
+    },
+    // No photos, has pricing, no payment modes
+    {
+      name: 'Valley View Memory Care (Incomplete)',
+      type: 'MEMORY_CARE' as const,
+      city: 'La Jolla',
+      state: 'CA',
+      zip: '92037',
+      desc: 'Profile in progress - photos coming soon.',
+      care: ['MEMORY_CARE' as const],
+      hasPhotos: false,
+      hasPricing: true,
+      priceMin: 6500,
+      hasPaymentModes: false,
+    },
+    // No photos, no pricing, has payment modes (insurance-based)
+    {
+      name: 'Coastal Nursing & Rehab (Incomplete)',
+      type: 'NURSING_HOME' as const,
+      city: 'Carlsbad',
+      state: 'CA',
+      zip: '92008',
+      desc: 'Accepting Medicare and Medicaid. More details coming soon.',
+      care: ['SKILLED_NURSING' as const],
+      hasPhotos: false,
+      hasPricing: false,
+      hasPaymentModes: true,
+      paymentModes: ['MEDICARE', 'MEDICAID'],
+    },
+  ];
+
+  for (let i = 0; i < claimedIncompleteData.length; i++) {
+    const data = claimedIncompleteData[i];
+    const photos = data.hasPhotos ? ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'] : [];
+
+    await prisma.provider.create({
+      data: {
+        name: data.name,
+        providerType: data.type,
+        description: data.desc,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zip,
+        address: `${300 + i * 100} Test Street`,
+        phone: `(858) 555-${String(4000 + i).padStart(4, '0')}`,
+        email: `info@incomplete${i}@example.com`,
+        careTypesOffered: data.care,
+        photos: photos,
+        coverPhoto: photos[0] || null,
+        priceMin: data.hasPricing ? data.priceMin : null,
+        paymentModesAccepted: data.hasPaymentModes ? (data as any).paymentModes : [],
+        claimed: true,
+        claimedAt: new Date(),
+        verified: false, // Not yet verified
+        active: true,
+        isVisible: true,
+      },
+    });
+  }
+  console.log(`[DEMO SEED] Created ${claimedIncompleteData.length} claimed-incomplete providers\n`);
+
+  // ============================================================================
   // REVIEWS (35 reviews across 20 providers)
   // ============================================================================
   console.log('[DEMO SEED] Creating reviews...');
@@ -839,6 +920,7 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('');
   console.log('  Enrichment data:');
   console.log(`    - ${unclaimedData.length} unclaimed providers (6 subtypes + 3 scenarios)`);
+  console.log(`    - ${claimedIncompleteData.length} claimed-incomplete providers (for testing graceful degradation)`);
   console.log(`    - ${reviewIndex} reviews across providers (with google/olera sources)`);
   console.log(`    - ${createdEngagements.length} family↔provider engagements`);
   console.log(`    - ${eventCount} scheduled events (tours, consultations, interviews)`);
