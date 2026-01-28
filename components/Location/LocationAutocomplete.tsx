@@ -69,6 +69,7 @@ export default function LocationAutocomplete({
   const listboxId = "location-listbox";
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const isAutoFocusingRef = useRef(false); // Track if focus came from autoFocus prop
 
   // Handle geolocation request
   const handleUseCurrentLocation = useCallback(async () => {
@@ -117,19 +118,17 @@ export default function LocationAutocomplete({
   }, [value]);
 
   // Auto-focus the input when autoFocus prop is true
+  // Note: Does NOT open dropdown - keeps UI clean and focused on the input
   useEffect(() => {
     if (autoFocus && inputRef.current) {
       // Small delay to ensure DOM is ready (especially after navigation)
       const timer = setTimeout(() => {
+        isAutoFocusingRef.current = true; // Flag to prevent dropdown from opening
         inputRef.current?.focus();
-        // Open dropdown to show "Use current location" option
-        if (showCurrentLocation) {
-          setIsOpen(true);
-        }
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [autoFocus, showCurrentLocation]);
+  }, [autoFocus]);
 
   // Search locations with debounce
   const searchLocations = useCallback(async (query: string) => {
@@ -318,12 +317,18 @@ export default function LocationAutocomplete({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={(e) => {
-            // Open dropdown on focus if showCurrentLocation is enabled
-            if (showCurrentLocation) {
-              setIsOpen(true);
-            }
-            if (inputValue.length >= 2) {
-              searchLocations(inputValue);
+            // Skip opening dropdown if this focus came from autoFocus prop
+            // (keeps UI clean on navigation from situation cards)
+            if (isAutoFocusingRef.current) {
+              isAutoFocusingRef.current = false; // Reset flag
+            } else {
+              // Open dropdown on manual focus if showCurrentLocation is enabled
+              if (showCurrentLocation) {
+                setIsOpen(true);
+              }
+              if (inputValue.length >= 2) {
+                searchLocations(inputValue);
+              }
             }
             // Move cursor to end without selecting text (prevents blue highlight)
             const len = e.target.value.length;
