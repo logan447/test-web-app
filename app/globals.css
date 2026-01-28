@@ -286,3 +286,25 @@ input[type="search"]::selection {
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Gentle category highlight animation for 65+ UX
+   Creates a soft, calming left-to-right wave effect across care category buttons
+   to guide visual attention without requiring reading */
+@keyframes category-highlight {
+  0% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+  40% {
+    background-color: rgba(20, 184, 166, 0.12);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+.category-highlight-animation {
+  animation: category-highlight 0.8s ease-out forwards;
+}

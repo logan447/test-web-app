@@ -189,11 +189,28 @@ function BrowseContent() {
   const arrivedFromSituationCard = searchParams.get("type") && !searchParams.get("city") && !searchParams.get("location");
   const [shouldAutoFocus, setShouldAutoFocus] = useState(!!arrivedFromSituationCard);
 
+  // Detect arrival from homepage search bar (has location but no type selected)
+  // These users need gentle visual guidance toward the care category options
+  const arrivedFromHomepageSearch = (searchParams.get("city") || searchParams.get("location")) && !searchParams.get("type");
+  const [showCategoryAnimation, setShowCategoryAnimation] = useState(!!arrivedFromHomepageSearch);
+
   useEffect(() => {
     if (arrivedFromSituationCard) {
       setSearchExpanded(true);
     }
   }, [arrivedFromSituationCard]);
+
+  // Auto-expand search and trigger category animation for homepage search arrivals
+  useEffect(() => {
+    if (arrivedFromHomepageSearch) {
+      setSearchExpanded(true);
+      // Clear animation state after it completes (animation duration + buffer)
+      const timer = setTimeout(() => {
+        setShowCategoryAnimation(false);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [arrivedFromHomepageSearch]);
 
   // Fetch provider type for hamburger menu
   useEffect(() => {
@@ -420,15 +437,19 @@ function BrowseContent() {
 
               {/* Category buttons — centered in remaining space */}
               <div className="flex-1 flex items-center justify-center gap-1 flex-wrap overflow-hidden">
-                {ALL_CARE_CATEGORIES.map((cat) => (
+                {ALL_CARE_CATEGORIES.map((cat, index) => (
                   <button
                     key={cat.type}
-                    onClick={() => handleCategoryClick(cat.type)}
+                    onClick={() => {
+                      handleCategoryClick(cat.type);
+                      setShowCategoryAnimation(false);
+                    }}
                     className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
                       filterValues.providerType === cat.type
                         ? "bg-primary-600 text-white"
                         : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                    } ${showCategoryAnimation ? "category-highlight-animation" : ""}`}
+                    style={showCategoryAnimation ? { animationDelay: `${index * 120}ms` } : undefined}
                   >
                     {cat.label}
                   </button>
@@ -894,19 +915,6 @@ function BrowseContent() {
           {!loading && providers.length >= 3 && (
             <p className="text-sm text-gray-500 mt-1">
               Meet with at least 5 providers to compare and find the best fit.
-            </p>
-          )}
-
-          {/* Helper text when browsing all types — helps with jargon for 65+ users */}
-          {!loading && !filterValues.providerType && providers.length > 0 && (
-            <p className="text-sm text-gray-500 mt-1">
-              Not sure which type of care? <span className="font-medium text-gray-600">Home Care</span> means help at home. <span className="font-medium text-gray-600">Assisted Living</span> is a residential community.{" "}
-              <button
-                onClick={() => setFilterModalOpen(true)}
-                className="text-primary-600 hover:text-primary-700 font-medium underline underline-offset-2"
-              >
-                Use filters to narrow down
-              </button>
             </p>
           )}
         </div>
