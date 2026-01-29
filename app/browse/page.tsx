@@ -202,7 +202,6 @@ function BrowseContent() {
   // These users need gentle visual guidance toward the care category options
   const arrivedFromHomepageSearch = (searchParams.get("city") || searchParams.get("location")) && !searchParams.get("type");
   const [showCategoryAnimation, setShowCategoryAnimation] = useState(!!arrivedFromHomepageSearch);
-  const [showDemoTap, setShowDemoTap] = useState(false);
 
   useEffect(() => {
     if (arrivedFromSituationCard) {
@@ -211,28 +210,18 @@ function BrowseContent() {
   }, [arrivedFromSituationCard]);
 
   // Auto-expand search and trigger purely visual animation for homepage search arrivals
-  // Filter is already set to "Home Care" on initialization — animation just reinforces this
-  // Sequence: wave (0-1.2s) → demo tap on selected pill (1.3s) → cleanup (1.8s)
+  // Filter is already set to "Home Care" on initialization — animation highlights OTHER options
+  // Home Care stays dark green throughout (selected state), wave runs on alternatives only
   useEffect(() => {
     if (arrivedFromHomepageSearch) {
       setSearchExpanded(true);
 
-      // Trigger demo tap after wave animation passes (~1.3s)
-      const demoTapTimer = setTimeout(() => {
-        setShowDemoTap(true);
-      }, 1300);
-
-      // Clean up animation states after demo tap completes
-      // No filter change needed — already initialized to Home Care
+      // Clean up animation after wave completes (~1.8s for all pills)
       const cleanupTimer = setTimeout(() => {
         setShowCategoryAnimation(false);
-        setShowDemoTap(false);
       }, 1800);
 
-      return () => {
-        clearTimeout(demoTapTimer);
-        clearTimeout(cleanupTimer);
-      };
+      return () => clearTimeout(cleanupTimer);
     }
   }, [arrivedFromHomepageSearch]);
 
@@ -461,26 +450,29 @@ function BrowseContent() {
 
               {/* Category buttons — centered in remaining space */}
               <div className="flex-1 flex items-center justify-center gap-1 flex-wrap overflow-hidden">
-                {ALL_CARE_CATEGORIES.map((cat, index) => (
-                  <button
-                    key={cat.type}
-                    onClick={() => {
-                      handleCategoryClick(cat.type);
-                      setShowCategoryAnimation(false);
-                      setShowDemoTap(false);
-                    }}
-                    className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
-                      filterValues.providerType === cat.type
-                        ? "bg-primary-600 text-white"
-                        : "text-gray-700 hover:bg-gray-100"
-                    } ${showCategoryAnimation ? "category-highlight-animation" : ""} ${
-                      showDemoTap && index === 0 ? "category-demo-tap-animation" : ""
-                    }`}
-                    style={showCategoryAnimation ? { animationDelay: `${index * 120}ms` } : undefined}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
+                {ALL_CARE_CATEGORIES.map((cat, index) => {
+                  const isSelected = filterValues.providerType === cat.type;
+                  // Don't apply wave animation to selected pill — it would override the selected style
+                  const shouldAnimate = showCategoryAnimation && !isSelected;
+
+                  return (
+                    <button
+                      key={cat.type}
+                      onClick={() => {
+                        handleCategoryClick(cat.type);
+                        setShowCategoryAnimation(false);
+                      }}
+                      className={`px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+                        isSelected
+                          ? "bg-primary-600 text-white"
+                          : "text-gray-700 hover:bg-gray-100"
+                      } ${shouldAnimate ? "category-highlight-animation" : ""}`}
+                      style={shouldAnimate ? { animationDelay: `${index * 120}ms` } : undefined}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Hamburger pill */}
