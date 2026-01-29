@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, CareType, ProviderType } from '@prisma/client';
 import { seedLite } from './seed-lite';
 
 /**
@@ -951,6 +951,22 @@ export async function seedDemo(prisma: PrismaClient) {
   // 12 providers per type per city across San Diego, Washington DC, and Houston
   // ============================================================================
   console.log('[DEMO SEED] Creating comprehensive multi-city provider data...\n');
+
+  // Facility photos for multi-city providers (same as seed-lite)
+  const FACILITY_PHOTOS = [
+    'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
+    'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800',
+    'https://images.unsplash.com/photo-1559599238-308793637427?w=800',
+    'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+    'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800',
+    'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?w=800',
+    'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
+    'https://images.unsplash.com/photo-1581093458791-9f3c3250a740?w=800',
+    'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800',
+    'https://images.unsplash.com/photo-1562141961-8d219c6dd062?w=800',
+    'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800',
+  ];
 
   // City configurations with neighborhoods for realistic distribution
   const DEMO_CITIES = [
