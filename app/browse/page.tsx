@@ -486,7 +486,7 @@ function BrowseContent() {
               </Link>
 
               {/* Category buttons — single row, no wrapping, with hover tooltips */}
-              <div className="flex-1 flex items-center justify-center gap-0.5 overflow-x-auto">
+              <div className="flex-1 flex items-center justify-center gap-0.5 overflow-hidden">
                 {ALL_CARE_CATEGORIES.map((cat, index) => {
                   const isSelected = filterValues.providerType === cat.type;
                   // Don't apply wave animation to selected pill — it would override the selected style
