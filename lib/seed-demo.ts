@@ -952,6 +952,16 @@ export async function seedDemo(prisma: PrismaClient) {
   // ============================================================================
   console.log('[DEMO SEED] Creating comprehensive multi-city provider data...\n');
 
+  // CLEAN SLATE: Delete ALL existing providers in the target cities to prevent duplicates
+  // This ensures deterministic, idempotent seeding each run
+  const multiCityCities = ['San Diego', 'Washington', 'Houston'];
+  const deletedMultiCity = await prisma.provider.deleteMany({
+    where: {
+      city: { in: multiCityCities },
+    },
+  });
+  console.log(`   🧹 Cleared ${deletedMultiCity.count} existing providers in target cities\n`);
+
   // Facility photos for multi-city providers (same as seed-lite)
   const FACILITY_PHOTOS = [
     'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800',
@@ -1059,10 +1069,13 @@ export async function seedDemo(prisma: PrismaClient) {
           data: {
             name: isCaregiver ? `${name} - ${CERTIFICATIONS[i % CERTIFICATIONS.length][0]} Caregiver` : name,
             providerType,
+            // Description can come from community data (unclaimed) or be enhanced (claimed)
             description: isComplete ? `Professional ${providerType.toLowerCase().replace(/_/g, ' ')} services in the ${neighborhood} area of ${cityConfig.city}.` : undefined,
-            email: isComplete ? `${emailSlug}${multiCityCount}@demo.olera.com` : undefined,
+            // Email and website require claimed status (owner-verified fields)
+            email: (isComplete && isClaimed) ? `${emailSlug}${multiCityCount}@demo.olera.com` : undefined,
+            // Phone can come from directory listings (public data)
             phone: isComplete ? `(${cityConfig.zip.slice(0, 3)}) 555-${String(1000 + multiCityCount).padStart(4, '0')}` : undefined,
-            website: isComplete && !isCaregiver ? `https://${emailSlug}.example.com` : undefined,
+            website: (isComplete && isClaimed && !isCaregiver) ? `https://${emailSlug}.example.com` : undefined,
             address: isComplete ? `${100 + i * 50} ${neighborhood} ${['St', 'Ave', 'Blvd', 'Dr', 'Way'][i % 5]}` : undefined,
             city: cityConfig.city,
             state: cityConfig.state,
@@ -1077,11 +1090,14 @@ export async function seedDemo(prisma: PrismaClient) {
             capacity: !config.isHourly && isComplete ? 20 + Math.floor(Math.random() * 80) : undefined,
             priceMin: isComplete ? config.priceRange[0] : undefined,
             priceMax: isComplete ? config.priceRange[1] : undefined,
-            photos: isComplete ? FACILITY_PHOTOS.slice(i % 6, (i % 6) + 4) : [],
-            coverPhoto: isComplete ? FACILITY_PHOTOS[i % FACILITY_PHOTOS.length] : undefined,
+            // CRITICAL: Photos only for CLAIMED AND COMPLETE providers
+            // Unclaimed providers should NEVER have photos (data model rule)
+            photos: (isComplete && isClaimed) ? FACILITY_PHOTOS.slice(i % 6, (i % 6) + 4) : [],
+            coverPhoto: (isComplete && isClaimed) ? FACILITY_PHOTOS[i % FACILITY_PHOTOS.length] : undefined,
             certifications: isCaregiver ? CERTIFICATIONS[i % CERTIFICATIONS.length] : [],
             languagesSpoken: isComplete ? ['English', ...(i % 3 === 0 ? ['Spanish'] : [])] : [],
-            backgroundChecked: isCaregiver && isComplete,
+            // Background check verification requires claimed status (owner-verified)
+            backgroundChecked: isCaregiver && isClaimed && isComplete,
             averageRating: rating ? Math.round(rating * 10) / 10 : undefined,
             reviewCount: reviews,
             claimed: isClaimed,
