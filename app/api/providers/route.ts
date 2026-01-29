@@ -3,6 +3,25 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProviderType, CareType } from "@prisma/client";
+import { US_STATES } from "@/prisma/data/us-locations";
+
+// Create reverse lookup: state name -> code (e.g., "District of Columbia" -> "DC")
+const STATE_NAME_TO_CODE: Record<string, string> = {};
+for (const [code, name] of Object.entries(US_STATES)) {
+  STATE_NAME_TO_CODE[name.toLowerCase()] = code;
+}
+
+// Helper to normalize state input to two-letter code
+function normalizeStateToCode(stateInput: string): string {
+  const trimmed = stateInput.trim();
+  // If it's already a 2-letter code, return uppercase
+  if (trimmed.length === 2) {
+    return trimmed.toUpperCase();
+  }
+  // Otherwise, look up the full name
+  const code = STATE_NAME_TO_CODE[trimmed.toLowerCase()];
+  return code || trimmed; // Return original if not found
+}
 
 // ============================================================================
 // Quality Score Calculation for "Recommended" Sort
@@ -135,7 +154,9 @@ export async function GET(req: Request) {
     }
 
     if (state) {
-      where.state = { equals: state, mode: "insensitive" };
+      // Normalize "District of Columbia" -> "DC", "California" -> "CA", etc.
+      const normalizedState = normalizeStateToCode(state);
+      where.state = { equals: normalizedState, mode: "insensitive" };
     }
 
     if (providerType) {
