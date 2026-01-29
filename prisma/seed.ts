@@ -101,29 +101,109 @@ const CAREGIVER_PHOTOS = [
   'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
 ];
 
-// California cities for realistic data
-const CA_LOCATIONS = [
-  { city: 'San Diego', state: 'CA', zip: '92101', lat: 32.7157, lng: -117.1611 },
-  { city: 'La Jolla', state: 'CA', zip: '92037', lat: 32.8328, lng: -117.2713 },
-  { city: 'Chula Vista', state: 'CA', zip: '91910', lat: 32.6401, lng: -117.0842 },
-  { city: 'Del Mar', state: 'CA', zip: '92014', lat: 32.9595, lng: -117.2653 },
-  { city: 'Encinitas', state: 'CA', zip: '92024', lat: 33.0370, lng: -117.2920 },
-  { city: 'Carlsbad', state: 'CA', zip: '92008', lat: 33.1581, lng: -117.3506 },
-  { city: 'Oceanside', state: 'CA', zip: '92054', lat: 33.1959, lng: -117.3795 },
-  { city: 'Los Angeles', state: 'CA', zip: '90001', lat: 34.0522, lng: -118.2437 },
-  { city: 'Santa Monica', state: 'CA', zip: '90401', lat: 34.0195, lng: -118.4912 },
-  { city: 'Pasadena', state: 'CA', zip: '91101', lat: 34.1478, lng: -118.1445 },
-  { city: 'Beverly Hills', state: 'CA', zip: '90210', lat: 34.0736, lng: -118.4004 },
-  { city: 'Irvine', state: 'CA', zip: '92602', lat: 33.6846, lng: -117.8265 },
-  { city: 'Newport Beach', state: 'CA', zip: '92660', lat: 33.6189, lng: -117.9289 },
-  { city: 'Huntington Beach', state: 'CA', zip: '92648', lat: 33.6595, lng: -117.9988 },
-  { city: 'Anaheim', state: 'CA', zip: '92801', lat: 33.8366, lng: -117.9143 },
-  { city: 'San Francisco', state: 'CA', zip: '94102', lat: 37.7749, lng: -122.4194 },
-  { city: 'Palo Alto', state: 'CA', zip: '94301', lat: 37.4419, lng: -122.1430 },
-  { city: 'San Jose', state: 'CA', zip: '95110', lat: 37.3382, lng: -121.8863 },
-  { city: 'Riverside', state: 'CA', zip: '92501', lat: 33.9533, lng: -117.3962 },
-  { city: 'Palm Springs', state: 'CA', zip: '92262', lat: 33.8303, lng: -116.5453 },
+// ============================================================================
+// DEMO CITIES: Three metro areas for comprehensive testing
+// ============================================================================
+type CityConfig = {
+  city: string;
+  state: string;
+  stateName: string;
+  zip: string;
+  lat: number;
+  lng: number;
+  neighborhoods: { name: string; latOffset: number; lngOffset: number }[];
+};
+
+const DEMO_CITIES: CityConfig[] = [
+  {
+    city: 'San Diego',
+    state: 'CA',
+    stateName: 'California',
+    zip: '92101',
+    lat: 32.7157,
+    lng: -117.1611,
+    neighborhoods: [
+      { name: 'Downtown', latOffset: 0, lngOffset: 0 },
+      { name: 'La Jolla', latOffset: 0.12, lngOffset: -0.11 },
+      { name: 'Pacific Beach', latOffset: 0.08, lngOffset: -0.08 },
+      { name: 'Hillcrest', latOffset: 0.03, lngOffset: -0.02 },
+      { name: 'North Park', latOffset: 0.04, lngOffset: -0.01 },
+      { name: 'Mission Valley', latOffset: 0.02, lngOffset: -0.04 },
+      { name: 'Coronado', latOffset: -0.04, lngOffset: -0.03 },
+      { name: 'Point Loma', latOffset: -0.02, lngOffset: -0.07 },
+      { name: 'Clairemont', latOffset: 0.06, lngOffset: -0.05 },
+      { name: 'Rancho Bernardo', latOffset: 0.20, lngOffset: 0.05 },
+      { name: 'Carmel Valley', latOffset: 0.15, lngOffset: -0.08 },
+      { name: 'Del Mar', latOffset: 0.24, lngOffset: -0.10 },
+    ],
+  },
+  {
+    city: 'Washington',
+    state: 'DC',
+    stateName: 'District of Columbia',
+    zip: '20001',
+    lat: 38.9072,
+    lng: -77.0369,
+    neighborhoods: [
+      { name: 'Downtown', latOffset: 0, lngOffset: 0 },
+      { name: 'Georgetown', latOffset: 0.01, lngOffset: -0.03 },
+      { name: 'Dupont Circle', latOffset: 0.02, lngOffset: -0.01 },
+      { name: 'Capitol Hill', latOffset: -0.01, lngOffset: 0.02 },
+      { name: 'Adams Morgan', latOffset: 0.03, lngOffset: -0.01 },
+      { name: 'Foggy Bottom', latOffset: 0.01, lngOffset: -0.02 },
+      { name: 'Chevy Chase', latOffset: 0.06, lngOffset: -0.02 },
+      { name: 'Bethesda', latOffset: 0.07, lngOffset: -0.04 },
+      { name: 'Silver Spring', latOffset: 0.08, lngOffset: 0.01 },
+      { name: 'Arlington', latOffset: -0.02, lngOffset: -0.04 },
+      { name: 'Alexandria', latOffset: -0.06, lngOffset: -0.02 },
+      { name: 'Tysons', latOffset: 0.04, lngOffset: -0.08 },
+    ],
+  },
+  {
+    city: 'Houston',
+    state: 'TX',
+    stateName: 'Texas',
+    zip: '77001',
+    lat: 29.7604,
+    lng: -95.3698,
+    neighborhoods: [
+      { name: 'Downtown', latOffset: 0, lngOffset: 0 },
+      { name: 'Montrose', latOffset: 0.02, lngOffset: -0.02 },
+      { name: 'The Heights', latOffset: 0.04, lngOffset: -0.01 },
+      { name: 'River Oaks', latOffset: 0.03, lngOffset: -0.03 },
+      { name: 'Galleria', latOffset: 0.03, lngOffset: -0.05 },
+      { name: 'Memorial', latOffset: 0.04, lngOffset: -0.08 },
+      { name: 'West University', latOffset: -0.01, lngOffset: -0.03 },
+      { name: 'Medical Center', latOffset: -0.02, lngOffset: -0.02 },
+      { name: 'Midtown', latOffset: 0.01, lngOffset: -0.01 },
+      { name: 'Sugar Land', latOffset: -0.08, lngOffset: -0.10 },
+      { name: 'The Woodlands', latOffset: 0.25, lngOffset: 0.02 },
+      { name: 'Katy', latOffset: 0.02, lngOffset: -0.25 },
+    ],
+  },
 ];
+
+// Helper to get a location with slight randomness
+function getLocation(cityConfig: CityConfig, neighborhoodIndex: number) {
+  const neighborhood = cityConfig.neighborhoods[neighborhoodIndex % cityConfig.neighborhoods.length];
+  return {
+    city: cityConfig.city,
+    state: cityConfig.state,
+    zip: cityConfig.zip,
+    lat: cityConfig.lat + neighborhood.latOffset + (Math.random() - 0.5) * 0.02,
+    lng: cityConfig.lng + neighborhood.lngOffset + (Math.random() - 0.5) * 0.02,
+    neighborhood: neighborhood.name,
+  };
+}
+
+// Legacy CA_LOCATIONS for backward compatibility
+const CA_LOCATIONS = DEMO_CITIES[0].neighborhoods.map((n, i) => ({
+  city: i === 0 ? 'San Diego' : n.name,
+  state: 'CA',
+  zip: `921${String(i).padStart(2, '0')}`,
+  lat: DEMO_CITIES[0].lat + n.latOffset,
+  lng: DEMO_CITIES[0].lng + n.lngOffset,
+}));
 
 /**
  * Seed Location table with US cities data
@@ -462,6 +542,8 @@ async function main(externalPrisma?: PrismaClient) {
             city: loc.city,
             state: loc.state,
             zipCode: loc.zip,
+            latitude: loc.lat + (Math.random() - 0.5) * 0.05,
+            longitude: loc.lng + (Math.random() - 0.5) * 0.05,
             serviceRadius: 15 + (i % 15),
             careTypesOffered: data.care as CareType[],
             licensed: true,
@@ -528,6 +610,192 @@ async function main(externalPrisma?: PrismaClient) {
     });
   }
   console.log('✅ Created 4 unclaimed providers\n');
+
+  // ============================================================================
+  // MULTI-CITY COMPREHENSIVE PROVIDER SEEDING
+  // 10+ providers per type per city across San Diego, DC, and Houston
+  // ============================================================================
+  console.log('🌎 Creating comprehensive multi-city provider data...\n');
+
+  // Provider type configurations with naming patterns and descriptions
+  const PROVIDER_TYPE_CONFIGS = {
+    HOME_CARE: {
+      namePatterns: ['Home Care', 'In-Home Services', 'Home Health Aides', 'Visiting Care', 'Home Support', 'Home Helpers', 'Care at Home', 'Home Companions', 'Home Assistance', 'Personal Home Care', 'Family Home Care', 'Gentle Home Care'],
+      descTemplate: (name: string, area: string) => `${name} provides professional in-home care services in ${area}. Our caregivers assist with daily activities, medication reminders, meal preparation, and companionship.`,
+      care: ['COMPANION_CARE', 'PERSONAL_CARE', 'LIVE_IN_CARE'] as CareType[],
+      priceRange: [22, 45] as [number, number],
+      isHourly: true,
+    },
+    HOME_HEALTH: {
+      namePatterns: ['Home Health', 'Skilled Home Nursing', 'Medical Home Care', 'Home Healthcare', 'Nursing at Home', 'Clinical Home Services', 'Home Medical', 'Health at Home', 'Skilled Home Care', 'Medical Home Services', 'Home Nursing', 'Clinical Home Care'],
+      descTemplate: (name: string, area: string) => `${name} offers Medicare-certified home health services in ${area}. Our skilled nurses provide wound care, IV therapy, physical therapy, and medical monitoring in your home.`,
+      care: ['SKILLED_NURSING', 'PERSONAL_CARE'] as CareType[],
+      priceRange: [45, 85] as [number, number],
+      isHourly: true,
+    },
+    ASSISTED_LIVING: {
+      namePatterns: ['Manor', 'Gardens', 'Place', 'Living', 'Residence', 'House', 'Village', 'Estates', 'Lodge', 'Court', 'Commons', 'Heights'],
+      descTemplate: (name: string, area: string) => `${name} is a premier assisted living community in ${area}. We offer 24/7 care, gourmet dining, engaging activities, and a warm, home-like atmosphere.`,
+      care: ['PERSONAL_CARE', 'COMPANION_CARE'] as CareType[],
+      priceRange: [3500, 8500] as [number, number],
+      isHourly: false,
+    },
+    INDEPENDENT_LIVING: {
+      namePatterns: ['Active Living', 'Senior Living', 'Retirement Village', '55+ Community', 'Senior Residences', 'Lifestyle Community', 'Retirement Living', 'Active Seniors', 'Senior Village', 'Retirement Estates', 'Senior Lifestyle', 'Active Community'],
+      descTemplate: (name: string, area: string) => `${name} offers independent living for active seniors 55+ in ${area}. Enjoy maintenance-free living, social activities, dining options, and amenities designed for vibrant senior life.`,
+      care: ['COMPANION_CARE'] as CareType[],
+      priceRange: [2000, 5000] as [number, number],
+      isHourly: false,
+    },
+    MEMORY_CARE: {
+      namePatterns: ['Memory Care', 'Memory Haven', 'Memory Gardens', 'Alzheimers Center', 'Dementia Care', 'Memory Lane', 'Cognitive Care', 'Memory Village', 'Mindful Living', 'Memory Support', 'Serene Memory', 'Peaceful Minds'],
+      descTemplate: (name: string, area: string) => `${name} specializes in memory care for seniors with Alzheimer's and dementia in ${area}. Our secure, nurturing environment features trained staff and evidence-based programming.`,
+      care: ['MEMORY_CARE', 'PERSONAL_CARE'] as CareType[],
+      priceRange: [5500, 10000] as [number, number],
+      isHourly: false,
+    },
+    NURSING_HOME: {
+      namePatterns: ['Skilled Nursing', 'Nursing Center', 'Care Center', 'Health Center', 'Nursing Facility', 'Rehabilitation Center', 'Convalescent', 'Nursing Home', 'Long Term Care', 'Skilled Care', 'Healthcare Center', 'Nursing & Rehab'],
+      descTemplate: (name: string, area: string) => `${name} provides 24/7 skilled nursing care in ${area}. Our clinical team offers comprehensive medical care, rehabilitation services, and long-term care for complex health needs.`,
+      care: ['SKILLED_NURSING'] as CareType[],
+      priceRange: [7000, 13000] as [number, number],
+      isHourly: false,
+    },
+    HOSPICE: {
+      namePatterns: ['Hospice', 'Comfort Care', 'Palliative Services', 'End of Life Care', 'Compassionate Care', 'Final Journey', 'Gentle Care', 'Peaceful Passage', 'Comfort & Dignity', 'Grace Hospice', 'Serenity Hospice', 'Tranquil Care'],
+      descTemplate: (name: string, area: string) => `${name} provides compassionate hospice and palliative care in ${area}. We focus on comfort, dignity, and quality of life for patients and support for families.`,
+      care: ['HOSPICE_CARE'] as CareType[],
+      priceRange: [0, 0] as [number, number], // Usually covered by Medicare
+      isHourly: false,
+    },
+    REHABILITATION: {
+      namePatterns: ['Rehab Center', 'Rehabilitation', 'Recovery Center', 'Therapy Center', 'Rehab & Recovery', 'Physical Therapy', 'Rehabilitation Services', 'Acute Rehab', 'Outpatient Rehab', 'Sports Rehab', 'Orthopedic Rehab', 'Neuro Rehab'],
+      descTemplate: (name: string, area: string) => `${name} offers comprehensive rehabilitation services in ${area}. Our therapy team provides physical, occupational, and speech therapy to help patients regain independence.`,
+      care: ['SKILLED_NURSING'] as CareType[],
+      priceRange: [6000, 12000] as [number, number],
+      isHourly: false,
+    },
+    INDEPENDENT_CAREGIVER: {
+      namePatterns: ['CNA Caregiver', 'Private Caregiver', 'Personal Aide', 'Care Companion', 'Senior Helper', 'Home Aide', 'Care Assistant', 'Nursing Aide', 'Care Provider', 'Personal Caregiver', 'Home Caregiver', 'Care Specialist'],
+      descTemplate: (name: string, area: string) => `Experienced caregiver serving ${area}. I provide personalized in-home care including companionship, personal care, medication reminders, and light housekeeping.`,
+      care: ['COMPANION_CARE', 'PERSONAL_CARE'] as CareType[],
+      priceRange: [20, 40] as [number, number],
+      isHourly: true,
+    },
+  };
+
+  const FIRST_NAMES = ['Maria', 'John', 'Sarah', 'David', 'Lisa', 'Michael', 'Jennifer', 'Robert', 'Patricia', 'William', 'Linda', 'James', 'Elizabeth', 'Richard', 'Susan', 'Thomas', 'Karen', 'Charles', 'Nancy', 'Daniel', 'Angela', 'Matthew', 'Dorothy', 'Christopher', 'Helen', 'Joseph', 'Sandra', 'Mark', 'Ashley', 'Steven'];
+  const LAST_NAMES = ['Garcia', 'Martinez', 'Johnson', 'Williams', 'Brown', 'Jones', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall', 'Allen', 'Young', 'King', 'Wright', 'Lopez'];
+  const CERTIFICATIONS = [
+    ['CNA', 'CPR', 'First Aid'],
+    ['CNA', 'CPR', 'Dementia Care'],
+    ['HHA', 'CPR', 'First Aid'],
+    ['CNA', 'HHA', 'CPR'],
+    ['CNA', 'CPR', 'Alzheimers Care'],
+    ['RN', 'CPR', 'IV Certified'],
+    ['LVN', 'CPR', 'Medication Management'],
+    ['CNA', 'CPR', 'Hospice Care'],
+  ];
+
+  const AREA_PREFIXES = ['Greater', 'Central', 'North', 'South', 'East', 'West', 'Metro', 'Downtown', 'Uptown', ''];
+  const QUALITY_ADJECTIVES = ['Premier', 'Exceptional', 'Trusted', 'Compassionate', 'Professional', 'Quality', 'Dedicated', 'Reliable', 'Caring', ''];
+
+  let multiCityProviderCount = 0;
+  const allProviderTypes: ProviderType[] = ['HOME_CARE', 'HOME_HEALTH', 'ASSISTED_LIVING', 'INDEPENDENT_LIVING', 'MEMORY_CARE', 'NURSING_HOME', 'HOSPICE', 'REHABILITATION', 'INDEPENDENT_CAREGIVER'];
+
+  for (const cityConfig of DEMO_CITIES) {
+    console.log(`   📍 Seeding providers in ${cityConfig.city}, ${cityConfig.state}...`);
+
+    for (const providerType of allProviderTypes) {
+      const config = PROVIDER_TYPE_CONFIGS[providerType];
+      const providersPerType = 12; // 12 providers per type per city
+
+      for (let i = 0; i < providersPerType; i++) {
+        const loc = getLocation(cityConfig, i);
+        const isCaregiver = providerType === 'INDEPENDENT_CAREGIVER';
+
+        // Vary claimed/unclaimed status (80% claimed, 20% unclaimed for facilities)
+        const isClaimed = isCaregiver ? true : (i < 10); // Caregivers always claimed, 2 unclaimed per type for facilities
+
+        // Vary profile completeness (70% complete, 30% incomplete)
+        const isComplete = i < 8 || i >= 10;
+
+        // Generate name
+        let name: string;
+        if (isCaregiver) {
+          const firstName = FIRST_NAMES[(i + multiCityProviderCount) % FIRST_NAMES.length];
+          const lastName = LAST_NAMES[(i * 3 + multiCityProviderCount) % LAST_NAMES.length];
+          name = `${firstName} ${lastName}`;
+        } else {
+          const prefix = QUALITY_ADJECTIVES[i % QUALITY_ADJECTIVES.length];
+          const areaPrefix = AREA_PREFIXES[i % AREA_PREFIXES.length];
+          const pattern = config.namePatterns[i % config.namePatterns.length];
+          const areaName = loc.neighborhood || cityConfig.city;
+          name = `${prefix} ${areaPrefix} ${areaName} ${pattern}`.replace(/\s+/g, ' ').trim();
+        }
+
+        const description = isComplete
+          ? config.descTemplate(name, `the ${loc.neighborhood || cityConfig.city} area`)
+          : undefined;
+
+        const rating = isComplete ? 3.8 + Math.random() * 1.2 : undefined; // 3.8-5.0 range
+        const reviews = isComplete ? Math.floor(5 + Math.random() * 50) : 0;
+
+        const emailSlug = name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+        const email = `${emailSlug}${multiCityProviderCount}@demo.olera.com`;
+
+        const providerData: any = {
+          name: isCaregiver ? `${name} - ${CERTIFICATIONS[i % CERTIFICATIONS.length][0]} Caregiver` : name,
+          providerType,
+          description,
+          email: isComplete ? email : undefined,
+          phone: isComplete ? `(${cityConfig.zip.slice(0, 3)}) 555-${String(1000 + multiCityProviderCount).padStart(4, '0')}` : undefined,
+          website: isComplete && !isCaregiver ? `https://${emailSlug}.example.com` : undefined,
+          address: isComplete ? `${100 + i * 50} ${loc.neighborhood} ${['St', 'Ave', 'Blvd', 'Dr', 'Way'][i % 5]}` : undefined,
+          city: cityConfig.city,
+          state: cityConfig.state,
+          zipCode: cityConfig.zip,
+          latitude: loc.lat,
+          longitude: loc.lng,
+          serviceRadius: (providerType === 'HOME_CARE' || providerType === 'HOME_HEALTH' || isCaregiver) ? 15 + (i % 20) : undefined,
+          careTypesOffered: config.care,
+          licensed: isClaimed,
+          licenseNumber: isClaimed && isComplete ? `${cityConfig.state}-${providerType.slice(0, 3)}-${String(10000 + multiCityProviderCount).padStart(5, '0')}` : undefined,
+          yearsInBusiness: isComplete ? 2 + Math.floor(Math.random() * 20) : undefined,
+          capacity: !config.isHourly && isComplete ? 20 + Math.floor(Math.random() * 80) : undefined,
+          priceMin: isComplete ? config.priceRange[0] : undefined,
+          priceMax: isComplete ? config.priceRange[1] : undefined,
+          priceDescription: config.isHourly && isComplete ? 'Per hour. Rates vary based on care needs.' : undefined,
+          photos: isComplete ? FACILITY_PHOTOS.slice(i % 10, (i % 10) + 4) : [],
+          coverPhoto: isComplete ? FACILITY_PHOTOS[i % FACILITY_PHOTOS.length] : undefined,
+          certifications: isCaregiver ? CERTIFICATIONS[i % CERTIFICATIONS.length] : [],
+          languagesSpoken: isComplete ? ['English', ...(i % 3 === 0 ? ['Spanish'] : [])] : [],
+          backgroundChecked: isCaregiver && isComplete,
+          averageRating: rating ? Math.round(rating * 10) / 10 : undefined,
+          reviewCount: reviews,
+          claimed: isClaimed,
+          verified: isClaimed && isComplete,
+          active: true,
+          availableForFamilies: isCaregiver ? true : undefined,
+          availableForOrganizations: isCaregiver ? (i % 2 === 0) : undefined,
+        };
+
+        // Add facility-specific fields
+        if (!isCaregiver && !config.isHourly && isComplete) {
+          providerData.roomFeatures = ['Private rooms', 'WiFi', 'Emergency call system'];
+          providerData.commonAreas = ['Dining room', 'Activity room', 'Garden'];
+          providerData.medicalServices = ['Medication management', 'On-call nursing'];
+          providerData.activitiesOffered = ['Exercise classes', 'Social events', 'Arts and crafts'];
+          providerData.dietaryOptions = ['Vegetarian', 'Diabetic-friendly'];
+        }
+
+        await prisma.provider.create({ data: providerData });
+        multiCityProviderCount++;
+      }
+    }
+  }
+
+  console.log(`✅ Created ${multiCityProviderCount} providers across 3 cities (${Math.floor(multiCityProviderCount / 3)} per city)\n`);
 
   // ============================================================================
   // ENGAGEMENT DATA (Consultations, Messages, Tours)
@@ -830,13 +1098,22 @@ async function main(externalPrisma?: PrismaClient) {
 
   console.log('📊 MEGA Seed Summary:');
   console.log('   - 36 family accounts (all with photos)');
-  console.log('   - 36 organization/facility accounts (all with multiple photos)');
-  console.log('   - 18 individual caregiver accounts (all with photos)');
+  console.log('   - 36 organization/facility accounts (original CA data)');
+  console.log('   - 18 individual caregiver accounts (original CA data)');
   console.log('   - 4 unclaimed providers for claiming flow');
   console.log('   - 90+ total user accounts');
   console.log('   - 12 hiring requests with interview appointments');
   console.log('   - 24 notifications (for bell dropdown testing)');
   console.log('   - Password for all accounts: demo123\n');
+
+  console.log('📊 Multi-City Provider Summary:');
+  console.log('   - 3 cities: San Diego (CA), Washington (DC), Houston (TX)');
+  console.log('   - 9 provider types per city (ALL types covered)');
+  console.log('   - 12 providers per type = 108 providers per city');
+  console.log('   - 324 total multi-city providers');
+  console.log('   - All providers have lat/lng for map display');
+  console.log('   - ~80% claimed, ~20% unclaimed per type');
+  console.log('   - ~70% complete profiles, ~30% incomplete\n');
 
   console.log('✅ MEGA seed completed successfully!\n');
 }
