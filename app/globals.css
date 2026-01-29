@@ -275,12 +275,6 @@ select:focus {
   @apply ring-2 ring-primary-500 ring-offset-0 border-primary-500;
 }
 
-/* Prevent text selection highlight on search inputs for cleaner UX */
-input[type="text"]::selection,
-input[type="search"]::selection {
-  background: transparent;
-}
-
 /* Clean focus state for search bars - no distracting outlines */
 .search-input-clean:focus {
   outline: none !important;
