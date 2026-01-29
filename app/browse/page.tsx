@@ -557,12 +557,13 @@ function BrowseContent() {
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
 
-              {/* Search bar — absolutely centered on desktop, same width as provider page */}
-              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 min-w-0 lg:min-w-[400px] lg:max-w-[480px]">
+              {/* Search bar + Filters — centered as a single unit */}
+              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0">
+                {/* Search bar */}
                 <button
                   type="button"
                   onClick={() => setSearchExpanded(true)}
-                  className="w-full flex items-center gap-1 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer pl-1.5 pr-1.5 py-1.5"
+                  className="flex-1 lg:flex-none lg:w-[400px] flex items-center gap-1 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer pl-1.5 pr-1.5 py-1.5"
                 >
                   <div className="p-2 text-primary-500 shrink-0">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -580,27 +581,27 @@ function BrowseContent() {
                     </svg>
                   </div>
                 </button>
-              </div>
 
-              {/* Filters pill — positioned after search bar */}
-              <button
-                onClick={() => setFilterModalOpen(true)}
-                className={`hidden sm:flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-colors shrink-0 ${
-                  advancedFilterCount > 0
-                    ? "border-primary-500 bg-primary-50 text-primary-700"
-                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-                <span>Filters</span>
-                {advancedFilterCount > 0 && (
-                  <span className="bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {advancedFilterCount}
-                  </span>
-                )}
-              </button>
+                {/* Filters pill */}
+                <button
+                  onClick={() => setFilterModalOpen(true)}
+                  className={`hidden sm:flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-colors shrink-0 ${
+                    advancedFilterCount > 0
+                      ? "border-primary-500 bg-primary-50 text-primary-700"
+                      : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                  <span>Filters</span>
+                  {advancedFilterCount > 0 && (
+                    <span className="bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {advancedFilterCount}
+                    </span>
+                  )}
+                </button>
+              </div>
 
               {/* Right side — Become a provider + Hamburger */}
               <div className="hidden lg:block flex-1" />
