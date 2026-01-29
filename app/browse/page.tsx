@@ -60,6 +60,28 @@ const ALL_CARE_CATEGORIES = [
   { label: "Private Caregiver", type: "INDEPENDENT_CAREGIVER" },
 ];
 
+// Plain-English explanations for care types (third-grade reading level)
+// These appear on hover for category pills and in the title info tooltip
+const CARE_TYPE_EXPLANATIONS: Record<string, string> = {
+  HOME_CARE: "Help comes to your home for daily tasks like bathing, meals, or companionship.",
+  HOME_HEALTH: "Medical care at home from nurses or therapists, usually after a hospital stay.",
+  ASSISTED_LIVING: "A community where your loved one lives and gets help with daily activities.",
+  MEMORY_CARE: "Specialized care for Alzheimer's or dementia in a safe, secure place.",
+  NURSING_HOME: "Round-the-clock medical care for people with serious health needs.",
+  INDEPENDENT_LIVING: "A community for active seniors who want social activities without daily help.",
+  REHABILITATION: "Short-term therapy to recover strength after surgery, injury, or illness.",
+  HOSPICE: "Comfort-focused care that helps people live fully at the end of life.",
+  INDEPENDENT_CAREGIVER: "A caregiver you hire directly for flexible, one-on-one help at home.",
+};
+
+// Journey steps for the orientation bar
+const JOURNEY_STEPS = [
+  { id: "search", label: "Search", description: "Find providers near you" },
+  { id: "compare", label: "Compare", description: "Save favorites to compare", href: "/saved" },
+  { id: "meet", label: "Meet", description: "Talk to providers you like" },
+  { id: "start", label: "Start Care", description: "Begin your care journey" },
+];
+
 // Care services for search bar
 const CARE_SERVICE_OPTIONS = [
   { value: "", label: "Any service" },
@@ -204,6 +226,10 @@ function BrowseContent() {
   const arrivedFromHomepageSearch = (searchParams.get("city") || searchParams.get("location")) && !searchParams.get("type");
   const [showCategoryAnimation, setShowCategoryAnimation] = useState(!!arrivedFromHomepageSearch);
 
+  // Journey bar animation state - shows orientation animation on first arrival
+  const isFirstArrival = arrivedFromHomepageSearch || arrivedFromSituationCard;
+  const [showJourneyAnimation, setShowJourneyAnimation] = useState(!!isFirstArrival);
+
   useEffect(() => {
     if (arrivedFromSituationCard) {
       setSearchExpanded(true);
@@ -225,6 +251,16 @@ function BrowseContent() {
       return () => clearTimeout(cleanupTimer);
     }
   }, [arrivedFromHomepageSearch]);
+
+  // Clean up journey bar animation after it completes
+  useEffect(() => {
+    if (isFirstArrival) {
+      const cleanupTimer = setTimeout(() => {
+        setShowJourneyAnimation(false);
+      }, 1500);
+      return () => clearTimeout(cleanupTimer);
+    }
+  }, [isFirstArrival]);
 
   // Fetch provider type for hamburger menu
   useEffect(() => {
@@ -449,12 +485,13 @@ function BrowseContent() {
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
 
-              {/* Category buttons — single row, no wrapping */}
+              {/* Category buttons — single row, no wrapping, with hover tooltips */}
               <div className="flex-1 flex items-center justify-center gap-0.5 overflow-x-auto">
                 {ALL_CARE_CATEGORIES.map((cat, index) => {
                   const isSelected = filterValues.providerType === cat.type;
                   // Don't apply wave animation to selected pill — it would override the selected style
                   const shouldAnimate = showCategoryAnimation && !isSelected;
+                  const explanation = CARE_TYPE_EXPLANATIONS[cat.type];
 
                   return (
                     <button
@@ -463,12 +500,13 @@ function BrowseContent() {
                         handleCategoryClick(cat.type);
                         setShowCategoryAnimation(false);
                       }}
-                      className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+                      className={`care-tooltip category-pill-interactive px-3 py-1.5 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
                         isSelected
                           ? "bg-primary-600 text-white"
                           : "text-gray-700 hover:bg-gray-100"
                       } ${shouldAnimate ? "category-highlight-animation" : ""}`}
                       style={shouldAnimate ? { animationDelay: `${index * 120}ms` } : undefined}
+                      data-tooltip={explanation}
                     >
                       {cat.label}
                     </button>
@@ -911,12 +949,90 @@ function BrowseContent() {
           </div>
         )}
 
+        {/* Journey Progress Bar - Orientation for 65+ users */}
+        <div className={`bg-gray-50 border-b border-gray-200 ${showJourneyAnimation ? 'journey-bar-animate' : ''}`}>
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-center gap-1 sm:gap-2">
+              {JOURNEY_STEPS.map((step, index) => {
+                const isCurrentStep = step.id === "search";
+                const isClickable = step.href && step.id === "compare";
+
+                return (
+                  <div key={step.id} className="flex items-center">
+                    {/* Step */}
+                    {isClickable ? (
+                      <Link
+                        href={step.href!}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                          text-gray-400 hover:text-gray-600 hover:bg-gray-100`}
+                      >
+                        <span className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center text-xs">
+                          {index + 1}
+                        </span>
+                        <span className="hidden sm:inline">{step.label}</span>
+                      </Link>
+                    ) : (
+                      <div
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                          ${isCurrentStep
+                            ? `bg-primary-100 text-primary-700 ${showJourneyAnimation ? 'journey-step-pulse' : ''}`
+                            : 'text-gray-400'
+                          }`}
+                      >
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs
+                          ${isCurrentStep ? 'bg-primary-600 text-white' : 'border-2 border-current'}`}
+                        >
+                          {isCurrentStep ? (
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            index + 1
+                          )}
+                        </span>
+                        <span className="hidden sm:inline">{step.label}</span>
+                      </div>
+                    )}
+
+                    {/* Connector line */}
+                    {index < JOURNEY_STEPS.length - 1 && (
+                      <div className={`w-6 sm:w-10 h-0.5 mx-1 ${
+                        isCurrentStep ? 'bg-primary-300' : 'bg-gray-200'
+                      }`} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         {/* Results header + Filters */}
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-3">
-            <h1 className="text-xl font-bold text-gray-900">
-              {resultTitle}
-            </h1>
+            {/* Dynamic title with care type */}
+            <div className="flex items-center gap-1">
+              <h1 className="text-xl font-bold text-gray-900">
+                {loading
+                  ? `Care providers in ${locationLabel}`
+                  : filterValues.providerType
+                    ? `${totalCount} ${ALL_CARE_CATEGORIES.find(c => c.type === filterValues.providerType)?.label || ''} Provider${totalCount !== 1 ? "s" : ""} in ${locationLabel}`
+                    : `${totalCount} care provider${totalCount !== 1 ? "s" : ""} in ${locationLabel}`
+                }
+              </h1>
+              {/* Info tooltip for care type explanation */}
+              {filterValues.providerType && CARE_TYPE_EXPLANATIONS[filterValues.providerType] && (
+                <span
+                  className="care-tooltip care-tooltip-below title-info-trigger"
+                  data-tooltip={CARE_TYPE_EXPLANATIONS[filterValues.providerType]}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`What is ${ALL_CARE_CATEGORIES.find(c => c.type === filterValues.providerType)?.label}?`}
+                >
+                  ?
+                </span>
+              )}
+            </div>
 
             <div className="flex items-center gap-2 shrink-0">
               {/* Map toggle (mobile) */}
@@ -931,13 +1047,6 @@ function BrowseContent() {
               </button>
             </div>
           </div>
-
-          {/* Tip — inline, above results */}
-          {!loading && providers.length >= 3 && (
-            <p className="text-sm text-gray-500 mt-1">
-              Meet with at least 5 providers to compare and find the best fit.
-            </p>
-          )}
         </div>
 
         {/* Main content */}

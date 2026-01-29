@@ -331,3 +331,163 @@ select:focus {
 .category-demo-tap-animation {
   animation: category-demo-tap 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
+/* =============================================================================
+   Journey Bar & Orientation System for 65+ Users
+   ============================================================================= */
+
+/* Journey bar entrance animation */
+@keyframes journey-bar-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.journey-bar-animate {
+  animation: journey-bar-enter 0.5s ease-out forwards;
+}
+
+/* Journey step pulse - draws attention to current step */
+@keyframes journey-step-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2);
+  }
+}
+
+.journey-step-pulse {
+  animation: journey-step-pulse 0.8s ease-in-out 0.3s;
+}
+
+/* =============================================================================
+   Hover Tooltips for Care Type Education
+   CSS-only tooltips that appear on hover - no icons, no visual clutter
+   ============================================================================= */
+
+/* Tooltip container - the element that triggers the tooltip */
+.care-tooltip {
+  position: relative;
+  cursor: help;
+}
+
+/* The tooltip itself - hidden by default */
+.care-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 14px;
+  background: #1f2937;
+  color: white;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  border-radius: 8px;
+  white-space: normal;
+  width: max-content;
+  max-width: 260px;
+  text-align: center;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+/* Tooltip arrow */
+.care-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Show tooltip on hover */
+.care-tooltip:hover::after,
+.care-tooltip:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Tooltip that appears below (for title area) */
+.care-tooltip-below::after {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
+.care-tooltip-below::before {
+  bottom: auto;
+  top: calc(100% + 2px);
+  border-top-color: transparent;
+  border-bottom-color: #1f2937;
+}
+
+/* Touch device handling - tap to show, tap away to hide */
+@media (hover: none) {
+  .care-tooltip:focus::after,
+  .care-tooltip:focus::before {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* =============================================================================
+   Title Info Icon - Small, subtle, discoverable
+   ============================================================================= */
+
+.title-info-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: help;
+  transition: all 0.15s ease;
+  vertical-align: middle;
+}
+
+.title-info-trigger:hover {
+  background: rgba(20, 184, 166, 0.15);
+  color: #0d9488;
+}
+
+/* =============================================================================
+   Enhanced category pill interaction states
+   ============================================================================= */
+
+.category-pill-interactive {
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.category-pill-interactive:hover {
+  transform: translateY(-1px);
+}
+
+.category-pill-interactive:active {
+  transform: translateY(0) scale(0.98);
+}

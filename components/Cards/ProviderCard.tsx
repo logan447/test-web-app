@@ -185,6 +185,7 @@ export default function ProviderCard({
   };
 
   // Get payment badges - only for claimed providers (we don't know unclaimed payment models)
+  // Limited to 2 badges max to reduce visual clutter for 65+ users
   const getPaymentBadges = () => {
     // Don't show payment badges for unclaimed providers
     if (!isClaimed) return [];
@@ -195,7 +196,7 @@ export default function ProviderCard({
     return provider.paymentModesAccepted
       .filter((mode) => PAYMENT_MODE_CONFIG[mode])
       .sort((a, b) => PAYMENT_MODE_CONFIG[a].priority - PAYMENT_MODE_CONFIG[b].priority)
-      .slice(0, 3)
+      .slice(0, 2) // Reduced from 3 to 2 for cleaner cards
       .map((mode) => PAYMENT_MODE_CONFIG[mode]);
   };
 
@@ -301,14 +302,11 @@ export default function ProviderCard({
 
           {/* Content */}
           <div className="flex-1 p-4 sm:p-5 flex flex-col">
-            {/* Top section: Type + Location */}
-            <div className="flex items-start justify-between gap-2 mb-1">
+            {/* Top section: Type */}
+            <div className="mb-1">
               <span className="text-sm font-medium text-gray-500">
                 {formatProviderType(provider.providerType)}
               </span>
-              {!isClaimed && (
-                <span className="text-xs text-gray-400">Community listing</span>
-              )}
             </div>
 
             {/* Name */}
@@ -353,24 +351,16 @@ export default function ProviderCard({
             {/* Spacer to push footer to bottom */}
             <div className="flex-1" />
 
-            {/* Footer: Price/Coverage + Availability */}
-            <div className="flex items-end justify-between pt-3 border-t border-gray-100 mt-auto">
-              <div>
-                {price ? (
-                  <>
-                    <p className="text-xs text-gray-500">{price.label}</p>
-                    <p className="text-base font-semibold text-gray-900">{price.value}</p>
-                  </>
-                ) : (
-                  <span className="text-sm font-medium text-primary-600">
-                    {getAffordabilityCta()}
-                  </span>
-                )}
-              </div>
-
-              {availability && (
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${availability.className}`}>
-                  {availability.text}
+            {/* Footer: Price/Coverage - simplified for 65+ users */}
+            <div className="pt-3 border-t border-gray-100 mt-auto">
+              {price ? (
+                <>
+                  <p className="text-xs text-gray-500">{price.label}</p>
+                  <p className="text-base font-semibold text-gray-900">{price.value}</p>
+                </>
+              ) : (
+                <span className="text-sm font-medium text-primary-600">
+                  Learn more
                 </span>
               )}
             </div>
@@ -471,16 +461,13 @@ export default function ProviderCard({
         )}
       </div>
 
-      {/* Content */}
+      {/* Content - simplified for 65+ users */}
       <div className="p-4">
-        {/* Type + Community listing indicator */}
-        <div className="flex items-center justify-between gap-2 mb-1">
+        {/* Type */}
+        <div className="mb-1">
           <span className="text-sm font-medium text-gray-500">
             {formatProviderType(provider.providerType)}
           </span>
-          {!isClaimed && (
-            <span className="text-xs text-gray-400">Community listing</span>
-          )}
         </div>
 
         {/* Name */}
@@ -508,10 +495,10 @@ export default function ProviderCard({
           </div>
         )}
 
-        {/* Payment badges */}
+        {/* Payment badges - max 2 for cleaner cards */}
         {paymentBadges.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
-            {paymentBadges.slice(0, 2).map((badge) => (
+            {paymentBadges.map((badge) => (
               <span
                 key={badge.label}
                 className={`px-2 py-0.5 text-xs font-medium rounded-full ${badge.className}`}
@@ -519,15 +506,10 @@ export default function ProviderCard({
                 {badge.label}
               </span>
             ))}
-            {paymentBadges.length > 2 && (
-              <span className="px-2 py-0.5 text-xs text-gray-500 rounded-full bg-gray-100">
-                +{paymentBadges.length - 2}
-              </span>
-            )}
           </div>
         )}
 
-        {/* Price or Coverage CTA */}
+        {/* Price or simple CTA */}
         <div className="pt-2 border-t border-gray-100">
           {price ? (
             <div>
@@ -536,7 +518,7 @@ export default function ProviderCard({
             </div>
           ) : (
             <span className="text-sm font-medium text-primary-600">
-              {getAffordabilityCta()}
+              Learn more
             </span>
           )}
         </div>
