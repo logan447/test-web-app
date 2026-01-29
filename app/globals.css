@@ -376,44 +376,44 @@ select:focus {
 /* Tooltip container - the element that triggers the tooltip */
 .care-tooltip {
   position: relative;
-  cursor: help;
+  cursor: pointer;
 }
 
-/* The tooltip itself - hidden by default */
+/* The tooltip itself - appears BELOW pills by default, large text for 65+ users */
 .care-tooltip::after {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  padding: 10px 14px;
+  padding: 12px 16px;
   background: #1f2937;
   color: white;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
-  line-height: 1.5;
-  border-radius: 8px;
+  line-height: 1.6;
+  border-radius: 10px;
   white-space: normal;
   width: max-content;
-  max-width: 260px;
+  max-width: 300px;
   text-align: center;
   z-index: 100;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   pointer-events: none;
 }
 
-/* Tooltip arrow */
+/* Tooltip arrow - points UP since tooltip is below */
 .care-tooltip::before {
   content: '';
   position: absolute;
-  bottom: calc(100% + 2px);
+  top: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
   border: 6px solid transparent;
-  border-top-color: #1f2937;
+  border-bottom-color: #1f2937;
   z-index: 100;
   opacity: 0;
   visibility: hidden;
@@ -427,19 +427,6 @@ select:focus {
   visibility: visible;
 }
 
-/* Tooltip that appears below (for title area) */
-.care-tooltip-below::after {
-  bottom: auto;
-  top: calc(100% + 8px);
-}
-
-.care-tooltip-below::before {
-  bottom: auto;
-  top: calc(100% + 2px);
-  border-top-color: transparent;
-  border-bottom-color: #1f2937;
-}
-
 /* Touch device handling - tap to show, tap away to hide */
 @media (hover: none) {
   .care-tooltip:focus::after,
@@ -447,32 +434,6 @@ select:focus {
     opacity: 1;
     visibility: visible;
   }
-}
-
-/* =============================================================================
-   Title Info Icon - Small, subtle, discoverable
-   ============================================================================= */
-
-.title-info-trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  margin-left: 6px;
-  border-radius: 50%;
-  background: rgba(107, 114, 128, 0.1);
-  color: #6b7280;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: help;
-  transition: all 0.15s ease;
-  vertical-align: middle;
-}
-
-.title-info-trigger:hover {
-  background: rgba(20, 184, 166, 0.15);
-  color: #0d9488;
 }
 
 /* =============================================================================

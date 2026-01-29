@@ -77,7 +77,7 @@ const CARE_TYPE_EXPLANATIONS: Record<string, string> = {
 // Journey steps for the orientation bar
 const JOURNEY_STEPS = [
   { id: "search", label: "Search", description: "Find providers near you" },
-  { id: "compare", label: "Compare", description: "Save favorites to compare", href: "/saved" },
+  { id: "save", label: "Save", description: "Save favorites to compare", href: "/saved" },
   { id: "meet", label: "Meet", description: "Talk to providers you like" },
   { id: "start", label: "Start Care", description: "Begin your care journey" },
 ];
@@ -514,26 +514,16 @@ function BrowseContent() {
                 })}
               </div>
 
-              {/* Hamburger pill button — circular style, consistent across site */}
+              {/* Hamburger button — simple circle with 3 lines */}
               <div className="relative shrink-0" data-hamburger-menu>
                 <button
                   onClick={() => setHamburgerOpen(!hamburgerOpen)}
-                  className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
+                  className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full hover:shadow-md hover:bg-gray-50 transition-all"
+                  aria-label="Menu"
                 >
-                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
-                  <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
-                    {session ? (
-                      <span className="text-xs font-medium text-white">
-                        {session.user?.name?.charAt(0).toUpperCase()}
-                      </span>
-                    ) : (
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                      </svg>
-                    )}
-                  </div>
                 </button>
               </div>
             </div>
@@ -596,50 +586,59 @@ function BrowseContent() {
                 <span className="text-xl font-bold text-gray-900 hidden sm:inline">Olera</span>
               </Link>
 
-              {/* Search bar + Filters — centered as a single unit */}
-              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-2 min-w-0">
-                {/* Search bar */}
-                <button
-                  type="button"
-                  onClick={() => setSearchExpanded(true)}
-                  className="flex-1 lg:flex-none lg:w-[400px] flex items-center gap-1 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer pl-1.5 pr-1.5 py-1.5"
-                >
-                  <div className="p-2 text-primary-500 shrink-0">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <span className={`flex-1 min-w-0 py-1.5 pr-2 text-sm font-medium truncate text-left ${location ? 'text-gray-800' : 'text-gray-500'}`}>
-                    {location || "Enter city or ZIP code"}
-                  </span>
-                  <div className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors flex items-center gap-1.5 shrink-0 text-sm whitespace-nowrap">
-                    <span>Search</span>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </button>
-
-                {/* Filters pill */}
-                <button
-                  onClick={() => setFilterModalOpen(true)}
-                  className={`hidden sm:flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-colors shrink-0 ${
-                    advancedFilterCount > 0
-                      ? "border-primary-500 bg-primary-50 text-primary-700"
-                      : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                  </svg>
-                  <span>Filters</span>
-                  {advancedFilterCount > 0 && (
-                    <span className="bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                      {advancedFilterCount}
+              {/* Unified search + filters bar — centered */}
+              <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:-translate-x-1/2 min-w-0">
+                <div className="flex items-center bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  {/* Location button - expands search */}
+                  <button
+                    type="button"
+                    onClick={() => setSearchExpanded(true)}
+                    className="flex-1 lg:flex-none lg:w-[280px] flex items-center gap-1 cursor-pointer pl-1.5 pr-3 py-1.5"
+                  >
+                    <div className="p-2 text-primary-500 shrink-0">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <span className={`flex-1 min-w-0 py-1.5 text-sm font-medium truncate text-left ${location ? 'text-gray-800' : 'text-gray-500'}`}>
+                      {location || "Enter city or ZIP"}
                     </span>
-                  )}
-                </button>
+                  </button>
+
+                  {/* Divider */}
+                  <div className="hidden sm:block w-px h-8 bg-gray-200" />
+
+                  {/* Filters button - opens filter modal */}
+                  <button
+                    onClick={() => setFilterModalOpen(true)}
+                    className={`hidden sm:flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                      advancedFilterCount > 0 ? "text-primary-700" : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span>Filters</span>
+                    {advancedFilterCount > 0 && (
+                      <span className="bg-primary-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                        {advancedFilterCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Search button */}
+                  <button
+                    type="button"
+                    onClick={() => setSearchExpanded(true)}
+                    className="px-4 py-2 m-1.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-colors flex items-center gap-1.5 shrink-0 text-sm whitespace-nowrap"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span className="hidden sm:inline">Search</span>
+                  </button>
+                </div>
               </div>
 
               {/* Right side — Become a provider + Hamburger */}
@@ -651,32 +650,22 @@ function BrowseContent() {
                 Become a provider
               </Link>
 
-              {/* Hamburger pill button — circular style, consistent across site */}
+              {/* Hamburger button — simple circle with 3 lines */}
               <div className="relative shrink-0" data-hamburger-menu>
-              <button
-                onClick={() => setHamburgerOpen(!hamburgerOpen)}
-                className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
-              >
-                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
-                  {session ? (
-                    <span className="text-xs font-medium text-white">
-                      {session.user?.name?.charAt(0).toUpperCase()}
+                <button
+                  onClick={() => setHamburgerOpen(!hamburgerOpen)}
+                  className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-full hover:shadow-md hover:bg-gray-50 transition-all"
+                  aria-label="Menu"
+                >
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount > 9 ? "!" : unreadCount}
                     </span>
-                  ) : (
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
                   )}
-                </div>
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                    {unreadCount > 9 ? "!" : unreadCount}
-                  </span>
-                )}
-              </button>
+                </button>
 
               {/* Hamburger dropdown */}
               {hamburgerOpen && (
@@ -955,7 +944,7 @@ function BrowseContent() {
             <div className="flex items-center justify-center gap-1 sm:gap-2">
               {JOURNEY_STEPS.map((step, index) => {
                 const isCurrentStep = step.id === "search";
-                const isClickable = step.href && step.id === "compare";
+                const isClickable = step.href && step.id === "save";
 
                 return (
                   <div key={step.id} className="flex items-center">
@@ -1007,11 +996,11 @@ function BrowseContent() {
           </div>
         </div>
 
-        {/* Results header + Filters */}
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between gap-3">
-            {/* Dynamic title with care type */}
-            <div className="flex items-center gap-1">
+        {/* Results header with subtle divider */}
+        <div className="max-w-7xl mx-auto px-4 py-4 border-b border-gray-100">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+            {/* Dynamic title with care type + subtitle explanation */}
+            <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold text-gray-900">
                 {loading
                   ? `Care providers in ${locationLabel}`
@@ -1020,17 +1009,11 @@ function BrowseContent() {
                     : `${totalCount} care provider${totalCount !== 1 ? "s" : ""} in ${locationLabel}`
                 }
               </h1>
-              {/* Info tooltip for care type explanation */}
+              {/* Plain-language explanation subtitle - large, readable text for 65+ */}
               {filterValues.providerType && CARE_TYPE_EXPLANATIONS[filterValues.providerType] && (
-                <span
-                  className="care-tooltip care-tooltip-below title-info-trigger"
-                  data-tooltip={CARE_TYPE_EXPLANATIONS[filterValues.providerType]}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`What is ${ALL_CARE_CATEGORIES.find(c => c.type === filterValues.providerType)?.label}?`}
-                >
-                  ?
-                </span>
+                <p className="text-base text-gray-600 mt-1 max-w-2xl">
+                  {CARE_TYPE_EXPLANATIONS[filterValues.providerType]}
+                </p>
               )}
             </div>
 
@@ -1050,7 +1033,7 @@ function BrowseContent() {
         </div>
 
         {/* Main content */}
-        <div className="max-w-7xl mx-auto px-4 pb-8">
+        <div className="max-w-7xl mx-auto px-4 pt-4 pb-8">
           <div className="flex gap-6">
             {/* Results list */}
             <div className={`flex-1 ${showMap ? "lg:w-1/2" : "w-full"}`}>
