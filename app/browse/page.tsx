@@ -476,15 +476,26 @@ function BrowseContent() {
                 })}
               </div>
 
-              {/* Hamburger menu — simplified to save horizontal space */}
+              {/* Hamburger pill button — circular style, consistent across site */}
               <div className="relative shrink-0" data-hamburger-menu>
                 <button
                   onClick={() => setHamburgerOpen(!hamburgerOpen)}
-                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
+                  <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
+                    {session ? (
+                      <span className="text-xs font-medium text-white">
+                        {session.user?.name?.charAt(0).toUpperCase()}
+                      </span>
+                    ) : (
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
+                    )}
+                  </div>
                 </button>
               </div>
             </div>
@@ -602,17 +613,28 @@ function BrowseContent() {
                 Become a provider
               </Link>
 
-              {/* Hamburger menu — simplified */}
+              {/* Hamburger pill button — circular style, consistent across site */}
               <div className="relative shrink-0" data-hamburger-menu>
               <button
                 onClick={() => setHamburgerOpen(!hamburgerOpen)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-full hover:shadow-md transition-all"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
+                <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
+                  {session ? (
+                    <span className="text-xs font-medium text-white">
+                      {session.user?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  ) : (
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                  )}
+                </div>
                 {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
                     {unreadCount > 9 ? "!" : unreadCount}
                   </span>
                 )}
