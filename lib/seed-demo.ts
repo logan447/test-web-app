@@ -947,6 +947,142 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log('[DEMO SEED] Created 2 takedown requests\n');
 
   // ============================================================================
+  // MULTI-CITY COMPREHENSIVE PROVIDER SEEDING
+  // 12 providers per type per city across San Diego, Washington DC, and Houston
+  // ============================================================================
+  console.log('[DEMO SEED] Creating comprehensive multi-city provider data...\n');
+
+  // City configurations with neighborhoods for realistic distribution
+  const DEMO_CITIES = [
+    {
+      city: 'San Diego',
+      state: 'CA',
+      zip: '92101',
+      lat: 32.7157,
+      lng: -117.1611,
+      neighborhoods: ['Downtown', 'La Jolla', 'Pacific Beach', 'Hillcrest', 'North Park', 'Mission Valley', 'Coronado', 'Point Loma', 'Clairemont', 'Rancho Bernardo', 'Carmel Valley', 'Del Mar'],
+      latOffsets: [0, 0.12, 0.08, 0.03, 0.04, 0.02, -0.04, -0.02, 0.06, 0.20, 0.15, 0.24],
+      lngOffsets: [0, -0.11, -0.08, -0.02, -0.01, -0.04, -0.03, -0.07, -0.05, 0.05, -0.08, -0.10],
+    },
+    {
+      city: 'Washington',
+      state: 'DC',
+      zip: '20001',
+      lat: 38.9072,
+      lng: -77.0369,
+      neighborhoods: ['Downtown', 'Georgetown', 'Dupont Circle', 'Capitol Hill', 'Adams Morgan', 'Foggy Bottom', 'Chevy Chase', 'Bethesda', 'Silver Spring', 'Arlington', 'Alexandria', 'Tysons'],
+      latOffsets: [0, 0.01, 0.02, -0.01, 0.03, 0.01, 0.06, 0.07, 0.08, -0.02, -0.06, 0.04],
+      lngOffsets: [0, -0.03, -0.01, 0.02, -0.01, -0.02, -0.02, -0.04, 0.01, -0.04, -0.02, -0.08],
+    },
+    {
+      city: 'Houston',
+      state: 'TX',
+      zip: '77001',
+      lat: 29.7604,
+      lng: -95.3698,
+      neighborhoods: ['Downtown', 'Montrose', 'The Heights', 'River Oaks', 'Galleria', 'Memorial', 'West University', 'Medical Center', 'Midtown', 'Sugar Land', 'The Woodlands', 'Katy'],
+      latOffsets: [0, 0.02, 0.04, 0.03, 0.03, 0.04, -0.01, -0.02, 0.01, -0.08, 0.25, 0.02],
+      lngOffsets: [0, -0.02, -0.01, -0.03, -0.05, -0.08, -0.03, -0.02, -0.01, -0.10, 0.02, -0.25],
+    },
+  ];
+
+  const PROVIDER_CONFIGS: Record<string, { namePatterns: string[]; care: CareType[]; priceRange: [number, number]; isHourly: boolean }> = {
+    HOME_CARE: { namePatterns: ['Home Care', 'In-Home Services', 'Home Health Aides', 'Visiting Care', 'Home Support', 'Home Helpers', 'Care at Home', 'Home Companions', 'Home Assistance', 'Personal Home Care', 'Family Home Care', 'Gentle Home Care'], care: ['COMPANION_CARE', 'PERSONAL_CARE', 'LIVE_IN_CARE'], priceRange: [22, 45], isHourly: true },
+    HOME_HEALTH: { namePatterns: ['Home Health', 'Skilled Home Nursing', 'Medical Home Care', 'Home Healthcare', 'Nursing at Home', 'Clinical Home Services', 'Home Medical', 'Health at Home', 'Skilled Home Care', 'Medical Home Services', 'Home Nursing', 'Clinical Home Care'], care: ['SKILLED_NURSING', 'PERSONAL_CARE'], priceRange: [45, 85], isHourly: true },
+    ASSISTED_LIVING: { namePatterns: ['Manor', 'Gardens', 'Place', 'Living', 'Residence', 'House', 'Village', 'Estates', 'Lodge', 'Court', 'Commons', 'Heights'], care: ['PERSONAL_CARE', 'COMPANION_CARE'], priceRange: [3500, 8500], isHourly: false },
+    INDEPENDENT_LIVING: { namePatterns: ['Active Living', 'Senior Living', 'Retirement Village', '55+ Community', 'Senior Residences', 'Lifestyle Community', 'Retirement Living', 'Active Seniors', 'Senior Village', 'Retirement Estates', 'Senior Lifestyle', 'Active Community'], care: ['COMPANION_CARE'], priceRange: [2000, 5000], isHourly: false },
+    MEMORY_CARE: { namePatterns: ['Memory Care', 'Memory Haven', 'Memory Gardens', 'Alzheimers Center', 'Dementia Care', 'Memory Lane', 'Cognitive Care', 'Memory Village', 'Mindful Living', 'Memory Support', 'Serene Memory', 'Peaceful Minds'], care: ['MEMORY_CARE', 'PERSONAL_CARE'], priceRange: [5500, 10000], isHourly: false },
+    NURSING_HOME: { namePatterns: ['Skilled Nursing', 'Nursing Center', 'Care Center', 'Health Center', 'Nursing Facility', 'Rehabilitation Center', 'Convalescent', 'Nursing Home', 'Long Term Care', 'Skilled Care', 'Healthcare Center', 'Nursing & Rehab'], care: ['SKILLED_NURSING'], priceRange: [7000, 13000], isHourly: false },
+    HOSPICE: { namePatterns: ['Hospice', 'Comfort Care', 'Palliative Services', 'End of Life Care', 'Compassionate Care', 'Final Journey', 'Gentle Care', 'Peaceful Passage', 'Comfort & Dignity', 'Grace Hospice', 'Serenity Hospice', 'Tranquil Care'], care: ['HOSPICE_CARE'], priceRange: [0, 0], isHourly: false },
+    REHABILITATION: { namePatterns: ['Rehab Center', 'Rehabilitation', 'Recovery Center', 'Therapy Center', 'Rehab & Recovery', 'Physical Therapy', 'Rehabilitation Services', 'Acute Rehab', 'Outpatient Rehab', 'Sports Rehab', 'Orthopedic Rehab', 'Neuro Rehab'], care: ['SKILLED_NURSING'], priceRange: [6000, 12000], isHourly: false },
+    INDEPENDENT_CAREGIVER: { namePatterns: ['CNA Caregiver', 'Private Caregiver', 'Personal Aide', 'Care Companion', 'Senior Helper', 'Home Aide', 'Care Assistant', 'Nursing Aide', 'Care Provider', 'Personal Caregiver', 'Home Caregiver', 'Care Specialist'], care: ['COMPANION_CARE', 'PERSONAL_CARE'], priceRange: [20, 40], isHourly: true },
+  };
+
+  const FIRST_NAMES = ['Maria', 'John', 'Sarah', 'David', 'Lisa', 'Michael', 'Jennifer', 'Robert', 'Patricia', 'William', 'Linda', 'James', 'Elizabeth', 'Richard', 'Susan', 'Thomas', 'Karen', 'Charles', 'Nancy', 'Daniel', 'Angela', 'Matthew', 'Dorothy', 'Christopher', 'Helen', 'Joseph', 'Sandra', 'Mark', 'Ashley', 'Steven'];
+  const LAST_NAMES = ['Garcia', 'Martinez', 'Johnson', 'Williams', 'Brown', 'Jones', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall', 'Allen', 'Young', 'King', 'Wright', 'Lopez'];
+  const CERTIFICATIONS = [['CNA', 'CPR', 'First Aid'], ['CNA', 'CPR', 'Dementia Care'], ['HHA', 'CPR', 'First Aid'], ['CNA', 'HHA', 'CPR'], ['CNA', 'CPR', 'Alzheimers Care'], ['RN', 'CPR', 'IV Certified'], ['LVN', 'CPR', 'Medication Management'], ['CNA', 'CPR', 'Hospice Care']];
+  const AREA_PREFIXES = ['Greater', 'Central', 'North', 'South', 'East', 'West', 'Metro', 'Downtown', 'Uptown', ''];
+  const QUALITY_ADJECTIVES = ['Premier', 'Exceptional', 'Trusted', 'Compassionate', 'Professional', 'Quality', 'Dedicated', 'Reliable', 'Caring', ''];
+
+  let multiCityCount = 0;
+  const allTypes: ProviderType[] = ['HOME_CARE', 'HOME_HEALTH', 'ASSISTED_LIVING', 'INDEPENDENT_LIVING', 'MEMORY_CARE', 'NURSING_HOME', 'HOSPICE', 'REHABILITATION', 'INDEPENDENT_CAREGIVER'];
+
+  for (const cityConfig of DEMO_CITIES) {
+    console.log(`   📍 Seeding providers in ${cityConfig.city}, ${cityConfig.state}...`);
+
+    for (const providerType of allTypes) {
+      const config = PROVIDER_CONFIGS[providerType];
+
+      for (let i = 0; i < 12; i++) {
+        const neighborhoodIdx = i % cityConfig.neighborhoods.length;
+        const neighborhood = cityConfig.neighborhoods[neighborhoodIdx];
+        const lat = cityConfig.lat + cityConfig.latOffsets[neighborhoodIdx] + (Math.random() - 0.5) * 0.02;
+        const lng = cityConfig.lng + cityConfig.lngOffsets[neighborhoodIdx] + (Math.random() - 0.5) * 0.02;
+
+        const isCaregiver = providerType === 'INDEPENDENT_CAREGIVER';
+        const isClaimed = isCaregiver ? true : (i < 10);
+        const isComplete = i < 8 || i >= 10;
+
+        let name: string;
+        if (isCaregiver) {
+          const firstName = FIRST_NAMES[(i + multiCityCount) % FIRST_NAMES.length];
+          const lastName = LAST_NAMES[(i * 3 + multiCityCount) % LAST_NAMES.length];
+          name = `${firstName} ${lastName}`;
+        } else {
+          const prefix = QUALITY_ADJECTIVES[i % QUALITY_ADJECTIVES.length];
+          const areaPrefix = AREA_PREFIXES[i % AREA_PREFIXES.length];
+          const pattern = config.namePatterns[i % config.namePatterns.length];
+          name = `${prefix} ${areaPrefix} ${neighborhood} ${pattern}`.replace(/\s+/g, ' ').trim();
+        }
+
+        const rating = isComplete ? 3.8 + Math.random() * 1.2 : undefined;
+        const reviews = isComplete ? Math.floor(5 + Math.random() * 50) : 0;
+        const emailSlug = name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+
+        await prisma.provider.create({
+          data: {
+            name: isCaregiver ? `${name} - ${CERTIFICATIONS[i % CERTIFICATIONS.length][0]} Caregiver` : name,
+            providerType,
+            description: isComplete ? `Professional ${providerType.toLowerCase().replace(/_/g, ' ')} services in the ${neighborhood} area of ${cityConfig.city}.` : undefined,
+            email: isComplete ? `${emailSlug}${multiCityCount}@demo.olera.com` : undefined,
+            phone: isComplete ? `(${cityConfig.zip.slice(0, 3)}) 555-${String(1000 + multiCityCount).padStart(4, '0')}` : undefined,
+            website: isComplete && !isCaregiver ? `https://${emailSlug}.example.com` : undefined,
+            address: isComplete ? `${100 + i * 50} ${neighborhood} ${['St', 'Ave', 'Blvd', 'Dr', 'Way'][i % 5]}` : undefined,
+            city: cityConfig.city,
+            state: cityConfig.state,
+            zipCode: cityConfig.zip,
+            latitude: lat,
+            longitude: lng,
+            serviceRadius: (providerType === 'HOME_CARE' || providerType === 'HOME_HEALTH' || isCaregiver) ? 15 + (i % 20) : undefined,
+            careTypesOffered: config.care,
+            licensed: isClaimed,
+            licenseNumber: isClaimed && isComplete ? `${cityConfig.state}-${providerType.slice(0, 3)}-${String(10000 + multiCityCount).padStart(5, '0')}` : undefined,
+            yearsInBusiness: isComplete ? 2 + Math.floor(Math.random() * 20) : undefined,
+            capacity: !config.isHourly && isComplete ? 20 + Math.floor(Math.random() * 80) : undefined,
+            priceMin: isComplete ? config.priceRange[0] : undefined,
+            priceMax: isComplete ? config.priceRange[1] : undefined,
+            photos: isComplete ? FACILITY_PHOTOS.slice(i % 6, (i % 6) + 4) : [],
+            coverPhoto: isComplete ? FACILITY_PHOTOS[i % FACILITY_PHOTOS.length] : undefined,
+            certifications: isCaregiver ? CERTIFICATIONS[i % CERTIFICATIONS.length] : [],
+            languagesSpoken: isComplete ? ['English', ...(i % 3 === 0 ? ['Spanish'] : [])] : [],
+            backgroundChecked: isCaregiver && isComplete,
+            averageRating: rating ? Math.round(rating * 10) / 10 : undefined,
+            reviewCount: reviews,
+            claimed: isClaimed,
+            verified: isClaimed && isComplete,
+            active: true,
+            isVisible: true,
+            availableForFamilies: isCaregiver ? true : undefined,
+            availableForOrganizations: isCaregiver ? (i % 2 === 0) : undefined,
+          },
+        });
+        multiCityCount++;
+      }
+    }
+  }
+  console.log(`[DEMO SEED] Created ${multiCityCount} multi-city providers (${Math.floor(multiCityCount / 3)} per city)\n`);
+
+  // ============================================================================
   // SUMMARY
   // ============================================================================
   console.log('='.repeat(60));
@@ -971,6 +1107,14 @@ export async function seedDemo(prisma: PrismaClient) {
   console.log(`    - ${notificationBatch.length} notifications`);
   console.log(`    - ${questionCount} questions & answers`);
   console.log('    - 2 takedown requests');
+  console.log('');
+  console.log('  Multi-city provider data:');
+  console.log('    - 3 cities: San Diego (CA), Washington (DC), Houston (TX)');
+  console.log('    - 9 provider types per city (ALL types covered)');
+  console.log(`    - ${multiCityCount} total multi-city providers`);
+  console.log('    - All providers have lat/lng for map display');
+  console.log('    - ~80% claimed, ~20% unclaimed per type');
+  console.log('    - Private caregivers now appear on map (lat/lng fixed)');
   console.log('');
   console.log('  Password for all accounts: demo123');
   console.log('');

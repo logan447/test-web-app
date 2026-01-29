@@ -138,13 +138,14 @@ export async function POST(req: Request) {
       return NextResponse.json({
         success: true,
         data: {
-          message: 'Successfully seeded comprehensive demo data',
+          message: 'Successfully seeded comprehensive demo data with multi-city providers',
           password: 'demo123',
           summary: {
             families: 36,
             facilities: 36,
             caregivers: 18,
-            unclaimed: 5,
+            unclaimed: 9,
+            claimedIncomplete: 3,
             total: 95,
             reviews: 35,
             engagements: 18,
@@ -152,6 +153,8 @@ export async function POST(req: Request) {
             scheduledEvents: 12,
             notifications: 60,
             questions: 15,
+            multiCityProviders: 324,
+            cities: ['San Diego, CA', 'Washington, DC', 'Houston, TX'],
           },
           instructions: [
             'Comprehensive demo data seeded with all entity types',
@@ -162,9 +165,13 @@ export async function POST(req: Request) {
             '12+ scheduled events (tours, consultations, interviews)',
             '60+ notifications (mix of read/unread)',
             '15 Q&A entries on provider profiles',
-            '5 unclaimed providers for claiming flow',
+            '9 unclaimed providers (one per subtype + scenarios)',
+            '3 claimed-incomplete providers (for graceful degradation testing)',
             '2 takedown requests (1 pending, 1 denied)',
             'Subscriptions: FREE, BASIC, PRO tiers on org accounts',
+            '324 multi-city providers across San Diego, DC, and Houston',
+            'All 9 provider types covered: HOME_CARE, HOME_HEALTH, ASSISTED_LIVING, INDEPENDENT_LIVING, MEMORY_CARE, NURSING_HOME, HOSPICE, REHABILITATION, INDEPENDENT_CAREGIVER',
+            'Private caregivers now have lat/lng and appear on map',
           ],
         },
       });
